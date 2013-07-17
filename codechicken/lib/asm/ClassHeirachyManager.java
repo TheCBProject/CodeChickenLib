@@ -18,6 +18,11 @@ public class ClassHeirachyManager implements IClassTransformer
     public static HashMap<String, ArrayList<String>> superclasses = new HashMap<String, ArrayList<String>>();
     private static LaunchClassLoader cl = (LaunchClassLoader)ClassHeirachyManager.class.getClassLoader();
     
+    static
+    {
+        cl.addTransformerExclusion("codechicken.lib.asm");
+    }
+    
     /**
      * Returns true if clazz extends, either directly or indirectly, superclass.
      * @param clazz The class in question
@@ -93,7 +98,7 @@ public class ClassHeirachyManager implements IClassTransformer
     {
         if (bytes == null) return null;
         if(!knownClasses.contains(name))
-        {        
+        {
             ClassNode node = ASMHelper.createClassNode(bytes);
             
             knownClasses.add(name);
@@ -111,7 +116,7 @@ public class ClassHeirachyManager implements IClassTransformer
         if(supers == null)
             superclasses.put(name, supers = new ArrayList<String>());
         supers.add(superclass);
-        supers.add(new ObfMapping(superclass).toRuntime().javaClass());
+        supers.add(new ObfMapping(superclass.replace('.', '/')).toRuntime().javaClass());
     }
 
     public static String getSuperClass(String c) 

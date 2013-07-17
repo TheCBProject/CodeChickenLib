@@ -46,7 +46,7 @@ public class ObfMapping
     
     public ObfMapping(String owner)
     {
-        this(owner, null, null);
+        this(owner, "", "");
     }
     
     public ObfMapping(String owner, String name, String desc)
