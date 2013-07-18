@@ -69,7 +69,7 @@ public class ObfMapping
 
     public static ObfMapping fromDesc(String s)
     {
-    	int lastDot = s.lastIndexOf('.');
+        int lastDot = s.lastIndexOf('.');
         if(lastDot < 0)
             return new ObfMapping(s, "", "");
         int sep = s.indexOf('(');//methods
@@ -85,7 +85,7 @@ public class ObfMapping
         if(sep < 0)
             return new ObfMapping(s.substring(0, lastDot), s.substring(lastDot + 1), "");
 
-    	return new ObfMapping(s.substring(0, lastDot), s.substring(lastDot+1, sep), s.substring(sep_end));
+        return new ObfMapping(s.substring(0, lastDot), s.substring(lastDot+1, sep), s.substring(sep_end));
     }
             
     public ObfMapping subclass(String subclass)
@@ -176,7 +176,17 @@ public class ObfMapping
             return "["+s_owner+"]";
         if(s_desc.length() == 0)
             return "["+s_owner+"."+s_name+"]";
-        return "["+s_owner+"."+s_name+s_desc+"]";
+        return "["+(isMethod() ? methodDesc() : fieldDesc())+"]";
+    }
+
+    public String methodDesc()
+    {
+        return s_owner+"."+s_name+s_desc;
+    }
+
+    public String fieldDesc()
+    {
+        return s_owner+"."+s_name+":"+s_desc;
     }
     
     public boolean isClass()
@@ -203,12 +213,14 @@ public class ObfMapping
         
         s_owner = mapper.mapType(s_owner);
         
-        if(!isClass())
+        if(isMethod())
+            s_desc = mapper.mapMethodDesc(s_desc);
+        else if(!isClass())
             s_desc = mapper.mapDesc(s_desc);
         
         return this;
     }
-
+    
     public ObfMapping toRuntime()
     {
         if(!runtime)
@@ -217,9 +229,9 @@ public class ObfMapping
         runtime = true;
         return this;
     }
-
+    
     public ObfMapping copy()
     {
-       return new ObfMapping(s_owner, s_name, s_desc);
+        return new ObfMapping(s_owner, s_name, s_desc);
     }
 }
