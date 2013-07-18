@@ -215,7 +215,7 @@ public class ObfMapping
         
         if(isMethod())
             s_desc = mapper.mapMethodDesc(s_desc);
-        else if(!isClass())
+        else if(s_desc.length() > 0)
             s_desc = mapper.mapDesc(s_desc);
         
         return this;
