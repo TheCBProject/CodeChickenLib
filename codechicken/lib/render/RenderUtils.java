@@ -296,7 +296,7 @@ public class RenderUtils
         if(larger)
             GL11.glScaled(d, d, d);
 
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        GL11.glColor4f(1, 1, 1, 1);
         
         entityItem.setEntityItemStack(item);
         uniformRenderItem.doRenderItem(entityItem, 0, larger ? 0.09 : 0.06, 0, 0, 0);

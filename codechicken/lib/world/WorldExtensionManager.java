@@ -90,7 +90,9 @@ public class WorldExtensionManager
         @ForgeSubscribe
         public void onWorldUnLoad(WorldEvent.Unload event)
         {
-            WorldExtensionManager.onWorldUnload(event.world);
+            if(worldMap.containsKey(event.world))//because force closing unloads a world twice
+                for(WorldExtension extension : worldMap.remove(event.world))
+                    extension.unload();
         }
         
         @ForgeSubscribe
@@ -215,12 +217,6 @@ public class WorldExtensionManager
         
         for(WorldExtension extension : extensions)
             extension.load();
-    }
-
-    public static void onWorldUnload(World world)
-    {
-        for(WorldExtension extension : worldMap.remove(world))
-            extension.unload();
     }
 
     private static void createChunkExtension(World world, Chunk chunk)

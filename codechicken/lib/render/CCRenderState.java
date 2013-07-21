@@ -1,5 +1,6 @@
 package codechicken.lib.render;
 
+import codechicken.lib.colour.ColourRGBA;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -136,5 +137,10 @@ public class CCRenderState
     public static void applyBrightnessTexCoords()
     {
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, brightness&0xFFFF, brightness>>>16);
+    }
+
+    public static void glColour()
+    {
+        new ColourRGBA(colour).glColour();
     }
 }
