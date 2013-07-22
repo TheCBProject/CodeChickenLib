@@ -117,7 +117,6 @@ public abstract class ConfigTagParent
 
     public ConfigTag getTag(String tagname, boolean create)
     {
-        tagname = tagname.replace('_', ' ');
         int dotpos = tagname.indexOf(".");
         String basetagname = dotpos == -1 ? tagname : tagname.substring(0, dotpos);
         ConfigTag basetag = childtags.get(basetagname);
@@ -149,7 +148,12 @@ public abstract class ConfigTagParent
         int dotpos = tagname.lastIndexOf(".");
         String lastpart = dotpos == -1 ? tagname : tagname.substring(dotpos+1, tagname.length());
         if(tag.parent != null)
-            return tag.parent.childtags.remove(lastpart) != null;
+        {
+            boolean ret = tag.parent.childtags.remove(lastpart) != null;
+            if(ret)
+                saveConfig();
+            return ret;
+        }
         
         return false;
     }

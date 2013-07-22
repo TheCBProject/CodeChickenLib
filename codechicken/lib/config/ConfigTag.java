@@ -200,10 +200,9 @@ public class ConfigTag extends ConfigTagParent
     {
         String vname;
         if(qualifiedname.contains(".") && bracequalifier.length() > 0)
-            vname = qualifiedname.substring(bracequalifier.length() + 1).replace(' ', '_');
+            vname = qualifiedname.substring(bracequalifier.length() + 1);
         else
             vname = qualifiedname;
-        vname.replace(' ', '_');
         
         if(newline && !first)
             ConfigFile.writeLine(writer, "", tabs);
@@ -220,7 +219,7 @@ public class ConfigTag extends ConfigTagParent
             if(value == null)
                 ConfigFile.writeLine(writer, vname, tabs);
             ConfigFile.writeLine(writer, "{", tabs);
-            saveTagTree(writer, tabs+1, qualifiedname.replace(' ', '_'));
+            saveTagTree(writer, tabs+1, qualifiedname);
             ConfigFile.writeLine(writer, "}", tabs);
         }
         else

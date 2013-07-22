@@ -76,8 +76,9 @@ public class WorldExtensionManager
         @ForgeSubscribe
         public void onWorldSave(WorldEvent.Save event)
         {
-            for(WorldExtension extension : worldMap.get(event.world))
-                extension.save();
+            if(worldMap.containsKey(event.world))
+                for(WorldExtension extension : worldMap.get(event.world))
+                    extension.save();
         }
 
         @ForgeSubscribe
