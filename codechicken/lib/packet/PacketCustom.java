@@ -739,12 +739,12 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
         }
     }
     
-    public int readUnsignedByte()
+    public int readUByte()
     {
         return readByte() & 0xFF;
     }
     
-    public int readUnsignedShort()
+    public int readUShort()
     {
         return readShort() & 0xFFFF;
     }
@@ -859,9 +859,8 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
             int length = datain.readUnsignedShort();
             char[] chars = new char[length];
             for(int i = 0; i < length; i++)
-            {
                 chars[i] = readChar();
-            }
+            
             return new String(chars);
         }
         catch(IOException e)

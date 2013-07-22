@@ -162,7 +162,7 @@ public class NBTDataWrapper implements MCDataInput, MCDataOutput
     }
 
     @Override
-    public int readUnsignedShort()
+    public int readUShort()
     {
         return ((NBTTagShort)readTag()).data & 0xFFFF;
     }
@@ -174,7 +174,7 @@ public class NBTDataWrapper implements MCDataInput, MCDataOutput
     }
 
     @Override
-    public int readUnsignedByte()
+    public int readUByte()
     {
         return ((NBTTagByte)readTag()).data & 0xFF;
     }

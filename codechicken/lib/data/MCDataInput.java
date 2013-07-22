@@ -10,9 +10,9 @@ public interface MCDataInput
     public long readLong();
     public int readInt();
     public short readShort();
-    public int readUnsignedShort();
+    public int readUShort();
     public byte readByte();
-    public int readUnsignedByte();
+    public int readUByte();
     public double readDouble();
     public float readFloat();
     public boolean readBoolean();
