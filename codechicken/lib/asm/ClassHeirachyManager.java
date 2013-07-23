@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import org.objectweb.asm.tree.ClassNode;
 
+import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.LaunchClassLoader;
@@ -23,19 +24,28 @@ public class ClassHeirachyManager implements IClassTransformer
         cl.addTransformerExclusion("codechicken.lib.asm");
     }
     
+    public static String toKey(String name)
+    {
+        if(ObfMapping.obfuscated)
+            name = FMLDeobfuscatingRemapper.INSTANCE.unmap(name.replace('.', '/')).replace('/','.');
+        return name;
+    }
+    
     /**
      * Returns true if clazz extends, either directly or indirectly, superclass.
-     * @param clazz The class in question
+     * @param name The class in question
      * @param superclass The class being extended
-     * @param bytes The bytes for the clazz. Only needed if not already defined.
+     * @param bytes The bytes for the class. Only needed if not already defined.
      * @return
      */
-    public static boolean classExtends(String clazz, String superclass, byte[] bytes)
+    public static boolean classExtends(String name, String superclass, byte[] bytes)
     {
-        if(!knownClasses.contains(clazz))
-            new ClassHeirachyManager().transform(clazz, clazz, bytes);
+        name = toKey(name);
         
-        return classExtends(clazz, superclass);
+        if(!knownClasses.contains(name))
+            new ClassHeirachyManager().transform(name, name, bytes);
+        
+        return classExtends(name, superclass);
     }
     
     public static boolean classExtends(String clazz, String superclass)
@@ -58,33 +68,35 @@ public class ClassHeirachyManager implements IClassTransformer
         return false;
     }
 
-    private static void declareClass(String clazz) 
+    private static void declareClass(String name) 
     {
+        name = toKey(name);
+        
         try
         {
-            if(!knownClasses.contains(clazz))
+            if(!knownClasses.contains(name))
             {
                 try
                 {
-                    byte[] bytes = cl.getClassBytes(clazz);
+                    byte[] bytes = cl.getClassBytes(name);
                     if(bytes != null)
-                        new ClassHeirachyManager().transform(clazz, clazz, bytes);
+                        new ClassHeirachyManager().transform(name, name, bytes);
                 }
                 catch(Exception e)
                 {
                 }
                 
-                if(!knownClasses.contains(clazz))
+                if(!knownClasses.contains(name))
                 {
-                    Class<?> aclass = Class.forName(clazz);
+                    Class<?> aclass = Class.forName(name);
                     
-                    knownClasses.add(clazz);
+                    knownClasses.add(name);
                     if(aclass.isInterface())
-                        addSuperclass(clazz, "java.lang.Object");
+                        addSuperclass(name, "java.lang.Object");
                     else
-                        addSuperclass(clazz, aclass.getSuperclass().getName());
+                        addSuperclass(name, aclass.getSuperclass().getName());
                     for(Class<?> iclass : aclass.getInterfaces())
-                        addSuperclass(clazz, iclass.getName());
+                        addSuperclass(name, iclass.getName());
                 }
             }
         }
@@ -119,11 +131,14 @@ public class ClassHeirachyManager implements IClassTransformer
         supers.add(new ObfMapping(superclass.replace('.', '/')).toRuntime().javaClass());
     }
 
-    public static String getSuperClass(String c) 
+    public static String getSuperClass(String name, boolean runtime) 
     {
-        declareClass(c);
-        if(!knownClasses.contains(c))
+        name = toKey(name);
+        declareClass(name);
+        
+        if(!knownClasses.contains(name))
             return "java.lang.Object";
-        return superclasses.get(c).get(0);
+        
+        return superclasses.get(name).get(runtime ? 1 : 0);
     }
 }
