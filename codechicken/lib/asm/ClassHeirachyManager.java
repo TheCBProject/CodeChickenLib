@@ -15,8 +15,36 @@ import net.minecraft.launchwrapper.LaunchClassLoader;
  */
 public class ClassHeirachyManager implements IClassTransformer
 {
-    public static HashSet<String> knownClasses = new HashSet<String>();
-    public static HashMap<String, ArrayList<String>> superclasses = new HashMap<String, ArrayList<String>>();
+    public static class SuperCache
+    {
+        String superclass;
+        public HashSet<String> parents = new HashSet<String>();
+        private boolean flattened;
+        
+        public void add(String parent)
+        {
+            parents.add(parent);
+        }
+        
+        public void flatten()
+        {
+            if(flattened)
+                return;
+            
+            for(String s : new ArrayList<String>(parents))
+            {
+                SuperCache c = declareClass(s);
+                if(c != null)
+                {
+                    c.flatten();
+                    parents.addAll(c.parents);
+                }
+            }
+            flattened = true;
+        }
+    }
+    
+    public static HashMap<String, SuperCache> superclasses = new HashMap<String, SuperCache>();
     private static LaunchClassLoader cl = (LaunchClassLoader)ClassHeirachyManager.class.getClassLoader();
     
     static
@@ -27,7 +55,14 @@ public class ClassHeirachyManager implements IClassTransformer
     public static String toKey(String name)
     {
         if(ObfMapping.obfuscated)
-            name = FMLDeobfuscatingRemapper.INSTANCE.unmap(name.replace('.', '/')).replace('/','.');
+            name = FMLDeobfuscatingRemapper.INSTANCE.map(name.replace('.', '/')).replace('/', '.');
+        return name;
+    }
+    
+    public static String unKey(String name)
+    {
+        if(ObfMapping.obfuscated)
+            name = FMLDeobfuscatingRemapper.INSTANCE.unmap(name.replace('.', '/')).replace('/', '.');
         return name;
     }
     
@@ -38,107 +73,119 @@ public class ClassHeirachyManager implements IClassTransformer
      * @param bytes The bytes for the class. Only needed if not already defined.
      * @return
      */
-    public static boolean classExtends(String name, String superclass, byte[] bytes)
+    public static boolean classExtends(String name, String superclass)
     {
         name = toKey(name);
+        superclass = toKey(superclass);
         
-        if(!knownClasses.contains(name))
-            new ClassHeirachyManager().transform(name, name, bytes);
-        
-        return classExtends(name, superclass);
-    }
-    
-    public static boolean classExtends(String clazz, String superclass)
-    {        
-        if(clazz.equals(superclass))
+        if(name.equals(superclass))
             return true;
         
-        if(clazz.equals("java.lang.Object"))
+        SuperCache cache = declareClass(name);
+        if(cache == null)//just can't handle this
             return false;
         
-        declareClass(clazz);
-        
-        if(!superclasses.containsKey(clazz))//just can't handle this
-            return false;
-        
-        for(String s : superclasses.get(clazz))
-            if(classExtends(s, superclass))
-                return true;
-        
-        return false;
+        cache.flatten();
+        return cache.parents.contains(superclass);
     }
 
-    private static void declareClass(String name) 
+    private static SuperCache declareClass(String name) 
     {
         name = toKey(name);
+        SuperCache cache = superclasses.get(name);
+        
+        if(cache != null)
+            return cache;
         
         try
         {
-            if(!knownClasses.contains(name))
-            {
-                try
-                {
-                    byte[] bytes = cl.getClassBytes(name);
-                    if(bytes != null)
-                        new ClassHeirachyManager().transform(name, name, bytes);
-                }
-                catch(Exception e)
-                {
-                }
-                
-                if(!knownClasses.contains(name))
-                {
-                    Class<?> aclass = Class.forName(name);
-                    
-                    knownClasses.add(name);
-                    if(aclass.isInterface())
-                        addSuperclass(name, "java.lang.Object");
-                    else
-                        addSuperclass(name, aclass.getSuperclass().getName());
-                    for(Class<?> iclass : aclass.getInterfaces())
-                        addSuperclass(name, iclass.getName());
-                }
-            }
+            byte[] bytes = cl.getClassBytes(unKey(name));
+            if(bytes != null)
+                cache = declareASM(bytes);
+        }
+        catch(Exception e)
+        {
+        }
+
+        if(cache != null)
+            return cache;
+
+        
+        try
+        {
+            cache = declareReflection(name);
         }
         catch(ClassNotFoundException e)
         {
         }
+        
+        return cache;
+    }
+
+    private static SuperCache declareReflection(String name) throws ClassNotFoundException
+    {
+        Class<?> aclass = Class.forName(name);
+        
+        SuperCache cache = getOrCreateCache(name);
+        if(aclass.isInterface())
+            cache.superclass = "java.lang.Object";
+        else if(name.equals("java.lang.Object"))
+            return cache;
+        else
+            cache.superclass = toKey(aclass.getSuperclass().getName());
+        
+        cache.add(cache.superclass);
+        for(Class<?> iclass : aclass.getInterfaces())
+            cache.add(toKey(iclass.getName()));
+        
+        return cache;
+    }
+
+    private static SuperCache declareASM(byte[] bytes)
+    {
+        ClassNode node = ASMHelper.createClassNode(bytes);
+        String name = toKey(node.name);
+        
+        SuperCache cache = getOrCreateCache(name);
+        cache.superclass = toKey(node.superName.replace('/', '.'));
+        cache.add(cache.superclass);
+        for(String iclass : node.interfaces)
+            cache.add(toKey(iclass.replace('/', '.')));
+        
+        return cache;
     }
 
     @Override
     public byte[] transform(String name, String tname, byte[] bytes)
     {
-        if (bytes == null) return null;
-        if(!knownClasses.contains(name))
-        {
-            ClassNode node = ASMHelper.createClassNode(bytes);
-            
-            knownClasses.add(name);
-            addSuperclass(name, node.superName.replace('/', '.'));
-            for(String iclass : node.interfaces)
-                addSuperclass(name, iclass.replace('/', '.'));
-        }
+        if (bytes == null)
+            return null;
+        
+        if(!superclasses.containsKey(tname))
+            declareASM(bytes);
         
         return bytes;
     }
-
-    private static void addSuperclass(String name, String superclass)
+    
+    public static SuperCache getOrCreateCache(String name)
     {
-        ArrayList<String> supers = superclasses.get(name);
-        if(supers == null)
-            superclasses.put(name, supers = new ArrayList<String>());
-        supers.add(superclass);
-        supers.add(new ObfMapping(superclass.replace('.', '/')).toRuntime().javaClass());
+        SuperCache cache = superclasses.get(name);
+        if(cache == null)
+            superclasses.put(name, cache = new SuperCache());
+        return cache;
     }
 
     public static String getSuperClass(String name, boolean runtime) 
     {
         name = toKey(name);
-        declareClass(name);
-        
-        if(!knownClasses.contains(name))
+        SuperCache cache = declareClass(name);
+        if(cache == null)
             return "java.lang.Object";
         
-        return superclasses.get(name).get(runtime ? 1 : 0);
+        cache.flatten();
+        String s = cache.superclass;
+        if(!runtime)
+            s = FMLDeobfuscatingRemapper.INSTANCE.unmap(s);
+        return s;
     }
 }
