@@ -61,6 +61,18 @@ public class Cuboid6
         max.subtract(vec);
         return this;
     }
+    
+    public Cuboid6 expand(double d)
+    {
+        return expand(new Vector3(d, d, d));
+    }
+    
+    public Cuboid6 expand(Vector3 vec)
+    {
+        min.sub(vec);
+        max.add(vec);
+        return this;
+    }
 
     public void setBlockBounds(Block block)
     {
@@ -123,7 +135,13 @@ public class Cuboid6
         return this;
     }
     
+    @Deprecated
     public Cuboid6 transform(Transformation t)
+    {
+        return apply(t);
+    }
+    
+    public Cuboid6 apply(Transformation t)
     {
         t.apply(min);
         t.apply(max);
