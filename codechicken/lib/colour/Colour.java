@@ -136,4 +136,12 @@ public abstract class Colour
     {
         return (r & 0xFF) << 24 | (g & 0xFF) << 16 | (b & 0xFF) << 8 | (a & 0xFF);
     }
+
+    public Colour set(Colour colour)
+    {
+        r = colour.r;
+        g = colour.g;
+        b = colour.b;
+        a = colour.a;
+    }
 }
