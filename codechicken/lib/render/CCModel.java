@@ -184,8 +184,8 @@ public class CCModel
         verts[i++] = new Vertex5(x1, y2, z2, u1, v2);
     
         //east face
-        u1 = x1+4; v1 = 1-y2;
-        u2 = x2+4; v2 = 1-y1;
+        u1 = 1-x1+4; v1 = 1-y2;
+        u2 = 1-x2+4; v2 = 1-y1;
         verts[i++] = new Vertex5(x1, y1, z1, u1, v2);
         verts[i++] = new Vertex5(x1, y2, z1, u1, v1);
         verts[i++] = new Vertex5(x2, y2, z1, u2, v1);
@@ -208,8 +208,8 @@ public class CCModel
         verts[i++] = new Vertex5(x1, y1, z1, u1, v2);
     
         //south face
-        u1 = z1+10; v1 = 1-y2;
-        u2 = z2+10; v2 = 1-y1;
+        u1 = 1-z1+10; v1 = 1-y2;
+        u2 = 1-z2+10; v2 = 1-y1;
         verts[i++] = new Vertex5(x2, y1, z1, u1, v2);
         verts[i++] = new Vertex5(x2, y2, z1, u1, v1);
         verts[i++] = new Vertex5(x2, y2, z2, u2, v1);
