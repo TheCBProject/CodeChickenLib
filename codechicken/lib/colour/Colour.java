@@ -143,5 +143,6 @@ public abstract class Colour
         g = colour.g;
         b = colour.b;
         a = colour.a;
+        return this;
     }
 }
