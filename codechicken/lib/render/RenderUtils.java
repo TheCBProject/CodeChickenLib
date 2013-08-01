@@ -6,6 +6,7 @@ import static net.minecraftforge.client.IItemRenderer.ItemRendererHelper.BLOCK_3
 import org.lwjgl.opengl.GL11;
 
 import codechicken.lib.vec.Cuboid6;
+import codechicken.lib.vec.Rectangle4i;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Vector3;
@@ -47,8 +48,14 @@ public class RenderUtils
         entityItem = new EntityItem(null);
         entityItem.hoverStart = 0;
     }
-        
+    
+    @Deprecated
     public static void renderLiquidQuad(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 point4, Icon icon, double res)
+    {
+        renderFluidQuad(point1, point2, point3, point4, icon, res);
+    }
+    
+    public static void renderFluidQuad(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 point4, Icon icon, double res)
     {
         double u1 = icon.getMinU();
         double du = icon.getMaxU()-icon.getMinU();
@@ -137,39 +144,45 @@ public class RenderUtils
         var2.draw();
     }
     
+    @Deprecated
     public static void renderLiquidCuboid(Cuboid6 bound, Icon tex, double res)
     {
-        renderLiquidQuad(//bottom
+        renderFluidCuboid(bound, tex, res);
+    }
+    
+    public static void renderFluidCuboid(Cuboid6 bound, Icon tex, double res)
+    {
+        renderFluidQuad(//bottom
                 new Vector3(bound.min.x, bound.min.y, bound.min.z),
                 new Vector3(bound.max.x, bound.min.y, bound.min.z),
                 new Vector3(bound.max.x, bound.min.y, bound.max.z),
                 new Vector3(bound.min.x, bound.min.y, bound.max.z), 
                 tex, res);
-        renderLiquidQuad(//top
+        renderFluidQuad(//top
                 new Vector3(bound.min.x, bound.max.y, bound.min.z),
                 new Vector3(bound.min.x, bound.max.y, bound.max.z),
                 new Vector3(bound.max.x, bound.max.y, bound.max.z),
                 new Vector3(bound.max.x, bound.max.y, bound.min.z), 
                 tex, res);
-        renderLiquidQuad(//-x
+        renderFluidQuad(//-x
                 new Vector3(bound.min.x, bound.max.y, bound.min.z),
                 new Vector3(bound.min.x, bound.min.y, bound.min.z),
                 new Vector3(bound.min.x, bound.min.y, bound.max.z),
                 new Vector3(bound.min.x, bound.max.y, bound.max.z), 
                 tex, res);
-        renderLiquidQuad(//+x
+        renderFluidQuad(//+x
                 new Vector3(bound.max.x, bound.max.y, bound.max.z),
                 new Vector3(bound.max.x, bound.min.y, bound.max.z),
                 new Vector3(bound.max.x, bound.min.y, bound.min.z),
                 new Vector3(bound.max.x, bound.max.y, bound.min.z), 
                 tex, res);
-        renderLiquidQuad(//-z
+        renderFluidQuad(//-z
                 new Vector3(bound.max.x, bound.max.y, bound.min.z),
                 new Vector3(bound.max.x, bound.min.y, bound.min.z),
                 new Vector3(bound.min.x, bound.min.y, bound.min.z),
                 new Vector3(bound.min.x, bound.max.y, bound.min.z), 
                 tex, res);
-        renderLiquidQuad(//+z
+        renderFluidQuad(//+z
                 new Vector3(bound.min.x, bound.max.y, bound.max.z),
                 new Vector3(bound.min.x, bound.min.y, bound.max.z),
                 new Vector3(bound.max.x, bound.min.y, bound.max.z),
@@ -222,8 +235,14 @@ public class RenderUtils
             break;
         }
     }
-
+    
+    @Deprecated
     public static boolean shouldRenderLiquid(FluidStack stack)
+    {
+        return shouldRenderFluid(stack);
+    }
+
+    public static boolean shouldRenderFluid(FluidStack stack)
     {
         return stack.amount > 0 && stack.getFluid() != null;
     }
@@ -252,6 +271,12 @@ public class RenderUtils
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glDisable(GL11.GL_BLEND);
     }
+    
+    @Deprecated
+    public static void renderLiquidCuboid(FluidStack stack, Cuboid6 bound, double density, double res)
+    {
+        renderFluidCuboid(stack, bound, density, res);
+    }
 
     /**
      * Renders a fluid within a bounding box. 
@@ -263,7 +288,7 @@ public class RenderUtils
      * @param density The volume of fluid / the capacity of the tank. For gases this determines the alpha, for liquids this determines the height.
      * @param res The resolution to render at.
      */
-    public static void renderLiquidCuboid(FluidStack stack, Cuboid6 bound, double density, double res)
+    public static void renderFluidCuboid(FluidStack stack, Cuboid6 bound, double density, double res)
     {
         if(!shouldRenderLiquid(stack))
             return;
@@ -277,6 +302,32 @@ public class RenderUtils
         Icon tex = prepareFluidRender(stack, alpha);
         CCRenderState.startDrawing(7);
         renderLiquidCuboid(bound, tex, res);
+        CCRenderState.draw();
+        postFluidRender();
+    }
+    
+    public static void renderFluidGauge(FluidStack stack, Rectangle4i rect, double density, double res)
+    {
+        if(!shouldRenderLiquid(stack))
+            return;
+        
+        int alpha = 255;
+        if(stack.getFluid().isGaseous())
+            alpha = (int) (density*255);
+        else
+        {
+            int height = (int) (rect.h*density);
+            rect.y +=rect.h-height;
+            rect.h = height;
+        }
+        
+        Icon tex = prepareFluidRender(stack, alpha);
+        CCRenderState.startDrawing(7);
+        renderLiquidQuad(
+                new Vector3(rect.x, rect.y, 0),
+                new Vector3(rect.x, rect.y+rect.h, 0),
+                new Vector3(rect.x+rect.w, rect.y+rect.h, 0),
+                new Vector3(rect.x+rect.w, rect.y, 0), tex, res);
         CCRenderState.draw();
         postFluidRender();
     }
