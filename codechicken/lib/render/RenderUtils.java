@@ -277,6 +277,11 @@ public class RenderUtils
     {
         renderFluidCuboid(stack, bound, density, res);
     }
+    
+    public static double fluidDensityToAlpha(double density)
+    {
+        return Math.pow(density, 0.4);
+    }
 
     /**
      * Renders a fluid within a bounding box. 
@@ -295,7 +300,7 @@ public class RenderUtils
         
         int alpha = 255;
         if(stack.getFluid().isGaseous())
-            alpha = (int) (density*255);
+            alpha = (int) (fluidDensityToAlpha(density)*255);
         else
             bound.max.y = bound.min.y+(bound.max.y-bound.min.y)*density;
         
@@ -313,7 +318,7 @@ public class RenderUtils
         
         int alpha = 255;
         if(stack.getFluid().isGaseous())
-            alpha = (int) (density*255);
+            alpha = (int) (fluidDensityToAlpha(density)*255);
         else
         {
             int height = (int) (rect.h*density);
