@@ -160,11 +160,15 @@ public class RayTracer
 
     public static MovingObjectPosition retraceBlock(World world, EntityPlayer player, int x, int y, int z)
     {
+        Block block = Block.blocksList[world.getBlockId(x, y, z)];
+        if(block == null)
+            return null;
+        
         Vec3 headVec = Vec3.createVectorHelper(player.posX, (player.posY + 1.62) - player.yOffset, player.posZ);
         Vec3 lookVec = player.getLook(1.0F);
         double reach = world.isRemote ? getBlockReachDistance_client() : getBlockReachDistance_server((EntityPlayerMP) player);
         Vec3 endVec = headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
-        return Block.blocksList[world.getBlockId(x, y, z)].collisionRayTrace(world, x, y, z, headVec, endVec);
+        return block.collisionRayTrace(world, x, y, z, headVec, endVec);
     }
 
     private static double getBlockReachDistance_server(EntityPlayerMP player)
