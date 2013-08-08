@@ -501,15 +501,18 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
         {
             deflater.setInput(data, 0, data.length);
             deflater.finish();
-            byte[] cdata = new byte[data.length+4];
-            int clen = deflater.deflate(cdata, 4, data.length);
+            byte[] cbuf = new byte[data.length];
+            int clen = deflater.deflate(cbuf, 0, data.length);
             if(clen == data.length || !deflater.finished())//not worth compressing, gets larger
             {
                 type &= 0x7F;
                 return data;
             }
             
+            byte[] cdata = new byte[clen+4];
             writeInt(cdata, 0, data.length);
+            System.arraycopy(cbuf, 0, cdata, 4, clen);
+            type|=0x80;
             return cdata;
         }
         catch(Exception e)
