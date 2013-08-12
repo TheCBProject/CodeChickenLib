@@ -325,11 +325,19 @@ public class CCModel
     public CCModel apply(Transformation t)
     {
         for(int k = 0; k < verts.length; k++)
-            t.apply(verts[k].vec);
+            verts[k].apply(t);
         
         if(normals != null)
             for(int k = 0; k < normals.length; k++)
                 t.applyN(normals[k]);
+        
+        return this;
+    }
+
+    public CCModel apply(IUVTransformation uvt)
+    {
+        for(int k = 0; k < verts.length; k++)
+            verts[k].apply(uvt);
         
         return this;
     }

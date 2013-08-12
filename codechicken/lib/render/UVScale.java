@@ -11,6 +11,11 @@ public class UVScale implements IUVTransformation
         sv = scalev;
     }
     
+    public UVScale(double d)
+    {
+        this(d, d);
+    }
+
     @Override
     public void transform(UV uv)
     {
