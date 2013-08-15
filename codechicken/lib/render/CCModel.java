@@ -841,26 +841,25 @@ public class CCModel
      */
     public CCModel generateSidedPart(int side1, int side2, Vector3 point, int srcpos, int destpos, int length)
     {
-        return generateRotatedPart(new TransformationList(sideRotations[side1].inverse(), sideRotations[side2]), point, srcpos, destpos, length);
+        return apply(new TransformationList(sideRotations[side1].inverse(), sideRotations[side2]).at(point), srcpos, destpos, length);
     }
 
     /**
      * Generates a rotated copy of verts into this model
      */
-    public CCModel generateRotatedPart(Transformation t, Vector3 point, int srcpos, int destpos, int length)
+    public CCModel apply(Transformation t, int srcpos, int destpos, int length)
     {
         for(int k = 0; k < length; k++)
         {
             verts[destpos+k] = verts[srcpos+k].copy();
-            verts[destpos+k].vec
-                .subtract(point)
-                .apply(t)
-                .add(point);
+            verts[destpos+k].vec.apply(t);
         }
         
         if(normals != null)
-            for(int k = 0; k < length; k++)
-                normals[destpos+k] = normals[srcpos+k].copy().apply(t);
+            for(int k = 0; k < length; k++) {
+                normals[destpos+k] = normals[srcpos+k].copy();
+                t.applyN(normals[destpos+k]);
+            }
         
         return this;
     }
