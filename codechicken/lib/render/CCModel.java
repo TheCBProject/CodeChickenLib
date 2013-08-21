@@ -152,6 +152,11 @@ public class CCModel
         return generateBlock(i, bounds.min.x, bounds.min.y, bounds.min.z, bounds.max.x, bounds.max.y, bounds.max.z);
     }
 
+    public CCModel generateBlock(int i, double x1, double y1, double z1, double x2, double y2, double z2)
+    {
+        return generateBlock(i, x1, y1, z1, x2, y2, z2, 0);
+    }
+
     /**
      * Generates a box, uv mapped to be the same as a minecraft block with the same bounds
      * @param i The vertex index to start generating at
@@ -161,59 +166,66 @@ public class CCModel
      * @param x2 maxX
      * @param y2 maxY
      * @param z2 maxZ
+     * @param mask A bitmask of sides NOT to generate. I high bit at index s means side s will not be generated
      * @return The generated model. When rendering an icon will need to be supplied for the UV transformation.
      */
-    public CCModel generateBlock(int i, double x1, double y1, double z1, double x2, double y2, double z2)
+    public CCModel generateBlock(int i, double x1, double y1, double z1, double x2, double y2, double z2, int mask)
     {
         double u1, v1, u2, v2;
         
-        //bottom face
-        u1 = x1; v1 = z1;
-        u2 = x2; v2 = z2;
-        verts[i++] = new Vertex5(x1, y1, z2, u1, v2);
-        verts[i++] = new Vertex5(x1, y1, z1, u1, v1);
-        verts[i++] = new Vertex5(x2, y1, z1, u2, v1);
-        verts[i++] = new Vertex5(x2, y1, z2, u2, v2);
-    
-        //top face
-        u1 = x1+2; v1 = z1;
-        u2 = x2+2; v2 = z2;
-        verts[i++] = new Vertex5(x2, y2, z2, u2, v2);
-        verts[i++] = new Vertex5(x2, y2, z1, u2, v1);
-        verts[i++] = new Vertex5(x1, y2, z1, u1, v1);
-        verts[i++] = new Vertex5(x1, y2, z2, u1, v2);
-    
-        //east face
-        u1 = 1-x1+4; v1 = 1-y2;
-        u2 = 1-x2+4; v2 = 1-y1;
-        verts[i++] = new Vertex5(x1, y1, z1, u1, v2);
-        verts[i++] = new Vertex5(x1, y2, z1, u1, v1);
-        verts[i++] = new Vertex5(x2, y2, z1, u2, v1);
-        verts[i++] = new Vertex5(x2, y1, z1, u2, v2);
-    
-        //west face
-        u1 = x1+6; v1 = 1-y2;
-        u2 = x2+6; v2 = 1-y1;
-        verts[i++] = new Vertex5(x2, y1, z2, u2, v2);
-        verts[i++] = new Vertex5(x2, y2, z2, u2, v1);
-        verts[i++] = new Vertex5(x1, y2, z2, u1, v1);
-        verts[i++] = new Vertex5(x1, y1, z2, u1, v2);
-    
-        //north face
-        u1 = z1+8; v1 = 1-y2;
-        u2 = z2+8; v2 = 1-y1;
-        verts[i++] = new Vertex5(x1, y1, z2, u2, v2);
-        verts[i++] = new Vertex5(x1, y2, z2, u2, v1);
-        verts[i++] = new Vertex5(x1, y2, z1, u1, v1);
-        verts[i++] = new Vertex5(x1, y1, z1, u1, v2);
-    
-        //south face
-        u1 = 1-z1+10; v1 = 1-y2;
-        u2 = 1-z2+10; v2 = 1-y1;
-        verts[i++] = new Vertex5(x2, y1, z1, u1, v2);
-        verts[i++] = new Vertex5(x2, y2, z1, u1, v1);
-        verts[i++] = new Vertex5(x2, y2, z2, u2, v1);
-        verts[i++] = new Vertex5(x2, y1, z2, u2, v2);
+        if((mask&1) == 0) {//bottom face
+            u1 = x1; v1 = z1;
+            u2 = x2; v2 = z2;
+            verts[i++] = new Vertex5(x1, y1, z2, u1, v2);
+            verts[i++] = new Vertex5(x1, y1, z1, u1, v1);
+            verts[i++] = new Vertex5(x2, y1, z1, u2, v1);
+            verts[i++] = new Vertex5(x2, y1, z2, u2, v2);
+        }
+        
+        if((mask&2) == 0) {//top face
+            u1 = x1+2; v1 = z1;
+            u2 = x2+2; v2 = z2;
+            verts[i++] = new Vertex5(x2, y2, z2, u2, v2);
+            verts[i++] = new Vertex5(x2, y2, z1, u2, v1);
+            verts[i++] = new Vertex5(x1, y2, z1, u1, v1);
+            verts[i++] = new Vertex5(x1, y2, z2, u1, v2);
+        }
+        
+        if((mask&4) == 0) {//east face
+            u1 = 1-x1+4; v1 = 1-y2;
+            u2 = 1-x2+4; v2 = 1-y1;
+            verts[i++] = new Vertex5(x1, y1, z1, u1, v2);
+            verts[i++] = new Vertex5(x1, y2, z1, u1, v1);
+            verts[i++] = new Vertex5(x2, y2, z1, u2, v1);
+            verts[i++] = new Vertex5(x2, y1, z1, u2, v2);
+        }
+        
+        if((mask&8) == 0) {//west face
+            u1 = x1+6; v1 = 1-y2;
+            u2 = x2+6; v2 = 1-y1;
+            verts[i++] = new Vertex5(x2, y1, z2, u2, v2);
+            verts[i++] = new Vertex5(x2, y2, z2, u2, v1);
+            verts[i++] = new Vertex5(x1, y2, z2, u1, v1);
+            verts[i++] = new Vertex5(x1, y1, z2, u1, v2);
+        }
+        
+        if((mask&0x10) == 0) {//north face
+            u1 = z1+8; v1 = 1-y2;
+            u2 = z2+8; v2 = 1-y1;
+            verts[i++] = new Vertex5(x1, y1, z2, u2, v2);
+            verts[i++] = new Vertex5(x1, y2, z2, u2, v1);
+            verts[i++] = new Vertex5(x1, y2, z1, u1, v1);
+            verts[i++] = new Vertex5(x1, y1, z1, u1, v2);
+        }
+        
+        if((mask&0x20) == 0) {//south face
+            u1 = 1-z1+10; v1 = 1-y2;
+            u2 = 1-z2+10; v2 = 1-y1;
+            verts[i++] = new Vertex5(x2, y1, z1, u1, v2);
+            verts[i++] = new Vertex5(x2, y2, z1, u1, v1);
+            verts[i++] = new Vertex5(x2, y2, z2, u2, v1);
+            verts[i++] = new Vertex5(x2, y1, z2, u2, v2);
+        }
         
         return this;
     }

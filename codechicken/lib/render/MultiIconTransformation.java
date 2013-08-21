@@ -28,9 +28,9 @@ public class MultiIconTransformation implements IUVTransformation
         return setIconIndex(m, 0, m.verts.length, index);
     }
     
-    public static CCModel setIconIndex(CCModel m, int start, int length, int index)
+    public static CCModel setIconIndex(CCModel m, int start, int end, int index)
     {
-        for(int k = start; k < length; k++)
+        for(int k = start; k < end; k++)
         {
             UV uv = m.verts[k].uv;
             uv.u = uv.u%2+index*2;
