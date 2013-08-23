@@ -14,6 +14,8 @@ import codechicken.lib.vec.Vector3;
  */
 public class PlanarLightModel implements IVertexModifier
 {
+    public static PlanarLightModel standardLightModel = LightModel.standardLightModel.reducePlanar();
+    
     public ColourRGBA[] colours;
     
     public PlanarLightModel(int[] colours)
