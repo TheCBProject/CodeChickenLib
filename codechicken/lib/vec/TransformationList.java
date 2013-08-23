@@ -69,7 +69,20 @@ public class TransformationList extends Transformation
     public TransformationList with(Transformation t)
     {
         mat = null;//matrix invalid
-        transformations.add(t);
+        if(t instanceof TransformationList)
+            transformations.addAll(((TransformationList)t).transformations);
+        else
+            transformations.add(t);
+        return this;
+    }
+    
+    public TransformationList prepend(Transformation t)
+    {
+        mat = null;//matrix invalid
+        if(t instanceof TransformationList)
+            transformations.addAll(0, ((TransformationList)t).transformations);
+        else
+            transformations.add(0, t);
         return this;
     }
     
