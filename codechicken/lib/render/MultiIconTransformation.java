@@ -9,7 +9,7 @@ public class MultiIconTransformation implements IUVTransformation
 {
     public Icon[] icons;
     
-    public MultiIconTransformation(Icon[] icons)
+    public MultiIconTransformation(Icon... icons)
     {
         this.icons = icons;
     }
