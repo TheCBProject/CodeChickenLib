@@ -227,6 +227,22 @@ public class Rotation extends Transformation
     {
         return new Rotation(-angle, axis);
     }
+
+    @Override
+    public Transformation merge(Transformation next) {
+        if(next instanceof Rotation) {
+            Rotation r = (Rotation)next;
+            if(r.axis.equalsT(axis)) {
+                double d = angle+r.angle;
+                if(d == 0)
+                    return new RedundantTransformation();
+                
+                return new Rotation(angle, axis);
+            }
+        }
+        
+        return null;
+    }
     
     @Override
     public String toString()

@@ -1,6 +1,7 @@
 package codechicken.lib.vec;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -13,7 +14,12 @@ public class TransformationList extends Transformation
     public TransformationList(Transformation... transforms)
     {
         for(Transformation t : transforms)
-            with(t);
+            if(t instanceof TransformationList)
+                transformations.addAll(((TransformationList)t).transformations);
+            else
+                transformations.add(t);
+        
+        compact();
     }
     
     public Matrix4 compile()
@@ -68,24 +74,64 @@ public class TransformationList extends Transformation
     @Override
     public TransformationList with(Transformation t)
     {
+        if(t instanceof RedundantTransformation)
+            return this;
+        
         mat = null;//matrix invalid
         if(t instanceof TransformationList)
             transformations.addAll(((TransformationList)t).transformations);
         else
             transformations.add(t);
+        
+        compact();
         return this;
     }
     
     public TransformationList prepend(Transformation t)
     {
+        if(t instanceof RedundantTransformation)
+            return this;
+        
         mat = null;//matrix invalid
         if(t instanceof TransformationList)
             transformations.addAll(0, ((TransformationList)t).transformations);
         else
             transformations.add(0, t);
+        
+        compact();
         return this;
     }
     
+    private void compact() {
+        if(transformations.isEmpty())
+            return;
+        
+        ArrayList<Transformation> newList = new ArrayList<Transformation>(transformations.size());
+        Iterator<Transformation> iterator = transformations.iterator();
+        Transformation prev = iterator.next();
+        while(iterator.hasNext()) {
+            Transformation t = iterator.next();
+            Transformation m = prev == null ? null : prev.merge(t);
+            if(m instanceof RedundantTransformation) {
+                prev = null;
+            }
+            else if(m != null) {
+                prev = m;
+            }
+            else {
+                newList.add(prev);
+                prev = t;
+            }
+        }
+        if(prev != null)
+            newList.add(prev);
+        
+        if(newList.size() < transformations.size()) {
+            transformations = newList;
+            mat = null;
+        }
+    }
+
     @Override
     @SideOnly(Side.CLIENT)
     public void glApply()

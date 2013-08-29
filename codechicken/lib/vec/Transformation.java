@@ -32,7 +32,7 @@ public abstract class Transformation
      */
     public Transformation at(Vector3 point)
     {
-        return new TranslatedTransformation(this, point);
+        return new TransformationList(new Translation(-point.x, -point.y, -point.z), this, point.translation());
     }
     
     /**
@@ -42,6 +42,14 @@ public abstract class Transformation
     public TransformationList with(Transformation t)
     {
         return new TransformationList(this, t);
+    }
+    
+    /**
+     * Returns a simplified transformation that performs this, followed by next. If such a transformation does not exist, returns null
+     */
+    public Transformation merge(Transformation next)
+    {
+        return null;
     }
     
     @SideOnly(Side.CLIENT)

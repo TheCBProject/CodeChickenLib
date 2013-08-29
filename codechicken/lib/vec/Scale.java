@@ -59,6 +59,19 @@ public class Scale extends Transformation
     }
     
     @Override
+    public Transformation merge(Transformation next) {
+        if(next instanceof Scale) {
+            Vector3 vec = factor.copy().multiply(((Scale) next).factor);
+            if(vec.equalsT(Vector3.one))
+                return new RedundantTransformation();
+            
+            return new Scale(vec);
+        }
+        
+        return null;
+    }
+    
+    @Override
     public String toString()
     {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
