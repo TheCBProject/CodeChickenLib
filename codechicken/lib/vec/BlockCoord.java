@@ -177,4 +177,24 @@ public class BlockCoord implements Comparable<BlockCoord>
     {
         return set(coord.x, coord.y, coord.z);
     }
+    
+    public int toSide()
+    {
+        if(!isAxial()) return -1;
+        if(y < 0) return 0;
+        if(y > 0) return 1;
+        if(z < 0) return 2;
+        if(z > 0) return 3;
+        if(x < 0) return 4;
+        if(x > 0) return 5;
+        
+        return -1;
+    }
+    
+    public int absSum()
+    {
+        return (x < 0 ? -x : x) + 
+                (y < 0 ? -y : y) + 
+                (z < 0 ? -z : z);
+    }
 }

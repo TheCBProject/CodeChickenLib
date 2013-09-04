@@ -31,6 +31,11 @@ public class RedundantTransformation extends Transformation
     }
     
     @Override
+    public Transformation merge(Transformation next) {
+        return next;
+    }
+    
+    @Override
     public String toString()
     {
         return "Nothing()";
