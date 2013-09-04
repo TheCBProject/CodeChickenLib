@@ -19,7 +19,7 @@ public class TextureFX
 
     public TextureFX(int spriteIndex, SpriteSheet sheet)
     {
-        texture = sheet.func_110577_aFX(spriteIndex, this);
+        texture = sheet.bindTextureFX(spriteIndex, this);
     }
     
     public TextureFX(int size, String name)

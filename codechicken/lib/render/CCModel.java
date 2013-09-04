@@ -628,7 +628,7 @@ public class CCModel
         try
         {
             return parseObjModels(
-                    Minecraft.getMinecraft().func_110442_L().func_110536_a(res).func_110527_b(), 
+                    Minecraft.getMinecraft().getResourceManager().getResource(res).getInputStream(), 
                     4, coordSystem);
         }
         catch(IOException e)
@@ -649,7 +649,7 @@ public class CCModel
         try
         {
             return parseObjModels(
-                    Minecraft.getMinecraft().func_110442_L().func_110536_a(res).func_110527_b(), 
+                    Minecraft.getMinecraft().getResourceManager().getResource(res).getInputStream(), 
                     vertexMode, coordSystem);
         }
         catch(Exception e)

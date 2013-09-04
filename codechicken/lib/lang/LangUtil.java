@@ -77,14 +77,14 @@ public class LangUtil
     
     public LangUtil addLangDir(ResourceLocation dir)
     {
-        ResourceManager resManager = Minecraft.getMinecraft().func_110442_L();
-        for(Language lang : (SortedSet<Language>)Minecraft.getMinecraft().func_135016_M().func_135040_d())
+        ResourceManager resManager = Minecraft.getMinecraft().getResourceManager();
+        for(Language lang : (SortedSet<Language>)Minecraft.getMinecraft().getLanguageManager().getLanguages())
         {
-            String langID = lang.func_135034_a();
+            String langID = lang.getLanguageCode();
             Resource langRes;
             try
             {
-                langRes = resManager.func_110536_a(new ResourceLocation(dir.func_110624_b(), dir.func_110623_a()+'/'+langID+".lang"));
+                langRes = resManager.getResource(new ResourceLocation(dir.getResourceDomain(), dir.getResourcePath()+'/'+langID+".lang"));
             }
             catch(Exception e)
             {
@@ -92,7 +92,7 @@ public class LangUtil
             }
             try
             {
-                addLangFile(langRes.func_110527_b(), langID);
+                addLangFile(langRes.getInputStream(), langID);
             }
             catch(IOException e)
             {
@@ -103,7 +103,8 @@ public class LangUtil
         
         return this;
     }
-
+    
+    @Deprecated
     public static void loadBaseLangDir(ResourceLocation dir)
     {
         instance.addLangDir(dir);

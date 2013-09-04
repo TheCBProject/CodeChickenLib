@@ -70,7 +70,7 @@ public class TextureUtils
     
     public static InputStream getTextureResource(ResourceLocation textureFile) throws IOException
     {
-        return Minecraft.getMinecraft().func_110442_L().func_110536_a(textureFile).func_110527_b();
+        return Minecraft.getMinecraft().getResourceManager().getResource(textureFile).getInputStream();
     }
     
     public static BufferedImage loadBufferedImage(ResourceLocation textureFile)
@@ -113,7 +113,7 @@ public class TextureUtils
 
     public static void bindAtlas(int atlasIndex)
     {
-        engine().func_110577_a(atlasIndex == 0 ? TextureMap.field_110575_b : TextureMap.field_110576_c);
+        engine().bindTexture(atlasIndex == 0 ? TextureMap.locationBlocksTexture : TextureMap.locationItemsTexture);
     }
     
     public static Icon getBlankIcon(int size, IconRegister iconRegister)

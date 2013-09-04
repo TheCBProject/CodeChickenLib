@@ -99,7 +99,7 @@ public class CCRenderState
     
     public static void changeTexture(ResourceLocation texture)
     {
-        Minecraft.getMinecraft().renderEngine.func_110577_a(texture);
+        Minecraft.getMinecraft().renderEngine.bindTexture(texture);
     }
 
     public static void apply()

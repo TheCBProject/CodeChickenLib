@@ -56,11 +56,11 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
     }
     
     @Override
-    public void func_110971_a(int sheetWidth, int sheetHeight, int originX, int originY, boolean rotated)
+    public void initSprite(int sheetWidth, int sheetHeight, int originX, int originY, boolean rotated)
     {
-        super.func_110971_a(sheetWidth, sheetHeight, originX, originY, rotated);
+        super.initSprite(sheetWidth, sheetHeight, originX, originY, rotated);
         if(textureFX != null)
-            textureFX.onTextureDimensionsUpdate(field_130223_c, field_130224_d);
+            textureFX.onTextureDimensionsUpdate(width, height);
     }
     
     @Override
@@ -70,7 +70,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
         {
             textureFX.update();
             if(textureFX.changed())
-                TextureUtil.func_110998_a(textureFX.imageData, field_130223_c, field_130224_d, field_110975_c, field_110974_d, false, false);
+                TextureUtil.uploadTextureSub(textureFX.imageData, width, height, originX, originY, false, false);
         }
     }
     
@@ -81,45 +81,45 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
         {
             for(TextureDataHolder tex : baseTextures)
             {
-                field_110976_a.add(tex.data);
-                field_130223_c = tex.width;
-                field_130224_d = tex.height;
+                framesTextureData.add(tex.data);
+                width = tex.width;
+                height = tex.height;
             }
         }
         
         if(spriteSheet != null)
         {
             TextureDataHolder tex = spriteSheet.createSprite(spriteIndex);
-            field_130223_c = tex.width;
-            field_130224_d = tex.height;
-            field_110976_a.add(tex.data);
+            width = tex.width;
+            height = tex.height;
+            framesTextureData.add(tex.data);
         }
         
         if(blankSize > 0)
         {
-            field_130223_c = field_130224_d = blankSize;
-            field_110976_a.add(new int[blankSize*blankSize]);
+            width = height = blankSize;
+            framesTextureData.add(new int[blankSize*blankSize]);
         }
         
-        if(field_110976_a.isEmpty())
+        if(framesTextureData.isEmpty())
             throw new RuntimeException("No base frame for texture: "+getIconName());
         
         return true;
     }
     
     @Override
-    public boolean func_130098_m()
+    public boolean hasAnimationMetadata()
     {
-        return textureFX != null || super.func_130098_m();
+        return textureFX != null || super.hasAnimationMetadata();
     }
     
     @Override
-    public int func_110970_k()
+    public int getFrameCount()
     {
         if(textureFX != null)
             return 1;
         
-        return super.func_110970_k();
+        return super.getFrameCount();
     }
 
     public TextureSpecial blank(int size)

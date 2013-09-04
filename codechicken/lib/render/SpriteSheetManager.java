@@ -46,7 +46,7 @@ public class SpriteSheetManager
         {
             TextureMap textureMap = (TextureMap)register;
             
-            if(TextureUtils.refreshTexture(textureMap, resource.func_110623_a()))
+            if(TextureUtils.refreshTexture(textureMap, resource.getResourcePath()))
             {
                 reloadTexture();
                 for(int i = 0; i < sprites.length; i++)
@@ -108,7 +108,7 @@ public class SpriteSheetManager
             return spriteHeight;
         }
 
-        public TextureSpecial func_110577_aFX(int i, TextureFX textureFX)
+        public TextureSpecial bindTextureFX(int i, TextureFX textureFX)
         {
             return setupSprite(i).addTextureFX(textureFX);
         }
