@@ -4,9 +4,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 
-public class ExtendedMOP extends MovingObjectPosition
+public class ExtendedMOP extends MovingObjectPosition implements Comparable<ExtendedMOP>
 {
     public Object data;
+    public double dist;
     
     public ExtendedMOP(Entity entity, Object data)
     {
@@ -20,7 +21,7 @@ public class ExtendedMOP extends MovingObjectPosition
         setData(data);
     }
     
-    public ExtendedMOP(MovingObjectPosition mop, Object data)
+    public ExtendedMOP(MovingObjectPosition mop, Object data, double dist)
     {
         super(0, 0, 0, 0, mop.hitVec);
         typeOfHit = mop.typeOfHit;
@@ -30,6 +31,7 @@ public class ExtendedMOP extends MovingObjectPosition
         sideHit = mop.sideHit;
         subHit = mop.subHit;
         setData(data);
+        this.dist = dist;
     }
 
     public void setData(Object data)
@@ -46,5 +48,11 @@ public class ExtendedMOP extends MovingObjectPosition
             return (T)((ExtendedMOP)mop).data;
         
         return (T)Integer.valueOf(mop.subHit);
+    }
+    
+    @Override
+    public int compareTo(ExtendedMOP o)
+    {
+        return dist == o.dist ? 0 : dist < o.dist ? -1 : 1;
     }
 }
