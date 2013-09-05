@@ -52,6 +52,14 @@ public abstract class Transformation
         return null;
     }
     
+    /**
+     * Returns true if this transformation is redundant, eg. Scale(1, 1, 1), Translation(0, 0, 0) or Rotation(0, a, b, c)
+     */
+    public boolean isRedundant()
+    {
+        return false;
+    }
+    
     @SideOnly(Side.CLIENT)
     public abstract void glApply();
 

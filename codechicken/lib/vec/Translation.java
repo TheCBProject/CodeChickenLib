@@ -61,12 +61,15 @@ public class Translation extends Transformation
     
     @Override
     public Transformation merge(Transformation next) {
-        if(next instanceof Translation) {
-            Vector3 vec2 = vec.copy().add(((Translation) next).vec);
-            return vec2.isZero() ? new RedundantTransformation() : new Translation(vec2);
-        }
+        if(next instanceof Translation)
+            return new Translation(vec.copy().add(((Translation) next).vec));
         
         return null;
+    }
+    
+    @Override
+    public boolean isRedundant() {
+        return vec.equalsT(Vector3.zero);
     }
     
     @Override

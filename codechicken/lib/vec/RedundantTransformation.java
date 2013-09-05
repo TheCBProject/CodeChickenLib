@@ -36,6 +36,11 @@ public class RedundantTransformation extends Transformation
     }
     
     @Override
+    public boolean isRedundant() {
+        return true;
+    }
+    
+    @Override
     public String toString()
     {
         return "Nothing()";

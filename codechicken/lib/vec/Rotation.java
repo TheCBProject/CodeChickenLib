@@ -232,16 +232,18 @@ public class Rotation extends Transformation
     public Transformation merge(Transformation next) {
         if(next instanceof Rotation) {
             Rotation r = (Rotation)next;
-            if(r.axis.equalsT(axis)) {
-                double d = angle+r.angle;
-                if(d == 0)
-                    return new RedundantTransformation();
-                
-                return new Rotation(angle, axis);
-            }
+            if(r.axis.equalsT(axis))
+                return new Rotation(angle+r.angle, axis);
+            
+            return new Rotation(toQuat().copy().multiply(r.toQuat()));
         }
         
         return null;
+    }
+    
+    @Override
+    public boolean isRedundant() {
+        return MathHelper.between(-1E-5, angle, 1E-5);
     }
     
     @Override

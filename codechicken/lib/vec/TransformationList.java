@@ -74,7 +74,7 @@ public class TransformationList extends Transformation
     @Override
     public TransformationList with(Transformation t)
     {
-        if(t instanceof RedundantTransformation)
+        if(t.isRedundant())
             return this;
         
         mat = null;//matrix invalid
@@ -89,7 +89,7 @@ public class TransformationList extends Transformation
     
     public TransformationList prepend(Transformation t)
     {
-        if(t instanceof RedundantTransformation)
+        if(t.isRedundant())
             return this;
         
         mat = null;//matrix invalid
@@ -103,25 +103,24 @@ public class TransformationList extends Transformation
     }
     
     private void compact() {
-        if(transformations.isEmpty())
-            return;
-        
         ArrayList<Transformation> newList = new ArrayList<Transformation>(transformations.size());
         Iterator<Transformation> iterator = transformations.iterator();
-        Transformation prev = iterator.next();
+        Transformation prev = null;
         while(iterator.hasNext()) {
             Transformation t = iterator.next();
-            Transformation m = prev == null ? null : prev.merge(t);
-            if(m instanceof RedundantTransformation) {
-                prev = null;
+            if(t.isRedundant())
+                continue;
+            
+            if(prev != null) {
+                Transformation m = prev.merge(t);
+                if(m == null)
+                    newList.add(prev);
+                else if(m.isRedundant())
+                    t = null;
+                else
+                    t = m;
             }
-            else if(m != null) {
-                prev = m;
-            }
-            else {
-                newList.add(prev);
-                prev = t;
-            }
+            prev = t;
         }
         if(prev != null)
             newList.add(prev);
@@ -130,6 +129,11 @@ public class TransformationList extends Transformation
             transformations = newList;
             mat = null;
         }
+    }
+    
+    @Override
+    public boolean isRedundant() {
+        return transformations.size() == 0;
     }
 
     @Override

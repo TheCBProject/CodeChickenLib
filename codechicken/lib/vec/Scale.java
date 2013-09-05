@@ -60,15 +60,15 @@ public class Scale extends Transformation
     
     @Override
     public Transformation merge(Transformation next) {
-        if(next instanceof Scale) {
-            Vector3 vec = factor.copy().multiply(((Scale) next).factor);
-            if(vec.equalsT(Vector3.one))
-                return new RedundantTransformation();
-            
-            return new Scale(vec);
-        }
+        if(next instanceof Scale)
+            return new Scale(factor.copy().multiply(((Scale) next).factor));
         
         return null;
+    }
+    
+    @Override
+    public boolean isRedundant() {
+        return factor.equalsT(Vector3.one);
     }
     
     @Override
