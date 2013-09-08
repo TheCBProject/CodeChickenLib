@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -781,17 +782,21 @@ public class CCModel
         }
     }
     
+    public CCModel backfacedCopy()
+    {
+        return generateBackface(this, 0, copy(), 0, verts.length);
+    }
+    
     /**
      * Generates copies of faces with clockwise vertices
      * @return The model
      */
-    public CCModel generateBackface(int srcpos, int destpos, int length)
+    public static CCModel generateBackface(CCModel src, int srcpos, CCModel dst, int destpos, int length)
     {
-        if(srcpos+length > destpos)
-            throw new IllegalArgumentException("Overlapping src and dest arrays");
+        int vp = src.vp;
         if(srcpos%vp != 0 || destpos%vp != 0 || length%vp != 0)
             throw new IllegalArgumentException("Vertices do not align with polygons");
-                
+            
         int[][] o = new int[][]{{0, 0}, {1, vp-1}, {2, vp-2}, {3, vp-3}};
         for(int i = 0; i < length; i++)
         {
@@ -799,11 +804,13 @@ public class CCModel
             int d = i%vp;
             int di = destpos+b+o[d][1];
             int si = srcpos+b+o[d][0];
-            verts[di] = new Vertex5(verts[si]);
-            if(normals != null && normals[si] != null)
-                normals[di] = normals[si].copy().negate();
+            dst.verts[di] = src.verts[si].copy();
+            if(src.normals != null && src.normals[si] != null)
+                dst.normals[di] = src.normals[si].copy().negate();
+            if(src.colours != null)
+                dst.colours[di] = src.colours[si];
         }
-        return this;
+        return dst;
     }
 
     /**
@@ -908,8 +915,7 @@ public class CCModel
     {
         CCModel model = newModel(vertexMode, verts.length*2);
         copy(this, 0, model, 0, verts.length);
-        model.generateBackface(0, verts.length, verts.length);
-        return model;
+        return generateBackface(model, 0, model, verts.length, verts.length);
     }
 
     public CCModel copy()

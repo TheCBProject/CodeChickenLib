@@ -116,6 +116,7 @@ public class CCRenderState
         useModelColours = false;
         hasColour = false;
         alphaOverride = false;
+        useNormals = false;
     }
 
     public static void startDrawing(int i)
