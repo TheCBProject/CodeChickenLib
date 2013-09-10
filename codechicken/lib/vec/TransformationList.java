@@ -51,8 +51,8 @@ public class TransformationList extends Transformation
         if(mat != null)
             mat.apply(vec);
         else
-            for(Transformation t : transformations)
-                t.apply(vec);
+            for(int i = 0; i < transformations.size(); i++)
+                transformations.get(i).apply(vec);
     }
     
     @Override
@@ -61,8 +61,8 @@ public class TransformationList extends Transformation
         if(mat != null)
             mat.applyN(normal);
         else
-            for(Transformation t : transformations)
-                t.applyN(normal);
+            for(int i = 0; i < transformations.size(); i++)
+                transformations.get(i).applyN(normal);
     }
 
     @Override
@@ -129,6 +129,9 @@ public class TransformationList extends Transformation
             transformations = newList;
             mat = null;
         }
+        
+        if(transformations.size() > 3 && mat == null)
+            compile();
     }
     
     @Override

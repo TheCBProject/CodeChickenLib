@@ -355,6 +355,17 @@ public class CCModel
         return this;
     }
     
+    public CCModel expand(int extraVerts)
+    {
+        int newLen = verts.length+extraVerts;
+        verts = Arrays.copyOf(verts, newLen);
+        if(normals != null)
+            normals = Arrays.copyOf(normals, newLen);
+        if(colours != null)
+            colours = Arrays.copyOf(colours, newLen);
+        return this;
+    }
+    
     public void render()
     {
         render(0, verts.length, null, null, null);

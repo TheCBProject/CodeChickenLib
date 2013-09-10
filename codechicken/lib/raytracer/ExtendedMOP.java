@@ -7,6 +7,9 @@ import net.minecraft.util.Vec3;
 public class ExtendedMOP extends MovingObjectPosition implements Comparable<ExtendedMOP>
 {
     public Object data;
+    /**
+     * The square distance from the start of the raytrace.
+     */
     public double dist;
     
     public ExtendedMOP(Entity entity, Object data)
