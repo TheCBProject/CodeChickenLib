@@ -13,6 +13,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 /**
  * Easy localisation access.
@@ -69,12 +71,14 @@ public class LangUtil
             reg.addStringLocalization(key, lang, value);
         }
     }
-    
+
+    @SideOnly(Side.CLIENT)
     public static LangUtil loadLangDir(String domain)
     {
         return new LangUtil(domain).addLangDir(new ResourceLocation(domain, "lang"));
     }
     
+    @SideOnly(Side.CLIENT)
     public LangUtil addLangDir(ResourceLocation dir)
     {
         ResourceManager resManager = Minecraft.getMinecraft().getResourceManager();
@@ -105,6 +109,7 @@ public class LangUtil
     }
     
     @Deprecated
+    @SideOnly(Side.CLIENT)
     public static void loadBaseLangDir(ResourceLocation dir)
     {
         instance.addLangDir(dir);
