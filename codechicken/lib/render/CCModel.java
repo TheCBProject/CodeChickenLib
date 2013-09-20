@@ -150,7 +150,12 @@ public class CCModel
      */
     public CCModel generateBlock(int i, Cuboid6 bounds)
     {
-        return generateBlock(i, bounds.min.x, bounds.min.y, bounds.min.z, bounds.max.x, bounds.max.y, bounds.max.z);
+        return generateBlock(i, bounds, 0);
+    }
+    
+    public CCModel generateBlock(int i, Cuboid6 bounds, int mask)
+    {
+        return generateBlock(i, bounds.min.x, bounds.min.y, bounds.min.z, bounds.max.x, bounds.max.y, bounds.max.z, mask);
     }
 
     public CCModel generateBlock(int i, double x1, double y1, double z1, double x2, double y2, double z2)
