@@ -28,9 +28,6 @@ public class RayTracer
     private int s_side;
     private IndexedCuboid6 c_cuboid;
     
-    @Deprecated//not threadsafe
-    public static RayTracer instance = new RayTracer();
-    
     private static ThreadLocal<RayTracer> t_inst = new ThreadLocal<RayTracer>();
     
     public static RayTracer instance()

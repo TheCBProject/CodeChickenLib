@@ -135,12 +135,6 @@ public class Cuboid6
         return this;
     }
     
-    @Deprecated
-    public Cuboid6 transform(Transformation t)
-    {
-        return apply(t);
-    }
-    
     public Cuboid6 apply(Transformation t)
     {
         t.apply(min);

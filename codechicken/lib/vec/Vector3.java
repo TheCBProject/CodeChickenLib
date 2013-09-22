@@ -76,12 +76,6 @@ public class Vector3
         return new Vector3(e.xCoord + 0.5, e.yCoord + 0.5, e.zCoord + 0.5);
     }
 
-    @Deprecated
-    public static Vector3 fromVec3D(Vec3 vec)
-    {
-        return new Vector3(vec);
-    }
-
     public Vector3 set(double d, double d1, double d2)
     {
         x = d;

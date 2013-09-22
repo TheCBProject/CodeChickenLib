@@ -41,14 +41,7 @@ public abstract class Colour
     {
         GL11.glColor4ub(r, g, b, (byte) a);
     }
-
-    @SideOnly(Side.CLIENT)
-    @Deprecated
-    public void glColour(byte a)
-    {
-        GL11.glColor4ub(r, g, b, a);
-    }
-
+    
     public abstract int pack();
 
     @Override

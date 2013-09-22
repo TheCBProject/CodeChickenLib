@@ -49,12 +49,6 @@ public class RenderUtils
         entityItem.hoverStart = 0;
     }
     
-    @Deprecated
-    public static void renderLiquidQuad(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 point4, Icon icon, double res)
-    {
-        renderFluidQuad(point1, point2, point3, point4, icon, res);
-    }
-    
     public static void renderFluidQuad(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 point4, Icon icon, double res)
     {
         double u1 = icon.getMinU();
@@ -109,12 +103,6 @@ public class RenderUtils
         GL11.glTranslated(-interpPosX, -interpPosY, -interpPosZ);
     }
     
-    @Deprecated
-    public static void drawOutlinedBoundingBox(AxisAlignedBB aabb)
-    {
-        drawCuboidOutline(new Cuboid6(aabb));
-    }
-    
     public static void drawCuboidOutline(Cuboid6 c)
     {
         Tessellator var2 = Tessellator.instance;
@@ -142,12 +130,6 @@ public class RenderUtils
         var2.addVertex(c.min.x, c.min.y, c.max.z);
         var2.addVertex(c.min.x, c.max.y, c.max.z);
         var2.draw();
-    }
-    
-    @Deprecated
-    public static void renderLiquidCuboid(Cuboid6 bound, Icon tex, double res)
-    {
-        renderFluidCuboid(bound, tex, res);
     }
     
     public static void renderFluidCuboid(Cuboid6 bound, Icon tex, double res)
@@ -235,12 +217,6 @@ public class RenderUtils
             break;
         }
     }
-    
-    @Deprecated
-    public static boolean shouldRenderLiquid(FluidStack stack)
-    {
-        return shouldRenderFluid(stack);
-    }
 
     public static boolean shouldRenderFluid(FluidStack stack)
     {
@@ -272,12 +248,6 @@ public class RenderUtils
         GL11.glDisable(GL11.GL_BLEND);
     }
     
-    @Deprecated
-    public static void renderLiquidCuboid(FluidStack stack, Cuboid6 bound, double density, double res)
-    {
-        renderFluidCuboid(stack, bound, density, res);
-    }
-    
     public static double fluidDensityToAlpha(double density)
     {
         return Math.pow(density, 0.4);
@@ -295,7 +265,7 @@ public class RenderUtils
      */
     public static void renderFluidCuboid(FluidStack stack, Cuboid6 bound, double density, double res)
     {
-        if(!shouldRenderLiquid(stack))
+        if(!shouldRenderFluid(stack))
             return;
         
         int alpha = 255;
@@ -306,14 +276,14 @@ public class RenderUtils
         
         Icon tex = prepareFluidRender(stack, alpha);
         CCRenderState.startDrawing(7);
-        renderLiquidCuboid(bound, tex, res);
+        renderFluidCuboid(bound, tex, res);
         CCRenderState.draw();
         postFluidRender();
     }
     
     public static void renderFluidGauge(FluidStack stack, Rectangle4i rect, double density, double res)
     {
-        if(!shouldRenderLiquid(stack))
+        if(!shouldRenderFluid(stack))
             return;
         
         int alpha = 255;
@@ -328,7 +298,7 @@ public class RenderUtils
         
         Icon tex = prepareFluidRender(stack, alpha);
         CCRenderState.startDrawing(7);
-        renderLiquidQuad(
+        renderFluidQuad(
                 new Vector3(rect.x, rect.y, 0),
                 new Vector3(rect.x, rect.y+rect.h, 0),
                 new Vector3(rect.x+rect.w, rect.y+rect.h, 0),

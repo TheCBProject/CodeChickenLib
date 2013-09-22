@@ -107,11 +107,4 @@ public class LangUtil
         
         return this;
     }
-    
-    @Deprecated
-    @SideOnly(Side.CLIENT)
-    public static void loadBaseLangDir(ResourceLocation dir)
-    {
-        instance.addLangDir(dir);
-    }
 }
