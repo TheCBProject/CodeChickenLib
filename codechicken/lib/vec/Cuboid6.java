@@ -145,4 +145,17 @@ public class Cuboid6
         if(min.z > max.z) {temp = min.z; min.z = max.z; max.z = temp;}
         return this;
     }
+    
+    public double side(int s)
+    {
+        switch(s) {
+            case 0: return min.y;
+            case 1: return max.y;
+            case 2: return min.z;
+            case 3: return max.z;
+            case 4: return min.x;
+            case 5: return max.x;
+        }
+        throw new IndexOutOfBoundsException("Switch Falloff");
+    }
 }
