@@ -146,7 +146,7 @@ public class Cuboid6
         return this;
     }
     
-    public double side(int s)
+    public double getSide(int s)
     {
         switch(s) {
             case 0: return min.y;
@@ -157,5 +157,19 @@ public class Cuboid6
             case 5: return max.x;
         }
         throw new IndexOutOfBoundsException("Switch Falloff");
+    }
+    
+    public Cuboid6 setSide(int s, double d)
+    {
+        switch(s) {
+            case 0: min.y = d; break;
+            case 1: max.y = d; break;
+            case 2: min.z = d; break;
+            case 3: max.z = d; break;
+            case 4: min.x = d; break;
+            case 5: max.x = d; break;
+            default: throw new IndexOutOfBoundsException("Switch Falloff");
+        }
+        return this;
     }
 }
