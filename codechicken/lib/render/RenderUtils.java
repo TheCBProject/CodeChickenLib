@@ -10,7 +10,6 @@ import codechicken.lib.vec.Rectangle4i;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Vector3;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Icon;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;

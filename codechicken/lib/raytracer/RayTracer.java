@@ -191,7 +191,7 @@ public class RayTracer
 
         Vec3 headVec = getCorrectedHeadVec(player);
         Vec3 lookVec = player.getLook(1.0F);
-        double reach = world.isRemote ? getBlockReachDistance_client() : getBlockReachDistance_server((EntityPlayerMP) player);
+        double reach = getBlockReachDistance(player);
         Vec3 endVec = headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
         return block.collisionRayTrace(world, x, y, z, headVec, endVec);
     }
@@ -222,7 +222,30 @@ public class RayTracer
     
     public static Vec3 getCorrectedHeadVec(EntityPlayer player)
     {
-        double d = player.worldObj.isRemote ? 0 : (player instanceof EntityPlayerMP && player.isSneaking() ? 1.54 : 1.62);
-        return Vec3.createVectorHelper(player.posX, player.posY + d, player.posZ);
+        Vec3 v = Vec3.createVectorHelper(player.posX, player.posY, player.posZ);
+        if(!player.worldObj.isRemote) {
+            v.yCoord+=player.getEyeHeight();
+            if(player instanceof EntityPlayerMP && player.isSneaking())
+                v.yCoord-=0.08;
+        }
+        return v;
+    }
+    
+    public static Vec3 getStartVec(EntityPlayer player)
+    {
+        return getCorrectedHeadVec(player);
+    }
+    
+    public static double getBlockReachDistance(EntityPlayer player)
+    {
+        return player.worldObj.isRemote ? getBlockReachDistance_client() : getBlockReachDistance_server((EntityPlayerMP) player);
+    }
+    
+    public static Vec3 getEndVec(EntityPlayer player)
+    {
+        Vec3 headVec = getCorrectedHeadVec(player);
+        Vec3 lookVec = player.getLook(1.0F);
+        double reach = getBlockReachDistance(player);
+        return headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
     }
 }
