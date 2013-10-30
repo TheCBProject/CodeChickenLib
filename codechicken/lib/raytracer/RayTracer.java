@@ -209,7 +209,7 @@ public class RayTracer
     
     public static MovingObjectPosition reTrace(World world, EntityPlayer player)
     {
-        return reTrace(world, player, world.isRemote ? getBlockReachDistance_client() : getBlockReachDistance_server((EntityPlayerMP) player));
+        return reTrace(world, player, getBlockReachDistance(player));
     }
 
     public static MovingObjectPosition reTrace(World world, EntityPlayer player, double reach)
@@ -238,7 +238,8 @@ public class RayTracer
     
     public static double getBlockReachDistance(EntityPlayer player)
     {
-        return player.worldObj.isRemote ? getBlockReachDistance_client() : getBlockReachDistance_server((EntityPlayerMP) player);
+        return player.worldObj.isRemote ? getBlockReachDistance_client() : 
+            player instanceof EntityPlayerMP ? getBlockReachDistance_server((EntityPlayerMP) player) : 5D;
     }
     
     public static Vec3 getEndVec(EntityPlayer player)
