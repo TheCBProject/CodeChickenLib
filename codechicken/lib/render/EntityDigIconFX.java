@@ -33,6 +33,14 @@ public class EntityDigIconFX extends EntityFX
         return particleScale;
     }
     
+    public void setMaxAge(int age){
+        particleMaxAge = age;
+    }
+    
+    public int getMaxAge(){
+        return particleMaxAge;
+    }
+    
     /**
      * copy pasted from EntityDiggingFX
      */
