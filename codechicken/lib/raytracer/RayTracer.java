@@ -223,7 +223,9 @@ public class RayTracer
     public static Vec3 getCorrectedHeadVec(EntityPlayer player)
     {
         Vec3 v = Vec3.createVectorHelper(player.posX, player.posY, player.posZ);
-        if(!player.worldObj.isRemote) {
+        if(player.worldObj.isRemote) {
+            v.yCoord+=player.getEyeHeight()-player.getDefaultEyeHeight();//compatibility with eye height changing mods
+        } else {
             v.yCoord+=player.getEyeHeight();
             if(player instanceof EntityPlayerMP && player.isSneaking())
                 v.yCoord-=0.08;
