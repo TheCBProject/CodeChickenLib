@@ -39,4 +39,10 @@ public class Rectangle4i
     {
         return x <= px && px < x+w && y <= py && py < y+h;
     }
+    
+    public boolean intersects(Rectangle4i r)
+    {
+    	return x <= r.x+r.w && r.x <= x+w &&
+    	          y <= r.y+r.h && r.y <= y+h;
+    }
 }

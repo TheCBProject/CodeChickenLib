@@ -165,4 +165,14 @@ public class MathHelper
     {
         return (int) (d < 0 ? Math.floor(d) : Math.ceil(d));
     }
+    
+    public static int compare(int a, int b)
+    {
+        return a == b ? 0 : a < b ? -1 : 1;
+    }
+    
+    public static int compare(double a, double b)
+    {
+        return a == b ? 0 : a < b ? -1 : 1;
+    }
 }
