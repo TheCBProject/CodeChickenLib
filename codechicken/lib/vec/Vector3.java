@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -49,6 +50,13 @@ public class Vector3
         x = vec.xCoord;
         y = vec.yCoord;
         z = vec.zCoord;
+    }
+
+    public Vector3(BlockCoord coord)
+    {
+        x = coord.x;
+        y = coord.y;
+        z = coord.z;
     }
 
     public Vector3 copy()
@@ -290,6 +298,12 @@ public class Vector3
     {
         return new Vector4f((float)x, (float)y, (float)z, 1);
     }
+    
+    @SideOnly(Side.CLIENT)
+    public void glVertex()
+    {
+        GL11.glVertex3d(x, y, z);
+    }
 
     public Vector3 YZintercept(Vector3 end, double px)
     {
@@ -413,5 +427,45 @@ public class Vector3
     {
         t.apply(this);
         return this;
+    }
+
+    public Vector3 $tilde()
+    {
+        return normalize();
+    }
+
+    public Vector3 unary_$tilde()
+    {
+        return normalize();
+    }
+    
+    public Vector3 $plus(Vector3 v)
+    {
+        return add(v);
+    }
+    
+    public Vector3 $minus(Vector3 v)
+    {
+        return subtract(v);
+    }
+    
+    public Vector3 $times(double d)
+    {
+        return multiply(d);
+    }
+    
+    public Vector3 $div(double d)
+    {
+        return multiply(1/d);
+    }
+    
+    public Vector3 $times(Vector3 v)
+    {
+        return crossProduct(v);
+    }
+
+    public double $dot$times(Vector3 v)
+    {
+        return dotProduct(v);
     }
 }

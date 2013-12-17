@@ -64,4 +64,9 @@ public abstract class Transformation
     public abstract void glApply();
 
     public abstract Transformation inverse();
+    
+    public TransformationList $plus$plus(Transformation t)
+    {
+        return with(t);
+    }
 }
