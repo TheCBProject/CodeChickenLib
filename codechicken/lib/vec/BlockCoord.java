@@ -71,7 +71,7 @@ public class BlockCoord implements Comparable<BlockCoord>
         return this;
     }
 
-    public double mag_()
+    public double mag()
     {
         return Math.sqrt(x*x+y*y+z*z);
     }
@@ -176,6 +176,11 @@ public class BlockCoord implements Comparable<BlockCoord>
     public BlockCoord set(BlockCoord coord)
     {
         return set(coord.x, coord.y, coord.z);
+    }
+
+    public BlockCoord set(int[] ia)
+    {
+        return set(ia[0], ia[1], ia[2]);
     }
     
     public int toSide()

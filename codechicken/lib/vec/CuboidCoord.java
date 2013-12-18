@@ -107,7 +107,25 @@ public class CuboidCoord
 
     public void set(BlockCoord min, BlockCoord max)
     {
-        this.min = min;
-        this.max = max;
+        this.min.set(min);
+        this.max.set(max);
+    }
+
+    public CuboidCoord set(int x1, int y1, int z1, int x2, int y2, int z2)
+    {
+        min.set(x1, y1, z1);
+        max.set(x2, y2, z2);
+        return this;
+    }
+
+    public CuboidCoord set(BlockCoord coord) {
+        min.set(coord);
+        max.set(coord);
+        return this;
+    }
+
+    public CuboidCoord set(int[] ia)
+    {
+        return set(ia[0], ia[1], ia[2], ia[3], ia[4], ia[5]);
     }
 }
