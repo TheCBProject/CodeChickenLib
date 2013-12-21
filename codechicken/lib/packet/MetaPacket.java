@@ -58,14 +58,17 @@ public class MetaPacket extends Packet250CustomPayload
     }
 
     @Override
-    public void writePacketData(DataOutput dataout) throws IOException
-    {
+    public void writePacketData(DataOutput dataout) {
         //send a dummy 250
         super.writePacketData(dataout);
-        
-        for(Packet p : packets)
-            Packet.writePacket(p, dataout);
-        
+
+        for(Packet p : packets)//TODO: fix extends
+            try {
+                Packet.writePacket(p, dataout);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         //adjust sent size for Packet.writePacket
         Packet.sentSize-=getPacketSize()-super.getPacketSize();
     }
