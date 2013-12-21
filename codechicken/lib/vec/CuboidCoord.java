@@ -2,11 +2,19 @@ package codechicken.lib.vec;
 
 import net.minecraft.util.AxisAlignedBB;
 
-public class CuboidCoord
+import java.util.Iterator;
+
+public class CuboidCoord implements Iterable<BlockCoord>
 {
     public BlockCoord min;
     public BlockCoord max;
-    
+
+    public CuboidCoord()
+    {
+        min = new BlockCoord();
+        max = new BlockCoord();
+    }
+
     public CuboidCoord(BlockCoord min, BlockCoord max)
     {
         this.min = min;
@@ -127,5 +135,38 @@ public class CuboidCoord
     public CuboidCoord set(int[] ia)
     {
         return set(ia[0], ia[1], ia[2], ia[3], ia[4], ia[5]);
+    }
+
+    public Iterator<BlockCoord> iterator() {
+        return new Iterator<BlockCoord>() {
+            BlockCoord b = null;
+
+            public boolean hasNext() {
+                return b == null || !b.equals(max);
+            }
+
+            public BlockCoord next() {
+                if(b == null)
+                    b = min.copy();
+                else {
+                    if(b.z != max.z)
+                        b.z++;
+                    else {
+                        b.z = min.z;
+                        if(b.y != max.y)
+                            b.y++;
+                        else {
+                            b.y = min.y;
+                            b.x++;
+                        }
+                    }
+                }
+                return b;
+            }
+
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 }

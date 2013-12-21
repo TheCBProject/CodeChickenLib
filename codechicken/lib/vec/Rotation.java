@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 
 import org.lwjgl.opengl.GL11;
@@ -123,7 +124,7 @@ public class Rotation extends Transformation
             throw new IllegalArgumentException("Faces "+s1+" and "+s2+" are opposites");
         return rotSideMap[s1*6+s2];
     }
-    
+
     /**
      * @param player The placing player, used for obtaining the look vector
      * @param side The side of the block being placed on
@@ -138,7 +139,7 @@ public class Rotation extends Transformation
         {
             Vector3 axis = Rotation.axes[rotateSide(side^1, r)];
             double d = look.scalarProject(axis);
-            if(max > d)
+            if(max > d)//TODO wrong way round
             {
                 max = d;
                 maxr = r;
@@ -153,6 +154,25 @@ public class Rotation extends Transformation
     public static Transformation sideOrientation(int s, int r)
     {
         return quarterRotations[(r+sideRotOffsets[s])%4].with(sideRotations[s]);
+    }
+
+    /**
+     * @param entity The placing entity, used for obtaining the look vector
+     * @return The side towards which the entity is most directly looking.
+     */
+    public static int getSideFromLookAngle(EntityLivingBase entity)
+    {
+        Vector3 look = new Vector3(entity.getLook(1));
+        double max = 0;
+        int maxs = 0;
+        for(int s = 0; s < 6; s++) {
+            double d = look.scalarProject(axes[s]);
+            if(d > max) {
+                max = d;
+                maxs = s;
+            }
+        }
+        return maxs;
     }
     
     public double angle;
