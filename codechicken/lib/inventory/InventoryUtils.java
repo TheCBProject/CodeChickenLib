@@ -21,6 +21,9 @@ import net.minecraftforge.common.ForgeDirection;
 
 public class InventoryUtils
 {
+    /**
+     * Static default implementation for IInventory method
+     */
     public static ItemStack decrStackSize(IInventory inv, int slot, int size)
     {
         ItemStack item = inv.getStackInSlot(slot);
@@ -45,6 +48,9 @@ public class InventoryUtils
         return null;
     }
 
+    /**
+     * Static default implementation for IInventory method
+     */
     public static ItemStack getStackInSlotOnClosing(IInventory inv, int slot)
     {
         ItemStack stack = inv.getStackInSlot(slot);
@@ -53,9 +59,6 @@ public class InventoryUtils
     }
 
     /**
-     * 
-     * @param base
-     * @param addition
      * @return The quantity of items from addition that can be added to base
      */
     public static int incrStackSize(ItemStack base, ItemStack addition)
@@ -67,9 +70,6 @@ public class InventoryUtils
     }
     
     /**
-     * 
-     * @param base
-     * @param addition
      * @return The quantity of items from addition that can be added to base
      */
     public static int incrStackSize(ItemStack base, int addition)
@@ -84,11 +84,17 @@ public class InventoryUtils
         return 0;
     }
 
+    /**
+     * NBT item saving function
+     */
     public static NBTTagList writeItemStacksToTag(ItemStack[] items)
     {
         return writeItemStacksToTag(items, 64);
     }
-    
+
+    /**
+     * NBT item saving function with support for stack sizes > 32K
+     */
     public static NBTTagList writeItemStacksToTag(ItemStack[] items, int maxQuantity)
     {
         NBTTagList tagList = new NBTTagList();
@@ -110,7 +116,10 @@ public class InventoryUtils
         }
         return tagList;
     }
-    
+
+    /**
+     * NBT item loading function with support for stack sizes > 32K
+     */
     public static void readItemStacksFromTag(ItemStack[] items, NBTTagList tagList)
     {
         for(int i = 0; i < tagList.tagCount(); i++)
@@ -129,6 +138,9 @@ public class InventoryUtils
         }
     }
 
+    /**
+     * Spawns an itemstack in the world at a location
+     */
     public static void dropItem(ItemStack stack, World world, Vector3 dropLocation)
     {
         EntityItem item = new EntityItem(world, dropLocation.x, dropLocation.y, dropLocation.z, stack);
@@ -138,6 +150,9 @@ public class InventoryUtils
         world.spawnEntityInWorld(item);
     }
 
+    /**
+     * Copies an itemstack with a new quantity
+     */
     public static ItemStack copyStack(ItemStack stack, int quantity)
     {
         if(stack == null)
@@ -147,8 +162,11 @@ public class InventoryUtils
         stack.stackSize = quantity;
         return stack;
     }
-    
-    public static int getInsertableQuantity(InventoryRange inv, ItemStack stack)
+
+    /**
+     * Gets the maximum quantity of an item that can be inserted into inv
+     */
+    public static int getInsertibleQuantity(InventoryRange inv, ItemStack stack)
     {
         int quantity = 0;
         stack = copyStack(stack, Integer.MAX_VALUE);
@@ -156,6 +174,11 @@ public class InventoryUtils
             quantity+=fitStackInSlot(inv, slot, stack);
         
         return quantity;
+    }
+
+    public static int getInsertibleQuantity(IInventory inv, ItemStack stack)
+    {
+        return getInsertibleQuantity(new InventoryRange(inv), stack);
     }
     
     public static int fitStackInSlot(InventoryRange inv, int slot, ItemStack stack)
@@ -168,11 +191,17 @@ public class InventoryUtils
         return Math.min(fit, stack.stackSize);
     }
 
-    public static boolean mergeItemStack(InventoryRange inv, ItemStack stack, boolean doMerge)
+    public static int fitStackInSlot(IInventory inv, int slot, ItemStack stack)
     {
-        if(doMerge && !mergeItemStack(inv, stack, false))
-            return false;
+        return fitStackInSlot(new InventoryRange(inv), slot, stack);
+    }
 
+    /**
+     * @param simulate. If set to true, no items will actually be inserted
+     * @return The number of items unable to be inserted
+     */
+    public static int insertItem(InventoryRange inv, ItemStack stack, boolean simulate)
+    {
         stack = stack.copy();
         for(int pass = 0; pass < 2; pass++)
         {
@@ -186,7 +215,7 @@ public class InventoryUtils
                 if(base != null)
                 {
                     stack.stackSize-=fit;
-                    if(doMerge)
+                    if(!simulate)
                     {
                         base.stackSize+=fit;
                         inv.inv.setInventorySlotContents(slot, base);
@@ -194,27 +223,53 @@ public class InventoryUtils
                 }
                 else if(pass == 1)
                 {
-                    if(doMerge)
+                    if(!simulate)
                         inv.inv.setInventorySlotContents(slot, copyStack(stack, fit));
                     stack.stackSize-=fit;
                 }
                 if(stack.stackSize == 0)
-                    return true;
+                    return 0;
             }
         }
-        return false;
+        return stack.stackSize;
+    }
+
+    public static int insertItem(IInventory inv, ItemStack stack, boolean simulate)
+    {
+        return insertItem(new InventoryRange(inv), stack, simulate);
+    }
+
+    /**
+     * Gets the stack in slot if it can be extracted
+     */
+    public static ItemStack getExtractableStack(InventoryRange inv, int slot)
+    {
+        ItemStack stack = inv.inv.getStackInSlot(slot);
+        if(stack == null || !inv.canExtractItem(slot, stack))
+            return null;
+
+        return stack;
+    }
+
+    public static ItemStack getExtractableStack(IInventory inv, int slot)
+    {
+        return getExtractableStack(new InventoryRange(inv), slot);
     }
 
     public static boolean areStacksIdentical(ItemStack stack1, ItemStack stack2)
     {
         if(stack1 == null || stack2 == null)
             return stack1 == stack2;
+
         return stack1.itemID == stack2.itemID
                 && stack1.getItemDamage() == stack2.getItemDamage()
                 && stack1.stackSize == stack2.stackSize
                 && Objects.equal(stack1.getTagCompound(), stack2.getTagCompound());
     }
-    
+
+    /**
+     * Gets an IInventory from a coordinate with support for double chests
+     */
     public static IInventory getInventory(World world, int x, int y, int z)
     {
         TileEntity tile = world.getBlockTileEntity(x, y, z);
@@ -248,6 +303,9 @@ public class InventoryUtils
                 stack1.isStackable();
     }
 
+    /**
+     * Consumes one item from slot in inv with support for containers.
+     */
     public static void consumeItem(IInventory inv, int slot)
     {
         ItemStack stack = inv.getStackInSlot(slot);
@@ -263,21 +321,18 @@ public class InventoryUtils
         }
     }
 
+    /**
+     * Gets the size of the stack in a slot. Returns 0 on null stacks
+     */
     public static int stackSize(IInventory inv, int slot)
     {
         ItemStack stack = inv.getStackInSlot(slot);
         return stack == null ? 0 : stack.stackSize;
     }
-    
-    public static ItemStack getRemovableStack(InventoryRange inv, int slot)
-    {
-        ItemStack stack = inv.inv.getStackInSlot(slot);
-        if(stack == null || !inv.canExtractItem(slot, stack))
-            return null;
-        
-        return stack;
-    }
 
+    /**
+     * Drops all items from inv using getStackInSlotOnClosing
+     */
     public static void dropOnClose(EntityPlayer player, IInventory inv)
     {
         for (int i = 0; i < inv.getSizeInventory(); i++)
@@ -287,7 +342,10 @@ public class InventoryUtils
                 player.dropPlayerItem(stack);
         }
     }
-    
+
+    /**
+     * Gets the actual damage of an item without asking the Item
+     */
     public static int actualDamage(ItemStack stack)
     {
         return Item.diamond.getDamage(stack);

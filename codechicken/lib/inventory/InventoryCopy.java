@@ -4,6 +4,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
+/**
+ * Creates a copy of an IInventory for extended simulation
+ */
 public class InventoryCopy implements IInventory
 {    
     public boolean[] accessible;
@@ -33,11 +36,11 @@ public class InventoryCopy implements IInventory
         int lslot = access.lastSlot();
         if(lslot > accessible.length)
         {
-            boolean[] l_accessable = new boolean[lslot];
+            boolean[] l_accessible = new boolean[lslot];
             ItemStack[] l_items = new ItemStack[lslot];
-            System.arraycopy(accessible, 0, l_accessable, 0, accessible.length);
+            System.arraycopy(accessible, 0, l_accessible, 0, accessible.length);
             System.arraycopy(items, 0, l_items, 0, items.length);
-            accessible = l_accessable;
+            accessible = l_accessible;
             items = l_items;
         }
 
