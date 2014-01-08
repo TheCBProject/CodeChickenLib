@@ -138,4 +138,9 @@ public abstract class Colour
         a = colour.a;
         return this;
     }
+
+    public boolean equals(Colour colour)
+    {
+        return colour != null && rgba() == colour.rgba();
+    }
 }

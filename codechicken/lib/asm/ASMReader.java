@@ -305,7 +305,10 @@ public class ASMReader
                             break;
                             case FIELD_INSN:
                             case METHOD_INSN:
-                                insn = ObfMapping.fromDesc(split[1]).toInsn(opcode);
+                                StringBuilder sb = new StringBuilder();
+                                for(int i = 1; i < split.length; i++)
+                                    sb.append(split[i]);
+                                insn = ObfMapping.fromDesc(sb.toString()).toInsn(opcode);
                             break;
                             case INVOKE_DYNAMIC_INSN:
                                 throw new Exception("Found INVOKEDYNAMIC while reading");
