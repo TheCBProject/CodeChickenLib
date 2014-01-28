@@ -35,6 +35,11 @@ public class BlockCoord implements Comparable<BlockCoord>
     {
     }
 
+    public static BlockCoord fromAxes(int[] ia)
+    {
+        return new BlockCoord(ia[2], ia[0], ia[1]);
+    }
+
     @Override
     public boolean equals(Object obj)
     {
@@ -145,6 +150,36 @@ public class BlockCoord implements Comparable<BlockCoord>
     public BlockCoord inset(int side, int amount)
     {
         return offset(side, -amount);
+    }
+
+    public int getSide(int side) {
+        switch(side) {
+            case 0:
+            case 1:
+                return y;
+            case 2:
+            case 3:
+                return z;
+            case 4:
+            case 5:
+                return x;
+        }
+        throw new IndexOutOfBoundsException("Switch Falloff");
+    }
+
+    public BlockCoord setSide(int s, int v)
+    {
+        switch(s)
+        {
+            case 0:
+            case 1: y = v; break;
+            case 2:
+            case 3: z = v; break;
+            case 4:
+            case 5: x = v; break;
+            default: throw new IndexOutOfBoundsException("Switch Falloff");
+        }
+        return this;
     }
     
     public static final BlockCoord[] sideOffsets = new BlockCoord[]{

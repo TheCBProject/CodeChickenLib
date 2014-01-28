@@ -45,6 +45,11 @@ public class Vector3
         z = vec.z;
     }
 
+    public Vector3(double[] da)
+    {
+        this(da[0], da[1], da[2]);
+    }
+
     public Vector3(Vec3 vec)
     {
         x = vec.xCoord;
@@ -84,6 +89,11 @@ public class Vector3
         return new Vector3(e.xCoord + 0.5, e.yCoord + 0.5, e.zCoord + 0.5);
     }
 
+    public static Vector3 fromAxes(double[] da)
+    {
+        return new Vector3(da[2], da[0], da[1]);
+    }
+
     public Vector3 set(double d, double d1, double d2)
     {
         x = d;
@@ -97,6 +107,36 @@ public class Vector3
         x = vec.x;
         y = vec.y;
         z = vec.z;
+        return this;
+    }
+
+    public double getSide(int side) {
+        switch(side) {
+            case 0:
+            case 1:
+                return y;
+            case 2:
+            case 3:
+                return z;
+            case 4:
+            case 5:
+                return x;
+        }
+        throw new IndexOutOfBoundsException("Switch Falloff");
+    }
+
+    public Vector3 setSide(int s, double v)
+    {
+        switch(s)
+        {
+            case 0:
+            case 1: y = v; break;
+            case 2:
+            case 3: z = v; break;
+            case 4:
+            case 5: x = v; break;
+            default: throw new IndexOutOfBoundsException("Switch Falloff");
+        }
         return this;
     }
 

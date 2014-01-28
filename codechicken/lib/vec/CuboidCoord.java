@@ -69,7 +69,36 @@ public class CuboidCoord implements Iterable<BlockCoord>
                 return 0;
         }
     }
-    
+
+    public int getSide(int s)
+    {
+        switch(s)
+        {
+            case 0: return min.y;
+            case 1: return max.y;
+            case 2: return min.z;
+            case 3: return max.z;
+            case 4: return min.x;
+            case 5: return max.x;
+        }
+        throw new IndexOutOfBoundsException("Switch Falloff");
+    }
+
+    public CuboidCoord setSide(int s, int v)
+    {
+        switch(s)
+        {
+            case 0: min.y = v; break;
+            case 1: max.y = v; break;
+            case 2: min.z = v; break;
+            case 3: max.z = v; break;
+            case 4: min.x = v; break;
+            case 5: max.x = v; break;
+            default: throw new IndexOutOfBoundsException("Switch Falloff");
+        }
+        return this;
+    }
+
     public int getVolume()
     {
         return (max.x-min.x+1)*(max.y-min.y+1)*(max.z-min.z+1);
@@ -108,9 +137,14 @@ public class CuboidCoord implements Iterable<BlockCoord>
         return new CuboidCoord(min.copy(), max.copy());
     }
 
+    public Cuboid6 bounds()
+    {
+        return new Cuboid6(min.x, min.y, min.z, max.x+1, max.y+1, max.z+1);
+    }
+
     public AxisAlignedBB toAABB()
     {
-        return AxisAlignedBB.getBoundingBox(min.x, min.y, min.z, max.x+1, max.y+1, max.z+1);
+        return bounds().toAABB();
     }
 
     public void set(BlockCoord min, BlockCoord max)

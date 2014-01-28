@@ -18,6 +18,22 @@ public class Rectangle4i
         this.w = w;
         this.h = h;
     }
+
+    public int x1() {
+        return x;
+    }
+
+    public int y1() {
+        return y;
+    }
+
+    public int x2() {
+        return x+w-1;
+    }
+
+    public int y2() {
+        return y+h-1;
+    }
     
     public Rectangle4i offset(int dx, int dy)
     {
@@ -25,13 +41,39 @@ public class Rectangle4i
         y+=dy;
         return this;
     }
-    
+
+    @Deprecated
     public Rectangle4i with(int px, int py)
     {
-        if(x > px) x = px;
-        if(y > py) y = py;
-        if(x + w <= px) w = px-x+1;
-        if(y + h <= py) h = py-y+1;
+        return include(px, py);
+    }
+
+    public Rectangle4i include(int px, int py) {
+        if(px < x) expand(px-x, 0);
+        if(px >= x+w) expand(px-x-w+1, 0);
+        if(py < y) expand(0, py-y);
+        if(py >= y+h) expand(0, py-y-h+1);
+        return this;
+    }
+
+    public Rectangle4i include(Rectangle4i r) {
+        include(r.x, r.y);
+        return include(r.x2(), r.y2());
+    }
+
+    public Rectangle4i expand(int px, int py) {
+        if(px > 0)
+            w+=px;
+        else {
+            x+=px;
+            w-=px;
+        }
+        if(py > 0)
+            h+=py;
+        else {
+            y+=py;
+            h-=py;
+        }
         return this;
     }
     
@@ -42,7 +84,13 @@ public class Rectangle4i
     
     public boolean intersects(Rectangle4i r)
     {
-    	return x <= r.x+r.w && r.x <= x+w &&
-    	          y <= r.y+r.h && r.y <= y+h;
+        return r.x+r.w > x &&
+                r.x < x+w &&
+                r.y+r.h > y &&
+                r.y < y+h;
+    }
+
+    public int area() {
+        return w * h;
     }
 }
