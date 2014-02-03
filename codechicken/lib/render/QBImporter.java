@@ -239,7 +239,6 @@ public class QBImporter
         }
     }
 
-
     private static final int[][] vertOrder = new int[][] {//clockwise because MC is left handed
             {3, 0},
             {1, 0},
@@ -577,8 +576,6 @@ public class QBImporter
         public QBMatrix[] matrices;
         public boolean rightHanded;
 
-
-
         public RasterisedModel toRasterisedModel(int flags) {
             List<QBImage> qbImages = new ArrayList<QBImage>();
             List<List<QBQuad>> modelQuads = new ArrayList<List<QBQuad>>();
@@ -727,29 +724,23 @@ public class QBImporter
     }
 
     public static QBModel loadQB(ResourceLocation res) {
-        try
-        {
+        try {
             return loadQB(Minecraft.getMinecraft().getResourceManager().getResource(res).getInputStream());
-        }
-        catch(Exception e)
-        {
+        } catch(Exception e) {
             throw new RuntimeException("failed to load model: "+res, e);
         }
     }
 
-    /**
-     * try {
-     File dump = new File("packed.png");
-     if(!dump.exists()) dump.createNewFile();
-     ImageIO.write(img, "PNG", dump);
-
-     File dump2 = new File("packed.obj");
-     if(!dump2.exists()) dump2.createNewFile();
-     PrintWriter p = new PrintWriter(dump2);
-     CCModel.exportObj(Collections.singletonMap(name, m), p);
-     p.close();
-     } catch(IOException e) {
-     e.printStackTrace();
-     }
-     */
+    public static QBModel loadQB(File file) {
+        try {
+            FileInputStream fin = new FileInputStream(file);
+            try {
+                return loadQB(fin);
+            } finally {
+                fin.close();
+            }
+        } catch(Exception e) {
+            throw new RuntimeException("failed to load model: "+file.getPath(), e);
+        }
+    }
 }
