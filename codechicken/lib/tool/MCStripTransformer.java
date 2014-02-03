@@ -17,7 +17,7 @@ public class MCStripTransformer {
 
         @Override
         public String map(String typeName) {
-            if(typeName.startsWith("net/minecraft"))
+            if(typeName.startsWith("net/minecraft") || !typeName.contains("/"))
                 found = true;
             return typeName;
         }
