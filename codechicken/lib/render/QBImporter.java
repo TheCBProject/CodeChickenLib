@@ -447,13 +447,13 @@ public class QBImporter
 
             for(int s = 0; s < 6; s++) {
                 CuboidCoord slice = c.copy();
-                slice.shrink(s^1, slice.size(s)-1);
+                slice.expand(s^1, -(slice.size(s)-1));
                 slice.expand(s, 1);
 
                 while(slice.getSide(s) >= 0 && slice.getSide(s) < size.getSide(s)) {
                     if(!voxelFull(solid, slice))
                         break;
-                    slice.shrink(s ^ 1, 1);
+                    slice.expand(s ^ 1, -1);
                     slice.expand(s, 1);
                     c.expand(s, 1);
                 }

@@ -36,22 +36,25 @@ public class CuboidCoord implements Iterable<BlockCoord>
         this(new BlockCoord(x1, y1, z1), new BlockCoord(x2, y2, z2));
     }
 
-    public void expand(int side, int amount)
+    public CuboidCoord expand(int amount) {
+        return expand(amount, amount, amount);
+    }
+
+    public CuboidCoord expand(int x, int y, int z) {
+        max.add(x, y, z);
+        min.sub(x, y, z);
+        return this;
+    }
+
+    public CuboidCoord expand(int side, int amount)
     {
         if(side%2 == 0)//negative side
             min = min.offset(side, amount);
         else
             max = max.offset(side, amount);
+        return this;
     }
     
-    public void shrink(int side, int amount)
-    {
-        if(side%2 == 0)//negative side
-            min = min.inset(side, amount);
-        else
-            max = max.inset(side, amount);
-    }
-
     public int size(int s)
     {
         switch(s)
@@ -171,6 +174,20 @@ public class CuboidCoord implements Iterable<BlockCoord>
         return set(ia[0], ia[1], ia[2], ia[3], ia[4], ia[5]);
     }
 
+    public CuboidCoord include(BlockCoord coord) {
+        return include(coord.x, coord.y, coord.z);
+    }
+
+    public CuboidCoord include(int x, int y, int z) {
+        if(x < min.x) min.x = x;
+        else if(x > max.x) max.x = x;
+        if(y < min.y) min.y = y;
+        else if(y > max.y) max.y = y;
+        if(z < min.z) min.z = z;
+        else if(z > max.z) max.z = z;
+        return this;
+    }
+
     public Iterator<BlockCoord> iterator() {
         return new Iterator<BlockCoord>() {
             BlockCoord b = null;
@@ -195,7 +212,7 @@ public class CuboidCoord implements Iterable<BlockCoord>
                         }
                     }
                 }
-                return b;
+                return b.copy();
             }
 
             public void remove() {
