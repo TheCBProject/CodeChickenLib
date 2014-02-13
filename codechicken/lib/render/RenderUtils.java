@@ -47,18 +47,28 @@ public class RenderUtils
         entityItem = new EntityItem(null);
         entityItem.hoverStart = 0;
     }
-    
+
     public static void renderFluidQuad(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 point4, Icon icon, double res)
     {
+        renderFluidQuad(point2, vectors[0].set(point4).subtract(point1), vectors[1].set(point1).subtract(point2), icon, res);
+    }
+
+    /**
+     * Draws a tessellated quadrilateral bottom to top, left to right
+     * @param base The bottom left corner of the quad
+     * @param wide The bottom of the quad
+     * @param high The left side of the quad
+     * @param res Units per icon
+     */
+    public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, Icon icon, double res)
+    {
+        Tessellator t = Tessellator.instance;
+
         double u1 = icon.getMinU();
         double du = icon.getMaxU()-icon.getMinU();
         double v2 = icon.getMaxV();
         double dv = icon.getMaxV()-icon.getMinV();
-        
-        Vector3 wide = vectors[0].set(point4).subtract(point1);
-        Vector3 high = vectors[1].set(point1).subtract(point2);
-        Tessellator t = Tessellator.instance;
-        
+
         double wlen = wide.mag();
         double hlen = high.mag();
         
@@ -81,10 +91,10 @@ public class RenderUtils
                 Vector3 dy1 = vectors[4].set(high).multiply(y/hlen);    
                 Vector3 dy2 = vectors[5].set(high).multiply((y+ry)/hlen);
 
-                t.addVertexWithUV(point2.x+dx1.x+dy2.x, point2.y+dx1.y+dy2.y, point2.z+dx1.z+dy2.z, u1, v2-ry/res*dv);
-                t.addVertexWithUV(point2.x+dx1.x+dy1.x, point2.y+dx1.y+dy1.y, point2.z+dx1.z+dy1.z, u1, v2);
-                t.addVertexWithUV(point2.x+dx2.x+dy1.x, point2.y+dx2.y+dy1.y, point2.z+dx2.z+dy1.z, u1+rx/res*du, v2);
-                t.addVertexWithUV(point2.x+dx2.x+dy2.x, point2.y+dx2.y+dy2.y, point2.z+dx2.z+dy2.z, u1+rx/res*du, v2-ry/res*dv);
+                t.addVertexWithUV(base.x+dx1.x+dy2.x, base.y+dx1.y+dy2.y, base.z+dx1.z+dy2.z, u1, v2-ry/res*dv);
+                t.addVertexWithUV(base.x+dx1.x+dy1.x, base.y+dx1.y+dy1.y, base.z+dx1.z+dy1.z, u1, v2);
+                t.addVertexWithUV(base.x+dx2.x+dy1.x, base.y+dx2.y+dy1.y, base.z+dx2.z+dy1.z, u1+rx/res*du, v2);
+                t.addVertexWithUV(base.x+dx2.x+dy2.x, base.y+dx2.y+dy2.y, base.z+dx2.z+dy2.z, u1+rx/res*du, v2-ry/res*dv);
                 
                 y+=ry;
             }
@@ -298,10 +308,9 @@ public class RenderUtils
         Icon tex = prepareFluidRender(stack, alpha);
         CCRenderState.startDrawing(7);
         renderFluidQuad(
-                new Vector3(rect.x, rect.y, 0),
                 new Vector3(rect.x, rect.y+rect.h, 0),
-                new Vector3(rect.x+rect.w, rect.y+rect.h, 0),
-                new Vector3(rect.x+rect.w, rect.y, 0), tex, res);
+                new Vector3(rect.w,0, 0),
+                new Vector3(0, -rect.h, 0), tex, res);
         CCRenderState.draw();
         postFluidRender();
     }
