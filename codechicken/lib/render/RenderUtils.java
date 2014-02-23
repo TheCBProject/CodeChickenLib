@@ -314,8 +314,20 @@ public class RenderUtils
         CCRenderState.draw();
         postFluidRender();
     }
-    
-    public static void renderItemUniform(ItemStack item)
+
+
+    /**
+     * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately
+     */
+    public static void renderItemUniform(ItemStack item) {
+        renderItemUniform(item, 0);
+    }
+
+    /**
+     * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately
+     * @param spin The spin angle of the item around the y axis in degrees
+     */
+    public static void renderItemUniform(ItemStack item, double spin)
     {
         IItemRenderer customRenderer = MinecraftForgeClient.getItemRenderer(item, ENTITY);
         boolean is3D = customRenderer != null && customRenderer.shouldUseRenderHelper(ENTITY, item, BLOCK_3D);
@@ -339,7 +351,7 @@ public class RenderUtils
         GL11.glColor4f(1, 1, 1, 1);
         
         entityItem.setEntityItemStack(item);
-        uniformRenderItem.doRenderItem(entityItem, 0, larger ? 0.09 : 0.06, 0, 0, 0);
+        uniformRenderItem.doRenderItem(entityItem, 0, larger ? 0.09 : 0.06, 0, 0, (float)(spin*9/Math.PI));
         
         if(larger)
             GL11.glScaled(d1, d1, d1);
