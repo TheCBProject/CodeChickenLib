@@ -49,9 +49,9 @@ minecraft {
 jar {
     classifier = 'universal'
     version = "${project.minecraft.version}-${project.version}"
-    /*manifest {
+    manifest {
         attributes 'Main-Class': 'codechicken.lib.tool.Main'
-    }*/
+    }
 
 }
 
@@ -77,9 +77,9 @@ task deobfJar(type: Jar) {
 	from sourceSets.main.output
 	classifier = 'dev'
     version = "${project.minecraft.version}-${project.version}"
-	/*manifest {
+	manifest {
         attributes 'Main-Class': 'codechicken.lib.tool.Main'
-    }*/
+    }
 
 }
 
