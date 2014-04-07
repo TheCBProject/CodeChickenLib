@@ -1,11 +1,18 @@
 package codechicken.lib.asm;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import codechicken.lib.config.ConfigFile;
+import codechicken.lib.config.ConfigTag;
+import com.google.common.base.Charsets;
+import com.google.common.io.LineProcessor;
+import com.google.common.io.Resources;
+import cpw.mods.fml.relauncher.FMLInjectionData;
 import net.minecraft.launchwrapper.Launch;
 
 import org.objectweb.asm.MethodVisitor;
@@ -20,6 +27,8 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import com.google.common.base.Objects;
 
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+
+import javax.swing.*;
 
 public class ObfMapping
 {
@@ -37,16 +46,16 @@ public class ObfMapping
                 Map<String, Map<String, String>> rawFieldMaps = (Map<String, Map<String, String>>) rawFieldMapsField.get(FMLDeobfuscatingRemapper.INSTANCE);
                 Map<String, Map<String, String>> rawMethodMaps = (Map<String, Map<String, String>>) rawMethodMapsField.get(FMLDeobfuscatingRemapper.INSTANCE);
 
-                if(rawFieldMaps == null)
+                if (rawFieldMaps == null)
                     throw new IllegalStateException("codechicken.lib.asm.ObfMapping loaded too early. Make sure all references are in or after the asm transformer load stage");
 
-                for(Map<String, String> map : rawFieldMaps.values())
-                    for(Entry<String, String> entry : map.entrySet())
-                        if(entry.getValue().startsWith("field"))
+                for (Map<String, String> map : rawFieldMaps.values())
+                    for (Entry<String, String> entry : map.entrySet())
+                        if (entry.getValue().startsWith("field"))
                             fields.put(entry.getValue(), entry.getKey().substring(0, entry.getKey().indexOf(':')));
-                for(Map<String, String> map : rawMethodMaps.values())
-                    for(Entry<String, String> entry : map.entrySet())
-                        if(entry.getValue().startsWith("func"))
+                for (Map<String, String> map : rawMethodMaps.values())
+                    for (Entry<String, String> entry : map.entrySet())
+                        if (entry.getValue().startsWith("func"))
                             funcs.put(entry.getValue(), entry.getKey().substring(0, entry.getKey().indexOf('(')));
 
             } catch (Exception e) {
@@ -72,8 +81,128 @@ public class ObfMapping
         }
     }
 
+    public static class MCPRemapper extends Remapper implements LineProcessor<Void>
+    {
+        public static ConfigFile config;
+
+        public static File[] getConfFiles() {
+            if (config == null)
+                config = new ConfigFile(new File((File) FMLInjectionData.data()[6], "config/CodeChickenLib.cfg")).setComment("CodeChickenLib configuration file.");
+
+            ConfigTag tag = config.getTag("dev.mappingDir").setComment("Path to directory holding packaged.srg, fields.csv and methods.csv for mcp remapping");
+            for (int i = 0; i < 6; i++) {
+                File dir = confDirectoryGuess(i, tag);
+                if (dir == null || dir.isFile())
+                    continue;
+
+                File[] mappings;
+                try {
+                    mappings = parseConfDir(dir);
+                } catch (Exception e) {
+                    if (i >= 3)
+                        e.printStackTrace();
+                    continue;
+                }
+
+                tag.setValue(dir.getPath());
+                return mappings;
+            }
+
+            throw new RuntimeException("Failed to select mappings directory, set it manually in the config");
+        }
+
+        public static File confDirectoryGuess(int i, ConfigTag tag) {
+            File mcDir = (File) FMLInjectionData.data()[6];
+            switch (i) {
+                case 0:
+                    return tag.value != null ? new File(tag.getValue()) : null;
+                case 1:
+                    return new File(mcDir, "../conf");
+                case 2:
+                    return new File(mcDir, "../build/unpacked/conf");
+                default:
+                    JFileChooser fc = new JFileChooser(mcDir);
+                    fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    fc.setDialogTitle("Select an mcp conf dir for the deobfuscator.");
+                    int ret = fc.showDialog(null, "Select");
+                    return ret == JFileChooser.APPROVE_OPTION ? fc.getSelectedFile() : null;
+            }
+        }
+
+        public static File[] parseConfDir(File confDir) {
+            File srgDir = new File(confDir, "conf");
+            if (!srgDir.exists())
+                srgDir = confDir;
+
+            File srgs = new File(srgDir, "packaged.srg");
+            if (!srgs.exists())
+                srgs = new File(srgDir, "joined.srg");
+            if (!srgs.exists())
+                throw new RuntimeException("Could not find packaged.srg or joined.srg");
+
+            File mapDir = new File(confDir, "mappings");
+            if (!mapDir.exists())
+                mapDir = confDir;
+
+            File methods = new File(mapDir, "methods.csv");
+            if (!methods.exists())
+                throw new RuntimeException("Could not find methods.csv");
+            File fields = new File(mapDir, "fields.csv");
+            if (!fields.exists())
+                throw new RuntimeException("Could not find fields.csv");
+
+            return new File[]{srgs, methods, fields};
+        }
+
+        private HashMap<String, String> fields = new HashMap<String, String>();
+        private HashMap<String, String> funcs = new HashMap<String, String>();
+
+        public MCPRemapper() {
+            File[] mappings = getConfFiles();
+            try {
+                Resources.readLines(mappings[1].toURI().toURL(), Charsets.UTF_8, this);
+                Resources.readLines(mappings[2].toURI().toURL(), Charsets.UTF_8, this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public String mapMethodName(String owner, String name, String desc) {
+            String s = funcs.get(name);
+            return s == null ? name : s;
+        }
+
+        @Override
+        public String mapFieldName(String owner, String name, String desc) {
+            String s = fields.get(name);
+            return s == null ? name : s;
+        }
+
+        @Override
+        public boolean processLine(String line) throws IOException {
+            int i = line.indexOf(',');
+            String srg = line.substring(0, i);
+            int i2 = i + 1;
+            i = line.indexOf(',', i2);
+            String mcp = line.substring(i2, i);
+            (srg.startsWith("func") ? funcs : fields).put(srg, mcp);
+            return true;
+        }
+
+        @Override
+        public Void getResult() {
+            return null;
+        }
+    }
+
     public static ObfRemapper obfMapper = new ObfRemapper();
     public static Remapper mcpMapper = null;
+
+    public static void loadMCPRemapper() {
+        if (mcpMapper == null)
+            mcpMapper = new MCPRemapper();
+    }
 
     public static final boolean obfuscated;
 
@@ -83,6 +212,8 @@ public class ObfMapping
             obf = Launch.classLoader.getClassBytes("net.minecraft.world.World") == null;
         } catch (IOException ignored) {}
         obfuscated = obf;
+        if (!obf)
+            loadMCPRemapper();
     }
 
     public String s_owner;
@@ -223,7 +354,7 @@ public class ObfMapping
     }
 
     public ObfMapping map(Remapper mapper) {
-        if(mapper == null)
+        if (mapper == null)
             return this;
 
         if (isMethod())
