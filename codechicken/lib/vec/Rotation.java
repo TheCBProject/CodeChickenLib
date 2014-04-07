@@ -139,7 +139,7 @@ public class Rotation extends Transformation
         {
             Vector3 axis = Rotation.axes[rotateSide(side^1, r)];
             double d = look.scalarProject(axis);
-            if(max > d)//TODO wrong way round
+            if(d > max)
             {
                 max = d;
                 maxr = r;

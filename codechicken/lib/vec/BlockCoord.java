@@ -1,9 +1,10 @@
 package codechicken.lib.vec;
 
+import codechicken.lib.util.Copyable;
 import net.minecraft.tileentity.TileEntity;
 import codechicken.lib.math.MathHelper;
 
-public class BlockCoord implements Comparable<BlockCoord>
+public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord>
 {
     public int x;
     public int y;

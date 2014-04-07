@@ -5,12 +5,12 @@ import codechicken.lib.vec.Vector3;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
 public class EntityDigIconFX extends EntityFX
 {
-    public EntityDigIconFX(World world, double x, double y, double z, double dx, double dy, double dz, Icon icon)
+    public EntityDigIconFX(World world, double x, double y, double z, double dx, double dy, double dz, IIcon icon)
     {
         super(world, x, y, z, dx, dy, dz);
         particleIcon = icon;
@@ -72,7 +72,7 @@ public class EntityDigIconFX extends EntityFX
         par1Tessellator.addVertexWithUV(f11 + par3 * f10 - par6 * f10, f12 - par4 * f10, f13 + par5 * f10 - par7 * f10, f7, f9);
     }
     
-    public static void addBlockHitEffects(World world, Cuboid6 bounds, int side, Icon icon, EffectRenderer effectRenderer)
+    public static void addBlockHitEffects(World world, Cuboid6 bounds, int side, IIcon icon, EffectRenderer effectRenderer)
     {
         float border = 0.1F;
         Vector3 diff = bounds.max.copy().subtract(bounds.min).add(-2*border);
@@ -99,7 +99,7 @@ public class EntityDigIconFX extends EntityFX
                     .multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
     }
     
-    public static void addBlockDestroyEffects(World world, Cuboid6 bounds, Icon[] icons, EffectRenderer effectRenderer)
+    public static void addBlockDestroyEffects(World world, Cuboid6 bounds, IIcon[] icons, EffectRenderer effectRenderer)
     {
         Vector3 diff = bounds.max.copy().subtract(bounds.min);
         Vector3 center = bounds.min.copy().add(bounds.max).multiply(0.5);

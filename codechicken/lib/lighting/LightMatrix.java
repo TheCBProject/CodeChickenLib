@@ -1,30 +1,31 @@
 package codechicken.lib.lighting;
 
-import codechicken.lib.render.CCModel;
+import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.CCRenderState;
-import codechicken.lib.render.IVertexModifier;
-import codechicken.lib.render.UV;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.world.IBlockAccess;
 
 /**
  * Note that when using the class as a vertex transformer, the vertices are assumed to be within the BB (x, y, z) -> (x+1, y+1, z+1)
  */
-public class LightMatrix implements IVertexModifier
+public class LightMatrix implements CCRenderState.IVertexOperation
 {
+    public static final int operationIndex = CCRenderState.registerOperation();
+
     public int computed = 0;
     public float[][] ao = new float[13][4];
     public int[][] brightness = new int[13][4];
+
+    public IBlockAccess access;
     public BlockCoord pos = new BlockCoord();
-    
+
+    private int sampled = 0;
     private float[] aSamples = new float[27];
     private int[] bSamples = new int[27];
-    private Vector3 v_temp = new Vector3();
-    
+
     /**
      * The 9 positions in the sample array for each side, sides >= 6 are centered on sample 13 (the block itself)
      */
@@ -73,137 +74,88 @@ public class LightMatrix implements IVertexModifier
         }
         System.out.println(Arrays.deepToString(ssamplem));
     }*/
-    
-    public void computeAt(IBlockAccess a, int x, int y, int z)
-    {
+
+    public void locate(IBlockAccess a, int x, int y, int z) {
+        access = a;
         pos.set(x, y, z);
         computed = 0;
-        //inc x, inc z, inc y
-        sample( 0, aSamples, bSamples, a, x-1, y-1, z-1);
-        sample( 1, aSamples, bSamples, a, x  , y-1, z-1);
-        sample( 2, aSamples, bSamples, a, x+1, y-1, z-1);
-        sample( 3, aSamples, bSamples, a, x-1, y-1, z  );
-        sample( 4, aSamples, bSamples, a, x  , y-1, z  );
-        sample( 5, aSamples, bSamples, a, x+1, y-1, z  );
-        sample( 6, aSamples, bSamples, a, x-1, y-1, z+1);
-        sample( 7, aSamples, bSamples, a, x  , y-1, z+1);
-        sample( 8, aSamples, bSamples, a, x+1, y-1, z+1);
-        sample( 9, aSamples, bSamples, a, x-1, y  , z-1);
-        sample(10, aSamples, bSamples, a, x  , y  , z-1);
-        sample(11, aSamples, bSamples, a, x+1, y  , z-1);
-        sample(12, aSamples, bSamples, a, x-1, y  , z  );
-        sample(13, aSamples, bSamples, a, x  , y  , z  );
-        sample(14, aSamples, bSamples, a, x+1, y  , z  );
-        sample(15, aSamples, bSamples, a, x-1, y  , z+1);
-        sample(16, aSamples, bSamples, a, x  , y  , z+1);
-        sample(17, aSamples, bSamples, a, x+1, y  , z+1);
-        sample(18, aSamples, bSamples, a, x-1, y+1, z-1);
-        sample(19, aSamples, bSamples, a, x  , y+1, z-1);
-        sample(20, aSamples, bSamples, a, x+1, y+1, z-1);
-        sample(21, aSamples, bSamples, a, x-1, y+1, z  );
-        sample(22, aSamples, bSamples, a, x  , y+1, z  );
-        sample(23, aSamples, bSamples, a, x+1, y+1, z  );
-        sample(24, aSamples, bSamples, a, x-1, y+1, z+1);
-        sample(25, aSamples, bSamples, a, x  , y+1, z+1);
-        sample(26, aSamples, bSamples, a, x+1, y+1, z+1);
+        sampled = 0;
     }
-    
-    public int[] brightness(int side)
-    {
+
+    public void sample(int i) {
+        if ((sampled & 1 << i) == 0) {
+            int x = pos.x + (i % 3) - 1;
+            int y = pos.y + (i / 9) - 1;
+            int z = pos.z + (i / 3 % 3) - 1;
+            Block b = access.getBlock(x, y, z);
+            bSamples[i] = access.getLightBrightnessForSkyBlocks(x, y, z, b.getLightValue(access, x, y, z));
+            aSamples[i] = b.getAmbientOcclusionLightValue();
+        }
+    }
+
+    public int[] brightness(int side) {
         sideSample(side);
         return brightness[side];
     }
-    
-    public float[] ao(int side)
-    {
+
+    public float[] ao(int side) {
         sideSample(side);
         return ao[side];
     }
-    
-    public void sideSample(int side)
-    {
-        if((computed&1<<side) == 0)
-        {
+
+    public void sideSample(int side) {
+        if ((computed & 1 << side) == 0) {
             int[] ssample = ssamplem[side];
-            for(int q = 0; q < 4; q++)
-            {
+            for (int q = 0; q < 4; q++) {
                 int[] qsample = qsamplem[q];
-                if(Minecraft.isAmbientOcclusionEnabled())
+                if (Minecraft.isAmbientOcclusionEnabled())
                     interp(side, q, ssample[qsample[0]], ssample[qsample[1]], ssample[qsample[2]], ssample[qsample[3]]);
                 else
                     interp(side, q, ssample[4], ssample[4], ssample[4], ssample[4]);
             }
-            computed|=1<<side;
+            computed |= 1 << side;
         }
     }
 
-    private void sample(int i, float[] aSamples, int[] bSamples, IBlockAccess a, int x, int y, int z)
-    {
-        int bid = a.getBlockId(x, y, z);
-        Block b = Block.blocksList[bid];
-        if(b == null)
-        {
-            bSamples[i] = a.getLightBrightnessForSkyBlocks(x, y, z, 0);
-            aSamples[i] = 1;
-        }
-        else
-        {
-            bSamples[i] = a.getLightBrightnessForSkyBlocks(x, y, z, b.getLightValue(a, x, y, z));
-            aSamples[i] = b.getAmbientOcclusionLightValue(a, x, y, z);
-        }
-    }
-    
-    private void interp(int s, int q, int a, int b, int c, int d)
-    {
+    private void interp(int s, int q, int a, int b, int c, int d) {
+        sample(a); sample(b); sample(c); sample(d);
         ao[s][q] = interpAO(aSamples[a], aSamples[b], aSamples[c], aSamples[d])*sideao[s];
         brightness[s][q] = interpBrightness(bSamples[a], bSamples[b], bSamples[c], bSamples[d]);
     }
-    
-    public static float interpAO(float a, float b, float c, float d)
-    {
-        return (a+b+c+d)/4F;
+
+    public static float interpAO(float a, float b, float c, float d) {
+        return (a + b + c + d) / 4F;
     }
-    
-    public static int interpBrightness(int a, int b, int c, int d)
-    {
-        if(a == 0)
+
+    public static int interpBrightness(int a, int b, int c, int d) {
+        if (a == 0)
             a = d;
-        if(b == 0)
+        if (b == 0)
             b = d;
-        if(c == 0)
+        if (c == 0)
             c = d;
-        return (a+b+c+d)>>2 & 0xFF00FF;
+        return (a + b + c + d) >> 2 & 0xFF00FF;
     }
 
-    public void setColour(Tessellator tess, LC lc, int c)
-    {
-        float[] a = ao(lc.side);
-        float f = (a[0]*lc.fa + a[1]*lc.fb + a[2]*lc.fc + a[3]*lc.fd);
-        CCRenderState.vertexColour((int)((c>>>24)*f), (int)((c>>16&0xFF)*f), (int)((c>>8&0xFF)*f), (c&0xFF));
-    }
-
-    public void setBrightness(Tessellator tess, LC lc)
-    {
-        int[] b = brightness(lc.side);
-        tess.setBrightness((int)(b[0]*lc.fa + b[1]*lc.fb + b[2]*lc.fc+b[3]*lc.fd) & 0xFF00FF);
-    }
-    
     @Override
-    public void applyModifiers(CCModel m, Tessellator tess, Vector3 vec, UV uv, Vector3 normal, int i)
-    {
-        LC lc;
-        if(m instanceof CCRBModel)
-            lc = ((CCRBModel)m).lightCoefficents[i];
-        else
-            lc = LC.compute(v_temp.set(vec).add(-pos.x, -pos.y, -pos.z), normal);
-        
-        setColour(tess, lc, (m == null || m.colours == null) ? -1 : m.colours[i]);
-        setBrightness(tess, lc);
-    }
-    
-    @Override
-    public boolean needsNormals()
-    {
+    public boolean load() {
+        CCRenderState.pipeline.addDependency(CCRenderState.colourAttrib);
+        CCRenderState.pipeline.addDependency(CCRenderState.lightCoordAttrib);
         return true;
+    }
+
+    @Override
+    public void operate() {
+        LC lc = CCRenderState.lc;
+        float[] a = ao(lc.side);
+        float f = (a[0] * lc.fa + a[1] * lc.fb + a[2] * lc.fc + a[3] * lc.fd);
+        int[] b = brightness(lc.side);
+        CCRenderState.setColour(ColourRGBA.multiplyC(CCRenderState.colour, f));
+        CCRenderState.setBrightness((int) (b[0] * lc.fa + b[1] * lc.fb + b[2] * lc.fc + b[3] * lc.fd) & 0xFF00FF);
+    }
+
+    @Override
+    public int operationID() {
+        return operationIndex;
     }
 }

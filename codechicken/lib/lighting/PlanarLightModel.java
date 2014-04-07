@@ -1,42 +1,35 @@
 package codechicken.lib.lighting;
 
-import net.minecraft.client.renderer.Tessellator;
-import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
-import codechicken.lib.render.CCModel;
 import codechicken.lib.render.CCRenderState;
-import codechicken.lib.render.IVertexModifier;
-import codechicken.lib.render.UV;
-import codechicken.lib.vec.Vector3;
 
 /**
  * Faster precomputed version of LightModel that only works for axis planar sides
  */
-public class PlanarLightModel implements IVertexModifier
+public class PlanarLightModel implements CCRenderState.IVertexOperation
 {
     public static PlanarLightModel standardLightModel = LightModel.standardLightModel.reducePlanar();
-    
-    public ColourRGBA[] colours;
-    
-    public PlanarLightModel(int[] colours)
-    {
-        this.colours = new ColourRGBA[6];
-        for(int i = 0; i < 6; i++)
-            this.colours[i] = new ColourRGBA(colours[i]);
+
+    public int[] colours;
+
+    public PlanarLightModel(int[] colours) {
+        this.colours = colours;
     }
 
     @Override
-    public void applyModifiers(CCModel m, Tessellator tess, Vector3 vec, UV uv, Vector3 normal, int i)
-    {
-        ColourRGBA light = colours[CCModel.findSide(normal)];
-        int colour = (m == null || m.colours == null) ? -1 : m.colours[i];
-        Colour res = new ColourRGBA(colour).multiply(light);
-        CCRenderState.vertexColour(res.r&0xFF, res.g&0xFF, res.b&0xFF, res.a&0xFF) ;
-    }
-
-    @Override
-    public boolean needsNormals()
-    {
+    public boolean load() {
+        CCRenderState.pipeline.addDependency(CCRenderState.sideAttrib);
+        CCRenderState.pipeline.addDependency(CCRenderState.colourAttrib);
         return true;
+    }
+
+    @Override
+    public void operate() {
+        CCRenderState.setColour(ColourRGBA.multiply(CCRenderState.colour, colours[CCRenderState.side]));
+    }
+
+    @Override
+    public int operationID() {
+        return LightModel.operationIndex;
     }
 }

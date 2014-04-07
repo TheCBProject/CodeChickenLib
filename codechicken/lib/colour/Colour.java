@@ -1,5 +1,6 @@
 package codechicken.lib.colour;
 
+import codechicken.lib.util.Copyable;
 import org.lwjgl.opengl.GL11;
 
 import codechicken.lib.math.MathHelper;
@@ -7,7 +8,7 @@ import codechicken.lib.math.MathHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public abstract class Colour
+public abstract class Colour implements Copyable<Colour>
 {
     public byte r;
     public byte g;

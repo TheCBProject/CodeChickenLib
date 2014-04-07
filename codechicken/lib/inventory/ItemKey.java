@@ -1,9 +1,12 @@
 package codechicken.lib.inventory;
 
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.google.common.base.Objects;
+import net.minecraftforge.oredict.OreDictionary;
+
 import static codechicken.lib.inventory.InventoryUtils.*;
 
 /**
@@ -11,55 +14,52 @@ import static codechicken.lib.inventory.InventoryUtils.*;
  */
 public class ItemKey implements Comparable<ItemKey>
 {
-    public ItemStack item;
+    public ItemStack stack;
     private int hashcode = 0;
-    
-    public ItemKey(ItemStack k)
-    {
-        item = k;
+
+    public ItemKey(ItemStack k) {
+        stack = k;
     }
 
-    public ItemKey(int id, int damage)
-    {
-        this(new ItemStack(id, 1, damage));
+    public ItemKey(Item item, int damage) {
+        this(new ItemStack(item, 1, damage));
     }
-    
-    public ItemKey(int id, int damage, NBTTagCompound compound)
-    {
-        this(id, damage);
-        item.setTagCompound(compound);
+
+    public ItemKey(Item item, NBTTagCompound tag) {
+        this(item, OreDictionary.WILDCARD_VALUE, tag);
+    }
+
+    public ItemKey(Item item, int damage, NBTTagCompound tag) {
+        this(item, damage);
+        stack.setTagCompound(tag);
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
-        if(!(obj instanceof ItemKey))
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ItemKey))
             return false;
-        
-        ItemKey k = (ItemKey)obj;
-        return item.itemID == k.item.itemID &&
-                actualDamage(item) == actualDamage(k.item) &&
-                Objects.equal(item.stackTagCompound, k.item.stackTagCompound);
+
+        ItemKey k = (ItemKey) obj;
+        return stack.getItem() == k.stack.getItem() &&
+                actualDamage(stack) == actualDamage(k.stack) &&
+                Objects.equal(stack.stackTagCompound, k.stack.stackTagCompound);
     }
-    
+
     @Override
-    public int hashCode()
-    {
-        return hashcode != 0 ? hashcode : (hashcode = Objects.hashCode(item.itemID, actualDamage(item), item.stackTagCompound));
+    public int hashCode() {
+        return hashcode != 0 ? hashcode : (hashcode = Objects.hashCode(stack.getItem(), actualDamage(stack), stack.stackTagCompound));
     }
-    
-    public int compareInt(int a, int b)
-    {
+
+    public int compareInt(int a, int b) {
         return a == b ? 0 : a < b ? -1 : 1;
     }
 
     @Override
-    public int compareTo(ItemKey o)
-    {
-        if(item.itemID != o.item.itemID)
-            return compareInt(item.itemID, o.item.itemID);
-        if(actualDamage(item) != actualDamage(o.item))
-            return compareInt(actualDamage(item), actualDamage(o.item));
+    public int compareTo(ItemKey o) {
+        if (stack.getItem() != o.stack.getItem())
+            return compareInt(Item.getIdFromItem(stack.getItem()), Item.getIdFromItem(o.stack.getItem()));
+        if (actualDamage(stack) != actualDamage(o.stack))
+            return compareInt(actualDamage(stack), actualDamage(o.stack));
         return 0;
     }
 }

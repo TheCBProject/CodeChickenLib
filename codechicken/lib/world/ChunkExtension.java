@@ -2,11 +2,11 @@ package codechicken.lib.world;
 
 import java.util.HashSet;
 
+import net.minecraft.network.Packet;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.packet.Packet;
 
 public abstract class ChunkExtension
 {
@@ -42,7 +42,7 @@ public abstract class ChunkExtension
     public final void sendPacketToPlayers(Packet packet)
     {
         for(EntityPlayerMP player : watchedPlayers)
-            player.playerNetServerHandler.sendPacketToPlayer(packet);
+            player.playerNetServerHandler.sendPacket(packet);
     }
 
     public final void watchPlayer(EntityPlayerMP player)

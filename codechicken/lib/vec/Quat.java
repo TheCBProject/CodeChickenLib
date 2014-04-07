@@ -4,14 +4,14 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import codechicken.lib.math.MathHelper;
+import codechicken.lib.util.Copyable;
 
-public class Quat
+public class Quat implements Copyable<Quat>
 {
     public double x;
     public double y;
     public double z;
     public double s;
-    public static final double SQRT2 = Math.sqrt(2D);
 
     public Quat()
     {

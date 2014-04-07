@@ -28,7 +28,7 @@ public class InventoryNBT implements IInventory
     private void readNBT()
     {
         if(tag.hasKey("items"))
-            InventoryUtils.readItemStacksFromTag(items, tag.getTagList("items"));
+            InventoryUtils.readItemStacksFromTag(items, tag.getTagList("items", 10));
     }
     
     @Override
@@ -59,11 +59,11 @@ public class InventoryNBT implements IInventory
     public void setInventorySlotContents(int slot, ItemStack stack)
     {
         items[slot] = stack;
-        onInventoryChanged();
+        markDirty();
     }
 
     @Override
-    public String getInvName()
+    public String getInventoryName()
     {
         return "NBT";
     }
@@ -75,7 +75,7 @@ public class InventoryNBT implements IInventory
     }
 
     @Override
-    public void onInventoryChanged()
+    public void markDirty()
     {
         writeNBT();
     }
@@ -87,12 +87,12 @@ public class InventoryNBT implements IInventory
     }
 
     @Override
-    public void openChest()
+    public void openInventory()
     {
     }
 
     @Override
-    public void closeChest()
+    public void closeInventory()
     {
     }
     
@@ -103,7 +103,7 @@ public class InventoryNBT implements IInventory
     }
     
     @Override
-    public boolean isInvNameLocalized()
+    public boolean hasCustomInventoryName()
     {
         return true;
     }

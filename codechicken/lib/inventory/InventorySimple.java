@@ -83,11 +83,11 @@ public class InventorySimple implements IInventory
     public void setInventorySlotContents(int slot, ItemStack stack)
     {
         items[slot] = stack;
-        onInventoryChanged();
+        markDirty();
     }
 
     @Override
-    public String getInvName()
+    public String getInventoryName()
     {
         return name;
     }
@@ -105,12 +105,12 @@ public class InventorySimple implements IInventory
     }
 
     @Override
-    public void openChest()
+    public void openInventory()
     {
     }
 
     @Override
-    public void closeChest()
+    public void closeInventory()
     {
     }
     
@@ -121,13 +121,13 @@ public class InventorySimple implements IInventory
     }
     
     @Override
-    public boolean isInvNameLocalized()
+    public boolean hasCustomInventoryName()
     {
         return true;
     }
     
     @Override
-    public void onInventoryChanged()
+    public void markDirty()
     {
     }
 }

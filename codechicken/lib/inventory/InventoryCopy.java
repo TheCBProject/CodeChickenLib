@@ -76,11 +76,11 @@ public class InventoryCopy implements IInventory
     public void setInventorySlotContents(int slot, ItemStack stack)
     {
         items[slot] = stack;
-        onInventoryChanged();
+        markDirty();
     }
 
     @Override
-    public String getInvName()
+    public String getInventoryName()
     {
         return "copy";
     }
@@ -91,12 +91,13 @@ public class InventoryCopy implements IInventory
         return true;
     }
 
-    public void openChest()
+    @Override
+    public void openInventory()
     {
     }
 
     @Override
-    public void closeChest()
+    public void closeInventory()
     {
     }
 
@@ -106,9 +107,8 @@ public class InventoryCopy implements IInventory
         return 64;
     }
     
-
     @Override
-    public void onInventoryChanged()
+    public void markDirty()
     {
     }
     
@@ -119,7 +119,7 @@ public class InventoryCopy implements IInventory
     }
     
     @Override
-    public boolean isInvNameLocalized()
+    public boolean hasCustomInventoryName()
     {
         return true;
     }

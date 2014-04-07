@@ -1,34 +1,39 @@
 package codechicken.lib.render;
 
-import net.minecraft.client.renderer.Tessellator;
-import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
-import codechicken.lib.vec.Vector3;
 
-public class ColourMultiplier implements IVertexModifier
+public class ColourMultiplier implements CCRenderState.IVertexOperation
 {
-    public Colour colour;
-    
-    public ColourMultiplier(Colour colour)
-    {
+    private static ColourMultiplier instance = new ColourMultiplier(-1);
+
+    public static ColourMultiplier instance(int colour) {
+        instance.colour = colour;
+        return instance;
+    }
+
+    public static final int operationIndex = CCRenderState.registerOperation();
+    public int colour;
+
+    public ColourMultiplier(int colour) {
         this.colour = colour;
     }
-    
-    public ColourMultiplier(int colour)
-    {
-        this(new ColourRGBA(colour));
-    }
-    
+
     @Override
-    public void applyModifiers(CCModel m, Tessellator tess, Vector3 vec, UV uv, Vector3 normal, int i)
-    {
-        if(CCRenderState.useModelColours() && m != null && m.colours != null)
-            CCRenderState.vertexColour(new ColourRGBA(m.colours[i]).multiply(colour).rgba());
+    public boolean load() {
+        if(colour == -1)
+            return false;
+
+        CCRenderState.pipeline.addDependency(CCRenderState.colourAttrib);
+        return true;
     }
 
     @Override
-    public boolean needsNormals()
-    {
-        return false;
+    public void operate() {
+        CCRenderState.setColour(ColourRGBA.multiply(CCRenderState.colour, colour));
+    }
+
+    @Override
+    public int operationID() {
+        return operationIndex;
     }
 }

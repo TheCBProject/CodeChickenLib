@@ -1,10 +1,11 @@
 package codechicken.lib.vec;
 
+import codechicken.lib.util.Copyable;
 import net.minecraft.util.AxisAlignedBB;
 
 import java.util.Iterator;
 
-public class CuboidCoord implements Iterable<BlockCoord>
+public class CuboidCoord implements Iterable<BlockCoord>, Copyable<CuboidCoord>
 {
     public BlockCoord min;
     public BlockCoord max;

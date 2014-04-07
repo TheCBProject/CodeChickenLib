@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
+import codechicken.lib.util.Copyable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -17,7 +18,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Vec3;
 
-public class Vector3
+public class Vector3 implements Copyable<Vector3>
 {
     public static Vector3 zero = new Vector3();
     public static Vector3 one = new Vector3(1, 1, 1);

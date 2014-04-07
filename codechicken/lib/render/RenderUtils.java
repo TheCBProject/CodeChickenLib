@@ -3,6 +3,8 @@ package codechicken.lib.render;
 import static net.minecraftforge.client.IItemRenderer.ItemRenderType.ENTITY;
 import static net.minecraftforge.client.IItemRenderer.ItemRendererHelper.BLOCK_3D;
 
+import codechicken.lib.render.uv.UV;
+import codechicken.lib.render.uv.UVTransformation;
 import org.lwjgl.opengl.GL11;
 
 import codechicken.lib.vec.Cuboid6;
@@ -10,7 +12,7 @@ import codechicken.lib.vec.Rectangle4i;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Vector3;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -48,7 +50,7 @@ public class RenderUtils
         entityItem.hoverStart = 0;
     }
 
-    public static void renderFluidQuad(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 point4, Icon icon, double res)
+    public static void renderFluidQuad(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 point4, IIcon icon, double res)
     {
         renderFluidQuad(point2, vectors[0].set(point4).subtract(point1), vectors[1].set(point1).subtract(point2), icon, res);
     }
@@ -60,7 +62,7 @@ public class RenderUtils
      * @param high The left side of the quad
      * @param res Units per icon
      */
-    public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, Icon icon, double res)
+    public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, IIcon icon, double res)
     {
         Tessellator t = Tessellator.instance;
 
@@ -141,7 +143,7 @@ public class RenderUtils
         var2.draw();
     }
     
-    public static void renderFluidCuboid(Cuboid6 bound, Icon tex, double res)
+    public static void renderFluidCuboid(Cuboid6 bound, IIcon tex, double res)
     {
         renderFluidQuad(//bottom
                 new Vector3(bound.min.x, bound.min.y, bound.min.z),
@@ -236,7 +238,7 @@ public class RenderUtils
      * @param stack The fluid stack to render
      * @return The icon of the fluid
      */
-    public static Icon prepareFluidRender(FluidStack stack, int alpha)
+    public static IIcon prepareFluidRender(FluidStack stack, int alpha)
     {
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glEnable(GL11.GL_BLEND);
@@ -283,8 +285,8 @@ public class RenderUtils
         else
             bound.max.y = bound.min.y+(bound.max.y-bound.min.y)*density;
         
-        Icon tex = prepareFluidRender(stack, alpha);
-        CCRenderState.startDrawing(7);
+        IIcon tex = prepareFluidRender(stack, alpha);
+        CCRenderState.startDrawing();
         renderFluidCuboid(bound, tex, res);
         CCRenderState.draw();
         postFluidRender();
@@ -305,8 +307,8 @@ public class RenderUtils
             rect.h = height;
         }
         
-        Icon tex = prepareFluidRender(stack, alpha);
-        CCRenderState.startDrawing(7);
+        IIcon tex = prepareFluidRender(stack, alpha);
+        CCRenderState.startDrawing();
         renderFluidQuad(
                 new Vector3(rect.x, rect.y+rect.h, 0),
                 new Vector3(rect.w,0, 0),
@@ -333,9 +335,9 @@ public class RenderUtils
         boolean is3D = customRenderer != null && customRenderer.shouldUseRenderHelper(ENTITY, item, BLOCK_3D);
 
         boolean larger = false;
-        if (item.getItem() instanceof ItemBlock && RenderBlocks.renderItemIn3d(Block.blocksList[item.itemID].getRenderType()))
+        if (item.getItem() instanceof ItemBlock && RenderBlocks.renderItemIn3d(Block.getBlockFromItem(item.getItem()).getRenderType()))
         {
-            int renderType = Block.blocksList[item.itemID].getRenderType();
+            int renderType = Block.getBlockFromItem(item.getItem()).getRenderType();
             larger = !(renderType == 1 || renderType == 19 || renderType == 12 || renderType == 2);
         }
         else if(is3D)
@@ -351,137 +353,9 @@ public class RenderUtils
         GL11.glColor4f(1, 1, 1, 1);
         
         entityItem.setEntityItemStack(item);
-        uniformRenderItem.doRenderItem(entityItem, 0, larger ? 0.09 : 0.06, 0, 0, (float)(spin*9/Math.PI));
+        uniformRenderItem.doRender(entityItem, 0, larger ? 0.09 : 0.06, 0, 0, (float)(spin*9/Math.PI));
         
         if(larger)
             GL11.glScaled(d1, d1, d1);
-    }
-    
-    private static Vertex5[] face = new Vertex5[]{new Vertex5(), new Vertex5(), new Vertex5(), new Vertex5()};
-    public static void renderBlock(Cuboid6 c, int sideMask, IFaceRenderer r)
-    {
-        double x1 = c.min.x;
-        double x2 = c.max.x;
-        double y1 = c.min.y;
-        double y2 = c.max.y;
-        double z1 = c.min.z;
-        double z2 = c.max.z;
-        double u1 = 0;
-        double u2 = 0;
-        double v1 = 0;
-        double v2 = 0;
-        
-        if((sideMask&1) == 0)
-        {
-            u1 = x1; v1 = z1;
-            u2 = x2; v2 = z2;
-            face[0].set(x1, y1, z2, u1, v2);
-            face[1].set(x1, y1, z1, u1, v1);
-            face[2].set(x2, y1, z1, u2, v1);
-            face[3].set(x2, y1, z2, u2, v2);
-            r.renderFace(face, c.min.y > 0 ? 6 : 0);
-        }
-        
-        if((sideMask&2) == 0)
-        {
-            u1 = x1+2; v1 = z1;
-            u2 = x2+2; v2 = z2;
-            face[0].set(x2, y2, z2, u2, v2);
-            face[1].set(x2, y2, z1, u2, v1);
-            face[2].set(x1, y2, z1, u1, v1);
-            face[3].set(x1, y2, z2, u1, v2);
-            r.renderFace(face, c.max.y < 1 ? 7 : 1);
-        }
-        
-        if((sideMask&4) == 0)
-        {
-            u1 = 1-x1+4; v1 = 1-y2;
-            u2 = 1-x2+4; v2 = 1-y1;
-            face[0].set(x1, y1, z1, u1, v2);
-            face[1].set(x1, y2, z1, u1, v1);
-            face[2].set(x2, y2, z1, u2, v1);
-            face[3].set(x2, y1, z1, u2, v2);
-            r.renderFace(face, c.min.z > 0 ? 8 : 2);
-        }
-    
-        if((sideMask&8) == 0)
-        {
-            u1 = x1+6; v1 = 1-y2;
-            u2 = x2+6; v2 = 1-y1;
-            face[0].set(x2, y1, z2, u2, v2);
-            face[1].set(x2, y2, z2, u2, v1);
-            face[2].set(x1, y2, z2, u1, v1);
-            face[3].set(x1, y1, z2, u1, v2);
-            r.renderFace(face, c.max.z < 1 ? 9 : 3);
-        }
-    
-        if((sideMask&0x10) == 0)
-        {
-            u1 = z1+8; v1 = 1-y2;
-            u2 = z2+8; v2 = 1-y1;
-            face[0].set(x1, y1, z2, u2, v2);
-            face[1].set(x1, y2, z2, u2, v1);
-            face[2].set(x1, y2, z1, u1, v1);
-            face[3].set(x1, y1, z1, u1, v2);
-            r.renderFace(face, c.min.x > 0 ? 10 : 4);
-        }
-    
-        if((sideMask&0x20) == 0)
-        {
-            u1 = 1-z1+10; v1 = 1-y2;
-            u2 = 1-z2+10; v2 = 1-y1;
-            face[0].set(x2, y1, z1, u1, v2);
-            face[1].set(x2, y2, z1, u1, v1);
-            face[2].set(x2, y2, z2, u2, v1);
-            face[3].set(x2, y1, z2, u2, v2);
-            r.renderFace(face, c.max.x < 1 ? 11 : 5);
-        }
-    }
-
-    public static void renderBlock(Cuboid6 bounds, int sideMask, final Transformation t, final IUVTransformation u, final IVertexModifier m)
-    {
-        renderBlock(bounds, sideMask, new IFaceRenderer(){
-            boolean drawNormal = CCRenderState.useNormals();
-            boolean computeNormal = drawNormal || m != null && m.needsNormals();
-            Vector3 normal = new Vector3();
-            Vertex5 vert;
-            Vector3 vec = new Vector3();
-            UV uv = new UV();
-            
-            @Override
-            public void renderFace(Vertex5[] face, int side)
-            {
-                Tessellator tess = Tessellator.instance;
-                for(int i = 0; i < face.length; i++)
-                {
-                    if(computeNormal)
-                    {
-                        if(t != null)
-                            t.applyN(normal.set(Rotation.axes[side%6]));
-                        else
-                            normal = Rotation.axes[side%6];
-                        
-                        if(drawNormal)
-                            tess.setNormal((float)normal.x, (float)normal.y, (float)normal.z);
-                    }
-                    
-                    vert = face[i];
-                    if(t != null)
-                        t.apply(vec.set(vert.vec));
-                    else
-                        vec = vert.vec;
-                    
-                    if(u != null)
-                        u.transform(uv.set(vert.uv));
-                    else
-                        uv = vert.uv;
-                    
-                    if(m != null)
-                        m.applyModifiers(null, tess, vec, uv, normal, i);
-                    
-                    tess.addVertexWithUV(vec.x, vec.y, vec.z, uv.u, uv.v);
-                }
-            }
-        });
     }
 }

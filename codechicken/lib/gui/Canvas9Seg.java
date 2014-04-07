@@ -65,7 +65,7 @@ public class Canvas9Seg
     public void draw(int x, int y, int w, int h) {
         CCRenderState.changeTexture(tex);
         CCRenderState.reset();
-        CCRenderState.startDrawing(7);
+        CCRenderState.startDrawing();
 
         int[] sw = new int[]{x, x+seg_w[0], x+w-seg_w[2], x+w};
         int[] sh = new int[]{y, y+seg_h[0], y+h-seg_h[2], y+h};

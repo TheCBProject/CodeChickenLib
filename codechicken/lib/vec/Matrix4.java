@@ -7,12 +7,13 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 
+import codechicken.lib.util.Copyable;
 import org.lwjgl.opengl.GL11;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class Matrix4 extends Transformation
+public class Matrix4 extends Transformation implements Copyable<Matrix4>
 {
     private static DoubleBuffer glBuf = ByteBuffer.allocateDirect(16*8).order(ByteOrder.nativeOrder()).asDoubleBuffer();
     

@@ -3,19 +3,19 @@ package codechicken.lib.render;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import codechicken.lib.render.TextureUtils.IIconRegister;
+import codechicken.lib.render.TextureUtils.IIconSelfRegister;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
 public class SpriteSheetManager
 {
     @SideOnly(Side.CLIENT)
-    public static class SpriteSheet implements IIconRegister
+    public static class SpriteSheet implements IIconSelfRegister
     {
         private int tilesX;
         private int tilesY;
@@ -42,7 +42,7 @@ public class SpriteSheetManager
                 setupSprite(i);
         }
         
-        public void registerIcons(IconRegister register)
+        public void registerIcons(IIconRegister register)
         {
             TextureMap textureMap = (TextureMap)register;
             
@@ -79,9 +79,9 @@ public class SpriteSheetManager
             spriteHeight = texture.height/tilesY;
         }
 
-        public Icon getSprite(int index)
+        public IIcon getSprite(int index)
         {
-            Icon i = sprites[index];
+            IIcon i = sprites[index];
             if(i == null)
                 throw new IllegalArgumentException("Sprite at index: "+index+" from texture file "+resource+" was not preloaded.");
             return i;

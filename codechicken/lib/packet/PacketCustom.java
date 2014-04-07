@@ -1,741 +1,356 @@
 package codechicken.lib.packet;
 
-import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.vec.BlockCoord;
 
+import com.google.common.collect.Maps;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.ModContainer;
+import cpw.mods.fml.common.network.*;
+import cpw.mods.fml.common.network.handshake.NetworkDispatcher;
+import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import cpw.mods.fml.common.network.FMLNetworkHandler;
-import cpw.mods.fml.common.network.IConnectionHandler;
-import cpw.mods.fml.common.network.IPacketHandler;
-import cpw.mods.fml.common.network.ITinyPacketHandler;
-import cpw.mods.fml.common.network.NetworkModHandler;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.Player;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.compression.Snappy;
+import io.netty.util.AttributeKey;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.NetClientHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.NetLoginHandler;
-import net.minecraft.network.NetServerHandler;
-import net.minecraft.network.packet.NetHandler;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet131MapData;
-import net.minecraft.network.packet.Packet1Login;
-import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.network.INetHandler;
+import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.INetHandlerPlayClient;
+import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.PlayerInstance;
+import net.minecraft.server.management.PlayerManager.PlayerInstance;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fluids.FluidStack;
 
+import java.util.EnumMap;
+import java.util.List;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
+
 public final class PacketCustom implements MCDataInput, MCDataOutput
 {
-    public static interface ICustomPacketHandler 
+    public static interface ICustomPacketHandler
     {
     }
-    
+
     public interface IClientPacketHandler extends ICustomPacketHandler
     {
-        public void handlePacket(PacketCustom packetCustom, NetClientHandler nethandler, Minecraft mc);
+        public void handlePacket(PacketCustom packetCustom, Minecraft mc, INetHandlerPlayClient handler);
     }
-    
+
     public interface IServerPacketHandler extends ICustomPacketHandler
     {
-        public void handlePacket(PacketCustom packetCustom, NetServerHandler nethandler, EntityPlayerMP sender);
+        public void handlePacket(PacketCustom packetCustom, EntityPlayerMP sender, INetHandlerPlayServer handler);
     }
-    
-    public static class PacketAssembler
+
+    public static AttributeKey<CustomInboundHandler> cclHandler = new AttributeKey<CustomInboundHandler>("ccl:handler");
+
+    @ChannelHandler.Sharable
+    public static class CustomInboundHandler extends SimpleChannelInboundHandler<FMLProxyPacket>
     {
-        public class AssemblyEntry
-        {
-            public AssemblyEntry(Object channel, int type, int length)
-            {
-                this.channel = channel;
-                this.type = type;
-                data = new byte[length];
-            }
-            
-            public void append(byte[] b, int off, int len)
-            {
-                System.arraycopy(b, off, data, pos, len);
-                pos+=len;
-            }
-            
-            public PacketCustom finished()
-            {
-                if(pos < data.length)
-                    return null;
-                
-                return new PacketCustom(channel, type, data);
-            }
-            
-            Object channel;
-            int type;
-            int pos;
-            byte[] data;
-        }
-        
-        public HashMap<Integer, AssemblyEntry> assemblerMap = new HashMap<Integer, AssemblyEntry>();
-        
-        public PacketCustom assemble(IPacketCarrier carrier, Packet packet)
-        {
-            int type = carrier.readType(packet);
-            if(type != 0x80)
-                return new PacketCustom(carrier.readChannel(packet), carrier.readType(packet), carrier.readData(packet));
-            
-            byte[] data = carrier.readData(packet);
-            int asmID = readInt(data, 0);
-            AssemblyEntry e = assemblerMap.get(asmID);
-            if(e == null)
-            {
-                e = new AssemblyEntry(carrier.readChannel(packet), data[4]&0xFF, readInt(data, 5));
-                assemblerMap.put(asmID, e);
-                return null;
-            }
-            
-            e.append(data, 4, data.length-4);
-            PacketCustom ret = e.finished();
-            if(ret != null)
-                assemblerMap.remove(asmID);
-            return ret;
-        }
-    }
-    
-    private static abstract class CustomPacketHandler implements IPacketHandler
-    {
-        HashMap<Integer, ICustomPacketHandler> handlermap = new HashMap<Integer, ICustomPacketHandler>();
-        
-        public CustomPacketHandler(String channel) 
-        {
-            NetworkRegistry.instance().registerChannel(this, channel, getSide());
+        public EnumMap<Side, CustomHandler> handlers = Maps.newEnumMap(Side.class);
+
+        @Override
+        public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+            super.handlerAdded(ctx);
+            ctx.channel().attr(cclHandler).set(this);
         }
 
         @Override
-        public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) 
-        {
-            PacketCustom packetCustom = assembler.assemble(carrier250, packet);
-            if(packetCustom == null)
-                return;
-            
-            ICustomPacketHandler handler = handlermap.get(packetCustom.getType());
-            if(handler != null)
-                handle(handler, packetCustom, player);
+        protected void channelRead0(ChannelHandlerContext ctx, FMLProxyPacket msg) throws Exception {
+            handlers.get(ctx.channel().attr(NetworkRegistry.CHANNEL_SOURCE).get())
+                    .handle(ctx.channel().attr(NetworkRegistry.NET_HANDLER).get(),
+                            ctx.channel().attr(NetworkRegistry.FML_CHANNEL).get(),
+                            new PacketCustom(msg.payload()));
         }
-
-        public void registerRange(int firstID, int lastID, ICustomPacketHandler handler) 
-        {
-            for(int i = firstID; i <= lastID; i++)
-                handlermap.put(i, handler);
-        }
-        
-        public abstract Side getSide();
-        public abstract void handle(ICustomPacketHandler handler, PacketCustom packet, Player player);
     }
-    
-    private static class ClientPacketHandler extends CustomPacketHandler
+
+    private static interface CustomHandler
     {
-        public ClientPacketHandler(String channel) 
-        {
-            super(channel);
-            NetClientHandlerHelper.register();
-        }
-
-        @Override
-        public Side getSide() 
-        {
-            return Side.CLIENT;
-        }
-
-        @Override
-        public void handle(ICustomPacketHandler handler, PacketCustom packet, Player player) 
-        {
-            ((IClientPacketHandler)handler).handlePacket(packet, NetClientHandlerHelper.handler, Minecraft.getMinecraft());
-        }
+        public void handle(INetHandler handler, String channel, PacketCustom packet) throws Exception;
     }
-    
-    private static class ServerPacketHandler extends CustomPacketHandler
+
+    public static class ClientInboundHandler implements CustomHandler
     {
-        public ServerPacketHandler(String channel) 
-        {
-            super(channel);
+        private IClientPacketHandler handler;
+
+        public ClientInboundHandler(ICustomPacketHandler handler) {
+            this.handler = (IClientPacketHandler) handler;
         }
 
         @Override
-        public Side getSide() 
-        {
-            return Side.SERVER;
-        }
-
-        @Override
-        public void handle(ICustomPacketHandler handler, PacketCustom packet, Player player) 
-        {
-            ((IServerPacketHandler)handler).handlePacket(packet, ((EntityPlayerMP)player).playerNetServerHandler, (EntityPlayerMP)player);
-        }
-    }
-    
-    private static class ServerTinyPacketHandler
-    {
-        IServerPacketHandler serverHandler;
-        
-        public ServerTinyPacketHandler(IServerPacketHandler handler)
-        {
-            serverHandler = handler;
-        }
-
-        public void handle(PacketCustom packetCustom, NetHandler handler)
-        {
-            serverHandler.handlePacket(packetCustom, (NetServerHandler)handler, ((NetServerHandler)handler).playerEntity);
-        }
-    }
-    
-    private static class ClientTinyPacketHandler
-    {
-        IClientPacketHandler clientHandler;
-        
-        public ClientTinyPacketHandler(IClientPacketHandler handler)
-        {
-            clientHandler = handler;
-        }
-
-        public void handle(PacketCustom packetCustom, NetHandler handler)
-        {
-            clientHandler.handlePacket(packetCustom, (NetClientHandler)handler, Minecraft.getMinecraft());
-        }
-    }
-    
-    public static final class CustomTinyPacketHandler implements ITinyPacketHandler
-    {        
-        private ClientTinyPacketHandler clientDelegate;
-        private ServerTinyPacketHandler serverDelegate;
-        
-        @Override
-        public void handle(NetHandler handler, Packet131MapData packet)
-        {
-            PacketCustom packetCustom = assembler.assemble(carrier131, packet);
-            if(packetCustom == null)
-                return;
-            
-            if(handler instanceof NetServerHandler)
-                serverDelegate.handle(packetCustom, handler);
+        public void handle(INetHandler netHandler, String channel, PacketCustom packet) throws Exception {
+            if (netHandler instanceof INetHandlerPlayClient)
+                handler.handlePacket(packet, Minecraft.getMinecraft(), (INetHandlerPlayClient) netHandler);
             else
-                clientDelegate.handle(packetCustom, handler);
+                System.err.println("Invalid INetHandler for PacketCustom on channel: " + channel);
+        }
+    }
+
+    public static class ServerInboundHandler implements CustomHandler
+    {
+        private IServerPacketHandler handler;
+
+        public ServerInboundHandler(ICustomPacketHandler handler) {
+            this.handler = (IServerPacketHandler) handler;
         }
 
-        private void registerSidedHandler(ICustomPacketHandler handler)
-        {
-            if(handler instanceof IClientPacketHandler)
-            {
-                if(clientDelegate != null)
-                    throw new IllegalStateException("Client handler already registered");
-                
-                clientDelegate = new ClientTinyPacketHandler((IClientPacketHandler) handler);
-            }
-            else if(handler instanceof IServerPacketHandler)
-            {
-                if(serverDelegate != null)
-                    throw new IllegalStateException("Server handler already registered");
-                
-                serverDelegate = new ServerTinyPacketHandler((IServerPacketHandler) handler);
-            }
+        @Override
+        public void handle(INetHandler netHandler, String channel, PacketCustom packet) throws Exception {
+            if (netHandler instanceof NetHandlerPlayServer)
+                handler.handlePacket(packet, ((NetHandlerPlayServer) netHandler).playerEntity, (INetHandlerPlayServer) netHandler);
             else
-            {
-                throw new IllegalStateException("Handler is not a client or server handler");
-            }
-        }
-    }
-    
-    private static class NetClientHandlerHelper implements IConnectionHandler
-    {
-        private static boolean registered = false;
-        public static NetClientHandler handler;
-        
-        public static void register()
-        {
-            if(registered)
-                return;
-            
-            NetworkRegistry.instance().registerConnectionHandler(new NetClientHandlerHelper());
-            registered = true;
-        }
-        
-        @Override
-        public void connectionOpened(NetHandler netClientHandler, MinecraftServer server, INetworkManager manager)
-        {
-            handler = (NetClientHandler) netClientHandler;
-        }
-        
-        @Override
-        public void connectionOpened(NetHandler netClientHandler, String server, int port, INetworkManager manager)
-        {
-            handler = (NetClientHandler) netClientHandler;
-        }
-        
-        @Override
-        public void connectionClosed(INetworkManager manager)
-        {
-        }
-        
-        @Override
-        public String connectionReceived(NetLoginHandler netHandler, INetworkManager manager)
-        {
-            return null;
-        }
-        
-        @Override
-        public void clientLoggedIn(NetHandler clientHandler, INetworkManager manager, Packet1Login login)
-        {
-        }
-        
-        @Override
-        public void playerLoggedIn(Player player, NetHandler netHandler, INetworkManager manager)
-        {
-        }
-    }
-    
-    public static interface IPacketCarrier
-    {
-        public int readType(Packet packet);
-        public byte[] readData(Packet packet);
-        public Object readChannel(Packet packet);
-        public Packet write(Object channel, boolean chunkDataPacket, int type, byte[] data);
-        public boolean shortCapped();
-    }
-    
-    public static class Packet250Carrier implements IPacketCarrier
-    {
-        @Override
-        public int readType(Packet packet)
-        {
-            return ((Packet250CustomPayload)packet).data[0]&0xFF;
-        }
-
-        @Override
-        public byte[] readData(Packet packet)
-        {
-            byte[] data = ((Packet250CustomPayload)packet).data;
-            return Arrays.copyOfRange(data, 1, data.length);
-        }
-        
-        public Object readChannel(Packet packet)
-        {
-            return ((Packet250CustomPayload)packet).channel;
-        }
-
-        @Override
-        public Packet write(Object channel, boolean chunkDataPacket, int type, byte[] data)
-        {
-            byte[] pdata = new byte[data.length+1];
-            pdata[0] = (byte) type;
-            System.arraycopy(data, 0, pdata, 1, data.length);
-            
-            Packet250CustomPayload payload = new Packet250CustomPayload();
-            payload.channel = (String) channel;
-            payload.isChunkDataPacket = chunkDataPacket;
-            payload.data = pdata;
-            payload.length = payload.data.length;            
-            return payload;
-        }
-        
-        public boolean shortCapped()
-        {
-            return true;
-        }
-    }
-    
-    public static class Packet131Carrier implements IPacketCarrier
-    {
-        @Override
-        public int readType(Packet packet)
-        {
-            return ((Packet131MapData)packet).uniqueID&0xFF;
-        }
-
-        @Override
-        public byte[] readData(Packet packet)
-        {
-            return ((Packet131MapData)packet).itemData;
-        }
-        
-        public Object readChannel(Packet packet)
-        {
-            return ((Packet131MapData)packet).itemID;
-        }
-
-        @Override
-        public Packet write(Object channel, boolean chunkDataPacket, int type, byte[] data)
-        {
-            NetworkModHandler nmh = FMLNetworkHandler.instance().findNetworkModHandler(channel);
-            Packet131MapData payload = new Packet131MapData((short) nmh.getNetworkId(), (short) type, data);
-            payload.isChunkDataPacket = chunkDataPacket;
-            return payload;
-        }
-
-        @Override
-        public boolean shortCapped()
-        {
-            return true;
+                System.err.println("Invalid INetHandler for PacketCustom on channel: " + channel);
         }
     }
 
-    public static PacketAssembler assembler = new PacketAssembler();
-    public static IPacketCarrier carrier250 = new Packet250Carrier();
-    public static IPacketCarrier carrier131 = new Packet131Carrier();
-    
-    public static IPacketCarrier carrierForChannel(Object channel)
+    public static interface IHandshakeHandler
     {
-        if(channel instanceof String)
-            return carrier250;
-        if(FMLNetworkHandler.instance().findNetworkModHandler(channel) != null)
-            return carrier131;
-        
-        return null;
+        public void handshakeRecieved(NetHandlerPlayServer netHandler);
     }
-    
-    private static int assemblyID = 0;
-    
-    public static void writeInt(byte[] b, int pos, int i)
+
+    public static class HandshakeInboundHandler extends ChannelInboundHandlerAdapter
     {
-        b[pos++] = (byte) (i>>>24);
-        b[pos++] = (byte) (i>>16);
-        b[pos++] = (byte) (i>>8);
-        b[pos++] = (byte) (i);
+        public IHandshakeHandler handler;
+
+        public HandshakeInboundHandler(IHandshakeHandler handler) {
+            this.handler = handler;
+        }
+
+        @Override
+        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+            if (evt instanceof NetworkHandshakeEstablished) {
+                INetHandler netHandler = ((NetworkDispatcher) ctx.channel().attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).get()).getNetHandler();
+                if (netHandler instanceof NetHandlerPlayServer)
+                    handler.handshakeRecieved((NetHandlerPlayServer) netHandler);
+            } else
+                ctx.fireUserEventTriggered(evt);
+        }
     }
-    
-    public static int readInt(byte[] b, int pos)
-    {
-        return (b[pos++]&0xFF)<<24|
-                (b[pos++]&0xFF)<<16|
-                (b[pos++]&0xFF)<<8|
-                b[pos++]&0xFF;
+
+    public static String channelName(Object channelKey) {
+        if (channelKey instanceof String)
+            return (String) channelKey;
+        if (channelKey instanceof ModContainer)
+            return ((ModContainer) channelKey).getModId();
+
+        ModContainer mc = FMLCommonHandler.instance().findContainerFor(channelKey);
+        if (mc != null)
+            return mc.getModId();
+
+        throw new IllegalArgumentException("Invalid channel: " + channelKey);
     }
-    
-    private PacketCustom(Object channel, int type, byte[] data)
-    {
-        this.channel = channel;
+
+    public static FMLEmbeddedChannel getOrCreateChannel(String channelName, Side side) {
+        if (!NetworkRegistry.INSTANCE.hasChannel(channelName, side))
+            NetworkRegistry.INSTANCE.newChannel(channelName, new CustomInboundHandler());
+        return NetworkRegistry.INSTANCE.getChannel(channelName, side);
+    }
+
+    public static void assignHandler(Object channelKey, ICustomPacketHandler handler) {
+        String channelName = channelName(channelKey);
+        Side side = handler instanceof IServerPacketHandler ? Side.SERVER : Side.CLIENT;
+        FMLEmbeddedChannel channel = getOrCreateChannel(channelName, side);
+        channel.attr(cclHandler).get().handlers.put(side, side == Side.SERVER ? new ServerInboundHandler(handler) : new ClientInboundHandler(handler));
+    }
+
+    public static void assignHandshakeHandler(Object channelKey, IHandshakeHandler handler) {
+        FMLEmbeddedChannel channel = getOrCreateChannel(channelName(channelKey), Side.SERVER);
+        channel.pipeline().addLast(new HandshakeInboundHandler(handler));
+    }
+
+    private ByteBuf byteBuf;
+    private String channel;
+    private int type;
+
+    public PacketCustom(ByteBuf payload) {
+        byteBuf = payload;
+
+        type = byteBuf.readUnsignedByte();
+        if (type > 0x80)
+            decompress();
+        type &= 0x7F;
+    }
+
+    public PacketCustom(Object channelKey, int type) {
+        if (type <= 0 || type >= 0x80)
+            throw new IllegalArgumentException("Packet type: " + type + " is not within required 0 < t < 0x80");
+
+        this.channel = channelName(channelKey);
         this.type = type;
-        if(type > 0x80)
-            data = decompress(data);
-        datain = new DataInputStream(new ByteArrayInputStream(data));
+        byteBuf = Unpooled.buffer();
+        byteBuf.writeByte(type);
     }
 
-    public PacketCustom(Object channel, int type)
-    {
-        if(type <= 0 || type >= 0x80)
-            throw new IllegalArgumentException("Packet type: "+type+" is not within required 0 < t < 0x80");
-        
-        this.channel = channel;
-        this.type = type;
-        isChunkDataPacket = false;
-        
-        dataarrayout = new ByteArrayOutputStream();
-        dataout = new DataOutputStream(dataarrayout);
-    }
-
-    public boolean incoming()
-    {
-        return dataout == null;
-    }
-    
-    public int getType()
-    {
-        return type&0x7F;
-    }
-    
-    public PacketCustom setChunkDataPacket()
-    {
-        isChunkDataPacket = true;
-        return this;
-    }
-    
-    private byte[] decompress(byte[] cdata)
-    {
-        if((type&0x80) == 0)
-            return cdata;
-        
+    /**
+     * Decompresses the remaining ByteBuf (after type has been read) using Snappy
+     */
+    private void decompress() {
         Inflater inflater = new Inflater();
-        try
-        {
-            byte[] ddata = new byte[readInt(cdata, 0)];
-            inflater.setInput(cdata, 4, cdata.length-4);
-            inflater.inflate(ddata);
-            return ddata;
-        }
-        catch(Exception e)
-        {
+        try {
+            int len = byteBuf.readInt();
+            ByteBuf out = Unpooled.buffer(len);
+            inflater.setInput(byteBuf.array(), byteBuf.readerIndex(), byteBuf.readableBytes());
+            inflater.inflate(out.array());
+            out.writerIndex(len);
+            byteBuf = out;
+        } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-        finally
-        {
+        } finally {
             inflater.end();
         }
     }
-    
-    public PacketCustom compressed()
-    {
-        if(incoming())
-            throw new IllegalStateException("Tried to compress an incoming packet");
-        if((type&0x80) != 0)
-            throw new IllegalStateException("Packet already compressed");
-        type|=0x80;
-        return this;
-    }
-    
-    private byte[] compress(byte[] data)
-    {
+
+    /**
+     * Compresses the payload ByteBuf after the type byte
+     */
+    private void do_compress() {
         Deflater deflater = new Deflater();
-        try
-        {
-            deflater.setInput(data, 0, data.length);
+        try {
+            byteBuf.readerIndex(1);
+            int len = byteBuf.readableBytes();
+            deflater.setInput(byteBuf.array(), byteBuf.readerIndex(), len);
             deflater.finish();
-            byte[] cbuf = new byte[data.length];
-            int clen = deflater.deflate(cbuf, 0, data.length);
-            if(clen == data.length || !deflater.finished())//not worth compressing, gets larger
-            {
-                type &= 0x7F;
-                return data;
-            }
-            
-            byte[] cdata = new byte[clen+4];
-            writeInt(cdata, 0, data.length);
-            System.arraycopy(cbuf, 0, cdata, 4, clen);
-            type|=0x80;
-            return cdata;
-        }
-        catch(Exception e)
-        {
+            ByteBuf out = Unpooled.buffer(len + 5);
+            int clen = deflater.deflate(out.array(), 5, len);
+            if (clen >= len - 5 || !deflater.finished())//not worth compressing, gets larger
+                return;
+
+            out.setByte(0, type | 0x80);
+            out.setInt(1, len);
+            out.writerIndex(clen + 5);
+            byteBuf = out;
+        } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-        finally
-        {
+        } finally {
             deflater.end();
         }
     }
-    
-    public Packet toPacket()
-    {
-        if(incoming())
-            throw new IllegalStateException("Tried to write an incoming packet");
-        
-        try
-        {
-            dataout.close();
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-        
-        byte[] data = dataarrayout.toByteArray();
-        if(data.length > 32000 || (type&0x80) != 0)
-            data = compress(data);
 
-        IPacketCarrier carrier = carrierForChannel(channel);
-        if(data.length > 32000 && carrier.shortCapped())
-        {
-            MetaPacket payload = new MetaPacket();
-            int asmID = assemblyID++;
-            
-            byte[] hdata = new byte[9];
-            writeInt(hdata, 0, asmID);
-            hdata[4] = (byte) type;
-            writeInt(hdata, 5, data.length);
-            payload.packets.add(carrier.write(channel, isChunkDataPacket, 0x80, hdata));
-            
-            for(int i = 0; i < data.length; i+=32000)
-            {
-                int size = Math.min(data.length-i, 32000);
-                byte[] sdata = new byte[size+4];
-                writeInt(sdata, 0, asmID);
-                System.arraycopy(data, i, sdata, 4, size);
-                payload.packets.add(carrier.write(channel, isChunkDataPacket, 0x80, sdata));
-            }
-            
-            return payload;
-        }
-        
-        return carrier.write(channel, isChunkDataPacket, type, data);
+    public boolean incoming() {
+        return channel == null;
     }
-        
-    public PacketCustom writeBoolean(boolean b)
-    {
-        try
-        {
-            dataout.writeBoolean(b);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+
+    public int getType() {
+        return type & 0x7F;
+    }
+
+    public ByteBuf getByteBuf() {
+        return byteBuf;
+    }
+
+    public PacketCustom compress() {
+        if (incoming())
+            throw new IllegalStateException("Tried to compress an incoming packet");
+        if ((type & 0x80) != 0)
+            throw new IllegalStateException("Packet already compressed");
+        type |= 0x80;
         return this;
     }
-    
-    public PacketCustom writeByte(int b)
-    {
-        try
-        {
-            dataout.writeByte(b);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+
+    public PacketCustom writeBoolean(boolean b) {
+        byteBuf.writeBoolean(b);
         return this;
     }
-    
-    public PacketCustom writeShort(int s)
-    {
-        try
-        {
-            dataout.writeShort(s);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+
+    public PacketCustom writeByte(int b) {
+        byteBuf.writeByte(b);
         return this;
     }
-    
-    public PacketCustom writeInt(int i)
-    {
-        try
-        {
-            dataout.writeInt(i);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+
+    public PacketCustom writeShort(int s) {
+        byteBuf.writeShort(s);
         return this;
     }
-    
-    public PacketCustom writeFloat(float f)
-    {
-        try
-        {
-            dataout.writeFloat(f);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+
+    public PacketCustom writeInt(int i) {
+        byteBuf.writeInt(i);
         return this;
     }
-    
-    public PacketCustom writeDouble(double d)
-    {
-        try
-        {
-            dataout.writeDouble(d);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+
+    public PacketCustom writeFloat(float f) {
+        byteBuf.writeFloat(f);
         return this;
     }
-    
-    public PacketCustom writeLong(long l)
-    {
-        try
-        {
-            dataout.writeLong(l);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+
+    public PacketCustom writeDouble(double d) {
+        byteBuf.writeDouble(d);
         return this;
     }
-        
+
+    public PacketCustom writeLong(long l) {
+        byteBuf.writeLong(l);
+        return this;
+    }
+
     @Override
-    public PacketCustom writeChar(char c)
-    {
-        try
-        {
-            dataout.writeChar(c);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+    public PacketCustom writeChar(char c) {
+        byteBuf.writeChar(c);
         return this;
     }
-    
-    public PacketCustom writeByteArray(byte[] barray)
-    {
-        try
-        {
-            dataout.write(barray);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+
+    public PacketCustom writeVarInt(int i) {
+        ByteBufUtils.writeVarInt(byteBuf, i, 5);
         return this;
     }
-    
-    public PacketCustom writeCoord(int x, int y, int z)
-    {
+
+    public PacketCustom writeVarShort(int s) {
+        ByteBufUtils.writeVarShort(byteBuf, s);
+        return this;
+    }
+
+    public PacketCustom writeByteArray(byte[] barray) {
+        byteBuf.writeBytes(barray);
+        return this;
+    }
+
+    public PacketCustom writeString(String s) {
+        ByteBufUtils.writeUTF8String(byteBuf, s);
+        return this;
+    }
+
+    public PacketCustom writeCoord(int x, int y, int z) {
         writeInt(x);
         writeInt(y);
         writeInt(z);
         return this;
     }
-    
-    public PacketCustom writeCoord(BlockCoord coord)
-    {
+
+    public PacketCustom writeCoord(BlockCoord coord) {
         writeInt(coord.x);
         writeInt(coord.y);
         writeInt(coord.z);
         return this;
     }
-    
-    public PacketCustom writeString(String s)
-    {
-        try
-        {
-            if(s.length() > 65535)
-                throw new IOException("String length: "+s.length()+"too long.");
-            dataout.writeShort(s.length());
-            dataout.writeChars(s);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-        return this;
-    }
-    
-    public PacketCustom writeItemStack(ItemStack stack)
-    {
+
+    public PacketCustom writeItemStack(ItemStack stack) {
         writeItemStack(stack, false);
         return this;
     }
-    
-    public PacketCustom writeItemStack(ItemStack stack, boolean large)
-    {
-        if (stack == null)
-        {
+
+    public PacketCustom writeItemStack(ItemStack stack, boolean large) {
+        if (stack == null) {
             writeShort(-1);
-        }
-        else
-        {
-            writeShort(stack.itemID);
-            if(large)
+        } else {
+            writeShort(Item.getIdFromItem(stack.getItem()));
+            if (large)
                 writeInt(stack.stackSize);
             else
                 writeByte(stack.stackSize);
@@ -744,228 +359,110 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
         }
         return this;
     }
-        
-    public PacketCustom writeNBTTagCompound(NBTTagCompound compound)
-    {
-        try
-        {            
-            if (compound == null)
-            {
-                writeShort(-1);
-            }
-            else
-            {
-                byte[] bytes = CompressedStreamTools.compress(compound);
-                writeShort((short)bytes.length);
-                writeByteArray(bytes);
-            }
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+
+    public PacketCustom writeNBTTagCompound(NBTTagCompound compound) {
+        ByteBufUtils.writeTag(byteBuf, compound);
         return this;
     }
 
-    public PacketCustom writeFluidStack(FluidStack fluid)
-    {
-        if (fluid == null)
-        {
+    public PacketCustom writeFluidStack(FluidStack fluid) {
+        if (fluid == null) {
             writeShort(-1);
-        }
-        else
-        {
+        } else {
             writeShort(fluid.fluidID);
-            writeInt(fluid.amount);
+            writeVarInt(fluid.amount);
             writeNBTTagCompound(fluid.tag);
         }
         return this;
     }
 
-    public boolean readBoolean()
-    {
-        try
-        {
-            return datain.readBoolean();
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public int readUByte()
-    {
-        return readByte() & 0xFF;
-    }
-    
-    public int readUShort()
-    {
-        return readShort() & 0xFFFF;
-    }
-    
-    public byte readByte()
-    {
-        try
-        {
-            return datain.readByte();
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public short readShort()
-    {
-        try
-        {
-            return datain.readShort();
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public int readInt()
-    {
-        try
-        {
-            return datain.readInt();
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public float readFloat()
-    {
-        try
-        {
-            return datain.readFloat();
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public double readDouble()
-    {
-        try
-        {
-            return datain.readDouble();
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public long readLong()
-    {
-        try
-        {
-            return datain.readLong();
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public char readChar()
-    {
-        try
-        {
-            return datain.readChar();
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public BlockCoord readCoord()
-    {
-        return new BlockCoord(readInt(), readInt(), readInt());
-    }
-    
-    public byte[] readByteArray(int length)
-    {
-        try
-        {
-            byte[] barray = new byte[length];
-            datain.readFully(barray, 0, length);
-            return barray;
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public String readString()
-    {
-        try
-        {
-            int length = datain.readUnsignedShort();
-            char[] chars = new char[length];
-            for(int i = 0; i < length; i++)
-                chars[i] = readChar();
-            
-            return new String(chars);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-        
+    public boolean readBoolean() {
+        return byteBuf.readBoolean();
     }
 
-    public ItemStack readItemStack()
-    {
+    public short readUByte() {
+        return byteBuf.readUnsignedByte();
+    }
+
+    public int readUShort() {
+        return byteBuf.readUnsignedShort();
+    }
+
+    public byte readByte() {
+        return byteBuf.readByte();
+    }
+
+    public short readShort() {
+        return byteBuf.readShort();
+    }
+
+    public int readInt() {
+        return byteBuf.readInt();
+    }
+
+    public float readFloat() {
+        return byteBuf.readFloat();
+    }
+
+    public double readDouble() {
+        return byteBuf.readDouble();
+    }
+
+    public long readLong() {
+        return byteBuf.readLong();
+    }
+
+    public char readChar() {
+        return byteBuf.readChar();
+    }
+
+    @Override
+    public int readVarShort() {
+        return ByteBufUtils.readVarShort(byteBuf);
+    }
+
+    @Override
+    public int readVarInt() {
+        return ByteBufUtils.readVarInt(byteBuf, 5);
+    }
+
+    public BlockCoord readCoord() {
+        return new BlockCoord(readInt(), readInt(), readInt());
+    }
+
+    public byte[] readByteArray(int length) {
+        byte[] barray = new byte[length];
+        byteBuf.readBytes(barray, 0, length);
+        return barray;
+    }
+
+    public String readString() {
+        return ByteBufUtils.readUTF8String(byteBuf);
+    }
+
+    public ItemStack readItemStack() {
         return readItemStack(false);
     }
-    
-    public ItemStack readItemStack(boolean large)
-    {
+
+    public ItemStack readItemStack(boolean large) {
         ItemStack item = null;
         short itemID = readShort();
 
-        if (itemID >= 0)
-        {
+        if (itemID >= 0) {
             int stackSize = large ? readInt() : readByte();
             short damage = readShort();
-            item = new ItemStack(itemID, stackSize, damage);
+            item = new ItemStack(Item.getItemById(itemID), stackSize, damage);
             item.stackTagCompound = readNBTTagCompound();
         }
 
         return item;
     }
-    
-    public NBTTagCompound readNBTTagCompound()
-    {
-        try
-        {
-            short len = readShort();
-    
-            if (len < 0)
-                return null;
-            
-            byte[] bytes = readByteArray(len);
-            return CompressedStreamTools.decompress(bytes);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+
+    public NBTTagCompound readNBTTagCompound() {
+        return ByteBufUtils.readTag(byteBuf);
     }
-        
-    public FluidStack readFluidStack()
-    {
+
+    public FluidStack readFluidStack() {
         FluidStack fluid = null;
         short fluidID = readShort();
 
@@ -975,121 +472,79 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
         return fluid;
     }
 
-    private Object channel;
-    private int type;
-    private boolean isChunkDataPacket;
-    
-    private ByteArrayOutputStream dataarrayout;
-    private DataOutputStream dataout;
-    
-    private DataInputStream datain;
-    
-    private static HashMap<String, CustomPacketHandler> clienthandlermap = new HashMap<String, CustomPacketHandler>();    
-    private static HashMap<String, CustomPacketHandler> serverhandlermap = new HashMap<String, CustomPacketHandler>();
-    
-    public static void assignHandler(String channel, int firstID, int lastID, ICustomPacketHandler IHandler)
-    {
-        Side side = IHandler instanceof IClientPacketHandler ? Side.CLIENT : Side.SERVER;
-        HashMap<String, CustomPacketHandler> handlerMap = side.isClient() ? clienthandlermap : serverhandlermap;
-        CustomPacketHandler handler = handlerMap.get(channel);
-            
-        if(handler == null)
-        {
-            if(side.isClient())
-                handler = new ClientPacketHandler(channel);
-            else
-                handler = new ServerPacketHandler(channel);
-            
-            handlerMap.put(channel, handler);
-        }
-        handler.registerRange(firstID, lastID, IHandler);
+    public FMLProxyPacket toPacket() {
+        if (incoming())
+            throw new IllegalStateException("Tried to write an incoming packet");
+
+        if (byteBuf.readableBytes() > 32000 || (type & 0x80) != 0)
+            do_compress();
+
+        //FML packet impl returns the whole of the backing array, copy used portion of array to another ByteBuf
+        return new FMLProxyPacket(byteBuf.copy(), channel);
     }
 
-    public static void assignHandler(Object mod, ICustomPacketHandler handler)
-    {
-        NetworkModHandler nmh = FMLNetworkHandler.instance().findNetworkModHandler(mod);
-        if(nmh == null || nmh.getTinyPacketHandler() == null || !(nmh.getTinyPacketHandler() instanceof CustomTinyPacketHandler))
-            throw new IllegalStateException("Invalid network tiny packet handler for mod: "+mod);
-        
-        ((CustomTinyPacketHandler)nmh.getTinyPacketHandler()).registerSidedHandler(handler);
-    }
-    
-    public void sendToPlayer(EntityPlayer player)
-    {
+    public void sendToPlayer(EntityPlayer player) {
         sendToPlayer(toPacket(), player);
     }
-    
-    public static void sendToPlayer(Packet packet, EntityPlayer player)
-    {
-        if(player == null)
+
+    public static void sendToPlayer(Packet packet, EntityPlayer player) {
+        if (player == null)
             sendToClients(packet);
         else
-            ((EntityPlayerMP)player).playerNetServerHandler.sendPacketToPlayer(packet);
+            ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(packet);
     }
-    
-    public void sendToClients()
-    {
+
+    public void sendToClients() {
         sendToClients(toPacket());
-    }    
-    
-    public static void sendToClients(Packet packet)
-    {
+    }
+
+    public static void sendToClients(Packet packet) {
         MinecraftServer.getServer().getConfigurationManager().sendPacketToAllPlayers(packet);
     }
-    
-    public void sendPacketToAllAround(double x, double y, double z, double range, int dim)
-    {
+
+    public void sendPacketToAllAround(double x, double y, double z, double range, int dim) {
         sendToAllAround(toPacket(), x, y, z, range, dim);
     }
-    
-    public static void sendToAllAround(Packet packet, double x, double y, double z, double range, int dim)
-    {
+
+    public static void sendToAllAround(Packet packet, double x, double y, double z, double range, int dim) {
         MinecraftServer.getServer().getConfigurationManager().sendToAllNear(x, y, z, range, dim, packet);
     }
-    
-    public void sendToDimension(int dim)
-    {
+
+    public void sendToDimension(int dim) {
         sendToDimension(toPacket(), dim);
     }
-    
-    public static void sendToDimension(Packet packet, int dim)
-    {
+
+    public static void sendToDimension(Packet packet, int dim) {
         MinecraftServer.getServer().getConfigurationManager().sendPacketToAllPlayersInDimension(packet, dim);
     }
 
-    public void sendToChunk(World world, int chunkX, int chunkZ)
-    {
+    public void sendToChunk(World world, int chunkX, int chunkZ) {
         sendToChunk(toPacket(), world, chunkX, chunkZ);
     }
-    
-    public static void sendToChunk(Packet packet, World world, int chunkX, int chunkZ)
-    {
-        PlayerInstance p = ((WorldServer)world).getPlayerManager().getOrCreateChunkWatcher(chunkX, chunkZ, false);
-        if(p != null)
+
+    public static void sendToChunk(Packet packet, World world, int chunkX, int chunkZ) {
+        PlayerInstance p = ((WorldServer) world).getPlayerManager().getOrCreateChunkWatcher(chunkX, chunkZ, false);
+        if (p != null)
             p.sendToAllPlayersWatchingChunk(packet);
     }
-    
-    public void sendToOps()
-    {
+
+    public void sendToOps() {
         sendToOps(toPacket());
     }
 
-    public static void sendToOps(Packet packet)
-    {
-        for(EntityPlayerMP player : (List<EntityPlayerMP>)MinecraftServer.getServer().getConfigurationManager().playerEntityList)
-            if(MinecraftServer.getServer().getConfigurationManager().isPlayerOpped(player.username))
+    public static void sendToOps(Packet packet) {
+        for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList)
+            if (MinecraftServer.getServer().getConfigurationManager().isPlayerOpped(player.getCommandSenderName()))
                 sendToPlayer(packet, player);
     }
-    
+
     @SideOnly(Side.CLIENT)
-    public void sendToServer()
-    {
+    public void sendToServer() {
         sendToServer(toPacket());
     }
 
     @SideOnly(Side.CLIENT)
-    public static void sendToServer(Packet packet)
-    {
+    public static void sendToServer(Packet packet) {
         Minecraft.getMinecraft().getNetHandler().addToSendQueue(packet);
     }
 }

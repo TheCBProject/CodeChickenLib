@@ -13,7 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.EnumMovingObjectType;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -112,7 +112,7 @@ public class RayTracer
         MovingObjectPosition mop = rayTraceCuboid(start, end, cuboid);
         if(mop != null)
         {
-            mop.typeOfHit = EnumMovingObjectType.TILE;
+            mop.typeOfHit = MovingObjectType.BLOCK;
             mop.blockX = pos.x;
             mop.blockY = pos.y;
             mop.blockZ = pos.z;
@@ -125,7 +125,7 @@ public class RayTracer
         MovingObjectPosition mop = rayTraceCuboid(start, end, cuboid);
         if(mop != null)
         {
-            mop.typeOfHit = EnumMovingObjectType.ENTITY;
+            mop.typeOfHit = MovingObjectType.ENTITY;
             mop.entityHit = e;
         }
         return mop;
@@ -156,7 +156,7 @@ public class RayTracer
         MovingObjectPosition mop = rayTraceCuboids(start, end, cuboids);
         if(mop != null)
         {
-            mop.typeOfHit = EnumMovingObjectType.TILE;
+            mop.typeOfHit = MovingObjectType.BLOCK;
             mop.blockX = pos.x;
             mop.blockY = pos.y;
             mop.blockZ = pos.z;
@@ -174,7 +174,7 @@ public class RayTracer
             if(mop != null)
             {
                 ExtendedMOP emop = new ExtendedMOP(mop, cuboid.data, s_dist);
-                emop.typeOfHit = EnumMovingObjectType.TILE;
+                emop.typeOfHit = MovingObjectType.BLOCK;
                 emop.blockX = pos.x;
                 emop.blockY = pos.y;
                 emop.blockZ = pos.z;
@@ -185,9 +185,7 @@ public class RayTracer
 
     public static MovingObjectPosition retraceBlock(World world, EntityPlayer player, int x, int y, int z)
     {
-        Block block = Block.blocksList[world.getBlockId(x, y, z)];
-        if(block == null)
-            return null;
+        Block block = world.getBlock(x, y, z);
 
         Vec3 headVec = getCorrectedHeadVec(player);
         Vec3 lookVec = player.getLook(1.0F);
@@ -217,7 +215,7 @@ public class RayTracer
         Vec3 headVec = getCorrectedHeadVec(player);
         Vec3 lookVec = player.getLook(1);
         Vec3 endVec = headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
-        return world.rayTraceBlocks_do_do(headVec, endVec, true, false);
+        return world.func_147447_a(headVec, endVec, true, false, true);
     }
     
     public static Vec3 getCorrectedHeadVec(EntityPlayer player)

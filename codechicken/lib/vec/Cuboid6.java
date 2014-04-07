@@ -4,10 +4,11 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
+import codechicken.lib.util.Copyable;
 import net.minecraft.block.Block;
 import net.minecraft.util.AxisAlignedBB;
 
-public class Cuboid6
+public class Cuboid6 implements Copyable<Cuboid6>
 {
     public static Cuboid6 full = new Cuboid6(0, 0, 0, 1, 1, 1);
     
@@ -47,7 +48,23 @@ public class Cuboid6
     {
         return new Cuboid6(this);
     }
-    
+
+    public Cuboid6 set(Cuboid6 c) {
+        return set(c.min, c.max);
+    }
+
+    public Cuboid6 set(Vector3 min, Vector3 max) {
+        this.min.set(min);
+        this.max.set(max);
+        return this;
+    }
+
+    public Cuboid6 set(double minx, double miny, double minz, double maxx, double maxy, double maxz) {
+        min.set(minx, miny, minz);
+        max.set(maxx, maxy, maxz);
+        return this;
+    }
+
     public Cuboid6 add(Vector3 vec)
     {
         min.add(vec);

@@ -15,6 +15,8 @@ public interface MCDataOutput
     public MCDataOutput writeFloat(float f);
     public MCDataOutput writeBoolean(boolean b);
     public MCDataOutput writeChar(char c);
+    public MCDataOutput writeVarInt(int i);
+    public MCDataOutput writeVarShort(int s);
     public MCDataOutput writeByteArray(byte[] array);
     public MCDataOutput writeString(String s);
     public MCDataOutput writeCoord(int x, int y, int z);

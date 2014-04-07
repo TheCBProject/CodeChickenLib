@@ -3,6 +3,7 @@ package codechicken.lib.data;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -122,7 +123,31 @@ public class MCOutputStreamWrapper implements MCDataOutput
         }
         return this;
     }
-    
+
+    @Override
+    public MCDataOutput writeVarInt(int i) {
+        while ((i & 0x80) != 0)
+        {
+            writeByte(i & 0x7F | 0x80);
+            i >>>= 7;
+        }
+
+        writeByte(i);
+        return this;
+    }
+
+    @Override
+    public MCDataOutput writeVarShort(int s) {
+        int low = s & 0x7FFF;
+        int high = (s & 0x7F8000) >> 15;
+        if (high != 0)
+            low |= 0x8000;
+        writeShort(low);
+        if (high != 0)
+            writeByte(high);
+        return this;
+    }
+
     public MCOutputStreamWrapper writeByteArray(byte[] barray)
     {
         try
@@ -174,16 +199,12 @@ public class MCOutputStreamWrapper implements MCDataOutput
         return this;
     }
     
-    public MCOutputStreamWrapper writeItemStack(ItemStack stack, boolean large)
-    {
-        if (stack == null)
-        {
+    public MCOutputStreamWrapper writeItemStack(ItemStack stack, boolean large) {
+        if (stack == null) {
             writeShort(-1);
-        }
-        else
-        {
-            writeShort(stack.itemID);
-            if(large)
+        } else {
+            writeShort(Item.getIdFromItem(stack.getItem()));
+            if (large)
                 writeInt(stack.stackSize);
             else
                 writeByte(stack.stackSize);

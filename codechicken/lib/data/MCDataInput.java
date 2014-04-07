@@ -12,11 +12,13 @@ public interface MCDataInput
     public short readShort();
     public int readUShort();
     public byte readByte();
-    public int readUByte();
+    public short readUByte();
     public double readDouble();
     public float readFloat();
     public boolean readBoolean();
     public char readChar();
+    public int readVarShort();
+    public int readVarInt();
     public byte[] readByteArray(int length);
     public String readString();
     public BlockCoord readCoord();

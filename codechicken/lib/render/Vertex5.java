@@ -4,10 +4,13 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
+import codechicken.lib.render.uv.UV;
+import codechicken.lib.render.uv.UVTransformation;
+import codechicken.lib.util.Copyable;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
 
-public class Vertex5
+public class Vertex5 implements Copyable<Vertex5>
 {
     public Vector3 vec;
     public UV uv;
@@ -32,11 +35,24 @@ public class Vertex5
     {
         this(new Vector3(x, y, z), new UV(u, v));
     }
-    
+
     public Vertex5 set(double x, double y, double z, double u, double v)
     {
         vec.set(x, y, z);
         uv.set(u, v);
+        return this;
+    }
+
+    public Vertex5 set(double x, double y, double z, double u, double v, int tex)
+    {
+        vec.set(x, y, z);
+        uv.set(u, v, tex);
+        return this;
+    }
+
+    public Vertex5 set(Vertex5 vert) {
+        vec.set(vert.vec);
+        uv.set(vert.uv);
         return this;
     }
 
@@ -62,7 +78,7 @@ public class Vertex5
         return this;
     }
     
-    public Vertex5 apply(IUVTransformation t)
+    public Vertex5 apply(UVTransformation t)
     {
         uv.apply(t);
         return this;
