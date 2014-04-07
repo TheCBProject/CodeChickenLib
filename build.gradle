@@ -1,0 +1,155 @@
+// This sets us up for building a forge project - you need all of these
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+    }
+}
+
+// Apply the forge plugin - this adds all the magic for automatically obfuscating, deobfuscating etc
+apply plugin: 'forge'
+
+// This is our group
+group = "codechicken" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+// This is our actual project within the group.
+archivesBaseName = "CodeChickenLib"
+
+// Define properties file
+ext.configFile = file "build.properties"
+
+configFile.withReader {
+    // Load config.  It shall from now be referenced as simply config or project.config
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
+
+version =  "${project.config.mod_version}." + System.getenv("BUILD_NUMBER") ?: "1"
+
+println  config.minecraft_version + "-" + config.forge_version
+// Setup the forge minecraft plugin data. Specify the preferred forge/minecraft version here
+minecraft {
+    version = config.minecraft_version + "-" + config.forge_version
+}
+
+
+// this sets our output jar to have a 'tag' of 'universal' on it
+// It also adds the minecraft version in a custom version name
+// The result is files named <projectname>-<mcversion>-<version>-universal.jar
+jar {
+    classifier = 'universal'
+    version = "${project.minecraft.version}-${project.version}"
+    manifest {
+        attributes 'Main-Class': 'codechicken.lib.tool.Main'
+    }
+
+}
+
+sourceSets {
+	main {
+		java {
+            srcDir '/'
+			include 'CodeChicken/**/*' 
+        }
+	}
+}
+
+
+// Add in a source jar for people, should they desire to download such a thing
+task sourceJar(type: Jar) {
+	from sourceSets.main.allSource
+	classifier = 'src'
+    version = "${project.minecraft.version}-${project.version}"
+}
+
+// Add in an mcp named jar, for those who wish to run in a development environment (assuming mcp naming matches)
+task deobfJar(type: Jar) {
+	from sourceSets.main.output
+	classifier = 'dev'
+    version = "${project.minecraft.version}-${project.version}"
+	manifest {
+        attributes 'Main-Class': 'codechicken.lib.tool.Main'
+    }
+
+}
+
+// Tell the artifact system about our extra jars
+artifacts {
+	archives sourceJar, deobfJar
+}
+
+// Configure an upload task. this is setup for uploading to files.minecraftforge.net. There are other examples around
+uploadArchives {
+    dependsOn 'reobf'
+    repositories {
+        if (project.hasProperty("filesmaven")) {
+            logger.info('Publishing to files server')
+            
+            mavenDeployer {
+                configuration = configurations.deployJars
+
+                repository(url: project.filesmaven.url) {
+                    authentication(userName: project.filesmaven.username, privateKey: project.filesmaven.key)
+                }
+
+                // This is just the pom data for the maven repo
+                pom {
+                    groupId = project.group
+                    // Force the maven upload to use the <mcversion>-<version> syntax preferred at files
+                    version = "${project.minecraft.version}-${project.version}"
+                    artifactId = project.archivesBaseName
+                    project {
+                        name project.archivesBaseName
+                        packaging 'jar'
+                        description 'CodeChickenLib'
+                        url 'https://github.com/Chicken-Bones/CodeChickenLib'
+
+                        scm {
+                            url 'https://github.com/Chicken-Bones/CodeChickenLib'
+                            connection 'scm:git:git://github.com/Chicken-Bones/CodeChickenLib.git'
+                            developerConnection 'scm:git:git@github.com:Chicken-Bones/CodeChickenLib.git'
+                        }
+
+                        issueManagement {
+                            system 'github'
+                            url 'https://github.com/Chicken-Bones/CodeChickenLib/issues'
+                        }
+
+                        licenses {
+                            license {
+                                name 'GNU Lesser Public License (GPL), Version 2.1'
+                                url 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt'
+                                distribution 'repo'
+                            }
+                        }
+
+                        developers {
+                            developer {
+                                id 'chicken-bones'
+                                name 'chicken-bones'
+                                roles { role 'developer' }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            logger.info('Publishing to repo folder')
+            
+            mavenDeployer {
+                pom.version = "${project.minecraft.version}-${project.version}"
+                repository(url: 'file://localhost/' + project.file('repo').getAbsolutePath())
+            }
+        }
+    }
+}
