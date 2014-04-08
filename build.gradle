@@ -54,16 +54,14 @@ jar {
     }
 
 }
-
 sourceSets {
 	main {
 		java {
-            srcDir '/'
-			include 'CodeChicken/**/*' 
-        }
+            srcDir "\\"
+			include 'codechicken\\**\\*.java'
+			}
 	}
 }
-
 
 // Add in a source jar for people, should they desire to download such a thing
 task sourceJar(type: Jar) {
