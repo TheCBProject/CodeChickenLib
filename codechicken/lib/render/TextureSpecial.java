@@ -65,7 +65,6 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
         if (textureFX != null) {
             textureFX.update();
             if (textureFX.changed())
-                //TextureUtil.uploadTextureSub(0, textureFX.imageData, width, height, originX, originY, false, false, false); not accessible
                 TextureUtil.uploadTextureMipmap(new int[][]{textureFX.imageData}, width, height, originX, originY, false, false);
         }
     }

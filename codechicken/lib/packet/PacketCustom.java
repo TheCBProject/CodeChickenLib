@@ -34,6 +34,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.PlayerManager;
 import net.minecraft.server.management.PlayerManager.PlayerInstance;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -523,9 +524,15 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
     }
 
     public static void sendToChunk(Packet packet, World world, int chunkX, int chunkZ) {
+        PlayerManager playerManager = ((WorldServer)world).getPlayerManager();
+        for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList)
+            if(playerManager.isPlayerWatchingChunk(player, chunkX, chunkZ))
+                sendToPlayer(packet, player);
+
+        /* Commented until forge accepts access tranformer request
         PlayerInstance p = ((WorldServer) world).getPlayerManager().getOrCreateChunkWatcher(chunkX, chunkZ, false);
         if (p != null)
-            p.sendToAllPlayersWatchingChunk(packet);
+            p.sendToAllPlayersWatchingChunk(packet);*/
     }
 
     public void sendToOps() {
