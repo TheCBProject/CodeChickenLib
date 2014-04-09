@@ -57,9 +57,9 @@ jar {
 sourceSets {
 	main {
 		java {
-            srcDir "\\"
-			include 'codechicken\\**\\*.java'
-			}
+			srcDir project.projectDir
+			include 'codechicken/**/*.java'
+		}
 	}
 }
 
