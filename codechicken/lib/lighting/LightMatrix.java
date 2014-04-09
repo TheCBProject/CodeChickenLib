@@ -3,7 +3,6 @@ package codechicken.lib.lighting;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.vec.BlockCoord;
-import codechicken.lib.vec.Vector3;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.IBlockAccess;

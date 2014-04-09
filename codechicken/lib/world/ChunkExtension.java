@@ -1,12 +1,12 @@
 package codechicken.lib.world;
 
-import java.util.HashSet;
-
-import net.minecraft.network.Packet;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.Packet;
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.chunk.Chunk;
+
+import java.util.HashSet;
 
 public abstract class ChunkExtension
 {

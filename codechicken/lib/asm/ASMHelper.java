@@ -1,26 +1,17 @@
 package codechicken.lib.asm;
 
+import codechicken.lib.asm.InstructionComparator.InsnListSection;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.tree.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LocalVariableNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TryCatchBlockNode;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
-import codechicken.lib.asm.InstructionComparator.InsnListSection;
 
 public class ASMHelper
 {

@@ -1,11 +1,11 @@
 package codechicken.lib.world;
 
-import java.util.HashMap;
-
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+
+import java.util.HashMap;
 
 public abstract class WorldExtension
 {

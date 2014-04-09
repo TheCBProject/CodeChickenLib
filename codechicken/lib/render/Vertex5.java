@@ -1,14 +1,14 @@
 package codechicken.lib.render;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-
 import codechicken.lib.render.uv.UV;
 import codechicken.lib.render.uv.UVTransformation;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 
 public class Vertex5 implements Copyable<Vertex5>
 {

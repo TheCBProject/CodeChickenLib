@@ -1,10 +1,10 @@
 package codechicken.lib.vec;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class TransformationList extends Transformation
 {

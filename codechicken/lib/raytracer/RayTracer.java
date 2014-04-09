@@ -1,7 +1,5 @@
 package codechicken.lib.raytracer;
 
-import java.util.List;
-
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Cuboid6;
@@ -13,10 +11,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 public class RayTracer
 {

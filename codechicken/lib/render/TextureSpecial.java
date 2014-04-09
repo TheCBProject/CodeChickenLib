@@ -1,8 +1,5 @@
 package codechicken.lib.render;
 
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-
 import codechicken.lib.render.SpriteSheetManager.SpriteSheet;
 import codechicken.lib.render.TextureUtils.IIconSelfRegister;
 import cpw.mods.fml.relauncher.Side;
@@ -15,6 +12,9 @@ import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
+
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 @SideOnly(Side.CLIENT)
 public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegister {

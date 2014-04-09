@@ -1,12 +1,12 @@
 package codechicken.lib.vec;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-
 import codechicken.lib.util.Copyable;
 import net.minecraft.block.Block;
 import net.minecraft.util.AxisAlignedBB;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 
 public class Cuboid6 implements Copyable<Cuboid6>
 {

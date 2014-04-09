@@ -1,16 +1,15 @@
 package codechicken.lib.render;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import codechicken.lib.render.TextureUtils.IIconSelfRegister;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SpriteSheetManager
 {

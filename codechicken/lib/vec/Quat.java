@@ -1,10 +1,11 @@
 package codechicken.lib.vec;
 
+import codechicken.lib.math.MathHelper;
+import codechicken.lib.util.Copyable;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import codechicken.lib.math.MathHelper;
-import codechicken.lib.util.Copyable;
 
 public class Quat implements Copyable<Quat>
 {

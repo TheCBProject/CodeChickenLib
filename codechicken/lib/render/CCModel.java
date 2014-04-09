@@ -1,31 +1,21 @@
 package codechicken.lib.render;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import codechicken.lib.lighting.LC;
+import codechicken.lib.lighting.LightModel;
 import codechicken.lib.render.uv.UV;
 import codechicken.lib.render.uv.UVTransformation;
 import codechicken.lib.render.uv.UVTranslation;
 import codechicken.lib.util.Copyable;
+import codechicken.lib.vec.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
-import codechicken.lib.lighting.LightModel;
-import codechicken.lib.vec.Cuboid6;
-import codechicken.lib.vec.RedundantTransformation;
-import codechicken.lib.vec.Transformation;
-import codechicken.lib.vec.TransformationList;
-import codechicken.lib.vec.Vector3;
 
-import static codechicken.lib.vec.Rotation.*;
+import java.io.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static codechicken.lib.vec.Rotation.sideRotations;
 
 public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel>
 {

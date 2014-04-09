@@ -1,13 +1,12 @@
 package codechicken.lib.inventory;
 
+import com.google.common.base.Objects;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-
-import com.google.common.base.Objects;
 import net.minecraftforge.oredict.OreDictionary;
 
-import static codechicken.lib.inventory.InventoryUtils.*;
+import static codechicken.lib.inventory.InventoryUtils.actualDamage;
 
 /**
  * Comparable ItemStack with a hashCode implementation.

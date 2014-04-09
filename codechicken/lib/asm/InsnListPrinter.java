@@ -1,30 +1,13 @@
 package codechicken.lib.asm;
 
+import codechicken.lib.asm.InstructionComparator.InsnListSection;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.tree.*;
+import org.objectweb.asm.util.Textifier;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
-
-import org.objectweb.asm.Label;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.FrameNode;
-import org.objectweb.asm.tree.IincInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.IntInsnNode;
-import org.objectweb.asm.tree.InvokeDynamicInsnNode;
-import org.objectweb.asm.tree.JumpInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.LineNumberNode;
-import org.objectweb.asm.tree.LookupSwitchInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MultiANewArrayInsnNode;
-import org.objectweb.asm.tree.TableSwitchInsnNode;
-import org.objectweb.asm.tree.TypeInsnNode;
-import org.objectweb.asm.tree.VarInsnNode;
-import org.objectweb.asm.util.Textifier;
-
-import codechicken.lib.asm.InstructionComparator.InsnListSection;
 
 public class InsnListPrinter extends Textifier
 {

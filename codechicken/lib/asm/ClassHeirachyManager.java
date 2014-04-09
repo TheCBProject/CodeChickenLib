@@ -1,14 +1,13 @@
 package codechicken.lib.asm;
 
+import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraft.launchwrapper.LaunchClassLoader;
+import org.objectweb.asm.tree.ClassNode;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import org.objectweb.asm.tree.ClassNode;
-
-import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-
-import net.minecraft.launchwrapper.IClassTransformer;
-import net.minecraft.launchwrapper.LaunchClassLoader;
 
 /**
  * This is added as a class transformer if CodeChickenCore is installed. Adding it as a class transformer will speed evaluation up slightly by automatically caching superclasses when they are first loaded.
@@ -67,11 +66,9 @@ public class ClassHeirachyManager implements IClassTransformer
     }
     
     /**
-     * Returns true if clazz extends, either directly or indirectly, superclass.
      * @param name The class in question
      * @param superclass The class being extended
-     * @param bytes The bytes for the class. Only needed if not already defined.
-     * @return
+     * @return true if clazz extends, either directly or indirectly, superclass.
      */
     public static boolean classExtends(String name, String superclass)
     {

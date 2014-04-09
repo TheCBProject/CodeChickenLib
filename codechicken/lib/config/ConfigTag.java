@@ -1,11 +1,11 @@
 package codechicken.lib.config;
 
+import codechicken.lib.colour.Colour;
+import codechicken.lib.colour.ColourRGBA;
+
 import java.io.PrintWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import codechicken.lib.colour.Colour;
-import codechicken.lib.colour.ColourRGBA;
 
 public class ConfigTag extends ConfigTagParent
 {    

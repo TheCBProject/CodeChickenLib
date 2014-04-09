@@ -1,9 +1,9 @@
 package codechicken.lib.render;
 
-import java.util.ArrayList;
-
 import codechicken.lib.render.CCRenderState.IVertexOperation;
 import codechicken.lib.render.CCRenderState.VertexAttribute;
+
+import java.util.ArrayList;
 
 public class CCRenderPipeline
 {

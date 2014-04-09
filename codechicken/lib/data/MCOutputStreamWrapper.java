@@ -1,14 +1,14 @@
 package codechicken.lib.data;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-
+import codechicken.lib.vec.BlockCoord;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
-import codechicken.lib.vec.BlockCoord;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public class MCOutputStreamWrapper implements MCDataOutput
 {

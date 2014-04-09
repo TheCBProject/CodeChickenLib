@@ -1,34 +1,25 @@
 package codechicken.lib.asm;
 
+import codechicken.lib.config.ConfigFile;
+import codechicken.lib.config.ConfigTag;
+import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
+import com.google.common.io.LineProcessor;
+import com.google.common.io.Resources;
+import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import cpw.mods.fml.relauncher.FMLInjectionData;
+import net.minecraft.launchwrapper.Launch;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.commons.Remapper;
+import org.objectweb.asm.tree.*;
+
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import codechicken.lib.config.ConfigFile;
-import codechicken.lib.config.ConfigTag;
-import com.google.common.base.Charsets;
-import com.google.common.io.LineProcessor;
-import com.google.common.io.Resources;
-import cpw.mods.fml.relauncher.FMLInjectionData;
-import net.minecraft.launchwrapper.Launch;
-
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.commons.Remapper;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TypeInsnNode;
-
-import com.google.common.base.Objects;
-
-import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-
-import javax.swing.*;
 
 public class ObfMapping
 {

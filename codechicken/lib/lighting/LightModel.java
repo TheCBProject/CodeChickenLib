@@ -1,9 +1,6 @@
 package codechicken.lib.lighting;
 
-import net.minecraft.client.renderer.Tessellator;
-import codechicken.lib.render.CCModel;
 import codechicken.lib.render.CCRenderState;
-import codechicken.lib.render.uv.UV;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Vector3;
 

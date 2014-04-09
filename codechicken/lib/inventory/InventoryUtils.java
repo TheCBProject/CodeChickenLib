@@ -1,8 +1,7 @@
 package codechicken.lib.inventory;
 
-import com.google.common.base.Objects;
-
 import codechicken.lib.vec.Vector3;
+import com.google.common.base.Objects;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;

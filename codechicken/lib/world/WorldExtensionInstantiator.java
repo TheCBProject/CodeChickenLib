@@ -1,7 +1,7 @@
 package codechicken.lib.world;
 
-import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 public abstract class WorldExtensionInstantiator
 {
