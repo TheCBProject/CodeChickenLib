@@ -237,6 +237,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
+            byteBuf.readerIndex(0);
             deflater.end();
         }
     }
