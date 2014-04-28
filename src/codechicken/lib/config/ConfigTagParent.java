@@ -182,7 +182,7 @@ public abstract class ConfigTagParent
                     break;
                 if(line.startsWith("#"))
                 {
-                    if(comment == null || comment.equals(""))
+                    if(comment.equals(""))
                         comment = line.substring(1);
                     else
                         comment = comment+"\n"+line.substring(1);

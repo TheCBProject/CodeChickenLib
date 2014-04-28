@@ -4,7 +4,19 @@ import java.io.*;
 
 public class ConfigFile extends ConfigTagParent
 {
+    public static final byte[] crlf = new byte[]{0xD, 0xA};
+
+    public File file;
+    private boolean loading;
+
     public ConfigFile(File file) {
+        newlinemode = 2;
+        load(file);
+    }
+
+    protected ConfigFile() {}
+
+    protected void load(File file) {
         try {
             if(!file.getParentFile().exists())
                 file.getParentFile().mkdirs();
@@ -14,11 +26,10 @@ public class ConfigFile extends ConfigTagParent
             throw new RuntimeException(e);
         }
         this.file = file;
-        newlinemode = 2;
         loadConfig();
     }
 
-    private void loadConfig() {
+    protected void loadConfig() {
         loading = true;
         BufferedReader reader;
         try {
@@ -66,22 +77,7 @@ public class ConfigFile extends ConfigTagParent
 
     public static String readLine(BufferedReader reader) throws IOException {
         String line = reader.readLine();
-        if (line != null)
-            return line.replace("\t", "");
-        return line;
-    }
-
-    public static String formatLine(String line) {
-        line = line.replace("\t", "");
-        if (line.startsWith("#")) {
-            return line;
-        } else if (line.contains("=")) {
-            line = line.substring(0, line.indexOf("=")).replace(" ", "") + line.substring(line.indexOf("="));
-            return line;
-        } else {
-            line = line.replace(" ", "");
-            return line;
-        }
+        return line == null ? null : line.replace("\t", "");
     }
 
     public static void writeLine(PrintWriter writer, String line, int tabs) {
@@ -112,9 +108,4 @@ public class ConfigFile extends ConfigTagParent
     public boolean isLoading() {
         return loading;
     }
-
-    public File file;
-    private boolean loading;
-
-    public static final byte[] lineend = new byte[]{0xD, 0xA};
 }

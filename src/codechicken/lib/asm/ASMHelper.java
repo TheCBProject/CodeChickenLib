@@ -1,76 +1,40 @@
 package codechicken.lib.asm;
 
-import codechicken.lib.asm.InstructionComparator.InsnListSection;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import codechicken.lib.config.ConfigFile;
+import codechicken.lib.config.DefaultingConfigFile;
+import cpw.mods.fml.relauncher.FMLInjectionData;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.*;
+import org.objectweb.asm.util.TraceClassVisitor;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ASMHelper
 {
-    public static class CodeBlock
-    {
-        public Label start = new Label();
-        public Label end = new Label();
+    public static ConfigFile config = loadConfig();
+    public static Logger logger = LogManager.getLogger("CCL ASM");
+
+    private static ConfigFile loadConfig() {
+        File file = new File((File) FMLInjectionData.data()[6], "config/CodeChickenLib.cfg");
+        if(ObfMapping.obfuscated)
+            return new DefaultingConfigFile(file);
+        else
+            return new ConfigFile(file).setComment("CodeChickenLib development configuration file.");
     }
 
-    public static class ForBlock extends CodeBlock
+    public static interface Acceptor
     {
-        public Label cmp = new Label();
-        public Label inc = new Label();
-        public Label body = new Label();
-    }
-
-    public static abstract class MethodAltercator
-    {
-        public final ObfMapping method;
-
-        public MethodAltercator(ObfMapping method) {
-            this.method = method.toClassloading();
-        }
-
-        public abstract void alter(MethodNode mv);
-    }
-
-    public static abstract class MethodWriter
-    {
-        public final int access;
-        public final ObfMapping method;
-        public final String[] exceptions;
-
-        public MethodWriter(int access, ObfMapping method) {
-            this(access, method, null);
-        }
-
-        public MethodWriter(int access, ObfMapping method, String[] exceptions) {
-            this.access = access;
-            this.method = method;
-            this.exceptions = exceptions;
-        }
-
-        public abstract void write(MethodNode mv);
-    }
-
-    public static class MethodInjector
-    {
-        public final ObfMapping method;
-        public final InsnList needle;
-        public final InsnList injection;
-        public final boolean before;
-
-        public MethodInjector(ObfMapping method, InsnList needle, InsnList injection, boolean before) {
-            this.method = method;
-            this.needle = needle;
-            this.injection = injection;
-            this.before = before;
-        }
+        public void accept(ClassVisitor cv) throws IOException;
     }
 
     public static MethodNode findMethod(ObfMapping methodmap, ClassNode cnode) {
@@ -104,91 +68,16 @@ public class ASMHelper
         return cw.toByteArray();
     }
 
-    public static byte[] writeMethods(String name, byte[] bytes, Multimap<String, MethodWriter> writers) {
-        if (writers.containsKey(name)) {
-            ClassNode cnode = createClassNode(bytes);
-
-            for (MethodWriter mw : writers.get(name)) {
-                MethodNode mv = findMethod(mw.method, cnode);
-                if (mv == null)
-                    mv = (MethodNode) cnode.visitMethod(mw.access, mw.method.s_name, mw.method.s_desc, null, mw.exceptions);
-
-                mv.access = mw.access;
-                mv.instructions.clear();
-                mw.write(mv);
-            }
-
-            bytes = createBytes(cnode, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-        }
-        return bytes;
+    public static Map<LabelNode, LabelNode> cloneLabels(InsnList list) {
+        return new InsnListSection(list).cloneLabels();
     }
 
-    public static byte[] injectMethods(String name, byte[] bytes, Multimap<String, MethodInjector> injectors) {
-        if (injectors.containsKey(name)) {
-            ClassNode cnode = createClassNode(bytes);
-
-            for (MethodInjector injector : injectors.get(name)) {
-                MethodNode method = findMethod(injector.method, cnode);
-                if (method == null)
-                    throw new RuntimeException("Method not found: " + injector.method);
-                System.out.println("Injecting into " + injector.method + "\n" + printInsnList(injector.injection));
-
-                List<AbstractInsnNode> callNodes;
-                if (injector.before)
-                    callNodes = InstructionComparator.insnListFindStart(method.instructions, injector.needle);
-                else
-                    callNodes = InstructionComparator.insnListFindEnd(method.instructions, injector.needle);
-
-                if (callNodes.size() == 0) {
-                    throw new RuntimeException("Needle not found in Haystack: " + injector.method + "\n" + printInsnList(injector.needle));
-                }
-
-                for (AbstractInsnNode node : callNodes) {
-                    if (injector.before) {
-                        System.out.println("Injected before: " + printInsn(node));
-                        method.instructions.insertBefore(node, cloneInsnList(injector.injection));
-                    } else {
-                        System.out.println("Injected after: " + printInsn(node));
-                        method.instructions.insert(node, cloneInsnList(injector.injection));
-                    }
-                }
-            }
-
-            bytes = createBytes(cnode, ClassWriter.COMPUTE_FRAMES);
-        }
-        return bytes;
+    public static InsnList cloneInsnList(InsnList list) {
+        return new InsnListSection(list).copy().list;
     }
 
-    public static String printInsnList(InsnList list) {
-        InsnListPrinter p = new InsnListPrinter();
-        p.visitInsnList(list);
-        return p.textString();
-    }
-
-    public static String printInsn(AbstractInsnNode insn) {
-        InsnListPrinter p = new InsnListPrinter();
-        p.visitInsn(insn);
-        return p.textString();
-    }
-
-    public static Map<LabelNode, LabelNode> cloneLabels(InsnList insns) {
-        HashMap<LabelNode, LabelNode> labelMap = new HashMap<LabelNode, LabelNode>();
-        for (AbstractInsnNode insn = insns.getFirst(); insn != null; insn = insn.getNext())
-            if (insn.getType() == 8)
-                labelMap.put((LabelNode) insn, new LabelNode());
-        return labelMap;
-    }
-
-    public static InsnList cloneInsnList(InsnList insns) {
-        return cloneInsnList(cloneLabels(insns), insns);
-    }
-
-    public static InsnList cloneInsnList(Map<LabelNode, LabelNode> labelMap, InsnList insns) {
-        InsnList clone = new InsnList();
-        for (AbstractInsnNode insn = insns.getFirst(); insn != null; insn = insn.getNext())
-            clone.add(insn.clone(labelMap));
-
-        return clone;
+    public static InsnList cloneInsnList(Map<LabelNode, LabelNode> labelMap, InsnList list) {
+        return new InsnListSection(list).copy(labelMap).list;
     }
 
     public static List<TryCatchBlockNode> cloneTryCatchBlocks(Map<LabelNode, LabelNode> labelMap, List<TryCatchBlockNode> tcblocks) {
@@ -204,7 +93,7 @@ public class ASMHelper
     }
 
     public static List<LocalVariableNode> cloneLocals(Map<LabelNode, LabelNode> labelMap, List<LocalVariableNode> locals) {
-        ArrayList<LocalVariableNode> clone = new ArrayList<LocalVariableNode>();
+        ArrayList<LocalVariableNode> clone = new ArrayList<LocalVariableNode>(locals.size());
         for (LocalVariableNode node : locals)
             clone.add(new LocalVariableNode(
                     node.name, node.desc, node.signature,
@@ -226,28 +115,8 @@ public class ASMHelper
         dst.visitMaxs(src.maxStack, src.maxLocals);
     }
 
-    public static byte[] alterMethods(String name, byte[] bytes, HashMultimap<String, MethodAltercator> altercators) {
-        if (altercators.containsKey(name)) {
-            ClassNode cnode = createClassNode(bytes);
-
-            for (MethodAltercator injector : altercators.get(name)) {
-                MethodNode method = findMethod(injector.method, cnode);
-                if (method == null)
-                    throw new RuntimeException("Method not found: " + injector.method);
-
-                injector.alter(method);
-            }
-
-            bytes = createBytes(cnode, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-        }
-        return bytes;
-    }
-
-
-    public static String printInsnList(InsnListSection subsection) {
-        InsnListPrinter p = new InsnListPrinter();
-        p.visitInsnList(subsection);
-        return p.textString();
+    public static String toString(InsnList list) {
+        return new InsnListSection(list).toString();
     }
 
     public static int getLocal(List<LocalVariableNode> list, String name) {
@@ -263,7 +132,7 @@ public class ASMHelper
         return found;
     }
 
-    public static void replaceMethodCode(MethodNode original, MethodNode replacement) {
+    public static void replaceMethod(MethodNode original, MethodNode replacement) {
         original.instructions.clear();
         if (original.localVariables != null)
             original.localVariables.clear();
@@ -272,14 +141,51 @@ public class ASMHelper
         replacement.accept(original);
     }
 
-    public static void removeBlock(InsnList insns, InsnListSection block) {
-        AbstractInsnNode insn = block.first;
-        while (true) {
-            AbstractInsnNode next = insn.getNext();
-            insns.remove(insn);
-            if (insn == block.last)
-                break;
-            insn = next;
+    public static void dump(Acceptor acceptor, File file, boolean filterImportant, boolean sortLocals) {
+        try {
+            if(!file.getParentFile().exists())
+                file.getParentFile().mkdirs();
+            if(!file.exists())
+                file.createNewFile();
+
+            PrintWriter pout = new PrintWriter(file);
+            ClassVisitor cv = new TraceClassVisitor(pout);
+            if(filterImportant) cv = new ImportantInsnVisitor(cv);
+            if(sortLocals) cv = new LocalVariablesSorterVisitor(cv);
+            acceptor.accept(cv);
+            pout.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    public static void dump(final byte[] bytes, File file, boolean filterImportant, boolean sortLocals) {
+        dump(new Acceptor()
+        {
+            @Override
+            public void accept(ClassVisitor cv) {
+                new ClassReader(bytes).accept(cv, ClassReader.EXPAND_FRAMES);
+            }
+        }, file, filterImportant, sortLocals);
+    }
+
+    public static void dump(final InputStream is, File file, boolean filterImportant, boolean sortLocals) {
+        dump(new Acceptor()
+        {
+            @Override
+            public void accept(ClassVisitor cv) throws IOException {
+                new ClassReader(is).accept(cv, ClassReader.EXPAND_FRAMES);
+            }
+        }, file, filterImportant, sortLocals);
+    }
+
+    public static void dump(final ClassNode cnode, File file, boolean filterImportant, boolean sortLocals) {
+        dump(new Acceptor()
+        {
+            @Override
+            public void accept(ClassVisitor cv) {
+                cnode.accept(cv);
+            }
+        }, file, filterImportant, sortLocals);
     }
 }

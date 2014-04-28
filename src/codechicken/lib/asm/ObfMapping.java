@@ -1,6 +1,5 @@
 package codechicken.lib.asm;
 
-import codechicken.lib.config.ConfigFile;
 import codechicken.lib.config.ConfigTag;
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
@@ -9,6 +8,9 @@ import com.google.common.io.Resources;
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import cpw.mods.fml.relauncher.FMLInjectionData;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.common.ForgeVersion;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.*;
@@ -74,14 +76,9 @@ public class ObfMapping
 
     public static class MCPRemapper extends Remapper implements LineProcessor<Void>
     {
-        public static ConfigFile config;
-
         public static File[] getConfFiles() {
-            if (config == null)
-                config = new ConfigFile(new File((File) FMLInjectionData.data()[6], "config/CodeChickenLib.cfg")).setComment("CodeChickenLib configuration file.");
-
-            ConfigTag tag = config.getTag("dev.mappingDir").setComment("Path to directory holding packaged.srg, fields.csv and methods.csv for mcp remapping");
-            for (int i = 0; i < 6; i++) {
+            ConfigTag tag = ASMHelper.config.getTag("mappingDir").setComment("Path to directory holding packaged.srg, fields.csv and methods.csv for mcp remapping");
+            for (int i = 0; i < DIR_GUESSES+DIR_ASKS; i++) {
                 File dir = confDirectoryGuess(i, tag);
                 if (dir == null || dir.isFile())
                     continue;
@@ -90,7 +87,7 @@ public class ObfMapping
                 try {
                     mappings = parseConfDir(dir);
                 } catch (Exception e) {
-                    if (i >= 3)
+                    if (i >= DIR_GUESSES)
                         e.printStackTrace();
                     continue;
                 }
@@ -102,6 +99,8 @@ public class ObfMapping
             throw new RuntimeException("Failed to select mappings directory, set it manually in the config");
         }
 
+        private static final int DIR_GUESSES = 4;
+        private static final int DIR_ASKS = 3;
         public static File confDirectoryGuess(int i, ConfigTag tag) {
             File mcDir = (File) FMLInjectionData.data()[6];
             switch (i) {
@@ -111,6 +110,9 @@ public class ObfMapping
                     return new File(mcDir, "../conf");
                 case 2:
                     return new File(mcDir, "../build/unpacked/conf");
+                case 3:
+                    return new File(System.getProperty("user.home"), ".gradle/caches/minecraft/net/minecraftforge/forge/"+
+                        FMLInjectionData.data()[4]+"-"+ ForgeVersion.getVersion()+"/unpacked/conf");
                 default:
                     JFileChooser fc = new JFileChooser(mcDir);
                     fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -279,6 +281,14 @@ public class ObfMapping
 
     public void visitFieldInsn(MethodVisitor mv, int opcode) {
         mv.visitFieldInsn(opcode, s_owner, s_name, s_desc);
+    }
+
+    public MethodVisitor visitMethod(ClassVisitor visitor, int access, String[] exceptions) {
+        return visitor.visitMethod(access, s_name, s_desc, null, exceptions);
+    }
+
+    public FieldVisitor visitField(ClassVisitor visitor, int access, Object value) {
+        return visitor.visitField(access, s_name, s_desc, null, value);
     }
 
     public boolean isClass(String name) {

@@ -1,67 +1,22 @@
 package codechicken.lib.asm;
 
-import com.google.common.collect.ImmutableMap;
 import org.objectweb.asm.tree.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.objectweb.asm.Opcodes.*;
 import static org.objectweb.asm.tree.AbstractInsnNode.*;
 
 public class ASMReader
 {
-    public static class ASMBlock
-    {
-        public InsnList insns = new InsnList();
-        private HashMap<String, LabelNode> labels = new HashMap<String, LabelNode>();
-        
-        public LabelNode getOrAdd(String s)
-        {
-            LabelNode l = get(s);
-            if(l == null)
-                labels.put(s, l = new LabelNode());
-            return l;
-        }
-        
-        public LabelNode get(String s)
-        {
-            return labels.get(s);
-        }
-        
-        public void replace(String s, LabelNode l)
-        {
-            LabelNode old = get(s);
-            if(old != null)
-            {
-                Map<LabelNode, LabelNode> map = ImmutableMap.of(old, l);
-                for(AbstractInsnNode insn = insns.getFirst(); insn != null; insn = insn.getNext())
-                {
-                    switch(insn.getType())
-                    {
-                        case JUMP_INSN:
-                        case FRAME:
-                        case LOOKUPSWITCH_INSN:
-                        case TABLESWITCH_INSN:
-                        case LABEL:
-                            insns.insert(insn, insn.clone(map));
-                            insns.remove(insn);
-                    }
-                }
-            }
-            labels.put(s, l);
-        }
-    }
-    
     public static Map<String, Integer> opCodes = new HashMap<String, Integer>();
     public static byte[] TYPE;
-    
-    static
-    {
+
+    static {
         opCodes.put("NOP", NOP);
         opCodes.put("ACONST_NULL", ACONST_NULL);
         opCodes.put("ICONST_M1", ICONST_M1);
@@ -219,7 +174,7 @@ public class ASMReader
         opCodes.put("MULTIANEWARRAY", MULTIANEWARRAY);
         opCodes.put("IFNULL", IFNULL);
         opCodes.put("IFNONNULL", IFNONNULL);
-        
+
         //derived from classWriter, mapped to AbstractInsnNode
         TYPE = new byte[200];
         String s = "AAAAAAAAAAAAAAAABBJ__CCCCC____________________AAAAAAAACC"
@@ -230,95 +185,89 @@ public class ASMReader
             TYPE[i] = (byte) (s.charAt(i) - 'A');
     }
 
-    public static Map<String, ASMBlock> loadResource(String res)
-    {
+    public static Map<String, ASMBlock> loadResource(String res) {
         return loadResource(ASMHelper.class.getResourceAsStream(res), res);
     }
-    
-    public static Map<String, ASMBlock> loadResource(InputStream in, String res)
-    {
+
+    public static Map<String, ASMBlock> loadResource(InputStream in, String res) {
         HashMap<String, ASMBlock> blocks = new HashMap<String, ASMBlock>();
         String current = "unnamed";
         ASMBlock block = new ASMBlock();
-        try
-        {
+        try {
             BufferedReader r = new BufferedReader(new InputStreamReader(in));
             String line;
-            while((line = r.readLine()) != null)
-            {
+            while ((line = r.readLine()) != null) {
                 {
                     int hpos = line.indexOf('#');
-                    if(hpos >= 0) line = line.substring(0, hpos);
+                    if (hpos >= 0) line = line.substring(0, hpos);
                 }
                 line = line.trim();
-                if(line.length() == 0) continue;
-                if(line.startsWith("list "))
-                {
-                    if(block.insns.size() > 0) blocks.put(current, block);
+                if (line.length() == 0) continue;
+                if (line.startsWith("list ")) {
+                    if (block.list.size() > 0) blocks.put(current, block);
                     current = line.substring(5);
                     block = new ASMBlock();
                     continue;
                 }
-                
-                try
-                {
+
+                try {
                     AbstractInsnNode insn = null;
                     String[] split = line.replace(" : ", ":").split(" ");
                     Integer i_opcode = opCodes.get(split[0]);
-                    if(i_opcode == null)
-                    {
-                        if(split[0].equals("LINENUMBER"))
+                    if (i_opcode == null) {
+                        if (split[0].equals("LINENUMBER"))
                             insn = new LineNumberNode(Integer.parseInt(split[1]), block.getOrAdd(split[2]));
-                        else if(split[0].startsWith("L"))
+                        else if (split[0].startsWith("L"))
                             insn = block.getOrAdd(split[0]);
                         else
                             throw new Exception("Unknown opcode " + split[0]);
-                    }
-                    else
-                    {
+                    } else {
                         int opcode = i_opcode;
-                        switch(TYPE[opcode])
-                        {
+                        switch (TYPE[opcode]) {
                             case INSN:
                                 insn = new InsnNode(opcode);
-                            break;
+                                break;
                             case INT_INSN:
                                 insn = new IntInsnNode(opcode, Integer.parseInt(split[1]));
-                            break;
+                                break;
                             case VAR_INSN:
                                 insn = new VarInsnNode(opcode, Integer.parseInt(split[1]));
-                            break;
+                                break;
                             case TYPE_INSN:
                                 insn = new ObfMapping(split[1]).toClassloading().toInsn(opcode);
-                            break;
+                                break;
                             case FIELD_INSN:
                             case METHOD_INSN:
                                 StringBuilder sb = new StringBuilder();
-                                for(int i = 1; i < split.length; i++)
+                                for (int i = 1; i < split.length; i++)
                                     sb.append(split[i]);
                                 insn = ObfMapping.fromDesc(sb.toString()).toClassloading().toInsn(opcode);
-                            break;
+                                break;
                             case INVOKE_DYNAMIC_INSN:
                                 throw new Exception("Found INVOKEDYNAMIC while reading");
                             case JUMP_INSN:
                                 insn = new JumpInsnNode(opcode, block.getOrAdd(split[1]));
-                            break;
+                                break;
                             case LDC_INSN:
                                 String cst = split[1];
-                                if(cst.contains(""))
-                                    insn = new LdcInsnNode(cst.substring(1, cst.length()-1));
-                                else if(cst.endsWith("L"))
-                                    insn = new LdcInsnNode(Long.valueOf(cst.substring(0, cst.length()-1)));
-                                else if(cst.endsWith("F"))
-                                    insn = new LdcInsnNode(Float.valueOf(cst.substring(0, cst.length()-1)));
-                                else if(cst.endsWith("D"))
-                                    insn = new LdcInsnNode(Double.valueOf(cst.substring(0, cst.length()-1)));
+                                if(cst.equals("*"))
+                                    insn = new LdcInsnNode(null);
+                                else if (cst.endsWith("\""))
+                                    insn = new LdcInsnNode(cst.substring(1, cst.length() - 1));
+                                else if (cst.endsWith("L"))
+                                    insn = new LdcInsnNode(Long.valueOf(cst.substring(0, cst.length() - 1)));
+                                else if (cst.endsWith("F"))
+                                    insn = new LdcInsnNode(Float.valueOf(cst.substring(0, cst.length() - 1)));
+                                else if (cst.endsWith("D"))
+                                    insn = new LdcInsnNode(Double.valueOf(cst.substring(0, cst.length() - 1)));
+                                else if (cst.contains("."))
+                                    insn = new LdcInsnNode(Double.valueOf(cst));
                                 else
                                     insn = new LdcInsnNode(Integer.valueOf(cst));
-                            break;
+                                break;
                             case IINC_INSN:
                                 insn = new IincInsnNode(opcode, Integer.parseInt(split[1]));
-                            break;
+                                break;
                             case LABEL:
                                 throw new Exception("Use L# for labels");
                             case TABLESWITCH_INSN:
@@ -326,29 +275,25 @@ public class ASMReader
                                 throw new Exception("I don't know how to deal with this insn type");
                             case MULTIANEWARRAY_INSN:
                                 insn = new MultiANewArrayInsnNode(split[1], Integer.parseInt(split[2]));
-                            break;
+                                break;
                             case FRAME:
                                 throw new Exception("Use ClassWriter.COMPUTE_FRAMES");
                         }
                     }
-                    
-                    if(insn != null)
-                        block.insns.add(insn);
-                }
-                catch(Exception e)
-                {
-                    System.err.println("Error while reading ASM Block "+
-                            current+" from "+res+", line: "+line);
+
+                    if (insn != null)
+                        block.list.add(insn);
+                } catch (Exception e) {
+                    System.err.println("Error while reading ASM Block " +
+                            current + " from " + res + ", line: " + line);
                     e.printStackTrace();
                 }
             }
-            
+
             r.close();
-            if(block.insns.size() > 0) blocks.put(current, block);
-        }
-        catch(IOException e)
-        {
-            throw new RuntimeException("Failed to read ASM resource: "+res, e);
+            if (block.list.size() > 0) blocks.put(current, block);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read ASM resource: " + res, e);
         }
         return blocks;
     }
