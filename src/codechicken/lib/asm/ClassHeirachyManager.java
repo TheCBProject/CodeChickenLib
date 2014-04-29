@@ -15,6 +15,10 @@ import java.util.HashSet;
  */
 public class ClassHeirachyManager implements IClassTransformer
 {
+    static {
+        ASMInit.init();
+    }
+
     public static class SuperCache
     {
         String superclass;

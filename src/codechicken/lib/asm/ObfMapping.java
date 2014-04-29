@@ -72,6 +72,10 @@ public class ObfMapping
         public String map(String typeName) {
             return FMLDeobfuscatingRemapper.INSTANCE.unmap(typeName);
         }
+
+        public boolean isObf(String typeName) {
+            return !map(typeName).equals(typeName);
+        }
     }
 
     public static class MCPRemapper extends Remapper implements LineProcessor<Void>
@@ -379,7 +383,10 @@ public class ObfMapping
     }
 
     public ObfMapping toClassloading() {
-        map(obfuscated ? obfMapper : mcpMapper);
+        if(!obfuscated)
+            map(mcpMapper);
+        else if(obfMapper.isObf(s_owner))
+            map(obfMapper);
         return this;
     }
 
