@@ -193,6 +193,8 @@ public class InventoryUtils
         for (int pass = 0; pass < 2; pass++) {
             for (int slot : inv.slots) {
                 ItemStack base = inv.inv.getStackInSlot(slot);
+                if((pass == 0) == (base == null))
+                    continue;
                 int fit = fitStackInSlot(inv, slot, stack);
                 if (fit == 0)
                     continue;
@@ -203,7 +205,7 @@ public class InventoryUtils
                         base.stackSize += fit;
                         inv.inv.setInventorySlotContents(slot, base);
                     }
-                } else if (pass == 1) {
+                } else {
                     if (!simulate)
                         inv.inv.setInventorySlotContents(slot, copyStack(stack, fit));
                     stack.stackSize -= fit;
