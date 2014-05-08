@@ -3,6 +3,7 @@ package codechicken.lib.render;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightMatrix;
+import codechicken.lib.lighting.PlanarLightMatrix;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Transformation;
@@ -296,6 +297,10 @@ public class CCRenderState
 
     public static void setModel(IVertexSource source, int start, int end) {
         bindModel(source);
+        setVertexRange(start, end);
+    }
+
+    public static void setVertexRange(int start, int end) {
         firstVertexIndex = start;
         lastVertexIndex = end;
     }
