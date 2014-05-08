@@ -3,7 +3,6 @@ package codechicken.lib.render;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightMatrix;
-import codechicken.lib.lighting.PlanarLightMatrix;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Transformation;
