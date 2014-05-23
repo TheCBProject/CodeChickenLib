@@ -102,7 +102,7 @@ public class CCRenderState
 
     public static <T> T copyOf(VertexAttribute<T> attr, T src, int length) {
         T dst = attr.newArray(length);
-        arrayCopy(src, 0, dst, 0, length);
+        arrayCopy(src, 0, dst, 0, ((Object[])src).length);
         return dst;
     }
 
