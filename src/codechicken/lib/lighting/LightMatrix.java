@@ -139,6 +139,9 @@ public class LightMatrix implements CCRenderState.IVertexOperation
 
     @Override
     public boolean load() {
+        if(!CCRenderState.computeLighting)
+            return false;
+
         CCRenderState.pipeline.addDependency(CCRenderState.colourAttrib);
         CCRenderState.pipeline.addDependency(CCRenderState.lightCoordAttrib);
         return true;

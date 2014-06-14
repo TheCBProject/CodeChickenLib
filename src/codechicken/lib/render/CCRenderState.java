@@ -180,6 +180,32 @@ public class CCRenderState
                 setColour(baseColour);
         }
     };
+    public static VertexAttribute<int[]> lightingAttrib = new VertexAttribute<int[]>() {
+        private int[] colourRef;
+
+        @Override
+        public int[] newArray(int length) {
+            return new int[length];
+        }
+
+        @Override
+        public boolean load() {
+            if(!computeLighting || !hasColour || !model.hasAttribute(this))
+                return false;
+
+            colourRef = model.getAttributes(this);
+            if(colourRef != null) {
+                pipeline.addDependency(colourAttrib);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void operate() {
+            setColour(ColourRGBA.multiply(colour, colourRef[vertexIndex]));
+        }
+    };
     public static VertexAttribute<int[]> sideAttrib = new VertexAttribute<int[]>() {
         private int[] sideRef;
 
@@ -251,6 +277,8 @@ public class CCRenderState
     public static int baseColour;
     public static int alphaOverride;
     public static boolean useNormals;
+    public static boolean computeLighting;
+    public static boolean useColour;
     public static LightMatrix lightMatrix = new LightMatrix();
 
     //vertex outputs
@@ -269,8 +297,8 @@ public class CCRenderState
     public static void reset() {
         model = null;
         pipeline.reset();
-        hasNormal = hasBrightness = false;
-        hasColour = true;
+        useNormals = hasNormal = hasBrightness = hasColour = false;
+        useColour = computeLighting = true;
         baseColour = alphaOverride = -1;
     }
 
@@ -360,6 +388,14 @@ public class CCRenderState
 
     public static void pullLightmap() {
         setBrightness((int)OpenGlHelper.lastBrightnessY << 16 | (int)OpenGlHelper.lastBrightnessX);
+    }
+
+    /**
+     * Compact helper for setting dynamic rendering context. Uses normals and doesn't compute lighting
+     */
+    public static void setDynamic() {
+        useNormals = true;
+        computeLighting = false;
     }
 
     public static void changeTexture(String texture) {
