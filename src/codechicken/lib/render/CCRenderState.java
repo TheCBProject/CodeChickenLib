@@ -349,11 +349,6 @@ public class CCRenderState
         colour = c;
     }
 
-    public static void setBaseColour(int c) {
-        hasColour = true;
-        baseColour = c;
-    }
-
     public static void setBrightness(int b) {
         hasBrightness = true;
         brightness = b;
