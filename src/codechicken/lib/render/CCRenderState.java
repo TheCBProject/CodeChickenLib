@@ -269,7 +269,8 @@ public class CCRenderState
     public static void reset() {
         model = null;
         pipeline.reset();
-        hasNormal = hasColour = hasBrightness = false;
+        hasNormal = hasBrightness = false;
+        hasColour = true;
         baseColour = alphaOverride = -1;
     }
 
