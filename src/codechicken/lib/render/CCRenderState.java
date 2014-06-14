@@ -373,7 +373,7 @@ public class CCRenderState
         startDrawing(7);
     }
 
-    private static void startDrawing(int mode) {
+    public static void startDrawing(int mode) {
         Tessellator.instance.startDrawing(mode);
         if(hasColour)
             Tessellator.instance.setColorRGBA(colour>>>24, colour>>16 & 0xFF, colour>>8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);

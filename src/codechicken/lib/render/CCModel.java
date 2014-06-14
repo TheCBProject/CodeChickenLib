@@ -398,11 +398,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel>
         return this;
     }
 
-    public void render()
-    {
-        render(0, verts.length, null, null, null);
-    }
-
     public void render(double x, double y, double z, double u, double v)
     {
         render(new Vector3(x, y, z).translation(), new UVTranslation(u, v));
