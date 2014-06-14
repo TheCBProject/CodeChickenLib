@@ -465,7 +465,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
         short fluidID = readShort();
 
         if (fluidID >= 0)
-            fluid = new FluidStack(fluidID, readInt(), readNBTTagCompound());
+            fluid = new FluidStack(fluidID, readVarInt(), readNBTTagCompound());
 
         return fluid;
     }
