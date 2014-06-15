@@ -190,7 +190,7 @@ public class CCRenderState
 
         @Override
         public boolean load() {
-            if(!computeLighting || !hasColour || !model.hasAttribute(this))
+            if(!computeLighting || !useColour || !model.hasAttribute(this))
                 return false;
 
             colourRef = model.getAttributes(this);
