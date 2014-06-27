@@ -790,9 +790,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel>
      */
     public CCModel sidedCopy(int side1, int side2, Vector3 point)
     {
-        CCModel model = newModel(vertexMode, verts.length);
-        copy(this, 0, model, 0, model.verts.length);
-        return model.apply(new TransformationList(sideRotations[side1].inverse(), sideRotations[side2]).at(point));
+        return copy().apply(new TransformationList(sideRotations[side1].inverse(), sideRotations[side2]).at(point));
     }
 
     /**
