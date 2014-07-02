@@ -101,7 +101,7 @@ public class GuiDraw
 
     public static Dimension displaySize() {
         Minecraft mc = Minecraft.getMinecraft();
-        ScaledResolution res = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
+        ScaledResolution res = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
         return new Dimension(res.getScaledWidth(), res.getScaledHeight());
     }
 
