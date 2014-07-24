@@ -110,10 +110,14 @@ public class GuiDraw
         return new Dimension(mc.displayWidth, mc.displayHeight);
     }
 
-    public static Point getMousePosition() {
+    public static Point getMousePosition(int eventX, int eventY) {
         Dimension size = displaySize();
         Dimension res = displayRes();
-        return new Point(Mouse.getX() * size.width / res.width, size.height - Mouse.getY() * size.height / res.height - 1);
+        return new Point(eventX * size.width / res.width, size.height - eventY * size.height / res.height - 1);
+    }
+
+    public static Point getMousePosition() {
+        return getMousePosition(Mouse.getX(), Mouse.getY());
     }
 
     public static void changeTexture(String s) {
