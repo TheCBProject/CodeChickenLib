@@ -48,9 +48,9 @@ public class SpriteSheetManager
             if(TextureUtils.refreshTexture(textureMap, resource.getResourcePath()))
             {
                 reloadTexture();
-                for(int i = 0; i < sprites.length; i++)
-                    if(sprites[i] != null)
-                        textureMap.setTextureEntry(sprites[i].getIconName(), sprites[i]);
+                for (TextureSpecial sprite : sprites)
+                    if (sprite != null)
+                        textureMap.setTextureEntry(sprite.getIconName(), sprite);
             }
             else
             {

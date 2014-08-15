@@ -1,5 +1,6 @@
 package codechicken.lib.render;
 
+import codechicken.lib.asm.ObfMapping;
 import codechicken.lib.render.SpriteSheetManager.SpriteSheet;
 import codechicken.lib.render.TextureUtils.IIconSelfRegister;
 import cpw.mods.fml.relauncher.Side;
@@ -10,10 +11,12 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.client.resources.data.AnimationMetadataSection;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 @SideOnly(Side.CLIENT)
@@ -25,12 +28,26 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
     //textureFX fields
     private TextureFX textureFX;
     private int mipmapLevels;
+    private int rawWidth;
+    private int rawHeight;
 
     private int blankSize = -1;
     private ArrayList<TextureDataHolder> baseTextures;
 
     private boolean selfRegister;
     public int atlasIndex;
+
+    private static Method m_prepareAnisotropicFiltering;
+    static {
+        try {
+            m_prepareAnisotropicFiltering = TextureAtlasSprite.class.getMethod(
+                    new ObfMapping("net/minecraft/client/renderer/texture", "func_147960_a", "([[III)[[I")
+                            .toRuntime().s_name, int[][].class, int.class, int.class);
+            m_prepareAnisotropicFiltering.setAccessible(true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     protected TextureSpecial(String par1) {
         super(par1);
@@ -58,7 +75,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
     public void initSprite(int sheetWidth, int sheetHeight, int originX, int originY, boolean rotated) {
         super.initSprite(sheetWidth, sheetHeight, originX, originY, rotated);
         if (textureFX != null)
-            textureFX.onTextureDimensionsUpdate(width, height);
+            textureFX.onTextureDimensionsUpdate(rawWidth, rawHeight);
     }
 
     @Override
@@ -68,10 +85,27 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
             if (textureFX.changed()) {
                 int[][] mipmaps = new int[mipmapLevels + 1][];
                 mipmaps[0] = textureFX.imageData;
+                mipmaps = prepareAnisotropicFiltering(mipmaps);
                 mipmaps = TextureUtil.generateMipmapData(mipmapLevels, width, mipmaps);
                 TextureUtil.uploadTextureMipmap(mipmaps, width, height, originX, originY, false, false);
             }
         }
+    }
+
+
+    public int[][] prepareAnisotropicFiltering(int[][] mipmaps) {
+        try {
+            return (int[][]) m_prepareAnisotropicFiltering.invoke(this, mipmaps, rawWidth, rawHeight);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void loadSprite(BufferedImage[] images, AnimationMetadataSection animationMeta, boolean anisotropicFiltering) {
+        rawWidth = images[0].getWidth();
+        rawHeight = images[0].getHeight();
+        super.loadSprite(images, animationMeta, anisotropicFiltering);
     }
 
     @Override
@@ -85,35 +119,27 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
         return true;
     }
 
-    public void addFrame(int[] data) {
+    public void addFrame(int[] data, int width, int height) {
         GameSettings settings = Minecraft.getMinecraft().gameSettings;
         BufferedImage[] images = new BufferedImage[settings.mipmapLevels+1];
         images[0] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         images[0].setRGB(0, 0, width, height, data, 0, width);
 
-        super.loadSprite(images, null, settings.anisotropicFiltering > 1);
+        loadSprite(images, null, settings.anisotropicFiltering > 1);
     }
 
     @Override
     public boolean load(IResourceManager manager, ResourceLocation location) {
         if (baseTextures != null) {
-            for (TextureDataHolder tex : baseTextures) {
-                width = tex.width;
-                height = tex.height;
-                addFrame(tex.data);
-            }
+            for (TextureDataHolder tex : baseTextures)
+                addFrame(tex.data, tex.width, tex.height);
         }
-
-        if (spriteSheet != null) {
+        else if (spriteSheet != null) {
             TextureDataHolder tex = spriteSheet.createSprite(spriteIndex);
-            width = tex.width;
-            height = tex.height;
-            addFrame(tex.data);
+            addFrame(tex.data, tex.width, tex.height);
         }
-
-        if (blankSize > 0) {
-            width = height = blankSize;
-            addFrame(new int[blankSize * blankSize]);
+        else if (blankSize > 0) {
+            addFrame(new int[blankSize * blankSize], blankSize, blankSize);
         }
 
         if (framesTextureData.isEmpty())
