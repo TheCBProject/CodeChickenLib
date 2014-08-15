@@ -390,6 +390,10 @@ public class CCRenderState
         setBrightness((int)OpenGlHelper.lastBrightnessY << 16 | (int)OpenGlHelper.lastBrightnessX);
     }
 
+    public static void pushLightmap() {
+        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, brightness & 0xFFFF, brightness >>> 16);
+    }
+
     /**
      * Compact helper for setting dynamic rendering context. Uses normals and doesn't compute lighting
      */
