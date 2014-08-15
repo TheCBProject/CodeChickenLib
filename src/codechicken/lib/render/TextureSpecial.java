@@ -24,6 +24,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
 
     //textureFX fields
     private TextureFX textureFX;
+    private int mipmapLevels;
 
     private int blankSize = -1;
     private ArrayList<TextureDataHolder> baseTextures;
@@ -64,9 +65,19 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
     public void updateAnimation() {
         if (textureFX != null) {
             textureFX.update();
-            if (textureFX.changed())
-                TextureUtil.uploadTextureMipmap(new int[][]{textureFX.imageData}, width, height, originX, originY, false, false);
+            if (textureFX.changed()) {
+                int[][] mipmaps = new int[mipmapLevels + 1][];
+                mipmaps[0] = textureFX.imageData;
+                mipmaps = TextureUtil.generateMipmapData(mipmapLevels, width, mipmaps);
+                TextureUtil.uploadTextureMipmap(mipmaps, width, height, originX, originY, false, false);
+            }
         }
+    }
+
+    @Override
+    public void generateMipmaps(int p_147963_1_) {
+        super.generateMipmaps(p_147963_1_);
+        mipmapLevels = p_147963_1_;
     }
 
     @Override
