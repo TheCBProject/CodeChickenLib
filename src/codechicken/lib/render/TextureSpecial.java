@@ -16,7 +16,6 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.image.BufferedImage;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 @SideOnly(Side.CLIENT)
@@ -36,18 +35,6 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
 
     private boolean selfRegister;
     public int atlasIndex;
-
-    private static Method m_prepareAnisotropicFiltering;
-    static {
-        try {
-            m_prepareAnisotropicFiltering = TextureAtlasSprite.class.getMethod(
-                    new ObfMapping("net/minecraft/client/renderer/texture", "func_147960_a", "([[III)[[I")
-                            .toRuntime().s_name, int[][].class, int.class, int.class);
-            m_prepareAnisotropicFiltering.setAccessible(true);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     protected TextureSpecial(String par1) {
         super(par1);
@@ -93,11 +80,31 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
     }
 
 
+    /**
+     * Copy paste mojang code because it's private, and CCL can't have access transformers or reflection
+     */
     public int[][] prepareAnisotropicFiltering(int[][] mipmaps) {
-        try {
-            return (int[][]) m_prepareAnisotropicFiltering.invoke(this, mipmaps, rawWidth, rawHeight);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (Minecraft.getMinecraft().gameSettings.anisotropicFiltering <= 1)
+        {
+            return mipmaps;
+        }
+        else
+        {
+            int[][] aint1 = new int[mipmaps.length][];
+
+            for (int k = 0; k < mipmaps.length; ++k)
+            {
+                int[] aint2 = mipmaps[k];
+
+                if (aint2 != null)
+                {
+                    int[] aint3 = new int[(rawWidth + 16 >> k) * (rawHeight + 16 >> k)];
+                    System.arraycopy(aint2, 0, aint3, 0, aint2.length);
+                    aint1[k] = TextureUtil.prepareAnisotropicData(aint3, rawWidth >> k, rawHeight >> k, 8 >> k);
+                }
+            }
+
+            return aint1;
         }
     }
 
