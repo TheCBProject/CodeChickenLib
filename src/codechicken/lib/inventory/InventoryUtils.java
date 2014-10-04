@@ -50,6 +50,8 @@ public class InventoryUtils
             ItemStack itemstack1 = item.splitStack(size);
             if (item.stackSize == 0)
                 inv.setInventorySlotContents(slot, null);
+            else
+                inv.setInventorySlotContents(slot, item);
 
             inv.markDirty();
             return itemstack1;
