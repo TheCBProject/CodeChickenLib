@@ -123,8 +123,11 @@ public class WorldExtensionManager
         }
 
         @SubscribeEvent
-        public void clientTick(TickEvent.WorldTickEvent event)
+        public void serverTick(TickEvent.WorldTickEvent event)
         {
+            if(!worldMap.containsKey(event.world))
+                WorldExtensionManager.onWorldLoad(event.world);
+
             if(event.phase == TickEvent.Phase.START)
                 preTick(event.world);
             else
