@@ -8,6 +8,8 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.*;
+import org.objectweb.asm.util.ASMifier;
+import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.File;
@@ -145,7 +147,7 @@ public class ASMHelper
         replacement.accept(original);
     }
 
-    public static void dump(Acceptor acceptor, File file, boolean filterImportant, boolean sortLocals) {
+    public static void dump(Acceptor acceptor, File file, boolean filterImportant, boolean sortLocals, boolean textify) {
         try {
             if(!file.getParentFile().exists())
                 file.getParentFile().mkdirs();
@@ -153,7 +155,7 @@ public class ASMHelper
                 file.createNewFile();
 
             PrintWriter pout = new PrintWriter(file);
-            ClassVisitor cv = new TraceClassVisitor(pout);
+            ClassVisitor cv = new TraceClassVisitor(null, textify ? new Textifier() : new ASMifier(), pout);
             if(filterImportant) cv = new ImportantInsnVisitor(cv);
             if(sortLocals) cv = new LocalVariablesSorterVisitor(cv);
             acceptor.accept(cv);
@@ -161,6 +163,10 @@ public class ASMHelper
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void dump(Acceptor acceptor, File file, boolean filterImportant, boolean sortLocals) {
+        dump(acceptor, file, filterImportant, sortLocals, config.getTag("textify").getBooleanValue(true));
     }
 
     public static void dump(final byte[] bytes, File file, boolean filterImportant, boolean sortLocals) {

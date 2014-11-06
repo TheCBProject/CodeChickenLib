@@ -219,6 +219,10 @@ public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord>
         return set(ia[0], ia[1], ia[2]);
     }
 
+    public BlockCoord set(TileEntity tile) {
+        return set(tile.xCoord, tile.yCoord, tile.zCoord);
+    }
+
     public int toSide()
     {
         if(!isAxial()) return -1;
