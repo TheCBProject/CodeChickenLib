@@ -2,7 +2,7 @@ package codechicken.lib.data;
 
 import codechicken.lib.vec.BlockCoord;
 import com.google.common.base.Charsets;
-import cpw.mods.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
