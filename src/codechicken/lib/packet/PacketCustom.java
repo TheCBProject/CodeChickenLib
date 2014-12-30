@@ -8,6 +8,7 @@ import codechicken.lib.vec.BlockCoord;
 import com.google.common.collect.Maps;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.server.management.PlayerManager.PlayerInstance;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.network.*;
@@ -467,15 +468,9 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToChunk(Packet packet, World world, int chunkX, int chunkZ) {
-        PlayerManager playerManager = ((WorldServer)world).getPlayerManager();
-        for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList)
-            if(playerManager.isPlayerWatchingChunk(player, chunkX, chunkZ))
-                sendToPlayer(packet, player);
-
-        /* Commented until forge accepts access tranformer request
-        PlayerInstance p = ((WorldServer) world).getPlayerManager().getOrCreateChunkWatcher(chunkX, chunkZ, false);
+        PlayerInstance p = ((WorldServer) world).getPlayerManager().getPlayerInstance(chunkX, chunkZ, false);
         if (p != null)
-            p.sendToAllPlayersWatchingChunk(packet);*/
+            p.sendToAllPlayersWatchingChunk(packet);
     }
 
     public void sendToOps() {
