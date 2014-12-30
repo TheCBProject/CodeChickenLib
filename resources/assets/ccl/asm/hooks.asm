@@ -1,7 +1,7 @@
 list n_IItemRenderer
-GETSTATIC net/minecraft/client/renderer/tileentity/TileEntityItemStackRenderer.instance : Lnet/minecraft/client/renderer/tileentity/TileEntityItemStackRenderer;
+GETSTATIC net/minecraft/client/renderer/tileentity/TileEntityItemStackRenderer.field_147719_a : Lnet/minecraft/client/renderer/tileentity/TileEntityItemStackRenderer;
 ALOAD 1
-INVOKEVIRTUAL net/minecraft/client/renderer/tileentity/TileEntityItemStackRenderer.renderByItem (Lnet/minecraft/item/ItemStack;)V
+INVOKEVIRTUAL net/minecraft/client/renderer/tileentity/TileEntityItemStackRenderer.func_179022_a (Lnet/minecraft/item/ItemStack;)V
 GOTO LEND #end of if statement
 
 list IItemRenderer
