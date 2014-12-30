@@ -12,7 +12,7 @@ public class RenderHookTransformer implements IClassTransformer
     public RenderHookTransformer() {
         Map<String, ASMBlock> blocks = ASMReader.loadResource("/assets/ccl/asm/hooks.asm");
         transformer.add(new MethodInjector(new ObfMapping("net/minecraft/client/renderer/entity/RenderItem",
-                "renderItem", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/resources/model/IBakedModel;)V"),
+                "func_180454_a", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/resources/model/IBakedModel;)V"),
                 blocks.get("n_IItemRenderer"), blocks.get("IItemRenderer"), true));
     }
 
