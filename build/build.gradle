@@ -97,7 +97,6 @@ uploadArchives {
                 pom {
                     groupId = project.group
                     // Force the maven upload to use the <mcversion>-<version> syntax preferred at files
-                    version = "${project.minecraft.version}-${project.version}"
                     artifactId = project.archivesBaseName
                     project {
                         name project.archivesBaseName
