@@ -51,6 +51,11 @@ sourceSets {
 	}
 }
 
+processResources {
+    // Move access transformer to META-INF
+    rename '(.+_at.cfg)', 'META-INF/$1'
+}
+
 version = "${project.minecraft.version}-${project.version}"
 def commonManifest = {
     attributes 'Main-Class': 'codechicken.lib.tool.Main'
