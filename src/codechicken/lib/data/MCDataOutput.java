@@ -17,11 +17,15 @@ public interface MCDataOutput
     public MCDataOutput writeChar(char c);
     public MCDataOutput writeVarInt(int i);
     public MCDataOutput writeVarShort(int s);
-    public MCDataOutput writeByteArray(byte[] array);
+    public MCDataOutput writeArray(byte[] array);
     public MCDataOutput writeString(String s);
     public MCDataOutput writeCoord(int x, int y, int z);
     public MCDataOutput writeCoord(BlockCoord coord);
     public MCDataOutput writeNBTTagCompound(NBTTagCompound tag);
+
+    /**
+     * Supports large stacks by writing stackSize as a varInt
+     */
     public MCDataOutput writeItemStack(ItemStack stack);
     public MCDataOutput writeFluidStack(FluidStack liquid);
 }

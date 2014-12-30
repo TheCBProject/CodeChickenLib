@@ -3,6 +3,10 @@ package codechicken.lib.render;
 import codechicken.lib.lighting.LC;
 import codechicken.lib.render.CCRenderState.VertexAttribute;
 import codechicken.lib.vec.Cuboid6;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.block.model.ItemTransformVec3f;
+
+import javax.vecmath.Vector3f;
 
 public class BlockRenderer
 {
@@ -136,6 +140,9 @@ public class BlockRenderer
             CCRenderState.side = CCRenderState.vertexIndex>>2;
         }
     }
+
+    public static ItemTransformVec3f thirdPersonTransform = new ItemTransformVec3f(new Vector3f(10, -45, 170), new Vector3f(0, 1.5F/16F, -2.75F/16F), new Vector3f(0.375F, 0.375F, 0.375F));
+    public static ItemCameraTransforms blockCameraTransform = new ItemCameraTransforms(thirdPersonTransform, ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT);
 
     public static FullBlock fullBlock = new FullBlock();
     public static void renderFullBlock(int sideMask) {

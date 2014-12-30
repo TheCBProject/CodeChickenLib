@@ -2,6 +2,7 @@ package codechicken.lib.world;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
@@ -91,7 +92,7 @@ public abstract class WorldExtension
 
     public ChunkExtension getChunkExtension(int chunkXPos, int chunkZPos)
     {
-        if(!world.blockExists(chunkXPos<<4, 128, chunkZPos<<4))
+        if(!world.isBlockLoaded(new BlockPos(chunkXPos<<4, 128, chunkZPos<<4)))
             return null;
         
         return chunkMap.get(world.getChunkFromChunkCoords(chunkXPos, chunkZPos));

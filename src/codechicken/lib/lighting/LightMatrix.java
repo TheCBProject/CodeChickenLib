@@ -4,7 +4,9 @@ import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.vec.BlockCoord;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 /**
@@ -83,12 +85,10 @@ public class LightMatrix implements CCRenderState.IVertexOperation
 
     public void sample(int i) {
         if ((sampled & 1 << i) == 0) {
-            int x = pos.x + (i % 3) - 1;
-            int y = pos.y + (i / 9) - 1;
-            int z = pos.z + (i / 3 % 3) - 1;
-            Block b = access.getBlock(x, y, z);
-            bSamples[i] = access.getLightBrightnessForSkyBlocks(x, y, z, b.getLightValue(access, x, y, z));
-            aSamples[i] = b.getAmbientOcclusionLightValue();
+            BlockPos bp = new BlockPos(pos.x + (i % 3) - 1, pos.y + (i / 9) - 1, pos.z + (i / 3 % 3) - 1);
+            IBlockState b = access.getBlockState(bp);
+            bSamples[i] = access.getCombinedLight(bp, b.getBlock().getLightValue(access, bp));
+            aSamples[i] = b.getBlock().getAmbientOcclusionLightValue();
             sampled |= 1 << i;
         }
     }

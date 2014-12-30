@@ -6,13 +6,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class GuiDraw
     }
 
     public static final GuiHook gui = new GuiHook();
-    public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+    public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
     public static TextureManager renderEngine = Minecraft.getMinecraft().renderEngine;
 
     public static void drawRect(int x, int y, int w, int h, int colour) {
@@ -164,9 +163,9 @@ public class GuiDraw
         if (list.isEmpty())
             return;
 
-        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GlStateManager.disableRescaleNormal();
         RenderHelper.disableStandardItemLighting();
+        GlStateManager.disableDepth();
 
         int w = 0;
         int h = -2;
@@ -204,9 +203,9 @@ public class GuiDraw
         tipLineHandlers.clear();
         gui.incZLevel(-300);
 
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glEnable(GL12.GL_RESCALE_NORMAL);
-        RenderHelper.enableGUIStandardItemLighting();
+        GlStateManager.enableDepth();
+        RenderHelper.enableStandardItemLighting();
+        GlStateManager.enableRescaleNormal();
     }
 
     public static void drawTooltipBox(int x, int y, int w, int h) {

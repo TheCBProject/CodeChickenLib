@@ -1,8 +1,8 @@
 package codechicken.lib.vec;
 
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -41,7 +41,7 @@ public class Translation extends Transformation {
     @Override
     @SideOnly(Side.CLIENT)
     public void glApply() {
-        GL11.glTranslated(vec.x, vec.y, vec.z);
+        GlStateManager.translate(vec.x, vec.y, vec.z);
     }
 
     @Override

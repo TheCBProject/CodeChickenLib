@@ -1,4 +1,3 @@
-// This sets us up for building a forge project - you need all of these
 buildscript {
     repositories {
         mavenCentral()
@@ -16,12 +15,9 @@ buildscript {
     }
 }
 
-// Apply the forge plugin - this adds all the magic for automatically obfuscating, deobfuscating etc
 apply plugin: 'forge'
 
-// This is our group
 group = "codechicken" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-// This is our actual project within the group.
 archivesBaseName = "CodeChickenLib"
 
 // Define properties file
@@ -40,49 +36,47 @@ println  config.minecraft_version + "-" + config.forge_version
 // Setup the forge minecraft plugin data. Specify the preferred forge/minecraft version here
 minecraft {
     version = config.minecraft_version + "-" + config.forge_version
+    mappings = "snapshot_nodoc_20141130"
 }
 
-
-// this sets our output jar to have a 'tag' of 'universal' on it
-// It also adds the minecraft version in a custom version name
-// The result is files named <projectname>-<mcversion>-<version>-universal.jar
-jar {
-    classifier = 'universal'
-    version = "${project.minecraft.version}-${project.version}"
-    manifest {
-        attributes 'Main-Class': 'codechicken.lib.tool.Main'
-    }
-
-}
 sourceSets {
 	main {
-		java {
-			srcDir new File(project.projectDir.parentFile, "src")
-		}
+        def root = project.projectDir.parentFile
+        java {
+            srcDir new File(root, "src")
+        }
+        resources {
+            srcDir new File(root, "resources")
+        }
 	}
 }
 
-// Add in a source jar for people, should they desire to download such a thing
-task sourceJar(type: Jar) {
-	from sourceSets.main.allSource
-	classifier = 'src'
-    version = "${project.minecraft.version}-${project.version}"
+version = "${project.minecraft.version}-${project.version}"
+def commonManifest = {
+    attributes 'Main-Class': 'codechicken.lib.tool.Main'
+    attributes 'FMLCorePlugin': 'codechicken.lib.asm.CCLCorePlugin'
+    attributes 'FMLAT': 'ccl_at.cfg'
 }
 
-// Add in an mcp named jar, for those who wish to run in a development environment (assuming mcp naming matches)
-task deobfJar(type: Jar) {
-	from sourceSets.main.output
-	classifier = 'dev'
-    version = "${project.minecraft.version}-${project.version}"
-	manifest {
-        attributes 'Main-Class': 'codechicken.lib.tool.Main'
-    }
+jar {
+    classifier = 'universal'
+    manifest commonManifest
+}
 
+task sourceJar(type: Jar) {
+    from sourceSets.main.java
+    classifier = 'src'
+}
+
+task devJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'dev'
+    manifest commonManifest
 }
 
 // Tell the artifact system about our extra jars
 artifacts {
-	archives sourceJar, deobfJar
+	archives sourceJar, devJar
 }
 
 // Configure an upload task. this is setup for uploading to files.minecraftforge.net. There are other examples around

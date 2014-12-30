@@ -1,5 +1,6 @@
 package codechicken.lib.inventory;
 
+import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Vector3;
 import com.google.common.base.Objects;
 import net.minecraft.entity.item.EntityItem;
@@ -14,8 +15,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Plane;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class InventoryUtils
 {
@@ -24,7 +28,7 @@ public class InventoryUtils
      */
     public static ItemStack newItemStack(Item item, int size, int damage, NBTTagCompound tag) {
         ItemStack stack = new ItemStack(item, size, damage);
-        stack.stackTagCompound = tag;
+        stack.setTagCompound(tag);
         return stack;
     }
 
@@ -130,7 +134,7 @@ public class InventoryUtils
             int b = tag.getShort("Slot");
             items[b] = ItemStack.loadItemStackFromNBT(tag);
             if (tag.hasKey("Quantity"))
-                items[b].stackSize = ((NBTBase.NBTPrimitive) tag.getTag("Quantity")).func_150287_d();
+                items[b].stackSize = ((NBTBase.NBTPrimitive) tag.getTag("Quantity")).getInt();
         }
     }
 
@@ -251,8 +255,8 @@ public class InventoryUtils
     /**
      * Gets an IInventory from a coordinate with support for double chests
      */
-    public static IInventory getInventory(World world, int x, int y, int z) {
-        TileEntity tile = world.getTileEntity(x, y, z);
+    public static IInventory getInventory(World world, BlockPos pos) {
+        TileEntity tile = world.getTileEntity(pos);
         if (!(tile instanceof IInventory))
             return null;
 
@@ -262,13 +266,11 @@ public class InventoryUtils
 
     }
 
-    public static final ForgeDirection[] chestSides = new ForgeDirection[]{ForgeDirection.WEST, ForgeDirection.EAST, ForgeDirection.NORTH, ForgeDirection.SOUTH};
-
     public static IInventory getChest(TileEntityChest chest) {
-        for (ForgeDirection fside : chestSides) {
-            if (chest.getWorldObj().getBlock(chest.xCoord + fside.offsetX, chest.yCoord + fside.offsetY, chest.zCoord + fside.offsetZ) == chest.getBlockType())
+        for (EnumFacing fside : Plane.HORIZONTAL) {
+            if (chest.getWorld().getBlockState(chest.getPos().offset(fside)).getBlock() == chest.getBlockType())
                 return new InventoryLargeChest("container.chestDouble",
-                        (TileEntityChest) chest.getWorldObj().getTileEntity(chest.xCoord + fside.offsetX, chest.yCoord + fside.offsetY, chest.zCoord + fside.offsetZ), chest);
+                        (TileEntityChest) chest.getWorld().getTileEntity(chest.getPos().offset(fside)), chest);
         }
         return chest;
     }
@@ -317,19 +319,19 @@ public class InventoryUtils
     public static NBTTagCompound savePersistant(ItemStack stack, NBTTagCompound tag) {
         stack.writeToNBT(tag);
         tag.removeTag("id");
-        tag.setString("name", Item.itemRegistry.getNameForObject(stack.getItem()));
+        tag.setString("name", Item.itemRegistry.getNameForObject(stack.getItem()).toString());
         return tag;
     }
 
     public static ItemStack loadPersistant(NBTTagCompound tag) {
         String name = tag.getString("name");
-        Item item = (Item) Item.itemRegistry.getObject(name);
+        Item item = (Item) Item.itemRegistry.getObject(new ResourceLocation(name));
         if(item == null) return null;
         int count = tag.hasKey("Count") ? tag.getByte("Count") : 1;
         int damage = tag.hasKey("Damage") ? tag.getShort("Damage") : 0;
         ItemStack stack = new ItemStack(item, count, damage);
         if(tag.hasKey("tag", 10))
-            stack.stackTagCompound = tag.getCompoundTag("tag");
+            stack.setTagCompound(tag.getCompoundTag("tag"));
         return stack;
     }
 }

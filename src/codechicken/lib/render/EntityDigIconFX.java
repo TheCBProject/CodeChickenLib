@@ -4,8 +4,9 @@ import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.particle.EntityFX;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
 public class EntityDigIconFX extends EntityFX
@@ -45,7 +46,7 @@ public class EntityDigIconFX extends EntityFX
      * copy pasted from EntityDiggingFX
      */
     @Override
-    public void renderParticle(Tessellator par1Tessellator, float par2, float par3, float par4, float par5, float par6, float par7)
+    public void func_180434_a(WorldRenderer par1Tessellator, Entity entity, float par2, float par3, float par4, float par5, float par6, float par7)
     {
         float f6 = (particleTextureIndexX + particleTextureJitterX / 4.0F) / 16.0F;
         float f7 = f6 + 0.015609375F;

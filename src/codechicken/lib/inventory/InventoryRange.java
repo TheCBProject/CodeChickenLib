@@ -3,6 +3,7 @@ package codechicken.lib.inventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 
 /**
  * Inventory wrapper for unified ISided/IInventory access
@@ -10,18 +11,18 @@ import net.minecraft.item.ItemStack;
 public class InventoryRange
 {
     public IInventory inv;
-    public int side;
+    public EnumFacing face;
     public ISidedInventory sidedInv;
     public int[] slots;
     
     public InventoryRange(IInventory inv, int side)
     {
         this.inv = inv;
-        this.side = side;
+        this.face = EnumFacing.values()[side];
         if(inv instanceof ISidedInventory)
         {
             sidedInv = (ISidedInventory)inv;
-            slots = sidedInv.getAccessibleSlotsFromSide(side);
+            slots = sidedInv.getSlotsForFace(face);
         }
         else
         {
@@ -48,19 +49,19 @@ public class InventoryRange
     {
         this.inv = inv;
         this.slots = access.slots;
-        this.side = access.side;
+        this.face = access.face;
         if(inv instanceof ISidedInventory)
             sidedInv = (ISidedInventory) inv;
     }
 
     public boolean canInsertItem(int slot, ItemStack item)
     {
-        return sidedInv == null ? inv.isItemValidForSlot(slot, item) : sidedInv.canInsertItem(slot, item, side);
+        return sidedInv == null ? inv.isItemValidForSlot(slot, item) : sidedInv.canInsertItem(slot, item, face);
     }
     
     public boolean canExtractItem(int slot, ItemStack item)
     {
-        return sidedInv == null ? inv.isItemValidForSlot(slot, item) : sidedInv.canExtractItem(slot, item, side);
+        return sidedInv == null ? inv.isItemValidForSlot(slot, item) : sidedInv.canExtractItem(slot, item, face);
     }
 
     public int lastSlot()

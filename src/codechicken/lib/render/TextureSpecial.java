@@ -1,12 +1,10 @@
 package codechicken.lib.render;
 
-import codechicken.lib.asm.ObfMapping;
 import codechicken.lib.render.SpriteSheetManager.SpriteSheet;
-import codechicken.lib.render.TextureUtils.IIconSelfRegister;
+import codechicken.lib.render.TextureUtils.IIconRegister;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
@@ -19,7 +17,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 @SideOnly(Side.CLIENT)
-public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegister {
+public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
+{
     //sprite sheet fields
     private int spriteIndex;
     private SpriteSheet spriteSheet;
@@ -72,18 +71,17 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
             if (textureFX.changed()) {
                 int[][] mipmaps = new int[mipmapLevels + 1][];
                 mipmaps[0] = textureFX.imageData;
-                mipmaps = prepareAnisotropicFiltering(mipmaps);
+                //TODO mipmaps = prepareAnisotropicFiltering(mipmaps);
                 mipmaps = TextureUtil.generateMipmapData(mipmapLevels, width, mipmaps);
                 TextureUtil.uploadTextureMipmap(mipmaps, width, height, originX, originY, false, false);
             }
         }
     }
 
-
     /**
      * Copy paste mojang code because it's private, and CCL can't have access transformers or reflection
      */
-    public int[][] prepareAnisotropicFiltering(int[][] mipmaps) {
+    /*public int[][] prepareAnisotropicFiltering(int[][] mipmaps) {
         if (Minecraft.getMinecraft().gameSettings.anisotropicFiltering <= 1)
         {
             return mipmaps;
@@ -106,13 +104,13 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
 
             return aint1;
         }
-    }
+    }*/
 
     @Override
-    public void loadSprite(BufferedImage[] images, AnimationMetadataSection animationMeta, boolean anisotropicFiltering) {
+    public void loadSprite(BufferedImage[] images, AnimationMetadataSection animationMeta) {
         rawWidth = images[0].getWidth();
         rawHeight = images[0].getHeight();
-        super.loadSprite(images, animationMeta, anisotropicFiltering);
+        super.loadSprite(images, animationMeta);
     }
 
     @Override
@@ -132,7 +130,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
         images[0] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         images[0].setRGB(0, 0, width, height, data, 0, width);
 
-        loadSprite(images, null, settings.anisotropicFiltering > 1);
+        loadSprite(images, null);
     }
 
     @Override
@@ -175,18 +173,12 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconSelfRegis
 
     public TextureSpecial selfRegister() {
         selfRegister = true;
-        TextureUtils.addIconRegistrar(this);
+        TextureUtils.addIconRegister(this);
         return this;
     }
 
     @Override
-    public void registerIcons(IIconRegister register) {
-        if (selfRegister)
-            ((TextureMap) register).setTextureEntry(getIconName(), this);
-    }
-
-    @Override
-    public int atlasIndex() {
-        return atlasIndex;
+    public void registerIcons(TextureMap textureMap) {
+        textureMap.setTextureEntry(getIconName(), this);
     }
 }

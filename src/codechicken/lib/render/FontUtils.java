@@ -2,12 +2,12 @@ package codechicken.lib.render;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
-import org.lwjgl.opengl.GL11;
 
 public class FontUtils
 {
-    public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+    public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
     
     public static void drawCenteredString(String s, int xCenter, int y, int colour)
     {
@@ -38,6 +38,7 @@ public class FontUtils
                         postfix = prefixes[p];
                     }
                     quantity = Integer.toString(q)+postfix;
+                break;
                 case 1:
                     quantity = "";
                     if(item.stackSize/64 > 0)
@@ -55,14 +56,14 @@ public class FontUtils
         double sheight = 8*scale;
         double swidth = fontRenderer.getStringWidth(quantity)*scale;
 
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glPushMatrix();
-            GL11.glTranslated(x+16-swidth, y+16-sheight, 0);
-            GL11.glScaled(scale, scale, 1);
+        GlStateManager.disableLighting();
+        GlStateManager.disableDepth();
+        GlStateManager.pushMatrix();
+            GlStateManager.translate(x + 16 - swidth, y + 16 - sheight, 0);
+            GlStateManager.scale(scale, scale, 1);
             fontRenderer.drawStringWithShadow(quantity, 0, 0, 0xFFFFFF);
-        GL11.glPopMatrix();
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GlStateManager.popMatrix();
+        GlStateManager.enableLighting();
+        GlStateManager.enableDepth();
     }
 }

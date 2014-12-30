@@ -3,6 +3,8 @@ package codechicken.lib.lighting;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.vec.BlockCoord;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 /**
@@ -28,9 +30,9 @@ public class SimpleBrightnessModel implements CCRenderState.IVertexOperation
 
     public int sample(int side) {
         if ((sampled & 1 << side) == 0) {
-            c.set(pos).offset(side);
-            Block block = access.getBlock(c.x, c.y, c.z);
-            samples[side] = access.getLightBrightnessForSkyBlocks(c.x, c.y, c.z, block.getLightValue(access, c.x, c.y, c.z));
+            BlockPos bp = c.set(pos).offset(side).pos();
+            IBlockState b = access.getBlockState(bp);
+            samples[side] = access.getCombinedLight(bp, b.getBlock().getLightValue(access, bp));
             sampled |= 1 << side;
         }
         return samples[side];

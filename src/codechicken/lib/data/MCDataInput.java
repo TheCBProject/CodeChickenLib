@@ -19,7 +19,8 @@ public interface MCDataInput
     public char readChar();
     public int readVarShort();
     public int readVarInt();
-    public byte[] readByteArray(int length);
+    public long readVarLong();
+    public byte[] readArray(int length);
     public String readString();
     public BlockCoord readCoord();
     public NBTTagCompound readNBTTagCompound();

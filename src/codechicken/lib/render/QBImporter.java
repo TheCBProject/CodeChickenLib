@@ -6,8 +6,8 @@ import codechicken.lib.vec.*;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.util.IIcon;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
 
 import javax.imageio.ImageIO;
@@ -625,11 +625,9 @@ public class QBImporter
 
         private Map<String, Holder> map = new HashMap<String, Holder>();
         private List<BufferedImage> images;
-        private String[] icons;
 
         public RasterisedModel(List<BufferedImage> images) {
             this.images = images;
-            icons = new String[images.size()];
         }
 
         public void add(String name, CCModel m) {
@@ -640,15 +638,14 @@ public class QBImporter
             return map.get(key).m;
         }
 
-        public IIcon getIcon(String key, IIconRegister r, String iconName) {
+        public TextureAtlasSprite getIcon(String key, TextureMap textureMap) {
             int img = map.get(key).img;
-            if(icons[img] != null && !iconName.equals(icons[img]))
-                throw new IllegalArgumentException("Attempted to get a previously registered icon by a different name: "+icons[img]+", "+iconName);
-            if(icons[img] != null)
-                return r.registerIcon(iconName);
+            String iconName = "QBModel"+hashCode()+"_img";
+            TextureAtlasSprite icon = textureMap.getTextureExtry(iconName);
+            if(icon != null)
+                return icon;
 
-            icons[img] = iconName;
-            return TextureUtils.getTextureSpecial(r, iconName).addTexture(new TextureDataHolder(images.get(img)));
+            return TextureUtils.getTextureSpecial(textureMap, iconName).addTexture(new TextureDataHolder(images.get(img)));
         }
 
         private void exportImg(BufferedImage img, File imgFile) throws IOException {

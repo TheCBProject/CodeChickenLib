@@ -1,11 +1,11 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import org.lwjgl.opengl.GL11;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -107,19 +107,17 @@ public class Rotation extends Transformation
      */
     public static int[] sideRotOffsets = new int[]{0, 2, 2, 0, 1, 3};
 
-    public static int rotateSide(int s, int r)
-    {
-        return sideRotMap[s<<2|r];
+    public static int rotateSide(int s, int r) {
+        return sideRotMap[s << 2 | r];
     }
-    
+
     /**
      * Reverse of rotateSide
      */
-    public static int rotationTo(int s1, int s2)
-    {
-        if((s1&6) == (s2&6))
-            throw new IllegalArgumentException("Faces "+s1+" and "+s2+" are opposites");
-        return rotSideMap[s1*6+s2];
+    public static int rotationTo(int s1, int s2) {
+        if ((s1 & 6) == (s2 & 6))
+            throw new IllegalArgumentException("Faces " + s1 + " and " + s2 + " are opposites");
+        return rotSideMap[s1 * 6 + s2];
     }
 
     /**
@@ -127,121 +125,104 @@ public class Rotation extends Transformation
      * @param side The side of the block being placed on
      * @return The rotation for the face == side^1
      */
-    public static int getSidedRotation(EntityPlayer player, int side)
-    {
+    public static int getSidedRotation(EntityPlayer player, int side) {
         Vector3 look = new Vector3(player.getLook(1));
         double max = 0;
         int maxr = 0;
-        for(int r = 0; r < 4; r++)
-        {
-            Vector3 axis = Rotation.axes[rotateSide(side^1, r)];
+        for (int r = 0; r < 4; r++) {
+            Vector3 axis = Rotation.axes[rotateSide(side ^ 1, r)];
             double d = look.scalarProject(axis);
-            if(d > max)
-            {
+            if (d > max) {
                 max = d;
                 maxr = r;
             }
         }
         return maxr;
     }
-    
+
     /**
      * @return The rotation quat for side 0 and rotation 0 to side s with rotation r
      */
-    public static Transformation sideOrientation(int s, int r)
-    {
-        return quarterRotations[(r+sideRotOffsets[s])%4].with(sideRotations[s]);
+    public static Transformation sideOrientation(int s, int r) {
+        return quarterRotations[(r + sideRotOffsets[s]) % 4].with(sideRotations[s]);
     }
 
     /**
      * @param entity The placing entity, used for obtaining the look vector
      * @return The side towards which the entity is most directly looking.
      */
-    public static int getSideFromLookAngle(EntityLivingBase entity)
-    {
+    public static int getSideFromLookAngle(EntityLivingBase entity) {
         Vector3 look = new Vector3(entity.getLook(1));
         double max = 0;
         int maxs = 0;
-        for(int s = 0; s < 6; s++) {
+        for (int s = 0; s < 6; s++) {
             double d = look.scalarProject(axes[s]);
-            if(d > max) {
+            if (d > max) {
                 max = d;
                 maxs = s;
             }
         }
         return maxs;
     }
-    
+
     public double angle;
     public Vector3 axis;
-    
+
     private Quat quat;
-    
-    public Rotation(double angle, Vector3 axis)
-    {
+
+    public Rotation(double angle, Vector3 axis) {
         this.angle = angle;
         this.axis = axis;
     }
-    
-    public Rotation(double angle, double x, double y, double z)
-    {
+
+    public Rotation(double angle, double x, double y, double z) {
         this(angle, new Vector3(x, y, z));
     }
-    
-    public Rotation(Quat quat)
-    {
+
+    public Rotation(Quat quat) {
         this.quat = quat;
-        
-        angle = Math.acos(quat.s)*2;
-        if(angle == 0)
-        {
+
+        angle = Math.acos(quat.s) * 2;
+        if (angle == 0) {
             axis = new Vector3(0, 1, 0);
-        }
-        else
-        {
-            double sa = Math.sin(angle*0.5);
-            axis = new Vector3(quat.x/sa, quat.y/sa, quat.z/sa);
+        } else {
+            double sa = Math.sin(angle * 0.5);
+            axis = new Vector3(quat.x / sa, quat.y / sa, quat.z / sa);
         }
     }
 
     @Override
-    public void apply(Vector3 vec)
-    {
-        if(quat == null)
+    public void apply(Vector3 vec) {
+        if (quat == null)
             quat = Quat.aroundAxis(axis, angle);
-        
+
         vec.rotate(quat);
     }
-    
+
     @Override
-    public void applyN(Vector3 normal)
-    {
+    public void applyN(Vector3 normal) {
         apply(normal);
     }
 
     @Override
-    public void apply(Matrix4 mat)
-    {
+    public void apply(Matrix4 mat) {
         mat.rotate(angle, axis);
     }
-    
-    public Quat toQuat()
-    {
-        if(quat == null)
+
+    public Quat toQuat() {
+        if (quat == null)
             quat = Quat.aroundAxis(axis, angle);
         return quat;
     }
     
     @Override
     @SideOnly(Side.CLIENT)
-    public void glApply()
-    {
-        GL11.glRotatef((float)(angle*MathHelper.todeg), (float)axis.x, (float)axis.y, (float)axis.z);
+    public void glApply() {
+        GlStateManager.rotate((float) (angle * MathHelper.todeg), (float) axis.x, (float) axis.y, (float) axis.z);
     }
-    
+
     @Override
-    public Transformation inverse()
-    {
+    public Transformation inverse() {
         return new Rotation(-angle, axis);
     }
 
@@ -262,12 +243,11 @@ public class Rotation extends Transformation
     public boolean isRedundant() {
         return MathHelper.between(-1E-5, angle, 1E-5);
     }
-    
+
     @Override
-    public String toString()
-    {
+    public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
-        return "Rotation("+new BigDecimal(angle, cont)+", "+new BigDecimal(axis.x, cont)+", "+
-                new BigDecimal(axis.y, cont)+", "+new BigDecimal(axis.z, cont)+")";
+        return "Rotation(" + new BigDecimal(angle, cont) + ", " + new BigDecimal(axis.x, cont) + ", " +
+                new BigDecimal(axis.y, cont) + ", " + new BigDecimal(axis.z, cont) + ")";
     }
 }

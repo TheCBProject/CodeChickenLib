@@ -148,7 +148,7 @@ public class CuboidCoord implements Iterable<BlockCoord>, Copyable<CuboidCoord>
 
     public AxisAlignedBB toAABB()
     {
-        return bounds().toAABB();
+        return bounds().aabb();
     }
 
     public void set(BlockCoord min, BlockCoord max)

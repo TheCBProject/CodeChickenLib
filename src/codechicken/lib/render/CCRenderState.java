@@ -10,6 +10,8 @@ import codechicken.lib.vec.Vector3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 
@@ -353,13 +355,14 @@ public class CCRenderState
     }
 
     public static void writeVert() {
+        WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
         if(hasNormal)
-            Tessellator.instance.setNormal((float)normal.x, (float)normal.y, (float)normal.z);
+            r.setNormal((float) normal.x, (float) normal.y, (float) normal.z);
         if(hasColour)
-            Tessellator.instance.setColorRGBA(colour>>>24, colour>>16 & 0xFF, colour>>8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+            r.setColorRGBA(colour>>>24, colour>>16 & 0xFF, colour>>8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
         if(hasBrightness)
-            Tessellator.instance.setBrightness(brightness);
-        Tessellator.instance.addVertexWithUV(vert.vec.x, vert.vec.y, vert.vec.z, vert.uv.u, vert.uv.v);
+            r.setBrightness(brightness);
+        r.addVertexWithUV(vert.vec.x, vert.vec.y, vert.vec.z, vert.uv.u, vert.uv.v);
     }
 
     public static void setNormal(double x, double y, double z) {
@@ -382,8 +385,8 @@ public class CCRenderState
         brightness = b;
     }
 
-    public static void setBrightness(IBlockAccess world, int x, int y, int z) {
-        setBrightness(world.getBlock(x, y, z).getMixedBrightnessForBlock(world, x, y, z));
+    public static void setBrightness(IBlockAccess world, BlockPos pos) {
+        setBrightness(world.getBlockState(pos).getBlock().getMixedBrightnessForBlock(world, pos));
     }
 
     public static void pullLightmap() {
@@ -410,19 +413,21 @@ public class CCRenderState
         Minecraft.getMinecraft().renderEngine.bindTexture(texture);
     }
 
-    public static void startDrawing() {
-        startDrawing(7);
+    public static WorldRenderer startDrawing() {
+        return startDrawing(7);
     }
 
-    public static void startDrawing(int mode) {
-        Tessellator.instance.startDrawing(mode);
+    public static WorldRenderer startDrawing(int mode) {
+        WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
+        r.startDrawing(mode);
         if(hasColour)
-            Tessellator.instance.setColorRGBA(colour>>>24, colour>>16 & 0xFF, colour>>8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+            r.setColorRGBA(colour>>>24, colour>>16 & 0xFF, colour>>8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
         if(hasBrightness)
-            Tessellator.instance.setBrightness(brightness);
+            r.setBrightness(brightness);
+        return r;
     }
 
     public static void draw() {
-        Tessellator.instance.draw();
+        Tessellator.getInstance().draw();
     }
 }

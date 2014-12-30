@@ -27,7 +27,7 @@ public class ASMHelper
 
     private static ConfigFile loadConfig() {
         try {//weak reference for environments without FML
-            File mcDir = (File)((Object[])Class.forName("cpw.mods.fml.relauncher.FMLInjectionData").getMethod("data").invoke(null))[6];
+            File mcDir = (File)((Object[])Class.forName("net.minecraftforge.fml.relauncher.FMLInjectionData").getMethod("data").invoke(null))[6];
             File file = new File(mcDir, "config/CodeChickenLib.cfg");
             if(ObfMapping.obfuscated)
                 return new DefaultingConfigFile(file);
