@@ -107,30 +107,6 @@ public class RayTracer
         return mop;
     }
 
-    public MovingObjectPosition rayTraceCuboid(Vector3 start, Vector3 end, Cuboid6 cuboid, BlockCoord pos)
-    {
-        MovingObjectPosition mop = rayTraceCuboid(start, end, cuboid);
-        if(mop != null)
-        {
-            mop.typeOfHit = MovingObjectType.BLOCK;
-            mop.blockX = pos.x;
-            mop.blockY = pos.y;
-            mop.blockZ = pos.z;
-        }
-        return mop;
-    }
-
-    public MovingObjectPosition rayTraceCuboid(Vector3 start, Vector3 end, Cuboid6 cuboid, Entity e)
-    {
-        MovingObjectPosition mop = rayTraceCuboid(start, end, cuboid);
-        if(mop != null)
-        {
-            mop.typeOfHit = MovingObjectType.ENTITY;
-            mop.entityHit = e;
-        }
-        return mop;
-    }
-    
     public MovingObjectPosition rayTraceCuboids(Vector3 start, Vector3 end, List<IndexedCuboid6> cuboids)
     {
         double c_dist = Double.MAX_VALUE;
@@ -164,23 +140,6 @@ public class RayTracer
                 c_cuboid.add(new Vector3(-pos.x, -pos.y, -pos.z)).setBlockBounds(block);
         }
         return mop;
-    }
-
-    public void rayTraceCuboids(Vector3 start, Vector3 end, List<IndexedCuboid6> cuboids, BlockCoord pos, Block block, List<ExtendedMOP> hitList)
-    {
-        for(IndexedCuboid6 cuboid : cuboids)
-        {
-            MovingObjectPosition mop = rayTraceCuboid(start, end, cuboid);
-            if(mop != null)
-            {
-                ExtendedMOP emop = new ExtendedMOP(mop, cuboid.data, s_dist);
-                emop.typeOfHit = MovingObjectType.BLOCK;
-                emop.blockX = pos.x;
-                emop.blockY = pos.y;
-                emop.blockZ = pos.z;
-                hitList.add(emop);
-            }
-        }
     }
 
     public static MovingObjectPosition retraceBlock(World world, EntityPlayer player, int x, int y, int z)

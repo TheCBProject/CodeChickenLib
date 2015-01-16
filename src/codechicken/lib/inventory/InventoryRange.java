@@ -36,10 +36,10 @@ public class InventoryRange
         this(inv, 0);
     }
     
-    public InventoryRange(IInventory inv, int fslot, int lslot)
+    public InventoryRange(IInventory inv, int fslot, int size)
     {
         this.inv = inv;
-        slots = new int[lslot-fslot];
+        slots = new int[size];
         for(int i = 0; i < slots.length; i++)
             slots[i] = fslot+i;
     }
