@@ -46,7 +46,7 @@ public class EntityDigIconFX extends EntityFX
      * copy pasted from EntityDiggingFX
      */
     @Override
-    public void func_180434_a(WorldRenderer par1Tessellator, Entity entity, float par2, float par3, float par4, float par5, float par6, float par7)
+    public void renderParticle(WorldRenderer par1Tessellator, Entity entity, float par2, float par3, float par4, float par5, float par6, float par7)
     {
         float f6 = (particleTextureIndexX + particleTextureJitterX / 4.0F) / 16.0F;
         float f7 = f6 + 0.015609375F;

@@ -1,6 +1,5 @@
 package codechicken.lib.packet;
 
-
 import codechicken.lib.data.MCDataIO;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
@@ -26,7 +25,6 @@ import io.netty.util.AttributeKey;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetHandler;
@@ -35,7 +33,6 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.PlayerManager;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fluids.FluidStack;
