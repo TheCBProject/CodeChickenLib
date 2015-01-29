@@ -154,8 +154,16 @@ public class TextureUtils
 
     public static IIcon safeIcon(IIcon icon) {
         if (icon == null)
-            icon = ((TextureMap) Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.locationBlocksTexture)).getAtlasSprite("missingno");
+            icon = ((TextureMap) engine().getTexture(TextureMap.locationBlocksTexture)).getAtlasSprite("missingno");
 
         return icon;
+    }
+
+    public static boolean isMissing(IIcon icon, ResourceLocation atlas) {
+        if(icon == null)
+            return true;
+
+        IIcon missing = ((TextureMap) engine().getTexture(atlas)).getAtlasSprite("missingno");
+        return icon.getMinU() == missing.getMinU() && icon.getMinV() == missing.getMinV();
     }
 }
