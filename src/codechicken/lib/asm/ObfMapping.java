@@ -1,14 +1,18 @@
 package codechicken.lib.asm;
 
 import codechicken.lib.config.ConfigTag;
+
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
+
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import net.minecraftforge.fml.relauncher.FMLInjectionData;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.ForgeVersion;
+
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -16,6 +20,7 @@ import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.*;
 
 import javax.swing.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -85,6 +90,24 @@ public class ObfMapping
     public static class MCPRemapper extends Remapper implements LineProcessor<Void>
     {
         public static File[] getConfFiles() {
+            
+            // check for GradleStart system vars
+            if (!Strings.isNullOrEmpty(System.getProperty("net.minecraftforge.gradle.GradleStart.srgDir")))
+            {
+                File srgDir = new File(System.getProperty("net.minecraftforge.gradle.GradleStart.srgDir"));
+                File csvDir = new File(System.getProperty("net.minecraftforge.gradle.GradleStart.csvDir"));
+                
+                if (srgDir.exists() && csvDir.exists())
+                {
+                    File srg = new File(srgDir, "notch-srg.srg");
+                    File fieldCsv = new File(csvDir, "fields.csv");
+                    File methodCsv = new File(csvDir, "methods.csv");
+                    
+                    if (srg.exists() && fieldCsv.exists() && methodCsv.exists())
+                        return new File[] {srg, fieldCsv, methodCsv};
+                }
+            }
+            
             ConfigTag tag = ASMHelper.config.getTag("mappingDir").setComment("Path to directory holding packaged.srg, fields.csv and methods.csv for mcp remapping");
             for (int i = 0; i < DIR_GUESSES+DIR_ASKS; i++) {
                 File dir = confDirectoryGuess(i, tag);
