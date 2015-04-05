@@ -103,7 +103,7 @@ public class InventoryNBT implements IInventory
     }
 
     @Override
-    public String getName() {
+    public String getCommandSenderName() {
         return "NBT";
     }
 
@@ -114,6 +114,6 @@ public class InventoryNBT implements IInventory
 
     @Override
     public IChatComponent getDisplayName() {
-        return new ChatComponentText(getName());
+        return new ChatComponentText(getCommandSenderName());
     }
 }
