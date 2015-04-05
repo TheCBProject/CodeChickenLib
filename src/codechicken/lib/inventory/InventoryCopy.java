@@ -112,7 +112,7 @@ public class InventoryCopy implements IInventory
     public void clear() {}
 
     @Override
-    public String getName() {
+    public String getCommandSenderName() {
         return "copy";
     }
 
@@ -123,6 +123,6 @@ public class InventoryCopy implements IInventory
 
     @Override
     public IChatComponent getDisplayName() {
-        return new ChatComponentText(getName());
+        return new ChatComponentText(getCommandSenderName());
     }
 }

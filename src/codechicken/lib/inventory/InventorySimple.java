@@ -116,7 +116,7 @@ public class InventorySimple implements IInventory
     public void clear() {}
 
     @Override
-    public String getName() {
+    public String getCommandSenderName() {
         return "name";
     }
 
@@ -127,6 +127,6 @@ public class InventorySimple implements IInventory
 
     @Override
     public IChatComponent getDisplayName() {
-        return new ChatComponentText(getName());
+        return new ChatComponentText(getCommandSenderName());
     }
 }
