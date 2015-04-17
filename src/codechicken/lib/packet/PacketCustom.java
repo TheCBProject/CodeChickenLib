@@ -34,6 +34,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerManager;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.EnumMap;
@@ -371,7 +373,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
         if (fluid == null) {
             writeShort(-1);
         } else {
-            writeShort(fluid.fluidID);
+            writeShort(fluid.getFluidID());
             writeVarInt(fluid.amount);
             writeNBTTagCompound(fluid.tag);
         }
@@ -465,13 +467,11 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
     }
 
     public FluidStack readFluidStack() {
-        FluidStack fluid = null;
-        short fluidID = readShort();
+        Fluid fluid = FluidRegistry.getFluid(readShort());
+        if(fluid == null)
+            fluid = FluidRegistry.WATER;
 
-        if (fluidID >= 0)
-            fluid = new FluidStack(fluidID, readVarInt(), readNBTTagCompound());
-
-        return fluid;
+        return new FluidStack(fluid, readVarInt(), readNBTTagCompound());
     }
 
     public FMLProxyPacket toPacket() {
