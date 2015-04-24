@@ -92,11 +92,8 @@ public class GuiDraw
         drawStringR(text, x, y, colour, true);
     }
 
-
     public static int getStringWidth(String s) {
-        if (s == null || s.equals(""))
-            return 0;
-        return fontRenderer.getStringWidth(EnumChatFormatting.getTextWithoutFormattingCodes(s));
+        return fontRenderer.getStringWidth(s);
     }
 
     public static Dimension displaySize() {
