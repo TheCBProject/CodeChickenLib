@@ -158,6 +158,10 @@ public class GuiDraw
     }
 
     public static void drawMultilineTip(int x, int y, List<String> list) {
+        drawMultilineTip(fontRenderer, x, y, list);
+    }
+
+    public static void drawMultilineTip(FontRenderer font, int x, int y, List<String> list) {
         if (list.isEmpty())
             return;
 
@@ -172,7 +176,7 @@ public class GuiDraw
             ITooltipLineHandler line = getTipLine(s);
             Dimension d = line != null ?
                     line.getSize() :
-                    new Dimension(getStringWidth(s), list.get(i).endsWith(TOOLTIP_LINESPACE) && i + 1 < list.size() ? 12 : 10);
+                    new Dimension(font.getStringWidth(s), list.get(i).endsWith(TOOLTIP_LINESPACE) && i + 1 < list.size() ? 12 : 10);
             w = Math.max(w, d.width);
             h += d.height;
         }
@@ -193,7 +197,7 @@ public class GuiDraw
                 y += line.getSize().height;
             }
             else {
-                fontRenderer.drawStringWithShadow(s, x, y, -1);
+                font.drawStringWithShadow(s, x, y, -1);
                 y += s.endsWith(TOOLTIP_LINESPACE) ? 12 : 10;
             }
         }
