@@ -147,16 +147,16 @@ public final class PacketCustom implements MCDataInput, MCDataOutput
     public static String channelName(Object channelKey) {
         if (channelKey instanceof String)
             return (String) channelKey;
-        if (channelKey instanceof ModContainer) {
-            String s = ((ModContainer) channelKey).getModId();
+
+        ModContainer mc = channelKey instanceof ModContainer ?
+                (ModContainer) channelKey :
+                FMLCommonHandler.instance().findContainerFor(channelKey);
+        if (mc != null) {
+            String s = mc.getModId();
             if(s.length() > 20)
                 throw new IllegalArgumentException("Mod ID ("+s+") too long for use as channel (20 chars). Use a string identifier");
             return s;
         }
-
-        ModContainer mc = FMLCommonHandler.instance().findContainerFor(channelKey);
-        if (mc != null)
-            return mc.getModId();
 
         throw new IllegalArgumentException("Invalid channel: " + channelKey);
     }
