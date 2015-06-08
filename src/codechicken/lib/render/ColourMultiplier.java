@@ -21,7 +21,7 @@ public class ColourMultiplier implements CCRenderState.IVertexOperation
     @Override
     public boolean load() {
         if(colour == -1) {
-            CCRenderState.setColour(-1);
+            CCRenderState.hasColour = false;
             return false;
         }
 
