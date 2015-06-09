@@ -20,10 +20,7 @@ public class ColourMultiplier implements CCRenderState.IVertexOperation
 
     @Override
     public boolean load() {
-        if(colour == -1) {
-            CCRenderState.setColour(-1);
-            return false;
-        }
+        if(colour == -1) return false;
 
         CCRenderState.pipeline.addDependency(CCRenderState.colourAttrib);
         return true;
