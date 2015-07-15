@@ -107,7 +107,7 @@ public class ObfMapping
             throw new RuntimeException("Failed to select mappings directory, set it manually in the config");
         }
 
-        private static final int DIR_GUESSES = 4;
+        private static final int DIR_GUESSES = 5;
         private static final int DIR_ASKS = 3;
         public static File confDirectoryGuess(int i, ConfigTag tag) {
             File mcDir = (File) FMLInjectionData.data()[6];
@@ -121,6 +121,9 @@ public class ObfMapping
                 case 3:
                     return new File(System.getProperty("user.home"), ".gradle/caches/minecraft/net/minecraftforge/forge/"+
                         FMLInjectionData.data()[4]+"-"+ ForgeVersion.getVersion()+"/unpacked/conf");
+                case 4:
+                    return new File(System.getProperty("user.home"), ".gradle/caches/minecraft/net/minecraftforge/forge/"+
+                        FMLInjectionData.data()[4]+"-"+ ForgeVersion.getVersion()+"-"+FMLInjectionData.data()[4]+"/unpacked/conf");
                 default:
                     JFileChooser fc = new JFileChooser(mcDir);
                     fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
