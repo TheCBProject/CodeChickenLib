@@ -18,14 +18,14 @@ import java.util.List;
 
 public class ModelRegistryHelper
 {
-    private static List<Pair<ResourceLocation, IBakedModel>> registerModels = new LinkedList<Pair<ResourceLocation, IBakedModel>>();
+    private static List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<Pair<ModelResourceLocation, IBakedModel>>();
 
     static {
         MinecraftForge.EVENT_BUS.register(new ModelRegistryHelper());
     }
 
-    public static void register(ResourceLocation location, IBakedModel model) {
-        registerModels.add(new ImmutablePair<ResourceLocation, IBakedModel>(location, model));
+    public static void register(ModelResourceLocation location, IBakedModel model) {
+        registerModels.add(new ImmutablePair<ModelResourceLocation, IBakedModel>(location, model));
     }
 
     public static void registerItemModel(Item item, ResourceLocation location) {
@@ -53,7 +53,7 @@ public class ModelRegistryHelper
 
     @SubscribeEvent
     public void onModelBake(ModelBakeEvent event) {
-        for(Pair<ResourceLocation, IBakedModel> pair : registerModels)
+        for(Pair<ModelResourceLocation, IBakedModel> pair : registerModels)
             event.modelRegistry.putObject(pair.getKey(), pair.getValue());
     }
 }

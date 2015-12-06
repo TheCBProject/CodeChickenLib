@@ -310,7 +310,7 @@ public class InventoryUtils
      */
     public static void dropOnClose(EntityPlayer player, IInventory inv) {
         for (int i = 0; i < inv.getSizeInventory(); i++) {
-            ItemStack stack = inv.getStackInSlotOnClosing(i);
+            ItemStack stack = inv.removeStackFromSlot(i);
             if (stack != null)
                 player.dropPlayerItemWithRandomChoice(stack, false);
         }

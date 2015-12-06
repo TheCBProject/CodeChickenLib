@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -81,10 +82,10 @@ public class RenderUtils
                 Vector3 dy1 = vectors[4].set(high).multiply(y / hlen);
                 Vector3 dy2 = vectors[5].set(high).multiply((y + ry) / hlen);
 
-                r.addVertexWithUV(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z, u1, v2 - ry / res * dv);
-                r.addVertexWithUV(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z, u1, v2);
-                r.addVertexWithUV(base.x + dx2.x + dy1.x, base.y + dx2.y + dy1.y, base.z + dx2.z + dy1.z, u1 + rx / res * du, v2);
-                r.addVertexWithUV(base.x + dx2.x + dy2.x, base.y + dx2.y + dy2.y, base.z + dx2.z + dy2.z, u1 + rx / res * du, v2 - ry / res * dv);
+                r.pos(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z).tex(u1, v2 - ry / res * dv).endVertex();
+                r.pos(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z).tex(u1, v2).endVertex();
+                r.pos(base.x + dx2.x + dy1.x, base.y + dx2.y + dy1.y, base.z + dx2.z + dy1.z).tex(u1 + rx / res * du, v2).endVertex();
+                r.pos(base.x + dx2.x + dy2.x, base.y + dx2.y + dy2.y, base.z + dx2.z + dy2.z).tex(u1 + rx / res * du, v2 - ry / res * dv).endVertex();
 
                 y += ry;
             }
@@ -102,29 +103,29 @@ public class RenderUtils
     }
 
     public static void drawCuboidOutline(Cuboid6 c) {
-        WorldRenderer r = CCRenderState.startDrawing(3);
-        r.addVertex(c.min.x, c.min.y, c.min.z);
-        r.addVertex(c.max.x, c.min.y, c.min.z);
-        r.addVertex(c.max.x, c.min.y, c.max.z);
-        r.addVertex(c.min.x, c.min.y, c.max.z);
-        r.addVertex(c.min.x, c.min.y, c.min.z);
+        WorldRenderer r = CCRenderState.startDrawing(3, DefaultVertexFormats.POSITION);
+        r.pos(c.min.x, c.min.y, c.min.z).endVertex();
+        r.pos(c.max.x, c.min.y, c.min.z).endVertex();
+        r.pos(c.max.x, c.min.y, c.max.z).endVertex();
+        r.pos(c.min.x, c.min.y, c.max.z).endVertex();
+        r.pos(c.min.x, c.min.y, c.min.z).endVertex();
         CCRenderState.draw();
-        CCRenderState.startDrawing(3);
-        r.addVertex(c.min.x, c.max.y, c.min.z);
-        r.addVertex(c.max.x, c.max.y, c.min.z);
-        r.addVertex(c.max.x, c.max.y, c.max.z);
-        r.addVertex(c.min.x, c.max.y, c.max.z);
-        r.addVertex(c.min.x, c.max.y, c.min.z);
+        CCRenderState.startDrawing(3, DefaultVertexFormats.POSITION);
+        r.pos(c.min.x, c.max.y, c.min.z).endVertex();
+        r.pos(c.max.x, c.max.y, c.min.z).endVertex();
+        r.pos(c.max.x, c.max.y, c.max.z).endVertex();
+        r.pos(c.min.x, c.max.y, c.max.z).endVertex();
+        r.pos(c.min.x, c.max.y, c.min.z).endVertex();
         CCRenderState.draw();
-        CCRenderState.startDrawing(1);
-        r.addVertex(c.min.x, c.min.y, c.min.z);
-        r.addVertex(c.min.x, c.max.y, c.min.z);
-        r.addVertex(c.max.x, c.min.y, c.min.z);
-        r.addVertex(c.max.x, c.max.y, c.min.z);
-        r.addVertex(c.max.x, c.min.y, c.max.z);
-        r.addVertex(c.max.x, c.max.y, c.max.z);
-        r.addVertex(c.min.x, c.min.y, c.max.z);
-        r.addVertex(c.min.x, c.max.y, c.max.z);
+        CCRenderState.startDrawing(1, DefaultVertexFormats.POSITION);
+        r.pos(c.min.x, c.min.y, c.min.z).endVertex();
+        r.pos(c.min.x, c.max.y, c.min.z).endVertex();
+        r.pos(c.max.x, c.min.y, c.min.z).endVertex();
+        r.pos(c.max.x, c.max.y, c.min.z).endVertex();
+        r.pos(c.max.x, c.min.y, c.max.z).endVertex();
+        r.pos(c.max.x, c.max.y, c.max.z).endVertex();
+        r.pos(c.min.x, c.min.y, c.max.z).endVertex();
+        r.pos(c.min.x, c.max.y, c.max.z).endVertex();
         CCRenderState.draw();
     }
 
@@ -173,40 +174,40 @@ public class RenderUtils
         WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
         switch (side) {
             case 0:
-                r.addVertexWithUV(points[0], points[2], points[4], tx1, ty1);
-                r.addVertexWithUV(points[1], points[2], points[4], tx2, ty1);
-                r.addVertexWithUV(points[1], points[2], points[5], tx2, ty2);
-                r.addVertexWithUV(points[0], points[2], points[5], tx1, ty2);
+                r.pos(points[0], points[2], points[4]).tex(tx1, ty1).endVertex();
+                r.pos(points[1], points[2], points[4]).tex(tx2, ty1).endVertex();
+                r.pos(points[1], points[2], points[5]).tex(tx2, ty2).endVertex();
+                r.pos(points[0], points[2], points[5]).tex(tx1, ty2).endVertex();
                 break;
             case 1:
-                r.addVertexWithUV(points[1], points[3], points[4], tx2, ty1);
-                r.addVertexWithUV(points[0], points[3], points[4], tx1, ty1);
-                r.addVertexWithUV(points[0], points[3], points[5], tx1, ty2);
-                r.addVertexWithUV(points[1], points[3], points[5], tx2, ty2);
+                r.pos(points[1], points[3], points[4]).tex(tx2, ty1).endVertex();
+                r.pos(points[0], points[3], points[4]).tex(tx1, ty1).endVertex();
+                r.pos(points[0], points[3], points[5]).tex(tx1, ty2).endVertex();
+                r.pos(points[1], points[3], points[5]).tex(tx2, ty2).endVertex();
                 break;
             case 2:
-                r.addVertexWithUV(points[0], points[3], points[4], tx2, ty1);
-                r.addVertexWithUV(points[1], points[3], points[4], tx1, ty1);
-                r.addVertexWithUV(points[1], points[2], points[4], tx1, ty2);
-                r.addVertexWithUV(points[0], points[2], points[4], tx2, ty2);
+                r.pos(points[0], points[3], points[4]).tex(tx2, ty1).endVertex();
+                r.pos(points[1], points[3], points[4]).tex(tx1, ty1).endVertex();
+                r.pos(points[1], points[2], points[4]).tex(tx1, ty2).endVertex();
+                r.pos(points[0], points[2], points[4]).tex(tx2, ty2).endVertex();
                 break;
             case 3:
-                r.addVertexWithUV(points[1], points[3], points[5], tx2, ty1);
-                r.addVertexWithUV(points[0], points[3], points[5], tx1, ty1);
-                r.addVertexWithUV(points[0], points[2], points[5], tx1, ty2);
-                r.addVertexWithUV(points[1], points[2], points[5], tx2, ty2);
+                r.pos(points[1], points[3], points[5]).tex(tx2, ty1).endVertex();
+                r.pos(points[0], points[3], points[5]).tex(tx1, ty1).endVertex();
+                r.pos(points[0], points[2], points[5]).tex(tx1, ty2).endVertex();
+                r.pos(points[1], points[2], points[5]).tex(tx2, ty2).endVertex();
                 break;
             case 4:
-                r.addVertexWithUV(points[0], points[3], points[5], tx2, ty1);
-                r.addVertexWithUV(points[0], points[3], points[4], tx1, ty1);
-                r.addVertexWithUV(points[0], points[2], points[4], tx1, ty2);
-                r.addVertexWithUV(points[0], points[2], points[5], tx2, ty2);
+                r.pos(points[0], points[3], points[5]).tex(tx2, ty1).endVertex();
+                r.pos(points[0], points[3], points[4]).tex(tx1, ty1).endVertex();
+                r.pos(points[0], points[2], points[4]).tex(tx1, ty2).endVertex();
+                r.pos(points[0], points[2], points[5]).tex(tx2, ty2).endVertex();
                 break;
             case 5:
-                r.addVertexWithUV(points[1], points[3], points[4], tx2, ty1);
-                r.addVertexWithUV(points[1], points[3], points[5], tx1, ty1);
-                r.addVertexWithUV(points[1], points[2], points[5], tx1, ty2);
-                r.addVertexWithUV(points[1], points[2], points[4], tx2, ty2);
+                r.pos(points[1], points[3], points[4]).tex(tx2, ty1).endVertex();
+                r.pos(points[1], points[3], points[5]).tex(tx1, ty1).endVertex();
+                r.pos(points[1], points[2], points[5]).tex(tx1, ty2).endVertex();
+                r.pos(points[1], points[2], points[4]).tex(tx2, ty2).endVertex();
                 break;
         }
     }

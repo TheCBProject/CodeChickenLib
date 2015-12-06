@@ -14,6 +14,7 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 
 @SideOnly(Side.CLIENT)
@@ -110,7 +111,14 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
     public void loadSprite(BufferedImage[] images, AnimationMetadataSection animationMeta) {
         rawWidth = images[0].getWidth();
         rawHeight = images[0].getHeight();
-        super.loadSprite(images, animationMeta);
+        try
+        {
+            super.loadSprite(images, null);
+        }
+        catch(IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
