@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
 public class MCDataIO
@@ -58,9 +59,9 @@ public class MCDataIO
     public static FluidStack readFluidStack(MCDataInput in) {
         FluidStack fluid = null;
         short fluidID = in.readShort();
-
+        
         if (fluidID >= 0)
-            fluid = new FluidStack(fluidID, in.readVarInt(), in.readNBTTagCompound());
+            fluid = new FluidStack(FluidRegistry.getFluid(fluidID), in.readVarInt(), in.readNBTTagCompound());
 
         return fluid;
     }
@@ -120,7 +121,7 @@ public class MCDataIO
         if (fluid == null) {
             out.writeShort(-1);
         } else {
-            out.writeShort(fluid.fluidID);
+            out.writeShort(fluid.getFluid().getID());
             out.writeVarInt(fluid.amount);
             out.writeNBTTagCompound(fluid.tag);
         }

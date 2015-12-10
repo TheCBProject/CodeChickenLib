@@ -65,7 +65,7 @@ public class InventorySimple implements IInventory
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slot) {
+    public ItemStack removeStackFromSlot(int slot) {
         return InventoryUtils.getStackInSlotOnClosing(this, slot);
     }
 
@@ -116,7 +116,7 @@ public class InventorySimple implements IInventory
     public void clear() {}
 
     @Override
-    public String getCommandSenderName() {
+    public String getName() {
         return "name";
     }
 
@@ -127,6 +127,6 @@ public class InventorySimple implements IInventory
 
     @Override
     public IChatComponent getDisplayName() {
-        return new ChatComponentText(getCommandSenderName());
+        return new ChatComponentText(getName());
     }
 }

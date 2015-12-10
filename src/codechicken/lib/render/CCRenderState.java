@@ -11,6 +11,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
@@ -356,13 +358,13 @@ public class CCRenderState
 
     public static void writeVert() {
         WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
+        
         if(hasNormal)
-            r.setNormal((float) normal.x, (float) normal.y, (float) normal.z);
+            r.normal((float) normal.x, (float) normal.y, (float) normal.z);
         if(hasColour)
-            r.setColorRGBA(colour>>>24, colour>>16 & 0xFF, colour>>8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+            r.color(colour>>>24, colour>>16 & 0xFF, colour>>8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
         if(hasBrightness)
-            r.setBrightness(brightness);
-        r.addVertexWithUV(vert.vec.x, vert.vec.y, vert.vec.z, vert.uv.u, vert.uv.v);
+            r.lightmap(brightness >> 16 & 65535, brightness & 65535);
     }
 
     public static void setNormal(double x, double y, double z) {
@@ -414,16 +416,16 @@ public class CCRenderState
     }
 
     public static WorldRenderer startDrawing() {
-        return startDrawing(7);
+        return startDrawing(7, DefaultVertexFormats.POSITION_TEX);
     }
 
-    public static WorldRenderer startDrawing(int mode) {
+    public static WorldRenderer startDrawing(int mode, VertexFormat format) {
         WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
-        r.startDrawing(mode);
+        r.begin(mode, format);
         if(hasColour)
-            r.setColorRGBA(colour>>>24, colour>>16 & 0xFF, colour>>8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+            r.color(colour>>>24, colour>>16 & 0xFF, colour>>8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
         if(hasBrightness)
-            r.setBrightness(brightness);
+            r.lightmap(brightness >> 16 & 65535, brightness & 65535);
         return r;
     }
 

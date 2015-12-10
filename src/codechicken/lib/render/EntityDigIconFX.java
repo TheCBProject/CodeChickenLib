@@ -66,11 +66,11 @@ public class EntityDigIconFX extends EntityFX
         float f12 = (float)(prevPosY + (posY - prevPosY) * par2 - interpPosY);
         float f13 = (float)(prevPosZ + (posZ - prevPosZ) * par2 - interpPosZ);
         float f14 = 1.0F;
-        par1Tessellator.setColorOpaque_F(f14 * particleRed, f14 * particleGreen, f14 * particleBlue);
-        par1Tessellator.addVertexWithUV(f11 - par3 * f10 - par6 * f10, f12 - par4 * f10, f13 - par5 * f10 - par7 * f10, f6, f9);
-        par1Tessellator.addVertexWithUV(f11 - par3 * f10 + par6 * f10, f12 + par4 * f10, f13 - par5 * f10 + par7 * f10, f6, f8);
-        par1Tessellator.addVertexWithUV(f11 + par3 * f10 + par6 * f10, f12 + par4 * f10, f13 + par5 * f10 + par7 * f10, f7, f8);
-        par1Tessellator.addVertexWithUV(f11 + par3 * f10 - par6 * f10, f12 - par4 * f10, f13 + par5 * f10 - par7 * f10, f7, f9);
+
+        par1Tessellator.pos(f11 - par3 * f10 - par6 * f10, f12 - par4 * f10, f13 - par5 * f10 - par7 * f10).tex(f6, f9).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).endVertex();
+        par1Tessellator.pos(f11 - par3 * f10 + par6 * f10, f12 + par4 * f10, f13 - par5 * f10 + par7 * f10).tex(f6, f8).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).endVertex();
+        par1Tessellator.pos(f11 + par3 * f10 + par6 * f10, f12 + par4 * f10, f13 + par5 * f10 + par7 * f10).tex(f7, f8).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).endVertex();
+        par1Tessellator.pos(f11 + par3 * f10 - par6 * f10, f12 - par4 * f10, f13 + par5 * f10 - par7 * f10).tex(f7, f9).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).endVertex();
     }
     
     public static void addBlockHitEffects(World world, Cuboid6 bounds, int side, TextureAtlasSprite icon, EffectRenderer effectRenderer)
