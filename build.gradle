@@ -1,0 +1,133 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'maven'
+
+group = "codechicken" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "CodeChickenLib"
+
+// Define properties file
+ext.configFile = file "build.properties"
+
+configFile.withReader {
+    // Load config.  It shall from now be referenced as simply config or project.config
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
+
+version = "${project.config.mod_version}." + (System.getenv("BUILD_NUMBER") ?: "1")
+
+println config.minecraft_version + "-" + config.forge_version
+// Setup the forge minecraft plugin data. Specify the preferred forge/minecraft version here
+minecraft {
+    version = config.minecraft_version + "-" + config.forge_version
+    mappings = config.mappings
+    runDir = "run"
+}
+
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version': project.version, 'mcversion': project.minecraft.version
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+    rename '(.+_at.cfg)', 'META-INF/$1'
+}
+
+version = "${project.minecraft.version}-${project.version}"
+def commonManifest = {
+    attributes 'Main-Class': 'codechicken.lib.tool.Main'
+    attributes 'FMLCorePlugin': 'codechicken.lib.asm.CCLCorePlugin'
+    attributes 'FMLAT': 'ccl_at.cfg'
+}
+
+jar {
+    classifier = 'universal'
+    manifest commonManifest
+}
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'deobf'
+    manifest commonManifest
+}
+
+task srcJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+    manifest commonManifest
+}
+
+// Tell the artifact system about our extra jars
+artifacts {
+    archives deobfJar
+    archives srcJar
+}
+
+// Configure an upload task. this is setup for uploading to files.minecraftforge.net. There are other examples around
+uploadArchives {
+    dependsOn 'build'
+    repositories {
+        logger.info('Publishing to files server')
+
+        mavenDeployer {
+            repository(url: "file:///var/www/maven")
+            pom {
+                groupId = project.group
+                // Force the maven upload to use the <mcversion>-<version> syntax preferred at files
+                artifactId = project.archivesBaseName
+                project {
+                    name project.archivesBaseName
+                    packaging 'jar'
+                    description 'CodeChickenLib'
+                    url 'https://github.com/covers1624/CodeChickenLib'
+
+                    scm {
+                        url 'https://github.com/covers1624/CodeChickenLib'
+                        connection 'scm:git:git://github.com/covers1624/CodeChickenLib.git'
+                        developerConnection 'scm:git:git@github.com:covers1624/CodeChickenLib.git'
+                    }
+
+                    issueManagement {
+                        system 'github'
+                        url 'https://github.com/covers1624/CodeChickenLib/issues'
+                    }
+
+                    licenses {
+                        license {
+                            name 'GNU Lesser Public License (GPL), Version 2.1'
+                            url 'https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'chicken-bones'
+                            name 'chicken-bones'
+                            roles { role 'developer' }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
