@@ -35,6 +35,7 @@ minecraft {
     version = config.minecraft_version + "-" + config.forge_version
     mappings = config.mappings
     runDir = "run"
+	makeObfSourceJar = false
 }
 
 
