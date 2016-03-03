@@ -5,22 +5,13 @@ import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.vec.BlockCoord;
 import com.google.common.collect.Maps;
-import io.netty.handler.codec.EncoderException;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.server.management.PlayerManager.PlayerInstance;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.network.*;
-import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher;
-import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.EncoderException;
 import io.netty.util.AttributeKey;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,14 +21,24 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.Packet;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.PlayerManager.PlayerInstance;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
+import net.minecraftforge.fml.common.network.FMLOutboundHandler;
+import net.minecraftforge.fml.common.network.NetworkHandshakeEstablished;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher;
+import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.IOException;
 import java.util.EnumMap;
@@ -45,27 +46,22 @@ import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-public final class PacketCustom extends PacketBuffer implements MCDataInput, MCDataOutput
-{
-    public static interface ICustomPacketHandler
-    {
+public final class PacketCustom extends PacketBuffer implements MCDataInput, MCDataOutput {
+    public static interface ICustomPacketHandler {
     }
 
-    public interface IClientPacketHandler extends ICustomPacketHandler
-    {
+    public interface IClientPacketHandler extends ICustomPacketHandler {
         public void handlePacket(PacketCustom packetCustom, Minecraft mc, INetHandlerPlayClient handler);
     }
 
-    public interface IServerPacketHandler extends ICustomPacketHandler
-    {
+    public interface IServerPacketHandler extends ICustomPacketHandler {
         public void handlePacket(PacketCustom packetCustom, EntityPlayerMP sender, INetHandlerPlayServer handler);
     }
 
     public static AttributeKey<CustomInboundHandler> cclHandler = new AttributeKey<CustomInboundHandler>("ccl:handler");
 
     @ChannelHandler.Sharable
-    public static class CustomInboundHandler extends SimpleChannelInboundHandler<FMLProxyPacket>
-    {
+    public static class CustomInboundHandler extends SimpleChannelInboundHandler<FMLProxyPacket> {
         public EnumMap<Side, CustomHandler> handlers = Maps.newEnumMap(Side.class);
 
         @Override
@@ -76,20 +72,15 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
 
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, FMLProxyPacket msg) throws Exception {
-            handlers.get(ctx.channel().attr(NetworkRegistry.CHANNEL_SOURCE).get())
-                    .handle(ctx.channel().attr(NetworkRegistry.NET_HANDLER).get(),
-                            ctx.channel().attr(NetworkRegistry.FML_CHANNEL).get(),
-                            new PacketCustom(msg.payload()));
+            handlers.get(ctx.channel().attr(NetworkRegistry.CHANNEL_SOURCE).get()).handle(ctx.channel().attr(NetworkRegistry.NET_HANDLER).get(), ctx.channel().attr(NetworkRegistry.FML_CHANNEL).get(), new PacketCustom(msg.payload()));
         }
     }
 
-    private static interface CustomHandler
-    {
+    private static interface CustomHandler {
         public void handle(INetHandler handler, String channel, PacketCustom packet);
     }
 
-    public static class ClientInboundHandler implements CustomHandler
-    {
+    public static class ClientInboundHandler implements CustomHandler {
         private IClientPacketHandler handler;
 
         public ClientInboundHandler(ICustomPacketHandler handler) {
@@ -100,21 +91,22 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         public void handle(final INetHandler netHandler, final String channel, final PacketCustom packet) {
             if (netHandler instanceof INetHandlerPlayClient) {
                 Minecraft mc = Minecraft.getMinecraft();
-                if (!mc.isCallingFromMinecraftThread())
+                if (!mc.isCallingFromMinecraftThread()) {
                     mc.addScheduledTask(new Runnable() {
                         public void run() {
                             handle(netHandler, channel, packet);
                         }
                     });
-                else
+                } else {
                     handler.handlePacket(packet, mc, (INetHandlerPlayClient) netHandler);
-            } else
+                }
+            } else {
                 System.err.println("Invalid INetHandler for PacketCustom on channel: " + channel);
+            }
         }
     }
 
-    public static class ServerInboundHandler implements CustomHandler
-    {
+    public static class ServerInboundHandler implements CustomHandler {
         private IServerPacketHandler handler;
 
         public ServerInboundHandler(ICustomPacketHandler handler) {
@@ -125,26 +117,26 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         public void handle(final INetHandler netHandler, final String channel, final PacketCustom packet) {
             if (netHandler instanceof NetHandlerPlayServer) {
                 MinecraftServer mc = MinecraftServer.getServer();
-                if (!mc.isCallingFromMinecraftThread())
+                if (!mc.isCallingFromMinecraftThread()) {
                     mc.addScheduledTask(new Runnable() {
                         public void run() {
                             handle(netHandler, channel, packet);
                         }
                     });
-                else
+                } else {
                     handler.handlePacket(packet, ((NetHandlerPlayServer) netHandler).playerEntity, (INetHandlerPlayServer) netHandler);
-            } else
+                }
+            } else {
                 System.err.println("Invalid INetHandler for PacketCustom on channel: " + channel);
+            }
         }
     }
 
-    public static interface IHandshakeHandler
-    {
+    public static interface IHandshakeHandler {
         public void handshakeRecieved(NetHandlerPlayServer netHandler);
     }
 
-    public static class HandshakeInboundHandler extends ChannelInboundHandlerAdapter
-    {
+    public static class HandshakeInboundHandler extends ChannelInboundHandlerAdapter {
         public IHandshakeHandler handler;
 
         public HandshakeInboundHandler(IHandshakeHandler handler) {
@@ -155,33 +147,39 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
             if (evt instanceof NetworkHandshakeEstablished) {
                 INetHandler netHandler = ((NetworkDispatcher) ctx.channel().attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).get()).getNetHandler();
-                if (netHandler instanceof NetHandlerPlayServer)
+                if (netHandler instanceof NetHandlerPlayServer) {
                     handler.handshakeRecieved((NetHandlerPlayServer) netHandler);
-            } else
+                }
+            } else {
                 ctx.fireUserEventTriggered(evt);
+            }
         }
     }
 
     public static String channelName(Object channelKey) {
-        if (channelKey instanceof String)
+        if (channelKey instanceof String) {
             return (String) channelKey;
+        }
         if (channelKey instanceof ModContainer) {
             String s = ((ModContainer) channelKey).getModId();
-            if(s.length() > 20)
-                throw new IllegalArgumentException("Mod ID ("+s+") too long for use as channel (20 chars). Use a string identifier");
+            if (s.length() > 20) {
+                throw new IllegalArgumentException("Mod ID (" + s + ") too long for use as channel (20 chars). Use a string identifier");
+            }
             return s;
         }
 
         ModContainer mc = FMLCommonHandler.instance().findContainerFor(channelKey);
-        if (mc != null)
+        if (mc != null) {
             return mc.getModId();
+        }
 
         throw new IllegalArgumentException("Invalid channel: " + channelKey);
     }
 
     public static FMLEmbeddedChannel getOrCreateChannel(String channelName, Side side) {
-        if (!NetworkRegistry.INSTANCE.hasChannel(channelName, side))
+        if (!NetworkRegistry.INSTANCE.hasChannel(channelName, side)) {
             NetworkRegistry.INSTANCE.newChannel(channelName, new CustomInboundHandler());
+        }
         return NetworkRegistry.INSTANCE.getChannel(channelName, side);
     }
 
@@ -204,15 +202,17 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         super(payload);
 
         type = readUnsignedByte();
-        if (type > 0x80)
+        if (type > 0x80) {
             decompress();
+        }
         type &= 0x7F;
     }
 
     public PacketCustom(Object channelKey, int type) {
         super(Unpooled.buffer());
-        if (type <= 0 || type >= 0x80)
+        if (type <= 0 || type >= 0x80) {
             throw new IllegalArgumentException("Packet type: " + type + " is not within required 0 < t < 0x80");
+        }
 
         this.channel = channelName(channelKey);
         this.type = type;
@@ -251,7 +251,9 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
             byte[] out = new byte[len];
             int clen = deflater.deflate(out);
             if (clen >= len - 5 || !deflater.finished())//not worth compressing, gets larger
+            {
                 return;
+            }
             clear();
             writeByte(type | 0x80);
             writeVarInt(len);
@@ -273,10 +275,12 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public PacketCustom compress() {
-        if (incoming())
+        if (incoming()) {
             throw new IllegalStateException("Tried to compress an incoming packet");
-        if ((type & 0x80) != 0)
+        }
+        if ((type & 0x80) != 0) {
             throw new IllegalStateException("Packet already compressed");
+        }
         type |= 0x80;
         return this;
     }
@@ -418,11 +422,13 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public FMLProxyPacket toPacket() {
-        if (incoming())
+        if (incoming()) {
             throw new IllegalStateException("Tried to write an incoming packet");
+        }
 
-        if (readableBytes() > 32000 || (type & 0x80) != 0)
+        if (readableBytes() > 32000 || (type & 0x80) != 0) {
             do_compress();
+        }
 
         return new FMLProxyPacket(new PacketBuffer(copy()), channel);
     }
@@ -432,10 +438,11 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToPlayer(Packet packet, EntityPlayer player) {
-        if (player == null)
+        if (player == null) {
             sendToClients(packet);
-        else
+        } else {
             ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(packet);
+        }
     }
 
     public void sendToClients() {
@@ -468,8 +475,9 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
 
     public static void sendToChunk(Packet packet, World world, int chunkX, int chunkZ) {
         PlayerInstance p = ((WorldServer) world).getPlayerManager().getPlayerInstance(chunkX, chunkZ, false);
-        if (p != null)
+        if (p != null) {
             p.sendToAllPlayersWatchingChunk(packet);
+        }
     }
 
     public void sendToOps() {
@@ -477,9 +485,11 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToOps(Packet packet) {
-        for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList)
-            if (MinecraftServer.getServer().getConfigurationManager().canSendCommands(player.getGameProfile()))
+        for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
+            if (MinecraftServer.getServer().getConfigurationManager().canSendCommands(player.getGameProfile())) {
                 sendToPlayer(packet, player);
+            }
+        }
     }
 
     @SideOnly(Side.CLIENT)

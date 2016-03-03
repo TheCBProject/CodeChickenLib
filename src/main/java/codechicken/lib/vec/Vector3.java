@@ -2,12 +2,12 @@ package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
-import net.minecraft.util.BlockPos;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -16,8 +16,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-public class Vector3 implements Copyable<Vector3>
-{
+public class Vector3 implements Copyable<Vector3> {
     public static Vector3 zero = new Vector3();
     public static Vector3 one = new Vector3(1, 1, 1);
     public static Vector3 center = new Vector3(0.5, 0.5, 0.5);
@@ -103,35 +102,35 @@ public class Vector3 implements Copyable<Vector3>
 
     public double getSide(int side) {
         switch (side) {
-            case 0:
-            case 1:
-                return y;
-            case 2:
-            case 3:
-                return z;
-            case 4:
-            case 5:
-                return x;
+        case 0:
+        case 1:
+            return y;
+        case 2:
+        case 3:
+            return z;
+        case 4:
+        case 5:
+            return x;
         }
         throw new IndexOutOfBoundsException("Switch Falloff");
     }
 
     public Vector3 setSide(int s, double v) {
         switch (s) {
-            case 0:
-            case 1:
-                y = v;
-                break;
-            case 2:
-            case 3:
-                z = v;
-                break;
-            case 4:
-            case 5:
-                x = v;
-                break;
-            default:
-                throw new IndexOutOfBoundsException("Switch Falloff");
+        case 0:
+        case 1:
+            y = v;
+            break;
+        case 2:
+        case 3:
+            z = v;
+            break;
+        case 4:
+        case 5:
+            x = v;
+            break;
+        default:
+            throw new IndexOutOfBoundsException("Switch Falloff");
         }
         return this;
     }
@@ -139,10 +138,11 @@ public class Vector3 implements Copyable<Vector3>
     public double dotProduct(Vector3 vec) {
         double d = vec.x * x + vec.y * y + vec.z * z;
 
-        if (d > 1 && d < 1.00001)
+        if (d > 1 && d < 1.00001) {
             d = 1;
-        else if (d < -1 && d > -1.00001)
+        } else if (d < -1 && d > -1.00001) {
             d = -1;
+        }
         return d;
     }
 
@@ -239,8 +239,9 @@ public class Vector3 implements Copyable<Vector3>
     }
 
     public Vector3 perpendicular() {
-        if (z == 0)
+        if (z == 0) {
             return zCrossProduct();
+        }
         return xCrossProduct();
     }
 
@@ -317,15 +318,18 @@ public class Vector3 implements Copyable<Vector3>
         double dy = end.y - y;
         double dz = end.z - z;
 
-        if (dx == 0)
+        if (dx == 0) {
             return null;
+        }
 
         double d = (px - x) / dx;
-        if (MathHelper.between(-1E-5, d, 1E-5))
+        if (MathHelper.between(-1E-5, d, 1E-5)) {
             return this;
+        }
 
-        if (!MathHelper.between(0, d, 1))
+        if (!MathHelper.between(0, d, 1)) {
             return null;
+        }
 
         x = px;
         y += d * dy;
@@ -338,15 +342,18 @@ public class Vector3 implements Copyable<Vector3>
         double dy = end.y - y;
         double dz = end.z - z;
 
-        if (dy == 0)
+        if (dy == 0) {
             return null;
+        }
 
         double d = (py - y) / dy;
-        if (MathHelper.between(-1E-5, d, 1E-5))
+        if (MathHelper.between(-1E-5, d, 1E-5)) {
             return this;
+        }
 
-        if (!MathHelper.between(0, d, 1))
+        if (!MathHelper.between(0, d, 1)) {
             return null;
+        }
 
         x += d * dx;
         y = py;
@@ -359,15 +366,18 @@ public class Vector3 implements Copyable<Vector3>
         double dy = end.y - y;
         double dz = end.z - z;
 
-        if (dz == 0)
+        if (dz == 0) {
             return null;
+        }
 
         double d = (pz - z) / dz;
-        if (MathHelper.between(-1E-5, d, 1E-5))
+        if (MathHelper.between(-1E-5, d, 1E-5)) {
             return this;
+        }
 
-        if (!MathHelper.between(0, d, 1))
+        if (!MathHelper.between(0, d, 1)) {
             return null;
+        }
 
         x += d * dx;
         y += d * dy;
@@ -404,8 +414,9 @@ public class Vector3 implements Copyable<Vector3>
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Vector3))
+        if (!(o instanceof Vector3)) {
             return false;
+        }
         Vector3 v = (Vector3) o;
         return x == v.x && y == v.y && z == v.z;
     }

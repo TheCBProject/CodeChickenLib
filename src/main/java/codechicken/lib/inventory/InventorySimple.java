@@ -9,8 +9,7 @@ import net.minecraft.util.IChatComponent;
 /**
  * Simple IInventory implementation with an array of items, name and maximum stack size
  */
-public class InventorySimple implements IInventory
-{
+public class InventorySimple implements IInventory {
     public ItemStack[] items;
     public int limit;
     public String name;
@@ -91,13 +90,16 @@ public class InventorySimple implements IInventory
     }
 
     @Override
-    public void markDirty() {}
+    public void markDirty() {
+    }
 
     @Override
-    public void openInventory(EntityPlayer player) {}
+    public void openInventory(EntityPlayer player) {
+    }
 
     @Override
-    public void closeInventory(EntityPlayer player) {}
+    public void closeInventory(EntityPlayer player) {
+    }
 
     @Override
     public int getField(int id) {
@@ -105,7 +107,8 @@ public class InventorySimple implements IInventory
     }
 
     @Override
-    public void setField(int id, int value) {}
+    public void setField(int id, int value) {
+    }
 
     @Override
     public int getFieldCount() {
@@ -113,7 +116,8 @@ public class InventorySimple implements IInventory
     }
 
     @Override
-    public void clear() {}
+    public void clear() {
+    }
 
     @Override
     public String getName() {

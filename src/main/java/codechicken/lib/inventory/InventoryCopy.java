@@ -9,8 +9,7 @@ import net.minecraft.util.IChatComponent;
 /**
  * Creates a copy of an IInventory for extended simulation
  */
-public class InventoryCopy implements IInventory
-{
+public class InventoryCopy implements IInventory {
     public boolean[] accessible;
     public ItemStack[] items;
     public IInventory inv;
@@ -25,8 +24,9 @@ public class InventoryCopy implements IInventory
     public void update() {
         for (int i = 0; i < items.length; i++) {
             ItemStack stack = inv.getStackInSlot(i);
-            if (stack != null)
+            if (stack != null) {
                 items[i] = stack.copy();
+            }
         }
     }
 
@@ -41,8 +41,9 @@ public class InventoryCopy implements IInventory
             items = l_items;
         }
 
-        for (int slot : access.slots)
+        for (int slot : access.slots) {
             accessible[slot] = true;
+        }
         return this;
     }
 
@@ -82,7 +83,8 @@ public class InventoryCopy implements IInventory
     }
 
     @Override
-    public void markDirty() {}
+    public void markDirty() {
+    }
 
     @Override
     public boolean isItemValidForSlot(int i, ItemStack itemstack) {
@@ -90,10 +92,12 @@ public class InventoryCopy implements IInventory
     }
 
     @Override
-    public void openInventory(EntityPlayer player) {}
+    public void openInventory(EntityPlayer player) {
+    }
 
     @Override
-    public void closeInventory(EntityPlayer player) {}
+    public void closeInventory(EntityPlayer player) {
+    }
 
     @Override
     public int getField(int id) {
@@ -101,7 +105,8 @@ public class InventoryCopy implements IInventory
     }
 
     @Override
-    public void setField(int id, int value) {}
+    public void setField(int id, int value) {
+    }
 
     @Override
     public int getFieldCount() {
@@ -109,7 +114,8 @@ public class InventoryCopy implements IInventory
     }
 
     @Override
-    public void clear() {}
+    public void clear() {
+    }
 
     @Override
     public String getName() {

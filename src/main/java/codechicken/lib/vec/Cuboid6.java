@@ -8,8 +8,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-public class Cuboid6 implements Copyable<Cuboid6>
-{
+public class Cuboid6 implements Copyable<Cuboid6> {
     public static Cuboid6 full = new Cuboid6(0, 0, 0, 1, 1, 1);
 
     public Vector3 min;
@@ -119,22 +118,46 @@ public class Cuboid6 implements Copyable<Cuboid6>
     }
 
     public Cuboid6 enclose(Vector3 vec) {
-        if (min.x > vec.x) min.x = vec.x;
-        if (min.y > vec.y) min.y = vec.y;
-        if (min.z > vec.z) min.z = vec.z;
-        if (max.x < vec.x) max.x = vec.x;
-        if (max.y < vec.y) max.y = vec.y;
-        if (max.z < vec.z) max.z = vec.z;
+        if (min.x > vec.x) {
+            min.x = vec.x;
+        }
+        if (min.y > vec.y) {
+            min.y = vec.y;
+        }
+        if (min.z > vec.z) {
+            min.z = vec.z;
+        }
+        if (max.x < vec.x) {
+            max.x = vec.x;
+        }
+        if (max.y < vec.y) {
+            max.y = vec.y;
+        }
+        if (max.z < vec.z) {
+            max.z = vec.z;
+        }
         return this;
     }
 
     public Cuboid6 enclose(Cuboid6 c) {
-        if (min.x > c.min.x) min.x = c.min.x;
-        if (min.y > c.min.y) min.y = c.min.y;
-        if (min.z > c.min.z) min.z = c.min.z;
-        if (max.x < c.max.x) max.x = c.max.x;
-        if (max.y < c.max.y) max.y = c.max.y;
-        if (max.z < c.max.z) max.z = c.max.z;
+        if (min.x > c.min.x) {
+            min.x = c.min.x;
+        }
+        if (min.y > c.min.y) {
+            min.y = c.min.y;
+        }
+        if (min.z > c.min.z) {
+            min.z = c.min.z;
+        }
+        if (max.x < c.max.x) {
+            max.x = c.max.x;
+        }
+        if (max.y < c.max.y) {
+            max.y = c.max.y;
+        }
+        if (max.z < c.max.z) {
+            max.z = c.max.z;
+        }
         return this;
     }
 
@@ -142,33 +165,64 @@ public class Cuboid6 implements Copyable<Cuboid6>
         t.apply(min);
         t.apply(max);
         double temp;
-        if(min.x > max.x) {temp = min.x; min.x = max.x; max.x = temp;}
-        if(min.y > max.y) {temp = min.y; min.y = max.y; max.y = temp;}
-        if(min.z > max.z) {temp = min.z; min.z = max.z; max.z = temp;}
+        if (min.x > max.x) {
+            temp = min.x;
+            min.x = max.x;
+            max.x = temp;
+        }
+        if (min.y > max.y) {
+            temp = min.y;
+            min.y = max.y;
+            max.y = temp;
+        }
+        if (min.z > max.z) {
+            temp = min.z;
+            min.z = max.z;
+            max.z = temp;
+        }
         return this;
     }
 
     public double getSide(int s) {
-        switch(s) {
-            case 0: return min.y;
-            case 1: return max.y;
-            case 2: return min.z;
-            case 3: return max.z;
-            case 4: return min.x;
-            case 5: return max.x;
+        switch (s) {
+        case 0:
+            return min.y;
+        case 1:
+            return max.y;
+        case 2:
+            return min.z;
+        case 3:
+            return max.z;
+        case 4:
+            return min.x;
+        case 5:
+            return max.x;
         }
         throw new IndexOutOfBoundsException("Switch Falloff");
     }
 
     public Cuboid6 setSide(int s, double d) {
-        switch(s) {
-            case 0: min.y = d; break;
-            case 1: max.y = d; break;
-            case 2: min.z = d; break;
-            case 3: max.z = d; break;
-            case 4: min.x = d; break;
-            case 5: max.x = d; break;
-            default: throw new IndexOutOfBoundsException("Switch Falloff");
+        switch (s) {
+        case 0:
+            min.y = d;
+            break;
+        case 1:
+            max.y = d;
+            break;
+        case 2:
+            min.z = d;
+            break;
+        case 3:
+            max.z = d;
+            break;
+        case 4:
+            min.x = d;
+            break;
+        case 5:
+            max.x = d;
+            break;
+        default:
+            throw new IndexOutOfBoundsException("Switch Falloff");
         }
         return this;
     }

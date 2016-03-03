@@ -2,7 +2,6 @@ package codechicken.lib.lighting;
 
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.vec.BlockCoord;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -10,8 +9,7 @@ import net.minecraft.world.IBlockAccess;
 /**
  * Faster precomputed version of LightModel that only works for axis planar sides
  */
-public class SimpleBrightnessModel implements CCRenderState.IVertexOperation
-{
+public class SimpleBrightnessModel implements CCRenderState.IVertexOperation {
     public static final int operationIndex = CCRenderState.registerOperation();
     public static SimpleBrightnessModel instance = new SimpleBrightnessModel();
 

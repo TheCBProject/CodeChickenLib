@@ -50,8 +50,9 @@ public class Scale extends Transformation {
 
     @Override
     public Transformation merge(Transformation next) {
-        if (next instanceof Scale)
+        if (next instanceof Scale) {
             return new Scale(factor.copy().multiply(((Scale) next).factor));
+        }
 
         return null;
     }

@@ -7,7 +7,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -19,8 +18,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
 
-public class RenderUtils
-{
+public class RenderUtils {
 
     static Vector3[] vectors = new Vector3[8];
     /*static RenderItem uniformRenderItem = new RenderItem()
@@ -33,8 +31,9 @@ public class RenderUtils
     static EntityItem entityItem;
 
     static {
-        for (int i = 0; i < vectors.length; i++)
+        for (int i = 0; i < vectors.length; i++) {
             vectors[i] = new Vector3();
+        }
 
         //uniformRenderItem.setRenderManager(RenderManager.instance);
 
@@ -68,14 +67,16 @@ public class RenderUtils
         double x = 0;
         while (x < wlen) {
             double rx = wlen - x;
-            if (rx > res)
+            if (rx > res) {
                 rx = res;
+            }
 
             double y = 0;
             while (y < hlen) {
                 double ry = hlen - y;
-                if (ry > res)
+                if (ry > res) {
                     ry = res;
+                }
 
                 Vector3 dx1 = vectors[2].set(wide).multiply(x / wlen);
                 Vector3 dx2 = vectors[3].set(wide).multiply((x + rx) / wlen);
@@ -131,84 +132,60 @@ public class RenderUtils
 
     public static void renderFluidCuboid(Cuboid6 bound, TextureAtlasSprite tex, double res) {
         renderFluidQuad(//bottom
-                new Vector3(bound.min.x, bound.min.y, bound.min.z),
-                new Vector3(bound.max.x, bound.min.y, bound.min.z),
-                new Vector3(bound.max.x, bound.min.y, bound.max.z),
-                new Vector3(bound.min.x, bound.min.y, bound.max.z),
-                tex, res);
+                new Vector3(bound.min.x, bound.min.y, bound.min.z), new Vector3(bound.max.x, bound.min.y, bound.min.z), new Vector3(bound.max.x, bound.min.y, bound.max.z), new Vector3(bound.min.x, bound.min.y, bound.max.z), tex, res);
         renderFluidQuad(//top
-                new Vector3(bound.min.x, bound.max.y, bound.min.z),
-                new Vector3(bound.min.x, bound.max.y, bound.max.z),
-                new Vector3(bound.max.x, bound.max.y, bound.max.z),
-                new Vector3(bound.max.x, bound.max.y, bound.min.z),
-                tex, res);
+                new Vector3(bound.min.x, bound.max.y, bound.min.z), new Vector3(bound.min.x, bound.max.y, bound.max.z), new Vector3(bound.max.x, bound.max.y, bound.max.z), new Vector3(bound.max.x, bound.max.y, bound.min.z), tex, res);
         renderFluidQuad(//-x
-                new Vector3(bound.min.x, bound.max.y, bound.min.z),
-                new Vector3(bound.min.x, bound.min.y, bound.min.z),
-                new Vector3(bound.min.x, bound.min.y, bound.max.z),
-                new Vector3(bound.min.x, bound.max.y, bound.max.z),
-                tex, res);
+                new Vector3(bound.min.x, bound.max.y, bound.min.z), new Vector3(bound.min.x, bound.min.y, bound.min.z), new Vector3(bound.min.x, bound.min.y, bound.max.z), new Vector3(bound.min.x, bound.max.y, bound.max.z), tex, res);
         renderFluidQuad(//+x
-                new Vector3(bound.max.x, bound.max.y, bound.max.z),
-                new Vector3(bound.max.x, bound.min.y, bound.max.z),
-                new Vector3(bound.max.x, bound.min.y, bound.min.z),
-                new Vector3(bound.max.x, bound.max.y, bound.min.z),
-                tex, res);
+                new Vector3(bound.max.x, bound.max.y, bound.max.z), new Vector3(bound.max.x, bound.min.y, bound.max.z), new Vector3(bound.max.x, bound.min.y, bound.min.z), new Vector3(bound.max.x, bound.max.y, bound.min.z), tex, res);
         renderFluidQuad(//-z
-                new Vector3(bound.max.x, bound.max.y, bound.min.z),
-                new Vector3(bound.max.x, bound.min.y, bound.min.z),
-                new Vector3(bound.min.x, bound.min.y, bound.min.z),
-                new Vector3(bound.min.x, bound.max.y, bound.min.z),
-                tex, res);
+                new Vector3(bound.max.x, bound.max.y, bound.min.z), new Vector3(bound.max.x, bound.min.y, bound.min.z), new Vector3(bound.min.x, bound.min.y, bound.min.z), new Vector3(bound.min.x, bound.max.y, bound.min.z), tex, res);
         renderFluidQuad(//+z
-                new Vector3(bound.min.x, bound.max.y, bound.max.z),
-                new Vector3(bound.min.x, bound.min.y, bound.max.z),
-                new Vector3(bound.max.x, bound.min.y, bound.max.z),
-                new Vector3(bound.max.x, bound.max.y, bound.max.z),
-                tex, res);
+                new Vector3(bound.min.x, bound.max.y, bound.max.z), new Vector3(bound.min.x, bound.min.y, bound.max.z), new Vector3(bound.max.x, bound.min.y, bound.max.z), new Vector3(bound.max.x, bound.max.y, bound.max.z), tex, res);
     }
 
     public static void renderBlockOverlaySide(int x, int y, int z, int side, double tx1, double tx2, double ty1, double ty2) {
-        double[] points = new double[]{x - 0.009, x + 1.009, y - 0.009, y + 1.009, z - 0.009, z + 1.009};
+        double[] points = new double[] { x - 0.009, x + 1.009, y - 0.009, y + 1.009, z - 0.009, z + 1.009 };
 
         WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
         switch (side) {
-            case 0:
-                r.pos(points[0], points[2], points[4]).tex(tx1, ty1).endVertex();
-                r.pos(points[1], points[2], points[4]).tex(tx2, ty1).endVertex();
-                r.pos(points[1], points[2], points[5]).tex(tx2, ty2).endVertex();
-                r.pos(points[0], points[2], points[5]).tex(tx1, ty2).endVertex();
-                break;
-            case 1:
-                r.pos(points[1], points[3], points[4]).tex(tx2, ty1).endVertex();
-                r.pos(points[0], points[3], points[4]).tex(tx1, ty1).endVertex();
-                r.pos(points[0], points[3], points[5]).tex(tx1, ty2).endVertex();
-                r.pos(points[1], points[3], points[5]).tex(tx2, ty2).endVertex();
-                break;
-            case 2:
-                r.pos(points[0], points[3], points[4]).tex(tx2, ty1).endVertex();
-                r.pos(points[1], points[3], points[4]).tex(tx1, ty1).endVertex();
-                r.pos(points[1], points[2], points[4]).tex(tx1, ty2).endVertex();
-                r.pos(points[0], points[2], points[4]).tex(tx2, ty2).endVertex();
-                break;
-            case 3:
-                r.pos(points[1], points[3], points[5]).tex(tx2, ty1).endVertex();
-                r.pos(points[0], points[3], points[5]).tex(tx1, ty1).endVertex();
-                r.pos(points[0], points[2], points[5]).tex(tx1, ty2).endVertex();
-                r.pos(points[1], points[2], points[5]).tex(tx2, ty2).endVertex();
-                break;
-            case 4:
-                r.pos(points[0], points[3], points[5]).tex(tx2, ty1).endVertex();
-                r.pos(points[0], points[3], points[4]).tex(tx1, ty1).endVertex();
-                r.pos(points[0], points[2], points[4]).tex(tx1, ty2).endVertex();
-                r.pos(points[0], points[2], points[5]).tex(tx2, ty2).endVertex();
-                break;
-            case 5:
-                r.pos(points[1], points[3], points[4]).tex(tx2, ty1).endVertex();
-                r.pos(points[1], points[3], points[5]).tex(tx1, ty1).endVertex();
-                r.pos(points[1], points[2], points[5]).tex(tx1, ty2).endVertex();
-                r.pos(points[1], points[2], points[4]).tex(tx2, ty2).endVertex();
-                break;
+        case 0:
+            r.pos(points[0], points[2], points[4]).tex(tx1, ty1).endVertex();
+            r.pos(points[1], points[2], points[4]).tex(tx2, ty1).endVertex();
+            r.pos(points[1], points[2], points[5]).tex(tx2, ty2).endVertex();
+            r.pos(points[0], points[2], points[5]).tex(tx1, ty2).endVertex();
+            break;
+        case 1:
+            r.pos(points[1], points[3], points[4]).tex(tx2, ty1).endVertex();
+            r.pos(points[0], points[3], points[4]).tex(tx1, ty1).endVertex();
+            r.pos(points[0], points[3], points[5]).tex(tx1, ty2).endVertex();
+            r.pos(points[1], points[3], points[5]).tex(tx2, ty2).endVertex();
+            break;
+        case 2:
+            r.pos(points[0], points[3], points[4]).tex(tx2, ty1).endVertex();
+            r.pos(points[1], points[3], points[4]).tex(tx1, ty1).endVertex();
+            r.pos(points[1], points[2], points[4]).tex(tx1, ty2).endVertex();
+            r.pos(points[0], points[2], points[4]).tex(tx2, ty2).endVertex();
+            break;
+        case 3:
+            r.pos(points[1], points[3], points[5]).tex(tx2, ty1).endVertex();
+            r.pos(points[0], points[3], points[5]).tex(tx1, ty1).endVertex();
+            r.pos(points[0], points[2], points[5]).tex(tx1, ty2).endVertex();
+            r.pos(points[1], points[2], points[5]).tex(tx2, ty2).endVertex();
+            break;
+        case 4:
+            r.pos(points[0], points[3], points[5]).tex(tx2, ty1).endVertex();
+            r.pos(points[0], points[3], points[4]).tex(tx1, ty1).endVertex();
+            r.pos(points[0], points[2], points[4]).tex(tx1, ty2).endVertex();
+            r.pos(points[0], points[2], points[5]).tex(tx2, ty2).endVertex();
+            break;
+        case 5:
+            r.pos(points[1], points[3], points[4]).tex(tx2, ty1).endVertex();
+            r.pos(points[1], points[3], points[5]).tex(tx1, ty1).endVertex();
+            r.pos(points[1], points[2], points[5]).tex(tx1, ty2).endVertex();
+            r.pos(points[1], points[2], points[4]).tex(tx2, ty2).endVertex();
+            break;
         }
     }
 
@@ -230,8 +207,11 @@ public class RenderUtils
         CCRenderState.changeTexture(TextureMap.locationBlocksTexture);
 
         String iconName = null;
-        if (fluid == FluidRegistry.LAVA) iconName = "minecraft:blocks/lava_still";
-        else if (fluid == FluidRegistry.WATER) iconName = "minecraft:blocks/water_still";
+        if (fluid == FluidRegistry.LAVA) {
+            iconName = "minecraft:blocks/lava_still";
+        } else if (fluid == FluidRegistry.WATER) {
+            iconName = "minecraft:blocks/water_still";
+        }
         return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(iconName);
     }
 
@@ -259,14 +239,16 @@ public class RenderUtils
      * @param res     The resolution to render at.
      */
     public static void renderFluidCuboid(FluidStack stack, Cuboid6 bound, double density, double res) {
-        if (!shouldRenderFluid(stack))
+        if (!shouldRenderFluid(stack)) {
             return;
+        }
 
         int alpha = 255;
-        if (stack.getFluid().isGaseous())
+        if (stack.getFluid().isGaseous()) {
             alpha = (int) (fluidDensityToAlpha(density) * 255);
-        else
+        } else {
             bound.max.y = bound.min.y + (bound.max.y - bound.min.y) * density;
+        }
 
         TextureAtlasSprite tex = prepareFluidRender(stack, alpha);
         CCRenderState.startDrawing();
@@ -276,13 +258,14 @@ public class RenderUtils
     }
 
     public static void renderFluidGauge(FluidStack stack, Rectangle4i rect, double density, double res) {
-        if (!shouldRenderFluid(stack))
+        if (!shouldRenderFluid(stack)) {
             return;
+        }
 
         int alpha = 255;
-        if (stack.getFluid().isGaseous())
+        if (stack.getFluid().isGaseous()) {
             alpha = (int) (fluidDensityToAlpha(density) * 255);
-        else {
+        } else {
             int height = (int) (rect.h * density);
             rect.y += rect.h - height;
             rect.h = height;
@@ -290,14 +273,10 @@ public class RenderUtils
 
         TextureAtlasSprite tex = prepareFluidRender(stack, alpha);
         CCRenderState.startDrawing();
-        renderFluidQuad(
-                new Vector3(rect.x, rect.y + rect.h, 0),
-                new Vector3(rect.w, 0, 0),
-                new Vector3(0, -rect.h, 0), tex, res);
+        renderFluidQuad(new Vector3(rect.x, rect.y + rect.h, 0), new Vector3(rect.w, 0, 0), new Vector3(0, -rect.h, 0), tex, res);
         CCRenderState.draw();
         postFluidRender();
     }
-
 
     /**
      * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately

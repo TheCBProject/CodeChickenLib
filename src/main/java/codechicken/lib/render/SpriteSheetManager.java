@@ -2,19 +2,17 @@ package codechicken.lib.render;
 
 import codechicken.lib.render.TextureUtils.IIconRegister;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class SpriteSheetManager
-{
+public class SpriteSheetManager {
     @SideOnly(Side.CLIENT)
-    public static class SpriteSheet implements IIconRegister
-    {
+    public static class SpriteSheet implements IIconRegister {
         private int tilesX;
         private int tilesY;
         private ArrayList<Integer> newSprites = new ArrayList<Integer>();
@@ -34,20 +32,24 @@ public class SpriteSheetManager
         }
 
         public void requestIndicies(int... indicies) {
-            for (int i : indicies)
+            for (int i : indicies) {
                 setupSprite(i);
+            }
         }
 
         @Override
         public void registerIcons(TextureMap textureMap) {
             if (TextureUtils.refreshTexture(textureMap, resource.getResourcePath())) {
                 reloadTexture();
-                for (TextureSpecial sprite : sprites)
-                    if (sprite != null)
+                for (TextureSpecial sprite : sprites) {
+                    if (sprite != null) {
                         textureMap.setTextureEntry(sprite.getIconName(), sprite);
+                    }
+                }
             } else {
-                for (int i : newSprites)
+                for (int i : newSprites) {
                     textureMap.setTextureEntry(sprites[i].getIconName(), sprites[i]);
+                }
             }
             newSprites.clear();
         }
@@ -69,8 +71,9 @@ public class SpriteSheetManager
 
         public TextureAtlasSprite getSprite(int index) {
             TextureAtlasSprite i = sprites[index];
-            if (i == null)
+            if (i == null) {
                 throw new IllegalArgumentException("Sprite at index: " + index + " from texture file " + resource + " was not preloaded.");
+            }
             return i;
         }
 
@@ -78,9 +81,7 @@ public class SpriteSheetManager
             int sx = spriteIndex % tilesX;
             int sy = spriteIndex / tilesX;
             TextureDataHolder sprite = new TextureDataHolder(spriteWidth, spriteHeight);
-            TextureUtils.copySubImg(texture.data, texture.width, sx * spriteWidth, sy * spriteHeight,
-                    spriteWidth, spriteHeight,
-                    sprite.data, spriteWidth, 0, 0);
+            TextureUtils.copySubImg(texture.data, texture.width, sx * spriteWidth, sy * spriteHeight, spriteWidth, spriteHeight, sprite.data, spriteWidth, 0, 0);
             return sprite;
         }
 
@@ -110,8 +111,9 @@ public class SpriteSheetManager
 
     public static SpriteSheet getSheet(int tilesX, int tilesY, ResourceLocation resource) {
         SpriteSheet sheet = spriteSheets.get(resource.toString());
-        if (sheet == null)
+        if (sheet == null) {
             spriteSheets.put(resource.toString(), sheet = new SpriteSheet(tilesX, tilesY, resource));
+        }
         return sheet;
     }
 }

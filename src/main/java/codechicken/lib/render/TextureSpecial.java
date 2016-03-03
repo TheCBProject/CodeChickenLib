@@ -2,8 +2,6 @@ package codechicken.lib.render;
 
 import codechicken.lib.render.SpriteSheetManager.SpriteSheet;
 import codechicken.lib.render.TextureUtils.IIconRegister;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -12,14 +10,15 @@ import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.data.AnimationMetadataSection;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
 @SideOnly(Side.CLIENT)
-public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
-{
+public class TextureSpecial extends TextureAtlasSprite implements IIconRegister {
     //sprite sheet fields
     private int spriteIndex;
     private SpriteSheet spriteSheet;
@@ -41,8 +40,9 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
     }
 
     public TextureSpecial addTexture(TextureDataHolder t) {
-        if (baseTextures == null)
+        if (baseTextures == null) {
             baseTextures = new ArrayList<TextureDataHolder>();
+        }
         baseTextures.add(t);
         return this;
     }
@@ -61,8 +61,9 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
     @Override
     public void initSprite(int sheetWidth, int sheetHeight, int originX, int originY, boolean rotated) {
         super.initSprite(sheetWidth, sheetHeight, originX, originY, rotated);
-        if (textureFX != null)
+        if (textureFX != null) {
             textureFX.onTextureDimensionsUpdate(rawWidth, rawHeight);
+        }
     }
 
     @Override
@@ -106,17 +107,13 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
             return aint1;
         }
     }*/
-
     @Override
     public void loadSprite(BufferedImage[] images, AnimationMetadataSection animationMeta) {
         rawWidth = images[0].getWidth();
         rawHeight = images[0].getHeight();
-        try
-        {
+        try {
             super.loadSprite(images, null);
-        }
-        catch(IOException e)
-        {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -134,7 +131,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
 
     public void addFrame(int[] data, int width, int height) {
         GameSettings settings = Minecraft.getMinecraft().gameSettings;
-        BufferedImage[] images = new BufferedImage[settings.mipmapLevels+1];
+        BufferedImage[] images = new BufferedImage[settings.mipmapLevels + 1];
         images[0] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         images[0].setRGB(0, 0, width, height, data, 0, width);
 
@@ -144,19 +141,19 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
     @Override
     public boolean load(IResourceManager manager, ResourceLocation location) {
         if (baseTextures != null) {
-            for (TextureDataHolder tex : baseTextures)
+            for (TextureDataHolder tex : baseTextures) {
                 addFrame(tex.data, tex.width, tex.height);
-        }
-        else if (spriteSheet != null) {
+            }
+        } else if (spriteSheet != null) {
             TextureDataHolder tex = spriteSheet.createSprite(spriteIndex);
             addFrame(tex.data, tex.width, tex.height);
-        }
-        else if (blankSize > 0) {
+        } else if (blankSize > 0) {
             addFrame(new int[blankSize * blankSize], blankSize, blankSize);
         }
 
-        if (framesTextureData.isEmpty())
+        if (framesTextureData.isEmpty()) {
             throw new RuntimeException("No base frame for texture: " + getIconName());
+        }
 
         return false;
     }
@@ -168,8 +165,9 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister
 
     @Override
     public int getFrameCount() {
-        if (textureFX != null)
+        if (textureFX != null) {
             return 1;
+        }
 
         return super.getFrameCount();
     }

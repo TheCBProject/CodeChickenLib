@@ -8,14 +8,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class TileChunkLoadHook
-{
+public class TileChunkLoadHook {
     private static boolean init;
+
     public static void init() {
-        if(init) return;
+        if (init) {
+            return;
+        }
         init = true;
 
         MinecraftForge.EVENT_BUS.register(new TileChunkLoadHook());
@@ -24,8 +23,10 @@ public class TileChunkLoadHook
     @SubscribeEvent
     public void onChunkLoad(ChunkEvent.Load event) {
         List<TileEntity> list = new ArrayList<TileEntity>(event.getChunk().chunkTileEntityMap.values());
-        for(TileEntity t : list)
-            if(t instanceof IChunkLoadTile)
-                ((IChunkLoadTile)t).onChunkLoad();
+        for (TileEntity t : list) {
+            if (t instanceof IChunkLoadTile) {
+                ((IChunkLoadTile) t).onChunkLoad();
+            }
+        }
     }
 }

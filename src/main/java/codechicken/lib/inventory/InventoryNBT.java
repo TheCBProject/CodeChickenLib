@@ -10,8 +10,7 @@ import net.minecraft.util.IChatComponent;
 /**
  * IInventory implementation which saves and loads from an NBT tag
  */
-public class InventoryNBT implements IInventory
-{
+public class InventoryNBT implements IInventory {
     protected ItemStack[] items;
     protected NBTTagCompound tag;
 
@@ -26,8 +25,9 @@ public class InventoryNBT implements IInventory
     }
 
     private void readNBT() {
-        if (tag.hasKey("items"))
+        if (tag.hasKey("items")) {
             InventoryUtils.readItemStacksFromTag(items, tag.getTagList("items", 10));
+        }
     }
 
     @Override
@@ -68,8 +68,9 @@ public class InventoryNBT implements IInventory
 
     @Override
     public void clear() {
-        for(int i = 0; i < items.length; i++)
+        for (int i = 0; i < items.length; i++) {
             items[i] = null;
+        }
         markDirty();
     }
 
@@ -79,7 +80,8 @@ public class InventoryNBT implements IInventory
     }
 
     @Override
-    public void setField(int id, int value) {}
+    public void setField(int id, int value) {
+    }
 
     @Override
     public int getFieldCount() {
@@ -92,10 +94,12 @@ public class InventoryNBT implements IInventory
     }
 
     @Override
-    public void openInventory(EntityPlayer player) {}
+    public void openInventory(EntityPlayer player) {
+    }
 
     @Override
-    public void closeInventory(EntityPlayer player) {}
+    public void closeInventory(EntityPlayer player) {
+    }
 
     @Override
     public boolean isItemValidForSlot(int i, ItemStack itemstack) {

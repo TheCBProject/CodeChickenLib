@@ -7,8 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
-public class MCDataIO
-{
+public class MCDataIO {
     /**
      * PacketBuffer.readVarIntFromBuffer
      */
@@ -21,8 +20,9 @@ public class MCDataIO
             b0 = in.readByte();
             i |= (b0 & 127) << j++ * 7;
 
-            if (j > 5)
+            if (j > 5) {
                 throw new RuntimeException("VarInt too big");
+            }
         } while ((b0 & 128) == 128);
 
         return i;
@@ -59,9 +59,10 @@ public class MCDataIO
     public static FluidStack readFluidStack(MCDataInput in) {
         FluidStack fluid = null;
         short fluidID = in.readShort();
-        
-        if (fluidID >= 0)
+
+        if (fluidID >= 0) {
             fluid = new FluidStack(FluidRegistry.getFluid(fluidID), in.readVarInt(), in.readNBTTagCompound());
+        }
 
         return fluid;
     }
@@ -84,11 +85,13 @@ public class MCDataIO
     public static void writeVarShort(MCDataOutput out, int s) {
         int low = s & 0x7FFF;
         int high = (s & 0x7F8000) >> 15;
-        if (high != 0)
+        if (high != 0) {
             low |= 0x8000;
+        }
         out.writeShort(low);
-        if (high != 0)
+        if (high != 0) {
             out.writeByte(high);
+        }
     }
 
     /**
@@ -96,8 +99,9 @@ public class MCDataIO
      */
     public static void writeString(MCDataOutput out, String string) {
         byte[] abyte = string.getBytes(Charsets.UTF_8);
-        if (abyte.length > 32767)
+        if (abyte.length > 32767) {
             throw new EncoderException("String too big (was " + string.length() + " bytes encoded, max " + 32767 + ")");
+        }
 
         out.writeVarInt(abyte.length);
         out.writeArray(abyte);

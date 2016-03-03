@@ -1,7 +1,6 @@
 package codechicken.lib.vec;
 
-public class Rectangle4i
-{
+public class Rectangle4i {
     public int x;
     public int y;
     public int w;
@@ -47,10 +46,18 @@ public class Rectangle4i
     }
 
     public Rectangle4i include(int px, int py) {
-        if (px < x) expand(px - x, 0);
-        if (px >= x + w) expand(px - x - w + 1, 0);
-        if (py < y) expand(0, py - y);
-        if (py >= y + h) expand(0, py - y - h + 1);
+        if (px < x) {
+            expand(px - x, 0);
+        }
+        if (px >= x + w) {
+            expand(px - x - w + 1, 0);
+        }
+        if (py < y) {
+            expand(0, py - y);
+        }
+        if (py >= y + h) {
+            expand(0, py - y - h + 1);
+        }
         return this;
     }
 
@@ -60,15 +67,15 @@ public class Rectangle4i
     }
 
     public Rectangle4i expand(int px, int py) {
-        if (px > 0)
+        if (px > 0) {
             w += px;
-        else {
+        } else {
             x += px;
             w -= px;
         }
-        if (py > 0)
+        if (py > 0) {
             h += py;
-        else {
+        } else {
             y += py;
             h -= py;
         }

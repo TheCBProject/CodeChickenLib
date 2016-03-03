@@ -5,15 +5,11 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions
 
 import java.util.Map;
 
-@TransformerExclusions({"codechicken.lib.asm", "codechicken.lib.config"})
-public class CCLCorePlugin implements IFMLLoadingPlugin
-{
+@TransformerExclusions({ "codechicken.lib.asm", "codechicken.lib.config" })
+public class CCLCorePlugin implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
-        return new String[] {
-            "codechicken.lib.asm.ClassHeirachyManager",
-            "codechicken.lib.asm.RenderHookTransformer"
-        };
+        return new String[] { "codechicken.lib.asm.ClassHeirachyManager", "codechicken.lib.asm.RenderHookTransformer" };
     }
 
     @Override

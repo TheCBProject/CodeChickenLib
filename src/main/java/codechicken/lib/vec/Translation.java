@@ -51,8 +51,9 @@ public class Translation extends Transformation {
 
     @Override
     public Transformation merge(Transformation next) {
-        if (next instanceof Translation)
+        if (next instanceof Translation) {
             return new Translation(vec.copy().add(((Translation) next).vec));
+        }
 
         return null;
     }

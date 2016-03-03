@@ -2,8 +2,7 @@ package codechicken.lib.render;
 
 import codechicken.lib.colour.ColourRGBA;
 
-public class ColourMultiplier implements CCRenderState.IVertexOperation
-{
+public class ColourMultiplier implements CCRenderState.IVertexOperation {
     private static ColourMultiplier instance = new ColourMultiplier(-1);
 
     public static ColourMultiplier instance(int colour) {
@@ -20,7 +19,9 @@ public class ColourMultiplier implements CCRenderState.IVertexOperation
 
     @Override
     public boolean load() {
-        if(colour == -1) return false;
+        if (colour == -1) {
+            return false;
+        }
 
         CCRenderState.pipeline.addDependency(CCRenderState.colourAttrib);
         return true;

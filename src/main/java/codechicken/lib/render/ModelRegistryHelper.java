@@ -16,8 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ModelRegistryHelper
-{
+public class ModelRegistryHelper {
     private static List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<Pair<ModelResourceLocation, IBakedModel>>();
 
     static {
@@ -53,7 +52,8 @@ public class ModelRegistryHelper
 
     @SubscribeEvent
     public void onModelBake(ModelBakeEvent event) {
-        for(Pair<ModelResourceLocation, IBakedModel> pair : registerModels)
+        for (Pair<ModelResourceLocation, IBakedModel> pair : registerModels) {
             event.modelRegistry.putObject(pair.getKey(), pair.getValue());
+        }
     }
 }

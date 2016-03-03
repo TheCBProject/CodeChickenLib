@@ -2,10 +2,8 @@ package codechicken.lib.config;
 
 import java.io.PrintWriter;
 
-public class ConfigTag extends ConfigTagParent
-{
-    public interface IConfigType<T>
-    {
+public class ConfigTag extends ConfigTagParent {
+    public interface IConfigType<T> {
         public String configValue(T entry);
 
         public T valueOf(String text) throws Exception;
@@ -81,9 +79,11 @@ public class ConfigTag extends ConfigTagParent
 
     public int getIntValue(int defaultValue) {
         try {
-            if (value != null)
+            if (value != null) {
                 return getIntValue();
-        } catch (NumberFormatException ignored) {}
+            }
+        } catch (NumberFormatException ignored) {
+        }
 
         setIntValue(defaultValue);
         return defaultValue;
@@ -91,19 +91,22 @@ public class ConfigTag extends ConfigTagParent
 
     public boolean getBooleanValue() {
         String value = getValue();
-        if (value != null && (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("yes")))
+        if (value != null && (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("yes"))) {
             return true;
-        else if (value != null && (value.equalsIgnoreCase("false") || value.equalsIgnoreCase("no")))
+        } else if (value != null && (value.equalsIgnoreCase("false") || value.equalsIgnoreCase("no"))) {
             return false;
+        }
 
         throw new NumberFormatException(qualifiedname + ".value=" + value);
     }
 
     public boolean getBooleanValue(boolean defaultValue) {
         try {
-            if (value != null)
+            if (value != null) {
                 return getBooleanValue();
-        } catch (NumberFormatException ignored) {}
+            }
+        } catch (NumberFormatException ignored) {
+        }
 
         setBooleanValue(defaultValue);
         return defaultValue;
@@ -115,9 +118,11 @@ public class ConfigTag extends ConfigTagParent
 
     public int getHexValue(int defaultValue) {
         try {
-            if (value != null)
+            if (value != null) {
                 return getHexValue();
-        } catch (NumberFormatException ignored) {}
+            }
+        } catch (NumberFormatException ignored) {
+        }
 
         setHexValue(defaultValue);
         return defaultValue;
@@ -133,9 +138,11 @@ public class ConfigTag extends ConfigTagParent
 
     public <T> T get(IConfigType<T> type, T defaultValue) {
         try {
-            if (value != null)
+            if (value != null) {
                 return get(type);
-        } catch (Exception ignored) {}
+            }
+        } catch (Exception ignored) {
+        }
 
         set(type, defaultValue);
         return defaultValue;
@@ -143,24 +150,29 @@ public class ConfigTag extends ConfigTagParent
 
     public void save(PrintWriter writer, int tabs, String bracequalifier, boolean first) {
         String vname;
-        if (qualifiedname.contains(".") && bracequalifier.length() > 0)
+        if (qualifiedname.contains(".") && bracequalifier.length() > 0) {
             vname = qualifiedname.substring(bracequalifier.length() + 1);
-        else
+        } else {
             vname = qualifiedname;
+        }
 
-        if (newline && !first)
+        if (newline && !first) {
             ConfigFile.writeLine(writer, "", tabs);
+        }
 
         writeComment(writer, tabs);
-        if (value != null)
+        if (value != null) {
             ConfigFile.writeLine(writer, vname + "=" + value, tabs);
+        }
 
-        if (!hasChildTags())
+        if (!hasChildTags()) {
             return;
+        }
 
         if (brace) {
-            if (value == null)
+            if (value == null) {
                 ConfigFile.writeLine(writer, vname, tabs);
+            }
             ConfigFile.writeLine(writer, "{", tabs);
             saveTagTree(writer, tabs + 1, qualifiedname);
             ConfigFile.writeLine(writer, "}", tabs);
@@ -189,8 +201,9 @@ public class ConfigTag extends ConfigTagParent
 
     public ConfigTag useBraces() {
         brace = true;
-        if (parent.newlinemode == 1)
+        if (parent.newlinemode == 1) {
             newline = true;
+        }
 
         saveConfig();
         return this;

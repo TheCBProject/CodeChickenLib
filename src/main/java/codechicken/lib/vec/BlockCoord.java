@@ -5,15 +5,8 @@ import codechicken.lib.util.Copyable;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 
-public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord>
-{
-    public static final BlockCoord[] sideOffsets = new BlockCoord[]{
-            new BlockCoord(0, -1, 0),
-            new BlockCoord(0, 1, 0),
-            new BlockCoord(0, 0, -1),
-            new BlockCoord(0, 0, 1),
-            new BlockCoord(-1, 0, 0),
-            new BlockCoord(1, 0, 0)};
+public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord> {
+    public static final BlockCoord[] sideOffsets = new BlockCoord[] { new BlockCoord(0, -1, 0), new BlockCoord(0, 1, 0), new BlockCoord(0, 0, -1), new BlockCoord(0, 0, 1), new BlockCoord(-1, 0, 0), new BlockCoord(1, 0, 0) };
 
     public int x;
     public int y;
@@ -53,8 +46,9 @@ public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord>
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof BlockCoord))
+        if (!(obj instanceof BlockCoord)) {
             return false;
+        }
         BlockCoord o2 = (BlockCoord) obj;
         return x == o2.x && y == o2.y && z == o2.z;
     }
@@ -65,9 +59,15 @@ public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord>
     }
 
     public int compareTo(BlockCoord o) {
-        if (x != o.x) return x < o.x ? 1 : -1;
-        if (y != o.y) return y < o.y ? 1 : -1;
-        if (z != o.z) return z < o.z ? 1 : -1;
+        if (x != o.x) {
+            return x < o.x ? 1 : -1;
+        }
+        if (y != o.y) {
+            return y < o.y ? 1 : -1;
+        }
+        if (z != o.z) {
+            return z < o.z ? 1 : -1;
+        }
         return 0;
     }
 
@@ -148,41 +148,41 @@ public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord>
 
     public int getSide(int side) {
         switch (side) {
-            case 0:
-            case 1:
-                return y;
-            case 2:
-            case 3:
-                return z;
-            case 4:
-            case 5:
-                return x;
+        case 0:
+        case 1:
+            return y;
+        case 2:
+        case 3:
+            return z;
+        case 4:
+        case 5:
+            return x;
         }
         throw new IndexOutOfBoundsException("Switch Falloff");
     }
 
     public BlockCoord setSide(int s, int v) {
         switch (s) {
-            case 0:
-            case 1:
-                y = v;
-                break;
-            case 2:
-            case 3:
-                z = v;
-                break;
-            case 4:
-            case 5:
-                x = v;
-                break;
-            default:
-                throw new IndexOutOfBoundsException("Switch Falloff");
+        case 0:
+        case 1:
+            y = v;
+            break;
+        case 2:
+        case 3:
+            z = v;
+            break;
+        case 4:
+        case 5:
+            x = v;
+            break;
+        default:
+            throw new IndexOutOfBoundsException("Switch Falloff");
         }
         return this;
     }
 
     public int[] intArray() {
-        return new int[]{x, y, z};
+        return new int[] { x, y, z };
     }
 
     public BlockPos pos() {
@@ -217,13 +217,27 @@ public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord>
     }
 
     public int toSide() {
-        if (!isAxial()) return -1;
-        if (y < 0) return 0;
-        if (y > 0) return 1;
-        if (z < 0) return 2;
-        if (z > 0) return 3;
-        if (x < 0) return 4;
-        if (x > 0) return 5;
+        if (!isAxial()) {
+            return -1;
+        }
+        if (y < 0) {
+            return 0;
+        }
+        if (y > 0) {
+            return 1;
+        }
+        if (z < 0) {
+            return 2;
+        }
+        if (z > 0) {
+            return 3;
+        }
+        if (x < 0) {
+            return 4;
+        }
+        if (x > 0) {
+            return 5;
+        }
 
         return -1;
     }
