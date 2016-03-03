@@ -431,6 +431,10 @@ public class CCRenderState {
         return startDrawing(7, DefaultVertexFormats.POSITION_TEX);
     }
 
+    public static WorldRenderer startDrawing(VertexFormat format) {
+        return startDrawing(7, format);
+    }
+
     public static WorldRenderer startDrawing(int mode, VertexFormat format) {
         WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
         r.begin(mode, format);
