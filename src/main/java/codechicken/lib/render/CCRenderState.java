@@ -10,10 +10,10 @@ import codechicken.lib.vec.Vector3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 
@@ -366,16 +366,16 @@ public class CCRenderState {
     }
 
     public static void writeVert() {
-        WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
+        VertexBuffer vertexBuffer = Tessellator.getInstance().getBuffer();
 
         if (hasNormal) {
-            r.normal((float) normal.x, (float) normal.y, (float) normal.z);
+            vertexBuffer.normal((float) normal.x, (float) normal.y, (float) normal.z);
         }
         if (hasColour) {
-            r.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+            vertexBuffer.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
         }
         if (hasBrightness) {
-            r.lightmap(brightness >> 16 & 65535, brightness & 65535);
+            vertexBuffer.lightmap(brightness >> 16 & 65535, brightness & 65535);
         }
     }
 
@@ -400,7 +400,7 @@ public class CCRenderState {
     }
 
     public static void setBrightness(IBlockAccess world, BlockPos pos) {
-        setBrightness(world.getBlockState(pos).getBlock().getMixedBrightnessForBlock(world, pos));
+        setBrightness(world.getBlockState(pos).getBlock().getPackedLightmapCoords(world.getBlockState(pos), world, pos));
     }
 
     public static void pullLightmap() {
@@ -427,24 +427,24 @@ public class CCRenderState {
         Minecraft.getMinecraft().renderEngine.bindTexture(texture);
     }
 
-    public static WorldRenderer startDrawing() {
+    public static VertexBuffer startDrawing() {
         return startDrawing(7, DefaultVertexFormats.POSITION_TEX);
     }
 
-    public static WorldRenderer startDrawing(VertexFormat format) {
+    public static VertexBuffer startDrawing(VertexFormat format) {
         return startDrawing(7, format);
     }
 
-    public static WorldRenderer startDrawing(int mode, VertexFormat format) {
-        WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
-        r.begin(mode, format);
+    public static VertexBuffer startDrawing(int mode, VertexFormat format) {
+        VertexBuffer vertexBuffer = Tessellator.getInstance().getBuffer();
+        vertexBuffer.begin(mode, format);
         if (hasColour) {
-            r.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+            vertexBuffer.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
         }
         if (hasBrightness) {
-            r.lightmap(brightness >> 16 & 65535, brightness & 65535);
+            vertexBuffer.lightmap(brightness >> 16 & 65535, brightness & 65535);
         }
-        return r;
+        return vertexBuffer;
     }
 
     public static void draw() {

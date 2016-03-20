@@ -6,7 +6,7 @@ import codechicken.lib.vec.Vector3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -54,7 +54,7 @@ public class RenderUtils {
      * @param res  Units per icon
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, TextureAtlasSprite icon, double res) {
-        WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
+        VertexBuffer r = Tessellator.getInstance().getBuffer();
 
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
@@ -104,7 +104,7 @@ public class RenderUtils {
     }
 
     public static void drawCuboidOutline(Cuboid6 c) {
-        WorldRenderer r = CCRenderState.startDrawing(3, DefaultVertexFormats.POSITION);
+        VertexBuffer r = CCRenderState.startDrawing(3, DefaultVertexFormats.POSITION);
         r.pos(c.min.x, c.min.y, c.min.z).endVertex();
         r.pos(c.max.x, c.min.y, c.min.z).endVertex();
         r.pos(c.max.x, c.min.y, c.max.z).endVertex();
@@ -148,7 +148,7 @@ public class RenderUtils {
     public static void renderBlockOverlaySide(int x, int y, int z, int side, double tx1, double tx2, double ty1, double ty2) {
         double[] points = new double[] { x - 0.009, x + 1.009, y - 0.009, y + 1.009, z - 0.009, z + 1.009 };
 
-        WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
+        VertexBuffer r = Tessellator.getInstance().getBuffer();
         switch (side) {
         case 0:
             r.pos(points[0], points[2], points[4]).tex(tx1, ty1).endVertex();
@@ -278,14 +278,14 @@ public class RenderUtils {
         postFluidRender();
     }
 
-    /**
+    /*
      * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately
      */
     /*public static void renderItemUniform(ItemStack item) {
         renderItemUniform(item, 0);
     }*/
 
-    /**
+    /*
      * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately
      *
      * @param spin The spin angle of the item around the y axis in degrees

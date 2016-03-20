@@ -4,8 +4,8 @@ import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -44,7 +44,7 @@ public class Vector3 implements Copyable<Vector3> {
         this(da[0], da[1], da[2]);
     }
 
-    public Vector3(Vec3 vec) {
+    public Vector3(Vec3d vec) {
         x = vec.xCoord;
         y = vec.yCoord;
         z = vec.zCoord;
@@ -282,8 +282,8 @@ public class Vector3 implements Copyable<Vector3> {
         return this;
     }
 
-    public Vec3 vec3() {
-        return new Vec3(x, y, z);
+    public Vec3d vec3() {
+        return new Vec3d(x, y, z);
     }
 
     public double angle(Vector3 vec) {

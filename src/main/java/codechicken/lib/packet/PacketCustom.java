@@ -47,15 +47,15 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 public final class PacketCustom extends PacketBuffer implements MCDataInput, MCDataOutput {
-    public static interface ICustomPacketHandler {
+    public interface ICustomPacketHandler {
     }
 
     public interface IClientPacketHandler extends ICustomPacketHandler {
-        public void handlePacket(PacketCustom packetCustom, Minecraft mc, INetHandlerPlayClient handler);
+        void handlePacket(PacketCustom packetCustom, Minecraft mc, INetHandlerPlayClient handler);
     }
 
     public interface IServerPacketHandler extends ICustomPacketHandler {
-        public void handlePacket(PacketCustom packetCustom, EntityPlayerMP sender, INetHandlerPlayServer handler);
+        void handlePacket(PacketCustom packetCustom, EntityPlayerMP sender, INetHandlerPlayServer handler);
     }
 
     public static AttributeKey<CustomInboundHandler> cclHandler = new AttributeKey<CustomInboundHandler>("ccl:handler");
@@ -76,8 +76,8 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         }
     }
 
-    private static interface CustomHandler {
-        public void handle(INetHandler handler, String channel, PacketCustom packet);
+    private interface CustomHandler {
+        void handle(INetHandler handler, String channel, PacketCustom packet);
     }
 
     public static class ClientInboundHandler implements CustomHandler {
@@ -116,7 +116,8 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         @Override
         public void handle(final INetHandler netHandler, final String channel, final PacketCustom packet) {
             if (netHandler instanceof NetHandlerPlayServer) {
-                MinecraftServer mc = MinecraftServer.getServer();
+                //TODO Submit pr for this MinecraftServer.getServer();
+                MinecraftServer mc = FMLCommonHandler.instance().getMinecraftServerInstance();
                 if (!mc.isCallingFromMinecraftThread()) {
                     mc.addScheduledTask(new Runnable() {
                         public void run() {
@@ -132,8 +133,8 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         }
     }
 
-    public static interface IHandshakeHandler {
-        public void handshakeRecieved(NetHandlerPlayServer netHandler);
+    public interface IHandshakeHandler {
+        void handshakeReceived(NetHandlerPlayServer netHandler);
     }
 
     public static class HandshakeInboundHandler extends ChannelInboundHandlerAdapter {
@@ -148,7 +149,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
             if (evt instanceof NetworkHandshakeEstablished) {
                 INetHandler netHandler = ((NetworkDispatcher) ctx.channel().attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).get()).getNetHandler();
                 if (netHandler instanceof NetHandlerPlayServer) {
-                    handler.handshakeRecieved((NetHandlerPlayServer) netHandler);
+                    handler.handshakeReceived((NetHandlerPlayServer) netHandler);
                 }
             } else {
                 ctx.fireUserEventTriggered(evt);
@@ -450,7 +451,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToClients(Packet packet) {
-        MinecraftServer.getServer().getConfigurationManager().sendPacketToAllPlayers(packet);
+        getServerInstance().getPlayerList().sendPacketToAllPlayers(packet);
     }
 
     public void sendPacketToAllAround(double x, double y, double z, double range, int dim) {
@@ -458,7 +459,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToAllAround(Packet packet, double x, double y, double z, double range, int dim) {
-        MinecraftServer.getServer().getConfigurationManager().sendToAllNear(x, y, z, range, dim, packet);
+        getServerInstance().getPlayerList().sendToAllNearExcept(null, x, y, z, range, dim, packet);
     }
 
     public void sendToDimension(int dim) {
@@ -466,7 +467,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToDimension(Packet packet, int dim) {
-        MinecraftServer.getServer().getConfigurationManager().sendPacketToAllPlayersInDimension(packet, dim);
+        getServerInstance().getPlayerList().sendPacketToAllPlayersInDimension(packet, dim);
     }
 
     public void sendToChunk(World world, int chunkX, int chunkZ) {
@@ -474,9 +475,9 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToChunk(Packet packet, World world, int chunkX, int chunkZ) {
-        PlayerInstance p = ((WorldServer) world).getPlayerManager().getPlayerInstance(chunkX, chunkZ, false);
-        if (p != null) {
-            p.sendToAllPlayersWatchingChunk(packet);
+        PlayerInstance playerInstance = ((WorldServer) world).thePlayerManager.getEntry(chunkX, chunkZ);
+        if (playerInstance != null) {
+            playerInstance.sendPacket(packet);
         }
     }
 
@@ -485,8 +486,8 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToOps(Packet packet) {
-        for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
-            if (MinecraftServer.getServer().getConfigurationManager().canSendCommands(player.getGameProfile())) {
+        for (EntityPlayerMP player : getServerInstance().getPlayerList().getPlayerList()) {
+            if (getServerInstance().getPlayerList().canSendCommands(player.getGameProfile())) {
                 sendToPlayer(packet, player);
             }
         }
@@ -500,5 +501,9 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     @SideOnly(Side.CLIENT)
     public static void sendToServer(Packet packet) {
         Minecraft.getMinecraft().getNetHandler().addToSendQueue(packet);
+    }
+
+    public static MinecraftServer getServerInstance(){
+        return FMLCommonHandler.instance().getMinecraftServerInstance();
     }
 }

@@ -58,10 +58,10 @@ public class MCDataIO {
 
     public static FluidStack readFluidStack(MCDataInput in) {
         FluidStack fluid = null;
-        short fluidID = in.readShort();
+        String fluidName = in.readString();
 
-        if (fluidID >= 0) {
-            fluid = new FluidStack(FluidRegistry.getFluid(fluidID), in.readVarInt(), in.readNBTTagCompound());
+        if (FluidRegistry.isFluidRegistered(fluidName)) {
+            fluid = new FluidStack(FluidRegistry.getFluid(fluidName), in.readVarInt(), in.readNBTTagCompound());
         }
 
         return fluid;
@@ -125,7 +125,7 @@ public class MCDataIO {
         if (fluid == null) {
             out.writeShort(-1);
         } else {
-            out.writeShort(fluid.getFluid().getID());
+            out.writeString(fluid.getFluid().getName());
             out.writeVarInt(fluid.amount);
             out.writeNBTTagCompound(fluid.tag);
         }

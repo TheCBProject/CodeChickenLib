@@ -1,6 +1,6 @@
 package codechicken.lib.util;
 
-import net.minecraft.util.StatCollector;
+import net.minecraftforge.fml.common.registry.LanguageRegistry;
 
 public class LangProxy {
     public final String namespace;
@@ -10,10 +10,10 @@ public class LangProxy {
     }
 
     public String translate(String key) {
-        return StatCollector.translateToLocal(namespace + key);
+        return LanguageRegistry.instance().getStringLocalization(namespace + key);
     }
 
     public String format(String key, Object... params) {
-        return StatCollector.translateToLocalFormatted(namespace + key, params);
+        return String.format(LanguageRegistry.instance().getStringLocalization(namespace + key), params);
     }
 }

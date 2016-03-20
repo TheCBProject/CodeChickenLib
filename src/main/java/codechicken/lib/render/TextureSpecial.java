@@ -3,6 +3,7 @@ package codechicken.lib.render;
 import codechicken.lib.render.SpriteSheetManager.SpriteSheet;
 import codechicken.lib.render.TextureUtils.IIconRegister;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.PngSizeInfo;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
@@ -80,6 +81,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
         }
     }
 
+
     /**
      * Copy paste mojang code because it's private, and CCL can't have access transformers or reflection
      */
@@ -107,7 +109,19 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
             return aint1;
         }
     }*/
+
     @Override
+    public void loadSprite(PngSizeInfo sizeInfo, boolean p_188538_2_) throws IOException {
+        rawWidth = sizeInfo.pngWidth;
+        rawHeight = sizeInfo.pngHeight;
+        try {
+            super.loadSprite(sizeInfo, p_188538_2_);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /*@Override
     public void loadSprite(BufferedImage[] images, AnimationMetadataSection animationMeta) {
         rawWidth = images[0].getWidth();
         rawHeight = images[0].getHeight();
@@ -116,7 +130,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
+    }*/
 
     @Override
     public void generateMipmaps(int p_147963_1_) {
@@ -134,8 +148,8 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
         BufferedImage[] images = new BufferedImage[settings.mipmapLevels + 1];
         images[0] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         images[0].setRGB(0, 0, width, height, data, 0, width);
-
-        loadSprite(images, null);
+        //FIXME
+        //loadSprite(images, null);
     }
 
     @Override

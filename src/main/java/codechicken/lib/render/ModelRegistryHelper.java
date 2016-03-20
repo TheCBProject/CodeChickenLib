@@ -2,8 +2,8 @@ package codechicken.lib.render;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -53,7 +53,7 @@ public class ModelRegistryHelper {
     @SubscribeEvent
     public void onModelBake(ModelBakeEvent event) {
         for (Pair<ModelResourceLocation, IBakedModel> pair : registerModels) {
-            event.modelRegistry.putObject(pair.getKey(), pair.getValue());
+            event.getModelRegistry().putObject(pair.getKey(), pair.getValue());
         }
     }
 }

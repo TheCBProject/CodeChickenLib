@@ -5,7 +5,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.vec.BlockCoord;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 /**
@@ -64,10 +64,10 @@ public class LightMatrix implements CCRenderState.IVertexOperation {
 
     public void sample(int i) {
         if ((sampled & 1 << i) == 0) {
-            BlockPos bp = new BlockPos(pos.x + (i % 3) - 1, pos.y + (i / 9) - 1, pos.z + (i / 3 % 3) - 1);
-            IBlockState b = access.getBlockState(bp);
-            bSamples[i] = access.getCombinedLight(bp, b.getBlock().getLightValue(access, bp));
-            aSamples[i] = b.getBlock().getAmbientOcclusionLightValue();
+            BlockPos pos = new BlockPos(this.pos.x + (i % 3) - 1, this.pos.y + (i / 9) - 1, this.pos.z + (i / 3 % 3) - 1);
+            IBlockState blockState = access.getBlockState(pos);
+            bSamples[i] = access.getCombinedLight(pos, blockState.getBlock().getLightValue(blockState, access, pos));
+            aSamples[i] = blockState.getBlock().getAmbientOcclusionLightValue(blockState);
             sampled |= 1 << i;
         }
     }

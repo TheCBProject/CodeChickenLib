@@ -143,7 +143,7 @@ public class MathHelper {
     }
 
     public static int floor_double(double d) {
-        return net.minecraft.util.MathHelper.floor_double(d);
+        return net.minecraft.util.math.MathHelper.floor_double(d);
     }
 
     public static int roundAway(double d) {
