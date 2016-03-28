@@ -37,7 +37,7 @@ public class TextureUtils {
     @SubscribeEvent
     public void textureLoad(TextureStitchEvent.Pre event) {
         for (IIconRegister reg : iconRegisters) {
-            reg.registerIcons(event.map);
+            reg.registerIcons(event.getMap());
         }
     }
 
