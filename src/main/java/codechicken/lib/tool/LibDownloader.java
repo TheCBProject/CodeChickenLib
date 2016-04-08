@@ -35,7 +35,7 @@ public class LibDownloader {
     private static void addPaths(String[] libs) {
         try {
             URLClassLoader cl = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            Method m_addURL = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] { URL.class });
+            Method m_addURL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
             m_addURL.setAccessible(true);
             for (String lib : libs) {
                 m_addURL.invoke(cl, new File(libDir, fileName(lib)).toURI().toURL());
@@ -76,7 +76,7 @@ public class LibDownloader {
         while ((bytesRead = is.read(smallBuffer)) >= 0) {
             downloadBuffer.put(smallBuffer, 0, bytesRead);
             fullLength += bytesRead;
-            System.out.format("\rDownloading lib %s %d%%", name, (int) (fullLength * 100 / sizeGuess));
+            System.out.format("\rDownloading lib %s %d%%", name, fullLength * 100 / sizeGuess);
         }
         System.out.format("\rDownloaded lib %s         \n", name);
         is.close();

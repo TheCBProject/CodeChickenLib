@@ -42,7 +42,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.IOException;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
@@ -503,7 +502,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         Minecraft.getMinecraft().getNetHandler().addToSendQueue(packet);
     }
 
-    public static MinecraftServer getServerInstance(){
+    public static MinecraftServer getServerInstance() {
         return FMLCommonHandler.instance().getMinecraftServerInstance();
     }
 }

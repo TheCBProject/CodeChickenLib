@@ -14,10 +14,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Plane;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class InventoryUtils {
@@ -322,7 +322,7 @@ public class InventoryUtils {
         for (int i = 0; i < inv.getSizeInventory(); i++) {
             ItemStack stack = inv.removeStackFromSlot(i);
             if (stack != null) {
-                player.dropPlayerItemWithRandomChoice(stack, false);
+                player.dropItem(stack, false);
             }
         }
     }

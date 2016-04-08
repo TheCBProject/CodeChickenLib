@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.data.AnimationMetadataSection;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -81,7 +80,6 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
         }
     }
 
-
     /**
      * Copy paste mojang code because it's private, and CCL can't have access transformers or reflection
      */
@@ -109,7 +107,6 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
             return aint1;
         }
     }*/
-
     @Override
     public void loadSprite(PngSizeInfo sizeInfo, boolean p_188538_2_) throws IOException {
         rawWidth = sizeInfo.pngWidth;
