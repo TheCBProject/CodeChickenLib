@@ -33,10 +33,7 @@ public class Line3 {
         double ua = (xD2 * zD3 - zD2 * xD3) / div;
         store.set(line1.pt1.x + ua * xD1, 0, line1.pt1.z + ua * zD1);
 
-        if (store.x >= Math.min(line1.pt1.x, line1.pt2.x) - tol && store.x >= Math.min(line2.pt1.x, line2.pt2.x) - tol && store.z >= Math.min(line1.pt1.z, line1.pt2.z) - tol && store.z >= Math.min(line2.pt1.z, line2.pt2.z) - tol && store.x <= Math.max(line1.pt1.x, line1.pt2.x) + tol && store.x <= Math.max(line2.pt1.x, line2.pt2.x) + tol && store.z <= Math.max(line1.pt1.z, line1.pt2.z) + tol && store.z <= Math.max(line2.pt1.z, line2.pt2.z) + tol) {
-            return true;
-        }
+        return store.x >= Math.min(line1.pt1.x, line1.pt2.x) - tol && store.x >= Math.min(line2.pt1.x, line2.pt2.x) - tol && store.z >= Math.min(line1.pt1.z, line1.pt2.z) - tol && store.z >= Math.min(line2.pt1.z, line2.pt2.z) - tol && store.x <= Math.max(line1.pt1.x, line1.pt2.x) + tol && store.x <= Math.max(line2.pt1.x, line2.pt2.x) + tol && store.z <= Math.max(line1.pt1.z, line1.pt2.z) + tol && store.z <= Math.max(line2.pt1.z, line2.pt2.z) + tol;
 
-        return false;
     }
 }

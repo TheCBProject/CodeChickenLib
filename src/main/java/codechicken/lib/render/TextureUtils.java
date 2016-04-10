@@ -20,8 +20,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 public class TextureUtils {
-    public static interface IIconRegister {
-        public void registerIcons(TextureMap textureMap);
+    public interface IIconRegister {
+        void registerIcons(TextureMap textureMap);
     }
 
     static {

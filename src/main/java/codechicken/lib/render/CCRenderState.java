@@ -37,23 +37,23 @@ public class CCRenderState {
     /**
      * Represents an operation to be run for each vertex that operates on and modifies the current state
      */
-    public static interface IVertexOperation {
+    public interface IVertexOperation {
         /**
          * Load any required references and add dependencies to the pipeline based on the current model (may be null)
          * Return false if this operation is redundant in the pipeline with the given model
          */
-        public boolean load();
+        boolean load();
 
         /**
          * Perform the operation on the current render state
          */
-        public void operate();
+        void operate();
 
         /**
          * Get the unique id representing this type of operation. Duplicate operation IDs within the pipeline may have unexpected results.
          * ID shoulld be obtained from CCRenderState.registerOperation() and stored in a static variable
          */
-        public int operationID();
+        int operationID();
     }
 
     private static ArrayList<VertexAttribute<?>> vertexAttributes = new ArrayList<VertexAttribute<?>>();
@@ -111,8 +111,8 @@ public class CCRenderState {
         return dst;
     }
 
-    public static interface IVertexSource {
-        public Vertex5[] getVertices();
+    public interface IVertexSource {
+        Vertex5[] getVertices();
 
         /**
          * Gets an array of vertex attrutes
@@ -121,17 +121,17 @@ public class CCRenderState {
          * @param <T>  The attrute array type
          * @return An array, or null if not computed
          */
-        public <T> T getAttributes(VertexAttribute<T> attr);
+        <T> T getAttributes(VertexAttribute<T> attr);
 
         /**
          * @return True if the specified attrute is provided by this model, either by returning an array from getAttributes or by setting the state in prepareVertex
          */
-        public boolean hasAttribute(VertexAttribute<?> attr);
+        boolean hasAttribute(VertexAttribute<?> attr);
 
         /**
          * Callback to set CCRenderState for a vertex before the pipeline runs
          */
-        public void prepareVertex();
+        void prepareVertex();
     }
 
     public static VertexAttribute<Vector3[]> normalAttrib = new VertexAttribute<Vector3[]>() {
@@ -307,6 +307,9 @@ public class CCRenderState {
     public static int side;
     public static LC lc = new LC();
 
+    //TODO Auto calculate and apply in CCModel.
+    public static final VertexFormat POS_TEX_COLOUR_LMAP = new VertexFormat(DefaultVertexFormats.POSITION_TEX_COLOR).addElement(DefaultVertexFormats.TEX_2S);
+
     public static void reset() {
         model = null;
         pipeline.reset();
@@ -368,6 +371,9 @@ public class CCRenderState {
     public static void writeVert() {
         VertexBuffer vertexBuffer = Tessellator.getInstance().getBuffer();
 
+        vertexBuffer.pos(vert.vec.x, vert.vec.y, vert.vec.z);
+        vertexBuffer.tex(vert.uv.u, vert.uv.v);
+
         if (hasNormal) {
             vertexBuffer.normal((float) normal.x, (float) normal.y, (float) normal.z);
         }
@@ -377,6 +383,7 @@ public class CCRenderState {
         if (hasBrightness) {
             vertexBuffer.lightmap(brightness >> 16 & 65535, brightness & 65535);
         }
+        vertexBuffer.endVertex();
     }
 
     public static void setNormal(double x, double y, double z) {

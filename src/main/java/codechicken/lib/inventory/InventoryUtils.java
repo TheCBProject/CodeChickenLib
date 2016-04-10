@@ -336,7 +336,7 @@ public class InventoryUtils {
 
     public static ItemStack loadPersistant(NBTTagCompound tag) {
         String name = tag.getString("name");
-        Item item = (Item) Item.itemRegistry.getObject(new ResourceLocation(name));
+        Item item = Item.itemRegistry.getObject(new ResourceLocation(name));
         if (item == null) {
             return null;
         }

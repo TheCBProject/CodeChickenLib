@@ -136,10 +136,10 @@ public class GuiDraw {
     public static final String TOOLTIP_HANDLER = "\u00A7x";
     private static List<ITooltipLineHandler> tipLineHandlers = new ArrayList<ITooltipLineHandler>();
 
-    public static interface ITooltipLineHandler {
-        public Dimension getSize();
+    public interface ITooltipLineHandler {
+        Dimension getSize();
 
-        public void draw(int x, int y);
+        void draw(int x, int y);
     }
 
     public static int getTipLineId(ITooltipLineHandler handler) {

@@ -8,5 +8,5 @@ import net.minecraft.item.ItemStack;
  * Be sure to override isBuiltInRenderer true
  */
 public interface IItemRenderer extends IBakedModel {
-    public void renderItem(ItemStack item);
+    void renderItem(ItemStack item);
 }
