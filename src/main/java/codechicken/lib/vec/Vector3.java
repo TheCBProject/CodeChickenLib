@@ -2,13 +2,13 @@ package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -310,7 +310,7 @@ public class Vector3 implements Copyable<Vector3> {
 
     @SideOnly(Side.CLIENT)
     public void glVertex() {
-        GL11.glVertex3d(x, y, z);
+        GlStateManager.glVertex3f((float) x, (float) y, (float) z);
     }
 
     public Vector3 YZintercept(Vector3 end, double px) {

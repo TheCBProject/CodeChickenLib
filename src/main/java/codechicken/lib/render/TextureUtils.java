@@ -109,21 +109,22 @@ public class TextureUtils {
     }
 
     public static void prepareTexture(int target, int texture, int min_mag_filter, int wrap) {
-        GL11.glTexParameteri(target, GL11.GL_TEXTURE_MIN_FILTER, min_mag_filter);
+        GlStateManager.glTexParameteri(target, GL11.GL_TEXTURE_MIN_FILTER, min_mag_filter);
         GL11.glTexParameteri(target, GL11.GL_TEXTURE_MAG_FILTER, min_mag_filter);
         if (target == GL11.GL_TEXTURE_2D) {
             GlStateManager.bindTexture(target);
         } else {
+            //TODO
             GL11.glBindTexture(target, texture);
         }
 
         switch (target) {
         case GL12.GL_TEXTURE_3D:
-            GL11.glTexParameteri(target, GL12.GL_TEXTURE_WRAP_R, wrap);
+            GlStateManager.glTexParameteri(target, GL12.GL_TEXTURE_WRAP_R, wrap);
         case GL11.GL_TEXTURE_2D:
-            GL11.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_T, wrap);
+            GlStateManager.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_T, wrap);
         case GL11.GL_TEXTURE_1D:
-            GL11.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_S, wrap);
+            GlStateManager.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_S, wrap);
         }
     }
 

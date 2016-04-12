@@ -307,9 +307,6 @@ public class CCRenderState {
     public static int side;
     public static LC lc = new LC();
 
-    //TODO Auto calculate and apply in CCModel.
-    public static final VertexFormat POS_TEX_COLOUR_LMAP = new VertexFormat(DefaultVertexFormats.POSITION_TEX_COLOR).addElement(DefaultVertexFormats.TEX_2S);
-
     public static void reset() {
         model = null;
         pipeline.reset();
@@ -373,7 +370,6 @@ public class CCRenderState {
 
         vertexBuffer.pos(vert.vec.x, vert.vec.y, vert.vec.z);
         vertexBuffer.tex(vert.uv.u, vert.uv.v);
-
         if (hasNormal) {
             vertexBuffer.normal((float) normal.x, (float) normal.y, (float) normal.z);
         }
@@ -445,12 +441,12 @@ public class CCRenderState {
     public static VertexBuffer startDrawing(int mode, VertexFormat format) {
         VertexBuffer vertexBuffer = Tessellator.getInstance().getBuffer();
         vertexBuffer.begin(mode, format);
-        if (hasColour) {
-            vertexBuffer.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
-        }
-        if (hasBrightness) {
-            vertexBuffer.lightmap(brightness >> 16 & 65535, brightness & 65535);
-        }
+        //if (hasColour) {
+        //    vertexBuffer.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+        //}
+        //if (hasBrightness) {
+        //    vertexBuffer.lightmap(brightness >> 16 & 65535, brightness & 65535);
+        //}
         return vertexBuffer;
     }
 
