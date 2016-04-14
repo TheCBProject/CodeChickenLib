@@ -90,7 +90,7 @@ uploadArchives {
         logger.info('Publishing to files server')
 
         mavenDeployer {
-            repository(System.getProperty("local_maven"))
+            repository(url: "file://${local_maven}")
             pom {
                 groupId = project.group
                 // Force the maven upload to use the <mcversion>-<version> syntax preferred at files
