@@ -216,7 +216,7 @@ public class RenderUtils {
         GlStateManager.disableLighting();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        CCRenderState.changeTexture(TextureMap.locationBlocksTexture);
+        CCRenderState.changeTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
     }
 
     /**

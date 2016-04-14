@@ -41,7 +41,7 @@ public class ModelRegistryHelper {
      * Inserts the item renderer at itemRegistry.getNameForObject(block)#inventory and binds it to the item with a custom mesh definition
      */
     public static void registerItemRenderer(Item item, IItemRenderer renderer) {
-        final ModelResourceLocation modelLoc = new ModelResourceLocation(Item.itemRegistry.getNameForObject(item), "inventory");
+        final ModelResourceLocation modelLoc = new ModelResourceLocation(Item.REGISTRY.getNameForObject(item), "inventory");
         register(modelLoc, renderer);
         ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
             @Override
@@ -62,7 +62,7 @@ public class ModelRegistryHelper {
      * Creates a dummy model at blockRegistry.getNameForObject(block)#particle for all states of the block overriding getParticleTexture
      */
     public static void setParticleTexture(Block block, final ResourceLocation tex) {
-        final ModelResourceLocation modelLoc = new ModelResourceLocation(Block.blockRegistry.getNameForObject(block), "particle");
+        final ModelResourceLocation modelLoc = new ModelResourceLocation(Block.REGISTRY.getNameForObject(block), "particle");
         register(modelLoc, new BuiltInModel(BlockRenderer.blockCameraTransform, ItemOverrideList.NONE) {
             @Override
             public TextureAtlasSprite getParticleTexture() {
