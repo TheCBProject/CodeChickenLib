@@ -35,7 +35,7 @@ minecraft {
     version = config.minecraft_version + "-" + config.forge_version
     mappings = config.mappings
     runDir = "run"
-	makeObfSourceJar = false
+    makeObfSourceJar = false
 }
 
 
@@ -83,14 +83,14 @@ artifacts {
     archives srcJar
 }
 
-// Configure an upload task. this is setup for uploading to files.minecraftforge.net. There are other examples around
+// Configure an upload task.
 uploadArchives {
     dependsOn 'build'
     repositories {
         logger.info('Publishing to files server')
 
         mavenDeployer {
-            repository(url: "file:///var/www/maven")
+            repository(System.getProperty("local_maven"))
             pom {
                 groupId = project.group
                 // Force the maven upload to use the <mcversion>-<version> syntax preferred at files
@@ -99,17 +99,17 @@ uploadArchives {
                     name project.archivesBaseName
                     packaging 'jar'
                     description 'CodeChickenLib'
-                    url 'https://github.com/covers1624/CodeChickenLib'
+                    url 'https://github.com/TheCBProject/CodeChickenLib'
 
                     scm {
-                        url 'https://github.com/covers1624/CodeChickenLib'
-                        connection 'scm:git:git://github.com/covers1624/CodeChickenLib.git'
-                        developerConnection 'scm:git:git@github.com:covers1624/CodeChickenLib.git'
+                        url 'https://github.com/TheCBProject/CodeChickenLib'
+                        connection 'scm:git:git://github.com/TheCBProject/CodeChickenLib.git'
+                        developerConnection 'scm:git:git@github.com:TheCBProject/CodeChickenLib.git'
                     }
 
                     issueManagement {
                         system 'github'
-                        url 'https://github.com/covers1624/CodeChickenLib/issues'
+                        url 'https://github.com/TheCBProject/CodeChickenLib/issues'
                     }
 
                     licenses {

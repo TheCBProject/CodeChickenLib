@@ -8,8 +8,6 @@ import codechicken.lib.render.uv.UVTranslation;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.vec.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.*;
@@ -40,7 +38,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     public final int vertexMode;
     public final int vp;
-    public VertexFormat vertexFormat;// Format that MUST be used to render the model.
     public Vertex5[] verts;
     public ArrayList<Object> attributes = new ArrayList<Object>();
 
@@ -89,18 +86,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
             attributes.set(attrib.attributeIndex, array = attrib.newArray(verts.length));
         }
         return array;
-    }
-
-    /**
-     * Calculates and stores the VertexFormat the model needs to render.
-     */
-    public void assignVertexFormat() {
-        if (vertexFormat == null) {
-            vertexFormat = DefaultVertexFormats.POSITION_TEX;
-            if (hasAttribute(CCRenderState.normalAttrib)) {
-                vertexFormat = DefaultVertexFormats.POSITION_TEX_NORMAL;
-            }
-        }
     }
 
     /**

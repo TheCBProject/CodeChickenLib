@@ -26,7 +26,7 @@ public class ExtendedMOP extends RayTraceResult implements Comparable<ExtendedMO
 
     public void setData(Object data) {
         if (data instanceof Integer) {
-            subHit = ((Integer) data).intValue();
+            subHit = (Integer) data;
         }
         hitInfo = data;
     }

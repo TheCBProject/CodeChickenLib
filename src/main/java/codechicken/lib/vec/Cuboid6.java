@@ -83,7 +83,6 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         max.add(vec);
         return this;
     }
-
     @Deprecated //TODO, This seems to have gone away...
     public void setBlockBounds(Block block) {
         //block.setBlockBounds((float) min.x, (float) min.y, (float) min.z, (float) max.x, (float) max.y, (float) max.z);

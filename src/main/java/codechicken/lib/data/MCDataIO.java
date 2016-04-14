@@ -60,7 +60,7 @@ public class MCDataIO {
         FluidStack fluid = null;
         String fluidName = in.readString();
 
-        if (FluidRegistry.isFluidRegistered(fluidName)) {
+        if (fluidName.length() > 0) {
             fluid = new FluidStack(FluidRegistry.getFluid(fluidName), in.readVarInt(), in.readNBTTagCompound());
         }
 
@@ -122,10 +122,10 @@ public class MCDataIO {
     }
 
     public static void writeFluidStack(MCDataOutput out, FluidStack fluid) {
-        if (fluid == null) {
-            out.writeShort(-1);
+        if (fluid == null || FluidRegistry.getFluidName(fluid) == null) {
+            out.writeString("");
         } else {
-            out.writeString(fluid.getFluid().getName());
+            out.writeString(FluidRegistry.getFluidName(fluid));
             out.writeVarInt(fluid.amount);
             out.writeNBTTagCompound(fluid.tag);
         }

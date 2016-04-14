@@ -26,6 +26,7 @@ import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerManager.PlayerInstance;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fluids.FluidStack;
@@ -115,7 +116,6 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         @Override
         public void handle(final INetHandler netHandler, final String channel, final PacketCustom packet) {
             if (netHandler instanceof NetHandlerPlayServer) {
-                //TODO Submit pr for this MinecraftServer.getServer();
                 MinecraftServer mc = FMLCommonHandler.instance().getMinecraftServerInstance();
                 if (!mc.isCallingFromMinecraftThread()) {
                     mc.addScheduledTask(new Runnable() {
@@ -353,6 +353,13 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         return this;
     }
 
+    public PacketCustom writeCoord(BlockPos pos) {
+        writeInt(pos.getX());
+        writeInt(pos.getY());
+        writeInt(pos.getZ());
+        return this;
+    }
+
     public PacketCustom writeCoord(BlockCoord coord) {
         writeInt(coord.x);
         writeInt(coord.y);
@@ -450,7 +457,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToClients(Packet packet) {
-        getServerInstance().getPlayerList().sendPacketToAllPlayers(packet);
+        FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendPacketToAllPlayers(packet);
     }
 
     public void sendPacketToAllAround(double x, double y, double z, double range, int dim) {
@@ -458,7 +465,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToAllAround(Packet packet, double x, double y, double z, double range, int dim) {
-        getServerInstance().getPlayerList().sendToAllNearExcept(null, x, y, z, range, dim, packet);
+        FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendToAllNearExcept(null, x, y, z, range, dim, packet);
     }
 
     public void sendToDimension(int dim) {
@@ -466,7 +473,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToDimension(Packet packet, int dim) {
-        getServerInstance().getPlayerList().sendPacketToAllPlayersInDimension(packet, dim);
+        FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendPacketToAllPlayersInDimension(packet, dim);
     }
 
     public void sendToChunk(World world, int chunkX, int chunkZ) {
@@ -485,8 +492,8 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToOps(Packet packet) {
-        for (EntityPlayerMP player : getServerInstance().getPlayerList().getPlayerList()) {
-            if (getServerInstance().getPlayerList().canSendCommands(player.getGameProfile())) {
+        for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerList()) {
+            if (FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().canSendCommands(player.getGameProfile())) {
                 sendToPlayer(packet, player);
             }
         }
@@ -500,9 +507,5 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     @SideOnly(Side.CLIENT)
     public static void sendToServer(Packet packet) {
         Minecraft.getMinecraft().getNetHandler().addToSendQueue(packet);
-    }
-
-    public static MinecraftServer getServerInstance() {
-        return FMLCommonHandler.instance().getMinecraftServerInstance();
     }
 }

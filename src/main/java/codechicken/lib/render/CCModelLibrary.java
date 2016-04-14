@@ -1,6 +1,7 @@
 package codechicken.lib.render;
 
-import codechicken.lib.vec.*;
+import codechicken.lib.vec.Quat;
+import codechicken.lib.vec.Vector3;
 
 import static codechicken.lib.math.MathHelper.phi;
 
@@ -75,9 +76,5 @@ public class CCModelLibrary {
         icosahedron4.verts[i * 3 + 1] = icosahedron7.verts[i * 4 + 1] = new Vertex5(vec2, u2, v2);
         icosahedron4.verts[i * 3 + 2] = icosahedron7.verts[i * 4 + 2] = icosahedron7.verts[i * 4 + 3] = new Vertex5(vec3, u3, v3);
         i++;
-    }
-
-    public static Matrix4 getRenderMatrix(Vector3 position, Rotation rotation, double scale) {
-        return new Matrix4().translate(position).apply(new Scale(scale)).apply(rotation);
     }
 }

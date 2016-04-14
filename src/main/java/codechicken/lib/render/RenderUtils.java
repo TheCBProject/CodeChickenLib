@@ -1,8 +1,6 @@
 package codechicken.lib.render;
 
-import codechicken.lib.vec.Cuboid6;
-import codechicken.lib.vec.Rectangle4i;
-import codechicken.lib.vec.Vector3;
+import codechicken.lib.vec.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -19,8 +17,7 @@ import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
 
 public class RenderUtils {
-
-    static Vector3[] vectors = new Vector3[8];
+    private static Vector3[] vectors = new Vector3[8];
     /*static RenderItem uniformRenderItem = new RenderItem()
     {
         public boolean shouldBob()
@@ -28,7 +25,7 @@ public class RenderUtils {
             return false;
         }
     };*/
-    static EntityItem entityItem;
+    private static EntityItem entityItem;
 
     static {
         for (int i = 0; i < vectors.length; i++) {
@@ -54,7 +51,7 @@ public class RenderUtils {
      * @param res  Units per icon
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, TextureAtlasSprite icon, double res) {
-        VertexBuffer r = Tessellator.getInstance().getBuffer();
+        CCDynamicModel r = CCRenderState.dynamicModel();
 
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
@@ -194,17 +191,14 @@ public class RenderUtils {
     }
 
     /**
+     * Sets the colour of the fluid and returns the texture
+     *
      * @param stack The fluid stack to render
      * @return The icon of the fluid
      */
     public static TextureAtlasSprite prepareFluidRender(FluidStack stack, int alpha) {
-        GlStateManager.disableLighting();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
         Fluid fluid = stack.getFluid();
-        CCRenderState.setColour(fluid.getColor(stack) << 8 | alpha);
-        CCRenderState.changeTexture(TextureMap.locationBlocksTexture);
+        CCRenderState.colour = fluid.getColor(stack) << 8 | alpha;
 
         String iconName = null;
         if (fluid == FluidRegistry.LAVA) {
@@ -213,6 +207,16 @@ public class RenderUtils {
             iconName = "minecraft:blocks/water_still";
         }
         return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(iconName);
+    }
+
+    /**
+     * Disables lighting, enables blending and changes to the blocks texture
+     */
+    public static void preFluidRender() {
+        GlStateManager.disableLighting();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        CCRenderState.changeTexture(TextureMap.locationBlocksTexture);
     }
 
     /**
@@ -229,6 +233,7 @@ public class RenderUtils {
 
     /**
      * Renders a fluid within a bounding box.
+     * Assumes that CCRenderstate is already drawing with appropriate gl state. For a separate draw call see renderFluidCuboidGL
      * If the fluid is a liquid it will render as a normal tank with height equal to density/bound.height.
      * If the fluid is a gas, it will render the full box with an alpha equal to density.
      * Warning, bound will be mutated if the fluid is a liquid
@@ -250,13 +255,25 @@ public class RenderUtils {
             bound.max.y = bound.min.y + (bound.max.y - bound.min.y) * density;
         }
 
-        TextureAtlasSprite tex = prepareFluidRender(stack, alpha);
-        CCRenderState.startDrawing();
-        renderFluidCuboid(bound, tex, res);
+        renderFluidCuboid(bound, prepareFluidRender(stack, alpha), res);
+    }
+
+    public static void renderFluidCuboidGL(FluidStack stack, Cuboid6 bound, double density, double res) {
+        if (!shouldRenderFluid(stack)) {
+            return;
+        }
+
+        preFluidRender();
+        CCRenderState.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
+        renderFluidCuboid(stack, bound, density, res);
+        CCRenderState.pushColour();
         CCRenderState.draw();
         postFluidRender();
     }
 
+    /**
+     * Assumes that CCRenderstate is already drawing with appropriate gl state. For a separate draw call see renderFluidGaugeGL
+     */
     public static void renderFluidGauge(FluidStack stack, Rectangle4i rect, double density, double res) {
         if (!shouldRenderFluid(stack)) {
             return;
@@ -271,14 +288,29 @@ public class RenderUtils {
             rect.h = height;
         }
 
-        TextureAtlasSprite tex = prepareFluidRender(stack, alpha);
-        CCRenderState.startDrawing();
-        renderFluidQuad(new Vector3(rect.x, rect.y + rect.h, 0), new Vector3(rect.w, 0, 0), new Vector3(0, -rect.h, 0), tex, res);
+        CCRenderState.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
+        renderFluidQuad(new Vector3(rect.x, rect.y + rect.h, 0), new Vector3(rect.w, 0, 0), new Vector3(0, -rect.h, 0), prepareFluidRender(stack, alpha), res);
         CCRenderState.draw();
         postFluidRender();
     }
 
-    /*
+    public static void renderFluidGaugeGL(FluidStack stack, Rectangle4i rect, double density, double res) {
+        if (!shouldRenderFluid(stack)) {
+            return;
+        }
+
+        preFluidRender();
+        CCRenderState.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
+        renderFluidGauge(stack, rect, density, res);
+        CCRenderState.pushColour();
+        CCRenderState.draw();
+    }
+
+    public static Matrix4 getMatrix(Vector3 position, Rotation rotation, double scale) {
+        return new Matrix4().translate(position).apply(new Scale(scale)).apply(rotation);
+    }
+
+    /**
      * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately
      */
     /*public static void renderItemUniform(ItemStack item) {

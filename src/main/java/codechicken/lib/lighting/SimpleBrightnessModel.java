@@ -7,7 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 /**
- * Faster precomputed version of LightModel that only works for axis planar sides
+ * Simple brightness model that only works for axis planar sides
  */
 public class SimpleBrightnessModel implements CCRenderState.IVertexOperation {
     public static final int operationIndex = CCRenderState.registerOperation();
@@ -29,8 +29,8 @@ public class SimpleBrightnessModel implements CCRenderState.IVertexOperation {
     public int sample(int side) {
         if ((sampled & 1 << side) == 0) {
             BlockPos bp = c.set(pos).offset(side).pos();
-            IBlockState blockState = access.getBlockState(bp);
-            samples[side] = access.getCombinedLight(bp, blockState.getBlock().getLightValue(blockState, access, bp));
+            IBlockState b = access.getBlockState(bp);
+            samples[side] = access.getCombinedLight(bp, b.getBlock().getLightValue(b, access, bp));
             sampled |= 1 << side;
         }
         return samples[side];
@@ -44,7 +44,7 @@ public class SimpleBrightnessModel implements CCRenderState.IVertexOperation {
 
     @Override
     public void operate() {
-        CCRenderState.setBrightness(sample(CCRenderState.side));
+        CCRenderState.brightness = sample(CCRenderState.side);
     }
 
     @Override

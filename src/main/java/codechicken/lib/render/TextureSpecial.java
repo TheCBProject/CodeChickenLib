@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.client.resources.data.AnimationMetadataSection;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -108,26 +109,15 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
         }
     }*/
     @Override
-    public void loadSprite(PngSizeInfo sizeInfo, boolean p_188538_2_) throws IOException {
+    public void loadSprite(PngSizeInfo sizeInfo, boolean animationMeta) {
         rawWidth = sizeInfo.pngWidth;
         rawHeight = sizeInfo.pngHeight;
         try {
-            super.loadSprite(sizeInfo, p_188538_2_);
+            super.loadSprite(sizeInfo, false);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-    /*@Override
-    public void loadSprite(BufferedImage[] images, AnimationMetadataSection animationMeta) {
-        rawWidth = images[0].getWidth();
-        rawHeight = images[0].getHeight();
-        try {
-            super.loadSprite(images, null);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }*/
 
     @Override
     public void generateMipmaps(int p_147963_1_) {
@@ -146,7 +136,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
         images[0] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         images[0].setRGB(0, 0, width, height, data, 0, width);
         //FIXME
-        //loadSprite(images, null);
+        //loadSprite(images, false);
     }
 
     @Override

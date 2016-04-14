@@ -8,16 +8,19 @@ import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 import java.util.ArrayList;
+
+import static net.minecraft.client.renderer.vertex.DefaultVertexFormats.*;
 
 /**
  * The core of the CodeChickenLib render system.
@@ -159,9 +162,9 @@ public class CCRenderState {
         @Override
         public void operate() {
             if (normalRef != null) {
-                setNormal(normalRef[vertexIndex]);
+                normal.set(normalRef[vertexIndex]);
             } else {
-                setNormal(Rotation.axes[side]);
+                normal.set(Rotation.axes[side]);
             }
         }
     };
@@ -182,9 +185,9 @@ public class CCRenderState {
         @Override
         public void operate() {
             if (colourRef != null) {
-                setColour(ColourRGBA.multiply(baseColour, colourRef[vertexIndex]));
+                colour = ColourRGBA.multiply(baseColour, colourRef[vertexIndex]);
             } else {
-                setColour(baseColour);
+                colour = baseColour;
             }
         }
     };
@@ -198,7 +201,7 @@ public class CCRenderState {
 
         @Override
         public boolean load() {
-            if (!computeLighting || !useColour || !model.hasAttribute(this)) {
+            if (!computeLighting || !fmt.hasColor() || !model.hasAttribute(this)) {
                 return false;
             }
 
@@ -212,7 +215,7 @@ public class CCRenderState {
 
         @Override
         public void operate() {
-            setColour(ColourRGBA.multiply(colour, colourRef[vertexIndex]));
+            colour = ColourRGBA.multiply(colour, colourRef[vertexIndex]);
         }
     };
     public static VertexAttribute<int[]> sideAttrib = new VertexAttribute<int[]>() {
@@ -285,33 +288,34 @@ public class CCRenderState {
     public static int lastVertexIndex;
     public static int vertexIndex;
     public static CCRenderPipeline pipeline = new CCRenderPipeline();
+    public static VertexBuffer r;
+    public static VertexFormat fmt;
 
     //context
     public static int baseColour;
     public static int alphaOverride;
-    public static boolean useNormals;
     public static boolean computeLighting;
-    public static boolean useColour;
     public static LightMatrix lightMatrix = new LightMatrix();
 
     //vertex outputs
-    public static Vertex5 vert = new Vertex5();
-    public static boolean hasNormal;
-    public static Vector3 normal = new Vector3();
-    public static boolean hasColour;
+    public static final Vertex5 vert = new Vertex5();
+    public static final Vector3 normal = new Vector3();
     public static int colour;
-    public static boolean hasBrightness;
     public static int brightness;
 
     //attrute storage
     public static int side;
     public static LC lc = new LC();
 
+    //vertex formats
+    public static VertexFormat POSITION_TEX_LMAP = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S);
+    public static VertexFormat POSITION_TEX_LMAP_NORMAL = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S).addElement(NORMAL_3B).addElement(PADDING_1B);
+    public static VertexFormat POSITION_TEX_LMAP_COLOR_NORMAL = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S).addElement(COLOR_4UB).addElement(NORMAL_3B).addElement(PADDING_1B);
+
     public static void reset() {
         model = null;
         pipeline.reset();
-        useNormals = hasNormal = hasBrightness = hasColour = false;
-        useColour = computeLighting = true;
+        computeLighting = true;
         baseColour = alphaOverride = -1;
     }
 
@@ -346,6 +350,12 @@ public class CCRenderState {
         lastVertexIndex = end;
     }
 
+    public static CCDynamicModel dynamicModel(VertexAttribute... attrs) {
+        CCDynamicModel m = new CCDynamicModel(attrs);
+        bindModel(m);
+        return m;
+    }
+
     public static void render(IVertexOperation... ops) {
         setPipeline(ops);
         render();
@@ -366,60 +376,47 @@ public class CCRenderState {
     }
 
     public static void writeVert() {
-        VertexBuffer vertexBuffer = Tessellator.getInstance().getBuffer();
-
-        vertexBuffer.pos(vert.vec.x, vert.vec.y, vert.vec.z);
-        vertexBuffer.tex(vert.uv.u, vert.uv.v);
-        if (hasNormal) {
-            vertexBuffer.normal((float) normal.x, (float) normal.y, (float) normal.z);
+        for (int e = 0; e < fmt.getElementCount(); e++) {
+            VertexFormatElement fmte = fmt.getElement(e);
+            switch (fmte.getUsage()) {
+            case POSITION:
+                r.pos(vert.vec.x, vert.vec.y, vert.vec.z);
+                break;
+            case UV:
+                if (fmte.getIndex() == 0) {
+                    r.tex(vert.uv.u, vert.uv.v);
+                } else {
+                    r.lightmap(brightness >> 16 & 65535, brightness & 65535);
+                }
+                break;
+            case COLOR:
+                r.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+                break;
+            case NORMAL:
+                r.normal((float) normal.x, (float) normal.y, (float) normal.z);
+                break;
+            case PADDING:
+                break;
+            default:
+                throw new UnsupportedOperationException("Generic vertex format element");
+            }
         }
-        if (hasColour) {
-            vertexBuffer.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
-        }
-        if (hasBrightness) {
-            vertexBuffer.lightmap(brightness >> 16 & 65535, brightness & 65535);
-        }
-        vertexBuffer.endVertex();
     }
 
-    public static void setNormal(double x, double y, double z) {
-        hasNormal = true;
-        normal.set(x, y, z);
-    }
-
-    public static void setNormal(Vector3 n) {
-        hasNormal = true;
-        normal.set(n);
-    }
-
-    public static void setColour(int c) {
-        hasColour = true;
-        colour = c;
-    }
-
-    public static void setBrightness(int b) {
-        hasBrightness = true;
-        brightness = b;
+    public static void pushColour() {
+        GlStateManager.color((colour >>> 24) / 255F, (colour >> 16 & 0xFF) / 255F, (colour >> 8 & 0xFF) / 255F, (alphaOverride >= 0 ? alphaOverride : colour & 0xFF) / 255F);
     }
 
     public static void setBrightness(IBlockAccess world, BlockPos pos) {
-        setBrightness(world.getBlockState(pos).getBlock().getPackedLightmapCoords(world.getBlockState(pos), world, pos));
+        brightness = world.getBlockState(pos).getBlock().getPackedLightmapCoords(world.getBlockState(pos), world, pos);
     }
 
     public static void pullLightmap() {
-        setBrightness((int) OpenGlHelper.lastBrightnessY << 16 | (int) OpenGlHelper.lastBrightnessX);
+        brightness = (int) OpenGlHelper.lastBrightnessY << 16 | (int) OpenGlHelper.lastBrightnessX;
     }
 
     public static void pushLightmap() {
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, brightness & 0xFFFF, brightness >>> 16);
-    }
-
-    /**
-     * Compact helper for setting dynamic rendering context. Uses normals and doesn't compute lighting
-     */
-    public static void setDynamic() {
-        useNormals = true;
-        computeLighting = false;
     }
 
     public static void changeTexture(String texture) {
@@ -430,24 +427,15 @@ public class CCRenderState {
         Minecraft.getMinecraft().renderEngine.bindTexture(texture);
     }
 
-    public static VertexBuffer startDrawing() {
-        return startDrawing(7, DefaultVertexFormats.POSITION_TEX);
-    }
-
-    public static VertexBuffer startDrawing(VertexFormat format) {
-        return startDrawing(7, format);
-    }
-
     public static VertexBuffer startDrawing(int mode, VertexFormat format) {
-        VertexBuffer vertexBuffer = Tessellator.getInstance().getBuffer();
-        vertexBuffer.begin(mode, format);
-        //if (hasColour) {
-        //    vertexBuffer.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
-        //}
-        //if (hasBrightness) {
-        //    vertexBuffer.lightmap(brightness >> 16 & 65535, brightness & 65535);
-        //}
-        return vertexBuffer;
+        VertexBuffer r = Tessellator.getInstance().getBuffer();
+        r.begin(mode, format);
+        return r;
+    }
+
+    public static void bind(VertexBuffer r) {
+        CCRenderState.r = r;
+        fmt = r.getVertexFormat();
     }
 
     public static void draw() {

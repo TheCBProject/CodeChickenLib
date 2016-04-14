@@ -157,7 +157,6 @@ public class WorldExtensionManager {
     private static void init() {
         initialised = true;
         MinecraftForge.EVENT_BUS.register(new WorldExtensionEventHandler());
-        //FMLCommonHandler.instance().bus().register(new WorldExtensionEventHandler());
     }
 
     private static HashMap<World, WorldExtension[]> worldMap = new HashMap<World, WorldExtension[]>();

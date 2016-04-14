@@ -65,7 +65,7 @@ public class InventorySimple implements IInventory {
 
     @Override
     public ItemStack removeStackFromSlot(int slot) {
-        return InventoryUtils.getStackInSlotOnClosing(this, slot);
+        return InventoryUtils.removeStackFromSlot(this, slot);
     }
 
     @Override
@@ -117,6 +117,9 @@ public class InventorySimple implements IInventory {
 
     @Override
     public void clear() {
+        for (int i = 0; i < items.length; i++) {
+            items[i] = null;
+        }
     }
 
     @Override

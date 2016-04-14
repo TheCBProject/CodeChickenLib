@@ -63,7 +63,7 @@ public class InventoryCopy implements IInventory {
 
     @Override
     public ItemStack removeStackFromSlot(int slot) {
-        return InventoryUtils.getStackInSlotOnClosing(this, slot);
+        return InventoryUtils.removeStackFromSlot(this, slot);
     }
 
     @Override

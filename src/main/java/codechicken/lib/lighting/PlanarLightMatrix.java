@@ -46,7 +46,7 @@ public class PlanarLightMatrix extends PlanarLightModel {
     @Override
     public void operate() {
         super.operate();
-        CCRenderState.setBrightness(brightness(CCRenderState.side));
+        CCRenderState.brightness = brightness(CCRenderState.side);
     }
 
     @Override

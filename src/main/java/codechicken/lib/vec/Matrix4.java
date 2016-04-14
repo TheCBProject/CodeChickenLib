@@ -4,14 +4,12 @@ import codechicken.lib.util.Copyable;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 
 public class Matrix4 extends Transformation implements Copyable<Matrix4> {

@@ -90,7 +90,7 @@ public class LightModel implements CCRenderState.IVertexOperation {
 
     @Override
     public void operate() {
-        CCRenderState.setColour(apply(CCRenderState.colour, CCRenderState.normal));
+        CCRenderState.colour = apply(CCRenderState.colour, CCRenderState.normal);
     }
 
     @Override

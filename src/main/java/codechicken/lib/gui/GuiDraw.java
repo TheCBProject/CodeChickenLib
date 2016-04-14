@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
 import org.lwjgl.input.Mouse;
 
 import java.awt.*;
@@ -90,7 +91,10 @@ public class GuiDraw {
     }
 
     public static int getStringWidth(String s) {
-        return fontRenderer.getStringWidth(s);
+        if (s == null || s.equals("")) {
+            return 0;
+        }
+        return fontRenderer.getStringWidth(TextFormatting.getTextWithoutFormattingCodes(s));
     }
 
     public static Dimension displaySize() {
