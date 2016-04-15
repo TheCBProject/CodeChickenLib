@@ -401,6 +401,7 @@ public class CCRenderState {
                 throw new UnsupportedOperationException("Generic vertex format element");
             }
         }
+        r.endVertex();
     }
 
     public static void pushColour() {
