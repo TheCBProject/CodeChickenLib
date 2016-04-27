@@ -51,8 +51,9 @@ public class RenderUtils {
      * @param res  Units per icon
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, TextureAtlasSprite icon, double res) {
-        CCDynamicModel r = CCRenderState.dynamicModel();
-
+        //CCDynamicModel r = CCRenderState.dynamicModel();
+        CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        VertexBuffer r = CCRenderState.pullBuffer();
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
         double v2 = icon.getMaxV();
@@ -90,6 +91,7 @@ public class RenderUtils {
 
             x += rx;
         }
+        CCRenderState.draw();
     }
 
     public static void translateToWorldCoords(Entity entity, float frame) {
@@ -146,6 +148,7 @@ public class RenderUtils {
         double[] points = new double[] { x - 0.009, x + 1.009, y - 0.009, y + 1.009, z - 0.009, z + 1.009 };
 
         VertexBuffer r = Tessellator.getInstance().getBuffer();
+        //TODO
         switch (side) {
         case 0:
             r.pos(points[0], points[2], points[4]).tex(tx1, ty1).endVertex();

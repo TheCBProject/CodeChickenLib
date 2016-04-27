@@ -439,6 +439,11 @@ public class CCRenderState {
         fmt = r.getVertexFormat();
     }
 
+    public static VertexBuffer pullBuffer() {
+        bind(Tessellator.getInstance().getBuffer());
+        return r;
+    }
+
     public static void draw() {
         Tessellator.getInstance().draw();
     }

@@ -11,6 +11,7 @@ import codechicken.lib.vec.Vector3;
  * A zero length model that implements IVertexSource.hasAttribute.
  * Use CCDynamicModel.endVertex instead of CCRenderSTate.render
  */
+@Deprecated//Broken.
 public class CCDynamicModel implements IVertexSource {
     public final VertexAttribute[] attributes;
 
