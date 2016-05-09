@@ -1,6 +1,7 @@
 package codechicken.lib.render;
 
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.item.ItemStack;
 
 /**
@@ -9,4 +10,6 @@ import net.minecraft.item.ItemStack;
  */
 public interface IItemRenderer extends IBakedModel {
     void renderItem(ItemStack item);
+
+    void setupItemRender(ItemCameraTransforms.TransformType transformType);
 }

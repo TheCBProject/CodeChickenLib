@@ -353,7 +353,7 @@ public class RenderUtils {
         
         if(larger)
             GLStateManager.scale(d1, d1, d1);
-    }/*
+    }*/
 
     /**
      * Checks if stencil buffer is supported and attempts to enable it if so.
