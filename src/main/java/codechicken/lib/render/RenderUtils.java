@@ -1,8 +1,10 @@
 package codechicken.lib.render;
 
+import codechicken.lib.raytracer.IndexedCuboid6;
 import codechicken.lib.vec.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -11,6 +13,9 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -51,8 +56,8 @@ public class RenderUtils {
      * @param res  Units per icon
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, TextureAtlasSprite icon, double res) {
-        //CCDynamicModel r = CCRenderState.dynamicModel();
-        CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        //CCDynamicModel r = CCRenderState.dynamicModel(CCRenderState.normalAttrib);
+        CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
         VertexBuffer r = CCRenderState.pullBuffer();
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
@@ -80,11 +85,21 @@ public class RenderUtils {
                 Vector3 dx2 = vectors[3].set(wide).multiply((x + rx) / wlen);
                 Vector3 dy1 = vectors[4].set(high).multiply(y / hlen);
                 Vector3 dy2 = vectors[5].set(high).multiply((y + ry) / hlen);
+                Vertex5[] vertexes = new Vertex5[4];
 
-                r.pos(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z).tex(u1, v2 - ry / res * dv).endVertex();
-                r.pos(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z).tex(u1, v2).endVertex();
-                r.pos(base.x + dx2.x + dy1.x, base.y + dx2.y + dy1.y, base.z + dx2.z + dy1.z).tex(u1 + rx / res * du, v2).endVertex();
-                r.pos(base.x + dx2.x + dy2.x, base.y + dx2.y + dy2.y, base.z + dx2.z + dy2.z).tex(u1 + rx / res * du, v2 - ry / res * dv).endVertex();
+                vertexes[0] = new Vertex5(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z, u1, v2 - ry / res * dv);
+                vertexes[1] = new Vertex5(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z, u1, v2);
+                vertexes[2] = new Vertex5(base.x + dx2.x + dy1.x, base.y + dx2.y + dy1.y, base.z + dx2.z + dy1.z, u1 + rx / res * du, v2);
+                vertexes[3] = new Vertex5(base.x + dx2.x + dy2.x, base.y + dx2.y + dy2.y, base.z + dx2.z + dy2.z, u1 + rx / res * du, v2 - ry / res * dv);
+                for (Vertex5 vertex : vertexes) {
+                    CCRenderState.vert.set(vertex);
+                    CCRenderState.writeVert();
+                }
+
+                //r.pos(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z).tex(u1, v2 - ry / res * dv).endVertex();
+                //r.pos(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z).tex(u1, v2).endVertex();
+                //r.pos(base.x + dx2.x + dy1.x, base.y + dx2.y + dy1.y, base.z + dx2.z + dy1.z).tex(u1 + rx / res * du, v2).endVertex();
+                //r.pos(base.x + dx2.x + dy2.x, base.y + dx2.y + dy2.y, base.z + dx2.z + dy2.z).tex(u1 + rx / res * du, v2 - ry / res * dv).endVertex();
 
                 y += ry;
             }
@@ -189,6 +204,38 @@ public class RenderUtils {
         }
     }
 
+    public static void renderHitBox(EntityPlayer player, IIndexedCuboidProvider provider, RayTraceResult result, float partialTicks) {
+        IndexedCuboid6 cuboid6 = null;
+        for (IndexedCuboid6 cuboid : provider.getIndexedCuboids()){
+            if (cuboid.data.equals(result.subHit)){
+                cuboid6 = cuboid;
+            }
+        }
+        if (cuboid6 == null){
+            return;
+        }
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.color(0.0F, 0.0F, 0.0F, 0.4F);
+        GlStateManager.glLineWidth(2.0F);
+        GlStateManager.disableTexture2D();
+        GlStateManager.depthMask(false);
+        double xPos = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) partialTicks;
+        double yPos = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) partialTicks;
+        double zPos = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) partialTicks;
+        RenderGlobal.drawSelectionBoundingBox(cuboid6.aabb().expandXyz(0.0020000000949949026D).offset(-xPos, -yPos, -zPos));
+        GlStateManager.depthMask(true);
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+
+    }
+
+    /**
+     * Checks to see if the FluidStack should be rendered.
+     *
+     * @param stack FluidStack to render.
+     * @return Weather to render or not.
+     */
     public static boolean shouldRenderFluid(FluidStack stack) {
         return stack.amount > 0 && stack.getFluid() != null;
     }

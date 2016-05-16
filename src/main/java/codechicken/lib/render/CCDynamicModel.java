@@ -9,7 +9,7 @@ import codechicken.lib.vec.Vector3;
 /**
  * Provides WorldRenderer style access to CCRenderState pipeline.
  * A zero length model that implements IVertexSource.hasAttribute.
- * Use CCDynamicModel.endVertex instead of CCRenderSTate.render
+ * Use CCDynamicModel.endVertex instead of CCRenderState.render
  */
 @Deprecated//Broken.
 public class CCDynamicModel implements IVertexSource {

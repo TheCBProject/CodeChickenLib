@@ -7,6 +7,7 @@ import codechicken.lib.util.Copyable;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -19,6 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static net.minecraft.client.renderer.vertex.DefaultVertexFormats.*;
 
@@ -68,6 +70,15 @@ public class CCRenderState {
 
     public static VertexAttribute<?> getAttribute(int index) {
         return vertexAttributes.get(index);
+    }
+
+    /**
+     * Gets all registered VertexAttributes.
+     *
+     * @return Returns an ImmutableList of registered VertexAttributes.
+     */
+    public static List<VertexAttribute<?>> getRegisteredVertexAttributes() {
+        return ImmutableList.copyOf(vertexAttributes);
     }
 
     /**
