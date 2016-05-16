@@ -18,6 +18,8 @@ import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -299,7 +301,9 @@ public class CCRenderState {
     public static int lastVertexIndex;
     public static int vertexIndex;
     public static CCRenderPipeline pipeline = new CCRenderPipeline();
+    @SideOnly(Side.CLIENT)
     public static VertexBuffer r;
+    @SideOnly(Side.CLIENT)
     public static VertexFormat fmt;
 
     //context
@@ -319,8 +323,11 @@ public class CCRenderState {
     public static LC lc = new LC();
 
     //vertex formats
+    @SideOnly(Side.CLIENT)
     public static VertexFormat POSITION_TEX_LMAP = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S);
+    @SideOnly(Side.CLIENT)
     public static VertexFormat POSITION_TEX_LMAP_NORMAL = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S).addElement(NORMAL_3B).addElement(PADDING_1B);
+    @SideOnly(Side.CLIENT)
     public static VertexFormat POSITION_TEX_LMAP_COLOR_NORMAL = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S).addElement(COLOR_4UB).addElement(NORMAL_3B).addElement(PADDING_1B);
 
     public static void reset() {
@@ -439,17 +446,20 @@ public class CCRenderState {
         Minecraft.getMinecraft().renderEngine.bindTexture(texture);
     }
 
+    @SideOnly(Side.CLIENT)
     public static VertexBuffer startDrawing(int mode, VertexFormat format) {
         VertexBuffer r = Tessellator.getInstance().getBuffer();
         r.begin(mode, format);
         return r;
     }
 
+    @SideOnly(Side.CLIENT)
     public static void bind(VertexBuffer r) {
         CCRenderState.r = r;
         fmt = r.getVertexFormat();
     }
 
+    @SideOnly(Side.CLIENT)
     public static VertexBuffer pullBuffer() {
         bind(Tessellator.getInstance().getBuffer());
         return r;
