@@ -323,12 +323,12 @@ public class CCRenderState {
     public static LC lc = new LC();
 
     //vertex formats
-    @SideOnly(Side.CLIENT)
-    public static VertexFormat POSITION_TEX_LMAP = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S);
-    @SideOnly(Side.CLIENT)
-    public static VertexFormat POSITION_TEX_LMAP_NORMAL = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S).addElement(NORMAL_3B).addElement(PADDING_1B);
-    @SideOnly(Side.CLIENT)
-    public static VertexFormat POSITION_TEX_LMAP_COLOR_NORMAL = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S).addElement(COLOR_4UB).addElement(NORMAL_3B).addElement(PADDING_1B);
+    //@SideOnly(Side.CLIENT)
+    //public static VertexFormat POSITION_TEX_LMAP = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S);
+    //@SideOnly(Side.CLIENT)
+    //public static VertexFormat POSITION_TEX_LMAP_NORMAL = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S).addElement(NORMAL_3B).addElement(PADDING_1B);
+    //@SideOnly(Side.CLIENT)
+    //public static VertexFormat POSITION_TEX_LMAP_COLOR_NORMAL = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S).addElement(COLOR_4UB).addElement(NORMAL_3B).addElement(PADDING_1B);
 
     public static void reset() {
         model = null;
