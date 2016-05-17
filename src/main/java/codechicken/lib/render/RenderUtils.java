@@ -15,7 +15,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
@@ -57,7 +56,7 @@ public class RenderUtils {
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, TextureAtlasSprite icon, double res) {
         //CCDynamicModel r = CCRenderState.dynamicModel(CCRenderState.normalAttrib);
-        CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
+        CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
         VertexBuffer r = CCRenderState.pullBuffer();
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
@@ -206,12 +205,12 @@ public class RenderUtils {
 
     public static void renderHitBox(EntityPlayer player, IIndexedCuboidProvider provider, RayTraceResult result, float partialTicks) {
         IndexedCuboid6 cuboid6 = null;
-        for (IndexedCuboid6 cuboid : provider.getIndexedCuboids()){
-            if (cuboid.data.equals(result.subHit)){
+        for (IndexedCuboid6 cuboid : provider.getIndexedCuboids()) {
+            if (cuboid.data.equals(result.subHit)) {
                 cuboid6 = cuboid;
             }
         }
-        if (cuboid6 == null){
+        if (cuboid6 == null) {
             return;
         }
         GlStateManager.enableBlend();
