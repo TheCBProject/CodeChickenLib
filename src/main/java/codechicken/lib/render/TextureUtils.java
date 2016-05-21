@@ -152,4 +152,29 @@ public class TextureUtils {
 
         return icon;
     }*/
+
+    public static TextureAtlasSprite getTexture(String location) {
+        return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location);
+    }
+
+    public static TextureAtlasSprite getTexture(ResourceLocation location) {
+        return getTexture(location.toString());
+    }
+
+    public static TextureAtlasSprite getBlockTexture(String string){
+        return getBlockTexture(new ResourceLocation(string));
+    }
+
+    public static TextureAtlasSprite getBlockTexture(ResourceLocation location){
+        return getTexture(new ResourceLocation(location.getResourceDomain(), "blocks/" + location.getResourcePath()));
+    }
+
+    public static TextureAtlasSprite getItemTexture(String string){
+        return getItemTexture(new ResourceLocation(string));
+    }
+
+    public static TextureAtlasSprite getItemTexture(ResourceLocation location){
+        return getTexture(new ResourceLocation(location.getResourceDomain(), "items/" + location.getResourcePath()));
+    }
+
 }

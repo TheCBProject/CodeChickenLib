@@ -13,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -374,31 +375,32 @@ public class RenderUtils {
      * @param spin The spin angle of the item around the y axis in degrees
      */
     public static void renderItemUniform(ItemStack item, double spin) {
-        /*IItemRenderer customRenderer = MinecraftForgeClient.getItemRenderer(item, ENTITY);
-        boolean is3D = customRenderer != null && customRenderer.shouldUseRenderHelper(ENTITY, item, BLOCK_3D);
+        loadItemRenderer();
+        //IItemRenderer customRenderer = MinecraftForgeClient.getItemRenderer(item, ENTITY);
+        //boolean is3D = customRenderer != null && customRenderer.shouldUseRenderHelper(ENTITY, item, BLOCK_3D);
 
-        boolean larger = false;
-        if (item.getItem() instanceof ItemBlock && RenderBlocks.renderItemIn3d(Block.getBlockFromItem(item.getItem()).getRenderType())) {
-            int renderType = Block.getBlockFromItem(item.getItem()).getRenderType();
-            larger = !(renderType == 1 || renderType == 19 || renderType == 12 || renderType == 2);
-        } else if (is3D) {
-            larger = true;
-        }
+        //boolean larger = false;
+        //if (item.getItem() instanceof ItemBlock && RenderBlocks.renderItemIn3d(Block.getBlockFromItem(item.getItem()).getRenderType())) {
+        //    int renderType = Block.getBlockFromItem(item.getItem()).getRenderType();
+        //    larger = !(renderType == 1 || renderType == 19 || renderType == 12 || renderType == 2);
+        //} else if (is3D) {
+        //    larger = true;
+        //}
 
-        double d = 2;
-        double d1 = 1 / d;
-        if (larger) {
-            GLStateManager.scale(d, d, d);
-        }
+        //double d = 2;
+        //double d1 = 1 / d;
+        //if (larger) {
+        //    GLStateManager.scale(d, d, d);
+        //}
 
-        GLStateManager.color(1, 1, 1, 1);
+        GlStateManager.color(1, 1, 1, 1);
 
         entityItem.setEntityItemStack(item);
-        uniformRenderItem.doRender(entityItem, 0, larger ? 0.09 : 0.06, 0, 0, (float) (spin * 9 / Math.PI));
+        uniformRenderItem.doRender(entityItem, 0, 0.06, 0, 0, (float) (spin * 9 / Math.PI));
 
-        if (larger) {
-            GLStateManager.scale(d1, d1, d1);
-        }*/
+        //if (larger) {
+        //    GLStateManager.scale(d1, d1, d1);
+        //}*/
     }
 
     /**
@@ -407,5 +409,17 @@ public class RenderUtils {
     public static boolean checkEnableStencil() {
         Framebuffer fb = Minecraft.getMinecraft().getFramebuffer();
         return fb.isStencilEnabled() || fb.enableStencil();
+    }
+
+    public static float getPearlBob(double time) {
+        return (float) Math.sin(time / 25 * 3.141593) * 0.1F;
+    }
+
+    public static int getTimeOffset(BlockPos pos) {
+        return getTimeOffset(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    public static int getTimeOffset(int x, int y, int z) {
+        return x * 3 + y * 5 + z * 9;
     }
 }
