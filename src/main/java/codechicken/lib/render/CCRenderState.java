@@ -24,8 +24,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.minecraft.client.renderer.vertex.DefaultVertexFormats.*;
-
 /**
  * The core of the CodeChickenLib render system.
  * Rendering operations are written to avoid object allocations by reusing static variables.

@@ -3,10 +3,8 @@ package codechicken.lib.render;
 import codechicken.lib.raytracer.IndexedCuboid6;
 import codechicken.lib.vec.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.entity.RenderEntityItem;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -14,6 +12,7 @@ import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -22,13 +21,9 @@ import org.lwjgl.opengl.GL11;
 
 public class RenderUtils {
     private static Vector3[] vectors = new Vector3[8];
-    /*static RenderItem uniformRenderItem = new RenderItem()
-    {
-        public boolean shouldBob()
-        {
-            return false;
-        }
-    };*/
+    private static RenderEntityItem uniformRenderItem;
+    private static boolean hasInitRenderItem;
+
     private static EntityItem entityItem;
 
     static {
@@ -40,6 +35,13 @@ public class RenderUtils {
 
         entityItem = new EntityItem(null);
         entityItem.hoverStart = 0;
+    }
+
+    private static void loadItemRenderer() {
+        if (!hasInitRenderItem) {
+            Minecraft minecraft = Minecraft.getMinecraft();
+            uniformRenderItem = new RenderEntityItem(minecraft.getRenderManager(), minecraft.getRenderItem());
+        }
     }
 
     public static void renderFluidQuad(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 point4, TextureAtlasSprite icon, double res) {
@@ -362,44 +364,42 @@ public class RenderUtils {
     /**
      * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately
      */
-    /*public static void renderItemUniform(ItemStack item) {
+    public static void renderItemUniform(ItemStack item) {
         renderItemUniform(item, 0);
-    }*/
+    }
 
     /*
      * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately
      *
      * @param spin The spin angle of the item around the y axis in degrees
      */
-    /*public static void renderItemUniform(ItemStack item, double spin)
-    {
-        IItemRenderer customRenderer = MinecraftForgeClient.getItemRenderer(item, ENTITY);
+    public static void renderItemUniform(ItemStack item, double spin) {
+        /*IItemRenderer customRenderer = MinecraftForgeClient.getItemRenderer(item, ENTITY);
         boolean is3D = customRenderer != null && customRenderer.shouldUseRenderHelper(ENTITY, item, BLOCK_3D);
 
         boolean larger = false;
-        if (item.getItem() instanceof ItemBlock && RenderBlocks.renderItemIn3d(Block.getBlockFromItem(item.getItem()).getRenderType()))
-        {
+        if (item.getItem() instanceof ItemBlock && RenderBlocks.renderItemIn3d(Block.getBlockFromItem(item.getItem()).getRenderType())) {
             int renderType = Block.getBlockFromItem(item.getItem()).getRenderType();
             larger = !(renderType == 1 || renderType == 19 || renderType == 12 || renderType == 2);
-        }
-        else if(is3D)
-        {
+        } else if (is3D) {
             larger = true;
         }
-        
+
         double d = 2;
-        double d1 = 1/d;
-        if(larger)
+        double d1 = 1 / d;
+        if (larger) {
             GLStateManager.scale(d, d, d);
+        }
 
         GLStateManager.color(1, 1, 1, 1);
-        
+
         entityItem.setEntityItemStack(item);
-        uniformRenderItem.doRender(entityItem, 0, larger ? 0.09 : 0.06, 0, 0, (float)(spin*9/Math.PI));
-        
-        if(larger)
+        uniformRenderItem.doRender(entityItem, 0, larger ? 0.09 : 0.06, 0, 0, (float) (spin * 9 / Math.PI));
+
+        if (larger) {
             GLStateManager.scale(d1, d1, d1);
-    }*/
+        }*/
+    }
 
     /**
      * Checks if stencil buffer is supported and attempts to enable it if so.
