@@ -3,7 +3,10 @@ package codechicken.lib.render;
 import codechicken.lib.raytracer.IndexedCuboid6;
 import codechicken.lib.vec.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.entity.RenderEntityItem;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -42,6 +45,7 @@ public class RenderUtils {
         if (!hasInitRenderItem) {
             Minecraft minecraft = Minecraft.getMinecraft();
             uniformRenderItem = new RenderEntityItem(minecraft.getRenderManager(), minecraft.getRenderItem());
+            hasInitRenderItem = true;
         }
     }
 
@@ -58,8 +62,8 @@ public class RenderUtils {
      * @param res  Units per icon
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, TextureAtlasSprite icon, double res) {
-        //CCDynamicModel r = CCRenderState.dynamicModel(CCRenderState.normalAttrib);
-        CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+        //CCDynamicModel r = CCRenderState.dynamicModel();
+        //CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
         VertexBuffer r = CCRenderState.pullBuffer();
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
@@ -87,28 +91,28 @@ public class RenderUtils {
                 Vector3 dx2 = vectors[3].set(wide).multiply((x + rx) / wlen);
                 Vector3 dy1 = vectors[4].set(high).multiply(y / hlen);
                 Vector3 dy2 = vectors[5].set(high).multiply((y + ry) / hlen);
-                Vertex5[] vertexes = new Vertex5[4];
+                //Vertex5[] vertexes = new Vertex5[4];
 
-                vertexes[0] = new Vertex5(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z, u1, v2 - ry / res * dv);
-                vertexes[1] = new Vertex5(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z, u1, v2);
-                vertexes[2] = new Vertex5(base.x + dx2.x + dy1.x, base.y + dx2.y + dy1.y, base.z + dx2.z + dy1.z, u1 + rx / res * du, v2);
-                vertexes[3] = new Vertex5(base.x + dx2.x + dy2.x, base.y + dx2.y + dy2.y, base.z + dx2.z + dy2.z, u1 + rx / res * du, v2 - ry / res * dv);
-                for (Vertex5 vertex : vertexes) {
-                    CCRenderState.vert.set(vertex);
-                    CCRenderState.writeVert();
-                }
+                //vertexes[0] = new Vertex5(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z, u1, v2 - ry / res * dv);
+                //vertexes[1] = new Vertex5(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z, u1, v2);
+                //vertexes[2] = new Vertex5(base.x + dx2.x + dy1.x, base.y + dx2.y + dy1.y, base.z + dx2.z + dy1.z, u1 + rx / res * du, v2);
+                //vertexes[3] = new Vertex5(base.x + dx2.x + dy2.x, base.y + dx2.y + dy2.y, base.z + dx2.z + dy2.z, u1 + rx / res * du, v2 - ry / res * dv);
+                //for (Vertex5 vertex : vertexes) {
+                //    CCRenderState.vert.set(vertex);
+                //    CCRenderState.writeVert();
+                //}
 
-                //r.pos(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z).tex(u1, v2 - ry / res * dv).endVertex();
-                //r.pos(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z).tex(u1, v2).endVertex();
-                //r.pos(base.x + dx2.x + dy1.x, base.y + dx2.y + dy1.y, base.z + dx2.z + dy1.z).tex(u1 + rx / res * du, v2).endVertex();
-                //r.pos(base.x + dx2.x + dy2.x, base.y + dx2.y + dy2.y, base.z + dx2.z + dy2.z).tex(u1 + rx / res * du, v2 - ry / res * dv).endVertex();
+                r.pos(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z).tex(u1, v2 - ry / res * dv).endVertex();
+                r.pos(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z).tex(u1, v2).endVertex();
+                r.pos(base.x + dx2.x + dy1.x, base.y + dx2.y + dy1.y, base.z + dx2.z + dy1.z).tex(u1 + rx / res * du, v2).endVertex();
+                r.pos(base.x + dx2.x + dy2.x, base.y + dx2.y + dy2.y, base.z + dx2.z + dy2.z).tex(u1 + rx / res * du, v2 - ry / res * dv).endVertex();
 
                 y += ry;
             }
 
             x += rx;
         }
-        CCRenderState.draw();
+        //CCRenderState.draw();
     }
 
     public static void translateToWorldCoords(Entity entity, float frame) {

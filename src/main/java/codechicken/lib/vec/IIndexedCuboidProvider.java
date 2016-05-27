@@ -6,6 +6,7 @@ import java.util.List;
 
 /**
  * Created by covers1624 on 4/13/2016.
+ * TODO Polish.
  */
 public interface IIndexedCuboidProvider {
 

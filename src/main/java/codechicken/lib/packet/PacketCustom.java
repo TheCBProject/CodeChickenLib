@@ -346,6 +346,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         return this;
     }
 
+    @Deprecated
     public PacketCustom writeCoord(int x, int y, int z) {
         writeInt(x);
         writeInt(y);
@@ -358,6 +359,11 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         writeInt(pos.getY());
         writeInt(pos.getZ());
         return this;
+    }
+
+    @Override
+    public PacketCustom writeBlockPos(BlockPos pos) {
+        return writeCoord(pos);
     }
 
     public PacketCustom writeCoord(BlockCoord coord) {
@@ -400,8 +406,18 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         return readVarIntFromBuffer();
     }
 
+    //TODO BlockPos method. /  override parent methods.
     public BlockCoord readCoord() {
         return new BlockCoord(readInt(), readInt(), readInt());
+    }
+
+    public BlockPos readPos() {
+        return new BlockPos(readInt(), readInt(), readInt());
+    }
+
+    @Override
+    public BlockPos readBlockPos() {
+        return readPos();
     }
 
     public byte[] readArray(int length) {

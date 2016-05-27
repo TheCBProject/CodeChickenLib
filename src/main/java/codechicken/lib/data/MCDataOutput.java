@@ -30,6 +30,7 @@ public interface MCDataOutput {
 
     MCDataOutput writeString(String s);
 
+    @Deprecated
     MCDataOutput writeCoord(int x, int y, int z);
 
     MCDataOutput writeCoord(BlockCoord coord);

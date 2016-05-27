@@ -8,7 +8,6 @@ import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -436,12 +435,14 @@ public class CCRenderState {
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, brightness & 0xFFFF, brightness >>> 16);
     }
 
+    @Deprecated//Use TextureUtils.changeTexture
     public static void changeTexture(String texture) {
-        changeTexture(new ResourceLocation(texture));
+        TextureUtils.changeTexture(texture);
     }
 
+    @Deprecated//Use TextureUtils.changeTexture
     public static void changeTexture(ResourceLocation texture) {
-        Minecraft.getMinecraft().renderEngine.bindTexture(texture);
+        TextureUtils.changeTexture(texture);
     }
 
     @SideOnly(Side.CLIENT)

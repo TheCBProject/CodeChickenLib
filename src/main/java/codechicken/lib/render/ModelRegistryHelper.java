@@ -62,7 +62,7 @@ public class ModelRegistryHelper {
      * Creates a dummy model at blockRegistry.getNameForObject(block)#particle for all states of the block overriding getParticleTexture
      */
     public static void setParticleTexture(Block block, final ResourceLocation tex) {
-        final ModelResourceLocation modelLoc = new ModelResourceLocation(Block.blockRegistry.getNameForObject(block), "particle");
+        final ModelResourceLocation modelLoc = new ModelResourceLocation(block.getRegistryName(), "particle");
         register(modelLoc, new BuiltInModel(BlockRenderer.blockCameraTransform, ItemOverrideList.NONE) {
             @Override
             public TextureAtlasSprite getParticleTexture() {

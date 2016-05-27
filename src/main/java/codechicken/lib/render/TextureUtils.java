@@ -5,6 +5,7 @@ import codechicken.lib.colour.ColourARGB;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -153,6 +154,10 @@ public class TextureUtils {
         return icon;
     }*/
 
+    public static TextureManager getTextureManager() {
+        return Minecraft.getMinecraft().renderEngine;
+    }
+
     public static TextureAtlasSprite getTexture(String location) {
         return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location);
     }
@@ -161,20 +166,56 @@ public class TextureUtils {
         return getTexture(location.toString());
     }
 
-    public static TextureAtlasSprite getBlockTexture(String string){
+    public static TextureAtlasSprite getBlockTexture(String string) {
         return getBlockTexture(new ResourceLocation(string));
     }
 
-    public static TextureAtlasSprite getBlockTexture(ResourceLocation location){
+    public static TextureAtlasSprite getBlockTexture(ResourceLocation location) {
         return getTexture(new ResourceLocation(location.getResourceDomain(), "blocks/" + location.getResourcePath()));
     }
 
-    public static TextureAtlasSprite getItemTexture(String string){
+    public static TextureAtlasSprite getItemTexture(String string) {
         return getItemTexture(new ResourceLocation(string));
     }
 
-    public static TextureAtlasSprite getItemTexture(ResourceLocation location){
+    public static TextureAtlasSprite getItemTexture(ResourceLocation location) {
         return getTexture(new ResourceLocation(location.getResourceDomain(), "items/" + location.getResourcePath()));
+    }
+
+    public static void changeTexture(String texture) {
+        changeTexture(new ResourceLocation(texture));
+    }
+
+    public static void changeTexture(ResourceLocation texture) {
+        getTextureManager().bindTexture(texture);
+    }
+
+    public static void disableMipmap(String texture) {
+        disableMipmap(new ResourceLocation(texture));
+    }
+
+    public static void disableMipmap(ResourceLocation texture) {
+        getTextureManager().getTexture(texture).setBlurMipmap(false, false);
+    }
+
+    public static void restoreLastMipmap(String texture) {
+        restoreLastMipmap(new ResourceLocation(texture));
+    }
+
+    public static void restoreLastMipmap(ResourceLocation location) {
+        getTextureManager().getTexture(location).restoreLastBlurMipmap();
+    }
+
+    public static void bindBlockTexture() {
+        changeTexture(TextureMap.locationBlocksTexture);
+    }
+
+    public static void dissableBlockMipmap() {
+        disableMipmap(TextureMap.locationBlocksTexture);
+    }
+
+    public static void restoreBlockMipmap() {
+        restoreLastMipmap(TextureMap.locationBlocksTexture);
     }
 
 }

@@ -5,13 +5,14 @@ import codechicken.lib.render.CCRenderState.IVertexSource;
 import codechicken.lib.render.CCRenderState.VertexAttribute;
 import codechicken.lib.render.uv.UV;
 import codechicken.lib.vec.Vector3;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 
 /**
  * Provides WorldRenderer style access to CCRenderState pipeline.
  * A zero length model that implements IVertexSource.hasAttribute.
  * Use CCDynamicModel.endVertex instead of CCRenderState.render
  */
-@Deprecated//Broken.
+//Broken.
 public class CCDynamicModel implements IVertexSource {
     public final VertexAttribute[] attributes;
 
