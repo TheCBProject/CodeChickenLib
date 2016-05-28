@@ -5,7 +5,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.vec.BlockCoord;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 /**
@@ -66,8 +66,8 @@ public class LightMatrix implements CCRenderState.IVertexOperation {
         if ((sampled & 1 << i) == 0) {
             BlockPos bp = new BlockPos(pos.x + (i % 3) - 1, pos.y + (i / 9) - 1, pos.z + (i / 3 % 3) - 1);
             IBlockState b = access.getBlockState(bp);
-            bSamples[i] = access.getCombinedLight(bp, b.getBlock().getLightValue(access, bp));
-            aSamples[i] = b.getBlock().getAmbientOcclusionLightValue();
+            bSamples[i] = access.getCombinedLight(bp, b.getLightValue(access, bp));
+            aSamples[i] = b.getBlock().getAmbientOcclusionLightValue(b);
             sampled |= 1 << i;
         }
     }
@@ -140,8 +140,8 @@ public class LightMatrix implements CCRenderState.IVertexOperation {
         float[] a = ao(lc.side);
         float f = (a[0] * lc.fa + a[1] * lc.fb + a[2] * lc.fc + a[3] * lc.fd);
         int[] b = brightness(lc.side);
-        CCRenderState.setColour(ColourRGBA.multiplyC(CCRenderState.colour, f));
-        CCRenderState.setBrightness((int) (b[0] * lc.fa + b[1] * lc.fb + b[2] * lc.fc + b[3] * lc.fd) & 0xFF00FF);
+        CCRenderState.colour = ColourRGBA.multiplyC(CCRenderState.colour, f);
+        CCRenderState.brightness = (int) (b[0] * lc.fa + b[1] * lc.fb + b[2] * lc.fc + b[3] * lc.fd) & 0xFF00FF;
     }
 
     @Override

@@ -29,7 +29,7 @@ public class ColourMultiplier implements CCRenderState.IVertexOperation {
 
     @Override
     public void operate() {
-        CCRenderState.setColour(ColourRGBA.multiply(CCRenderState.colour, colour));
+        CCRenderState.colour = ColourRGBA.multiply(CCRenderState.colour, colour);
     }
 
     @Override

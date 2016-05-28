@@ -22,37 +22,37 @@ public class WorldExtensionManager {
     public static class WorldExtensionEventHandler {
         @SubscribeEvent
         public void onChunkDataLoad(ChunkDataEvent.Load event) {
-            if (!worldMap.containsKey(event.world)) {
-                WorldExtensionManager.onWorldLoad(event.world);
+            if (!worldMap.containsKey(event.getWorld())) {
+                WorldExtensionManager.onWorldLoad(event.getWorld());
             }
 
-            createChunkExtension(event.world, event.getChunk());
+            createChunkExtension(event.getWorld(), event.getChunk());
 
-            for (WorldExtension extension : worldMap.get(event.world)) {
+            for (WorldExtension extension : worldMap.get(event.getWorld())) {
                 extension.loadChunkData(event.getChunk(), event.getData());
             }
         }
 
         @SubscribeEvent
         public void onChunkDataSave(ChunkDataEvent.Save event) {
-            for (WorldExtension extension : worldMap.get(event.world)) {
+            for (WorldExtension extension : worldMap.get(event.getWorld())) {
                 extension.saveChunkData(event.getChunk(), event.getData());
             }
 
             if (!event.getChunk().isChunkLoaded) {
-                removeChunk(event.world, event.getChunk());
+                removeChunk(event.getWorld(), event.getChunk());
             }
         }
 
         @SubscribeEvent
         public void onChunkLoad(ChunkEvent.Load event) {
-            if (!worldMap.containsKey(event.world)) {
-                WorldExtensionManager.onWorldLoad(event.world);
+            if (!worldMap.containsKey(event.getWorld())) {
+                WorldExtensionManager.onWorldLoad(event.getWorld());
             }
 
-            createChunkExtension(event.world, event.getChunk());
+            createChunkExtension(event.getWorld(), event.getChunk());
 
-            for (WorldExtension extension : worldMap.get(event.world)) {
+            for (WorldExtension extension : worldMap.get(event.getWorld())) {
                 extension.loadChunk(event.getChunk());
             }
         }
@@ -63,19 +63,19 @@ public class WorldExtensionManager {
                 return;
             }
 
-            for (WorldExtension extension : worldMap.get(event.world)) {
+            for (WorldExtension extension : worldMap.get(event.getWorld())) {
                 extension.unloadChunk(event.getChunk());
             }
 
-            if (event.world.isRemote) {
-                removeChunk(event.world, event.getChunk());
+            if (event.getWorld().isRemote) {
+                removeChunk(event.getWorld(), event.getChunk());
             }
         }
 
         @SubscribeEvent
         public void onWorldSave(WorldEvent.Save event) {
-            if (worldMap.containsKey(event.world)) {
-                for (WorldExtension extension : worldMap.get(event.world)) {
+            if (worldMap.containsKey(event.getWorld())) {
+                for (WorldExtension extension : worldMap.get(event.getWorld())) {
                     extension.save();
                 }
             }
@@ -83,16 +83,16 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onWorldLoad(WorldEvent.Load event) {
-            if (!worldMap.containsKey(event.world)) {
-                WorldExtensionManager.onWorldLoad(event.world);
+            if (!worldMap.containsKey(event.getWorld())) {
+                WorldExtensionManager.onWorldLoad(event.getWorld());
             }
         }
 
         @SubscribeEvent
         public void onWorldUnLoad(WorldEvent.Unload event) {
-            if (worldMap.containsKey(event.world))//because force closing unloads a world twice
+            if (worldMap.containsKey(event.getWorld()))//because force closing unloads a world twice
             {
-                for (WorldExtension extension : worldMap.remove(event.world)) {
+                for (WorldExtension extension : worldMap.remove(event.getWorld())) {
                     extension.unload();
                 }
             }
@@ -100,18 +100,18 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkWatch(Watch event) {
-            Chunk chunk = event.player.worldObj.getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
-            for (WorldExtension extension : worldMap.get(event.player.worldObj)) {
-                extension.watchChunk(chunk, event.player);
+            Chunk chunk = event.getPlayer().worldObj.getChunkFromChunkCoords(event.getChunk().chunkXPos, event.getChunk().chunkZPos);
+            for (WorldExtension extension : worldMap.get(event.getPlayer().worldObj)) {
+                extension.watchChunk(chunk, event.getPlayer());
             }
         }
 
         @SubscribeEvent
         @SideOnly(Side.CLIENT)
         public void onChunkUnWatch(UnWatch event) {
-            Chunk chunk = event.player.worldObj.getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
-            for (WorldExtension extension : worldMap.get(event.player.worldObj)) {
-                extension.unwatchChunk(chunk, event.player);
+            Chunk chunk = event.getPlayer().worldObj.getChunkFromChunkCoords(event.getChunk().chunkXPos, event.getChunk().chunkZPos);
+            for (WorldExtension extension : worldMap.get(event.getPlayer().worldObj)) {
+                extension.unwatchChunk(chunk, event.getPlayer());
             }
         }
 
@@ -157,7 +157,6 @@ public class WorldExtensionManager {
     private static void init() {
         initialised = true;
         MinecraftForge.EVENT_BUS.register(new WorldExtensionEventHandler());
-        //FMLCommonHandler.instance().bus().register(new WorldExtensionEventHandler());
     }
 
     private static HashMap<World, WorldExtension[]> worldMap = new HashMap<World, WorldExtension[]>();

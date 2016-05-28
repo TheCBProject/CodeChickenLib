@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
 import org.lwjgl.input.Mouse;
 
 import java.awt.*;
@@ -90,7 +91,10 @@ public class GuiDraw {
     }
 
     public static int getStringWidth(String s) {
-        return fontRenderer.getStringWidth(s);
+        if (s == null || s.equals("")) {
+            return 0;
+        }
+        return fontRenderer.getStringWidth(TextFormatting.getTextWithoutFormattingCodes(s));
     }
 
     public static Dimension displaySize() {
@@ -136,10 +140,10 @@ public class GuiDraw {
     public static final String TOOLTIP_HANDLER = "\u00A7x";
     private static List<ITooltipLineHandler> tipLineHandlers = new ArrayList<ITooltipLineHandler>();
 
-    public static interface ITooltipLineHandler {
-        public Dimension getSize();
+    public interface ITooltipLineHandler {
+        Dimension getSize();
 
-        public void draw(int x, int y);
+        void draw(int x, int y);
     }
 
     public static int getTipLineId(ITooltipLineHandler handler) {

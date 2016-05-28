@@ -154,8 +154,9 @@ public class BlockRenderer {
         }
     }
 
-    public static ItemTransformVec3f thirdPersonTransform = new ItemTransformVec3f(new Vector3f(10, -45, 170), new Vector3f(0, 1.5F / 16F, -2.75F / 16F), new Vector3f(0.375F, 0.375F, 0.375F));
-    public static ItemCameraTransforms blockCameraTransform = new ItemCameraTransforms(thirdPersonTransform, ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT);
+    //TODO
+    public static ItemTransformVec3f thirdPersonRightTransform = new ItemTransformVec3f(new Vector3f(10, -45, 170), new Vector3f(0, 1.5F / 16F, -2.75F / 16F), new Vector3f(0.375F, 0.375F, 0.375F));
+    public static ItemCameraTransforms blockCameraTransform = new ItemCameraTransforms(ItemTransformVec3f.DEFAULT, thirdPersonRightTransform, ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT, ItemTransformVec3f.DEFAULT);
 
     public static FullBlock fullBlock = new FullBlock();
 

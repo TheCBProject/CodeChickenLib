@@ -38,8 +38,8 @@ public class ASMHelper {
         }
     }
 
-    public static interface Acceptor {
-        public void accept(ClassVisitor cv) throws IOException;
+    public interface Acceptor {
+        void accept(ClassVisitor cv) throws IOException;
     }
 
     public static MethodNode findMethod(ObfMapping methodmap, ClassNode cnode) {

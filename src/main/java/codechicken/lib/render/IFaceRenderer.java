@@ -1,5 +1,6 @@
 package codechicken.lib.render;
 
+@Deprecated//Unknown and unused.
 public interface IFaceRenderer {
-    public void renderFace(Vertex5[] face, int side);
+    void renderFace(Vertex5[] face, int side);
 }

@@ -14,10 +14,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Plane;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class InventoryUtils {
@@ -65,7 +65,7 @@ public class InventoryUtils {
     /**
      * Static default implementation for IInventory method
      */
-    public static ItemStack getStackInSlotOnClosing(IInventory inv, int slot) {
+    public static ItemStack removeStackFromSlot(IInventory inv, int slot) {
         ItemStack stack = inv.getStackInSlot(slot);
         inv.setInventorySlotContents(slot, null);
         return stack;
@@ -316,13 +316,13 @@ public class InventoryUtils {
     }
 
     /**
-     * Drops all items from inv using getStackInSlotOnClosing
+     * Drops all items from inv using removeStackFromSlot
      */
     public static void dropOnClose(EntityPlayer player, IInventory inv) {
         for (int i = 0; i < inv.getSizeInventory(); i++) {
             ItemStack stack = inv.removeStackFromSlot(i);
             if (stack != null) {
-                player.dropPlayerItemWithRandomChoice(stack, false);
+                player.dropItem(stack, false);
             }
         }
     }
@@ -336,7 +336,7 @@ public class InventoryUtils {
 
     public static ItemStack loadPersistant(NBTTagCompound tag) {
         String name = tag.getString("name");
-        Item item = (Item) Item.itemRegistry.getObject(new ResourceLocation(name));
+        Item item = Item.itemRegistry.getObject(new ResourceLocation(name));
         if (item == null) {
             return null;
         }

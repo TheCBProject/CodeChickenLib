@@ -3,7 +3,7 @@ package codechicken.lib.lighting;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.vec.BlockCoord;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 public class PlanarLightMatrix extends PlanarLightModel {
@@ -31,7 +31,7 @@ public class PlanarLightMatrix extends PlanarLightModel {
         if ((sampled & 1 << side) == 0) {
             BlockPos bp = pos.pos();
             IBlockState b = access.getBlockState(bp);
-            brightness[side] = access.getCombinedLight(bp, b.getBlock().getLightValue(access, bp));
+            brightness[side] = access.getCombinedLight(bp, b.getBlock().getLightValue(b, access, bp));
             sampled |= 1 << side;
         }
         return brightness[side];
@@ -46,7 +46,7 @@ public class PlanarLightMatrix extends PlanarLightModel {
     @Override
     public void operate() {
         super.operate();
-        CCRenderState.setBrightness(brightness(CCRenderState.side));
+        CCRenderState.brightness = brightness(CCRenderState.side);
     }
 
     @Override

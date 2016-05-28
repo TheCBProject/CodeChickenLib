@@ -7,7 +7,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-
+//TODO Constructor for BlockPos.
 public class Translation extends Transformation {
     public Vector3 vec;
 

@@ -4,9 +4,9 @@ import java.io.PrintWriter;
 
 public class ConfigTag extends ConfigTagParent {
     public interface IConfigType<T> {
-        public String configValue(T entry);
+        String configValue(T entry);
 
-        public T valueOf(String text) throws Exception;
+        T valueOf(String text) throws Exception;
     }
 
     public ConfigTag(ConfigTagParent parent, String name) {

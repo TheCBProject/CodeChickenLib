@@ -5,6 +5,7 @@ import codechicken.lib.colour.ColourARGB;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -20,8 +21,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 public class TextureUtils {
-    public static interface IIconRegister {
-        public void registerIcons(TextureMap textureMap);
+    public interface IIconRegister {
+        void registerIcons(TextureMap textureMap);
     }
 
     static {
@@ -37,7 +38,7 @@ public class TextureUtils {
     @SubscribeEvent
     public void textureLoad(TextureStitchEvent.Pre event) {
         for (IIconRegister reg : iconRegisters) {
-            reg.registerIcons(event.map);
+            reg.registerIcons(event.getMap());
         }
     }
 
@@ -109,8 +110,8 @@ public class TextureUtils {
     }
 
     public static void prepareTexture(int target, int texture, int min_mag_filter, int wrap) {
-        GL11.glTexParameteri(target, GL11.GL_TEXTURE_MIN_FILTER, min_mag_filter);
-        GL11.glTexParameteri(target, GL11.GL_TEXTURE_MAG_FILTER, min_mag_filter);
+        GlStateManager.glTexParameteri(target, GL11.GL_TEXTURE_MIN_FILTER, min_mag_filter);
+        GlStateManager.glTexParameteri(target, GL11.GL_TEXTURE_MAG_FILTER, min_mag_filter);
         if (target == GL11.GL_TEXTURE_2D) {
             GlStateManager.bindTexture(target);
         } else {
@@ -119,11 +120,11 @@ public class TextureUtils {
 
         switch (target) {
         case GL12.GL_TEXTURE_3D:
-            GL11.glTexParameteri(target, GL12.GL_TEXTURE_WRAP_R, wrap);
+            GlStateManager.glTexParameteri(target, GL12.GL_TEXTURE_WRAP_R, wrap);
         case GL11.GL_TEXTURE_2D:
-            GL11.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_T, wrap);
+            GlStateManager.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_T, wrap);
         case GL11.GL_TEXTURE_1D:
-            GL11.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_S, wrap);
+            GlStateManager.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_S, wrap);
         }
     }
 
@@ -152,4 +153,69 @@ public class TextureUtils {
 
         return icon;
     }*/
+
+    public static TextureManager getTextureManager() {
+        return Minecraft.getMinecraft().renderEngine;
+    }
+
+    public static TextureAtlasSprite getTexture(String location) {
+        return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location);
+    }
+
+    public static TextureAtlasSprite getTexture(ResourceLocation location) {
+        return getTexture(location.toString());
+    }
+
+    public static TextureAtlasSprite getBlockTexture(String string) {
+        return getBlockTexture(new ResourceLocation(string));
+    }
+
+    public static TextureAtlasSprite getBlockTexture(ResourceLocation location) {
+        return getTexture(new ResourceLocation(location.getResourceDomain(), "blocks/" + location.getResourcePath()));
+    }
+
+    public static TextureAtlasSprite getItemTexture(String string) {
+        return getItemTexture(new ResourceLocation(string));
+    }
+
+    public static TextureAtlasSprite getItemTexture(ResourceLocation location) {
+        return getTexture(new ResourceLocation(location.getResourceDomain(), "items/" + location.getResourcePath()));
+    }
+
+    public static void changeTexture(String texture) {
+        changeTexture(new ResourceLocation(texture));
+    }
+
+    public static void changeTexture(ResourceLocation texture) {
+        getTextureManager().bindTexture(texture);
+    }
+
+    public static void disableMipmap(String texture) {
+        disableMipmap(new ResourceLocation(texture));
+    }
+
+    public static void disableMipmap(ResourceLocation texture) {
+        getTextureManager().getTexture(texture).setBlurMipmap(false, false);
+    }
+
+    public static void restoreLastMipmap(String texture) {
+        restoreLastMipmap(new ResourceLocation(texture));
+    }
+
+    public static void restoreLastMipmap(ResourceLocation location) {
+        getTextureManager().getTexture(location).restoreLastBlurMipmap();
+    }
+
+    public static void bindBlockTexture() {
+        changeTexture(TextureMap.locationBlocksTexture);
+    }
+
+    public static void dissableBlockMipmap() {
+        disableMipmap(TextureMap.locationBlocksTexture);
+    }
+
+    public static void restoreBlockMipmap() {
+        restoreLastMipmap(TextureMap.locationBlocksTexture);
+    }
+
 }

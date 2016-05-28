@@ -3,11 +3,11 @@ package codechicken.lib.render;
 import codechicken.lib.render.SpriteSheetManager.SpriteSheet;
 import codechicken.lib.render.TextureUtils.IIconRegister;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.PngSizeInfo;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.data.AnimationMetadataSection;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -108,11 +108,11 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
         }
     }*/
     @Override
-    public void loadSprite(BufferedImage[] images, AnimationMetadataSection animationMeta) {
-        rawWidth = images[0].getWidth();
-        rawHeight = images[0].getHeight();
+    public void loadSprite(PngSizeInfo sizeInfo, boolean animationMeta) {
+        rawWidth = sizeInfo.pngWidth;
+        rawHeight = sizeInfo.pngHeight;
         try {
-            super.loadSprite(images, null);
+            super.loadSprite(sizeInfo, false);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -134,8 +134,8 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
         BufferedImage[] images = new BufferedImage[settings.mipmapLevels + 1];
         images[0] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         images[0].setRGB(0, 0, width, height, data, 0, width);
-
-        loadSprite(images, null);
+        //FIXME
+        //loadSprite(images, false);
     }
 
     @Override

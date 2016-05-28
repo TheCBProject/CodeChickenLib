@@ -3,8 +3,8 @@ package codechicken.lib.inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 
 /**
  * Simple IInventory implementation with an array of items, name and maximum stack size
@@ -65,7 +65,7 @@ public class InventorySimple implements IInventory {
 
     @Override
     public ItemStack removeStackFromSlot(int slot) {
-        return InventoryUtils.getStackInSlotOnClosing(this, slot);
+        return InventoryUtils.removeStackFromSlot(this, slot);
     }
 
     @Override
@@ -117,6 +117,9 @@ public class InventorySimple implements IInventory {
 
     @Override
     public void clear() {
+        for (int i = 0; i < items.length; i++) {
+            items[i] = null;
+        }
     }
 
     @Override
@@ -130,7 +133,7 @@ public class InventorySimple implements IInventory {
     }
 
     @Override
-    public IChatComponent getDisplayName() {
-        return new ChatComponentText(getName());
+    public ITextComponent getDisplayName() {
+        return new TextComponentString(getName());
     }
 }

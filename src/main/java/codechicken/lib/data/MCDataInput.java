@@ -6,41 +6,41 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 
 public interface MCDataInput {
-    public long readLong();
+    long readLong();
 
-    public int readInt();
+    int readInt();
 
-    public short readShort();
+    short readShort();
 
-    public int readUShort();
+    int readUShort();
 
-    public byte readByte();
+    byte readByte();
 
-    public short readUByte();
+    short readUByte();
 
-    public double readDouble();
+    double readDouble();
 
-    public float readFloat();
+    float readFloat();
 
-    public boolean readBoolean();
+    boolean readBoolean();
 
-    public char readChar();
+    char readChar();
 
-    public int readVarShort();
+    int readVarShort();
 
-    public int readVarInt();
+    int readVarInt();
 
-    public long readVarLong();
+    long readVarLong();
 
-    public byte[] readArray(int length);
+    byte[] readArray(int length);
 
-    public String readString();
+    String readString();
 
-    public BlockCoord readCoord();
+    BlockCoord readCoord();
 
-    public NBTTagCompound readNBTTagCompound();
+    NBTTagCompound readNBTTagCompound();
 
-    public ItemStack readItemStack();
+    ItemStack readItemStack();
 
-    public FluidStack readFluidStack();
+    FluidStack readFluidStack();
 }

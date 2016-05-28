@@ -1,34 +1,34 @@
 package codechicken.lib.render;
 
-import codechicken.lib.vec.Cuboid6;
-import codechicken.lib.vec.Rectangle4i;
-import codechicken.lib.vec.Vector3;
+import codechicken.lib.raytracer.IndexedCuboid6;
+import codechicken.lib.vec.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.entity.RenderEntityItem;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
 
 public class RenderUtils {
+    private static Vector3[] vectors = new Vector3[8];
+    private static RenderEntityItem uniformRenderItem;
+    private static boolean hasInitRenderItem;
 
-    static Vector3[] vectors = new Vector3[8];
-    /*static RenderItem uniformRenderItem = new RenderItem()
-    {
-        public boolean shouldBob()
-        {
-            return false;
-        }
-    };*/
-    static EntityItem entityItem;
+    private static EntityItem entityItem;
 
     static {
         for (int i = 0; i < vectors.length; i++) {
@@ -39,6 +39,14 @@ public class RenderUtils {
 
         entityItem = new EntityItem(null);
         entityItem.hoverStart = 0;
+    }
+
+    private static void loadItemRenderer() {
+        if (!hasInitRenderItem) {
+            Minecraft minecraft = Minecraft.getMinecraft();
+            uniformRenderItem = new RenderEntityItem(minecraft.getRenderManager(), minecraft.getRenderItem());
+            hasInitRenderItem = true;
+        }
     }
 
     public static void renderFluidQuad(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 point4, TextureAtlasSprite icon, double res) {
@@ -54,8 +62,9 @@ public class RenderUtils {
      * @param res  Units per icon
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, TextureAtlasSprite icon, double res) {
-        WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
-
+        //CCDynamicModel r = CCRenderState.dynamicModel();
+        //CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
+        VertexBuffer r = CCRenderState.pullBuffer();
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
         double v2 = icon.getMaxV();
@@ -82,6 +91,16 @@ public class RenderUtils {
                 Vector3 dx2 = vectors[3].set(wide).multiply((x + rx) / wlen);
                 Vector3 dy1 = vectors[4].set(high).multiply(y / hlen);
                 Vector3 dy2 = vectors[5].set(high).multiply((y + ry) / hlen);
+                //Vertex5[] vertexes = new Vertex5[4];
+
+                //vertexes[0] = new Vertex5(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z, u1, v2 - ry / res * dv);
+                //vertexes[1] = new Vertex5(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z, u1, v2);
+                //vertexes[2] = new Vertex5(base.x + dx2.x + dy1.x, base.y + dx2.y + dy1.y, base.z + dx2.z + dy1.z, u1 + rx / res * du, v2);
+                //vertexes[3] = new Vertex5(base.x + dx2.x + dy2.x, base.y + dx2.y + dy2.y, base.z + dx2.z + dy2.z, u1 + rx / res * du, v2 - ry / res * dv);
+                //for (Vertex5 vertex : vertexes) {
+                //    CCRenderState.vert.set(vertex);
+                //    CCRenderState.writeVert();
+                //}
 
                 r.pos(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z).tex(u1, v2 - ry / res * dv).endVertex();
                 r.pos(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z).tex(u1, v2).endVertex();
@@ -93,6 +112,7 @@ public class RenderUtils {
 
             x += rx;
         }
+        //CCRenderState.draw();
     }
 
     public static void translateToWorldCoords(Entity entity, float frame) {
@@ -104,7 +124,7 @@ public class RenderUtils {
     }
 
     public static void drawCuboidOutline(Cuboid6 c) {
-        WorldRenderer r = CCRenderState.startDrawing(3, DefaultVertexFormats.POSITION);
+        VertexBuffer r = CCRenderState.startDrawing(3, DefaultVertexFormats.POSITION);
         r.pos(c.min.x, c.min.y, c.min.z).endVertex();
         r.pos(c.max.x, c.min.y, c.min.z).endVertex();
         r.pos(c.max.x, c.min.y, c.max.z).endVertex();
@@ -148,7 +168,8 @@ public class RenderUtils {
     public static void renderBlockOverlaySide(int x, int y, int z, int side, double tx1, double tx2, double ty1, double ty2) {
         double[] points = new double[] { x - 0.009, x + 1.009, y - 0.009, y + 1.009, z - 0.009, z + 1.009 };
 
-        WorldRenderer r = Tessellator.getInstance().getWorldRenderer();
+        VertexBuffer r = Tessellator.getInstance().getBuffer();
+        //TODO
         switch (side) {
         case 0:
             r.pos(points[0], points[2], points[4]).tex(tx1, ty1).endVertex();
@@ -189,22 +210,51 @@ public class RenderUtils {
         }
     }
 
+    public static void renderHitBox(EntityPlayer player, IIndexedCuboidProvider provider, RayTraceResult result, float partialTicks) {
+        IndexedCuboid6 cuboid6 = null;
+        for (IndexedCuboid6 cuboid : provider.getIndexedCuboids()) {
+            if (cuboid.data.equals(result.subHit)) {
+                cuboid6 = cuboid;
+            }
+        }
+        if (cuboid6 == null) {
+            return;
+        }
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.color(0.0F, 0.0F, 0.0F, 0.4F);
+        GlStateManager.glLineWidth(2.0F);
+        GlStateManager.disableTexture2D();
+        GlStateManager.depthMask(false);
+        double xPos = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) partialTicks;
+        double yPos = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) partialTicks;
+        double zPos = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) partialTicks;
+        RenderGlobal.drawSelectionBoundingBox(cuboid6.aabb().expandXyz(0.0020000000949949026D).offset(-xPos, -yPos, -zPos));
+        GlStateManager.depthMask(true);
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+
+    }
+
+    /**
+     * Checks to see if the FluidStack should be rendered.
+     *
+     * @param stack FluidStack to render.
+     * @return Weather to render or not.
+     */
     public static boolean shouldRenderFluid(FluidStack stack) {
         return stack.amount > 0 && stack.getFluid() != null;
     }
 
     /**
+     * Sets the colour of the fluid and returns the texture
+     *
      * @param stack The fluid stack to render
      * @return The icon of the fluid
      */
     public static TextureAtlasSprite prepareFluidRender(FluidStack stack, int alpha) {
-        GlStateManager.disableLighting();
-        GlStateManager.enableBlend();
-        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-
         Fluid fluid = stack.getFluid();
-        CCRenderState.setColour(fluid.getColor(stack) << 8 | alpha);
-        CCRenderState.changeTexture(TextureMap.locationBlocksTexture);
+        CCRenderState.colour = fluid.getColor(stack) << 8 | alpha;
 
         String iconName = null;
         if (fluid == FluidRegistry.LAVA) {
@@ -213,6 +263,16 @@ public class RenderUtils {
             iconName = "minecraft:blocks/water_still";
         }
         return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(iconName);
+    }
+
+    /**
+     * Disables lighting, enables blending and changes to the blocks texture
+     */
+    public static void preFluidRender() {
+        GlStateManager.disableLighting();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        CCRenderState.changeTexture(TextureMap.locationBlocksTexture);
     }
 
     /**
@@ -229,6 +289,7 @@ public class RenderUtils {
 
     /**
      * Renders a fluid within a bounding box.
+     * Assumes that CCRenderstate is already drawing with appropriate gl state. For a separate draw call see renderFluidCuboidGL
      * If the fluid is a liquid it will render as a normal tank with height equal to density/bound.height.
      * If the fluid is a gas, it will render the full box with an alpha equal to density.
      * Warning, bound will be mutated if the fluid is a liquid
@@ -250,13 +311,25 @@ public class RenderUtils {
             bound.max.y = bound.min.y + (bound.max.y - bound.min.y) * density;
         }
 
-        TextureAtlasSprite tex = prepareFluidRender(stack, alpha);
-        CCRenderState.startDrawing();
-        renderFluidCuboid(bound, tex, res);
+        renderFluidCuboid(bound, prepareFluidRender(stack, alpha), res);
+    }
+
+    public static void renderFluidCuboidGL(FluidStack stack, Cuboid6 bound, double density, double res) {
+        if (!shouldRenderFluid(stack)) {
+            return;
+        }
+
+        preFluidRender();
+        CCRenderState.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
+        renderFluidCuboid(stack, bound, density, res);
+        CCRenderState.pushColour();
         CCRenderState.draw();
         postFluidRender();
     }
 
+    /**
+     * Assumes that CCRenderstate is already drawing with appropriate gl state. For a separate draw call see renderFluidGaugeGL
+     */
     public static void renderFluidGauge(FluidStack stack, Rectangle4i rect, double density, double res) {
         if (!shouldRenderFluid(stack)) {
             return;
@@ -271,54 +344,68 @@ public class RenderUtils {
             rect.h = height;
         }
 
-        TextureAtlasSprite tex = prepareFluidRender(stack, alpha);
-        CCRenderState.startDrawing();
-        renderFluidQuad(new Vector3(rect.x, rect.y + rect.h, 0), new Vector3(rect.w, 0, 0), new Vector3(0, -rect.h, 0), tex, res);
+        CCRenderState.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
+        renderFluidQuad(new Vector3(rect.x, rect.y + rect.h, 0), new Vector3(rect.w, 0, 0), new Vector3(0, -rect.h, 0), prepareFluidRender(stack, alpha), res);
         CCRenderState.draw();
         postFluidRender();
+    }
+
+    public static void renderFluidGaugeGL(FluidStack stack, Rectangle4i rect, double density, double res) {
+        if (!shouldRenderFluid(stack)) {
+            return;
+        }
+
+        preFluidRender();
+        CCRenderState.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
+        renderFluidGauge(stack, rect, density, res);
+        CCRenderState.pushColour();
+        CCRenderState.draw();
+    }
+
+    public static Matrix4 getMatrix(Vector3 position, Rotation rotation, double scale) {
+        return new Matrix4().translate(position).apply(new Scale(scale)).apply(rotation);
     }
 
     /**
      * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately
      */
-    /*public static void renderItemUniform(ItemStack item) {
+    public static void renderItemUniform(ItemStack item) {
         renderItemUniform(item, 0);
-    }*/
+    }
 
-    /**
+    /*
      * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately
      *
      * @param spin The spin angle of the item around the y axis in degrees
      */
-    /*public static void renderItemUniform(ItemStack item, double spin)
-    {
-        IItemRenderer customRenderer = MinecraftForgeClient.getItemRenderer(item, ENTITY);
-        boolean is3D = customRenderer != null && customRenderer.shouldUseRenderHelper(ENTITY, item, BLOCK_3D);
+    public static void renderItemUniform(ItemStack item, double spin) {
+        loadItemRenderer();
+        //IItemRenderer customRenderer = MinecraftForgeClient.getItemRenderer(item, ENTITY);
+        //boolean is3D = customRenderer != null && customRenderer.shouldUseRenderHelper(ENTITY, item, BLOCK_3D);
 
-        boolean larger = false;
-        if (item.getItem() instanceof ItemBlock && RenderBlocks.renderItemIn3d(Block.getBlockFromItem(item.getItem()).getRenderType()))
-        {
-            int renderType = Block.getBlockFromItem(item.getItem()).getRenderType();
-            larger = !(renderType == 1 || renderType == 19 || renderType == 12 || renderType == 2);
-        }
-        else if(is3D)
-        {
-            larger = true;
-        }
-        
-        double d = 2;
-        double d1 = 1/d;
-        if(larger)
-            GLStateManager.scale(d, d, d);
+        //boolean larger = false;
+        //if (item.getItem() instanceof ItemBlock && RenderBlocks.renderItemIn3d(Block.getBlockFromItem(item.getItem()).getRenderType())) {
+        //    int renderType = Block.getBlockFromItem(item.getItem()).getRenderType();
+        //    larger = !(renderType == 1 || renderType == 19 || renderType == 12 || renderType == 2);
+        //} else if (is3D) {
+        //    larger = true;
+        //}
 
-        GLStateManager.color(1, 1, 1, 1);
-        
+        //double d = 2;
+        //double d1 = 1 / d;
+        //if (larger) {
+        //    GLStateManager.scale(d, d, d);
+        //}
+
+        GlStateManager.color(1, 1, 1, 1);
+
         entityItem.setEntityItemStack(item);
-        uniformRenderItem.doRender(entityItem, 0, larger ? 0.09 : 0.06, 0, 0, (float)(spin*9/Math.PI));
-        
-        if(larger)
-            GLStateManager.scale(d1, d1, d1);
-    }/*
+        uniformRenderItem.doRender(entityItem, 0, 0.06, 0, 0, (float) (spin * 9 / Math.PI));
+
+        //if (larger) {
+        //    GLStateManager.scale(d1, d1, d1);
+        //}*/
+    }
 
     /**
      * Checks if stencil buffer is supported and attempts to enable it if so.
@@ -326,5 +413,17 @@ public class RenderUtils {
     public static boolean checkEnableStencil() {
         Framebuffer fb = Minecraft.getMinecraft().getFramebuffer();
         return fb.isStencilEnabled() || fb.enableStencil();
+    }
+
+    public static float getPearlBob(double time) {
+        return (float) Math.sin(time / 25 * 3.141593) * 0.1F;
+    }
+
+    public static int getTimeOffset(BlockPos pos) {
+        return getTimeOffset(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    public static int getTimeOffset(int x, int y, int z) {
+        return x * 3 + y * 5 + z * 9;
     }
 }

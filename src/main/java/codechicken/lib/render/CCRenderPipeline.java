@@ -86,10 +86,10 @@ public class CCRenderPipeline {
         }
         unbuild();
 
-        if (CCRenderState.useNormals) {
+        if (CCRenderState.fmt.hasNormal()) {
             addAttribute(CCRenderState.normalAttrib);
         }
-        if (CCRenderState.useColour) {
+        if (CCRenderState.fmt.hasColor()) {
             addAttribute(CCRenderState.colourAttrib);
         }
         if (CCRenderState.computeLighting) {
