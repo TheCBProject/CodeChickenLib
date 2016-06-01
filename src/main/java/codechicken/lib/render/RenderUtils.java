@@ -255,14 +255,7 @@ public class RenderUtils {
     public static TextureAtlasSprite prepareFluidRender(FluidStack stack, int alpha) {
         Fluid fluid = stack.getFluid();
         CCRenderState.colour = fluid.getColor(stack) << 8 | alpha;
-
-        String iconName = null;
-        if (fluid == FluidRegistry.LAVA) {
-            iconName = "minecraft:blocks/lava_still";
-        } else if (fluid == FluidRegistry.WATER) {
-            iconName = "minecraft:blocks/water_still";
-        }
-        return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(iconName);
+        return TextureUtils.getTexture(fluid.getStill());
     }
 
     /**
