@@ -2,15 +2,15 @@ package codechicken.lib.render;
 
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
-import net.minecraft.client.particle.EffectRenderer;
-import net.minecraft.client.particle.EntityFX;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
-public class EntityDigIconFX extends EntityFX {
-    public EntityDigIconFX(World world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
+public class DigIconParticle extends Particle {
+    public DigIconParticle(World world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
         super(world, x, y, z, dx, dy, dz);
         particleTexture = icon;
         particleGravity = 1;
@@ -41,6 +41,7 @@ public class EntityDigIconFX extends EntityFX {
 
     /**
      * copy pasted from EntityDiggingFX
+     * //TODO Doc.
      */
     @Override
     public void renderParticle(VertexBuffer vertexBuffer, Entity entity, float par2, float par3, float par4, float par5, float par6, float par7) {
@@ -68,7 +69,7 @@ public class EntityDigIconFX extends EntityFX {
         vertexBuffer.pos(f11 + par3 * f10 - par6 * f10, f12 - par4 * f10, f13 + par5 * f10 - par7 * f10).tex(f7, f9).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).endVertex();
     }
 
-    public static void addBlockHitEffects(World world, Cuboid6 bounds, int side, TextureAtlasSprite icon, EffectRenderer effectRenderer) {
+    public static void addBlockHitEffects(World world, Cuboid6 bounds, int side, TextureAtlasSprite icon, ParticleManager effectRenderer) {
         float border = 0.1F;
         Vector3 diff = bounds.max.copy().subtract(bounds.min).add(-2 * border);
         diff.x *= world.rand.nextDouble();
@@ -95,10 +96,10 @@ public class EntityDigIconFX extends EntityFX {
             diff.x = bounds.max.x + border;
         }
 
-        effectRenderer.addEffect(new EntityDigIconFX(world, pos.x, pos.y, pos.z, 0, 0, 0, icon).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+        effectRenderer.addEffect(new DigIconParticle(world, pos.x, pos.y, pos.z, 0, 0, 0, icon).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
     }
 
-    public static void addBlockDestroyEffects(World world, Cuboid6 bounds, TextureAtlasSprite[] icons, EffectRenderer effectRenderer) {
+    public static void addBlockDestroyEffects(World world, Cuboid6 bounds, TextureAtlasSprite[] icons, ParticleManager effectRenderer) {
         Vector3 diff = bounds.max.copy().subtract(bounds.min);
         Vector3 center = bounds.min.copy().add(bounds.max).multiply(0.5);
         Vector3 density = diff.copy().multiply(4);
@@ -112,7 +113,7 @@ public class EntityDigIconFX extends EntityFX {
                     double x = bounds.min.x + (i + 0.5) * diff.x / density.x;
                     double y = bounds.min.y + (j + 0.5) * diff.y / density.y;
                     double z = bounds.min.z + (k + 0.5) * diff.z / density.z;
-                    effectRenderer.addEffect(new EntityDigIconFX(world, x, y, z, x - center.x, y - center.y, z - center.z, icons[world.rand.nextInt(icons.length)]));
+                    effectRenderer.addEffect(new DigIconParticle(world, x, y, z, x - center.x, y - center.y, z - center.z, icons[world.rand.nextInt(icons.length)]));
                 }
             }
         }

@@ -34,7 +34,7 @@ public class InventoryUtils {
      * Gets the actual damage of an item without asking the Item
      */
     public static int actualDamage(ItemStack stack) {
-        return Items.diamond.getDamage(stack);
+        return Items.DIAMOND.getDamage(stack);
     }
 
     /**
@@ -330,13 +330,13 @@ public class InventoryUtils {
     public static NBTTagCompound savePersistant(ItemStack stack, NBTTagCompound tag) {
         stack.writeToNBT(tag);
         tag.removeTag("id");
-        tag.setString("name", Item.itemRegistry.getNameForObject(stack.getItem()).toString());
+        tag.setString("name", stack.getItem().getRegistryName().toString());
         return tag;
     }
 
     public static ItemStack loadPersistant(NBTTagCompound tag) {
         String name = tag.getString("name");
-        Item item = Item.itemRegistry.getObject(new ResourceLocation(name));
+        Item item = Item.REGISTRY.getObject(new ResourceLocation(name));
         if (item == null) {
             return null;
         }

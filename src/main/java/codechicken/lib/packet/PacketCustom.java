@@ -1,5 +1,6 @@
 package codechicken.lib.packet;
 
+import codechicken.lib.data.MCDataHandler;
 import codechicken.lib.data.MCDataIO;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
@@ -25,7 +26,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.PlayerManager.PlayerInstance;
+import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -46,7 +47,7 @@ import java.util.EnumMap;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-public final class PacketCustom extends PacketBuffer implements MCDataInput, MCDataOutput {
+public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     public interface ICustomPacketHandler {
     }
 
@@ -284,37 +285,37 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         type |= 0x80;
         return this;
     }
-
+    @Override
     public PacketCustom writeBoolean(boolean b) {
         super.writeBoolean(b);
         return this;
     }
-
+    @Override
     public PacketCustom writeByte(int b) {
         super.writeByte(b);
         return this;
     }
-
+    @Override
     public PacketCustom writeShort(int s) {
         super.writeShort(s);
         return this;
     }
-
+    @Override
     public PacketCustom writeInt(int i) {
         super.writeInt(i);
         return this;
     }
-
+    @Override
     public PacketCustom writeFloat(float f) {
         super.writeFloat(f);
         return this;
     }
-
+    @Override
     public PacketCustom writeDouble(double d) {
         super.writeDouble(d);
         return this;
     }
-
+    @Override
     public PacketCustom writeLong(long l) {
         super.writeLong(l);
         return this;
@@ -325,21 +326,25 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         super.writeChar(c);
         return this;
     }
+    @Override
 
     public PacketCustom writeVarInt(int i) {
         writeVarIntToBuffer(i);
         return this;
     }
+    @Override
 
     public PacketCustom writeVarShort(int s) {
         MCDataIO.writeVarShort(this, s);
         return this;
     }
+    @Override
 
     public PacketCustom writeArray(byte[] barray) {
         writeBytes(barray);
         return this;
     }
+    @Override
 
     public PacketCustom writeString(String s) {
         super.writeString(s);
@@ -347,6 +352,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     @Deprecated
+    @Override
     public PacketCustom writeCoord(int x, int y, int z) {
         writeInt(x);
         writeInt(y);
@@ -354,7 +360,8 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         return this;
     }
 
-    public PacketCustom writeCoord(BlockPos pos) {
+    @Override
+    public PacketCustom writePos(BlockPos pos) {
         writeInt(pos.getX());
         writeInt(pos.getY());
         writeInt(pos.getZ());
@@ -362,27 +369,26 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     @Override
+    public MCDataOutput writeCoord(BlockCoord coord) {
+        return writePos(coord.pos());
+    }
+
+    @Override
     public PacketCustom writeBlockPos(BlockPos pos) {
-        return writeCoord(pos);
+        return writePos(pos);
     }
 
-    public PacketCustom writeCoord(BlockCoord coord) {
-        writeInt(coord.x);
-        writeInt(coord.y);
-        writeInt(coord.z);
-        return this;
-    }
-
+    @Override
     public PacketCustom writeItemStack(ItemStack stack) {
         MCDataIO.writeItemStack(this, stack);
         return this;
     }
-
+    @Override
     public PacketCustom writeNBTTagCompound(NBTTagCompound tag) {
         writeNBTTagCompoundToBuffer(tag);
         return this;
     }
-
+    @Override
     public PacketCustom writeFluidStack(FluidStack fluid) {
         MCDataIO.writeFluidStack(this, fluid);
         return this;
@@ -407,10 +413,12 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     //TODO BlockPos method. /  override parent methods.
+    @Override
     public BlockCoord readCoord() {
         return new BlockCoord(readInt(), readInt(), readInt());
     }
 
+    @Override
     public BlockPos readPos() {
         return new BlockPos(readInt(), readInt(), readInt());
     }
@@ -420,18 +428,22 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         return readPos();
     }
 
+    @Override
     public byte[] readArray(int length) {
         return readBytes(length).array();
     }
 
+    @Override
     public String readString() {
         return readStringFromBuffer(32767);
     }
 
+    @Override
     public ItemStack readItemStack() {
         return MCDataIO.readItemStack(this);
     }
 
+    @Override
     public NBTTagCompound readNBTTagCompound() {
         try {
             return readNBTTagCompoundFromBuffer();
@@ -440,6 +452,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         }
     }
 
+    @Override
     public FluidStack readFluidStack() {
         return MCDataIO.readFluidStack(this);
     }
@@ -464,7 +477,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
         if (player == null) {
             sendToClients(packet);
         } else {
-            ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(packet);
+            ((EntityPlayerMP) player).connection.sendPacket(packet);
         }
     }
 
@@ -497,7 +510,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
     }
 
     public static void sendToChunk(Packet packet, World world, int chunkX, int chunkZ) {
-        PlayerInstance playerInstance = ((WorldServer) world).thePlayerManager.getEntry(chunkX, chunkZ);
+        PlayerChunkMapEntry playerInstance = ((WorldServer) world).thePlayerManager.getEntry(chunkX, chunkZ);
         if (playerInstance != null) {
             playerInstance.sendPacket(packet);
         }
@@ -522,6 +535,6 @@ public final class PacketCustom extends PacketBuffer implements MCDataInput, MCD
 
     @SideOnly(Side.CLIENT)
     public static void sendToServer(Packet packet) {
-        Minecraft.getMinecraft().getNetHandler().addToSendQueue(packet);
+        Minecraft.getMinecraft().getConnection().sendPacket(packet);
     }
 }

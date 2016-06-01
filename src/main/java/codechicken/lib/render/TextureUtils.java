@@ -207,15 +207,15 @@ public class TextureUtils {
     }
 
     public static void bindBlockTexture() {
-        changeTexture(TextureMap.locationBlocksTexture);
+        changeTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
     }
 
     public static void dissableBlockMipmap() {
-        disableMipmap(TextureMap.locationBlocksTexture);
+        disableMipmap(TextureMap.LOCATION_BLOCKS_TEXTURE);
     }
 
     public static void restoreBlockMipmap() {
-        restoreLastMipmap(TextureMap.locationBlocksTexture);
+        restoreLastMipmap(TextureMap.LOCATION_BLOCKS_TEXTURE);
     }
 
 }

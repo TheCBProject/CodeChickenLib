@@ -3,6 +3,7 @@ package codechicken.lib.data;
 import codechicken.lib.vec.BlockCoord;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
 
 public interface MCDataInput {
@@ -37,6 +38,8 @@ public interface MCDataInput {
     String readString();
 
     BlockCoord readCoord();
+
+    BlockPos readPos();
 
     NBTTagCompound readNBTTagCompound();
 
