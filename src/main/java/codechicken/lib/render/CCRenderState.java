@@ -449,7 +449,15 @@ public class CCRenderState {
     public static VertexBuffer startDrawing(int mode, VertexFormat format) {
         VertexBuffer r = Tessellator.getInstance().getBuffer();
         r.begin(mode, format);
+        bind(r);
         return r;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static VertexBuffer startDrawing(int mode, VertexFormat format, VertexBuffer buffer) {
+        buffer.begin(mode, format);
+        bind(buffer);
+        return buffer;
     }
 
     @SideOnly(Side.CLIENT)
@@ -459,8 +467,14 @@ public class CCRenderState {
     }
 
     @SideOnly(Side.CLIENT)
+    @Deprecated
     public static VertexBuffer pullBuffer() {
         bind(Tessellator.getInstance().getBuffer());
+        return r;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static VertexBuffer getBuffer() {
         return r;
     }
 

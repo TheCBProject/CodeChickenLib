@@ -2,7 +2,6 @@ package codechicken.lib.packet;
 
 import codechicken.lib.data.MCDataHandler;
 import codechicken.lib.data.MCDataIO;
-import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.vec.BlockCoord;
 import com.google.common.collect.Maps;
@@ -25,6 +24,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.INetHandlerPlayServer;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.util.math.BlockPos;
@@ -285,36 +285,43 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         type |= 0x80;
         return this;
     }
+
     @Override
     public PacketCustom writeBoolean(boolean b) {
         super.writeBoolean(b);
         return this;
     }
+
     @Override
     public PacketCustom writeByte(int b) {
         super.writeByte(b);
         return this;
     }
+
     @Override
     public PacketCustom writeShort(int s) {
         super.writeShort(s);
         return this;
     }
+
     @Override
     public PacketCustom writeInt(int i) {
         super.writeInt(i);
         return this;
     }
+
     @Override
     public PacketCustom writeFloat(float f) {
         super.writeFloat(f);
         return this;
     }
+
     @Override
     public PacketCustom writeDouble(double d) {
         super.writeDouble(d);
         return this;
     }
+
     @Override
     public PacketCustom writeLong(long l) {
         super.writeLong(l);
@@ -326,24 +333,28 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         super.writeChar(c);
         return this;
     }
+
     @Override
 
     public PacketCustom writeVarInt(int i) {
         writeVarIntToBuffer(i);
         return this;
     }
+
     @Override
 
     public PacketCustom writeVarShort(int s) {
         MCDataIO.writeVarShort(this, s);
         return this;
     }
+
     @Override
 
     public PacketCustom writeArray(byte[] barray) {
         writeBytes(barray);
         return this;
     }
+
     @Override
 
     public PacketCustom writeString(String s) {
@@ -383,11 +394,13 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         MCDataIO.writeItemStack(this, stack);
         return this;
     }
+
     @Override
     public PacketCustom writeNBTTagCompound(NBTTagCompound tag) {
         writeNBTTagCompoundToBuffer(tag);
         return this;
     }
+
     @Override
     public PacketCustom writeFluidStack(FluidStack fluid) {
         MCDataIO.writeFluidStack(this, fluid);
@@ -467,6 +480,30 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         }
 
         return new FMLProxyPacket(new PacketBuffer(copy()), channel);
+    }
+
+    public NBTTagCompound toNBTTag(NBTTagCompound tagCompound){
+        tagCompound.setByteArray("CCL:data", array());
+        return tagCompound;
+    }
+
+    public NBTTagCompound toNBTTag() {
+        NBTTagCompound tagCompound = new NBTTagCompound();
+        tagCompound.setByteArray("CCL:data", array());
+        return tagCompound;
+    }
+
+    public static PacketCustom fromNBTTag(NBTTagCompound tagCompound) {
+        return new PacketCustom(Unpooled.copiedBuffer(tagCompound.getByteArray("CCL:data")));
+    }
+
+    public SPacketUpdateTileEntity toTilePacket(BlockPos pos) {
+        return new SPacketUpdateTileEntity(pos, 0, toNBTTag());
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static PacketCustom fromTilePacket(SPacketUpdateTileEntity tilePacket) {
+        return fromNBTTag(tilePacket.getNbtCompound());
     }
 
     public void sendToPlayer(EntityPlayer player) {
