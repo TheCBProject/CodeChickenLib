@@ -36,19 +36,31 @@ public abstract class WorldExtension {
     }
 
     protected final void loadChunk(Chunk chunk) {
-        chunkMap.get(chunk).load();
+        ChunkExtension extension = chunkMap.get(chunk);
+        if (extension != null) {
+            extension.load();
+        }
     }
 
     protected final void unloadChunk(Chunk chunk) {
-        chunkMap.get(chunk).unload();
+        ChunkExtension extension = chunkMap.get(chunk);
+        if (extension != null) {
+            extension.unload();
+        }
     }
 
     protected final void loadChunkData(Chunk chunk, NBTTagCompound tag) {
-        chunkMap.get(chunk).loadData(tag);
+        ChunkExtension extension = chunkMap.get(chunk);
+        if (extension != null) {
+            extension.loadData(tag);
+        }
     }
 
     protected final void saveChunkData(Chunk chunk, NBTTagCompound tag) {
-        chunkMap.get(chunk).saveData(tag);
+        ChunkExtension extension = chunkMap.get(chunk);
+        if (extension != null) {
+            extension.saveData(tag);
+        }
     }
 
     protected final void remChunk(Chunk chunk) {
@@ -56,7 +68,10 @@ public abstract class WorldExtension {
     }
 
     protected final void watchChunk(Chunk chunk, EntityPlayerMP player) {
-        chunkMap.get(chunk).watchPlayer(player);
+        ChunkExtension extension = chunkMap.get(chunk);
+        if (extension != null) {
+            extension.watchPlayer(player);
+        }
     }
 
     protected final void unwatchChunk(Chunk chunk, EntityPlayerMP player) {
@@ -67,7 +82,10 @@ public abstract class WorldExtension {
     }
 
     protected final void sendChunkUpdates(Chunk chunk) {
-        chunkMap.get(chunk).sendUpdatePackets();
+        ChunkExtension extension = chunkMap.get(chunk);
+        if (extension != null) {
+            extension.sendUpdatePackets();
+        }
     }
 
     public boolean containsChunk(Chunk chunk) {
