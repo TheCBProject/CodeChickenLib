@@ -86,6 +86,10 @@ public class Vector3 implements Copyable<Vector3> {
         return new Vector3(da[2], da[0], da[1]);
     }
 
+    public Vec3d toVec3d() {
+        return new Vec3d(x, y, z);
+    }
+
     public Vector3 set(double d, double d1, double d2) {
         x = d;
         y = d1;

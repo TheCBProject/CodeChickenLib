@@ -719,7 +719,7 @@ public class QBImporter {
                 }
 
                 PrintWriter p = new PrintWriter(objFile);
-                CCModel.exportObj(modelMap, p);
+                CCOBJParser.exportObj(modelMap, p);
                 p.close();
 
                 if (images.size() < map.size()) {

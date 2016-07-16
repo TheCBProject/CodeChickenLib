@@ -1,13 +1,14 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.baked.IBakedVertexOperation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Abstract supertype for any 3D vector transformation
  */
-public abstract class Transformation extends ITransformation<Vector3, Transformation> implements CCRenderState.IVertexOperation {
+public abstract class Transformation extends ITransformation<Vector3, Transformation> implements CCRenderState.IVertexOperation, IBakedVertexOperation {
     public static final int operationIndex = CCRenderState.registerOperation();
 
     /**
@@ -52,5 +53,13 @@ public abstract class Transformation extends ITransformation<Vector3, Transforma
     @Override
     public int operationID() {
         return operationIndex;
+    }
+
+    @Override
+    public void operateBaked() {
+        apply(CCRenderState.vert.vec);
+        if (CCRenderState.normalActive) {
+            applyN(CCRenderState.normal);
+        }
     }
 }

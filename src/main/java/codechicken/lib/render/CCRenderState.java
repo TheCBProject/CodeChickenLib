@@ -3,6 +3,8 @@ package codechicken.lib.render;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightMatrix;
+import codechicken.lib.render.baked.CCBakedModel;
+import codechicken.lib.render.baked.CCBakedQuad;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Transformation;
@@ -318,6 +320,7 @@ public class CCRenderState {
     //attrute storage
     public static int side;
     public static LC lc = new LC();
+    public static boolean normalActive;
 
     //vertex formats
     //@SideOnly(Side.CLIENT)
@@ -385,6 +388,8 @@ public class CCRenderState {
             writeVert();
         }
     }
+
+
 
     public static void runPipeline() {
         pipeline.operate();
@@ -480,5 +485,19 @@ public class CCRenderState {
 
     public static void draw() {
         Tessellator.getInstance().draw();
+    }
+
+    /**
+     * Polls the currently bound VertexBuffer to see if it is drawing.
+     * If no buffer is bound it checks Tessellator.getInstance.getBuffer.
+     *
+     * @return If the buffer is drawing.
+     */
+    public static boolean isDrawing() {
+        if (r != null) {
+            return r.isDrawing;
+        } else {
+            return Tessellator.getInstance().getBuffer().isDrawing;
+        }
     }
 }

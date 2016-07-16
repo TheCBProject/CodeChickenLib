@@ -2,6 +2,7 @@ package codechicken.lib.gui;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.TextureUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -119,7 +120,7 @@ public class GuiDraw {
     }
 
     public static void changeTexture(String s) {
-        CCRenderState.changeTexture(s);
+        TextureUtils.changeTexture(s);
     }
 
     public static void changeTexture(ResourceLocation r) {

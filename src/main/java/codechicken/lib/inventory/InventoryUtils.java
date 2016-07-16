@@ -9,7 +9,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTBase.NBTPrimitive;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -136,7 +136,7 @@ public class InventoryUtils {
             int b = tag.getShort("Slot");
             items[b] = ItemStack.loadItemStackFromNBT(tag);
             if (tag.hasKey("Quantity")) {
-                items[b].stackSize = ((NBTBase.NBTPrimitive) tag.getTag("Quantity")).getInt();
+                items[b].stackSize = ((NBTPrimitive) tag.getTag("Quantity")).getInt();
             }
         }
     }
@@ -265,7 +265,10 @@ public class InventoryUtils {
      * Gets an IInventory from a coordinate with support for double chests
      */
     public static IInventory getInventory(World world, BlockPos pos) {
-        TileEntity tile = world.getTileEntity(pos);
+        return getInventory(world.getTileEntity(pos));
+    }
+
+    public static IInventory getInventory(TileEntity tile) {
         if (!(tile instanceof IInventory)) {
             return null;
         }
@@ -274,7 +277,6 @@ public class InventoryUtils {
             return getChest((TileEntityChest) tile);
         }
         return (IInventory) tile;
-
     }
 
     public static IInventory getChest(TileEntityChest chest) {

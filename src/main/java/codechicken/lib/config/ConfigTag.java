@@ -3,6 +3,17 @@ package codechicken.lib.config;
 import java.io.PrintWriter;
 
 public class ConfigTag extends ConfigTagParent {
+
+    public ConfigTagParent parent;
+    public String name;
+    public String qualifiedname;
+    public String value;
+    public boolean brace;
+    public boolean newline;
+    public int position = Integer.MAX_VALUE;
+
+    private int IDBase;
+
     public interface IConfigType<T> {
         String configValue(T entry);
 
@@ -237,14 +248,4 @@ public class ConfigTag extends ConfigTagParent {
         IDBase = i;
         return this;
     }
-
-    public ConfigTagParent parent;
-    public String name;
-    public String qualifiedname;
-    public String value;
-    public boolean brace;
-    public boolean newline;
-    public int position = Integer.MAX_VALUE;
-
-    private int IDBase;
 }

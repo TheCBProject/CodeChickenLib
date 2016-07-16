@@ -14,9 +14,14 @@ public class InventoryRange {
     public ISidedInventory sidedInv;
     public int[] slots;
 
+    @Deprecated// Use EnumFacing version.
     public InventoryRange(IInventory inv, int side) {
+        this(inv, EnumFacing.values()[side]);
+    }
+
+    public InventoryRange(IInventory inv, EnumFacing side) {
         this.inv = inv;
-        this.face = EnumFacing.values()[side];
+        this.face = side;
         if (inv instanceof ISidedInventory) {
             sidedInv = (ISidedInventory) inv;
             slots = sidedInv.getSlotsForFace(face);
@@ -29,7 +34,7 @@ public class InventoryRange {
     }
 
     public InventoryRange(IInventory inv) {
-        this(inv, 0);
+        this(inv, EnumFacing.DOWN);
     }
 
     public InventoryRange(IInventory inv, int fslot, int lslot) {

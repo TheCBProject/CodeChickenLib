@@ -2,18 +2,19 @@ package codechicken.lib.render;
 
 import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightModel;
+import codechicken.lib.render.baked.CCBakedModel;
+import codechicken.lib.render.baked.CCModelBakery;
 import codechicken.lib.render.uv.UV;
 import codechicken.lib.render.uv.UVTransformation;
 import codechicken.lib.render.uv.UVTranslation;
 import codechicken.lib.util.Copyable;
-import codechicken.lib.vec.*;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
+import codechicken.lib.vec.Cuboid6;
+import codechicken.lib.vec.Transformation;
+import codechicken.lib.vec.TransformationList;
+import codechicken.lib.vec.Vector3;
 
-import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static codechicken.lib.vec.Rotation.sideRotations;
 
@@ -40,6 +41,8 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     public final int vp;
     public Vertex5[] verts;
     public ArrayList<Object> attributes = new ArrayList<Object>();
+    //private CCBakedModel bakedModel;TODO
+    private boolean requiresBaking = true;
 
     protected CCModel(int vertexMode) {
         if (vertexMode != 7 && vertexMode != 4) {
@@ -106,6 +109,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The generated model
      */
     public CCModel generateBox(int i, double x1, double y1, double z1, double w, double h, double d, double tx, double ty, double tw, double th, double f) {
+        requiresReBaking();
         double u1, v1, u2, v2;
         double x2 = x1 + w;
         double y2 = y1 + h;
@@ -188,14 +192,17 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The generated model. When rendering an icon will need to be supplied for the UV transformation.
      */
     public CCModel generateBlock(int i, Cuboid6 bounds) {
+        requiresReBaking();
         return generateBlock(i, bounds, 0);
     }
 
     public CCModel generateBlock(int i, Cuboid6 bounds, int mask) {
+        requiresReBaking();
         return generateBlock(i, bounds.min.x, bounds.min.y, bounds.min.z, bounds.max.x, bounds.max.y, bounds.max.z, mask);
     }
 
     public CCModel generateBlock(int i, double x1, double y1, double z1, double x2, double y2, double z2) {
+        requiresReBaking();
         return generateBlock(i, x1, y1, z1, x2, y2, z2, 0);
     }
 
@@ -213,6 +220,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The generated model. When rendering an icon will need to be supplied for the UV transformation.
      */
     public CCModel generateBlock(int i, double x1, double y1, double z1, double x2, double y2, double z2, int mask) {
+        requiresReBaking();
         double u1, v1, u2, v2;
 
         if ((mask & 1) == 0) {//bottom face
@@ -285,6 +293,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel computeNormals() {
+        requiresReBaking();
         return computeNormals(0, verts.length);
     }
 
@@ -297,6 +306,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The model
      */
     public CCModel computeNormals(int start, int length) {
+        requiresReBaking();
         if (length % vp != 0 || start % vp != 0) {
             throw new IllegalArgumentException("Cannot generate normals across polygons");
         }
@@ -322,6 +332,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The model
      */
     public CCModel computeLighting(LightModel light) {
+        requiresReBaking();
         Vector3[] normals = normals();
         int[] colours = getAttributes(CCRenderState.lightingAttrib);
         if (colours == null) {
@@ -335,6 +346,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel setColour(int c) {
+        requiresReBaking();
         int[] colours = getOrAllocate(CCRenderState.colourAttrib);
         Arrays.fill(colours, c);
         return this;
@@ -346,6 +358,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The model
      */
     public CCModel computeLightCoords() {
+        requiresReBaking();
         LC[] lcs = getOrAllocate(CCRenderState.lightCoordAttrib);
         Vector3[] normals = normals();
         for (int i = 0; i < verts.length; i++) {
@@ -360,6 +373,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The model
      */
     public CCModel smoothNormals() {
+        requiresReBaking();
         ArrayList<PositionNormalEntry> map = new ArrayList<PositionNormalEntry>();
         Vector3[] normals = normals();
         nextvert:
@@ -395,6 +409,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel apply(Transformation t) {
+        requiresReBaking();
         for (int k = 0; k < verts.length; k++) {
             verts[k].apply(t);
         }
@@ -410,6 +425,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel apply(UVTransformation uvt) {
+        requiresReBaking();
         for (int k = 0; k < verts.length; k++) {
             verts[k].apply(uvt);
         }
@@ -418,6 +434,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel expand(int extraVerts) {
+        requiresReBaking();
         int newLen = verts.length + extraVerts;
         verts = Arrays.copyOf(verts, newLen);
         for (int i = 0; i < attributes.size(); i++) {
@@ -453,9 +470,29 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @param ops   Operations to apply
      */
     public void render(int start, int end, CCRenderState.IVertexOperation... ops) {
+        // if (requiresBaking){
+        //     bakedModel = CCModelBakery.bakeModel(this);
+        //    requiresBaking = false;
+        //}
+        //bakedModel.render(start, end, ops);
         CCRenderState.setPipeline(this, start, end, ops);
         CCRenderState.render();
     }
+
+    public void requiresReBaking() {
+        requiresBaking = true;
+    }
+
+    //public boolean needsBaking() {
+    //    return requiresBaking;
+    //}
+
+    //public CCBakedModel bakeModel() {
+    //    if (needsBaking()) {
+    //        bakedModel = CCModelBakery.bakeModel(this);
+    //    }
+    //    return bakedModel;
+    //}
 
     public static CCModel quadModel(int numVerts) {
         return newModel(7, numVerts);
@@ -495,106 +532,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
         illegalAssert(m.matches(), "Malformed line: " + s);
     }
 
-    private static final Pattern vertPattern = Pattern.compile("v(?: ([\\d\\.+-]+))+");
-    private static final Pattern uvwPattern = Pattern.compile("vt(?: ([\\d\\.+-]+))+");
-    private static final Pattern normalPattern = Pattern.compile("vn(?: ([\\d\\.+-]+))+");
-    private static final Pattern polyPattern = Pattern.compile("f(?: ((?:\\d*)(?:/\\d*)?(?:/\\d*)?))+");
-    public static final Matcher vertMatcher = vertPattern.matcher("");
-    public static final Matcher uvwMatcher = uvwPattern.matcher("");
-    public static final Matcher normalMatcher = normalPattern.matcher("");
-    public static final Matcher polyMatcher = polyPattern.matcher("");
-
-    /**
-     * Parses vertices, texture coords, normals and polygons from a WaveFront Obj file
-     *
-     * @param input       An input stream to a obj file
-     * @param vertexMode  The vertex mode to create the model for (GL_TRIANGLES or GL_QUADS)
-     * @param coordSystem The cooridnate system transformation to apply
-     * @return A map of group names to models
-     * @throws IOException
-     */
-    public static Map<String, CCModel> parseObjModels(InputStream input, int vertexMode, Transformation coordSystem) throws IOException {
-        if (coordSystem == null) {
-            coordSystem = new RedundantTransformation();
-        }
-        int vp = vertexMode == 7 ? 4 : 3;
-
-        HashMap<String, CCModel> modelMap = new HashMap<String, CCModel>();
-        ArrayList<Vector3> verts = new ArrayList<Vector3>();
-        ArrayList<Vector3> uvs = new ArrayList<Vector3>();
-        ArrayList<Vector3> normals = new ArrayList<Vector3>();
-        ArrayList<int[]> polys = new ArrayList<int[]>();
-        String modelName = "unnamed";
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
-        String line;
-        while ((line = reader.readLine()) != null) {
-            line = line.replaceAll("\\s+", " ").trim();
-            if (line.startsWith("#") || line.length() == 0) {
-                continue;
-            }
-
-            if (line.startsWith("v ")) {
-                assertMatch(vertMatcher, line);
-                double[] values = parseDoubles(line.substring(2), " ");
-                illegalAssert(values.length >= 3, "Vertices must have x, y and z components");
-                Vector3 vert = new Vector3(values[0], values[1], values[2]);
-                coordSystem.apply(vert);
-                verts.add(vert);
-                continue;
-            }
-            if (line.startsWith("vt ")) {
-                assertMatch(uvwMatcher, line);
-                double[] values = parseDoubles(line.substring(3), " ");
-                illegalAssert(values.length >= 2, "Tex Coords must have u, and v components");
-                uvs.add(new Vector3(values[0], 1 - values[1], 0));
-                continue;
-            }
-            if (line.startsWith("vn ")) {
-                assertMatch(normalMatcher, line);
-                double[] values = parseDoubles(line.substring(3), " ");
-                illegalAssert(values.length >= 3, "Normals must have x, y and z components");
-                Vector3 norm = new Vector3(values[0], values[1], values[2]).normalize();
-                coordSystem.applyN(norm);
-                normals.add(norm);
-                continue;
-            }
-            if (line.startsWith("f ")) {
-                assertMatch(polyMatcher, line);
-                String[] av = line.substring(2).split(" ");
-                illegalAssert(av.length >= 3, "Polygons must have at least 3 vertices");
-                int[][] polyVerts = new int[av.length][3];
-                for (int i = 0; i < av.length; i++) {
-                    String[] as = av[i].split("/");
-                    for (int p = 0; p < as.length; p++) {
-                        if (as[p].length() > 0) {
-                            polyVerts[i][p] = Integer.parseInt(as[p]);
-                        }
-                    }
-                }
-                if (vp == 3) {
-                    triangulate(polys, polyVerts);
-                } else {
-                    quadulate(polys, polyVerts);
-                }
-            }
-            if (line.startsWith("g ")) {
-                if (!polys.isEmpty()) {
-                    modelMap.put(modelName, createModel(verts, uvs, normals, vertexMode, polys));
-                    polys.clear();
-                }
-                modelName = line.substring(2);
-            }
-        }
-
-        if (!polys.isEmpty()) {
-            modelMap.put(modelName, createModel(verts, uvs, normals, vertexMode, polys));
-        }
-
-        return modelMap;
-    }
-
     public static void triangulate(List<int[]> polys, int[][] polyVerts) {
         for (int i = 2; i < polyVerts.length; i++) {
             polys.add(polyVerts[0]);
@@ -616,47 +553,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
                 polys.add(polyVerts[i - 1]);
                 polys.add(polyVerts[i - 1]);
             }
-        }
-    }
-
-    /**
-     * Parses vertices, texture coords, normals and polygons from a WaveFront Obj file
-     *
-     * @param res The resource for the obj file
-     * @return A map of group names to models
-     */
-    public static Map<String, CCModel> parseObjModels(ResourceLocation res) {
-        return parseObjModels(res, 4, null);
-    }
-
-    /**
-     * Parses vertices, texture coords, normals and polygons from a WaveFront Obj file
-     *
-     * @param res         The resource for the obj file
-     * @param coordSystem The cooridnate system transformation to apply
-     * @return A map of group names to models
-     */
-    public static Map<String, CCModel> parseObjModels(ResourceLocation res, Transformation coordSystem) {
-        try {
-            return parseObjModels(Minecraft.getMinecraft().getResourceManager().getResource(res).getInputStream(), 4, coordSystem);
-        } catch (IOException e) {
-            throw new RuntimeException("failed to load model: " + res, e);
-        }
-    }
-
-    /**
-     * Parses vertices, texture coords, normals and polygons from a WaveFront Obj file
-     *
-     * @param res         The resource for the obj file
-     * @param vertexMode  The vertex mode to create the model for (GL_TRIANGLES or GL_QUADS)
-     * @param coordSystem The cooridnate system transformation to apply
-     * @return A map of group names to models
-     */
-    public static Map<String, CCModel> parseObjModels(ResourceLocation res, int vertexMode, Transformation coordSystem) {
-        try {
-            return parseObjModels(Minecraft.getMinecraft().getResourceManager().getResource(res).getInputStream(), vertexMode, coordSystem);
-        } catch (Exception e) {
-            throw new RuntimeException("failed to load model: " + res, e);
         }
     }
 
@@ -700,71 +596,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     private static String clean(double d) {
         return d == (int) d ? Integer.toString((int) d) : Double.toString(d);
-    }
-
-    public static void exportObj(Map<String, CCModel> models, PrintWriter p) {
-        List<Vector3> verts = new ArrayList<Vector3>();
-        List<UV> uvs = new ArrayList<UV>();
-        List<Vector3> normals = new ArrayList<Vector3>();
-        List<int[]> polys = new ArrayList<int[]>();
-        for (Map.Entry<String, CCModel> e : models.entrySet()) {
-            p.println("g " + e.getKey());
-            CCModel m = e.getValue();
-
-            int vStart = verts.size();
-            int uStart = uvs.size();
-            int nStart = normals.size();
-            boolean hasNormals = m.normals() != null;
-            polys.clear();
-
-            for (int i = 0; i < m.verts.length; i++) {
-                int[] ia = new int[hasNormals ? 3 : 2];
-                ia[0] = addIndex(verts, m.verts[i].vec);
-                ia[1] = addIndex(uvs, m.verts[i].uv);
-                if (hasNormals) {
-                    ia[2] = addIndex(normals, m.normals()[i]);
-                }
-                polys.add(ia);
-            }
-
-            if (vStart < verts.size()) {
-                p.println();
-                for (int i = vStart; i < verts.size(); i++) {
-                    Vector3 v = verts.get(i);
-                    p.format("v %s %s %s\n", clean(v.x), clean(v.y), clean(v.z));
-                }
-            }
-            if (uStart < uvs.size()) {
-                p.println();
-                for (int i = uStart; i < uvs.size(); i++) {
-                    UV uv = uvs.get(i);
-                    p.format("vt %s %s\n", clean(uv.u), clean(uv.v));
-                }
-            }
-            if (nStart < normals.size()) {
-                p.println();
-                for (int i = nStart; i < normals.size(); i++) {
-                    Vector3 n = normals.get(i);
-                    p.format("vn %s %s %s\n", clean(n.x), clean(n.y), clean(n.z));
-                }
-            }
-
-            p.println();
-            for (int i = 0; i < polys.size(); i++) {
-                if (i % m.vp == 0) {
-                    p.format("f");
-                }
-                int[] ia = polys.get(i);
-                if (hasNormals) {
-                    p.format(" %d/%d/%d", ia[0], ia[1], ia[2]);
-                } else {
-                    p.format(" %d/%d", ia[0], ia[1]);
-                }
-                if (i % m.vp == m.vp - 1) {
-                    p.println();
-                }
-            }
-        }
     }
 
     /**
