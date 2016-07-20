@@ -4,6 +4,7 @@ import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightModel;
 import codechicken.lib.render.baked.CCBakedModel;
 import codechicken.lib.render.baked.CCModelBakery;
+import codechicken.lib.render.baked.IBakedVertexOperation;
 import codechicken.lib.render.uv.UV;
 import codechicken.lib.render.uv.UVTransformation;
 import codechicken.lib.render.uv.UVTranslation;
@@ -41,7 +42,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     public final int vp;
     public Vertex5[] verts;
     public ArrayList<Object> attributes = new ArrayList<Object>();
-    //private CCBakedModel bakedModel;TODO
+    private CCBakedModel bakedModel;
     private boolean requiresBaking = true;
 
     protected CCModel(int vertexMode) {
@@ -479,20 +480,64 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
         CCRenderState.render();
     }
 
+    /**
+     * Renders the model using the Baking pipeline.
+     *
+     * @param ops Operations to apply.
+     */
+    public void renderBaked(IBakedVertexOperation... ops) {
+        getBakedModel().render(ops);
+    }
+
+    /**
+     * Renders the model using the Baking pipeline.
+     *
+     * @param start The first vertex index to render.
+     * @param end   The vertex index to render until.
+     * @param ops   Operations to apply.
+     */
+    public void renderBaked(int start, int end, IBakedVertexOperation... ops) {
+        getBakedModel().render(start, end, ops);
+    }
+
+    /**
+     * Sets the model to require baking before next render.
+     */
     public void requiresReBaking() {
         requiresBaking = true;
     }
 
-    //public boolean needsBaking() {
-    //    return requiresBaking;
-    //}
+    /**
+     * Queries if the model requires Re-Baking.
+     *
+     * @return If the model needs baking.
+     */
+    public boolean needsBaking() {
+        return requiresBaking;
+    }
 
-    //public CCBakedModel bakeModel() {
-    //    if (needsBaking()) {
-    //        bakedModel = CCModelBakery.bakeModel(this);
-    //    }
-    //    return bakedModel;
-    //}
+    /**
+     * Forces a baking operation, Not really recommended but useful in some situations.
+     *
+     * @return The baked model.
+     */
+    public CCBakedModel bakeModel() {
+        bakedModel = CCModelBakery.bakeModel(this);
+        return bakedModel;
+    }
+
+    /**
+     * Returns a baked model. Will bake the model if it requires Re-Baking.
+     *
+     * @return The baked model.
+     */
+    public CCBakedModel getBakedModel() {
+        if (needsBaking()) {
+            bakedModel = CCModelBakery.bakeModel(this);
+            requiresBaking = false;
+        }
+        return bakedModel;
+    }
 
     public static CCModel quadModel(int numVerts) {
         return newModel(7, numVerts);

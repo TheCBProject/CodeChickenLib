@@ -2,6 +2,7 @@ package codechicken.lib.render.baked;
 
 import codechicken.lib.render.CCModel;
 import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.EnumDrawMode;
 import codechicken.lib.render.Vertex5;
 
 /**
@@ -11,15 +12,15 @@ public class CCModelBakery {
 
     /**
      * Uses the CCL RenderPipeline to bake a model.
+     * Best to use CCModel.getBakedModel()
      *
      * @param model Model to bake.
      * @return Baked Model.
-     */
-    @Deprecated//TODO make this not use CCRenderState to bake.
+     *///TODO make this not use CCRenderState to bake.
     public static CCBakedModel bakeModel(CCModel model) {
         CCRenderState.reset();
-        System.out.println("Baking Model!");
         CCBakedModelBuilder builder = new CCBakedModelBuilder();
+        builder.setDrawMode(EnumDrawMode.fromGL(model.vertexMode));
 
         CCRenderState.setPipeline(model, 0, model.verts.length);
         Vertex5[] verts = model.getVertices();

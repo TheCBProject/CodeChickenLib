@@ -343,7 +343,9 @@ public class CCRenderState {
 
     public static void setPipeline(IVertexSource model, int start, int end, IVertexOperation... ops) {
         pipeline.reset();
+        pipeline.forceFormatAttributes = false;
         setModel(model, start, end);
+        pipeline.forceFormatAttributes = true;
         pipeline.setPipeline(ops);
     }
 
@@ -481,6 +483,11 @@ public class CCRenderState {
     @SideOnly(Side.CLIENT)
     public static VertexBuffer getBuffer() {
         return r;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static VertexFormat getVertexFormat(){
+        return fmt;
     }
 
     public static void draw() {

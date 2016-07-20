@@ -47,6 +47,9 @@ public class CCRenderPipeline {
         }
     }
 
+    //By default we want to force format attributes.
+    public boolean forceFormatAttributes = true;
+
     private ArrayList<VertexAttribute> attribs = new ArrayList<VertexAttribute>();
     private ArrayList<IVertexOperation> ops = new ArrayList<IVertexOperation>();
     private ArrayList<PipelineNode> nodes = new ArrayList<PipelineNode>();
@@ -76,6 +79,19 @@ public class CCRenderPipeline {
     }
 
     public void rebuild() {
+
+        if (forceFormatAttributes){
+            if (CCRenderState.fmt.hasNormal()) {
+                addAttribute(CCRenderState.normalAttrib);
+            }
+            if (CCRenderState.fmt.hasColor()) {
+                addAttribute(CCRenderState.colourAttrib);
+            }
+            if (CCRenderState.computeLighting) {
+                addAttribute(CCRenderState.lightingAttrib);
+            }
+        }
+
         if (ops.isEmpty() || CCRenderState.model == null) {
             return;
         }
@@ -85,16 +101,6 @@ public class CCRenderPipeline {
             nodes.add(new PipelineNode());
         }
         unbuild();
-
-        if (CCRenderState.fmt.hasNormal()) {
-            addAttribute(CCRenderState.normalAttrib);
-        }
-        if (CCRenderState.fmt.hasColor()) {
-            addAttribute(CCRenderState.colourAttrib);
-        }
-        if (CCRenderState.computeLighting) {
-            addAttribute(CCRenderState.lightingAttrib);
-        }
 
         for (int i = 0; i < ops.size(); i++) {
             IVertexOperation op = ops.get(i);

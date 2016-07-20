@@ -1,8 +1,11 @@
 package codechicken.lib.render.baked;
 
+import codechicken.lib.render.EnumDrawMode;
 import codechicken.lib.render.Vertex5;
 import codechicken.lib.render.uv.UV;
 import codechicken.lib.vec.Vector3;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 
 import java.util.LinkedList;
 
@@ -11,15 +14,36 @@ import java.util.LinkedList;
  */
 public class CCBakedModelBuilder {
 
+    //Default is blocks if you don't set it.
+    private VertexFormat format = DefaultVertexFormats.BLOCK;
+    //Default is quads.
+    private EnumDrawMode drawMode = EnumDrawMode.QUADS;
     private LinkedList<CCBakedQuad> quads = new LinkedList<CCBakedQuad>();
 
-    public void addQuad(Vector3 pos, UV tex, Vector3 normal, int colour, int lightMap) {
-        addQuad(new Vertex5(pos, tex), normal, colour, lightMap);
+    public CCBakedModelBuilder addQuad(Vector3 pos, UV tex, Vector3 normal, int colour, int lightMap) {
+        return addQuad(new Vertex5(pos, tex), normal, colour, lightMap);
     }
 
-    public void addQuad(Vertex5 vertex, Vector3 normal, int colour, int lightMap) {
-        CCBakedQuad quad = new CCBakedQuad(vertex, normal, colour, lightMap);
+    public CCBakedModelBuilder addQuad(Vertex5 vertex, Vector3 normal, int colour, int lightMap) {
+        CCBakedQuad quad = new CCBakedQuad(format, drawMode, vertex, normal, colour, lightMap);
         quads.add(quad);
+        return this;
+    }
+
+    public CCBakedModelBuilder setFormat(VertexFormat format) {
+        if (!quads.isEmpty()) {
+            throw new RuntimeException("Unable to set format on already baked quads!");
+        }
+        this.format = format;
+        return this;
+    }
+
+    public CCBakedModelBuilder setDrawMode(EnumDrawMode drawMode){
+        if (!quads.isEmpty()){
+            throw new RuntimeException("Unable to set DrawMode on already baked quads!");
+        }
+        this.drawMode = drawMode;
+        return this;
     }
 
     public CCBakedModel build() {

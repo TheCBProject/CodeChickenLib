@@ -61,9 +61,8 @@ public class RenderUtils {
      * @param res  Units per icon
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, TextureAtlasSprite icon, double res) {
-        //CCDynamicModel r = CCRenderState.dynamicModel();
-        //CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-        VertexBuffer r = CCRenderState.pullBuffer();
+        //CCDynamicModel r = CCRenderState.dynamicModel();//TODO
+        VertexBuffer r = CCRenderState.getBuffer();
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
         double v2 = icon.getMaxV();
@@ -90,16 +89,6 @@ public class RenderUtils {
                 Vector3 dx2 = vectors[3].set(wide).multiply((x + rx) / wlen);
                 Vector3 dy1 = vectors[4].set(high).multiply(y / hlen);
                 Vector3 dy2 = vectors[5].set(high).multiply((y + ry) / hlen);
-                //Vertex5[] vertexes = new Vertex5[4];
-
-                //vertexes[0] = new Vertex5(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z, u1, v2 - ry / res * dv);
-                //vertexes[1] = new Vertex5(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z, u1, v2);
-                //vertexes[2] = new Vertex5(base.x + dx2.x + dy1.x, base.y + dx2.y + dy1.y, base.z + dx2.z + dy1.z, u1 + rx / res * du, v2);
-                //vertexes[3] = new Vertex5(base.x + dx2.x + dy2.x, base.y + dx2.y + dy2.y, base.z + dx2.z + dy2.z, u1 + rx / res * du, v2 - ry / res * dv);
-                //for (Vertex5 vertex : vertexes) {
-                //    CCRenderState.vert.set(vertex);
-                //    CCRenderState.writeVert();
-                //}
 
                 r.pos(base.x + dx1.x + dy2.x, base.y + dx1.y + dy2.y, base.z + dx1.z + dy2.z).tex(u1, v2 - ry / res * dv).endVertex();
                 r.pos(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z).tex(u1, v2).endVertex();
@@ -111,7 +100,6 @@ public class RenderUtils {
 
             x += rx;
         }
-        //CCRenderState.draw();
     }
 
     public static void translateToWorldCoords(Entity entity, float frame) {
