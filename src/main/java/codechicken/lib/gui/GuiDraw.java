@@ -1,7 +1,6 @@
 package codechicken.lib.gui;
 
 import codechicken.lib.math.MathHelper;
-import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.TextureUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -124,7 +123,7 @@ public class GuiDraw {
     }
 
     public static void changeTexture(ResourceLocation r) {
-        CCRenderState.changeTexture(r);
+        TextureUtils.changeTexture(r);
     }
 
     public static void drawTip(int x, int y, String text) {

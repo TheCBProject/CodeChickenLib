@@ -7,6 +7,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.IReloadableResourceManager;
+import net.minecraft.client.resources.IResource;
+import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -33,6 +36,11 @@ public class TextureUtils {
 
     public static void addIconRegister(IIconRegister registrar) {
         iconRegisters.add(registrar);
+    }
+
+    public static void registerReloadListener(IResourceManagerReloadListener reloadListener) {
+        //If this crashes people need to stop using reflection..
+        getResourceManager().registerReloadListener(reloadListener);
     }
 
     @SubscribeEvent
@@ -158,6 +166,10 @@ public class TextureUtils {
         return Minecraft.getMinecraft().renderEngine;
     }
 
+    public static IReloadableResourceManager getResourceManager() {
+        return (IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager();
+    }
+
     public static TextureAtlasSprite getTexture(String location) {
         return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location);
     }
@@ -180,6 +192,14 @@ public class TextureUtils {
 
     public static TextureAtlasSprite getItemTexture(ResourceLocation location) {
         return getTexture(new ResourceLocation(location.getResourceDomain(), "items/" + location.getResourcePath()));
+    }
+
+    public static IResource getResource(String location) throws IOException {
+        return getResource(new ResourceLocation(location));
+    }
+
+    public static IResource getResource(ResourceLocation location) throws IOException {
+        return getResourceManager().getResource(location);
     }
 
     public static void changeTexture(String texture) {
