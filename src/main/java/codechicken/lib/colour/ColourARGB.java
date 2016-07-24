@@ -17,6 +17,11 @@ public class ColourARGB extends Colour {
         return new ColourARGB(this);
     }
 
+    @Override
+    public Colour set(int colour) {
+        return set(new ColourARGB(colour));
+    }
+
     public int pack() {
         return pack(this);
     }

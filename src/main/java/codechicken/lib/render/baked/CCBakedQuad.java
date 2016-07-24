@@ -1,5 +1,7 @@
 package codechicken.lib.render.baked;
 
+import codechicken.lib.colour.Colour;
+import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.EnumDrawMode;
 import codechicken.lib.render.Vertex5;
 import codechicken.lib.vec.Vector3;
@@ -15,19 +17,19 @@ public class CCBakedQuad {
     private final EnumDrawMode drawMode;
     private final Vertex5 vertex;
     private final Vector3 normal;
-    private final int colour;
+    private final Colour colour;
     private final int lightMap;
 
-    public CCBakedQuad(VertexFormat format, Vertex5 vertex, Vector3 normal, int colour, int lightMap){
+    public CCBakedQuad(VertexFormat format, Vertex5 vertex, Vector3 normal, Colour colour, int lightMap){
         this(format, EnumDrawMode.QUADS, vertex, normal, colour, lightMap);
     }
 
-    public CCBakedQuad(VertexFormat format, EnumDrawMode drawMode, Vertex5 vertex, Vector3 normal, int colour, int lightMap) {
+    public CCBakedQuad(VertexFormat format, EnumDrawMode drawMode, Vertex5 vertex, Vector3 normal, Colour colour, int lightMap) {
         this.format = format;
         this.drawMode = drawMode;
         this.vertex = vertex.copy();
         this.normal = normal.copy();
-        this.colour = colour;
+        this.colour = new ColourRGBA(colour.rgba());
         this.lightMap = lightMap;
     }
 
@@ -51,7 +53,7 @@ public class CCBakedQuad {
         return normal.copy();
     }
 
-    public int getColour() {
+    public Colour getColour() {
         return colour;
     }
 

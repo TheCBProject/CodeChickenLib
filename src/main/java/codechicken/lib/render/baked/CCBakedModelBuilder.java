@@ -1,5 +1,6 @@
 package codechicken.lib.render.baked;
 
+import codechicken.lib.colour.Colour;
 import codechicken.lib.render.EnumDrawMode;
 import codechicken.lib.render.Vertex5;
 import codechicken.lib.render.uv.UV;
@@ -20,11 +21,11 @@ public class CCBakedModelBuilder {
     private EnumDrawMode drawMode = EnumDrawMode.QUADS;
     private LinkedList<CCBakedQuad> quads = new LinkedList<CCBakedQuad>();
 
-    public CCBakedModelBuilder addQuad(Vector3 pos, UV tex, Vector3 normal, int colour, int lightMap) {
+    public CCBakedModelBuilder addQuad(Vector3 pos, UV tex, Vector3 normal, Colour colour, int lightMap) {
         return addQuad(new Vertex5(pos, tex), normal, colour, lightMap);
     }
 
-    public CCBakedModelBuilder addQuad(Vertex5 vertex, Vector3 normal, int colour, int lightMap) {
+    public CCBakedModelBuilder addQuad(Vertex5 vertex, Vector3 normal, Colour colour, int lightMap) {
         CCBakedQuad quad = new CCBakedQuad(format, drawMode, vertex, normal, colour, lightMap);
         quads.add(quad);
         return this;

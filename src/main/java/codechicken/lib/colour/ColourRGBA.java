@@ -26,6 +26,11 @@ public class ColourRGBA extends Colour {
         return new ColourRGBA(this);
     }
 
+    @Override
+    public Colour set(int colour) {
+        return set(new ColourRGBA(colour));
+    }
+
     public static int pack(Colour colour) {
         return (colour.r & 0xFF) << 24 | (colour.g & 0xFF) << 16 | (colour.b & 0xFF) << 8 | (colour.a & 0xFF);
     }

@@ -1,5 +1,6 @@
 package codechicken.lib.render.baked;
 
+import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.CCModel;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.EnumDrawMode;
@@ -28,7 +29,7 @@ public class CCModelBakery {
             model.prepareVertex();
             CCRenderState.vert.set(verts[CCRenderState.vertexIndex]);
             CCRenderState.runPipeline();
-            builder.addQuad(CCRenderState.vert.copy(), CCRenderState.normal.copy(), CCRenderState.colour, CCRenderState.brightness);
+            builder.addQuad(CCRenderState.vert.copy(), CCRenderState.normal.copy(), CCRenderState.getColour(), CCRenderState.brightness);
         }
         return builder.build();
     }

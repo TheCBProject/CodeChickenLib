@@ -41,7 +41,7 @@ public class CCBakedModel {
             CCRenderState.vert.set(quad.getVertex());
             CCRenderState.normal.set(quad.getNormal());
             CCRenderState.normalActive = true;//TODO, why.. Should just assume there is normals.
-            CCRenderState.colour = quad.getColour();
+            CCRenderState.setColour(quad.getColour());
             CCRenderState.brightness = quad.getLightMap();
             for (IBakedVertexOperation transform : transformations) {
                 transform.operateBaked();

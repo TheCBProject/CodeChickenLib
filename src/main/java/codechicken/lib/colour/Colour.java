@@ -141,6 +141,8 @@ public abstract class Colour implements Copyable<Colour> {
         return (r & 0xFF) << 24 | (g & 0xFF) << 16 | (b & 0xFF) << 8 | (a & 0xFF);
     }
 
+    public abstract Colour set(int colour);
+
     public Colour set(Colour colour) {
         r = colour.r;
         g = colour.g;

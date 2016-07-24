@@ -1,5 +1,6 @@
 package codechicken.lib.render;
 
+import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightMatrix;
@@ -322,14 +323,6 @@ public class CCRenderState {
     public static LC lc = new LC();
     public static boolean normalActive;
 
-    //vertex formats
-    //@SideOnly(Side.CLIENT)
-    //public static VertexFormat POSITION_TEX_LMAP = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S);
-    //@SideOnly(Side.CLIENT)
-    //public static VertexFormat POSITION_TEX_LMAP_NORMAL = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S).addElement(NORMAL_3B).addElement(PADDING_1B);
-    //@SideOnly(Side.CLIENT)
-    //public static VertexFormat POSITION_TEX_LMAP_COLOR_NORMAL = new VertexFormat().addElement(POSITION_3F).addElement(TEX_2F).addElement(TEX_2S).addElement(COLOR_4UB).addElement(NORMAL_3B).addElement(PADDING_1B);
-
     public static void reset() {
         model = null;
         pipeline.reset();
@@ -442,14 +435,12 @@ public class CCRenderState {
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, brightness & 0xFFFF, brightness >>> 16);
     }
 
-    @Deprecated//Use TextureUtils.changeTexture
-    public static void changeTexture(String texture) {
-        TextureUtils.changeTexture(texture);
+    public static void setColour(Colour colour){
+        CCRenderState.colour = colour.rgba();
     }
 
-    @Deprecated//Use TextureUtils.changeTexture
-    public static void changeTexture(ResourceLocation texture) {
-        TextureUtils.changeTexture(texture);
+    public static ColourRGBA getColour(){
+        return new ColourRGBA(colour);
     }
 
     @SideOnly(Side.CLIENT)
