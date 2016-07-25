@@ -11,7 +11,7 @@ public class IndexedCuboid6 extends Cuboid6 {
     }
 
     @Override
-    public Cuboid6 copy() {
+    public IndexedCuboid6 copy() {
         return new IndexedCuboid6(data, this);
     }
 }
