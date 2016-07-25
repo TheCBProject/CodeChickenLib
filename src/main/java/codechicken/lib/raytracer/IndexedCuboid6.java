@@ -9,4 +9,9 @@ public class IndexedCuboid6 extends Cuboid6 {
         super(cuboid);
         this.data = data;
     }
+
+    @Override
+    public Cuboid6 copy() {
+        return new IndexedCuboid6(data, this);
+    }
 }
