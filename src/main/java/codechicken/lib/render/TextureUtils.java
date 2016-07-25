@@ -2,6 +2,7 @@ package codechicken.lib.render;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourARGB;
+import com.google.common.base.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -33,6 +34,13 @@ public class TextureUtils {
     }
 
     private static ArrayList<IIconRegister> iconRegisters = new ArrayList<IIconRegister>();
+
+    public static Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter = new Function<ResourceLocation, TextureAtlasSprite>() {
+        @Override
+        public TextureAtlasSprite apply(ResourceLocation input) {
+            return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(input.toString());
+        }
+    };
 
     public static void addIconRegister(IIconRegister registrar) {
         iconRegisters.add(registrar);
