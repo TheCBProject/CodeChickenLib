@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * Created by covers1624 on 7/25/2016.
- * This is a flexible IBakedModel loader, It runs of IBakedModelLoaders and IModKeyProviders.
+ * This is a flexible IBakedModel loader, It runs off IBakedModelLoaders and IModKeyProviders.
  * When getModel(ItemStack) is called it will first try and obtain a IModKeyProvider, If no KeyProvider is found then it returns a null model.
  * It then calls IModKeyProvider.createKey(ItemStack) if this returns null a null model is returned.
  * It will then check the cache for a key -> IBakedModel reference, if the cache contains a model it is returned otherwise it bakes a model using IBakedModelLoader.
