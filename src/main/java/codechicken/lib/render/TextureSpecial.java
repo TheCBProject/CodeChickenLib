@@ -80,7 +80,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
         }
     }
 
-    /**
+    /*
      * Copy paste mojang code because it's private, and CCL can't have access transformers or reflection
      */
     /*public int[][] prepareAnisotropicFiltering(int[][] mipmaps) {
@@ -107,6 +107,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
             return aint1;
         }
     }*/
+
     @Override
     public void loadSprite(PngSizeInfo sizeInfo, boolean animationMeta) {
         rawWidth = sizeInfo.pngWidth;
@@ -134,8 +135,15 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
         BufferedImage[] images = new BufferedImage[settings.mipmapLevels + 1];
         images[0] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         images[0].setRGB(0, 0, width, height, data, 0, width);
-        //FIXME
-        //loadSprite(images, false);
+
+        //Workaround for mojang's change to TextureAtlasSprite loading.
+        resetSprite();
+        this.width = images[0].getWidth();
+        this.height = images[0].getHeight();
+        int[][] aInt = new int[settings.mipmapLevels + 1][];
+        aInt[0] = new int[images[0].getWidth() * images[0].getHeight()];
+        images[0].getRGB(0, 0, images[0].getWidth(), images[0].getHeight(), aInt[0], 0, images[0].getWidth());
+        framesTextureData.add(aInt);
     }
 
     @Override

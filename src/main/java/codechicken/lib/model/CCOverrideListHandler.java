@@ -8,14 +8,14 @@ import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLLog;
 
 /**
  * Created by covers1624 on 7/25/2016.
- *
+ * <p/>
  * Default implementation for CCBakedModelLoader.
  */
 public class CCOverrideListHandler extends ItemOverrideList {
-    public static final CCOverrideListHandler INSTANCE = new CCOverrideListHandler();
 
     public CCOverrideListHandler() {
         super(ImmutableList.<ItemOverride>of());
@@ -24,7 +24,7 @@ public class CCOverrideListHandler extends ItemOverrideList {
     @Override
     public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, World world, EntityLivingBase entity) {
         IBakedModel model = CCBakedModelLoader.getModel(stack);
-        if (model == null){
+        if (model == null) {
             return originalModel;
         }
         return model;

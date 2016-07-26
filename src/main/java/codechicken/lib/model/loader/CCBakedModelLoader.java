@@ -13,6 +13,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.LoaderState;
+import org.apache.logging.log4j.Level;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,6 +54,7 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
         }
 
         IModKeyProvider provider = loader.createKeyProvider();
+        FMLLog.log("CodeChicken Lib", Level.INFO, "Registered loader for mod: %s", provider.getMod());
         loaders.put(provider, loader);
         modKeyProviders.put(provider.getMod(), provider);
     }
@@ -87,24 +89,24 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
         if (stack.getItem() == null || stack.getItem().getRegistryName() == null) {
             return null;
         }
-        String resourceDomain = stack.getItem().getRegistryName().getResourceDomain();
-        IModKeyProvider provider = modKeyProviders.get(resourceDomain);
+        ResourceLocation location = stack.getItem().getRegistryName();
+        IModKeyProvider provider = modKeyProviders.get(location.getResourceDomain());
         if (provider == null) {
-            FMLLog.bigWarning("Unable to find IModKeyProvider for domain %s!", resourceDomain);
+            FMLLog.bigWarning("Unable to find IModKeyProvider for domain %s!", location.getResourceDomain());
             return null;
         }
         String key = provider.createKey(stack);
         if (key == null) {
             return null;
         }
-        if (!modelCache.containsKey(resourceDomain + ":" + key)) {
+        if (!modelCache.containsKey(location.toString() + "|" + key)) {
             IBakedModel model = generateModel(provider, stack);
             if (model == null) {
                 return null;
             }
-            modelCache.put(resourceDomain + ":" + key, model);
+            modelCache.put(location.toString() + "|" + key, model);
         }
-        return modelCache.get(resourceDomain + ":" + key);
+        return modelCache.get(location.toString() + "|" + key);
     }
 
     public static IBakedModel generateModel(IModKeyProvider provider, ItemStack stack) {

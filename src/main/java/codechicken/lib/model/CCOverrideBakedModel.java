@@ -6,6 +6,6 @@ package codechicken.lib.model;
  */
 public class CCOverrideBakedModel extends SimpleOverrideBakedModel {
     public CCOverrideBakedModel() {
-        super(CCOverrideListHandler.INSTANCE);
+        super(new CCOverrideListHandler());
     }
 }
