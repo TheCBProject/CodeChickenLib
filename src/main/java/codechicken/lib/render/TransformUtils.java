@@ -8,6 +8,9 @@ import javax.vecmath.Vector3f;
 
 /**
  * Created by covers1624 on 5/16/2016.
+ * This is mostly just extracted from the ForgeBlockStateV1.
+ *
+ * If you have an idea for another transform just make a pull request.
  */
 public class TransformUtils {
     private static final TRSRTransformation flipX = new TRSRTransformation(null, null, new Vector3f(-1, 1, 1), null);
@@ -15,6 +18,7 @@ public class TransformUtils {
     public static final CCModelState DEFAULT_BLOCK;
     public static final CCModelState DEFAULT_ITEM;
     public static final CCModelState DEFAULT_TOOL;
+    public static final CCModelState DEFAULT_BOW;
 
     static {
         TRSRTransformation thirdPerson = get(0, 2.5f, 0, 75, 45, 0, 0.375f);
@@ -47,10 +51,17 @@ public class TransformUtils {
         defaultToolBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, get(1.13f, 3.2f, 1.13f, 0, -90, 25, 0.68f));
         defaultToolBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, get(1.13f, 3.2f, 1.13f, 0, 90, -25, 0.68f));
         DEFAULT_TOOL = new CCModelState(defaultToolBuilder.build());
+
+        ImmutableMap.Builder<TransformType, TRSRTransformation> defaultBowBuilder = ImmutableMap.builder();
+        defaultBowBuilder.put(TransformType.THIRD_PERSON_RIGHT_HAND, get(-1F, -2F, 2.5F, -80, 260, -40, 0.9F));
+        defaultBowBuilder.put(TransformType.THIRD_PERSON_LEFT_HAND, get(-1F, -2F, 2.5F, -80, -280, 40, 0.9f));
+        defaultBowBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, get(1.13F, 3.2F, 1.13F, 0, -90, 25, 0.68f));
+        defaultBowBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, get(1.13f, 3.2f, 1.13f, 0, 90, -25, 0.68f));
+        DEFAULT_BOW = new CCModelState(defaultBowBuilder.build());
     }
 
-    private static TRSRTransformation get(float tx, float ty, float tz, float ax, float ay, float az, float s) {
-        return TRSRTransformation.blockCenterToCorner(new TRSRTransformation(new Vector3f(tx / 16, ty / 16, tz / 16), TRSRTransformation.quatFromXYZDegrees(new Vector3f(ax, ay, az)), new Vector3f(s, s, s), null));
+    private static TRSRTransformation get(float tx, float ty, float tz, float rx, float ry, float rz, float s) {
+        return TRSRTransformation.blockCenterToCorner(new TRSRTransformation(new Vector3f(tx / 16, ty / 16, tz / 16), TRSRTransformation.quatFromXYZDegrees(new Vector3f(rx, ry, rz)), new Vector3f(s, s, s), null));
     }
 
     private static TRSRTransformation leftify(TRSRTransformation transform) {
