@@ -526,6 +526,10 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendPacketToAllPlayers(packet);
     }
 
+    public void sendPacketToAllAround(BlockPos pos, double range, int dim){
+        sendPacketToAllAround(pos.getX(), pos.getY(), pos.getZ(), range, dim);
+    }
+
     public void sendPacketToAllAround(double x, double y, double z, double range, int dim) {
         sendToAllAround(toPacket(), x, y, z, range, dim);
     }
