@@ -39,7 +39,7 @@ public class WorldExtensionManager {
                 extension.saveChunkData(event.getChunk(), event.getData());
             }
 
-            if (!event.getChunk().isChunkLoaded) {
+            if (!event.getChunk().isLoaded()) {
                 removeChunk(event.getWorld(), event.getChunk());
             }
         }
