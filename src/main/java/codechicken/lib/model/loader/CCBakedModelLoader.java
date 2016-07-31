@@ -3,6 +3,7 @@ package codechicken.lib.model.loader;
 import codechicken.lib.model.loader.IBakedModelLoader.IModKeyProvider;
 import codechicken.lib.render.TextureUtils;
 import codechicken.lib.render.TextureUtils.IIconRegister;
+import codechicken.lib.thread.RestartableTask;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -17,7 +18,9 @@ import org.apache.logging.log4j.Level;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Created by covers1624 on 7/25/2016.
@@ -31,9 +34,14 @@ import java.util.Map;
 public class CCBakedModelLoader implements IIconRegister, IResourceManagerReloadListener {
 
     public static final CCBakedModelLoader INSTANCE = new CCBakedModelLoader();
+
     private static final Map<String, IBakedModel> modelCache = new HashMap<String, IBakedModel>();
+    private static final Map<String, IModKeyProvider> modelBakeQue = new HashMap<String, IModKeyProvider>();
+
+    private static final ModelBakeTask bakingTask = new ModelBakeTask();
+
     private static final Map<String, IModKeyProvider> modKeyProviders = new HashMap<String, IModKeyProvider>();
-    private static final Map<IModKeyProvider, IBakedModelLoader> loaders = new HashMap<IModKeyProvider, IBakedModelLoader>();
+    private static final Map<IModKeyProvider, IBakedModelLoader> modelLoaders = new HashMap<IModKeyProvider, IBakedModelLoader>();
 
     static {
         TextureUtils.addIconRegister(INSTANCE);
@@ -49,13 +57,13 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
         if (Loader.instance().hasReachedState(LoaderState.INITIALIZATION)) {
             throw new RuntimeException("Unable to register IBakedModelLoader after Pre Initialization! Please register as the first thing you do in Pre Init!");
         }
-        if (loaders.containsValue(loader)) {
+        if (modelLoaders.containsValue(loader)) {
             throw new RuntimeException("Unable to register IBakedModelLoader as it has already been registered!");
         }
 
         IModKeyProvider provider = loader.createKeyProvider();
         FMLLog.log("CodeChicken Lib", Level.INFO, "Registered loader for mod: %s", provider.getMod());
-        loaders.put(provider, loader);
+        modelLoaders.put(provider, loader);
         modKeyProviders.put(provider.getMod(), provider);
     }
 
@@ -73,7 +81,7 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
 
     private static Collection<ResourceLocation> getTextures() {
         ImmutableList.Builder<ResourceLocation> builder = ImmutableList.builder();
-        for (IBakedModelLoader loader : loaders.values()) {
+        for (IBakedModelLoader loader : modelLoaders.values()) {
             loader.addTextures(builder);
         }
         return builder.build();
@@ -85,7 +93,7 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
      * @param stack The ItemStack to attempt to obtain a model for.
      * @return The baked model if it can be found/generated, else null.
      */
-    public static IBakedModel getModel(ItemStack stack) {
+    public static synchronized IBakedModel getModel(ItemStack stack) {
         if (stack.getItem() == null || stack.getItem().getRegistryName() == null) {
             return null;
         }
@@ -99,20 +107,54 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
         if (key == null) {
             return null;
         }
-        if (!modelCache.containsKey(location.toString() + "|" + key)) {
-            IBakedModel model = generateModel(provider, stack);
-            if (model == null) {
-                return null;
+        String mapKey = location.toString() + "|" + key;
+        synchronized (modelCache) {
+            if (!modelCache.containsKey(mapKey)) {
+                if (modelBakeQue.containsKey(mapKey)) {
+                    return null;
+                } else {
+                    bakingTask.stop();
+                    modelBakeQue.put(mapKey, provider);
+                    bakingTask.restart();
+                }
             }
-            modelCache.put(location.toString() + "|" + key, model);
+            return modelCache.get(mapKey);
         }
-        return modelCache.get(location.toString() + "|" + key);
     }
 
-    public static IBakedModel generateModel(IModKeyProvider provider, ItemStack stack) {
-        String key = provider.createKey(stack);
-        IBakedModelLoader loader = loaders.get(provider);
-        return loader.bakeModel(key);
-    }
+    public static class ModelBakeTask extends RestartableTask {
 
+        public ModelBakeTask() {
+            super("CodeChicken Lib Dynamic model baking");
+        }
+
+        @Override
+        public void execute() {
+            Map<String, IModKeyProvider> localQue = new HashMap<String, IModKeyProvider>(modelBakeQue);
+            Iterator<Entry<String, IModKeyProvider>> queIterator = localQue.entrySet().iterator();
+            while (queIterator.hasNext()) {
+                if (interrupted()) {
+                    return;
+                }
+                Entry<String, IModKeyProvider> entry = queIterator.next();
+                IBakedModelLoader loader = modelLoaders.get(entry.getValue());
+                String key = stripMapHeader(entry.getKey());
+                IBakedModel model = loader.bakeModel(key);
+                queIterator.remove();
+                synchronized (modelBakeQue) {
+                    modelBakeQue.remove(entry.getKey());
+                }
+                if (model != null) {
+                    synchronized (modelCache) {
+                        modelCache.put(entry.getKey(), model);
+                    }
+                }
+            }
+        }
+
+        private static String stripMapHeader(String mapKey) {
+            int firstPipe = mapKey.indexOf('|');
+            return mapKey.substring(firstPipe + 1);
+        }
+    }
 }

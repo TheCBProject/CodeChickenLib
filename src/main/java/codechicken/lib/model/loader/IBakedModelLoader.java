@@ -1,8 +1,10 @@
 package codechicken.lib.model.loader;
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 
 /**
@@ -32,6 +34,16 @@ public interface IBakedModelLoader {
          * @return The key created, null if the item is not supported.
          */
         String createKey(ItemStack stack);
+
+        /**
+         * Creates a unique key for your BlockState that you can use to create models for.
+         * Return something like "key1=value1,key2=value2,key3=value3" but can realistically be what ever you want.
+         *
+         * @param state IBlockState to create a key for.
+         * @param face  The side the Quads are being requested for.
+         * @return The key created, null if IBlockState is not supported.
+         */
+        String createKey(IBlockState state, EnumFacing face);
     }
 
     /**
@@ -50,6 +62,9 @@ public interface IBakedModelLoader {
 
     /**
      * Uses the key provided from the IModKeyProvider to bake a model from your unique key.
+     * Form your key you should have some sort of indication of what exactly you are baking.
+     * <p/>
+     * If it is a "In World" model then it can just be a simple wrapper as the override model just calls getQuads.
      *
      * @param key Your Unique key.
      * @return The baked model created, null if it cannot for some reason.
