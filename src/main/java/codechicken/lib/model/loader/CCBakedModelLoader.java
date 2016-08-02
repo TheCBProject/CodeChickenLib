@@ -5,11 +5,13 @@ import codechicken.lib.render.TextureUtils;
 import codechicken.lib.render.TextureUtils.IIconRegister;
 import codechicken.lib.thread.RestartableTask;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
@@ -85,6 +87,35 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
             loader.addTextures(builder);
         }
         return builder.build();
+    }
+
+    public static synchronized IBakedModel getModel(IBlockState state, EnumFacing face){
+        if (state.getBlock() == null || state.getBlock().getRegistryName() == null){
+            return null;
+        }
+        ResourceLocation location = state.getBlock().getRegistryName();
+        IModKeyProvider provider = modKeyProviders.get(location.getResourceDomain());
+        if (provider == null){
+            FMLLog.bigWarning("Unable to find IModKeyProvider for domain %s!", location.getResourceDomain());
+            return null;
+        }
+        String key = provider.createKey(state, face);
+        if (key == null){
+            return null;
+        }
+        String faceString = face == null ? "general" : face.getName();
+        String mapKey = location.toString() + "#" + faceString + "|" + key;
+        synchronized (modelCache){
+            if (!modelCache.containsKey(mapKey)){
+                IBakedModelLoader loader = modelLoaders.get(provider);
+                IBakedModel model = loader.bakeModel(key);
+                if (model == null){
+                    return null;
+                }
+                modelCache.put(mapKey, model);
+            }
+            return modelCache.get(mapKey);
+        }
     }
 
     /**
