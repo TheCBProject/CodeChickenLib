@@ -52,4 +52,35 @@ public class ArrayUtils {
         }
         return true;
     }
+
+    /**
+     * Adds the value at the first null index in the array.
+     *
+     * @param array Array to add to.
+     * @param value Value to add.
+     * @param <T>   Type of value.
+     */
+    public static <T> void addToArrayFirstNull(T[] array, T value) {
+        int nullIndex = -1;
+        for (int i = 0; i < array.length; i++) {
+            T v = array[i];
+            if (v == null){
+                nullIndex = i;
+                break;
+            }
+        }
+        if (nullIndex == -1){//We aren't able to expand it as we are using generics.
+            throw new RuntimeException("Unable to add to array as it is full! Expand it before adding to it!");
+        }
+        array[nullIndex] = value;
+    }
+
+    public static <T> boolean isEmpty(T[] array){
+        for (T value : array){
+            if (value != null){
+                return false;
+            }
+        }
+        return true;
+    }
 }
