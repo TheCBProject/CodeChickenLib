@@ -39,11 +39,12 @@ public interface IBakedModelLoader {
          * Creates a unique key for your BlockState that you can use to create models for.
          * Return something like "key1=value1,key2=value2,key3=value3" but can realistically be what ever you want.
          *
+         * This should be used to create a key for the BlockState, handle the face culling in the model you return!
+         *
          * @param state IBlockState to create a key for.
-         * @param face  The side the Quads are being requested for.
          * @return The key created, null if IBlockState is not supported.
          */
-        String createKey(IBlockState state, EnumFacing face);
+        String createKey(IBlockState state);
     }
 
     /**

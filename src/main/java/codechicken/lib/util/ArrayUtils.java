@@ -1,6 +1,7 @@
 package codechicken.lib.util;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,20 +65,29 @@ public class ArrayUtils {
         int nullIndex = -1;
         for (int i = 0; i < array.length; i++) {
             T v = array[i];
-            if (v == null){
+            if (v == null) {
                 nullIndex = i;
                 break;
             }
         }
-        if (nullIndex == -1){//We aren't able to expand it as we are using generics.
+        if (nullIndex == -1) {//We aren't able to expand it as we are using generics.
             throw new RuntimeException("Unable to add to array as it is full! Expand it before adding to it!");
         }
         array[nullIndex] = value;
     }
 
-    public static <T> boolean isEmpty(T[] array){
+    public static <T> List<T> addAllNoNull(T[] array, List<T> list) {
         for (T value : array){
             if (value != null){
+                list.add(value);
+            }
+        }
+        return list;
+    }
+
+    public static <T> boolean isEmpty(T[] array) {
+        for (T value : array) {
+            if (value != null) {
                 return false;
             }
         }

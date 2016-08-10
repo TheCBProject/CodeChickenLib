@@ -81,6 +81,12 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
         modelCache.clear();
     }
 
+    public static void clearCache(){
+        synchronized (modelCache){
+            modelCache.clear();
+        }
+    }
+
     private static Collection<ResourceLocation> getTextures() {
         ImmutableList.Builder<ResourceLocation> builder = ImmutableList.builder();
         for (IBakedModelLoader loader : modelLoaders.values()) {
@@ -89,7 +95,7 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
         return builder.build();
     }
 
-    public static synchronized IBakedModel getModel(IBlockState state, EnumFacing face){
+    public static synchronized IBakedModel getModel(IBlockState state){
         if (state.getBlock() == null || state.getBlock().getRegistryName() == null){
             return null;
         }
@@ -99,12 +105,11 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
             FMLLog.bigWarning("Unable to find IModKeyProvider for domain %s!", location.getResourceDomain());
             return null;
         }
-        String key = provider.createKey(state, face);
+        String key = provider.createKey(state);
         if (key == null){
             return null;
         }
-        String faceString = face == null ? "general" : face.getName();
-        String mapKey = location.toString() + "#" + faceString + "|" + key;
+        String mapKey = location.toString() + "|" + key;
         synchronized (modelCache){
             if (!modelCache.containsKey(mapKey)){
                 IBakedModelLoader loader = modelLoaders.get(provider);

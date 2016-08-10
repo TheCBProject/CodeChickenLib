@@ -1,6 +1,5 @@
 package codechicken.lib.model;
 
-import codechicken.lib.model.loader.CCBakedBlockModelFaceExclusions;
 import codechicken.lib.model.loader.CCBakedModelLoader;
 import codechicken.lib.render.TextureUtils;
 import net.minecraft.block.state.IBlockState;
@@ -12,7 +11,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,10 +34,7 @@ public class CCOverrideBakedBlockModel implements IBakedModel {
 
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
-        if (!CCBakedBlockModelFaceExclusions.shouldBake(state.getBlock(), side)) {
-            return new ArrayList<BakedQuad>();
-        }
-        IBakedModel correctModel = CCBakedModelLoader.getModel(state, side);//TODO Baking system ignores side and should be handled by returned model.
+        IBakedModel correctModel = CCBakedModelLoader.getModel(state);
         LinkedList<BakedQuad> quads = new LinkedList<BakedQuad>();
         if (correctModel != null) {
             quads.addAll(correctModel.getQuads(state, side, rand));
