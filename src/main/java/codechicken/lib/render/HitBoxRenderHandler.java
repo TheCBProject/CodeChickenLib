@@ -1,12 +1,10 @@
 package codechicken.lib.render;
 
-import codechicken.lib.raytracer.RayTracer;
-import codechicken.lib.vec.BlockCoord;
-import codechicken.lib.vec.IIndexedCuboidProvider;
+import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -34,14 +32,11 @@ public class HitBoxRenderHandler {
         World world = event.getPlayer().worldObj;
         EntityPlayer player = event.getPlayer();
         BlockPos pos = event.getTarget().getBlockPos();
-        if (event.getTarget().typeOfHit == RayTraceResult.Type.BLOCK && world.getTileEntity(pos) instanceof IIndexedCuboidProvider) {
-            RayTracer rayTracer = new RayTracer();
-            IIndexedCuboidProvider provider = (IIndexedCuboidProvider) world.getTileEntity(pos);
-            RayTraceResult hit = rayTracer.rayTraceCuboids(new Vector3(RayTracer.getStartVec(player)), new Vector3(RayTracer.getEndVec(player)), provider.getIndexedCuboids(), new BlockCoord(event.getTarget().getBlockPos()));
-            if (hit != null) {
-                event.setCanceled(true);
-                RenderUtils.renderHitBox(player, provider, hit, event.getPartialTicks());
-            }
+
+        //We have found a CuboidRayTraceResult, Lets render it properly..
+        if (event.getTarget().typeOfHit == Type.BLOCK && event.getTarget() instanceof CuboidRayTraceResult) {
+            event.setCanceled(true);
+            RenderUtils.renderHitBox(event.getPlayer(), ((CuboidRayTraceResult) event.getTarget()).cuboid6.copy().add(new Vector3(pos)), event.getPartialTicks());
         }
     }
 

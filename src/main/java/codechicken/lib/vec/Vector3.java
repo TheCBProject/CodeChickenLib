@@ -160,11 +160,19 @@ public class Vector3 implements Copyable<Vector3> {
         return this;
     }
 
+    public Vector3 add(double d) {
+        return add(d, d, d);
+    }
+
     public Vector3 add(double d, double d1, double d2) {
         x += d;
         y += d1;
         z += d2;
         return this;
+    }
+
+    public Vector3 add(BlockPos pos){
+        return add(new Vector3(pos));
     }
 
     public Vector3 add(Vector3 vec) {
@@ -174,8 +182,8 @@ public class Vector3 implements Copyable<Vector3> {
         return this;
     }
 
-    public Vector3 add(double d) {
-        return add(d, d, d);
+    public Vector3 sub(BlockPos pos){
+        return sub(new Vector3(pos));
     }
 
     public Vector3 sub(Vector3 vec) {

@@ -1,7 +1,10 @@
 package codechicken.lib.vec;
 
+import codechicken.lib.math.MathHelper;
+import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.util.Copyable;
 import net.minecraft.block.Block;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 
 import java.math.BigDecimal;
@@ -82,11 +85,6 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         min.sub(vec);
         max.add(vec);
         return this;
-    }
-
-    @Deprecated //TODO, This seems to have gone away...
-    public void setBlockBounds(Block block) {
-        //block.setBlockBounds((float) min.x, (float) min.y, (float) min.z, (float) max.x, (float) max.y, (float) max.z);
     }
 
     public boolean intersects(Cuboid6 b) {

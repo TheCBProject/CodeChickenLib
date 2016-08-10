@@ -126,10 +126,10 @@ public class MathHelper {
     }
 
     /**
-     * @return a <= x <= b
+     * @return min <= value <= max
      */
-    public static boolean between(double a, double x, double b) {
-        return a <= x && x <= b;
+    public static boolean between(double min, double value, double max) {
+        return min <= value && value <= max;
     }
 
     public static int approachExpI(int a, int b, double ratio) {

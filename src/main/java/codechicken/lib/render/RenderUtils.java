@@ -1,7 +1,10 @@
 package codechicken.lib.render;
 
+import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.raytracer.IndexedCuboid6;
 import codechicken.lib.vec.*;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -207,20 +210,22 @@ public class RenderUtils {
         if (cuboid6 == null) {
             return;
         }
+       renderHitBox(player, cuboid6, partialTicks);
+    }
+
+    public static void renderHitBox(EntityPlayer player, Cuboid6 cuboid, float partialTicks){
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.color(0.0F, 0.0F, 0.0F, 0.4F);
         GlStateManager.glLineWidth(2.0F);
         GlStateManager.disableTexture2D();
         GlStateManager.depthMask(false);
         double xPos = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) partialTicks;
         double yPos = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) partialTicks;
         double zPos = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) partialTicks;
-        drawSelectionBoundingBox(cuboid6.aabb().expandXyz(0.0020000000949949026D).offset(-xPos, -yPos, -zPos));
+        RenderGlobal.func_189697_a(cuboid.aabb().expandXyz(0.0020000000949949026D).offset(-xPos, -yPos, -zPos), 0.0F, 0.0F, 0.0F, 0.4F);
         GlStateManager.depthMask(true);
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
-
     }
 
     public static void drawSelectionBoundingBox(AxisAlignedBB boundingBox) {
