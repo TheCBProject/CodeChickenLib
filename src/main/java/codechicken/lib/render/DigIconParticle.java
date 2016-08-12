@@ -44,7 +44,7 @@ public class DigIconParticle extends Particle {
      * //TODO Doc.
      */
     @Override
-    public void renderParticle(VertexBuffer vertexBuffer, Entity entity, float par2, float par3, float par4, float par5, float par6, float par7) {
+    public void renderParticle(VertexBuffer vertexBuffer, Entity entity, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ) {
         float f6 = (particleTextureIndexX + particleTextureJitterX / 4.0F) / 16.0F;
         float f7 = f6 + 0.015609375F;
         float f8 = (particleTextureIndexY + particleTextureJitterY / 4.0F) / 16.0F;
@@ -58,15 +58,19 @@ public class DigIconParticle extends Particle {
             f9 = particleTexture.getInterpolatedV((particleTextureJitterY + 1.0F) / 4.0F * 16.0F);
         }
 
-        float f11 = (float) (prevPosX + (posX - prevPosX) * par2 - interpPosX);
-        float f12 = (float) (prevPosY + (posY - prevPosY) * par2 - interpPosY);
-        float f13 = (float) (prevPosZ + (posZ - prevPosZ) * par2 - interpPosZ);
+        float f11 = (float) (prevPosX + (posX - prevPosX) * partialTicks - interpPosX);
+        float f12 = (float) (prevPosY + (posY - prevPosY) * partialTicks - interpPosY);
+        float f13 = (float) (prevPosZ + (posZ - prevPosZ) * partialTicks - interpPosZ);
         float f14 = 1.0F;
 
-        vertexBuffer.pos(f11 - par3 * f10 - par6 * f10, f12 - par4 * f10, f13 - par5 * f10 - par7 * f10).tex(f6, f9).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).endVertex();
-        vertexBuffer.pos(f11 - par3 * f10 + par6 * f10, f12 + par4 * f10, f13 - par5 * f10 + par7 * f10).tex(f6, f8).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).endVertex();
-        vertexBuffer.pos(f11 + par3 * f10 + par6 * f10, f12 + par4 * f10, f13 + par5 * f10 + par7 * f10).tex(f7, f8).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).endVertex();
-        vertexBuffer.pos(f11 + par3 * f10 - par6 * f10, f12 - par4 * f10, f13 + par5 * f10 - par7 * f10).tex(f7, f9).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).endVertex();
+        int i = this.getBrightnessForRender(partialTicks);
+        int j = i >> 16 & 65535;
+        int k = i & 65535;
+
+        vertexBuffer.pos(f11 - rotationX * f10 - rotationXY * f10, f12 - rotationZ * f10, f13 - rotationYZ * f10 - rotationXZ * f10).tex(f6, f9).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).lightmap(j, k).endVertex();
+        vertexBuffer.pos(f11 - rotationX * f10 + rotationXY * f10, f12 + rotationZ * f10, f13 - rotationYZ * f10 + rotationXZ * f10).tex(f6, f8).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).lightmap(j, k).endVertex();
+        vertexBuffer.pos(f11 + rotationX * f10 + rotationXY * f10, f12 + rotationZ * f10, f13 + rotationYZ * f10 + rotationXZ * f10).tex(f7, f8).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).lightmap(j, k).endVertex();
+        vertexBuffer.pos(f11 + rotationX * f10 - rotationXY * f10, f12 - rotationZ * f10, f13 + rotationYZ * f10 - rotationXZ * f10).tex(f7, f9).color(f14 * particleRed, f14 * particleGreen, f14 * particleBlue, 255F).lightmap(j, k).endVertex();
     }
 
     public static void addBlockHitEffects(World world, Cuboid6 bounds, int side, TextureAtlasSprite icon, ParticleManager effectRenderer) {
