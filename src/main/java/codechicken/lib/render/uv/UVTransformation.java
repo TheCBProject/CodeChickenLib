@@ -1,13 +1,12 @@
 package codechicken.lib.render.uv;
 
 import codechicken.lib.render.CCRenderState;
-import codechicken.lib.render.baked.IBakedVertexOperation;
 import codechicken.lib.vec.ITransformation;
 
 /**
  * Abstract supertype for any UV transformation
  */
-public abstract class UVTransformation extends ITransformation<UV, UVTransformation> implements CCRenderState.IVertexOperation, IBakedVertexOperation {
+public abstract class UVTransformation extends ITransformation<UV, UVTransformation> implements CCRenderState.IVertexOperation {
     public static final int operationIndex = CCRenderState.registerOperation();
 
     public UVTransformation at(UV point) {
@@ -31,11 +30,6 @@ public abstract class UVTransformation extends ITransformation<UV, UVTransformat
     @Override
     public int operationID() {
         return operationIndex;
-    }
-
-    @Override
-    public void operateBaked() {
-        apply(CCRenderState.vert.uv);
     }
 }
 

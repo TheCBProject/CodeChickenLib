@@ -93,4 +93,14 @@ public class ArrayUtils {
         }
         return true;
     }
+
+    public static <T> int countNoNull(T[] array){
+        int counter = 0;
+        for (T value : array) {
+            if (value != null) {
+                counter++;
+            }
+        }
+        return counter;
+    }
 }

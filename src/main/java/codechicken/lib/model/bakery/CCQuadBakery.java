@@ -1,34 +1,45 @@
 package codechicken.lib.model.bakery;
 
 import codechicken.lib.colour.Colour;
+import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.Vertex5;
 import codechicken.lib.render.uv.UV;
+import codechicken.lib.util.ArrayUtils;
 import codechicken.lib.vec.Vector3;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
-import net.minecraftforge.fml.common.FMLLog;
 
 import java.util.LinkedList;
 
 /**
  * Created by covers1624 on 8/2/2016.
- *///TODO Support adding more than one quad and baking in to an array instead.
+ * Bakes Quads..
+ */
 
 public class CCQuadBakery {
-
-    //TODO Change these to arrays.
-    private LinkedList<Vertex5> vertices = new LinkedList<Vertex5>();
-    private LinkedList<Vector3> normals = new LinkedList<Vector3>();
-    private LinkedList<Colour> colours = new LinkedList<Colour>();
-    private LinkedList<UV> lightMaps = new LinkedList<UV>();
 
     private VertexFormat format;
     private TextureAtlasSprite sprite;
     private EnumFacing face;
+
+    //Temp storage
+    private UV uv = new UV();
+    private Vector3 normal = null;
+    private Colour colour = new ColourRGBA(0xFFFFFFFF);
+    private UV lightMap = new UV();
+
+    private boolean isBakingTriModel = false;
+    private boolean applyDifuseLighting = true;
+    private LinkedList<BakedQuad> bakedQuads = null;
+
+    //Active storage.
+    private CCQuad quad = null;
+    private int index = 0;
 
     public CCQuadBakery(TextureAtlasSprite sprite, EnumFacing face) {
         this(DefaultVertexFormats.BLOCK, sprite, face);
@@ -40,147 +51,222 @@ public class CCQuadBakery {
         this.face = face;
     }
 
-    public CCQuadBakery putVertex(double xPos, double yPos, double zPos, UV uv, Colour colour) {
-        return putVertex(new Vector3(xPos, yPos, zPos), uv, colour);
+    public CCQuadBakery startBakingQuads() {
+        return startBaking(false);
     }
 
-    public CCQuadBakery putVertex(double xPos, double yPos, double zPos, double u, double v, Colour colour) {
-        return putVertex(new Vector3(xPos, yPos, zPos), new UV(u, v), colour);
+    public CCQuadBakery startBakingTriangles(){
+        return startBaking(true);
     }
 
-    public CCQuadBakery putVertex(Vector3 pos, UV uv, Colour colour) {
-        return putVertex(new Vertex5(pos, uv), null, colour, null);
-    }
-
-    public CCQuadBakery putVertex(Vector3 pos, UV uv, Vector3 normal, Colour colour) {
-        return putVertex(new Vertex5(pos, uv), normal, colour, null);
-    }
-
-    public CCQuadBakery putVertex(Vector3 pos, UV uv, Vector3 normal, Colour colour, UV lightMap) {
-        return putVertex(new Vertex5(pos, uv), normal, colour, lightMap);
-    }
-
-    public CCQuadBakery putVertex(Vertex5 vertex, Vector3 normal, Colour colour, UV lightMap) {
-        if (vertices.size() == 4) {
-            throw new IllegalArgumentException("Unable to add 5 vertices to a quad!");
+    //TODO Have the QuadBakery bake from any DrawMode to any DrawMode and from any VertexFormat to any VertexFormat.
+    //TODO Maybe a custom BakedQuad that holds all the raw info still, might make it more possible / cleaner for a VF > VF converter.
+    private CCQuadBakery startBaking(boolean isTriangles) {
+        if (quad != null || bakedQuads != null) {
+            throw new IllegalStateException("Quads are still baking or baking has not finished yet!");
         }
-        vertices.add(vertex);
-        if (normal != null) {
-            normals.add(normal);
-        }
-        if (colour != null) {
-            colours.add(colour);
-        }
-        if (lightMap != null) {
-            lightMaps.add(lightMap);
-        }
+        isBakingTriModel = isTriangles;
+        bakedQuads = new LinkedList<BakedQuad>();
         return this;
     }
 
-    private void quadulate() {
-        if (vertices.size() == 3) {
-            if (normals.size() != 0 && normals.size() != 3) {
-                throw new IllegalArgumentException("Unable to quadulate triangle model as not all normals exist!");
-            }
-            vertices.add(vertices.get(2));
-            if (normals.size() != 0) {
-                normals.add(normals.get(2));
-            }
+    public ImmutableList<BakedQuad> finishBaking() {
+        if (quad != null) {
+            throw new IllegalStateException("Quads are still baking!");
         }
+        if (bakedQuads == null) {
+            throw new IllegalStateException("The bakery has no baked quads!");
+        }
+        ImmutableList<BakedQuad> returnQuads = ImmutableList.copyOf(bakedQuads);
+        reset();
+        return returnQuads;
     }
 
-    @Deprecated
-    public CCQuadBakery interpolateUVs() {
-        LinkedList<Vertex5> verts = new LinkedList<Vertex5>(vertices);
-        vertices = new LinkedList<Vertex5>();
-        for (Vertex5 vert : verts) {
-            vert.uv.u = sprite.getInterpolatedU(vert.uv.u);
-            vert.uv.v = sprite.getInterpolatedV(vert.uv.v);
-            vertices.add(vert);
-        }
+    public void reset() {
+        applyDifuseLighting = true;
+        isBakingTriModel = false;
+        bakedQuads = null;
+        quad = null;
+        index = 0;
+    }
+
+    public CCQuadBakery disableDifuseLighting() {
+        return setDifuseLightingState(false);
+    }
+
+    public CCQuadBakery setDifuseLightingState(boolean state) {
+        applyDifuseLighting = state;
         return this;
     }
 
-    private void fill() {
-        if (colours.size() == 1) {
-            Colour colour = colours.get(0);
-            for (int i = 1; i < 4; i++) {
-                colours.add(colour);
-            }
-        }
-
-        if (lightMaps.size() == 1) {
-            UV lightMap = lightMaps.get(0);
-            for (int i = 1; i < 4; i++) {
-                lightMaps.add(lightMap);
-            }
-        }
+    public CCQuadBakery setColour(int colour) {
+        return setColour(new ColourRGBA(colour));
     }
 
-    private void computeNormals() {
-        if (normals.size() == 0) {
-            if (vertices.size() == 3) {
-                quadulate();
-            }
-            Vector3 diff1 = vertices.get(1).vec.copy().subtract(vertices.get(0).vec);
-            Vector3 diff2 = vertices.get(3).vec.copy().subtract(vertices.get(0).vec);
-            Vector3 normal = diff1.crossProduct(diff2).normalize();
-
-            normals = new LinkedList<Vector3>();
-            normals.add(normal.copy());
-            normals.add(normal.copy());
-            normals.add(normal.copy());
-            normals.add(normal.copy());
-        }
+    public CCQuadBakery setColour(Colour colour) {
+        this.colour = colour.copy();
+        return this;
     }
 
-    public BakedQuad bake() {
-        quadulate();
-        fill();
-        if (format.hasNormal()) {
-            computeNormals();
-        }
+    public CCQuadBakery setLightMap(int brightness) {
+        return setLightMap(new UV(brightness >> 16 & 65535, brightness & 65535));//TODO Is this the correct way?
+    }
 
-        UnpackedBakedQuad.Builder quadBuilder = new UnpackedBakedQuad.Builder(format);
-        quadBuilder.setTexture(sprite);
-        quadBuilder.setQuadOrientation(face);
-        for (int i = 0; i < vertices.size(); i++) {
-            for (int e = 0; e < format.getElementCount(); e++) {
-                switch (format.getElement(e).getUsage()) {
-                case POSITION:
-                    Vector3 pos = vertices.get(i).vec;
-                    quadBuilder.put(e, (float) pos.x, (float) pos.y, (float) pos.z);
-                    break;
-                case NORMAL:
-                    Vector3 normal = normals.get(i);
-                    quadBuilder.put(e, (float) normal.x, (float) normal.y, (float) normal.z);
-                    break;
-                case COLOR:
-                    Colour colour = colours.get(i);
-                    quadBuilder.put(e, (colour.r & 0xFF) / 255, (colour.g & 0xFF) / 255, (colour.b & 0xFF) / 255, (colour.a & 0xFF) / 255);
-                    break;
-                case UV:
-                    if (format.getElement(e).getIndex() == 0) {
-                        UV uv = vertices.get(i).uv;
-                        quadBuilder.put(e, (float) uv.u, (float) uv.v);
-                    } else {
-                        if (lightMaps.size() == 0) {
-                            quadBuilder.put(e);
+    public CCQuadBakery setLightMap(UV lightMap) {
+        this.lightMap = lightMap.copy();
+        return this;
+    }
+
+    public CCQuadBakery setNormal(Vector3 normal) {
+        this.normal = normal;
+        return this;
+    }
+
+    public CCQuadBakery setUV(double u, double v) {
+        return setUV(new UV(u, v));
+    }
+
+    public CCQuadBakery setUV(UV uv) {
+        this.uv = uv.copy();
+        return this;
+    }
+
+    public CCQuadBakery addVertexWithUV(Vector3 vertex, double u, double v) {
+        return addVertexWithUV(vertex, new UV(u, v));
+    }
+
+    public CCQuadBakery addVertexWithUV(double x, double y, double z, UV uv) {
+        return addVertexWithUV(new Vector3(x, y, z), uv);
+    }
+
+    public CCQuadBakery addVertexWithUV(double x, double y, double z, double u, double v) {
+        return addVertexWithUV(new Vector3(x, y, z), new UV(u, v));
+    }
+
+    public CCQuadBakery addVertexWithUV(Vector3 vertex, UV uv) {
+        return addVertexWithUV(new Vertex5(vertex, uv));
+    }
+
+    public CCQuadBakery addVertexWithUV(Vertex5 vertex){
+        setUV(vertex.uv);
+        return addVertex(vertex.vec);
+    }
+
+    public CCQuadBakery addVertex(double x, double y, double z) {
+        return addVertex(new Vector3(x, y, z));
+    }
+
+    public CCQuadBakery addVertex(Vector3 vertex) {
+        if (quad == null) {
+            quad = new CCQuad();
+            index = 0;
+        }
+        quad.vertices[index] = new Vertex5(vertex.copy(), uv.copy());
+        quad.normals[index] = normal != null ? normal.copy() : null;
+        quad.vertexColour[index] = colour.copy();
+        quad.vertexLightMap[index] = lightMap.copy();
+        index++;
+
+        int max = isBakingTriModel ? 3 : 4;
+
+        if (index == max) {
+            index = 0;
+            quad.quadulate();
+            if (format.hasNormal()) {
+                quad.computeNormals();
+            }
+
+            UnpackedBakedQuad.Builder quadBuilder = new UnpackedBakedQuad.Builder(format);
+            quadBuilder.setApplyDiffuseLighting(applyDifuseLighting);
+            quadBuilder.setTexture(sprite);
+            quadBuilder.setQuadOrientation(face);
+            for (int index = 0; index < 4; index++) {
+                for (int e = 0; e < format.getElementCount(); e++) {
+                    switch (format.getElement(e).getUsage()) {
+                    case POSITION:
+                        Vector3 pos = quad.vertices[index].vec;
+                        quadBuilder.put(e, (float) pos.x, (float) pos.y, (float) pos.z, 1);
+                        break;
+                    case NORMAL:
+                        Vector3 normal = quad.normals[index];
+                        quadBuilder.put(e, (float) normal.x, (float) normal.y, (float) normal.z, 0);
+                        break;
+                    case COLOR:
+                        Colour colour = quad.vertexColour[index];
+                        quadBuilder.put(e, (colour.r & 0xFF) / 255, (colour.g & 0xFF) / 255, (colour.b & 0xFF) / 255, (colour.a & 0xFF) / 255);
+                        break;
+                    case UV:
+                        if (format.getElement(e).getIndex() == 0) {
+                            UV uv = quad.vertices[index].uv;
+                            quadBuilder.put(e, (float) uv.u, (float) uv.v, 0, 1);
                         } else {
-                            UV uv = lightMaps.get(i);
-                            quadBuilder.put(e, (float) uv.u, (float) uv.v);
+                            UV uv = quad.vertexLightMap[index];
+                            quadBuilder.put(e, (float) uv.u, (float) uv.v, 0, 1);
                         }
-                    }
 
-                    break;
-                case PADDING:
-                default:
-                    quadBuilder.put(e);
+                        break;
+                    case PADDING:
+                    default:
+                        quadBuilder.put(e);
+                    }
+                }
+            }
+            bakedQuads.add(quadBuilder.build());
+            quad = null;
+        }
+        return this;
+    }
+
+    /**
+     * Created by covers1624 on 8/20/2016.
+     * Basically just a holder for quads before baking.
+     */
+    public static class CCQuad {
+        public Vertex5[] vertices = new Vertex5[4];
+        public Vector3[] normals = new Vector3[4];
+        public Colour[] vertexColour = new Colour[4];
+        public UV[] vertexLightMap = new UV[4];
+        public EnumFacing face = EnumFacing.UP;
+
+        public boolean isQuads() {
+            int counter = ArrayUtils.countNoNull(vertices);
+            return counter == 4;
+        }
+
+        /**
+         * Quadulates the quad by copying any element at index 2 to index 3 only if there are 3 of any given element.
+         */
+        public void quadulate() {
+            if (!isQuads()) {
+                vertices[3] = vertices[2].copy();
+                int normalCount = ArrayUtils.countNoNull(normals);
+                int colourCount = ArrayUtils.countNoNull(vertexColour);
+                int lightMapCount = ArrayUtils.countNoNull(vertexLightMap);
+                if (normalCount == 3) {
+                    normals[3] = normals[2].copy();
+                }
+                if (colourCount == 3) {
+                    vertexColour[3] = vertexColour[2].copy();
+                }
+                if (lightMapCount == 3) {
+                    vertexLightMap[3] = vertexLightMap[2].copy();
                 }
             }
         }
 
-        return quadBuilder.build();
-    }
+        /**
+         * Creates a set of normals for the quad.
+         * Will attempt to Quadulate the model first.
+         */
+        public void computeNormals() {
+            quadulate();
+            Vector3 diff1 = vertices[1].vec.copy().subtract(vertices[0].vec);
+            Vector3 diff2 = vertices[3].vec.copy().subtract(vertices[0].vec);
+            Vector3 normal = diff1.crossProduct(diff2).normalize();
 
+            for (int i = 0; i < 4; i++) {
+                normals[i] = normal.copy();
+            }
+        }
+    }
 }

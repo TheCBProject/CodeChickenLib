@@ -81,7 +81,7 @@ public class BlockModelBakery {
 
     public void bakeFaceYNeg(double posX, double posY, double posZ, TextureAtlasSprite sprite) {
         EnumFacing face = renderFromInside ? EnumFacing.UP : EnumFacing.DOWN;
-        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face);
+        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face).startBakingQuads();
 
         double d3 = (double) sprite.getInterpolatedU(this.renderMinX * 16.0D);
         double d4 = (double) sprite.getInterpolatedU(this.renderMaxX * 16.0D);
@@ -158,11 +158,12 @@ public class BlockModelBakery {
         UV uv3 = new UV(d7, d9);
         UV uv4 = new UV(d4, d6);
 
-        quadBakery.putVertex(d11, d13, d15, uv1, colourTopLeft);
-        quadBakery.putVertex(d11, d13, d14, uv2, colourBottomLeft);
-        quadBakery.putVertex(d12, d13, d14, uv3, colourBottomRight);
-        quadBakery.putVertex(d12, d13, d15, uv4, colourTopRight);
-        quadList.add(quadBakery.bake());
+        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d13, d15, uv1);
+        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d11, d13, d14, uv2);
+        quadBakery.setColour(colourBottomRight).addVertexWithUV(d12, d13, d14, uv3);
+        quadBakery.setColour(colourTopRight).addVertexWithUV(d12, d13, d15, uv4);
+
+        quadList.addAll(quadBakery.finishBaking());
     }
 
     public void bakeFaceYPos(TextureAtlasSprite sprite) {
@@ -171,7 +172,7 @@ public class BlockModelBakery {
 
     public void bakeFaceYPos(double posX, double posY, double posZ, TextureAtlasSprite sprite) {
         EnumFacing face = renderFromInside ? EnumFacing.DOWN : EnumFacing.UP;
-        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face);
+        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face).startBakingQuads();
 
         double d3 = (double) sprite.getInterpolatedU(this.renderMinX * 16.0D);
         double d4 = (double) sprite.getInterpolatedU(this.renderMaxX * 16.0D);
@@ -249,11 +250,12 @@ public class BlockModelBakery {
         UV uv3 = new UV(d3, d5);
         UV uv4 = new UV(d8, d10);
 
-        quadBakery.putVertex(d12, d13, d15, uv1, colourTopLeft);
-        quadBakery.putVertex(d12, d13, d14, uv2, colourBottomLeft);
-        quadBakery.putVertex(d11, d13, d14, uv3, colourBottomRight);
-        quadBakery.putVertex(d11, d13, d15, uv4, colourTopRight);
-        quadList.add(quadBakery.bake());
+        quadBakery.setColour(colourTopLeft).addVertexWithUV(d12, d13, d15, uv1);
+        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d12, d13, d14, uv2);
+        quadBakery.setColour(colourBottomRight).addVertexWithUV(d11, d13, d14, uv3);
+        quadBakery.setColour(colourTopRight).addVertexWithUV(d11, d13, d15, uv4);
+
+        quadList.addAll(quadBakery.finishBaking());
     }
 
     public void bakeFaceZNeg(TextureAtlasSprite sprite) {
@@ -262,7 +264,7 @@ public class BlockModelBakery {
 
     public void bakeFaceZNeg(double posX, double posY, double posZ, TextureAtlasSprite sprite) {
         EnumFacing face = renderFromInside ? EnumFacing.SOUTH : EnumFacing.NORTH;
-        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face);
+        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face).startBakingQuads();
 
         double d3 = (double) sprite.getInterpolatedU(this.renderMinX * 16.0D);
         double d4 = (double) sprite.getInterpolatedU(this.renderMaxX * 16.0D);
@@ -341,11 +343,12 @@ public class BlockModelBakery {
         UV uv3 = new UV(d8, d10);
         UV uv4 = new UV(d4, d6);
 
-        quadBakery.putVertex(d11, d14, d15, uv1, colourTopLeft);
-        quadBakery.putVertex(d12, d14, d15, uv2, colourBottomLeft);
-        quadBakery.putVertex(d12, d13, d15, uv3, colourBottomRight);
-        quadBakery.putVertex(d11, d13, d15, uv4, colourTopRight);
-        quadList.add(quadBakery.bake());
+        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d14, d15, uv1);
+        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d12, d14, d15, uv2);
+        quadBakery.setColour(colourBottomRight).addVertexWithUV(d12, d13, d15, uv3);
+        quadBakery.setColour(colourTopRight).addVertexWithUV(d11, d13, d15, uv4);
+
+        quadList.addAll(quadBakery.finishBaking());
     }
 
     public void bakeFaceZPos(TextureAtlasSprite sprite) {
@@ -354,7 +357,7 @@ public class BlockModelBakery {
 
     public void bakeFaceZPos(double posX, double posY, double posZ, TextureAtlasSprite sprite) {
         EnumFacing face = renderFromInside ? EnumFacing.NORTH : EnumFacing.SOUTH;
-        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face);
+        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face).startBakingQuads();
 
         double d3 = (double) sprite.getInterpolatedU(this.renderMinX * 16.0D);
         double d4 = (double) sprite.getInterpolatedU(this.renderMaxX * 16.0D);
@@ -432,11 +435,12 @@ public class BlockModelBakery {
         UV uv3 = new UV(d4, d6);
         UV uv4 = new UV(d7, d9);
 
-        quadBakery.putVertex(d11, d14, d15, uv1, colourTopLeft);
-        quadBakery.putVertex(d11, d13, d15, uv2, colourBottomLeft);
-        quadBakery.putVertex(d12, d13, d15, uv3, colourBottomRight);
-        quadBakery.putVertex(d12, d14, d15, uv4, colourTopRight);
-        quadList.add(quadBakery.bake());
+        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d14, d15, uv1);
+        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d11, d13, d15, uv2);
+        quadBakery.setColour(colourBottomRight).addVertexWithUV(d12, d13, d15, uv3);
+        quadBakery.setColour(colourTopRight).addVertexWithUV(d12, d14, d15, uv4);
+
+        quadList.addAll(quadBakery.finishBaking());
     }
 
     public void bakeFaceXNeg(TextureAtlasSprite sprite) {
@@ -445,7 +449,7 @@ public class BlockModelBakery {
 
     public void bakeFaceXNeg(double posX, double posY, double posZ, TextureAtlasSprite sprite) {
         EnumFacing face = renderFromInside ? EnumFacing.EAST : EnumFacing.WEST;
-        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face);
+        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face).startBakingQuads();
 
         double d3 = (double) sprite.getInterpolatedU(this.renderMinZ * 16.0D);
         double d4 = (double) sprite.getInterpolatedU(this.renderMaxZ * 16.0D);
@@ -523,11 +527,12 @@ public class BlockModelBakery {
         UV uv3 = new UV(d8, d10);
         UV uv4 = new UV(d4, d6);
 
-        quadBakery.putVertex(d11, d13, d15, uv1, colourTopLeft);
-        quadBakery.putVertex(d11, d13, d14, uv2, colourBottomLeft);
-        quadBakery.putVertex(d11, d12, d14, uv3, colourBottomRight);
-        quadBakery.putVertex(d11, d12, d15, uv4, colourTopRight);
-        quadList.add(quadBakery.bake());
+        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d13, d15, uv1);
+        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d11, d13, d14, uv2);
+        quadBakery.setColour(colourBottomRight).addVertexWithUV(d11, d12, d14, uv3);
+        quadBakery.setColour(colourTopRight).addVertexWithUV(d11, d12, d15, uv4);
+
+        quadList.addAll(quadBakery.finishBaking());
     }
 
     public void bakeFaceXPos(TextureAtlasSprite sprite) {
@@ -536,7 +541,7 @@ public class BlockModelBakery {
 
     public void bakeFaceXPos(double posX, double posY, double posZ, TextureAtlasSprite sprite) {
         EnumFacing face = renderFromInside ? EnumFacing.WEST : EnumFacing.EAST;
-        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face);
+        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face).startBakingQuads();
 
         double d3 = (double) sprite.getInterpolatedU(this.renderMinZ * 16.0D);
         double d4 = (double) sprite.getInterpolatedU(this.renderMaxZ * 16.0D);
@@ -615,10 +620,11 @@ public class BlockModelBakery {
         UV uv3 = new UV(d7, d9);
         UV uv4 = new UV(d3, d5);
 
-        quadBakery.putVertex(d11, d12, d15, uv1, colourTopLeft);
-        quadBakery.putVertex(d11, d12, d14, uv2, colourBottomLeft);
-        quadBakery.putVertex(d11, d13, d14, uv3, colourBottomRight);
-        quadBakery.putVertex(d11, d13, d15, uv4, colourTopRight);
-        quadList.add(quadBakery.bake());
+        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d12, d15, uv1);
+        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d11, d12, d14, uv2);
+        quadBakery.setColour(colourBottomRight).addVertexWithUV(d11, d13, d14, uv3);
+        quadBakery.setColour(colourTopRight).addVertexWithUV(d11, d13, d15, uv4);
+
+        quadList.addAll(quadBakery.finishBaking());
     }
 }

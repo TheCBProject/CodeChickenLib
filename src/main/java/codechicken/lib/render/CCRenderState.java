@@ -4,8 +4,6 @@ import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightMatrix;
-import codechicken.lib.render.baked.CCBakedModel;
-import codechicken.lib.render.baked.CCBakedQuad;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Transformation;
@@ -15,13 +13,14 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -369,6 +368,14 @@ public class CCRenderState {
         return m;
     }
 
+    public static void renderQuads(List<BakedQuad> quads){
+        VertexBuffer buffer = startDrawing(GL11.GL_QUADS, quads.get(0).getFormat());
+        for (BakedQuad quad : quads){
+            buffer.addVertexData(quad.getVertexData());
+        }
+        draw();
+    }
+
     public static void render(IVertexOperation... ops) {
         setPipeline(ops);
         render();
@@ -383,8 +390,6 @@ public class CCRenderState {
             writeVert();
         }
     }
-
-
 
     public static void runPipeline() {
         pipeline.operate();
@@ -435,11 +440,11 @@ public class CCRenderState {
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, brightness & 0xFFFF, brightness >>> 16);
     }
 
-    public static void setColour(Colour colour){
+    public static void setColour(Colour colour) {
         CCRenderState.colour = colour.rgba();
     }
 
-    public static ColourRGBA getColour(){
+    public static ColourRGBA getColour() {
         return new ColourRGBA(colour);
     }
 
@@ -477,7 +482,7 @@ public class CCRenderState {
     }
 
     @SideOnly(Side.CLIENT)
-    public static VertexFormat getVertexFormat(){
+    public static VertexFormat getVertexFormat() {
         return fmt;
     }
 

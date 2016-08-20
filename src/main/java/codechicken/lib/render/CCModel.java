@@ -2,9 +2,6 @@ package codechicken.lib.render;
 
 import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightModel;
-import codechicken.lib.render.baked.CCBakedModel;
-import codechicken.lib.render.baked.CCModelBakery;
-import codechicken.lib.render.baked.IBakedVertexOperation;
 import codechicken.lib.render.uv.UV;
 import codechicken.lib.render.uv.UVTransformation;
 import codechicken.lib.render.uv.UVTranslation;
@@ -42,8 +39,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     public final int vp;
     public Vertex5[] verts;
     public ArrayList<Object> attributes = new ArrayList<Object>();
-    private CCBakedModel bakedModel;
-    private boolean requiresBaking = true;
 
     protected CCModel(int vertexMode) {
         if (vertexMode != 7 && vertexMode != 4) {
@@ -110,7 +105,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The generated model
      */
     public CCModel generateBox(int i, double x1, double y1, double z1, double w, double h, double d, double tx, double ty, double tw, double th, double f) {
-        requiresReBaking();
         double u1, v1, u2, v2;
         double x2 = x1 + w;
         double y2 = y1 + h;
@@ -193,17 +187,14 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The generated model. When rendering an icon will need to be supplied for the UV transformation.
      */
     public CCModel generateBlock(int i, Cuboid6 bounds) {
-        requiresReBaking();
         return generateBlock(i, bounds, 0);
     }
 
     public CCModel generateBlock(int i, Cuboid6 bounds, int mask) {
-        requiresReBaking();
         return generateBlock(i, bounds.min.x, bounds.min.y, bounds.min.z, bounds.max.x, bounds.max.y, bounds.max.z, mask);
     }
 
     public CCModel generateBlock(int i, double x1, double y1, double z1, double x2, double y2, double z2) {
-        requiresReBaking();
         return generateBlock(i, x1, y1, z1, x2, y2, z2, 0);
     }
 
@@ -221,7 +212,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The generated model. When rendering an icon will need to be supplied for the UV transformation.
      */
     public CCModel generateBlock(int i, double x1, double y1, double z1, double x2, double y2, double z2, int mask) {
-        requiresReBaking();
         double u1, v1, u2, v2;
 
         if ((mask & 1) == 0) {//bottom face
@@ -294,7 +284,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel computeNormals() {
-        requiresReBaking();
         return computeNormals(0, verts.length);
     }
 
@@ -307,7 +296,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The model
      */
     public CCModel computeNormals(int start, int length) {
-        requiresReBaking();
         if (length % vp != 0 || start % vp != 0) {
             throw new IllegalArgumentException("Cannot generate normals across polygons");
         }
@@ -333,7 +321,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The model
      */
     public CCModel computeLighting(LightModel light) {
-        requiresReBaking();
         Vector3[] normals = normals();
         int[] colours = getAttributes(CCRenderState.lightingAttrib);
         if (colours == null) {
@@ -347,7 +334,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel setColour(int c) {
-        requiresReBaking();
         int[] colours = getOrAllocate(CCRenderState.colourAttrib);
         Arrays.fill(colours, c);
         return this;
@@ -359,7 +345,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The model
      */
     public CCModel computeLightCoords() {
-        requiresReBaking();
         LC[] lcs = getOrAllocate(CCRenderState.lightCoordAttrib);
         Vector3[] normals = normals();
         for (int i = 0; i < verts.length; i++) {
@@ -374,7 +359,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The model
      */
     public CCModel smoothNormals() {
-        requiresReBaking();
         ArrayList<PositionNormalEntry> map = new ArrayList<PositionNormalEntry>();
         Vector3[] normals = normals();
         nextvert:
@@ -410,7 +394,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel apply(Transformation t) {
-        requiresReBaking();
         for (int k = 0; k < verts.length; k++) {
             verts[k].apply(t);
         }
@@ -426,7 +409,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel apply(UVTransformation uvt) {
-        requiresReBaking();
         for (int k = 0; k < verts.length; k++) {
             verts[k].apply(uvt);
         }
@@ -435,7 +417,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel expand(int extraVerts) {
-        requiresReBaking();
         int newLen = verts.length + extraVerts;
         verts = Arrays.copyOf(verts, newLen);
         for (int i = 0; i < attributes.size(); i++) {
@@ -471,72 +452,8 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @param ops   Operations to apply
      */
     public void render(int start, int end, CCRenderState.IVertexOperation... ops) {
-        // if (requiresBaking){
-        //     bakedModel = CCModelBakery.bakeModel(this);
-        //    requiresBaking = false;
-        //}
-        //bakedModel.render(start, end, ops);
         CCRenderState.setPipeline(this, start, end, ops);
         CCRenderState.render();
-    }
-
-    /**
-     * Renders the model using the Baking pipeline.
-     *
-     * @param ops Operations to apply.
-     */
-    public void renderBaked(IBakedVertexOperation... ops) {
-        getBakedModel().render(ops);
-    }
-
-    /**
-     * Renders the model using the Baking pipeline.
-     *
-     * @param start The first vertex index to render.
-     * @param end   The vertex index to render until.
-     * @param ops   Operations to apply.
-     */
-    public void renderBaked(int start, int end, IBakedVertexOperation... ops) {
-        getBakedModel().render(start, end, ops);
-    }
-
-    /**
-     * Sets the model to require baking before next render.
-     */
-    public void requiresReBaking() {
-        requiresBaking = true;
-    }
-
-    /**
-     * Queries if the model requires Re-Baking.
-     *
-     * @return If the model needs baking.
-     */
-    public boolean needsBaking() {
-        return requiresBaking;
-    }
-
-    /**
-     * Forces a baking operation, Not really recommended but useful in some situations.
-     *
-     * @return The baked model.
-     */
-    public CCBakedModel bakeModel() {
-        bakedModel = CCModelBakery.bakeModel(this);
-        return bakedModel;
-    }
-
-    /**
-     * Returns a baked model. Will bake the model if it requires Re-Baking.
-     *
-     * @return The baked model.
-     */
-    public CCBakedModel getBakedModel() {
-        if (needsBaking()) {
-            bakedModel = CCModelBakery.bakeModel(this);
-            requiresBaking = false;
-        }
-        return bakedModel;
     }
 
     public static CCModel quadModel(int numVerts) {
