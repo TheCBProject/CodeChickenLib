@@ -20,7 +20,6 @@ import java.util.LinkedList;
  * Created by covers1624 on 8/2/2016.
  * Bakes Quads..
  */
-
 public class CCQuadBakery {
 
     private VertexFormat format;
@@ -55,7 +54,7 @@ public class CCQuadBakery {
         return startBaking(false);
     }
 
-    public CCQuadBakery startBakingTriangles(){
+    public CCQuadBakery startBakingTriangles() {
         return startBaking(true);
     }
 
@@ -109,7 +108,7 @@ public class CCQuadBakery {
     }
 
     public CCQuadBakery setLightMap(int brightness) {
-        return setLightMap(new UV(brightness >> 16 & 65535, brightness & 65535));//TODO Is this the correct way?
+        return setLightMap(new UV(((brightness >> 4) & 15 * 32) / 65535, ((brightness >> 20) & 15 * 32) / 65535));
     }
 
     public CCQuadBakery setLightMap(UV lightMap) {
@@ -147,7 +146,7 @@ public class CCQuadBakery {
         return addVertexWithUV(new Vertex5(vertex, uv));
     }
 
-    public CCQuadBakery addVertexWithUV(Vertex5 vertex){
+    public CCQuadBakery addVertexWithUV(Vertex5 vertex) {
         setUV(vertex.uv);
         return addVertex(vertex.vec);
     }
