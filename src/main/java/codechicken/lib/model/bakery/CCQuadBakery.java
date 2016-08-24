@@ -108,7 +108,7 @@ public class CCQuadBakery {
     }
 
     public CCQuadBakery setLightMap(int brightness) {
-        return setLightMap(new UV(((brightness >> 4) & 15 * 32) / 65535, ((brightness >> 20) & 15 * 32) / 65535));
+        return setLightMap(new UV(((double) ((brightness >> 4) & 15) * 32) / 65535, ((double) ((brightness >> 20) & 15) * 32) / 65535));
     }
 
     public CCQuadBakery setLightMap(UV lightMap) {
@@ -184,11 +184,11 @@ public class CCQuadBakery {
                     switch (format.getElement(e).getUsage()) {
                     case POSITION:
                         Vector3 pos = quad.vertices[index].vec;
-                        quadBuilder.put(e, (float) pos.x, (float) pos.y, (float) pos.z, 1);
+                        quadBuilder.put(e, (float) pos.x, (float) pos.y, (float) pos.z);
                         break;
                     case NORMAL:
                         Vector3 normal = quad.normals[index];
-                        quadBuilder.put(e, (float) normal.x, (float) normal.y, (float) normal.z, 0);
+                        quadBuilder.put(e, (float) normal.x, (float) normal.y, (float) normal.z);
                         break;
                     case COLOR:
                         Colour colour = quad.vertexColour[index];
@@ -197,10 +197,10 @@ public class CCQuadBakery {
                     case UV:
                         if (format.getElement(e).getIndex() == 0) {
                             UV uv = quad.vertices[index].uv;
-                            quadBuilder.put(e, (float) uv.u, (float) uv.v, 0, 1);
+                            quadBuilder.put(e, (float) uv.u, (float) uv.v);
                         } else {
                             UV uv = quad.vertexLightMap[index];
-                            quadBuilder.put(e, (float) uv.u, (float) uv.v, 0, 1);
+                            quadBuilder.put(e, (float) uv.u, (float) uv.v);
                         }
 
                         break;
