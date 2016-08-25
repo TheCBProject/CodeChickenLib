@@ -29,8 +29,16 @@ public class ItemBlockMultiType extends ItemBlock {
         return meta;
     }
 
-    public void registerSubItem(int meta, String name) {
+    public ItemBlockMultiType registerBulkArray(String[] names) {
+        for (int i = 0; i < names.length; i++) {
+            registerSubItem(i, names[i]);
+        }
+        return this;
+    }
+
+    public ItemBlockMultiType registerSubItem(int meta, String name) {
         names.put(meta, name);
+        return this;
     }
 
     @Override

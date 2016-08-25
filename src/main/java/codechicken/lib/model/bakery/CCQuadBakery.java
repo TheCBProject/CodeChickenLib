@@ -5,6 +5,7 @@ import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.Vertex5;
 import codechicken.lib.render.uv.UV;
 import codechicken.lib.util.ArrayUtils;
+import codechicken.lib.util.Copyable;
 import codechicken.lib.vec.Vector3;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -220,12 +221,41 @@ public class CCQuadBakery {
      * Created by covers1624 on 8/20/2016.
      * Basically just a holder for quads before baking.
      */
-    public static class CCQuad {
+    public static class CCQuad implements Copyable<CCQuad> {
         public Vertex5[] vertices = new Vertex5[4];
         public Vector3[] normals = new Vector3[4];
         public Colour[] vertexColour = new Colour[4];
         public UV[] vertexLightMap = new UV[4];
         public EnumFacing face = EnumFacing.UP;
+
+        public CCQuad() {
+        }
+
+        public CCQuad(Vertex5... vertices) {
+            if (vertices.length > 4) {
+                throw new IllegalArgumentException("CCQuad is a... Quad.. only 3 or 4 vertices allowed!");
+            }
+            for (int i = 0; i < 4; i++) {
+                this.vertices[i] = vertices[i].copy();
+            }
+        }
+
+        public CCQuad(CCQuad quad) {
+            this();
+            for (int i = 0; i < vertices.length; i++) {
+                vertices[i] = quad.vertices[i].copy();
+            }
+            for (int i = 0; i < vertices.length; i++) {
+                normals[i] = quad.normals[i].copy();
+            }
+            for (int i = 0; i < vertices.length; i++) {
+                vertexColour[i] = quad.vertexColour[i].copy();
+            }
+            for (int i = 0; i < vertices.length; i++) {
+                vertexLightMap[i] = quad.vertexLightMap[i].copy();
+            }
+            face = quad.face;
+        }
 
         public boolean isQuads() {
             int counter = ArrayUtils.countNoNull(vertices);
@@ -266,6 +296,11 @@ public class CCQuadBakery {
             for (int i = 0; i < 4; i++) {
                 normals[i] = normal.copy();
             }
+        }
+
+        @Override
+        public CCQuad copy() {
+            return new CCQuad(this);
         }
     }
 }

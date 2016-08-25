@@ -1,5 +1,6 @@
 package codechicken.lib.model;
 
+import codechicken.lib.render.CCModelState;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.state.IBlockState;
@@ -21,7 +22,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 7/25/2016.
  * A simple IPerspectiveAwareModel see SimplePerspectiveAwareLayerModelBakery for baking to this.
- *
+ * <p/>
  * Basically a wrapper for baked quads and IPerspectiveAwareModel.
  */
 public class SimplePerspectiveAwareBakedModel implements IPerspectiveAwareModel {
@@ -30,9 +31,17 @@ public class SimplePerspectiveAwareBakedModel implements IPerspectiveAwareModel 
     private final ImmutableList<BakedQuad> quads;
     private final TextureAtlasSprite particle;
 
-    public SimplePerspectiveAwareBakedModel(ImmutableList<BakedQuad> quads, TextureAtlasSprite particle, ImmutableMap<TransformType, TRSRTransformation> transforms) {
+    public SimplePerspectiveAwareBakedModel(List<BakedQuad> quads, CCModelState modelState) {
+        this(quads, null, modelState.getTransforms());
+    }
+
+    public SimplePerspectiveAwareBakedModel(List<BakedQuad> quads, ImmutableMap<TransformType, TRSRTransformation> transforms) {
+        this(quads, null, transforms);
+    }
+
+    public SimplePerspectiveAwareBakedModel(List<BakedQuad> quads, TextureAtlasSprite particle, ImmutableMap<TransformType, TRSRTransformation> transforms) {
         this.transforms = transforms;
-        this.quads = quads;
+        this.quads = ImmutableList.copyOf(quads);
         this.particle = particle;
     }
 
