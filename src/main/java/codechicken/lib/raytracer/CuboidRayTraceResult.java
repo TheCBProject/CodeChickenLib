@@ -14,6 +14,13 @@ public class CuboidRayTraceResult extends DistanceRayTraceResult {
 
     public IndexedCuboid6 cuboid6;
 
+    /**
+     * Optional flag that disables auto rendering of this trace result. Useful when
+     * you wish to use this class to retain the Cuboid6 box but would like to render
+     * it yourself.
+     */
+    public boolean disableAutoHitboxRender = false;
+
     public CuboidRayTraceResult(Entity entity, Vector3 hit, IndexedCuboid6 cuboid, double dist) {
         super(entity, hit, cuboid.data, dist);
         this.cuboid6 = cuboid;
