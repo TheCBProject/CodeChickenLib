@@ -33,15 +33,16 @@ public class BlockModelBakery {
     public Colour colourBottomRight = new ColourRGBA(0xFFFFFFFF);
     public Colour colourTopRight = new ColourRGBA(0xFFFFFFFF);
 
+    private CCQuadBakery quadBakery;
     private LinkedList<BakedQuad> quadList = new LinkedList<BakedQuad>();
-    private VertexFormat format = DefaultVertexFormats.BLOCK;
 
-    public void setVertexFormat(VertexFormat format) {
-        this.format = format;
+    public BlockModelBakery(){
+        this(DefaultVertexFormats.BLOCK);
     }
 
-    public LinkedList<BakedQuad> getBakedQuads() {
-        return new LinkedList<BakedQuad>(quadList);
+    public BlockModelBakery(VertexFormat format){
+        quadBakery = new CCQuadBakery(format, null);
+        reset();
     }
 
     public void reset() {
@@ -64,6 +65,14 @@ public class BlockModelBakery {
         setRenderBounds(0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
     }
 
+    public LinkedList<BakedQuad> finishBaking() {
+        return new LinkedList<BakedQuad>(quadList);
+    }
+
+    public CCQuadBakery getQuadBakery() {
+        return quadBakery;
+    }
+
     public void setRenderBounds(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
 
         this.renderMinX = minX;
@@ -80,8 +89,7 @@ public class BlockModelBakery {
     }
 
     public void bakeFaceYNeg(double posX, double posY, double posZ, TextureAtlasSprite sprite) {
-        EnumFacing face = renderFromInside ? EnumFacing.UP : EnumFacing.DOWN;
-        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face).startBakingQuads();
+        quadBakery.startBakingQuads().setSprite(sprite);
 
         double d3 = (double) sprite.getInterpolatedU(this.renderMinX * 16.0D);
         double d4 = (double) sprite.getInterpolatedU(this.renderMaxX * 16.0D);
@@ -171,8 +179,7 @@ public class BlockModelBakery {
     }
 
     public void bakeFaceYPos(double posX, double posY, double posZ, TextureAtlasSprite sprite) {
-        EnumFacing face = renderFromInside ? EnumFacing.DOWN : EnumFacing.UP;
-        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face).startBakingQuads();
+        quadBakery.startBakingQuads().setSprite(sprite);
 
         double d3 = (double) sprite.getInterpolatedU(this.renderMinX * 16.0D);
         double d4 = (double) sprite.getInterpolatedU(this.renderMaxX * 16.0D);
@@ -263,8 +270,7 @@ public class BlockModelBakery {
     }
 
     public void bakeFaceZNeg(double posX, double posY, double posZ, TextureAtlasSprite sprite) {
-        EnumFacing face = renderFromInside ? EnumFacing.SOUTH : EnumFacing.NORTH;
-        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face).startBakingQuads();
+        quadBakery.startBakingQuads().setSprite(sprite);
 
         double d3 = (double) sprite.getInterpolatedU(this.renderMinX * 16.0D);
         double d4 = (double) sprite.getInterpolatedU(this.renderMaxX * 16.0D);
@@ -356,8 +362,7 @@ public class BlockModelBakery {
     }
 
     public void bakeFaceZPos(double posX, double posY, double posZ, TextureAtlasSprite sprite) {
-        EnumFacing face = renderFromInside ? EnumFacing.NORTH : EnumFacing.SOUTH;
-        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face).startBakingQuads();
+        quadBakery.startBakingQuads().setSprite(sprite);
 
         double d3 = (double) sprite.getInterpolatedU(this.renderMinX * 16.0D);
         double d4 = (double) sprite.getInterpolatedU(this.renderMaxX * 16.0D);
@@ -448,8 +453,7 @@ public class BlockModelBakery {
     }
 
     public void bakeFaceXNeg(double posX, double posY, double posZ, TextureAtlasSprite sprite) {
-        EnumFacing face = renderFromInside ? EnumFacing.EAST : EnumFacing.WEST;
-        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face).startBakingQuads();
+        quadBakery.startBakingQuads().setSprite(sprite);
 
         double d3 = (double) sprite.getInterpolatedU(this.renderMinZ * 16.0D);
         double d4 = (double) sprite.getInterpolatedU(this.renderMaxZ * 16.0D);
@@ -540,8 +544,7 @@ public class BlockModelBakery {
     }
 
     public void bakeFaceXPos(double posX, double posY, double posZ, TextureAtlasSprite sprite) {
-        EnumFacing face = renderFromInside ? EnumFacing.WEST : EnumFacing.EAST;
-        CCQuadBakery quadBakery = new CCQuadBakery(format, sprite, face).startBakingQuads();
+        quadBakery.startBakingQuads().setSprite(sprite);
 
         double d3 = (double) sprite.getInterpolatedU(this.renderMinZ * 16.0D);
         double d4 = (double) sprite.getInterpolatedU(this.renderMaxZ * 16.0D);

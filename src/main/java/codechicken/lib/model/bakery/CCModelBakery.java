@@ -28,7 +28,7 @@ public class CCModelBakery {
      * @param model Model to bake.
      * @param sprite Sprite the quads are to be baked from.
      * @param ops Any Operations to apply.
-     * @return
+     * @return The BakedQuads for the model.
      */
     public static List<BakedQuad> bakeModel(CCModel model, TextureAtlasSprite sprite, IVertexOperation... ops) {
         return bakeModel(model, sprite, 0, model.getVertices().length, ops);
@@ -43,7 +43,7 @@ public class CCModelBakery {
      * @param start The first vertex index to bake.
      * @param end The Vertex index to bake until.
      * @param ops Any Operations to apply.
-     * @return
+     * @return The BakedQuads for the model.
      */
     public static List<BakedQuad> bakeModel(CCModel model, TextureAtlasSprite sprite, int start, int end, IVertexOperation... ops) {
         return bakeModel(model, DefaultVertexFormats.BLOCK, sprite, start, end, ops);
@@ -57,7 +57,7 @@ public class CCModelBakery {
      * @param format VertexFormat to bake to.
      * @param sprite Sprite the quads are to be baked from.
      * @param ops    Any Operations to apply.
-     * @return
+     * @return The BakedQuads for the model.
      */
     public static List<BakedQuad> bakeModel(CCModel model, VertexFormat format, TextureAtlasSprite sprite, IVertexOperation... ops) {
         return bakeModel(model, format, sprite, 0, model.getVertices().length, ops);
@@ -72,10 +72,11 @@ public class CCModelBakery {
      * @param start  The first vertex index to bake.
      * @param end    The Vertex index to bake until.
      * @param ops    Any Operations to apply.
-     * @return
+     * @return The BakedQuads for the model.
      */
     public static List<BakedQuad> bakeModel(CCModel model, VertexFormat format, TextureAtlasSprite sprite, int start, int end, IVertexOperation... ops) {
-        CCQuadBakery bakery = new CCQuadBakery(format, sprite, EnumFacing.UP);//TODO face.
+        //The face for quads is assigned down the line using the quads normals.
+        CCQuadBakery bakery = new CCQuadBakery(format, sprite);
         if (model.vp == 3) {
             bakery.startBakingTriangles();
         } else {

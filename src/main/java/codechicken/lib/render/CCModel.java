@@ -10,6 +10,7 @@ import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.TransformationList;
 import codechicken.lib.vec.Vector3;
+import net.minecraft.util.EnumFacing;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -843,6 +844,28 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
             return 5;
         }
         return -1;
+    }
+
+    public static EnumFacing calcNormalSide(Vector3 normal) {
+        if (normal.y <= -0.99) {
+            return EnumFacing.DOWN;
+        }
+        if (normal.y >= 0.99) {
+            return EnumFacing.UP;
+        }
+        if (normal.z <= -0.99) {
+            return EnumFacing.NORTH;
+        }
+        if (normal.z >= 0.99) {
+            return EnumFacing.SOUTH;
+        }
+        if (normal.x <= -0.99) {
+            return EnumFacing.WEST;
+        }
+        if (normal.x >= 0.99) {
+            return EnumFacing.EAST;
+        }
+        return null;
     }
 
     /**

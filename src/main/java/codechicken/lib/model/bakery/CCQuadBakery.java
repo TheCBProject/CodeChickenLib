@@ -2,6 +2,7 @@ package codechicken.lib.model.bakery;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
+import codechicken.lib.render.CCModel;
 import codechicken.lib.render.Vertex5;
 import codechicken.lib.render.uv.UV;
 import codechicken.lib.util.ArrayUtils;
@@ -41,14 +42,13 @@ public class CCQuadBakery {
     private CCQuad quad = null;
     private int index = 0;
 
-    public CCQuadBakery(TextureAtlasSprite sprite, EnumFacing face) {
-        this(DefaultVertexFormats.BLOCK, sprite, face);
+    public CCQuadBakery(TextureAtlasSprite sprite) {
+        this(DefaultVertexFormats.BLOCK, sprite);
     }
 
-    public CCQuadBakery(VertexFormat format, TextureAtlasSprite sprite, EnumFacing face) {
+    public CCQuadBakery(VertexFormat format, TextureAtlasSprite sprite) {
         this.format = format;
         this.sprite = sprite;
-        this.face = face;
     }
 
     public CCQuadBakery startBakingQuads() {
@@ -88,6 +88,22 @@ public class CCQuadBakery {
         bakedQuads = null;
         quad = null;
         index = 0;
+    }
+
+    public CCQuadBakery setSprite(TextureAtlasSprite sprite) {
+        if (quad != null) {
+            throw new IllegalStateException("Unable to set sprite whilst quad is still baking!");
+        }
+        this.sprite = sprite;
+        return this;
+    }
+
+    public CCQuadBakery setFace(EnumFacing face) {
+        if (quad != null) {
+            throw new IllegalStateException("Unable to set face whilst quad is still baking!");
+        }
+        this.face = face;
+        return this;
     }
 
     public CCQuadBakery disableDifuseLighting() {
@@ -159,6 +175,9 @@ public class CCQuadBakery {
     public CCQuadBakery addVertex(Vector3 vertex) {
         if (quad == null) {
             quad = new CCQuad();
+            if (face != null) {
+                quad.face = face;
+            }
             index = 0;
         }
         quad.vertices[index] = new Vertex5(vertex.copy(), uv.copy());
@@ -172,14 +191,13 @@ public class CCQuadBakery {
         if (index == max) {
             index = 0;
             quad.quadulate();
-            if (format.hasNormal()) {
-                quad.computeNormals();
-            }
+            quad.computeNormals();
 
             UnpackedBakedQuad.Builder quadBuilder = new UnpackedBakedQuad.Builder(format);
             quadBuilder.setApplyDiffuseLighting(applyDifuseLighting);
             quadBuilder.setTexture(sprite);
-            quadBuilder.setQuadOrientation(face);
+
+            quadBuilder.setQuadOrientation(quad.getQuadFace());
             for (int index = 0; index < 4; index++) {
                 for (int e = 0; e < format.getElementCount(); e++) {
                     switch (format.getElement(e).getUsage()) {
@@ -220,13 +238,17 @@ public class CCQuadBakery {
     /**
      * Created by covers1624 on 8/20/2016.
      * Basically just a holder for quads before baking.
+     * TODO Make this extend BakedQuad and do our own auto packing and such.
+     * TODO allow importing from BakedQuads.
+     * TODO Allow this to accept the transform system.
+     * TODO Allow any BakedQuad to accept the transform system.
      */
     public static class CCQuad implements Copyable<CCQuad> {
         public Vertex5[] vertices = new Vertex5[4];
         public Vector3[] normals = new Vector3[4];
         public Colour[] vertexColour = new Colour[4];
         public UV[] vertexLightMap = new UV[4];
-        public EnumFacing face = EnumFacing.UP;
+        public EnumFacing face = null;
 
         public CCQuad() {
         }
@@ -266,20 +288,21 @@ public class CCQuadBakery {
          * Quadulates the quad by copying any element at index 2 to index 3 only if there are 3 of any given element.
          */
         public void quadulate() {
-            if (!isQuads()) {
+            int verticesCount = ArrayUtils.countNoNull(vertices);
+            int normalCount = ArrayUtils.countNoNull(normals);
+            int colourCount = ArrayUtils.countNoNull(vertexColour);
+            int lightMapCount = ArrayUtils.countNoNull(vertexLightMap);
+            if (verticesCount == 3) {
                 vertices[3] = vertices[2].copy();
-                int normalCount = ArrayUtils.countNoNull(normals);
-                int colourCount = ArrayUtils.countNoNull(vertexColour);
-                int lightMapCount = ArrayUtils.countNoNull(vertexLightMap);
-                if (normalCount == 3) {
-                    normals[3] = normals[2].copy();
-                }
-                if (colourCount == 3) {
-                    vertexColour[3] = vertexColour[2].copy();
-                }
-                if (lightMapCount == 3) {
-                    vertexLightMap[3] = vertexLightMap[2].copy();
-                }
+            }
+            if (normalCount == 3) {
+                normals[3] = normals[2].copy();
+            }
+            if (colourCount == 3) {
+                vertexColour[3] = vertexColour[2].copy();
+            }
+            if (lightMapCount == 3) {
+                vertexLightMap[3] = vertexLightMap[2].copy();
             }
         }
 
@@ -296,6 +319,16 @@ public class CCQuadBakery {
             for (int i = 0; i < 4; i++) {
                 normals[i] = normal.copy();
             }
+        }
+
+        public EnumFacing getQuadFace() {
+            if (face == null) {
+                if (ArrayUtils.countNoNull(normals) != 4) {
+                    computeNormals();
+                }
+                face = CCModel.calcNormalSide(normals[0]);
+            }
+            return face;
         }
 
         @Override
