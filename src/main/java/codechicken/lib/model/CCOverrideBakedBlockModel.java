@@ -21,21 +21,29 @@ public class CCOverrideBakedBlockModel implements IBakedModel {
 
     private final String particle;
     private final boolean isAmbientOcclusion;
+    private final ItemOverrideList overrideList;
 
     public CCOverrideBakedBlockModel(String particle) {
-        this(particle, false);
+        this(particle, ItemOverrideList.NONE);
     }
 
-    public CCOverrideBakedBlockModel(String particle, boolean isAmbientOcclusion) {
+    public CCOverrideBakedBlockModel(String particle, ItemOverrideList overrideList){
+        this(particle, false, overrideList);
+    }
 
+    public CCOverrideBakedBlockModel(String particle, boolean isAmbientOcclusion, ItemOverrideList overrideList) {
         this.particle = particle;
         this.isAmbientOcclusion = isAmbientOcclusion;
+        this.overrideList = overrideList;
     }
 
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
-        IBakedModel correctModel = CCBakedModelLoader.getModel(state);
         LinkedList<BakedQuad> quads = new LinkedList<BakedQuad>();
+        if (state == null){
+            return quads;
+        }
+        IBakedModel correctModel = CCBakedModelLoader.getModel(state);
         if (correctModel != null) {
             quads.addAll(correctModel.getQuads(state, side, rand));
         }
@@ -69,6 +77,6 @@ public class CCOverrideBakedBlockModel implements IBakedModel {
 
     @Override
     public ItemOverrideList getOverrides() {
-        return ItemOverrideList.NONE;
+        return overrideList;
     }
 }
