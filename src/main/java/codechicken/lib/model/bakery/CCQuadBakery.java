@@ -125,7 +125,7 @@ public class CCQuadBakery {
     }
 
     public CCQuadBakery setLightMap(int brightness) {
-        return setLightMap(new UV(((brightness >> 4) & 15 * 32) / 65535, ((brightness >> 20) & 15 * 32) / 65535));
+        return setLightMap(new UV((double) ((brightness >> 4) & 15 * 32) / 65535, (double) ((brightness >> 20) & 15 * 32) / 65535));
     }
 
     public CCQuadBakery setLightMap(UV lightMap) {
