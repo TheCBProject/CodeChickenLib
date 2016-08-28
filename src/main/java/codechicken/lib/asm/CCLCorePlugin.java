@@ -1,9 +1,5 @@
 package codechicken.lib.asm;
 
-import codechicken.lib.render.CCRenderEventHandler;
-import codechicken.lib.render.HitBoxRenderHandler;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 import org.apache.logging.log4j.LogManager;

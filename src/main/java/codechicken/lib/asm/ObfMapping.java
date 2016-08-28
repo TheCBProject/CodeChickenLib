@@ -231,10 +231,8 @@ public class ObfMapping {
     public static Remapper mcpMapper = null;
 
     public static void loadMCPRemapper() {
-        if (!obfuscated) {
-            if (mcpMapper == null) {
-                mcpMapper = new MCPRemapper();
-            }
+        if (mcpMapper == null) {
+            mcpMapper = new MCPRemapper();
         }
     }
 
@@ -247,6 +245,9 @@ public class ObfMapping {
         } catch (IOException ignored) {
         }
         obfuscated = obf;
+        if (!obf) {
+            loadMCPRemapper();
+        }
     }
 
     public String s_owner;
