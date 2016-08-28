@@ -4,6 +4,7 @@ import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
@@ -34,10 +35,10 @@ public class HitBoxRenderHandler {
         BlockPos pos = event.getTarget().getBlockPos();
 
         //We have found a CuboidRayTraceResult, Lets render it properly..
-        if (event.getTarget().typeOfHit == Type.BLOCK && event.getTarget() instanceof CuboidRayTraceResult) {
+        RayTraceResult hit = event.getTarget();
+        if (hit.typeOfHit == Type.BLOCK && hit instanceof CuboidRayTraceResult && !((CuboidRayTraceResult)hit).disableAutoHitboxRender) {
             event.setCanceled(true);
             RenderUtils.renderHitBox(event.getPlayer(), ((CuboidRayTraceResult) event.getTarget()).cuboid6.copy().add(new Vector3(pos)), event.getPartialTicks());
         }
     }
-
 }
