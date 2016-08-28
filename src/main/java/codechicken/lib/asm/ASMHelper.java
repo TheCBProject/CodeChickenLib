@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+//TODO Move this config somewhere better.
 public class ASMHelper {
     public static ConfigFile config = loadConfig();
     public static Logger logger = LogManager.getLogger("CCL ASM");
@@ -36,6 +37,10 @@ public class ASMHelper {
         } catch (Exception ignored) {
             return null;//no config for these systems
         }
+    }
+    
+    static {
+        ObfMapping.loadMCPRemapper();
     }
 
     public interface Acceptor {

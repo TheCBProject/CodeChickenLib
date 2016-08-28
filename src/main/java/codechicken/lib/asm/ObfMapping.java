@@ -144,8 +144,7 @@ public class ObfMapping {
             case 2:
                 return new File(mcDir, "../build/unpacked/conf");
             case 3:
-                return new File(System.getProperty("user.home"), ".gradle/caches/minecraft/net/minecraftforge/forge/" +
-                        FMLInjectionData.data()[4] + "-" + ForgeVersion.getVersion() + "/unpacked/conf");
+                return new File(System.getProperty("user.home"), ".gradle/caches/minecraft/net/minecraftforge/forge/" + FMLInjectionData.data()[4] + "-" + ForgeVersion.getVersion() + "/unpacked/conf");
             default:
                 JFileChooser fc = new JFileChooser(mcDir);
                 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -232,8 +231,10 @@ public class ObfMapping {
     public static Remapper mcpMapper = null;
 
     public static void loadMCPRemapper() {
-        if (mcpMapper == null) {
-            mcpMapper = new MCPRemapper();
+        if (!obfuscated) {
+            if (mcpMapper == null) {
+                mcpMapper = new MCPRemapper();
+            }
         }
     }
 
@@ -246,9 +247,6 @@ public class ObfMapping {
         } catch (IOException ignored) {
         }
         obfuscated = obf;
-        if (!obf) {
-            loadMCPRemapper();
-        }
     }
 
     public String s_owner;
