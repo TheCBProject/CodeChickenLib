@@ -76,6 +76,14 @@ public class ArrayUtils {
         array[nullIndex] = value;
     }
 
+    /**
+     * Adds all elements from the array that are not null to the list.
+     *
+     * @param array Array to grab from.
+     * @param list  List to add to.
+     * @param <T>   What we are dealing with.
+     * @return The modified list.
+     */
     public static <T> List<T> addAllNoNull(T[] array, List<T> list) {
         for (T value : array) {
             if (value != null) {
@@ -85,6 +93,13 @@ public class ArrayUtils {
         return list;
     }
 
+    /**
+     * Checks if the array is all null.
+     *
+     * @param array The array to check.
+     * @param <T>   What we are dealing with.
+     * @return True if the array only contains nulls.
+     */
     public static <T> boolean isEmpty(T[] array) {
         for (T value : array) {
             if (value != null) {
@@ -94,6 +109,13 @@ public class ArrayUtils {
         return true;
     }
 
+    /**
+     * Counts the elements in the array that are not null.
+     *
+     * @param array The array to check.
+     * @param <T>   What we are dealing with.
+     * @return The count of non-null objects in the array.
+     */
     public static <T> int countNoNull(T[] array) {
         int counter = 0;
         for (T value : array) {
@@ -102,5 +124,24 @@ public class ArrayUtils {
             }
         }
         return counter;
+    }
+
+    /**
+     * Fills the array with the specified value.
+     * If the value is an instance of Copyable it will call copy.
+     *
+     * @param array Array to fill.
+     * @param value Value to fill with.
+     * @param <T> What we are dealing with.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> void fillArray(T[] array, T value) {
+        for (int i = 0; i < array.length; i++) {
+            T newValue = value;
+            if (value instanceof Copyable){
+                newValue = ((Copyable<T>) value).copy();
+            }
+            array[i] = newValue;
+        }
     }
 }
