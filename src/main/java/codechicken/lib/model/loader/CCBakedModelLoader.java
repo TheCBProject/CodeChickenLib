@@ -4,6 +4,8 @@ import codechicken.lib.model.loader.IBakedModelLoader.IModKeyProvider;
 import codechicken.lib.render.TextureUtils;
 import codechicken.lib.render.TextureUtils.IIconRegister;
 import codechicken.lib.thread.RestartableTask;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -11,7 +13,6 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
@@ -23,6 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by covers1624 on 7/25/2016.
@@ -37,7 +40,8 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
 
     public static final CCBakedModelLoader INSTANCE = new CCBakedModelLoader();
 
-    private static final Map<String, IBakedModel> modelCache = new HashMap<String, IBakedModel>();
+    //TODO use cache factories.
+    private static final Cache<String, IBakedModel> modelCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
     private static final Map<String, IModKeyProvider> modelBakeQue = new HashMap<String, IModKeyProvider>();
 
     private static final ModelBakeTask bakingTask = new ModelBakeTask();
@@ -78,12 +82,12 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
 
     @Override
     public void onResourceManagerReload(IResourceManager resourceManager) {
-        modelCache.clear();
+        modelCache.invalidateAll();
     }
 
-    public static void clearCache(){
-        synchronized (modelCache){
-            modelCache.clear();
+    public static void clearCache() {
+        synchronized (modelCache) {
+            modelCache.invalidateAll();
         }
     }
 
@@ -95,31 +99,33 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
         return builder.build();
     }
 
-    public static synchronized IBakedModel getModel(IBlockState state){
-        if (state.getBlock() == null || state.getBlock().getRegistryName() == null){
+    public static synchronized IBakedModel getModel(IBlockState state) {
+        if (state.getBlock() == null || state.getBlock().getRegistryName() == null) {
             return null;
         }
         ResourceLocation location = state.getBlock().getRegistryName();
-        IModKeyProvider provider = modKeyProviders.get(location.getResourceDomain());
-        if (provider == null){
+        final IModKeyProvider provider = modKeyProviders.get(location.getResourceDomain());
+        if (provider == null) {
             FMLLog.bigWarning("Unable to find IModKeyProvider for domain %s!", location.getResourceDomain());
             return null;
         }
-        String key = provider.createKey(state);
-        if (key == null){
+        final String key = provider.createKey(state);
+        if (key == null) {
             return null;
         }
         String mapKey = location.toString() + "|" + key;
-        synchronized (modelCache){
-            if (!modelCache.containsKey(mapKey)){
-                IBakedModelLoader loader = modelLoaders.get(provider);
-                IBakedModel model = loader.bakeModel(key);
-                if (model == null){
-                    return null;
-                }
-                modelCache.put(mapKey, model);
+        synchronized (modelCache) {
+            try {
+                return modelCache.get(mapKey, new Callable<IBakedModel>() {
+                    @Override
+                    public IBakedModel call() throws Exception {
+                        return modelLoaders.get(provider).bakeModel(key);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
             }
-            return modelCache.get(mapKey);
         }
     }
 
@@ -145,7 +151,7 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
         }
         String mapKey = location.toString() + "|" + key;
         synchronized (modelCache) {
-            if (!modelCache.containsKey(mapKey)) {
+            if (modelCache.getIfPresent(mapKey) == null) {
                 if (modelBakeQue.containsKey(mapKey)) {
                     return null;
                 } else {
@@ -154,7 +160,7 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
                     bakingTask.restart();
                 }
             }
-            return modelCache.get(mapKey);
+            return modelCache.getIfPresent(mapKey);
         }
     }
 
