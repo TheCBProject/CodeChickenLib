@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.math.BlockPos;
@@ -320,7 +321,8 @@ public class CCRenderState {
     //attrute storage
     public static int side;
     public static LC lc = new LC();
-    public static boolean normalActive;
+    @SideOnly(Side.CLIENT)
+    public static TextureAtlasSprite sprite;
 
     public static void reset() {
         model = null;
@@ -368,9 +370,9 @@ public class CCRenderState {
         return m;
     }
 
-    public static void renderQuads(List<BakedQuad> quads){
+    public static void renderQuads(List<BakedQuad> quads) {
         VertexBuffer buffer = startDrawing(GL11.GL_QUADS, quads.get(0).getFormat());
-        for (BakedQuad quad : quads){
+        for (BakedQuad quad : quads) {
             buffer.addVertexData(quad.getVertexData());
         }
         draw();

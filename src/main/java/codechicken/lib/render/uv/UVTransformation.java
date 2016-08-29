@@ -25,6 +25,7 @@ public abstract class UVTransformation extends ITransformation<UV, UVTransformat
     @Override
     public void operate() {
         apply(CCRenderState.vert.uv);
+        CCRenderState.sprite = null;
     }
 
     @Override

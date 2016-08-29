@@ -1,5 +1,6 @@
 package codechicken.lib.render.uv;
 
+import codechicken.lib.render.CCRenderState;
 import codechicken.lib.vec.IrreversibleTransformationException;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
@@ -8,6 +9,12 @@ public class IconTransformation extends UVTransformation {
 
     public IconTransformation(TextureAtlasSprite icon) {
         this.icon = icon;
+    }
+
+    @Override
+    public void operate() {
+        super.operate();
+        CCRenderState.sprite = icon;
     }
 
     @Override
