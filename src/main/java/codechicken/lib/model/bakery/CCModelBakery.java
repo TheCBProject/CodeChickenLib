@@ -92,7 +92,7 @@ public class CCModelBakery {
                 try {
                     bakery.setSprite(CCRenderState.sprite);
                 } catch (IllegalStateException e) {
-                    throw new RuntimeException("Unable to set sprite in baking pipeline! Please ensure your IconVertexRangeUVTransform is correct!");
+                    throw new RuntimeException("Unable to set sprite in baking pipeline! Please ensure your IconVertexRangeUVTransform is correct!", e);
                 }
             }
             Vertex5 vert = CCRenderState.vert;
