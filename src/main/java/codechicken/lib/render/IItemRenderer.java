@@ -2,7 +2,6 @@ package codechicken.lib.render;
 
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
 
 /**
  * Hooks to the location of RenderItem#renderItem(ItemStack, IBakedModel)

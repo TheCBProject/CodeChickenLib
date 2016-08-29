@@ -322,12 +322,7 @@ public class QBImporter {
         public static boolean intersects(QBCuboid a, QBCuboid b) {
             CuboidCoord c = a.c;
             CuboidCoord d = b.c;
-            return c.min.x <= d.max.x &&
-                    d.min.x <= c.max.x &&
-                    c.min.y <= d.max.y &&
-                    d.min.y <= c.max.y &&
-                    c.min.z <= d.max.z &&
-                    d.min.z <= c.max.z;
+            return c.min.x <= d.max.x && d.min.x <= c.max.x && c.min.y <= d.max.y && d.min.y <= c.max.y && c.min.z <= d.max.z && d.min.z <= c.max.z;
         }
 
         public static void clip(QBCuboid a, QBCuboid b) {
@@ -342,10 +337,7 @@ public class QBImporter {
             for (int a = 0; a < 6; a += 2) {
                 int a1 = (a + 2) % 6;
                 int a2 = (a + 4) % 6;
-                if (c.getSide(a1 + 1) <= d.getSide(a1 + 1) &&
-                        c.getSide(a1) >= d.getSide(a1) &&
-                        c.getSide(a2 + 1) <= d.getSide(a2 + 1) &&
-                        c.getSide(a2) >= d.getSide(a2)) {
+                if (c.getSide(a1 + 1) <= d.getSide(a1 + 1) && c.getSide(a1) >= d.getSide(a1) && c.getSide(a2 + 1) <= d.getSide(a2 + 1) && c.getSide(a2) >= d.getSide(a2)) {
 
                     if (c.getSide(a) <= d.getSide(a + 1) && c.getSide(a) >= d.getSide(a)) {
                         c.setSide(a, d.getSide(a + 1) + 1);

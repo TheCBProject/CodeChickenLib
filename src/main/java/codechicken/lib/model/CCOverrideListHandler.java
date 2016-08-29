@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLLog;
 
 /**
  * Created by covers1624 on 7/25/2016.

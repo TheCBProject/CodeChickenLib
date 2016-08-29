@@ -292,8 +292,7 @@ public class ASMReader {
                         block.list.add(insn);
                     }
                 } catch (Exception e) {
-                    System.err.println("Error while reading ASM Block " +
-                            current + " from " + res + ", line: " + line);
+                    System.err.println("Error while reading ASM Block " + current + " from " + res + ", line: " + line);
                     e.printStackTrace();
                 }
             }

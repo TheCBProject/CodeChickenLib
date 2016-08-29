@@ -32,7 +32,7 @@ public class ASMHelper {
             boolean obf = true;
             try {//TODO Move the config initializer to a better spot..
                 obf = Launch.classLoader.getClassBytes("net.minecraft.world.World") == null;
-            } catch (Exception ignored){
+            } catch (Exception ignored) {
             }
             if (obf) {
                 return new DefaultingConfigFile(file);

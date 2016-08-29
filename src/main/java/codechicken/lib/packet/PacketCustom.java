@@ -482,7 +482,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         return new FMLProxyPacket(new PacketBuffer(copy()), channel);
     }
 
-    public NBTTagCompound toNBTTag(NBTTagCompound tagCompound){
+    public NBTTagCompound toNBTTag(NBTTagCompound tagCompound) {
         tagCompound.setByteArray("CCL:data", array());
         return tagCompound;
     }
@@ -526,7 +526,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendPacketToAllPlayers(packet);
     }
 
-    public void sendPacketToAllAround(BlockPos pos, double range, int dim){
+    public void sendPacketToAllAround(BlockPos pos, double range, int dim) {
         sendPacketToAllAround(pos.getX(), pos.getY(), pos.getZ(), range, dim);
     }
 

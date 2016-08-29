@@ -26,7 +26,7 @@ public class DistanceRayTraceResult extends RayTraceResult implements Comparable
         this.dist = dist;
     }
 
-    public DistanceRayTraceResult(Vector3 hit, EnumFacing side, Object data, double dist){
+    public DistanceRayTraceResult(Vector3 hit, EnumFacing side, Object data, double dist) {
         super(hit.vec3(), side);
         this.dist = dist;
         setData(data);
@@ -45,11 +45,11 @@ public class DistanceRayTraceResult extends RayTraceResult implements Comparable
         hitInfo = data;
     }
 
-    public void setPos(BlockPos pos){
+    public void setPos(BlockPos pos) {
         this.blockPos = pos;
     }
 
-    public void offsetHit(BlockPos pos){
+    public void offsetHit(BlockPos pos) {
         hitVec = hitVec.addVector(pos.getX(), pos.getY(), pos.getZ());
     }
 

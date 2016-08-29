@@ -80,6 +80,7 @@ public abstract class RestartableTask {
 
     /**
      * This must be implemented in your execute method, if this returns true it means you need to get your operation in to a restartable state and prepare for a restart.
+     *
      * @return True if the process should end.
      */
     public boolean interrupted() {

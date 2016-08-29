@@ -39,7 +39,7 @@ public class SimpleBakedItemModel implements IPerspectiveAwareModel {
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
         if (state == null && side == null) {
-            if (quads == null){
+            if (quads == null) {
                 bake();
             }
             return quads;

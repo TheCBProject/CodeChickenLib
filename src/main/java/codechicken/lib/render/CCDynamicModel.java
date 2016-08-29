@@ -5,7 +5,6 @@ import codechicken.lib.render.CCRenderState.IVertexSource;
 import codechicken.lib.render.CCRenderState.VertexAttribute;
 import codechicken.lib.render.uv.UV;
 import codechicken.lib.vec.Vector3;
-import net.minecraft.client.renderer.vertex.VertexFormat;
 
 /**
  * Provides WorldRenderer style access to CCRenderState pipeline.

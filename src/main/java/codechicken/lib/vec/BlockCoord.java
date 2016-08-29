@@ -6,8 +6,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 
 //TODO Find viability of keeping this, BlockPos is a thing now..
-public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord>
-{
+public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord> {
     public static final BlockCoord[] sideOffsets = new BlockCoord[] { new BlockCoord(0, -1, 0), new BlockCoord(0, 1, 0), new BlockCoord(0, 0, -1), new BlockCoord(0, 0, 1), new BlockCoord(-1, 0, 0), new BlockCoord(1, 0, 0) };
 
     public int x;
@@ -190,8 +189,9 @@ public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord>
     }
 
     public BlockPos pos() {
-        if (posCache == null || x != posCache.getX() || y != posCache.getY() || z != posCache.getZ())
+        if (posCache == null || x != posCache.getX() || y != posCache.getY() || z != posCache.getZ()) {
             posCache = new BlockPos(x, y, z);
+        }
         return posCache;
     }
 
@@ -249,9 +249,7 @@ public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord>
     }
 
     public int absSum() {
-        return (x < 0 ? -x : x) +
-                (y < 0 ? -y : y) +
-                (z < 0 ? -z : z);
+        return (x < 0 ? -x : x) + (y < 0 ? -y : y) + (z < 0 ? -z : z);
     }
 
     public String toString() {

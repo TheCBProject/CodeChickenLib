@@ -36,7 +36,7 @@ public class RayTracer {
     private static ThreadLocal<RayTracer> t_inst = new ThreadLocal<RayTracer>();
 
     @Deprecated
-    public RayTracer(){
+    public RayTracer() {
     }
 
     @Deprecated

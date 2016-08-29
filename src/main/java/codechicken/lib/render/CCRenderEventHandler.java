@@ -11,8 +11,8 @@ public class CCRenderEventHandler {
 
     private static boolean hasInit = false;
 
-    public static void init(){
-        if (!hasInit){
+    public static void init() {
+        if (!hasInit) {
             MinecraftForge.EVENT_BUS.register(new CCRenderEventHandler());
             hasInit = true;
         }

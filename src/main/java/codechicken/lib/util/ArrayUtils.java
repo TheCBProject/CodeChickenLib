@@ -77,8 +77,8 @@ public class ArrayUtils {
     }
 
     public static <T> List<T> addAllNoNull(T[] array, List<T> list) {
-        for (T value : array){
-            if (value != null){
+        for (T value : array) {
+            if (value != null) {
                 list.add(value);
             }
         }
@@ -94,7 +94,7 @@ public class ArrayUtils {
         return true;
     }
 
-    public static <T> int countNoNull(T[] array){
+    public static <T> int countNoNull(T[] array) {
         int counter = 0;
         for (T value : array) {
             if (value != null) {

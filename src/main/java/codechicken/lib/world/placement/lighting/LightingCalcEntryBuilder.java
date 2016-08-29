@@ -19,7 +19,7 @@ public class LightingCalcEntryBuilder {
     private int blockLight;
     private int height;
 
-    public void setDimension(int dimension){
+    public void setDimension(int dimension) {
         this.dimension = dimension;
     }
 
@@ -55,7 +55,7 @@ public class LightingCalcEntryBuilder {
         blockLight = light;
     }
 
-    public void setHeight(int height){
+    public void setHeight(int height) {
         this.height = height;
     }
 

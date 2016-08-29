@@ -1,10 +1,7 @@
 package codechicken.lib.render;
 
-import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.raytracer.IndexedCuboid6;
 import codechicken.lib.vec.*;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -210,10 +207,10 @@ public class RenderUtils {
         if (cuboid6 == null) {
             return;
         }
-       renderHitBox(player, cuboid6, partialTicks);
+        renderHitBox(player, cuboid6, partialTicks);
     }
 
-    public static void renderHitBox(EntityPlayer player, Cuboid6 cuboid, float partialTicks){
+    public static void renderHitBox(EntityPlayer player, Cuboid6 cuboid, float partialTicks) {
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.glLineWidth(2.0F);

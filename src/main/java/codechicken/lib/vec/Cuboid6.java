@@ -1,10 +1,6 @@
 package codechicken.lib.vec;
 
-import codechicken.lib.math.MathHelper;
-import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.util.Copyable;
-import net.minecraft.block.Block;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 
 import java.math.BigDecimal;
@@ -88,12 +84,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     }
 
     public boolean intersects(Cuboid6 b) {
-        return max.x - 1E-5 > b.min.x &&
-                b.max.x - 1E-5 > min.x &&
-                max.y - 1E-5 > b.min.y &&
-                b.max.y - 1E-5 > min.y &&
-                max.z - 1E-5 > b.min.z &&
-                b.max.z - 1E-5 > min.z;
+        return max.x - 1E-5 > b.min.x && b.max.x - 1E-5 > min.x && max.y - 1E-5 > b.min.y && b.max.y - 1E-5 > min.y && max.z - 1E-5 > b.min.z && b.max.z - 1E-5 > min.z;
     }
 
     public Cuboid6 offset(Cuboid6 o) {
@@ -112,8 +103,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
 
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
-        return "Cuboid: (" + new BigDecimal(min.x, cont) + ", " + new BigDecimal(min.y, cont) + ", " + new BigDecimal(min.z, cont) + ") -> (" +
-                new BigDecimal(max.x, cont) + ", " + new BigDecimal(max.y, cont) + ", " + new BigDecimal(max.z, cont) + ")";
+        return "Cuboid: (" + new BigDecimal(min.x, cont) + ", " + new BigDecimal(min.y, cont) + ", " + new BigDecimal(min.z, cont) + ") -> (" + new BigDecimal(max.x, cont) + ", " + new BigDecimal(max.y, cont) + ", " + new BigDecimal(max.z, cont) + ")";
     }
 
     public Cuboid6 enclose(Vector3 vec) {

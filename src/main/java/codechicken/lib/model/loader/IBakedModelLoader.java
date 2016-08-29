@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 
 /**
@@ -38,7 +37,7 @@ public interface IBakedModelLoader {
         /**
          * Creates a unique key for your BlockState that you can use to create models for.
          * Return something like "key1=value1,key2=value2,key3=value3" but can realistically be what ever you want.
-         *
+         * <p>
          * This should be used to create a key for the BlockState, handle the face culling in the model you return!
          *
          * @param state IBlockState to create a key for.

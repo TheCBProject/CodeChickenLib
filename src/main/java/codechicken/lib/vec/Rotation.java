@@ -274,7 +274,6 @@ public class Rotation extends Transformation {
     @Override
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
-        return "Rotation(" + new BigDecimal(angle, cont) + ", " + new BigDecimal(axis.x, cont) + ", " +
-                new BigDecimal(axis.y, cont) + ", " + new BigDecimal(axis.z, cont) + ")";
+        return "Rotation(" + new BigDecimal(angle, cont) + ", " + new BigDecimal(axis.x, cont) + ", " + new BigDecimal(axis.y, cont) + ", " + new BigDecimal(axis.z, cont) + ")";
     }
 }

@@ -27,7 +27,7 @@ public class CCOverrideBakedBlockModel implements IBakedModel {
         this(particle, ItemOverrideList.NONE);
     }
 
-    public CCOverrideBakedBlockModel(String particle, ItemOverrideList overrideList){
+    public CCOverrideBakedBlockModel(String particle, ItemOverrideList overrideList) {
         this(particle, false, overrideList);
     }
 
@@ -40,7 +40,7 @@ public class CCOverrideBakedBlockModel implements IBakedModel {
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
         LinkedList<BakedQuad> quads = new LinkedList<BakedQuad>();
-        if (state == null){
+        if (state == null) {
             return quads;
         }
         IBakedModel correctModel = CCBakedModelLoader.getModel(state);

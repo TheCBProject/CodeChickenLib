@@ -32,19 +32,19 @@ public class CCIconRegister implements IIconRegister {
         locations.add(location);
     }
 
-    public static void registerBlockTexture(String string){
+    public static void registerBlockTexture(String string) {
         registerBlockTexture(new ResourceLocation(string));
     }
 
-    public static void registerBlockTexture(ResourceLocation location){
+    public static void registerBlockTexture(ResourceLocation location) {
         registerTexture(new ResourceLocation(location.getResourceDomain(), "blocks/" + location.getResourcePath()));
     }
 
-    public static void registerItemTexture(String string){
+    public static void registerItemTexture(String string) {
         registerItemTexture(new ResourceLocation(string));
     }
 
-    public static void registerItemTexture(ResourceLocation location){
+    public static void registerItemTexture(ResourceLocation location) {
         registerTexture(new ResourceLocation(location.getResourceDomain(), "items/" + location.getResourcePath()));
     }
 

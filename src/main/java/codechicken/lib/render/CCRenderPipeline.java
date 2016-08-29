@@ -80,7 +80,7 @@ public class CCRenderPipeline {
 
     public void rebuild() {
 
-        if (forceFormatAttributes){
+        if (forceFormatAttributes) {
             if (CCRenderState.fmt.hasNormal()) {
                 addAttribute(CCRenderState.normalAttrib);
             }

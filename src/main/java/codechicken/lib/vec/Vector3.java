@@ -171,7 +171,7 @@ public class Vector3 implements Copyable<Vector3> {
         return this;
     }
 
-    public Vector3 add(BlockPos pos){
+    public Vector3 add(BlockPos pos) {
         return add(new Vector3(pos));
     }
 
@@ -182,7 +182,7 @@ public class Vector3 implements Copyable<Vector3> {
         return this;
     }
 
-    public Vector3 sub(BlockPos pos){
+    public Vector3 sub(BlockPos pos) {
         return sub(new Vector3(pos));
     }
 
@@ -439,9 +439,7 @@ public class Vector3 implements Copyable<Vector3> {
      * @return true if this is equal to v within +-1E-5
      */
     public boolean equalsT(Vector3 v) {
-        return MathHelper.between(x - 1E-5, v.x, x + 1E-5) &&
-                MathHelper.between(y - 1E-5, v.y, y + 1E-5) &&
-                MathHelper.between(z - 1E-5, v.z, z + 1E-5);
+        return MathHelper.between(x - 1E-5, v.x, x + 1E-5) && MathHelper.between(y - 1E-5, v.y, y + 1E-5) && MathHelper.between(z - 1E-5, v.z, z + 1E-5);
     }
 
     public Vector3 apply(Transformation t) {

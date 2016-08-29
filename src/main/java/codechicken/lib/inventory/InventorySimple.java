@@ -150,7 +150,7 @@ public class InventorySimple implements IInventory, ICapabilityProvider {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY){
+        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return (T) new InvWrapper(this);
         }
         return null;

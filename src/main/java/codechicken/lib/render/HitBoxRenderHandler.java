@@ -36,7 +36,7 @@ public class HitBoxRenderHandler {
 
         //We have found a CuboidRayTraceResult, Lets render it properly..
         RayTraceResult hit = event.getTarget();
-        if (hit.typeOfHit == Type.BLOCK && hit instanceof CuboidRayTraceResult && !((CuboidRayTraceResult)hit).disableAutoHitboxRender) {
+        if (hit.typeOfHit == Type.BLOCK && hit instanceof CuboidRayTraceResult && !((CuboidRayTraceResult) hit).disableAutoHitboxRender) {
             event.setCanceled(true);
             RenderUtils.renderHitBox(event.getPlayer(), ((CuboidRayTraceResult) event.getTarget()).cuboid6.copy().add(new Vector3(pos)), event.getPartialTicks());
         }
