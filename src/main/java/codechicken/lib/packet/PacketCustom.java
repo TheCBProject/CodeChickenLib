@@ -226,12 +226,13 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     private void decompress() {
         Inflater inflater = new Inflater();
         try {
-            int len = readInt();
+            int len = readVarInt();
             byte[] out = new byte[len];
             inflater.setInput(array(), readerIndex(), readableBytes());
             inflater.inflate(out);
             clear();
-            writeByteArray(out);
+            writeArray(out);
+
         } catch (Exception e) {
             throw new EncoderException(e);
         } finally {
@@ -258,7 +259,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
             clear();
             writeByte(type | 0x80);
             writeVarInt(len);
-            writeByteArray(out);
+            writeArray(out);
         } catch (Exception e) {
             throw new EncoderException(e);
         } finally {
