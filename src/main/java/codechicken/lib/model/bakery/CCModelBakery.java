@@ -62,10 +62,14 @@ public class CCModelBakery {
         return bakeModel(model, format, sprite, 0, model.getVertices().length, ops);
     }
 
+    public static List<BakedQuad> bakeModel(CCModel model, VertexFormat format, TextureAtlasSprite sprite, int start, int end, IVertexOperation... ops) {
+        return bakeModel(model, model.vp == 3, format, sprite, start, end, ops);
+    }
+
     /**
-     * Bakes a CCModel to a List of BakedQuads.
+     * Bakes a IVertexSource model to a List of BakedQuads.
      *
-     * @param model  Model to bake.
+     * @param model  Vertex source to bake.
      * @param format VertexFormat to bake to.
      * @param sprite Sprite the quads are to be baked from.
      * @param start  The first vertex index to bake.
@@ -73,10 +77,10 @@ public class CCModelBakery {
      * @param ops    Any Operations to apply.
      * @return The BakedQuads for the model.
      */
-    public static List<BakedQuad> bakeModel(CCModel model, VertexFormat format, TextureAtlasSprite sprite, int start, int end, IVertexOperation... ops) {
+    public static List<BakedQuad> bakeModel(IVertexSource model, boolean isTriangles, VertexFormat format, TextureAtlasSprite sprite, int start, int end, IVertexOperation... ops) {
         //The face for quads is assigned down the line using the quads normals.
         CCQuadBakery bakery = new CCQuadBakery(format, sprite);
-        if (model.vp == 3) {
+        if (isTriangles) {
             bakery.startBakingTriangles();
         } else {
             bakery.startBakingQuads();
