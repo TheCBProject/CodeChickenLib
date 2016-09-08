@@ -14,27 +14,23 @@ import net.minecraftforge.common.model.TRSRTransformation;
  */
 public class CCModelState implements IModelState {
 
-    private final ImmutableMap<? extends IModelPart, TRSRTransformation> map;
-    private final Optional<TRSRTransformation> def;
+    private final ImmutableMap<TransformType, TRSRTransformation> map;
+    private final Optional<TRSRTransformation> defaultTransform;
 
-    public CCModelState(ImmutableMap<? extends IModelPart, TRSRTransformation> map) {
+    public CCModelState(ImmutableMap<TransformType, TRSRTransformation> map) {
         this(map, Optional.<TRSRTransformation>absent());
     }
 
-    public CCModelState(ImmutableMap<? extends IModelPart, TRSRTransformation> map, Optional<TRSRTransformation> def) {
+    public CCModelState(ImmutableMap<TransformType, TRSRTransformation> map, Optional<TRSRTransformation> defaultTransform) {
         this.map = map;
-        this.def = def;
+        this.defaultTransform = defaultTransform;
     }
 
     public Optional<TRSRTransformation> apply(Optional<? extends IModelPart> part) {
-        if (!part.isPresent() || !map.containsKey(part.get())) {
-            return def;
+        if (!part.isPresent() || !(part.get() instanceof TransformType) || !map.containsKey(part.get())) {
+            return defaultTransform;
         }
         return Optional.fromNullable(map.get(part.get()));
-    }
-
-    public ImmutableMap<? extends IModelPart, TRSRTransformation> getMap() {
-        return this.map;
     }
 
     public ImmutableMap<TransformType, TRSRTransformation> getTransforms() {

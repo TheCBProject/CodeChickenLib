@@ -5,6 +5,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Matrix4f;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -267,6 +269,48 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         m33 = mat.m33;
 
         return this;
+    }
+
+    public Matrix4d toMatrix4d() {
+        double[] matrix = new double[16];
+        matrix[0] = m00;
+        matrix[1] = m01;
+        matrix[2] = m02;
+        matrix[3] = m03;
+        matrix[4] = m10;
+        matrix[5] = m11;
+        matrix[6] = m12;
+        matrix[7] = m13;
+        matrix[8] = m20;
+        matrix[9] = m21;
+        matrix[10] = m22;
+        matrix[11] = m23;
+        matrix[12] = m30;
+        matrix[13] = m31;
+        matrix[14] = m32;
+        matrix[15] = m33;
+        return new Matrix4d(matrix);
+    }
+
+    public Matrix4f toMatrix4f() {
+        float[] matrix = new float[16];
+        matrix[0] = (float) m00;
+        matrix[1] = (float) m01;
+        matrix[2] = (float) m02;
+        matrix[3] = (float) m03;
+        matrix[4] = (float) m10;
+        matrix[5] = (float) m11;
+        matrix[6] = (float) m12;
+        matrix[7] = (float) m13;
+        matrix[8] = (float) m20;
+        matrix[9] = (float) m21;
+        matrix[10] = (float) m22;
+        matrix[11] = (float) m23;
+        matrix[12] = (float) m30;
+        matrix[13] = (float) m31;
+        matrix[14] = (float) m32;
+        matrix[15] = (float) m33;
+        return new Matrix4f(matrix);
     }
 
     @Override

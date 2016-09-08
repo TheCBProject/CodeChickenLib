@@ -1,9 +1,11 @@
 package codechicken.lib.render;
 
+import codechicken.lib.vec.Matrix4;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraftforge.common.model.TRSRTransformation;
 
+import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 
 /**
@@ -66,5 +68,11 @@ public class TransformUtils {
 
     private static TRSRTransformation leftify(TRSRTransformation transform) {
         return TRSRTransformation.blockCenterToCorner(flipX.compose(TRSRTransformation.blockCornerToCenter(transform)).compose(flipX));
+    }
+
+    public static TRSRTransformation fromMatrix4(Matrix4 matrix4){
+        TRSRTransformation transformation = new TRSRTransformation(matrix4.toMatrix4f());
+        transformation.getLeftRot();//Call something to cause it to gen properly.
+        return transformation;
     }
 }
