@@ -92,7 +92,7 @@ public class CCModelBakery {
             model.prepareVertex();
             vert.set(verts[vertexIndex]);
             runPipeline();
-            if (CCRenderState.sprite != null) {
+            if (CCRenderState.sprite != null && !bakery.hasIncompleteQuad()) {
                 try {
                     bakery.setSprite(CCRenderState.sprite);
                 } catch (IllegalStateException e) {

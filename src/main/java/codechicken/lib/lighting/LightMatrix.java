@@ -32,7 +32,7 @@ public class LightMatrix implements CCRenderState.IVertexOperation {
     public static final int[][] qsamplem = new int[][] {//the positions in the side sample array for each corner
             { 0, 1, 3, 4 }, { 5, 1, 2, 4 }, { 6, 7, 3, 4 }, { 5, 7, 8, 4 } };
     public static final float[] sideao = new float[] { 0.5F, 1F, 0.8F, 0.8F, 0.6F, 0.6F, 0.5F, 1F, 0.8F, 0.8F, 0.6F, 0.6F, 1F };
-    
+
     /*static
     {
         int[][] os = new int[][]{
@@ -42,7 +42,7 @@ public class LightMatrix implements CCRenderState.IVertexOperation {
                 {0,0, 1},
                 {-1,0,0},
                 { 1,0,0}};
-        
+
         for(int s = 0; s < 12; s++)
         {
             int[] d0 = s < 6 ? new int[]{os[s][0]+1, os[s][1]+1, os[s][2]+1} : new int[]{1, 1, 1};
@@ -55,9 +55,9 @@ public class LightMatrix implements CCRenderState.IVertexOperation {
         System.out.println(Arrays.deepToString(ssamplem));
     }*/
 
-    public void locate(IBlockAccess a, int x, int y, int z) {
+    public void locate(IBlockAccess a, BlockPos bpos) {
         access = a;
-        pos.set(x, y, z);
+        pos.set(bpos.getX(), bpos.getY(), bpos.getZ());
         computed = 0;
         sampled = 0;
     }

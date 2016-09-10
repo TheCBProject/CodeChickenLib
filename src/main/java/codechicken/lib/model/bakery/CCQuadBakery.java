@@ -85,6 +85,10 @@ public class CCQuadBakery {
         return returnQuads;
     }
 
+    public boolean hasIncompleteQuad() {
+        return quad != null;
+    }
+
     public void reset() {
         applyDifuseLighting = true;
         isBakingTriModel = false;
