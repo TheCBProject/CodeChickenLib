@@ -98,6 +98,9 @@ public class CCQuadBakery {
     }
 
     public CCQuadBakery setSprite(TextureAtlasSprite sprite) {
+        if (this.sprite == sprite){
+            return this;
+        }
         if (quad != null) {
             throw new IllegalStateException("Unable to set sprite whilst quad is still baking!");
         }
