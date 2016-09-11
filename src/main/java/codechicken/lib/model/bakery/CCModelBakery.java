@@ -62,10 +62,6 @@ public class CCModelBakery {
         return bakeModel(model, format, sprite, 0, model.getVertices().length, ops);
     }
 
-    public static List<BakedQuad> bakeModel(CCModel model, VertexFormat format, TextureAtlasSprite sprite, int start, int end, IVertexOperation... ops) {
-        return bakeModel(model, model.vp == 3, format, sprite, start, end, ops);
-    }
-
     /**
      * Bakes a IVertexSource model to a List of BakedQuads.
      *
@@ -75,6 +71,22 @@ public class CCModelBakery {
      * @param start  The first vertex index to bake.
      * @param end    The Vertex index to bake until.
      * @param ops    Any Operations to apply.
+     * @return The BakedQuads for the model.
+     */
+    public static List<BakedQuad> bakeModel(CCModel model, VertexFormat format, TextureAtlasSprite sprite, int start, int end, IVertexOperation... ops) {
+        return bakeModel(model, model.vp == 3, format, sprite, start, end, ops);
+    }
+
+    /**
+     * Bakes a IVertexSource model to a List of BakedQuads.
+     *
+     * @param model       Vertex source to bake.
+     * @param isTriangles Specifies if the model's vertices are triangles.
+     * @param format      VertexFormat to bake to.
+     * @param sprite      Sprite the quads are to be baked from.
+     * @param start       The first vertex index to bake.
+     * @param end         The Vertex index to bake until.
+     * @param ops         Any Operations to apply.
      * @return The BakedQuads for the model.
      */
     public static List<BakedQuad> bakeModel(IVertexSource model, boolean isTriangles, VertexFormat format, TextureAtlasSprite sprite, int start, int end, IVertexOperation... ops) {
@@ -92,7 +104,7 @@ public class CCModelBakery {
             model.prepareVertex();
             vert.set(verts[vertexIndex]);
             runPipeline();
-            if (CCRenderState.sprite != null && !bakery.hasIncompleteQuad()) {
+            if (CCRenderState.sprite != null) {
                 try {
                     bakery.setSprite(CCRenderState.sprite);
                 } catch (IllegalStateException e) {
