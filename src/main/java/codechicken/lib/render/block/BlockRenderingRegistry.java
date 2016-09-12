@@ -31,10 +31,11 @@ public class BlockRenderingRegistry {
     }
 
     public static void init() {
-        if (initialized) {
-            BlockRendererDispatcher parentDispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+        if (!initialized) {
+            Minecraft mc = Minecraft.getMinecraft();
+            BlockRendererDispatcher parentDispatcher = mc.getBlockRendererDispatcher();
             Field field = ReflectionHelper.findField(Minecraft.class, "blockRenderDispatcher", "field_175618_aM", "aR");
-            ReflectionManager.set(field, new CCBlockRendererDispatcher(parentDispatcher, Minecraft.getMinecraft().getBlockColors()));
+            ReflectionManager.set(field, mc, new CCBlockRendererDispatcher(parentDispatcher, Minecraft.getMinecraft().getBlockColors()));
             initialized = true;
         }
     }

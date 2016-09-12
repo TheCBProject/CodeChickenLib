@@ -3,14 +3,18 @@ package codechicken.lib.render;
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourARGB;
 import com.google.common.base.Function;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -23,6 +27,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class TextureUtils {
     public interface IIconRegister {
@@ -244,6 +250,31 @@ public class TextureUtils {
 
     public static void restoreBlockMipmap() {
         restoreLastMipmap(TextureMap.LOCATION_BLOCKS_TEXTURE);
+    }
+
+    public static TextureAtlasSprite[] getIconsForBlock(IBlockState state, int side) {
+        return getIconsForBlock(state, EnumFacing.values()[side]);
+    }
+
+    public static TextureAtlasSprite[] getIconsForBlock(IBlockState state, EnumFacing side) {
+        IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(state);
+        if (model != null) {
+            List<BakedQuad> quads = model.getQuads(state, side, 0);
+            if (quads != null && quads.size() > 0) {
+                TextureAtlasSprite[] sprites = new TextureAtlasSprite[quads.size()];
+                for (int i = 0; i < quads.size(); i++)
+                    sprites[i] = quads.get(i).getSprite();
+                return sprites;
+            }
+        }
+        return new TextureAtlasSprite[0];
+    }
+
+    public static TextureAtlasSprite getParticleIconForBlock(IBlockState state) {
+        IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(state);
+        if (model != null)
+            return model.getParticleTexture();
+        return null;
     }
 
 }
