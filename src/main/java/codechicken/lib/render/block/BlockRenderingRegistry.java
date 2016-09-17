@@ -1,6 +1,7 @@
 package codechicken.lib.render.block;
 
 import codechicken.lib.util.ReflectionManager;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class BlockRenderingRegistry {
 
     private static final Map<EnumBlockRenderType, ICCBlockRenderer> blockRendererList = new HashMap<EnumBlockRenderType, ICCBlockRenderer>();
+    private static final ImmutableList<EnumBlockRenderType> vanillaRenderTypes = ImmutableList.copyOf(EnumBlockRenderType.values());
 
     private static boolean initialized = false;
 
@@ -49,12 +51,8 @@ public class BlockRenderingRegistry {
     }
 
     public static void registerRenderer(EnumBlockRenderType type, ICCBlockRenderer renderer) {
-        switch (type) {
-            case INVISIBLE:
-            case LIQUID:
-            case ENTITYBLOCK_ANIMATED:
-            case MODEL:
-                throw new IllegalArgumentException("Invalid EnumBlockRenderType! " + type.name());
+        if (vanillaRenderTypes.contains(type)) {
+            throw new IllegalArgumentException("Invalid EnumBlockRenderType! " + type.name());
         }
         if (blockRendererList.containsKey(type)) {
             throw new IllegalArgumentException("Unable to register duplicate render type!" + type.name());
