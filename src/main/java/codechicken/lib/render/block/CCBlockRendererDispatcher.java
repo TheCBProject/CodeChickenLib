@@ -1,10 +1,12 @@
 package codechicken.lib.render.block;
 
+import codechicken.lib.render.TextureUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.util.ReportedException;
@@ -15,7 +17,7 @@ import net.minecraft.world.WorldType;
 /**
  * Created by covers1624 on 8/09/2016.
  */
-public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
+public class CCBlockRendererDispatcher extends BlockRendererDispatcher implements TextureUtils.IIconRegister {
 
     public final BlockRendererDispatcher parentDispatcher;
 
@@ -61,5 +63,10 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
             BlockRenderingRegistry.renderBlockBrightness(state, brightness);
         }
         super.renderBlockBrightness(state, brightness);
+    }
+
+    @Override
+    public void registerIcons(TextureMap textureMap) {
+        BlockRenderingRegistry.registerTextures(textureMap);
     }
 }
