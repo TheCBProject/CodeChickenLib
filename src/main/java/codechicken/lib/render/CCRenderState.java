@@ -364,12 +364,6 @@ public class CCRenderState {
         lastVertexIndex = end;
     }
 
-    public static CCDynamicModel dynamicModel(VertexAttribute... attrs) {
-        CCDynamicModel m = new CCDynamicModel(attrs);
-        bindModel(m);
-        return m;
-    }
-
     public static void renderQuads(List<BakedQuad> quads) {
         VertexBuffer buffer = startDrawing(GL11.GL_QUADS, quads.get(0).getFormat());
         for (BakedQuad quad : quads) {
