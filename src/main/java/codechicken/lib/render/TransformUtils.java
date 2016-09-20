@@ -62,11 +62,11 @@ public class TransformUtils {
         DEFAULT_BOW = new CCModelState(defaultBowBuilder.build());
     }
 
-    private static TRSRTransformation get(float tx, float ty, float tz, float rx, float ry, float rz, float s) {
+    public static TRSRTransformation get(float tx, float ty, float tz, float rx, float ry, float rz, float s) {
         return TRSRTransformation.blockCenterToCorner(new TRSRTransformation(new Vector3f(tx / 16, ty / 16, tz / 16), TRSRTransformation.quatFromXYZDegrees(new Vector3f(rx, ry, rz)), new Vector3f(s, s, s), null));
     }
 
-    private static TRSRTransformation leftify(TRSRTransformation transform) {
+    public static TRSRTransformation leftify(TRSRTransformation transform) {
         return TRSRTransformation.blockCenterToCorner(flipX.compose(TRSRTransformation.blockCornerToCenter(transform)).compose(flipX));
     }
 
