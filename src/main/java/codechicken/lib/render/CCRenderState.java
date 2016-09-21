@@ -4,6 +4,8 @@ import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightMatrix;
+import codechicken.lib.render.buffer.IVertexBuffer;
+import codechicken.lib.render.buffer.VertexBufferWrapper;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Transformation;
@@ -302,7 +304,7 @@ public class CCRenderState {
     public static int vertexIndex;
     public static CCRenderPipeline pipeline = new CCRenderPipeline();
     @SideOnly(Side.CLIENT)
-    public static VertexBuffer r;
+    public static IVertexBuffer r;
     @SideOnly(Side.CLIENT)
     public static VertexFormat fmt;
 
@@ -402,11 +404,11 @@ public class CCRenderState {
                 if (fmte.getIndex() == 0) {
                     r.tex(vert.uv.u, vert.uv.v);
                 } else {
-                    r.lightmap(brightness >> 16 & 65535, brightness & 65535);
+                    r.lightMap(brightness >> 16 & 65535, brightness & 65535);
                 }
                 break;
             case COLOR:
-                r.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+                r.colour(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
                 break;
             case NORMAL:
                 r.normal((float) normal.x, (float) normal.y, (float) normal.z);
@@ -461,20 +463,18 @@ public class CCRenderState {
 
     @SideOnly(Side.CLIENT)
     public static void bind(VertexBuffer r) {
-        CCRenderState.r = r;
+        CCRenderState.r = new VertexBufferWrapper(r);
         fmt = r.getVertexFormat();
     }
 
     @SideOnly(Side.CLIENT)
-    @Deprecated
-    public static VertexBuffer pullBuffer() {
-        bind(Tessellator.getInstance().getBuffer());
+    public static IVertexBuffer getIVertexBuffer(){
         return r;
     }
 
     @SideOnly(Side.CLIENT)
     public static VertexBuffer getBuffer() {
-        return r;
+        return r.getBuffer();
     }
 
     @SideOnly(Side.CLIENT)
@@ -494,7 +494,7 @@ public class CCRenderState {
      */
     public static boolean isDrawing() {
         if (r != null) {
-            return r.isDrawing;
+            return r.isDrawing();
         } else {
             return Tessellator.getInstance().getBuffer().isDrawing;
         }

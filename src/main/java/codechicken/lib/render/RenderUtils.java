@@ -1,6 +1,8 @@
 package codechicken.lib.render;
 
 import codechicken.lib.raytracer.IndexedCuboid6;
+import codechicken.lib.render.buffer.CachingBufferWrapper;
+import codechicken.lib.render.buffer.IVertexBuffer;
 import codechicken.lib.vec.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -61,8 +63,8 @@ public class RenderUtils {
      * @param res  Units per icon
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, TextureAtlasSprite icon, double res) {
-        //CCDynamicModel r = CCRenderState.dynamicModel();//TODO
-        VertexBuffer r = CCRenderState.getBuffer();
+        IVertexBuffer r = new CachingBufferWrapper(CCRenderState.getIVertexBuffer());
+        r.colour(CCRenderState.getColour());
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
         double v2 = icon.getMaxV();
