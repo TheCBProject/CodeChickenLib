@@ -2,8 +2,6 @@ package codechicken.lib.packet;
 
 import codechicken.lib.data.MCDataHandler;
 import codechicken.lib.data.MCDataIO;
-import codechicken.lib.data.MCDataOutput;
-import codechicken.lib.vec.BlockCoord;
 import com.google.common.collect.Maps;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -363,14 +361,6 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         return this;
     }
 
-    @Deprecated
-    @Override
-    public PacketCustom writeCoord(int x, int y, int z) {
-        writeInt(x);
-        writeInt(y);
-        writeInt(z);
-        return this;
-    }
 
     @Override
     public PacketCustom writePos(BlockPos pos) {
@@ -378,11 +368,6 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         writeInt(pos.getY());
         writeInt(pos.getZ());
         return this;
-    }
-
-    @Override
-    public MCDataOutput writeCoord(BlockCoord coord) {
-        return writePos(coord.pos());
     }
 
     @Override
@@ -424,12 +409,6 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     @Override
     public int readVarInt() {
         return readVarIntFromBuffer();
-    }
-
-    //TODO BlockPos method. /  override parent methods.
-    @Override
-    public BlockCoord readCoord() {
-        return new BlockCoord(readInt(), readInt(), readInt());
     }
 
     @Override

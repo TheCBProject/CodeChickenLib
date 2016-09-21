@@ -50,12 +50,6 @@ public class Vector3 implements Copyable<Vector3> {
         z = vec.zCoord;
     }
 
-    public Vector3(BlockCoord coord) {
-        x = coord.x;
-        y = coord.y;
-        z = coord.z;
-    }
-
     public Vector3(BlockPos pos) {
         x = pos.getX();
         y = pos.getY();
@@ -200,6 +194,13 @@ public class Vector3 implements Copyable<Vector3> {
 
     public Vector3 divide(BlockPos pos) {
         return divide(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    public Vector3 floor(){
+        x = MathHelper.floor_double(x);
+        y = MathHelper.floor_double(y);
+        z = MathHelper.floor_double(z);
+        return this;
     }
 
     public double mag() {

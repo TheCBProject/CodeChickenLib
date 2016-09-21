@@ -1,5 +1,7 @@
 package codechicken.lib.math;
 
+import net.minecraft.util.math.BlockPos;
+
 public class MathHelper {
     public static final double phi = 1.618033988749894;
     public static final double pi = Math.PI;
@@ -156,5 +158,39 @@ public class MathHelper {
 
     public static int compare(double a, double b) {
         return a == b ? 0 : a < b ? -1 : 1;
+    }
+
+    public static int absSum(BlockPos pos) {
+        return (pos.getX() < 0 ? -pos.getX() : pos.getX()) + (pos.getY() < 0 ? -pos.getY() : pos.getY()) + (pos.getZ() < 0 ? -pos.getZ() : pos.getZ());
+    }
+
+    public static boolean isAxial(BlockPos pos) {
+        return pos.getX() == 0 ? (pos.getY() == 0 || pos.getZ() == 0) : (pos.getY() == 0 && pos.getZ() == 0);
+    }
+
+    public static int toSide(BlockPos pos) {
+        if (!isAxial(pos)) {
+            return -1;
+        }
+        if (pos.getY() < 0) {
+            return 0;
+        }
+        if (pos.getY() > 0) {
+            return 1;
+        }
+        if (pos.getZ() < 0) {
+            return 2;
+        }
+        if (pos.getZ() > 0) {
+            return 3;
+        }
+        if (pos.getX() < 0) {
+            return 4;
+        }
+        if (pos.getX() > 0) {
+            return 5;
+        }
+
+        return -1;
     }
 }

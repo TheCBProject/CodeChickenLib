@@ -1,6 +1,5 @@
 package codechicken.lib.raytracer;
 
-import codechicken.lib.vec.BlockCoord;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumFacing;
@@ -15,13 +14,6 @@ public class DistanceRayTraceResult extends RayTraceResult implements Comparable
 
     public DistanceRayTraceResult(Entity entity, Vector3 hit, Object data, double dist) {
         super(entity, hit.vec3());
-        setData(data);
-        this.dist = dist;
-    }
-
-    @Deprecated
-    public DistanceRayTraceResult(Vector3 hit, int side, BlockCoord pos, Object data, double dist) {
-        super(hit.vec3(), EnumFacing.values()[side], pos.pos());
         setData(data);
         this.dist = dist;
     }

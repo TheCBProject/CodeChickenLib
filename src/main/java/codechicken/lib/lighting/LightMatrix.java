@@ -2,7 +2,6 @@ package codechicken.lib.lighting;
 
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.CCRenderState;
-import codechicken.lib.vec.BlockCoord;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
@@ -19,7 +18,7 @@ public class LightMatrix implements CCRenderState.IVertexOperation {
     public int[][] brightness = new int[13][4];
 
     public IBlockAccess access;
-    public BlockCoord pos = new BlockCoord();
+    public BlockPos pos = BlockPos.ORIGIN;
 
     private int sampled = 0;
     private float[] aSamples = new float[27];
@@ -55,16 +54,16 @@ public class LightMatrix implements CCRenderState.IVertexOperation {
         System.out.println(Arrays.deepToString(ssamplem));
     }*/
 
-    public void locate(IBlockAccess a, BlockPos bpos) {
+    public void locate(IBlockAccess a, BlockPos bPos) {
         access = a;
-        pos.set(bpos.getX(), bpos.getY(), bpos.getZ());
+        pos = bPos;
         computed = 0;
         sampled = 0;
     }
 
     public void sample(int i) {
         if ((sampled & 1 << i) == 0) {
-            BlockPos bp = new BlockPos(pos.x + (i % 3) - 1, pos.y + (i / 9) - 1, pos.z + (i / 3 % 3) - 1);
+            BlockPos bp = new BlockPos(pos.getX() + (i % 3) - 1, pos.getY() + (i / 9) - 1, pos.getZ() + (i / 3 % 3) - 1);
             IBlockState b = access.getBlockState(bp);
             bSamples[i] = access.getCombinedLight(bp, b.getLightValue(access, bp));
             aSamples[i] = b.getBlock().getAmbientOcclusionLightValue(b);

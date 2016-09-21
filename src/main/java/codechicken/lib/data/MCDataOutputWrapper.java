@@ -1,6 +1,5 @@
 package codechicken.lib.data;
 
-import codechicken.lib.vec.BlockCoord;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -112,23 +111,12 @@ public class MCDataOutputWrapper implements MCDataOutput {
         return this;
     }
 
-    public MCDataOutputWrapper writeCoord(int x, int y, int z) {
-        writeInt(x);
-        writeInt(y);
-        writeInt(z);
-        return this;
-    }
-
     @Override
     public MCDataOutputWrapper writePos(BlockPos pos) {
         writeInt(pos.getX());
         writeInt(pos.getY());
         writeInt(pos.getZ());
         return this;
-    }
-
-    public MCDataOutputWrapper writeCoord(BlockCoord coord) {
-        return writePos(coord.pos());
     }
 
     public MCDataOutputWrapper writeString(String s) {

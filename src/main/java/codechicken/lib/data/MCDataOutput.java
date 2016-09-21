@@ -1,6 +1,5 @@
 package codechicken.lib.data;
 
-import codechicken.lib.vec.BlockCoord;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -31,12 +30,7 @@ public interface MCDataOutput {
 
     MCDataOutput writeString(String s);
 
-    @Deprecated
-    MCDataOutput writeCoord(int x, int y, int z);
-
     MCDataOutput writePos(BlockPos pos);
-
-    MCDataOutput writeCoord(BlockCoord coord);
 
     MCDataOutput writeNBTTagCompound(NBTTagCompound tag);
 

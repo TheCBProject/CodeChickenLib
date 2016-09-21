@@ -1,6 +1,5 @@
 package codechicken.lib.data;
 
-import codechicken.lib.vec.BlockCoord;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -36,8 +35,6 @@ public interface MCDataInput {
     byte[] readArray(int length);
 
     String readString();
-
-    BlockCoord readCoord();
 
     BlockPos readPos();
 

@@ -281,7 +281,7 @@ public class CCRenderState {
                 return lcRef != null;
             }
 
-            pos.set(lightMatrix.pos.x, lightMatrix.pos.y, lightMatrix.pos.z);
+            pos.set(new Vector3(lightMatrix.pos));
             pipeline.addDependency(sideAttrib);
             pipeline.addRequirement(Transformation.operationIndex);
             return true;
