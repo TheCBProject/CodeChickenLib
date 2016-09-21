@@ -211,14 +211,14 @@ public class RayTracer {
      * @return A new CuboidRayTraceResult if successful, null if fail.
      */
     public static CuboidRayTraceResult rayTrace(BlockPos pos, Vector3 start, Vector3 end, IndexedCuboid6 cuboid) {
-        Vector3 startRay = start.copy().sub(pos);
-        Vector3 endRay = end.copy().sub(pos);
+        Vector3 startRay = start.copy().subtract(pos);
+        Vector3 endRay = end.copy().subtract(pos);
         RayTraceResult bbResult = cuboid.aabb().calculateIntercept(startRay.vec3(), endRay.vec3());
 
         if (bbResult != null) {
             Vector3 hitVec = new Vector3(bbResult.hitVec).add(pos);
             EnumFacing sideHit = bbResult.sideHit;
-            double dist = hitVec.copy().sub(start).magSquared();
+            double dist = hitVec.copy().subtract(start).magSquared();
             return new CuboidRayTraceResult(hitVec, pos, sideHit, cuboid, dist);
         }
         return null;

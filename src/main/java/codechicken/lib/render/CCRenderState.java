@@ -290,7 +290,7 @@ public class CCRenderState {
             if (lcRef != null) {
                 lc.set(lcRef[vertexIndex]);
             } else {
-                lc.compute(vec.set(vert.vec).sub(pos), side);
+                lc.compute(vec.set(vert.vec).subtract(pos), side);
             }
         }
     };

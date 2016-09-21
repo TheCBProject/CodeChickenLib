@@ -66,7 +66,7 @@ public class IndexedCuboid6 extends Cuboid6 {
                 }
                 break;
             }
-            double suspectDist = suspectHit.copy().sub(start).magSquared();
+            double suspectDist = suspectHit.copy().subtract(start).magSquared();
             if (suspectDist < dist) {
                 sideHit = face;
                 dist = suspectDist;
