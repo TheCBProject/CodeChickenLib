@@ -1,8 +1,6 @@
 package codechicken.lib.render;
 
-import codechicken.lib.raytracer.IndexedCuboid6;
-import codechicken.lib.render.buffer.CachingBufferWrapper;
-import codechicken.lib.render.buffer.IVertexBuffer;
+
 import codechicken.lib.vec.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -19,7 +17,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
