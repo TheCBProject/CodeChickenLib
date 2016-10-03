@@ -1,6 +1,6 @@
 package codechicken.lib.model.modelbase;
 
-import codechicken.lib.model.bakery.CCQuadBakery.CCQuad;
+import codechicken.lib.model.bakery.CCQuad;
 import codechicken.lib.render.CCModel;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.Vertex5;

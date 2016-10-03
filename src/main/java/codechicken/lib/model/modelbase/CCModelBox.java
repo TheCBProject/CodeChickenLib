@@ -2,7 +2,7 @@ package codechicken.lib.model.modelbase;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
-import codechicken.lib.model.bakery.CCQuadBakery.CCQuad;
+import codechicken.lib.model.bakery.CCQuad;
 import codechicken.lib.render.Vertex5;
 import codechicken.lib.render.uv.UV;
 

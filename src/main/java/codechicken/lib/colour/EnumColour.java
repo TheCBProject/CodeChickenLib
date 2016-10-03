@@ -2,30 +2,31 @@ package codechicken.lib.colour;
 
 import codechicken.lib.util.TripleABC;
 import com.google.common.collect.ImmutableList;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.util.IStringSerializable;
 
 /**
  * Created by covers1624 on 16/09/2016.
  */
-public enum EnumColour {
-
-    WHITE("white", "dyeWhite", "item.fireworksCharge.white", 0xFFFFFF),
-    ORANGE("orange", "dyeOrange", "item.fireworksCharge.orange", 0xC06300),
-    MAGENTA("magenta", "dyeMagenta", "item.fireworksCharge.magenta", 0xB51AB5),
+public enum EnumColour implements IStringSerializable {
+    //Formatted like this due to the cancerous nature of the constructors..
+    //@formatter:off
+    WHITE     ("white",      "dyeWhite",     "item.fireworksCharge.white",     0xFFFFFF),
+    ORANGE    ("orange",     "dyeOrange",    "item.fireworksCharge.orange",    0xC06300),
+    MAGENTA   ("magenta",    "dyeMagenta",   "item.fireworksCharge.magenta",   0xB51AB5),
     LIGHT_BLUE("light_blue", "dyeLightBlue", "item.fireworksCharge.lightBlue", 0x6F84F1),
-    YELLOW("yellow", "dyeYellow", "item.fireworksCharge.yellow", 0xBFBF00),
-    LIME("lime", "dyeLime", "item.fireworksCharge.lime", 0x6BF100),
-    PINK("pink", "dyePink", "item.fireworksCharge.pink", 0xF14675),
-    GRAY("gray", "dyeGray", "item.fireworksCharge.gray", 0x535353),
-    LIGHT_GRAY("light_gray", "dyeLightDray", "item.fireworksCharge.silver", 0x939393),
-    CYAN("cyan", "dyeCyan", "item.fireworksCharge.cyan", 0x008787),
-    PURPLE("purple", "dyePurple", "item.fireworksCharge.purple", 0x5E00C0),
-    BLUE("blue", "dyeBlue", "item.fireworksCharge.blue", 0x1313C0),
-    BROWN("brown", "dyeBrown", "item.fireworksCharge.brown", 0x4F2700),
-    GREEN("green", "dyeGreen", "item.fireworksCharge.green", 0x088700),
-    RED("red", "dyeRed", "item.fireworksCharge.red", 0xA20F06),
-    BLACK("black", "dyeBlack", "item.fireworksCharge.black", 0x1F1F1F);
+    YELLOW    ("yellow",     "dyeYellow",    "item.fireworksCharge.yellow",    0xBFBF00),
+    LIME      ("lime",       "dyeLime",      "item.fireworksCharge.lime",      0x6BF100),
+    PINK      ("pink",       "dyePink",      "item.fireworksCharge.pink",      0xF14675),
+    GRAY      ("gray",       "dyeGray",      "item.fireworksCharge.gray",      0x535353),
+    LIGHT_GRAY("light_gray", "dyeLightDray", "item.fireworksCharge.silver",    0x939393),
+    CYAN      ("cyan",       "dyeCyan",      "item.fireworksCharge.cyan",      0x008787),
+    PURPLE    ("purple",     "dyePurple",    "item.fireworksCharge.purple",    0x5E00C0),
+    BLUE      ("blue",       "dyeBlue",      "item.fireworksCharge.blue",      0x1313C0),
+    BROWN     ("brown",      "dyeBrown",     "item.fireworksCharge.brown",     0x4F2700),
+    GREEN     ("green",      "dyeGreen",     "item.fireworksCharge.green",     0x088700),
+    RED       ("red",        "dyeRed",       "item.fireworksCharge.red",       0xA20F06),
+    BLACK     ("black",      "dyeBlack",     "item.fireworksCharge.black",     0x1F1F1F);
+    //@formatter:on
 
     private String minecraftName;
     private String oreDictionaryName;
@@ -39,6 +40,11 @@ public enum EnumColour {
         this.oreDictionaryName = oreDictionaryName;
         this.unlocalizedName = unlocalizedName;
         this.rgb = rgb;
+    }
+
+    @Override
+    public String getName() {
+        return minecraftName;
     }
 
     public String getMinecraftName() {
@@ -87,7 +93,7 @@ public enum EnumColour {
         }
         synchronized (mixMap) {
             for (TripleABC<EnumColour, EnumColour, EnumColour> triple : mixMap) {
-                if (triple.getA().equals(a) && triple.getB().equals(b)) {
+                if ((triple.getA().equals(a) && triple.getB().equals(b)) || (triple.getA().equals(b) && triple.getB().equals(a))) {
                     return triple.getC();
                 }
             }

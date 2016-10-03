@@ -80,6 +80,7 @@ public class TextureUtils {
         return data;
     }
 
+    //TODO Move to some sort of IO Utils.
     public static InputStream getTextureResource(ResourceLocation textureFile) throws IOException {
         return Minecraft.getMinecraft().getResourceManager().getResource(textureFile).getInputStream();
     }

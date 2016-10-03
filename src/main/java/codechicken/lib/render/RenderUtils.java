@@ -63,8 +63,7 @@ public class RenderUtils {
      * @param res  Units per icon
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, TextureAtlasSprite icon, double res) {
-        IVertexBuffer r = new CachingBufferWrapper(CCRenderState.getIVertexBuffer());
-        r.colour(CCRenderState.getColour());
+        VertexBuffer r = CCRenderState.getBuffer();
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
         double v2 = icon.getMaxV();
@@ -197,19 +196,6 @@ public class RenderUtils {
             r.pos(points[1], points[2], points[4]).tex(tx2, ty2).endVertex();
             break;
         }
-    }
-
-    public static void renderHitBox(EntityPlayer player, IIndexedCuboidProvider provider, RayTraceResult result, float partialTicks) {
-        IndexedCuboid6 cuboid6 = null;
-        for (IndexedCuboid6 cuboid : provider.getIndexedCuboids()) {
-            if (cuboid.data.equals(result.subHit)) {
-                cuboid6 = cuboid;
-            }
-        }
-        if (cuboid6 == null) {
-            return;
-        }
-        renderHitBox(player, cuboid6, partialTicks);
     }
 
     public static void renderHitBox(EntityPlayer player, Cuboid6 cuboid, float partialTicks) {

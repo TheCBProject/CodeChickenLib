@@ -2,12 +2,10 @@ package codechicken.lib.model.bakery;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
-import codechicken.lib.render.uv.UV;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.EnumFacing;
 
 import java.util.LinkedList;
 
@@ -36,11 +34,11 @@ public class BlockModelBakery {
     private CCQuadBakery quadBakery;
     private LinkedList<BakedQuad> quadList = new LinkedList<BakedQuad>();
 
-    public BlockModelBakery(){
+    public BlockModelBakery() {
         this(DefaultVertexFormats.BLOCK);
     }
 
-    public BlockModelBakery(VertexFormat format){
+    public BlockModelBakery(VertexFormat format) {
         quadBakery = new CCQuadBakery(format, null);
         reset();
     }
@@ -161,15 +159,10 @@ public class BlockModelBakery {
             d12 = posX + this.renderMinX;
         }
 
-        UV uv1 = new UV(d8, d10);
-        UV uv2 = new UV(d3, d5);
-        UV uv3 = new UV(d7, d9);
-        UV uv4 = new UV(d4, d6);
-
-        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d13, d15, uv1);
-        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d11, d13, d14, uv2);
-        quadBakery.setColour(colourBottomRight).addVertexWithUV(d12, d13, d14, uv3);
-        quadBakery.setColour(colourTopRight).addVertexWithUV(d12, d13, d15, uv4);
+        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d13, d15, d8, d10);
+        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d11, d13, d14, d3, d5);
+        quadBakery.setColour(colourBottomRight).addVertexWithUV(d12, d13, d14, d7, d9);
+        quadBakery.setColour(colourTopRight).addVertexWithUV(d12, d13, d15, d4, d6);
 
         quadList.addAll(quadBakery.finishBaking());
     }
@@ -252,15 +245,10 @@ public class BlockModelBakery {
             d12 = posX + this.renderMinX;
         }
 
-        UV uv1 = new UV(d4, d6);
-        UV uv2 = new UV(d7, d9);
-        UV uv3 = new UV(d3, d5);
-        UV uv4 = new UV(d8, d10);
-
-        quadBakery.setColour(colourTopLeft).addVertexWithUV(d12, d13, d15, uv1);
-        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d12, d13, d14, uv2);
-        quadBakery.setColour(colourBottomRight).addVertexWithUV(d11, d13, d14, uv3);
-        quadBakery.setColour(colourTopRight).addVertexWithUV(d11, d13, d15, uv4);
+        quadBakery.setColour(colourTopLeft).addVertexWithUV(d12, d13, d15, d4, d6);
+        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d12, d13, d14, d7, d9);
+        quadBakery.setColour(colourBottomRight).addVertexWithUV(d11, d13, d14, d3, d5);
+        quadBakery.setColour(colourTopRight).addVertexWithUV(d11, d13, d15, d8, d10);
 
         quadList.addAll(quadBakery.finishBaking());
     }
@@ -344,15 +332,10 @@ public class BlockModelBakery {
             d12 = posX + this.renderMinX;
         }
 
-        UV uv1 = new UV(d7, d9);
-        UV uv2 = new UV(d3, d5);
-        UV uv3 = new UV(d8, d10);
-        UV uv4 = new UV(d4, d6);
-
-        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d14, d15, uv1);
-        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d12, d14, d15, uv2);
-        quadBakery.setColour(colourBottomRight).addVertexWithUV(d12, d13, d15, uv3);
-        quadBakery.setColour(colourTopRight).addVertexWithUV(d11, d13, d15, uv4);
+        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d14, d15, d7, d9);
+        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d12, d14, d15, d3, d5);
+        quadBakery.setColour(colourBottomRight).addVertexWithUV(d12, d13, d15, d8, d10);
+        quadBakery.setColour(colourTopRight).addVertexWithUV(d11, d13, d15, d4, d6);
 
         quadList.addAll(quadBakery.finishBaking());
     }
@@ -435,15 +418,10 @@ public class BlockModelBakery {
             d12 = posX + this.renderMinX;
         }
 
-        UV uv1 = new UV(d3, d5);
-        UV uv2 = new UV(d8, d10);
-        UV uv3 = new UV(d4, d6);
-        UV uv4 = new UV(d7, d9);
-
-        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d14, d15, uv1);
-        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d11, d13, d15, uv2);
-        quadBakery.setColour(colourBottomRight).addVertexWithUV(d12, d13, d15, uv3);
-        quadBakery.setColour(colourTopRight).addVertexWithUV(d12, d14, d15, uv4);
+        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d14, d15, d3, d5);
+        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d11, d13, d15, d8, d10);
+        quadBakery.setColour(colourBottomRight).addVertexWithUV(d12, d13, d15, d4, d6);
+        quadBakery.setColour(colourTopRight).addVertexWithUV(d12, d14, d15, d7, d9);
 
         quadList.addAll(quadBakery.finishBaking());
     }
@@ -526,15 +504,10 @@ public class BlockModelBakery {
             d15 = posZ + this.renderMinZ;
         }
 
-        UV uv1 = new UV(d7, d9);
-        UV uv2 = new UV(d3, d5);
-        UV uv3 = new UV(d8, d10);
-        UV uv4 = new UV(d4, d6);
-
-        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d13, d15, uv1);
-        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d11, d13, d14, uv2);
-        quadBakery.setColour(colourBottomRight).addVertexWithUV(d11, d12, d14, uv3);
-        quadBakery.setColour(colourTopRight).addVertexWithUV(d11, d12, d15, uv4);
+        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d13, d15, d7, d9);
+        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d11, d13, d14, d3, d5);
+        quadBakery.setColour(colourBottomRight).addVertexWithUV(d11, d12, d14, d8, d10);
+        quadBakery.setColour(colourTopRight).addVertexWithUV(d11, d12, d15, d4, d6);
 
         quadList.addAll(quadBakery.finishBaking());
     }
@@ -618,15 +591,10 @@ public class BlockModelBakery {
             d15 = posZ + this.renderMinZ;
         }
 
-        UV uv1 = new UV(d8, d10);
-        UV uv2 = new UV(d4, d6);
-        UV uv3 = new UV(d7, d9);
-        UV uv4 = new UV(d3, d5);
-
-        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d12, d15, uv1);
-        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d11, d12, d14, uv2);
-        quadBakery.setColour(colourBottomRight).addVertexWithUV(d11, d13, d14, uv3);
-        quadBakery.setColour(colourTopRight).addVertexWithUV(d11, d13, d15, uv4);
+        quadBakery.setColour(colourTopLeft).addVertexWithUV(d11, d12, d15, d8, d10);
+        quadBakery.setColour(colourBottomLeft).addVertexWithUV(d11, d12, d14, d4, d6);
+        quadBakery.setColour(colourBottomRight).addVertexWithUV(d11, d13, d14, d7, d9);
+        quadBakery.setColour(colourTopRight).addVertexWithUV(d11, d13, d15, d3, d5);
 
         quadList.addAll(quadBakery.finishBaking());
     }
