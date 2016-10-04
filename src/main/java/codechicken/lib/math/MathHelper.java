@@ -144,8 +144,20 @@ public class MathHelper {
         return r == a ? b : r;
     }
 
-    public static int floor_double(double d) {
+    public static int floor(double d) {
         return net.minecraft.util.math.MathHelper.floor_double(d);
+    }
+
+    public static int floor(float d) {
+        return net.minecraft.util.math.MathHelper.floor_float(d);
+    }
+
+    public static int celi(double d) {
+        return net.minecraft.util.math.MathHelper.ceiling_double_int(d);
+    }
+
+    public static int celi(float d) {
+        return net.minecraft.util.math.MathHelper.ceiling_float_int(d);
     }
 
     public static int roundAway(double d) {

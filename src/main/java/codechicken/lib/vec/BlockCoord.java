@@ -27,7 +27,7 @@ public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord> 
     }
 
     public BlockCoord(Vector3 v) {
-        this(MathHelper.floor_double(v.x), MathHelper.floor_double(v.y), MathHelper.floor_double(v.z));
+        this(MathHelper.floor(v.x), MathHelper.floor(v.y), MathHelper.floor(v.z));
     }
 
     public BlockCoord(TileEntity tile) {

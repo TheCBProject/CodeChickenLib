@@ -197,9 +197,16 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public Vector3 floor(){
-        x = MathHelper.floor_double(x);
-        y = MathHelper.floor_double(y);
-        z = MathHelper.floor_double(z);
+        x = MathHelper.floor(x);
+        y = MathHelper.floor(y);
+        z = MathHelper.floor(z);
+        return this;
+    }
+
+    public Vector3 celi(){
+        x = MathHelper.celi(x);
+        y = MathHelper.celi(y);
+        z = MathHelper.celi(z);
         return this;
     }
 
