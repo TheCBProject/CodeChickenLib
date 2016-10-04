@@ -36,7 +36,7 @@ public class BakingVertexBuffer extends VertexBuffer {
 
     @Override
     public void begin(int glMode, VertexFormat format) {
-        if (glMode != 4) {
+        if (glMode != 7) {
             throw new IllegalArgumentException("Unable to bake GL Mode, only Quads supported! To bake triangles pipe through CCQuad then quadulate.");
         }
         spriteMap = new HashMap<Integer, TextureAtlasSprite>();
@@ -59,9 +59,9 @@ public class BakingVertexBuffer extends VertexBuffer {
      * @return The list of quads baked.
      */
     public List<BakedQuad> bake() {
-        if (isDrawing) {
-            throw new IllegalStateException("Still drawing!");
-        }
+        //if (isDrawing) {
+        //    throw new IllegalStateException("Still drawing!");
+        //}
         State state = getVertexState();
         VertexFormat format = state.getVertexFormat();
         if (!format.hasUvOffset(0)) {
@@ -71,19 +71,22 @@ public class BakingVertexBuffer extends VertexBuffer {
 
         List<BakedQuad> quads = new LinkedList<BakedQuad>();
         TextureAtlasSprite sprite;
-        for (int i = 1; i < state.getVertexCount(); i++) {
-            int next = format.getIntegerSize() * i;
-            int[] quadData = Arrays.copyOfRange(rawBuffer, next, next + format.getIntegerSize());
+
+        int next = 0;
+        int i = 0;
+        while (rawBuffer.length > next) {
+            next = format.getNextOffset() * i;
+            int[] quadData = Arrays.copyOfRange(rawBuffer, next, next + format.getNextOffset());
             Vector3 normal = new Vector3();
             if (format.hasNormal()) {
                 //Grab first normal.
                 float[] normalData = new float[4];
-                LightUtil.unpack(quadData, normalData, format, 0, format.getNormalOffset());
+                LightUtil.unpack(quadData, normalData, format, 0, VertexDataUtils.getNormalElement(format));
                 normal = Vector3.fromAxes(normalData);
             } else {
                 float[][] posData = new float[4][4];
                 for (int v = 0; v < 4; v++) {
-                    LightUtil.unpack(quadData, posData[v], format, v, VertexDataUtils.getPositionOffset(format));
+                    LightUtil.unpack(quadData, posData[v], format, v, VertexDataUtils.getPositionElement(format));
                 }
                 normal.set(VectorUtils.calculateNormal(Vector3.fromAxes(posData[0]), Vector3.fromAxes(posData[1]), Vector3.fromAxes(posData[3])));
             }
@@ -91,13 +94,14 @@ public class BakingVertexBuffer extends VertexBuffer {
                 sprite = spriteMap.get(i);
             } else {
                 float[] uvData = new float[4];
-                LightUtil.unpack(quadData, uvData, format, 0, format.getUvOffsetById(0));
+                LightUtil.unpack(quadData, uvData, format, 0, VertexDataUtils.getUVElement(format));
                 UV uv = new UV(uvData[0], uvData[1]);
                 sprite = VertexDataUtils.getSpriteForUV(Minecraft.getMinecraft().getTextureMapBlocks(), uv);
             }
             EnumFacing facing = VectorUtils.calcNormalSide(normal);
             BakedQuad quad = new BakedQuad(quadData, -1, facing != null ? facing : EnumFacing.UP, sprite, true, format);
             quads.add(quad);
+            i++;
         }
         return ImmutableList.copyOf(quads);
     }
