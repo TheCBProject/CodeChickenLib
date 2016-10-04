@@ -98,34 +98,34 @@ public class CCOBJParser {
             }
 
             if (line.startsWith("v ")) {
-                CCModel.assertMatch(vertMatcher, line);
-                double[] values = CCModel.parseDoubles(line.substring(2), " ");
-                CCModel.illegalAssert(values.length >= 3, "Vertices must have x, y and z components");
+                assertMatch(vertMatcher, line);
+                double[] values = parseDoubles(line.substring(2), " ");
+                illegalAssert(values.length >= 3, "Vertices must have x, y and z components");
                 Vector3 vert = new Vector3(values[0], values[1], values[2]);
                 coordSystem.apply(vert);
                 verts.add(vert);
                 continue;
             }
             if (line.startsWith("vt ")) {
-                CCModel.assertMatch(uvwMatcher, line);
-                double[] values = CCModel.parseDoubles(line.substring(3), " ");
-                CCModel.illegalAssert(values.length >= 2, "Tex Coords must have u, and v components");
+                assertMatch(uvwMatcher, line);
+                double[] values = parseDoubles(line.substring(3), " ");
+                illegalAssert(values.length >= 2, "Tex Coords must have u, and v components");
                 uvs.add(new Vector3(values[0], 1 - values[1], 0));
                 continue;
             }
             if (line.startsWith("vn ")) {
-                CCModel.assertMatch(normalMatcher, line);
-                double[] values = CCModel.parseDoubles(line.substring(3), " ");
-                CCModel.illegalAssert(values.length >= 3, "Normals must have x, y and z components");
+                assertMatch(normalMatcher, line);
+                double[] values = parseDoubles(line.substring(3), " ");
+                illegalAssert(values.length >= 3, "Normals must have x, y and z components");
                 Vector3 norm = new Vector3(values[0], values[1], values[2]).normalize();
                 coordSystem.applyN(norm);
                 normals.add(norm);
                 continue;
             }
             if (line.startsWith("f ")) {
-                CCModel.assertMatch(polyMatcher, line);
+                assertMatch(polyMatcher, line);
                 String[] av = line.substring(2).split(" ");
-                CCModel.illegalAssert(av.length >= 3, "Polygons must have at least 3 vertices");
+                illegalAssert(av.length >= 3, "Polygons must have at least 3 vertices");
                 int[][] polyVerts = new int[av.length][3];
                 for (int i = 0; i < av.length; i++) {
                     String[] as = av[i].split("/");
@@ -136,9 +136,9 @@ public class CCOBJParser {
                     }
                 }
                 if (vp == 3) {
-                    CCModel.triangulate(polys, polyVerts);
+                    triangulate(polys, polyVerts);
                 } else {
-                    CCModel.quadulate(polys, polyVerts);
+                    quadulate(polys, polyVerts);
                 }
             }
             if (line.startsWith("g ")) {
@@ -241,4 +241,47 @@ public class CCOBJParser {
         return d == (int) d ? Integer.toString((int) d) : Double.toString(d);
     }
 
+    private static void assertMatch(Matcher m, String s) {
+        m.reset(s);
+        illegalAssert(m.matches(), "Malformed line: " + s);
+    }
+
+    private static void illegalAssert(boolean b, String err) {
+        if (!b) {
+            throw new IllegalArgumentException(err);
+        }
+    }
+
+    private static double[] parseDoubles(String s, String token) {
+        String[] as = s.split(token);
+        double[] values = new double[as.length];
+        for (int i = 0; i < as.length; i++) {
+            values[i] = Double.parseDouble(as[i]);
+        }
+        return values;
+    }
+
+    private static void triangulate(List<int[]> polys, int[][] polyVerts) {
+        for (int i = 2; i < polyVerts.length; i++) {
+            polys.add(polyVerts[0]);
+            polys.add(polyVerts[i]);
+            polys.add(polyVerts[i - 1]);
+        }
+    }
+
+    private static void quadulate(List<int[]> polys, int[][] polyVerts) {
+        if (polyVerts.length == 4) {
+            polys.add(polyVerts[0]);
+            polys.add(polyVerts[3]);
+            polys.add(polyVerts[2]);
+            polys.add(polyVerts[1]);
+        } else {
+            for (int i = 2; i < polyVerts.length; i++) {
+                polys.add(polyVerts[0]);
+                polys.add(polyVerts[i]);
+                polys.add(polyVerts[i - 1]);
+                polys.add(polyVerts[i - 1]);
+            }
+        }
+    }
 }

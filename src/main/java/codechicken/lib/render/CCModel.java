@@ -6,6 +6,7 @@ import codechicken.lib.render.uv.UV;
 import codechicken.lib.render.uv.UVTransformation;
 import codechicken.lib.render.uv.UVTranslation;
 import codechicken.lib.util.Copyable;
+import codechicken.lib.util.VectorUtils;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.TransformationList;
@@ -475,50 +476,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
         return new CCModel(vertexMode);
     }
 
-    public static double[] parseDoubles(String s, String token) {
-        String[] as = s.split(token);
-        double[] values = new double[as.length];
-        for (int i = 0; i < as.length; i++) {
-            values[i] = Double.parseDouble(as[i]);
-        }
-        return values;
-    }
-
-    public static void illegalAssert(boolean b, String err) {
-        if (!b) {
-            throw new IllegalArgumentException(err);
-        }
-    }
-
-    public static void assertMatch(Matcher m, String s) {
-        m.reset(s);
-        illegalAssert(m.matches(), "Malformed line: " + s);
-    }
-
-    public static void triangulate(List<int[]> polys, int[][] polyVerts) {
-        for (int i = 2; i < polyVerts.length; i++) {
-            polys.add(polyVerts[0]);
-            polys.add(polyVerts[i]);
-            polys.add(polyVerts[i - 1]);
-        }
-    }
-
-    public static void quadulate(List<int[]> polys, int[][] polyVerts) {
-        if (polyVerts.length == 4) {
-            polys.add(polyVerts[0]);
-            polys.add(polyVerts[3]);
-            polys.add(polyVerts[2]);
-            polys.add(polyVerts[1]);
-        } else {
-            for (int i = 2; i < polyVerts.length; i++) {
-                polys.add(polyVerts[0]);
-                polys.add(polyVerts[i]);
-                polys.add(polyVerts[i - 1]);
-                polys.add(polyVerts[i - 1]);
-            }
-        }
-    }
-
     public static CCModel createModel(List<Vector3> verts, List<Vector3> uvs, List<Vector3> normals, int vertexMode, List<int[]> polys) {
         int vp = vertexMode == 7 ? 4 : 3;
         if (polys.size() < vp || polys.size() % vp != 0) {
@@ -546,19 +503,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
         }
 
         return model;
-    }
-
-    private static <T> int addIndex(List<T> list, T elem) {
-        int i = list.indexOf(elem) + 1;
-        if (i == 0) {
-            list.add(elem);
-            i = list.size();
-        }
-        return i;
-    }
-
-    private static String clean(double d) {
-        return d == (int) d ? Integer.toString((int) d) : Double.toString(d);
     }
 
     /**
@@ -800,7 +744,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
         for (int k = 0; k < verts.length; k++) {
             Vertex5 vert = verts[k];
             Vector3 normal = normals()[k];
-            switch (findSide(normal)) {
+            switch (VectorUtils.findSide(normal)) {
             case 0:
                 vert.vec.y += offsets.min.y;
                 break;
@@ -822,50 +766,6 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
             }
         }
         return this;
-    }
-
-    public static int findSide(Vector3 normal) {
-        if (normal.y <= -0.99) {
-            return 0;
-        }
-        if (normal.y >= 0.99) {
-            return 1;
-        }
-        if (normal.z <= -0.99) {
-            return 2;
-        }
-        if (normal.z >= 0.99) {
-            return 3;
-        }
-        if (normal.x <= -0.99) {
-            return 4;
-        }
-        if (normal.x >= 0.99) {
-            return 5;
-        }
-        return -1;
-    }
-
-    public static EnumFacing calcNormalSide(Vector3 normal) {
-        if (normal.y <= -0.99) {
-            return EnumFacing.DOWN;
-        }
-        if (normal.y >= 0.99) {
-            return EnumFacing.UP;
-        }
-        if (normal.z <= -0.99) {
-            return EnumFacing.NORTH;
-        }
-        if (normal.z >= 0.99) {
-            return EnumFacing.SOUTH;
-        }
-        if (normal.x <= -0.99) {
-            return EnumFacing.WEST;
-        }
-        if (normal.x >= 0.99) {
-            return EnumFacing.EAST;
-        }
-        return null;
     }
 
     /**

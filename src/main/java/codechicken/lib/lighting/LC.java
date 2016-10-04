@@ -1,7 +1,7 @@
 package codechicken.lib.lighting;
 
-import codechicken.lib.render.CCModel;
 import codechicken.lib.util.Copyable;
+import codechicken.lib.util.VectorUtils;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Vector3;
 
@@ -38,7 +38,7 @@ public class LC implements Copyable<LC> {
     }
 
     public LC compute(Vector3 vec, Vector3 normal) {
-        int side = CCModel.findSide(normal);
+        int side = VectorUtils.findSide(normal);
         if (side < 0) {
             return set(12, 1, 0, 0, 0);
         }

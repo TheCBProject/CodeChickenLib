@@ -5,6 +5,7 @@ import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightMatrix;
 import codechicken.lib.util.Copyable;
+import codechicken.lib.util.VectorUtils;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
@@ -255,7 +256,7 @@ public class CCRenderState {
             if (sideRef != null) {
                 side = sideRef[vertexIndex];
             } else {
-                side = CCModel.findSide(normal);
+                side = VectorUtils.findSide(normal);
             }
         }
     };

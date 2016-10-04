@@ -2,7 +2,7 @@ package codechicken.lib.model.bakery;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
-import codechicken.lib.render.CCModel;
+import codechicken.lib.util.VectorUtils;
 import codechicken.lib.render.Vertex5;
 import codechicken.lib.render.uv.UV;
 import codechicken.lib.util.ArrayUtils;
@@ -145,9 +145,7 @@ public class CCQuad implements Copyable<CCQuad> {
      */
     public void computeNormals() {
         quadulate();
-        Vector3 diff1 = vertices[1].vec.copy().subtract(vertices[0].vec);
-        Vector3 diff2 = vertices[3].vec.copy().subtract(vertices[0].vec);
-        Vector3 normal = diff1.crossProduct(diff2).normalize();
+        Vector3 normal = VectorUtils.calculateNormal(vertices[0].vec, vertices[1].vec, vertices[3].vec);
 
         for (int i = 0; i < 4; i++) {
             normals[i] = normal.copy();
@@ -160,6 +158,7 @@ public class CCQuad implements Copyable<CCQuad> {
                 computeNormals();
             }
             face = CCModel.calcNormalSide(normals[0]);
+            face = VectorUtils.calcNormalSide(normals[0]);
         }
         return face;
     }
