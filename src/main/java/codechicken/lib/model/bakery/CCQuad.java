@@ -2,11 +2,13 @@ package codechicken.lib.model.bakery;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
-import codechicken.lib.util.VectorUtils;
 import codechicken.lib.render.Vertex5;
 import codechicken.lib.render.uv.UV;
+import codechicken.lib.render.uv.UVTransformation;
 import codechicken.lib.util.ArrayUtils;
 import codechicken.lib.util.Copyable;
+import codechicken.lib.util.VectorUtils;
+import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -22,7 +24,6 @@ import java.util.Arrays;
 /**
  * Created by covers1624 on 8/20/2016.
  * Basically just a holder for quads before baking.
- * TODO Allow this to accept the transform system.
  */
 public class CCQuad implements Copyable<CCQuad> {
     public Vertex5[] vertices = new Vertex5[4];
@@ -64,10 +65,10 @@ public class CCQuad implements Copyable<CCQuad> {
                 float[] data = vertexData[v][e];
                 switch (format.getElement(e).getUsage()) {
                     case POSITION:
-                        vertices[v].vec.set(data[0], data[1], data[2]);
+                        vertices[v].vec.set(data);
                         break;
                     case NORMAL:
-                        normals[v] = new Vector3(data[0], data[1], data[2]);
+                        normals[v] = new Vector3(data);
                         break;
                     case COLOR:
                         colours[v] = new ColourRGBA(data[0], data[1], data[2], data[3]);
@@ -110,6 +111,39 @@ public class CCQuad implements Copyable<CCQuad> {
             lightMaps[i] = quad.lightMaps[i].copy();
         }
         face = quad.face;
+    }
+
+    public void apply(Transformation... transforms) {
+        for (Transformation t : transforms) {
+            apply(t);
+        }
+    }
+
+    public void apply(UVTransformation... transforms) {
+        for (UVTransformation t : transforms) {
+            apply(t);
+        }
+    }
+
+    public void apply(Transformation t) {
+        quadulate();
+        if (ArrayUtils.countNoNull(normals) != 4) {
+            computeNormals();
+        }
+        for (int i = 0; i < 4; i++) {
+            Vertex5 vert = vertices[i];
+            Vector3 normal = normals[i];
+            t.apply(vert.vec);
+            t.applyN(normal);
+        }
+    }
+
+    public void apply(UVTransformation t) {
+        quadulate();
+        for (int i = 0; i < 4; i++) {
+            Vertex5 vert = vertices[i];
+            t.apply(vert.uv);
+        }
     }
 
     public boolean isQuads() {
@@ -157,7 +191,6 @@ public class CCQuad implements Copyable<CCQuad> {
             if (ArrayUtils.countNoNull(normals) != 4) {
                 computeNormals();
             }
-            face = CCModel.calcNormalSide(normals[0]);
             face = VectorUtils.calcNormalSide(normals[0]);
         }
         return face;
