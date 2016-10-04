@@ -44,6 +44,10 @@ public class Vector3 implements Copyable<Vector3> {
         this(da[0], da[1], da[2]);
     }
 
+    public Vector3(float[] fa) {
+        this(fa[0], fa[1], fa[2]);
+    }
+
     public Vector3(Vec3d vec) {
         x = vec.xCoord;
         y = vec.yCoord;
@@ -74,6 +78,10 @@ public class Vector3 implements Copyable<Vector3> {
 
     public static Vector3 fromAxes(double[] da) {
         return new Vector3(da[2], da[0], da[1]);
+    }
+
+    public static Vector3 fromAxes(float[] fa) {
+        return new Vector3(fa[2], fa[0], fa[1]);
     }
 
     public Vec3d vec3() {
@@ -112,6 +120,14 @@ public class Vector3 implements Copyable<Vector3> {
 
     public Vector3 set(Vector3 vec) {
         return set(vec.x, vec.y, vec.z);
+    }
+
+    public Vector3 set(double[] da){
+        return set(da[0], da[1], da[2]);
+    }
+
+    public Vector3 set(float[] fa){
+        return set(fa[0], fa[1], fa[2]);
     }
 
     public Vector3 add(double dx, double dy, double dz) {
