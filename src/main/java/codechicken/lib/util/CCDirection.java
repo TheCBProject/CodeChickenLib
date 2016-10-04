@@ -6,6 +6,7 @@ import net.minecraft.util.IStringSerializable;
 /**
  * Created by covers1624 on 5/17/2016.
  */
+@Deprecated
 public enum CCDirection implements IStringSerializable {
 
     /**
