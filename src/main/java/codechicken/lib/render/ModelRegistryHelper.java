@@ -66,7 +66,7 @@ public class ModelRegistryHelper {
         register(modelLoc, new BuiltInModel(BlockRenderer.blockCameraTransform, ItemOverrideList.NONE) {
             @Override
             public TextureAtlasSprite getParticleTexture() {
-                return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(tex.toString());
+                return TextureUtils.getTexture(tex);
             }
         });
         ModelLoader.setCustomStateMapper(block, new IStateMapper() {

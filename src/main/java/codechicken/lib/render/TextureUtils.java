@@ -44,7 +44,7 @@ public class TextureUtils {
     public static Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter = new Function<ResourceLocation, TextureAtlasSprite>() {
         @Override
         public TextureAtlasSprite apply(ResourceLocation input) {
-            return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(input.toString());
+            return getTexture(input);
         }
     };
 
@@ -181,12 +181,20 @@ public class TextureUtils {
         return Minecraft.getMinecraft().renderEngine;
     }
 
+    public static TextureMap getTextureMap() {
+        return Minecraft.getMinecraft().getTextureMapBlocks();
+    }
+
     public static IReloadableResourceManager getResourceManager() {
         return (IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager();
     }
 
+    public static TextureAtlasSprite getMissingSprite(){
+        return getTextureMap().getMissingSprite();
+    }
+
     public static TextureAtlasSprite getTexture(String location) {
-        return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location);
+        return getTextureMap().getAtlasSprite(location);
     }
 
     public static TextureAtlasSprite getTexture(ResourceLocation location) {
