@@ -4,6 +4,7 @@ import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightMatrix;
+import codechicken.lib.render.buffer.BakingVertexBuffer;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.VectorUtils;
 import codechicken.lib.vec.Rotation;
@@ -393,6 +394,9 @@ public class CCRenderState {
     }
 
     public static void writeVert() {
+        if (r instanceof BakingVertexBuffer){
+            ((BakingVertexBuffer) r).setSprite(sprite);
+        }
         for (int e = 0; e < fmt.getElementCount(); e++) {
             VertexFormatElement fmte = fmt.getElement(e);
             switch (fmte.getUsage()) {
