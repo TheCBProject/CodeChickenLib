@@ -49,20 +49,14 @@ public class CCQuad implements Copyable<CCQuad> {
 
     public CCQuad(BakedQuad quad) {
         this();
-        VertexFormat format = quad.getFormat();
 
-        //[vertex][element][data]
-        float[][][] vertexData = new float[4][format.getElementCount()][4];
-        for (int v = 0; v < 4; v++) {
-            for (int e = 0; e < format.getElementCount(); e++) {
-                LightUtil.unpack(quad.getVertexData(), vertexData[v][e], format, v, e);
-            }
-        }
+        VertexFormat format = quad.getFormat();
         face = quad.getFace();
         Arrays.fill(vertices, new Vertex5());
         for (int v = 0; v < 4; v++) {
             for (int e = 0; e < format.getElementCount(); e++) {
-                float[] data = vertexData[v][e];
+                float[] data = new float[4];
+                LightUtil.unpack(quad.getVertexData(), data, format, v, e);
                 switch (format.getElement(e).getUsage()) {
                     case POSITION:
                         vertices[v].vec.set(data);
