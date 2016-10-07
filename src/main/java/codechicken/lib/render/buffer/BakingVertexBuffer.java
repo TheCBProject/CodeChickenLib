@@ -27,6 +27,7 @@ public class BakingVertexBuffer extends VertexBuffer {
 
     private HashMap<Integer, TextureAtlasSprite> spriteMap;
     private boolean useSprites = true;
+    private boolean useDiffuseLighting = true;
 
     public static BakingVertexBuffer create() {
         return new BakingVertexBuffer(0x200000);
@@ -41,14 +42,19 @@ public class BakingVertexBuffer extends VertexBuffer {
         if (glMode != 7) {
             throw new IllegalArgumentException("Unable to bake GL Mode, only Quads supported! To bake triangles pipe through CCQuad then quadulate.");
         }
-        spriteMap = new HashMap<Integer, TextureAtlasSprite>();
         super.begin(glMode, format);
+    }
+
+    @Override
+    public void reset() {
+        spriteMap = new HashMap<Integer, TextureAtlasSprite>();
+        useSprites = true;
+        useDiffuseLighting = true;
+        super.reset();
     }
 
     /**
      * Sets the sprite for a specific vertex.
-     * The baker WILL use the same sprite for that vertex and onwards if there is not another one set.
-     * So, it caches the sprite until another one is provided.
      *
      * @param sprite The sprite to set.
      */
@@ -58,7 +64,8 @@ public class BakingVertexBuffer extends VertexBuffer {
     }
 
     /**
-     * Sets the baker to not automatically calculate sprites.
+     * Sets the baker to ignore all sprite calculations and just use the missing icon.
+     * This should only be used in cases where you know the quads are not going to be transformed by another mod at any point.
      */
     public BakingVertexBuffer ignoreSprites() {
         useSprites = false;
@@ -66,10 +73,28 @@ public class BakingVertexBuffer extends VertexBuffer {
     }
 
     /**
-     * Tries to automatically calculate sprites for given UV mappings, Or uses the provided one for a given vertex range.
+     * Sets the baker to use any set vertex range sprite, or calculate sprites for a given UV mapping.
+     * This is enabled by default.
      */
     public BakingVertexBuffer useSprites() {
         useSprites = true;
+        return this;
+    }
+
+    /**
+     * Disables DiffuseLighting on quads.
+     */
+    public BakingVertexBuffer dissableDiffuseLighting(){
+        useDiffuseLighting = false;
+        return this;
+    }
+
+    /**
+     * Enables DiffuseLighting on quads.
+     * This is enabled by default.
+     */
+    public BakingVertexBuffer enableDiffuseLighting(){
+        useDiffuseLighting = true;
         return this;
     }
 
@@ -82,7 +107,7 @@ public class BakingVertexBuffer extends VertexBuffer {
         State state = getVertexState();
         VertexFormat format = state.getVertexFormat();
         if (!format.hasUvOffset(0)) {
-            throw new IllegalStateException("Unable to bake format that does not have UV mappings..");
+            throw new IllegalStateException("Unable to bake format that does not have UV mappings!");
         }
         int[] rawBuffer = Arrays.copyOf(state.getRawBuffer(), state.getRawBuffer().length);
 
@@ -101,6 +126,7 @@ public class BakingVertexBuffer extends VertexBuffer {
                 LightUtil.unpack(quadData, normalData, format, 0, VertexDataUtils.getNormalElement(format));
                 normal = Vector3.fromAxes(normalData);
             } else {
+                //No normal provided in format, so we calculate.
                 float[][] posData = new float[4][4];
                 for (int v = 0; v < 4; v++) {
                     LightUtil.unpack(quadData, posData[v], format, v, VertexDataUtils.getPositionElement(format));
@@ -108,17 +134,24 @@ public class BakingVertexBuffer extends VertexBuffer {
                 normal.set(VectorUtils.calculateNormal(Vector3.fromAxes(posData[0]), Vector3.fromAxes(posData[1]), Vector3.fromAxes(posData[3])));
             }
             if (useSprites) {
+                //Attempt to get sprite for vertex.
                 if (spriteMap.containsKey(i)) {
+                    //Use provided sprite for vertex.
                     sprite = spriteMap.get(i);
                 } else {
+                    //Sprite not found for vertex, so we attempt to calculate the sprite.
                     float[] uvData = new float[4];
                     LightUtil.unpack(quadData, uvData, format, 0, VertexDataUtils.getUVElement(format));
                     UV uv = new UV(uvData[0], uvData[1]);
                     sprite = VertexDataUtils.getSpriteForUV(TextureUtils.getTextureMap(), uv);
                 }
             }
+            //Use normal to calculate facing.
             EnumFacing facing = VectorUtils.calcNormalSide(normal);
-            BakedQuad quad = new BakedQuad(quadData, -1, facing != null ? facing : EnumFacing.UP, sprite, true, format);
+            if (facing == null){
+                facing = EnumFacing.UP;
+            }
+            BakedQuad quad = new BakedQuad(quadData, -1, facing, sprite, useDiffuseLighting, format);
             quads.add(quad);
             i++;
         }
