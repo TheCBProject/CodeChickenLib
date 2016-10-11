@@ -10,6 +10,6 @@ INSTANCEOF codechicken/lib/render/item/IItemRenderer
 IFEQ LELSE
 ALOAD 2
 ALOAD 1
-INVOKEINTERFACE codechicken/lib/render/IItemRenderer.renderItem (Lnet/minecraft/item/ItemStack;)V
+INVOKEINTERFACE codechicken/lib/render/item/IItemRenderer.renderItem (Lnet/minecraft/item/ItemStack;)V
 GOTO LEND
 LELSE
