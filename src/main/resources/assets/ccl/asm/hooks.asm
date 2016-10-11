@@ -6,7 +6,7 @@ GOTO LEND #end of if statement
 
 list IItemRenderer
 ALOAD 2
-INSTANCEOF codechicken/lib/render/item/IItemRenderer
+INSTANCEOF codechicken/lib/render/IItemRenderer
 IFEQ LELSE
 ALOAD 2
 ALOAD 1

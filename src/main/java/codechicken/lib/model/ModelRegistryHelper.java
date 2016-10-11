@@ -1,7 +1,7 @@
 package codechicken.lib.model;
 
 import codechicken.lib.util.TransformUtils;
-import codechicken.lib.render.item.IItemRenderer;
+import codechicken.lib.render.IItemRenderer;
 import codechicken.lib.texture.TextureUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
