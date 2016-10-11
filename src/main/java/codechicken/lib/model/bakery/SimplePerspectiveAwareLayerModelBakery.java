@@ -1,7 +1,7 @@
 package codechicken.lib.model.bakery;
 
 import codechicken.lib.model.SimplePerspectiveAwareBakedModel;
-import codechicken.lib.render.TextureUtils;
+import codechicken.lib.texture.TextureUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.block.model.BakedQuad;

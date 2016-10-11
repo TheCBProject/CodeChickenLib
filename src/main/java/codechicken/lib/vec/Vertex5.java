@@ -1,10 +1,8 @@
-package codechicken.lib.render;
+package codechicken.lib.vec;
 
-import codechicken.lib.render.uv.UV;
-import codechicken.lib.render.uv.UVTransformation;
+import codechicken.lib.vec.uv.UV;
+import codechicken.lib.vec.uv.UVTransformation;
 import codechicken.lib.util.Copyable;
-import codechicken.lib.vec.Transformation;
-import codechicken.lib.vec.Vector3;
 
 import java.math.BigDecimal;
 import java.math.MathContext;

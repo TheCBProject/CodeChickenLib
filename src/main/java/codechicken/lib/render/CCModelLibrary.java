@@ -2,6 +2,7 @@ package codechicken.lib.render;
 
 import codechicken.lib.vec.Quat;
 import codechicken.lib.vec.Vector3;
+import codechicken.lib.vec.Vertex5;
 
 import static codechicken.lib.math.MathHelper.phi;
 

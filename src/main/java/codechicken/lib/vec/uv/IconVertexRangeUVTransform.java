@@ -1,4 +1,4 @@
-package codechicken.lib.render.uv;
+package codechicken.lib.vec.uv;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.render.CCRenderState;
@@ -32,20 +32,21 @@ public class IconVertexRangeUVTransform extends UVTransformation {
     }
 
     @Override
-    public void operate() {
-        super.operate();
-        CCRenderState.sprite = getSpriteForVertexIndex(CCRenderState.vertexIndex);
-    }
-
-    @Override
-    public void apply(UV uv) {
-        int index = CCRenderState.vertexIndex;
+    public void operate(CCRenderState state) {
+        UV uv = state.vert.uv;
+        int index = state.vertexIndex;
         TextureAtlasSprite sprite = getSpriteForVertexIndex(index);
         if (sprite == null) {
             return;
         }
         uv.u = sprite.getInterpolatedU(uv.u * 16);
         uv.v = sprite.getInterpolatedV(uv.v * 16);
+        state.sprite = getSpriteForVertexIndex(state.vertexIndex);
+    }
+
+    @Override
+    public void apply(UV uv) {
+        //We override operate as we need CCRS access.
     }
 
     @Override

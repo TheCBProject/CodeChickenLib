@@ -3,8 +3,7 @@ package codechicken.lib.model.modelbase;
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.model.bakery.CCQuad;
-import codechicken.lib.render.Vertex5;
-import codechicken.lib.render.uv.UV;
+import codechicken.lib.vec.Vertex5;
 
 /**
  * Created by covers1624 on 8/24/2016.
@@ -93,11 +92,11 @@ public class CCModelBox {
         }
         quad.colours = colours;
 
-        UV[] lightMaps = new UV[quad.lightMaps.length];
+        Integer[] lightMaps = new Integer[quad.lightMaps.length];
         for (int i = 0; i < quad.lightMaps.length; i++) {
-            UV lightMap = quad.lightMaps[i];
+            Integer lightMap = quad.lightMaps[i];
             if (lightMap == null) {
-                lightMap = new UV();
+                lightMap = 0;
             }
             lightMaps[i] = lightMap;
         }

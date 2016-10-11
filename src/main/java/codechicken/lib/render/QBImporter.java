@@ -1,7 +1,9 @@
 package codechicken.lib.render;
 
-import codechicken.lib.render.uv.UV;
-import codechicken.lib.render.uv.UVScale;
+import codechicken.lib.texture.TextureDataHolder;
+import codechicken.lib.texture.TextureUtils;
+import codechicken.lib.vec.uv.UV;
+import codechicken.lib.vec.uv.UVScale;
 import codechicken.lib.vec.*;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;

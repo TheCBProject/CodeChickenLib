@@ -1,6 +1,6 @@
 package codechicken.lib.render;
 
-import codechicken.lib.render.uv.UV;
+import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.RedundantTransformation;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;

@@ -1,10 +1,11 @@
 package codechicken.lib.lighting;
 
 import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Vector3;
 
-public class LightModel implements CCRenderState.IVertexOperation {
+public class LightModel implements IVertexOperation {
     public static final int operationIndex = CCRenderState.registerOperation();
 
     public static class Light {
@@ -78,19 +79,19 @@ public class LightModel implements CCRenderState.IVertexOperation {
     }
 
     @Override
-    public boolean load() {
-        if (!CCRenderState.computeLighting) {
+    public boolean load(CCRenderState state) {
+        if (!state.computeLighting) {
             return false;
         }
 
-        CCRenderState.pipeline.addDependency(CCRenderState.normalAttrib);
-        CCRenderState.pipeline.addDependency(CCRenderState.colourAttrib);
+        state.pipeline.addDependency(state.normalAttrib);
+        state.pipeline.addDependency(state.colourAttrib);
         return true;
     }
 
     @Override
-    public void operate() {
-        CCRenderState.colour = apply(CCRenderState.colour, CCRenderState.normal);
+    public void operate(CCRenderState state) {
+        state.colour = apply(state.colour, state.normal);
     }
 
     @Override

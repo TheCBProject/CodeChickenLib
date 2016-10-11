@@ -1,8 +1,8 @@
 package codechicken.lib.model.loader;
 
 import codechicken.lib.model.loader.IBakedModelLoader.IModKeyProvider;
-import codechicken.lib.render.TextureUtils;
-import codechicken.lib.render.TextureUtils.IIconRegister;
+import codechicken.lib.texture.TextureUtils;
+import codechicken.lib.texture.TextureUtils.IIconRegister;
 import codechicken.lib.thread.RestartableTask;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

@@ -1,12 +1,17 @@
-package codechicken.lib.render;
+package codechicken.lib.render.pipeline;
 
-import codechicken.lib.render.CCRenderState.IVertexOperation;
-import codechicken.lib.render.CCRenderState.VertexAttribute;
+import codechicken.lib.render.CCRenderState;
 
 import java.util.ArrayList;
 
 public class CCRenderPipeline {
     public class PipelineBuilder {
+        CCRenderState renderState;
+
+        public PipelineBuilder(CCRenderState renderState){
+            this.renderState = renderState;
+        }
+
         public PipelineBuilder add(IVertexOperation op) {
             ops.add(op);
             return this;
@@ -25,7 +30,7 @@ public class CCRenderPipeline {
 
         public void render() {
             rebuild();
-            CCRenderState.render();
+            renderState.render();
         }
     }
 
@@ -47,6 +52,8 @@ public class CCRenderPipeline {
         }
     }
 
+    private CCRenderState renderState;
+
     //By default we want to force format attributes.
     public boolean forceFormatAttributes = true;
 
@@ -55,7 +62,13 @@ public class CCRenderPipeline {
     private ArrayList<PipelineNode> nodes = new ArrayList<PipelineNode>();
     private ArrayList<IVertexOperation> sorted = new ArrayList<IVertexOperation>();
     private PipelineNode loading;
-    private PipelineBuilder builder = new PipelineBuilder();
+    private PipelineBuilder builder;
+
+    public CCRenderPipeline(CCRenderState renderState){
+        this.renderState = renderState;
+        builder = new PipelineBuilder(renderState);
+    }
+
 
     public void setPipeline(IVertexOperation... ops) {
         this.ops.clear();
@@ -81,18 +94,18 @@ public class CCRenderPipeline {
     public void rebuild() {
 
         if (forceFormatAttributes) {
-            if (CCRenderState.fmt.hasNormal()) {
-                addAttribute(CCRenderState.normalAttrib);
+            if (renderState.fmt.hasNormal()) {
+                addAttribute(renderState.normalAttrib);
             }
-            if (CCRenderState.fmt.hasColor()) {
-                addAttribute(CCRenderState.colourAttrib);
+            if (renderState.fmt.hasColor()) {
+                addAttribute(renderState.colourAttrib);
             }
-            if (CCRenderState.computeLighting) {
-                addAttribute(CCRenderState.lightingAttrib);
+            if (renderState.computeLighting) {
+                addAttribute(renderState.lightingAttrib);
             }
         }
 
-        if (ops.isEmpty() || CCRenderState.model == null) {
+        if (ops.isEmpty() || renderState.model == null) {
             return;
         }
 
@@ -105,7 +118,7 @@ public class CCRenderPipeline {
         for (int i = 0; i < ops.size(); i++) {
             IVertexOperation op = ops.get(i);
             loading = nodes.get(op.operationID());
-            boolean loaded = op.load();
+            boolean loaded = op.load(renderState);
             if (loaded) {
                 loading.op = op;
             }
@@ -142,7 +155,7 @@ public class CCRenderPipeline {
 
     public void operate() {
         for (int i = 0; i < sorted.size(); i++) {
-            sorted.get(i).operate();
+            sorted.get(i).operate(renderState);
         }
     }
 

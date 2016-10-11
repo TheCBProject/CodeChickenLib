@@ -1,6 +1,7 @@
 package codechicken.lib.lighting;
 
 import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.pipeline.IVertexOperation;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -9,7 +10,7 @@ import net.minecraft.world.IBlockAccess;
 /**
  * Simple brightness model that only works for axis planar sides
  */
-public class SimpleBrightnessModel implements CCRenderState.IVertexOperation {
+public class SimpleBrightnessModel implements IVertexOperation {
     public static final int operationIndex = CCRenderState.registerOperation();
     public static SimpleBrightnessModel instance = new SimpleBrightnessModel();
 
@@ -37,14 +38,15 @@ public class SimpleBrightnessModel implements CCRenderState.IVertexOperation {
     }
 
     @Override
-    public boolean load() {
-        CCRenderState.pipeline.addDependency(CCRenderState.sideAttrib);
+    public boolean load(CCRenderState state) {
+
+        state.pipeline.addDependency(state.sideAttrib);
         return true;
     }
 
     @Override
-    public void operate() {
-        CCRenderState.brightness = sample(CCRenderState.side);
+    public void operate(CCRenderState state) {
+        state.brightness = sample(state.side);
     }
 
     @Override

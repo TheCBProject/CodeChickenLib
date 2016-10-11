@@ -1,4 +1,4 @@
-package codechicken.lib.render;
+package codechicken.lib.util;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;

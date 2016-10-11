@@ -1,7 +1,7 @@
 package codechicken.lib.model;
 
 import codechicken.lib.model.loader.CCBakedModelLoader;
-import codechicken.lib.render.TextureUtils;
+import codechicken.lib.texture.TextureUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;

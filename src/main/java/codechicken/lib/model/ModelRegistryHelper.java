@@ -1,10 +1,12 @@
-package codechicken.lib.render;
+package codechicken.lib.model;
 
+import codechicken.lib.util.TransformUtils;
+import codechicken.lib.render.item.IItemRenderer;
+import codechicken.lib.texture.TextureUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.BuiltInModel;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -63,7 +65,7 @@ public class ModelRegistryHelper {
      */
     public static void setParticleTexture(Block block, final ResourceLocation tex) {
         final ModelResourceLocation modelLoc = new ModelResourceLocation(block.getRegistryName(), "particle");
-        register(modelLoc, new BuiltInModel(BlockRenderer.blockCameraTransform, ItemOverrideList.NONE) {
+        register(modelLoc, new BuiltInModel(TransformUtils.DEFAULT_BLOCK.toVanillaTransform(), ItemOverrideList.NONE) {
             @Override
             public TextureAtlasSprite getParticleTexture() {
                 return TextureUtils.getTexture(tex);

@@ -1,5 +1,6 @@
-package codechicken.lib.render;
+package codechicken.lib.util;
 
+import codechicken.lib.render.CCModelState;
 import codechicken.lib.vec.Matrix4;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;

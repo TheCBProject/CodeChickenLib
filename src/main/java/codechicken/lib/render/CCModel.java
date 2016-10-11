@@ -2,23 +2,24 @@ package codechicken.lib.render;
 
 import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightModel;
-import codechicken.lib.render.uv.UV;
-import codechicken.lib.render.uv.UVTransformation;
-import codechicken.lib.render.uv.UVTranslation;
+import codechicken.lib.render.pipeline.IVertexOperation;
+import codechicken.lib.render.pipeline.IVertexSource;
+import codechicken.lib.render.pipeline.VertexAttribute;
+import codechicken.lib.render.pipeline.attribute.*;
+import codechicken.lib.render.pipeline.attribute.AttributeKey.AttributeKeyRegistry;
+import codechicken.lib.vec.*;
+import codechicken.lib.vec.uv.UV;
+import codechicken.lib.vec.uv.UVTransformation;
+import codechicken.lib.vec.uv.UVTranslation;
+import codechicken.lib.util.ArrayUtils;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.VectorUtils;
-import codechicken.lib.vec.Cuboid6;
-import codechicken.lib.vec.Transformation;
-import codechicken.lib.vec.TransformationList;
-import codechicken.lib.vec.Vector3;
-import net.minecraft.util.EnumFacing;
 
 import java.util.*;
-import java.util.regex.Matcher;
 
 import static codechicken.lib.vec.Rotation.sideRotations;
 
-public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
+public class CCModel implements IVertexSource, Copyable<CCModel> {
     private static class PositionNormalEntry {
         public Vector3 pos;
         public LinkedList<Vector3> normals = new LinkedList<Vector3>();
@@ -52,7 +53,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public Vector3[] normals() {
-        return getAttributes(CCRenderState.normalAttrib);
+        return getAttributes(NormalAttribute.attributeKey);
     }
 
     @Override
@@ -61,30 +62,29 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     @Override
-    public <T> T getAttributes(CCRenderState.VertexAttribute<T> attr) {
-        if (attr.attributeIndex < attributes.size()) {
-            return (T) attributes.get(attr.attributeIndex);
+    public <T> T getAttributes(AttributeKey<T> attr) {
+        if (attr.attributeKeyIndex < attributes.size()) {
+            return (T) attributes.get(attr.attributeKeyIndex);
         }
-
         return null;
     }
 
     @Override
-    public boolean hasAttribute(CCRenderState.VertexAttribute<?> attrib) {
-        return attrib.attributeIndex < attributes.size() && attributes.get(attrib.attributeIndex) != null;
+    public boolean hasAttribute(AttributeKey<?> attr) {
+        return attr.attributeKeyIndex < attributes.size() && attributes.get(attr.attributeKeyIndex) != null;
     }
 
     @Override
-    public void prepareVertex() {
+    public void prepareVertex(CCRenderState state) {
     }
 
-    public <T> T getOrAllocate(CCRenderState.VertexAttribute<T> attrib) {
-        T array = getAttributes(attrib);
+    public <T> T getOrAllocate(AttributeKey<T> attr) {
+        T array = getAttributes(attr);
         if (array == null) {
-            while (attributes.size() <= attrib.attributeIndex) {
+            while (attributes.size() <= attr.attributeKeyIndex) {
                 attributes.add(null);
             }
-            attributes.set(attrib.attributeIndex, array = attrib.newArray(verts.length));
+            attributes.set(attr.attributeKeyIndex, array = attr.newArray(verts.length));
         }
         return array;
     }
@@ -302,7 +302,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
             throw new IllegalArgumentException("Cannot generate normals across polygons");
         }
 
-        Vector3[] normals = getOrAllocate(CCRenderState.normalAttrib);
+        Vector3[] normals = getOrAllocate(NormalAttribute.attributeKey);
         for (int k = 0; k < length; k += vp) {
             int i = k + start;
             Vector3 diff1 = verts[i + 1].vec.copy().subtract(verts[i].vec);
@@ -324,9 +324,9 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      */
     public CCModel computeLighting(LightModel light) {
         Vector3[] normals = normals();
-        int[] colours = getAttributes(CCRenderState.lightingAttrib);
+        int[] colours = getAttributes(LightingAttribute.attributeKey);
         if (colours == null) {
-            colours = getOrAllocate(CCRenderState.lightingAttrib);
+            colours = getOrAllocate(LightingAttribute.attributeKey);
             Arrays.fill(colours, -1);
         }
         for (int k = 0; k < verts.length; k++) {
@@ -336,7 +336,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel setColour(int c) {
-        int[] colours = getOrAllocate(CCRenderState.colourAttrib);
+        int[] colours = getOrAllocate(ColourAttribute.attributeKey);
         Arrays.fill(colours, c);
         return this;
     }
@@ -347,7 +347,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @return The model
      */
     public CCModel computeLightCoords() {
-        LC[] lcs = getOrAllocate(CCRenderState.lightCoordAttrib);
+        LC[] lcs = getOrAllocate(LightCoordAttribute.attributeKey);
         Vector3[] normals = normals();
         for (int i = 0; i < verts.length; i++) {
             lcs[i] = new LC().compute(verts[i].vec, normals[i]);
@@ -423,27 +423,27 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
         verts = Arrays.copyOf(verts, newLen);
         for (int i = 0; i < attributes.size(); i++) {
             if (attributes.get(i) != null) {
-                attributes.set(i, CCRenderState.copyOf((CCRenderState.VertexAttribute) CCRenderState.getAttribute(i), attributes.get(i), newLen));
+                attributes.set(i, VertexAttribute.copyOf((AttributeKey) AttributeKeyRegistry.getAttributeKey(i), attributes.get(i), newLen));
             }
         }
 
         return this;
     }
 
-    public void render(double x, double y, double z, double u, double v) {
-        render(new Vector3(x, y, z).translation(), new UVTranslation(u, v));
+    public void render(CCRenderState state, double x, double y, double z, double u, double v) {
+        render(state, new Vector3(x, y, z).translation(), new UVTranslation(u, v));
     }
 
-    public void render(double x, double y, double z, UVTransformation u) {
-        render(new Vector3(x, y, z).translation(), u);
+    public void render(CCRenderState state, double x, double y, double z, UVTransformation u) {
+        render(state, new Vector3(x, y, z).translation(), u);
     }
 
-    public void render(Transformation t, double u, double v) {
-        render(t, new UVTranslation(u, v));
+    public void render(CCRenderState state, Transformation t, double u, double v) {
+        render(state, t, new UVTranslation(u, v));
     }
 
-    public void render(CCRenderState.IVertexOperation... ops) {
-        render(0, verts.length, ops);
+    public void render(CCRenderState state, IVertexOperation... ops) {
+        render(state, 0, verts.length, ops);
     }
 
     /**
@@ -453,9 +453,9 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @param end   The vertex index to render until
      * @param ops   Operations to apply
      */
-    public void render(int start, int end, CCRenderState.IVertexOperation... ops) {
-        CCRenderState.setPipeline(this, start, end, ops);
-        CCRenderState.render();
+    public void render(CCRenderState state, int start, int end, IVertexOperation... ops) {
+        state.setPipeline(this, start, end, ops);
+        state.render();
     }
 
     public static CCModel quadModel(int numVerts) {
@@ -485,7 +485,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
         boolean hasNormals = polys.get(0)[2] > 0;
         CCModel model = CCModel.newModel(vertexMode, polys.size());
         if (hasNormals) {
-            model.getOrAllocate(CCRenderState.normalAttrib);
+            model.getOrAllocate(NormalAttribute.attributeKey);
         }
 
         for (int i = 0; i < polys.size(); i++) {
@@ -545,7 +545,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
         for (int i = 0; i < src.attributes.size(); i++) {
             if (src.attributes.get(i) != null) {
-                CCRenderState.arrayCopy(src.attributes.get(i), srcpos, dst.getOrAllocate(CCRenderState.getAttribute(i)), destpos, length);
+                ArrayUtils.arrayCopy(src.attributes.get(i), srcpos, dst.getOrAllocate(AttributeKeyRegistry.getAttributeKey(i)), destpos, length);
             }
         }
     }
@@ -608,7 +608,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
             dst.verts[di] = src.verts[si].copy();
             for (int a = 0; a < src.attributes.size(); a++) {
                 if (src.attributes.get(a) != null) {
-                    CCRenderState.arrayCopy(src.attributes.get(a), si, dst.getOrAllocate(CCRenderState.getAttribute(a)), di, 1);
+                    ArrayUtils.arrayCopy(src.attributes.get(a), si, dst.getOrAllocate(AttributeKeyRegistry.getAttributeKey(a)), di, 1);
                 }
             }
 
@@ -745,24 +745,24 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
             Vertex5 vert = verts[k];
             Vector3 normal = normals()[k];
             switch (VectorUtils.findSide(normal)) {
-            case 0:
-                vert.vec.y += offsets.min.y;
-                break;
-            case 1:
-                vert.vec.y += offsets.max.y;
-                break;
-            case 2:
-                vert.vec.z += offsets.min.z;
-                break;
-            case 3:
-                vert.vec.z += offsets.max.z;
-                break;
-            case 4:
-                vert.vec.x += offsets.min.x;
-                break;
-            case 5:
-                vert.vec.x += offsets.max.x;
-                break;
+                case 0:
+                    vert.vec.y += offsets.min.y;
+                    break;
+                case 1:
+                    vert.vec.y += offsets.max.y;
+                    break;
+                case 2:
+                    vert.vec.z += offsets.min.z;
+                    break;
+                case 3:
+                    vert.vec.z += offsets.max.z;
+                    break;
+                case 4:
+                    vert.vec.x += offsets.min.x;
+                    break;
+                case 5:
+                    vert.vec.x += offsets.max.x;
+                    break;
             }
         }
         return this;

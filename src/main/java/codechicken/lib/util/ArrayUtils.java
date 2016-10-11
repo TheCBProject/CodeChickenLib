@@ -1,5 +1,8 @@
 package codechicken.lib.util;
 
+import com.google.common.base.Function;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,10 +46,11 @@ public class ArrayUtils {
      *
      * @param map  Map to check.
      * @param keys Keys that must exist.
+     * @param <T>  The type of data in the map key.
      * @return False if fail.
      */
-    public static boolean containsKeys(Map<String, String> map, Object... keys) {
-        for (Object object : keys) {
+    public static <T> boolean containsKeys(Map<T, ?> map, T... keys) {
+        for (T object : keys) {
             if (!map.containsKey(object)) {
                 return false;
             }
@@ -132,16 +136,58 @@ public class ArrayUtils {
      *
      * @param array Array to fill.
      * @param value Value to fill with.
-     * @param <T> What we are dealing with.
+     * @param <T>   What we are dealing with.
      */
     @SuppressWarnings("unchecked")
     public static <T> void fillArray(T[] array, T value) {
         for (int i = 0; i < array.length; i++) {
             T newValue = value;
-            if (value instanceof Copyable){
+            if (value instanceof Copyable) {
                 newValue = ((Copyable<T>) value).copy();
             }
             array[i] = newValue;
         }
     }
+
+    /**
+     * Apples the Specified function to the entire array and returns a new List of the result.
+     * The input to the function may be null.
+     *
+     * @param function The function to apply.
+     * @param array    The array to apply the function to.
+     * @param <I>      The Input generic.
+     * @param <O>      The Output generic.
+     * @return A list of the output of the specified function.
+     */
+    public static <I, O> List<O> applyArray(Function<I, O> function, I... array) {
+        List<O> finalList = new ArrayList<O>();
+        for (I i : array) {
+            finalList.add(function.apply(i));
+        }
+
+        return finalList;
+    }
+
+    /**
+     * Basically a wrapper for System.arraycopy with support for CCL Copyable's
+     *
+     * @param src     The source array.
+     * @param srcPos  Starting position in the source array.
+     * @param dst     The destination array.
+     * @param destPos Starting position in the destination array.
+     * @param length  The number of elements to copy.
+     */
+    public static void arrayCopy(Object src, int srcPos, Object dst, int destPos, int length) {
+        System.arraycopy(src, srcPos, dst, destPos, length);
+        if (dst instanceof Copyable[]) {
+            Object[] oa = (Object[]) dst;
+            Copyable<Object>[] c = (Copyable[]) dst;
+            for (int i = destPos; i < destPos + length; i++) {
+                if (c[i] != null) {
+                    oa[i] = c[i].copy();
+                }
+            }
+        }
+    }
+
 }

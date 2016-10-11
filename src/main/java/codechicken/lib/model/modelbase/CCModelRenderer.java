@@ -2,13 +2,11 @@ package codechicken.lib.model.modelbase;
 
 import codechicken.lib.model.bakery.CCQuad;
 import codechicken.lib.render.CCModel;
-import codechicken.lib.render.CCRenderState;
-import codechicken.lib.render.Vertex5;
-import codechicken.lib.render.uv.UV;
+import codechicken.lib.vec.Vertex5;
+import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.*;
 import com.google.common.collect.Lists;
 import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Collections;
@@ -109,15 +107,16 @@ public class CCModelRenderer {
     }
 
     public void render(float scale, VertexBuffer buffer) {
-        CCRenderState.bind(buffer);
-        boolean startDrawing = !CCRenderState.isDrawing();
-        if (startDrawing) {
-            CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_NORMAL);
-        }
-        bake(scale).render();
-        if (startDrawing) {
-            CCRenderState.draw();
-        }
+        //TODO
+        //CCRenderState.bind(buffer);
+        //boolean startDrawing = !CCRenderState.isDrawing();
+        //if (startDrawing) {
+        //    CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_NORMAL);
+        //}
+        //bake(scale).render();
+        //if (startDrawing) {
+        //    CCRenderState.draw();
+        //}
     }
 
     public CCModel bake(float scale) {

@@ -1,4 +1,4 @@
-package codechicken.lib.render.uv;
+package codechicken.lib.vec.uv;
 
 import java.math.BigDecimal;
 import java.math.MathContext;

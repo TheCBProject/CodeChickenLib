@@ -1,7 +1,7 @@
 package codechicken.lib.render.buffer;
 
-import codechicken.lib.render.TextureUtils;
-import codechicken.lib.render.uv.UV;
+import codechicken.lib.texture.TextureUtils;
+import codechicken.lib.vec.uv.UV;
 import codechicken.lib.util.VectorUtils;
 import codechicken.lib.util.VertexDataUtils;
 import codechicken.lib.vec.Vector3;

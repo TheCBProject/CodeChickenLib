@@ -1,4 +1,4 @@
-package codechicken.lib.render;
+package codechicken.lib.texture;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.IResourceManager;

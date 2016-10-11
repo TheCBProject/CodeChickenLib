@@ -1,8 +1,9 @@
-package codechicken.lib.render;
+package codechicken.lib.render.pipeline;
 
 import codechicken.lib.colour.ColourRGBA;
+import codechicken.lib.render.CCRenderState;
 
-public class ColourMultiplier implements CCRenderState.IVertexOperation {
+public class ColourMultiplier implements IVertexOperation {
     private static ColourMultiplier instance = new ColourMultiplier(-1);
 
     public static ColourMultiplier instance(int colour) {
@@ -18,18 +19,18 @@ public class ColourMultiplier implements CCRenderState.IVertexOperation {
     }
 
     @Override
-    public boolean load() {
+    public boolean load(CCRenderState state) {
         if (colour == -1) {
             return false;
         }
 
-        CCRenderState.pipeline.addDependency(CCRenderState.colourAttrib);
+        state.pipeline.addDependency(state.colourAttrib);
         return true;
     }
 
     @Override
-    public void operate() {
-        CCRenderState.colour = ColourRGBA.multiply(CCRenderState.colour, colour);
+    public void operate(CCRenderState state) {
+        state.colour = ColourRGBA.multiply(state.colour, colour);
     }
 
     @Override

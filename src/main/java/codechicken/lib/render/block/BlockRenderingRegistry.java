@@ -1,6 +1,6 @@
 package codechicken.lib.render.block;
 
-import codechicken.lib.render.TextureUtils;
+import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.ReflectionManager;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;

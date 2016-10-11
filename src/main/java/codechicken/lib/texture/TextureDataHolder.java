@@ -1,4 +1,4 @@
-package codechicken.lib.render;
+package codechicken.lib.texture;
 
 import java.awt.image.BufferedImage;
 

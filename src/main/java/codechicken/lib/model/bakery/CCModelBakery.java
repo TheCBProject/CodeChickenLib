@@ -1,17 +1,14 @@
 package codechicken.lib.model.bakery;
 
 import codechicken.lib.render.CCModel;
-import codechicken.lib.render.CCRenderState;
-import codechicken.lib.render.CCRenderState.*;
-import codechicken.lib.render.Vertex5;
+import codechicken.lib.render.pipeline.IVertexOperation;
+import codechicken.lib.render.pipeline.IVertexSource;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 
 import java.util.List;
-
-import static codechicken.lib.render.CCRenderState.*;
 
 /**
  * Created by covers1624 on 8/20/2016.
@@ -97,7 +94,7 @@ public class CCModelBakery {
         } else {
             bakery.startBakingQuads();
         }
-        CCRenderState.fmt = format;
+        /*CCRenderState.fmt = format;
         CCRenderState.setPipeline(model, start, end, ops);
         Vertex5[] verts = model.getVertices();
         for (vertexIndex = firstVertexIndex; vertexIndex < lastVertexIndex; vertexIndex++) {
@@ -116,7 +113,7 @@ public class CCModelBakery {
             bakery.setLightMap(CCRenderState.brightness);
             bakery.setNormal(CCRenderState.normal);
             bakery.addVertexWithUV(vert);
-        }
+        }*/
         return bakery.finishBaking();
     }
 }

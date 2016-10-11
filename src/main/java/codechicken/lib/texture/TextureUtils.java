@@ -1,4 +1,4 @@
-package codechicken.lib.render;
+package codechicken.lib.texture;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourARGB;
@@ -27,7 +27,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class TextureUtils {

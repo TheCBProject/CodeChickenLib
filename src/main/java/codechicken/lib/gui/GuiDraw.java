@@ -1,7 +1,7 @@
 package codechicken.lib.gui;
 
 import codechicken.lib.math.MathHelper;
-import codechicken.lib.render.TextureUtils;
+import codechicken.lib.texture.TextureUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;

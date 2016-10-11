@@ -1,4 +1,4 @@
-package codechicken.lib.render.uv;
+package codechicken.lib.vec.uv;
 
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.vec.IrreversibleTransformationException;
@@ -12,9 +12,9 @@ public class IconTransformation extends UVTransformation {
     }
 
     @Override
-    public void operate() {
-        super.operate();
-        CCRenderState.sprite = icon;
+    public void operate(CCRenderState state) {
+        super.operate(state);
+        state.sprite = icon;
     }
 
     @Override

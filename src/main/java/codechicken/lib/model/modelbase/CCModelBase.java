@@ -1,14 +1,11 @@
 package codechicken.lib.model.modelbase;
 
 import codechicken.lib.render.CCModel;
-import codechicken.lib.render.CCRenderState;
-import codechicken.lib.render.uv.UV;
+import codechicken.lib.vec.uv.UV;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import org.lwjgl.opengl.GL11;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -61,14 +58,15 @@ public abstract class CCModelBase {
         }
         CCModel model = CCModel.combine(models);
 
-        CCRenderState.bind(buffer);
-        boolean startDrawing = !CCRenderState.isDrawing();
-        if (startDrawing) {
-            CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_NORMAL);
-        }
-        model.render();
-        if (startDrawing) {
-            CCRenderState.draw();
-        }
+        //TODO
+        //CCRenderState.bind(buffer);
+        //boolean startDrawing = !CCRenderState.isDrawing();
+        //if (startDrawing) {
+        //    CCRenderState.startDrawing(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_NORMAL);
+        //}
+        //model.render();
+        //if (startDrawing) {
+        //    CCRenderState.draw();
+        //}
     }
 }

@@ -2,8 +2,8 @@ package codechicken.lib.model.bakery;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
-import codechicken.lib.render.Vertex5;
-import codechicken.lib.render.uv.UV;
+import codechicken.lib.vec.Vertex5;
+import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.Vector3;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -28,7 +28,7 @@ public class CCQuadBakery {
     private UV uv = new UV();
     private Vector3 normal = null;
     private Colour colour = new ColourRGBA(0xFFFFFFFF);
-    private UV lightMap = new UV();
+    private int brightness = 0;
 
     private boolean isBakingTriModel = false;
     private boolean applyDifuseLighting = true;
@@ -128,13 +128,11 @@ public class CCQuadBakery {
     }
 
     public CCQuadBakery setLightMap(int brightness) {
-        return setLightMap(new UV((double) ((brightness >> 4) & 15 * 32) / 65535, (double) ((brightness >> 20) & 15 * 32) / 65535));
+        this.brightness = brightness;
+        return this;
+        //return setLightMap(new UV((double) ((brightness >> 4) & 15 * 32) / 65535, (double) ((brightness >> 20) & 15 * 32) / 65535));
     }
 
-    public CCQuadBakery setLightMap(UV lightMap) {
-        this.lightMap = lightMap.copy();
-        return this;
-    }
 
     public CCQuadBakery setNormal(Vector3 normal) {
         this.normal = normal;
@@ -188,7 +186,7 @@ public class CCQuadBakery {
         quad.vertices[index] = new Vertex5(vertex.copy(), uv.copy());
         quad.normals[index] = normal != null ? normal.copy() : null;
         quad.colours[index] = colour.copy();
-        quad.lightMaps[index] = lightMap.copy();
+        quad.lightMaps[index] = brightness;
         index++;
 
         int max = isBakingTriModel ? 3 : 4;

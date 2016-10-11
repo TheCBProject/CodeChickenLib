@@ -1,7 +1,7 @@
-package codechicken.lib.render;
+package codechicken.lib.texture;
 
-import codechicken.lib.render.SpriteSheetManager.SpriteSheet;
-import codechicken.lib.render.TextureUtils.IIconRegister;
+import codechicken.lib.texture.SpriteSheetManager.SpriteSheet;
+import codechicken.lib.texture.TextureUtils.IIconRegister;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.PngSizeInfo;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;

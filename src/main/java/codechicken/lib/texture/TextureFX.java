@@ -1,6 +1,6 @@
-package codechicken.lib.render;
+package codechicken.lib.texture;
 
-import codechicken.lib.render.SpriteSheetManager.SpriteSheet;
+import codechicken.lib.texture.SpriteSheetManager.SpriteSheet;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

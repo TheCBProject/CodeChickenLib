@@ -2,9 +2,9 @@ package codechicken.lib.model.bakery;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
-import codechicken.lib.render.Vertex5;
-import codechicken.lib.render.uv.UV;
-import codechicken.lib.render.uv.UVTransformation;
+import codechicken.lib.vec.Vertex5;
+import codechicken.lib.vec.uv.UV;
+import codechicken.lib.vec.uv.UVTransformation;
 import codechicken.lib.util.ArrayUtils;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.VectorUtils;
@@ -29,7 +29,7 @@ public class CCQuad implements Copyable<CCQuad> {
     public Vertex5[] vertices = new Vertex5[4];
     public Vector3[] normals = new Vector3[4];
     public Colour[] colours = new Colour[4];
-    public UV[] lightMaps = new UV[4];
+    public Integer[] lightMaps = new Integer[4];
 
     public EnumFacing face = null;
     public boolean applyDifuseLighting = true;
@@ -70,8 +70,8 @@ public class CCQuad implements Copyable<CCQuad> {
                     case UV:
                         if (format.getElement(e).getIndex() == 0) {
                             vertices[v].uv.set(data[0], data[1]);
-                        } else {
-                            lightMaps[v] = new UV(data[0], data[1]);
+                        } else {//TODO This SHOULD be fine.....
+                            lightMaps[v] = (int) (data[1] * 65535 / 32) << 20 | (int) (data[0] * 65535 / 32) << 4;
                         }
                         break;
                     default:
@@ -83,7 +83,7 @@ public class CCQuad implements Copyable<CCQuad> {
             ArrayUtils.fillArray(colours, new ColourRGBA(0xFFFFFFFF));
         }
         if (!format.hasUvOffset(1)) {
-            ArrayUtils.fillArray(lightMaps, new UV());
+            ArrayUtils.fillArray(lightMaps, 0);
         }
         if (!format.hasNormal()) {
             computeNormals();
@@ -101,9 +101,7 @@ public class CCQuad implements Copyable<CCQuad> {
         for (int i = 0; i < vertices.length; i++) {
             colours[i] = quad.colours[i].copy();
         }
-        for (int i = 0; i < vertices.length; i++) {
-            lightMaps[i] = quad.lightMaps[i].copy();
-        }
+        System.arraycopy(quad.lightMaps, 0, lightMaps, 0, vertices.length);
         face = quad.face;
     }
 
@@ -163,7 +161,7 @@ public class CCQuad implements Copyable<CCQuad> {
             colours[3] = colours[2].copy();
         }
         if (lightMapCount == 3) {
-            lightMaps[3] = lightMaps[2].copy();
+            lightMaps[3] = lightMaps[2];
         }
     }
 
@@ -218,8 +216,13 @@ public class CCQuad implements Copyable<CCQuad> {
                         quadBuilder.put(e, (colour.r & 0xFF) / 255, (colour.g & 0xFF) / 255, (colour.b & 0xFF) / 255, (colour.a & 0xFF) / 255);
                         break;
                     case UV:
-                        UV uv = element.getIndex() == 0 ? vertices[v].uv : lightMaps[v];
-                        quadBuilder.put(e, (float) uv.u, (float) uv.v, 0, 1);
+                        if (element.getIndex() == 0) {
+                            UV uv = vertices[v].uv;
+                            quadBuilder.put(e, (float) uv.u, (float) uv.v, 0, 1);
+                        } else {
+                            int brightness = lightMaps[v];
+                            quadBuilder.put(e, (float) ((brightness >> 4) & 15 * 32) / 65535, (float) ((brightness >> 20) & 15 * 32) / 65535, 0, 1);
+                        }
                         break;
                     case PADDING:
                     case GENERIC:

@@ -1,7 +1,7 @@
 package codechicken.lib.colour;
 
 import codechicken.lib.math.MathHelper;
-import codechicken.lib.render.TextureUtils;
+import codechicken.lib.texture.TextureUtils;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.image.BufferedImage;

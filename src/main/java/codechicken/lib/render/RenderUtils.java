@@ -1,6 +1,6 @@
 package codechicken.lib.render;
 
-
+import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.vec.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -33,8 +33,6 @@ public class RenderUtils {
             vectors[i] = new Vector3();
         }
 
-        //uniformRenderItem.setRenderManager(RenderManager.instance);
-
         entityItem = new EntityItem(null);
         entityItem.hoverStart = 0;
     }
@@ -60,7 +58,7 @@ public class RenderUtils {
      * @param res  Units per icon
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, TextureAtlasSprite icon, double res) {
-        VertexBuffer r = CCRenderState.getBuffer();
+        VertexBuffer r = CCRenderState.instance().getBuffer();
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
         double v2 = icon.getMaxV();
@@ -109,21 +107,22 @@ public class RenderUtils {
     }
 
     public static void drawCuboidOutline(Cuboid6 c) {
-        VertexBuffer r = CCRenderState.startDrawing(3, DefaultVertexFormats.POSITION);
+        CCRenderState state = CCRenderState.instance();
+        VertexBuffer r = state.startDrawing(3, DefaultVertexFormats.POSITION);
         r.pos(c.min.x, c.min.y, c.min.z).endVertex();
         r.pos(c.max.x, c.min.y, c.min.z).endVertex();
         r.pos(c.max.x, c.min.y, c.max.z).endVertex();
         r.pos(c.min.x, c.min.y, c.max.z).endVertex();
         r.pos(c.min.x, c.min.y, c.min.z).endVertex();
-        CCRenderState.draw();
-        CCRenderState.startDrawing(3, DefaultVertexFormats.POSITION);
+        state.draw();
+        state.startDrawing(3, DefaultVertexFormats.POSITION);
         r.pos(c.min.x, c.max.y, c.min.z).endVertex();
         r.pos(c.max.x, c.max.y, c.min.z).endVertex();
         r.pos(c.max.x, c.max.y, c.max.z).endVertex();
         r.pos(c.min.x, c.max.y, c.max.z).endVertex();
         r.pos(c.min.x, c.max.y, c.min.z).endVertex();
-        CCRenderState.draw();
-        CCRenderState.startDrawing(1, DefaultVertexFormats.POSITION);
+        state.draw();
+        state.startDrawing(1, DefaultVertexFormats.POSITION);
         r.pos(c.min.x, c.min.y, c.min.z).endVertex();
         r.pos(c.min.x, c.max.y, c.min.z).endVertex();
         r.pos(c.max.x, c.min.y, c.min.z).endVertex();
@@ -132,7 +131,7 @@ public class RenderUtils {
         r.pos(c.max.x, c.max.y, c.max.z).endVertex();
         r.pos(c.min.x, c.min.y, c.max.z).endVertex();
         r.pos(c.min.x, c.max.y, c.max.z).endVertex();
-        CCRenderState.draw();
+        state.draw();
     }
 
     public static void renderFluidCuboid(Cuboid6 bound, TextureAtlasSprite tex, double res) {
@@ -156,42 +155,42 @@ public class RenderUtils {
         VertexBuffer r = Tessellator.getInstance().getBuffer();
         //TODO
         switch (side) {
-        case 0:
-            r.pos(points[0], points[2], points[4]).tex(tx1, ty1).endVertex();
-            r.pos(points[1], points[2], points[4]).tex(tx2, ty1).endVertex();
-            r.pos(points[1], points[2], points[5]).tex(tx2, ty2).endVertex();
-            r.pos(points[0], points[2], points[5]).tex(tx1, ty2).endVertex();
-            break;
-        case 1:
-            r.pos(points[1], points[3], points[4]).tex(tx2, ty1).endVertex();
-            r.pos(points[0], points[3], points[4]).tex(tx1, ty1).endVertex();
-            r.pos(points[0], points[3], points[5]).tex(tx1, ty2).endVertex();
-            r.pos(points[1], points[3], points[5]).tex(tx2, ty2).endVertex();
-            break;
-        case 2:
-            r.pos(points[0], points[3], points[4]).tex(tx2, ty1).endVertex();
-            r.pos(points[1], points[3], points[4]).tex(tx1, ty1).endVertex();
-            r.pos(points[1], points[2], points[4]).tex(tx1, ty2).endVertex();
-            r.pos(points[0], points[2], points[4]).tex(tx2, ty2).endVertex();
-            break;
-        case 3:
-            r.pos(points[1], points[3], points[5]).tex(tx2, ty1).endVertex();
-            r.pos(points[0], points[3], points[5]).tex(tx1, ty1).endVertex();
-            r.pos(points[0], points[2], points[5]).tex(tx1, ty2).endVertex();
-            r.pos(points[1], points[2], points[5]).tex(tx2, ty2).endVertex();
-            break;
-        case 4:
-            r.pos(points[0], points[3], points[5]).tex(tx2, ty1).endVertex();
-            r.pos(points[0], points[3], points[4]).tex(tx1, ty1).endVertex();
-            r.pos(points[0], points[2], points[4]).tex(tx1, ty2).endVertex();
-            r.pos(points[0], points[2], points[5]).tex(tx2, ty2).endVertex();
-            break;
-        case 5:
-            r.pos(points[1], points[3], points[4]).tex(tx2, ty1).endVertex();
-            r.pos(points[1], points[3], points[5]).tex(tx1, ty1).endVertex();
-            r.pos(points[1], points[2], points[5]).tex(tx1, ty2).endVertex();
-            r.pos(points[1], points[2], points[4]).tex(tx2, ty2).endVertex();
-            break;
+            case 0:
+                r.pos(points[0], points[2], points[4]).tex(tx1, ty1).endVertex();
+                r.pos(points[1], points[2], points[4]).tex(tx2, ty1).endVertex();
+                r.pos(points[1], points[2], points[5]).tex(tx2, ty2).endVertex();
+                r.pos(points[0], points[2], points[5]).tex(tx1, ty2).endVertex();
+                break;
+            case 1:
+                r.pos(points[1], points[3], points[4]).tex(tx2, ty1).endVertex();
+                r.pos(points[0], points[3], points[4]).tex(tx1, ty1).endVertex();
+                r.pos(points[0], points[3], points[5]).tex(tx1, ty2).endVertex();
+                r.pos(points[1], points[3], points[5]).tex(tx2, ty2).endVertex();
+                break;
+            case 2:
+                r.pos(points[0], points[3], points[4]).tex(tx2, ty1).endVertex();
+                r.pos(points[1], points[3], points[4]).tex(tx1, ty1).endVertex();
+                r.pos(points[1], points[2], points[4]).tex(tx1, ty2).endVertex();
+                r.pos(points[0], points[2], points[4]).tex(tx2, ty2).endVertex();
+                break;
+            case 3:
+                r.pos(points[1], points[3], points[5]).tex(tx2, ty1).endVertex();
+                r.pos(points[0], points[3], points[5]).tex(tx1, ty1).endVertex();
+                r.pos(points[0], points[2], points[5]).tex(tx1, ty2).endVertex();
+                r.pos(points[1], points[2], points[5]).tex(tx2, ty2).endVertex();
+                break;
+            case 4:
+                r.pos(points[0], points[3], points[5]).tex(tx2, ty1).endVertex();
+                r.pos(points[0], points[3], points[4]).tex(tx1, ty1).endVertex();
+                r.pos(points[0], points[2], points[4]).tex(tx1, ty2).endVertex();
+                r.pos(points[0], points[2], points[5]).tex(tx2, ty2).endVertex();
+                break;
+            case 5:
+                r.pos(points[1], points[3], points[4]).tex(tx2, ty1).endVertex();
+                r.pos(points[1], points[3], points[5]).tex(tx1, ty1).endVertex();
+                r.pos(points[1], points[2], points[5]).tex(tx1, ty2).endVertex();
+                r.pos(points[1], points[2], points[4]).tex(tx2, ty2).endVertex();
+                break;
         }
     }
 
@@ -258,7 +257,7 @@ public class RenderUtils {
      */
     public static TextureAtlasSprite prepareFluidRender(FluidStack stack, int alpha) {
         Fluid fluid = stack.getFluid();
-        CCRenderState.colour = fluid.getColor(stack) << 8 | alpha;
+        CCRenderState.instance().colour = fluid.getColor(stack) << 8 | alpha;
         return TextureUtils.getTexture(fluid.getStill());
     }
 
@@ -317,10 +316,11 @@ public class RenderUtils {
         }
 
         preFluidRender();
-        CCRenderState.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
+        CCRenderState state = CCRenderState.instance();
+        state.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
         renderFluidCuboid(stack, bound, density, res);
-        CCRenderState.pushColour();
-        CCRenderState.draw();
+        state.pushColour();
+        state.draw();
         postFluidRender();
     }
 
@@ -340,10 +340,10 @@ public class RenderUtils {
             rect.y += rect.h - height;
             rect.h = height;
         }
-
-        CCRenderState.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
+        CCRenderState state = CCRenderState.instance();
+        state.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
         renderFluidQuad(new Vector3(rect.x, rect.y + rect.h, 0), new Vector3(rect.w, 0, 0), new Vector3(0, -rect.h, 0), prepareFluidRender(stack, alpha), res);
-        CCRenderState.draw();
+        state.draw();
         postFluidRender();
     }
 
@@ -353,10 +353,11 @@ public class RenderUtils {
         }
 
         preFluidRender();
-        CCRenderState.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
+        CCRenderState state = CCRenderState.instance();
+        state.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
         renderFluidGauge(stack, rect, density, res);
-        CCRenderState.pushColour();
-        CCRenderState.draw();
+        state.pushColour();
+        state.draw();
     }
 
     public static Matrix4 getMatrix(Vector3 position, Rotation rotation, double scale) {

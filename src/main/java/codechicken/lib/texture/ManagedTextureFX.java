@@ -1,4 +1,4 @@
-package codechicken.lib.render;
+package codechicken.lib.texture;
 
 public class ManagedTextureFX extends TextureFX {
     public boolean changed;

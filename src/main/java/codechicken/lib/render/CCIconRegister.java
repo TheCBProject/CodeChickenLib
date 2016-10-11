@@ -1,6 +1,7 @@
 package codechicken.lib.render;
 
-import codechicken.lib.render.TextureUtils.IIconRegister;
+import codechicken.lib.texture.TextureUtils;
+import codechicken.lib.texture.TextureUtils.IIconRegister;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.ResourceLocation;
 

@@ -1,6 +1,6 @@
 package codechicken.lib.model;
 
-import codechicken.lib.render.TransformUtils;
+import codechicken.lib.util.TransformUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;

@@ -1,7 +1,7 @@
 package codechicken.lib.util;
 
 import codechicken.lib.math.MathHelper;
-import codechicken.lib.render.uv.UV;
+import codechicken.lib.vec.uv.UV;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.VertexFormat;
