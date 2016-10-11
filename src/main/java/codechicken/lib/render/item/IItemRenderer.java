@@ -1,4 +1,4 @@
-package codechicken.lib.render;
+package codechicken.lib.render.item;
 
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.item.ItemStack;
