@@ -1,5 +1,6 @@
 package codechicken.lib.asm;
 
+import net.minecraftforge.fml.relauncher.IFMLCallHook;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 import org.apache.logging.log4j.LogManager;
@@ -8,7 +9,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.Map;
 
 @TransformerExclusions({ "codechicken.lib.asm", "codechicken.lib.config" })
-public class CCLCorePlugin implements IFMLLoadingPlugin {
+@Deprecated//To be fully phased out by 1.11. Kept to keep backwards compat.
+public class CCLCorePlugin implements IFMLLoadingPlugin , IFMLCallHook{
 
     public static Logger logger = LogManager.getLogger("CodeChicken Lib");
 
@@ -24,7 +26,7 @@ public class CCLCorePlugin implements IFMLLoadingPlugin {
 
     @Override
     public String getSetupClass() {
-        return null;
+        return getClass().getName();
     }
 
     @Override
@@ -34,6 +36,12 @@ public class CCLCorePlugin implements IFMLLoadingPlugin {
 
     @Override
     public String getAccessTransformerClass() {
+        return null;
+    }
+
+    @Override
+    public Void call() throws Exception {
+        new ASMHelper();
         return null;
     }
 }

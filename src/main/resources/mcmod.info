@@ -1,0 +1,11 @@
+[
+{
+  "modid": "CodeChickenLib",
+  "name": "CodeChicken Lib",
+  "description": "CodeChickenLib is a library of systems to help make various aspects of minecraft modding easier. It contains libraries for 3D math and transformations, model rendering, packets, config, colours, asm and a few other things..",
+  "version": "${version}",
+  "mcversion": "${mc_version}",
+  "url": "http://chickenbones.net/Pages/links.html",
+  "authorList": [ "ChickenBones", "covers1624" ]
+}
+]

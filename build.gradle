@@ -29,12 +29,13 @@ configFile.withReader {
 
 version = "${project.config.mod_version}." + (System.getenv("BUILD_NUMBER") ?: "1")
 
-println config.minecraft_version + "-" + config.forge_version
+println config.mc_version + "-" + config.forge_version
 // Setup the forge minecraft plugin data. Specify the preferred forge/minecraft version here
 minecraft {
-    version = config.minecraft_version + "-" + config.forge_version
+    version = config.mc_version + "-" + config.forge_version
     mappings = config.mappings
     runDir = "run"
+    replace '${mod_version}', project.config.mod_version
     makeObfSourceJar = false
 }
 
@@ -47,9 +48,6 @@ processResources {
         include 'mcmod.info'
         expand 'version': project.version, 'mcversion': project.minecraft.version
     }
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
     rename '(.+_at.cfg)', 'META-INF/$1'
 }
 
@@ -57,6 +55,7 @@ version = "${project.minecraft.version}-${project.version}"
 def commonManifest = {
     attributes 'Main-Class': 'codechicken.lib.tool.Main'
     attributes 'FMLCorePlugin': 'codechicken.lib.asm.CCLCorePlugin'
+    attributes 'FMLCorePluginContainsFMLMod': 'true'
     attributes 'FMLAT': 'ccl_at.cfg'
 }
 
