@@ -92,17 +92,16 @@ public class ObfMapping {
         public static File[] getConfFiles() {
 
             // check for GradleStart system vars
-            if (!Strings.isNullOrEmpty(System.getProperty("net.minecraftforge.gradle.GradleStart.srgDir"))) {
-                File srgDir = new File(System.getProperty("net.minecraftforge.gradle.GradleStart.srgDir"));
+            if (!Strings.isNullOrEmpty(System.getProperty("net.minecraftforge.gradle.GradleStart.srg.notch-srg"))) {
+                File notchSrg = new File(System.getProperty("net.minecraftforge.gradle.GradleStart.srg.notch-srg"));
                 File csvDir = new File(System.getProperty("net.minecraftforge.gradle.GradleStart.csvDir"));
 
-                if (srgDir.exists() && csvDir.exists()) {
-                    File srg = new File(srgDir, "notch-srg.srg");
+                if (notchSrg.exists() && csvDir.exists()) {
                     File fieldCsv = new File(csvDir, "fields.csv");
                     File methodCsv = new File(csvDir, "methods.csv");
 
-                    if (srg.exists() && fieldCsv.exists() && methodCsv.exists()) {
-                        return new File[] { srg, fieldCsv, methodCsv };
+                    if (notchSrg.exists() && fieldCsv.exists() && methodCsv.exists()) {
+                        return new File[] { notchSrg, fieldCsv, methodCsv };
                     }
                 }
             }
