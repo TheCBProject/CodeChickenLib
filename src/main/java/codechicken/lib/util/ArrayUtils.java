@@ -190,4 +190,30 @@ public class ArrayUtils {
         }
     }
 
+    /**
+     * Returns the index of the first occurrence of the specified element in the array.
+     * Will return -1 if the element is non existent in the array.
+     *
+     * @param array  The array to search.
+     * @param object Element to find.
+     * @param <T>    What we are dealing with.
+     * @return The index in the array of the object.
+     */
+    public static <T> int indexOf(T[] array, T object) {
+        if (object == null) {
+            for (int i = 0; i < array.length; i++) {
+                if (array[i] == null) {
+                    return i;
+                }
+            }
+        } else {
+            for (int i = 0; i < array.length; i++) {
+                if (object.equals(array[i])) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
 }
