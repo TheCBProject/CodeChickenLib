@@ -70,6 +70,16 @@ public class ReflectionManager {
         }
     }
 
+    public static void setField(ObfMapping mapping, Object instance, Object value) {
+        try {
+            Field field = getField(mapping);
+            field.setAccessible(true);
+            field.set(instance, value);
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void setField(Class<?> class1, Object instance, String name, Object value) throws IllegalArgumentException, IllegalAccessException {
         setField(class1, instance, new String[] { name }, value);
     }

@@ -1,5 +1,8 @@
-package codechicken.lib.render;
+package codechicken.lib.render.shader;
 
+import codechicken.lib.render.shader.pipeline.CCShaderPipeline;
+import codechicken.lib.render.shader.pipeline.attribute.IShaderOperation;
+import org.lwjgl.opengl.ARBFragmentShader;
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.ARBVertexShader;
 import org.lwjgl.opengl.GL11;
@@ -9,11 +12,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import static org.lwjgl.opengl.ARBShaderObjects.*;
 
 public class ShaderProgram {
-    int programID;
+    private int programID;
+    public CCShaderPipeline pipeline = new CCShaderPipeline(this);
+    private ArrayList<IShaderOperation> ops = new ArrayList<IShaderOperation>();
 
     public ShaderProgram() {
         programID = glCreateProgramObjectARB();
@@ -22,24 +28,19 @@ public class ShaderProgram {
         }
     }
 
-    public void attach(int shaderType, String resource) {
-        InputStream stream = ShaderProgram.class.getResourceAsStream(resource);
-        if (stream == null) {
-            throw new RuntimeException("Unable to locate resource: " + resource);
-        }
-
-        attach(shaderType, stream);
+    public void attachShaderOperation(IShaderOperation operation) {
+        ops.add(operation);
     }
 
-    public void use() {
+    public void bindShader() {
         glUseProgramObjectARB(programID);
     }
 
-    public static void restore() {
+    public static void unbindShader() {
         glUseProgramObjectARB(0);
     }
 
-    public void link() {
+    public void runShader() {
         glLinkProgramARB(programID);
         if (glGetObjectParameteriARB(programID, GL_OBJECT_LINK_STATUS_ARB) == GL11.GL_FALSE) {
             throw new RuntimeException("Error linking program: " + getInfoLog(programID));
@@ -50,9 +51,29 @@ public class ShaderProgram {
             throw new RuntimeException("Error validating program: " + getInfoLog(programID));
         }
 
-        use();
-        onLink();
-        restore();
+        pipeline.reset();
+        pipeline.setPipeline(ops);
+
+        bindShader();
+        pipeline.operate();
+        unbindShader();
+    }
+
+    public void attachVert(String resource) {
+        attach(ARBVertexShader.GL_VERTEX_SHADER_ARB, resource);
+    }
+
+    public void attachFrag(String resource) {
+        attach(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB, resource);
+    }
+
+    public void attach(int shaderType, String resource) {
+        InputStream stream = ShaderProgram.class.getResourceAsStream(resource);
+        if (stream == null) {
+            throw new RuntimeException("Unable to locate resource: " + resource);
+        }
+
+        attach(shaderType, stream);
     }
 
     public void attach(int shaderType, InputStream stream) {
@@ -110,10 +131,6 @@ public class ShaderProgram {
 
     public void uniformTexture(String name, int textureIndex) {
         ARBShaderObjects.glUniform1iARB(getUniformLoc(name), textureIndex);
-    }
-
-    public void onLink() {
-
     }
 
     public void glVertexAttributeMat4(int loc, Matrix4f matrix) {
