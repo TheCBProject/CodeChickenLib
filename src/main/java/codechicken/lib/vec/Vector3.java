@@ -220,9 +220,9 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public Vector3 celi(){
-        x = MathHelper.celi(x);
-        y = MathHelper.celi(y);
-        z = MathHelper.celi(z);
+        x = MathHelper.ceil(x);
+        y = MathHelper.ceil(y);
+        z = MathHelper.ceil(z);
         return this;
     }
 

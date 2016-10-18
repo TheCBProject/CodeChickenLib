@@ -128,6 +128,39 @@ public class MathHelper {
     }
 
     /**
+     * @param value The value
+     * @param min   The min value
+     * @param max   The max value
+     * @return The clipped value between min and max
+     */
+    public static float clip(float value, float min, float max) {
+        if (value > max) {
+            value = max;
+        }
+        if (value < min) {
+            value = min;
+        }
+        return value;
+    }
+
+    /**
+     * @param value The value
+     * @param min   The min value
+     * @param max   The max value
+     * @return The clipped value between min and max
+     */
+    public static int clip(int value, int min, int max) {
+        if (value > max) {
+            value = max;
+        }
+        if (value < min) {
+            value = min;
+        }
+        return value;
+    }
+
+
+    /**
      * @return min <= value <= max
      */
     public static boolean between(double min, double value, double max) {
@@ -152,11 +185,11 @@ public class MathHelper {
         return net.minecraft.util.math.MathHelper.floor_float(d);
     }
 
-    public static int celi(double d) {
+    public static int ceil(double d) {
         return net.minecraft.util.math.MathHelper.ceiling_double_int(d);
     }
 
-    public static int celi(float d) {
+    public static int ceil(float d) {
         return net.minecraft.util.math.MathHelper.ceiling_float_int(d);
     }
 
