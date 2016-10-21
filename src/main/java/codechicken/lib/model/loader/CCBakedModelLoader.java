@@ -156,7 +156,9 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
                     return null;
                 } else {
                     bakingTask.stop();
-                    modelBakeQue.put(mapKey, provider);
+                    synchronized (modelBakeQue) {
+                        modelBakeQue.put(mapKey, provider);
+                    }
                     bakingTask.restart();
                 }
             }
@@ -173,7 +175,7 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
         @Override
         public void execute() {
             Map<String, IModKeyProvider> localQue;
-            synchronized (modelBakeQue){
+            synchronized (modelBakeQue) {
                 localQue = new HashMap<String, IModKeyProvider>(modelBakeQue);
             }
             Iterator<Entry<String, IModKeyProvider>> queIterator = localQue.entrySet().iterator();
