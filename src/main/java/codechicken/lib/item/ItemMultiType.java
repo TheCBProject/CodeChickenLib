@@ -60,7 +60,7 @@ public class ItemMultiType extends Item {
         return stack;
     }
 
-    public ItemStack registerSubItemOreDict(int meta, String name, EnumRarity rarity){
+    public ItemStack registerSubItemOreDict(int meta, String name, EnumRarity rarity) {
         rarityMap.put(meta, rarity);
         return registerSubItemOreDict(meta, name);
     }
@@ -71,7 +71,7 @@ public class ItemMultiType extends Item {
 
     public ItemStack registerSubItem(String name, EnumRarity rarity) {
         rarityMap.put(nextVariant, rarity);
-        return  registerSubItem(name);
+        return registerSubItem(name);
     }
 
     public ItemStack registerSubItemOreDict(String name) {
@@ -116,7 +116,7 @@ public class ItemMultiType extends Item {
     @Override
     public String getUnlocalizedName(ItemStack stack) {
         int meta = stack.getItemDamage();
-        return "item." + names.get(meta);
+        return getUnlocalizedName() + names.get(meta);
     }
 
     @Override
