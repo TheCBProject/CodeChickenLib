@@ -26,5 +26,8 @@ public class SoundUtils {
     public static void playSoundAt(Vector3 pos, World world, SoundCategory category, SoundEvent sound, float volume, float pitch, boolean distanceDelay) {
         world.playSound(pos.x, pos.y, pos.z, sound, category, volume, pitch, distanceDelay);
     }
+    public static void playSoundAt(Vector3 pos, World world, SoundCategory category, SoundEvent sound, float volume, float pitch) {
+        world.playSound(pos.x, pos.y, pos.z, sound, category, volume, pitch, false);
+    }
 
 }

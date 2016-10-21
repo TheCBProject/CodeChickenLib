@@ -96,9 +96,15 @@ public class RayTracer {
         return retrace(player, getBlockReachDistance(player));
     }
 
-    public static RayTraceResult retrace(EntityPlayer player, double reach) {
+    public static RayTraceResult retrace(EntityPlayer player, boolean stopOnFluid){
         Vec3d startVec = getStartVec(player);
         Vec3d endVec = getEndVec(player);
+        return player.worldObj.rayTraceBlocks(startVec, endVec, stopOnFluid, false, true);
+    }
+
+    public static RayTraceResult retrace(EntityPlayer player, double reach) {
+        Vec3d startVec = getStartVec(player);
+        Vec3d endVec = getEndVec(player, reach);
         return player.worldObj.rayTraceBlocks(startVec, endVec, true, false, true);
     }
 
@@ -119,6 +125,12 @@ public class RayTracer {
         Vec3d headVec = getCorrectedHeadVec(player);
         Vec3d lookVec = player.getLook(1.0F);
         double reach = getBlockReachDistance(player);
+        return headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
+    }
+
+    public static Vec3d getEndVec(EntityPlayer player, double reach) {
+        Vec3d headVec = getCorrectedHeadVec(player);
+        Vec3d lookVec = player.getLook(1.0F);
         return headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
     }
 }

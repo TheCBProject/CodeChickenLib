@@ -20,7 +20,7 @@ import java.util.List;
 public class ItemUtils {
 
     public static boolean isPlayerHoldingSomething(EntityPlayer player) {
-        return player.getHeldItemMainhand() != null && player.getHeldItemOffhand() != null;
+        return player.getHeldItemMainhand() != null || player.getHeldItemOffhand() != null;
     }
 
     public static ItemStack getHeldStack(EntityPlayer player) {
@@ -29,22 +29,6 @@ public class ItemUtils {
             stack = player.getHeldItemOffhand();
         }
         return stack;
-    }
-
-    /**
-     * Drops an item in the world at the given BlockPos
-     *
-     * @param world World to drop the item.
-     * @param pos   Location to drop item.
-     * @param stack ItemStack to drop.
-     */
-    public static void dropItem(World world, BlockPos pos, ItemStack stack) {
-        double xVelocity = world.rand.nextFloat() * 0.7D + (1.0D - 0.7D) * 0.5D;
-        double yVelocity = world.rand.nextFloat() * 0.7D + (1.0D - 0.7D) * 0.5D;
-        double zVelocity = world.rand.nextFloat() * 0.7D + (1.0D - 0.7D) * 0.5D;
-        EntityItem entityItem = new EntityItem(world, pos.getX() + xVelocity, pos.getY() + yVelocity, pos.getZ() + zVelocity, stack);
-        entityItem.setPickupDelay(10);
-        world.spawnEntityInWorld(entityItem);
     }
 
     /**
@@ -62,6 +46,17 @@ public class ItemUtils {
         EntityItem entityItem = new EntityItem(world, pos.getX() + xVelocity, pos.getY() + yVelocity, pos.getZ() + zVelocity, stack);
         entityItem.setPickupDelay(10);
         world.spawnEntityInWorld(entityItem);
+    }
+
+    /**
+     * Drops an item in the world at the given BlockPos
+     *
+     * @param world World to drop the item.
+     * @param pos   Location to drop item.
+     * @param stack ItemStack to drop.
+     */
+    public static void dropItem(World world, BlockPos pos, ItemStack stack) {
+        dropItem(world, pos, stack, 0.7D);
     }
 
     /**
