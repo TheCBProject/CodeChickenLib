@@ -39,14 +39,29 @@ public class ItemUtils {
      * @param stack ItemStack to drop.
      */
     public static void dropItem(World world, BlockPos pos, ItemStack stack) {
-        if (!world.isRemote) {
-            double xVelocity = world.rand.nextFloat() * 0.7D + (1.0D - 0.7D) * 0.5D;
-            double yVelocity = world.rand.nextFloat() * 0.7D + (1.0D - 0.7D) * 0.5D;
-            double zVelocity = world.rand.nextFloat() * 0.7D + (1.0D - 0.7D) * 0.5D;
-            EntityItem entityItem = new EntityItem(world, pos.getX() + xVelocity, pos.getY() + yVelocity, pos.getZ() + zVelocity, stack);
-            entityItem.setPickupDelay(10);
-            world.spawnEntityInWorld(entityItem);
-        }
+        double xVelocity = world.rand.nextFloat() * 0.7D + (1.0D - 0.7D) * 0.5D;
+        double yVelocity = world.rand.nextFloat() * 0.7D + (1.0D - 0.7D) * 0.5D;
+        double zVelocity = world.rand.nextFloat() * 0.7D + (1.0D - 0.7D) * 0.5D;
+        EntityItem entityItem = new EntityItem(world, pos.getX() + xVelocity, pos.getY() + yVelocity, pos.getZ() + zVelocity, stack);
+        entityItem.setPickupDelay(10);
+        world.spawnEntityInWorld(entityItem);
+    }
+
+    /**
+     * Drops an item in the world at the given BlockPos
+     *
+     * @param world    World to drop the item.
+     * @param pos      Location to drop item.
+     * @param stack    ItemStack to drop.
+     * @param velocity The velocity to add.
+     */
+    public static void dropItem(World world, BlockPos pos, ItemStack stack, double velocity) {
+        double xVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
+        double yVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
+        double zVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
+        EntityItem entityItem = new EntityItem(world, pos.getX() + xVelocity, pos.getY() + yVelocity, pos.getZ() + zVelocity, stack);
+        entityItem.setPickupDelay(10);
+        world.spawnEntityInWorld(entityItem);
     }
 
     /**

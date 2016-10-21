@@ -1,6 +1,7 @@
 package codechicken.lib.util;
 
 import codechicken.lib.vec.Vector3;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -46,6 +47,17 @@ public class BlockUtils {
      */
     public static void fireLightUpdate(World world, BlockPos position) {
         world.notifyLightSet(position);
+    }
+
+    /**
+     * Fires a block update.
+     * Assumes the BlockState has not changed but a update is still needed.
+     * @param world
+     * @param pos
+     */
+    public static void fireBlockUpdate(World world, BlockPos pos){
+        IBlockState state = world.getBlockState(pos);
+        world.notifyBlockUpdate(pos, state, state, 3);
     }
 
     /**
