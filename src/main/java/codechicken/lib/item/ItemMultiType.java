@@ -26,6 +26,7 @@ public class ItemMultiType extends Item {
     private int nextVariant = 0;
     @SideOnly(Side.CLIENT)
     private boolean hasRegistered = false;
+    private boolean registerToStackRegistry = false;
 
     /**
      * @param registryName The name to be registered with."
@@ -42,6 +43,11 @@ public class ItemMultiType extends Item {
     @Override
     public ItemMultiType setUnlocalizedName(String unlocalizedName) {
         super.setUnlocalizedName(unlocalizedName);
+        return this;
+    }
+
+    public ItemMultiType setUseStackRegistry(){
+        registerToStackRegistry = true;
         return this;
     }
 
@@ -83,6 +89,9 @@ public class ItemMultiType extends Item {
     public ItemStack registerSubItemOreDict(String name) {
         ItemStack stack = registerSubItem(nextVariant, name);
         OreDictionary.registerOre(name, stack);
+        if (registerToStackRegistry){
+            ItemStackRegistry.registerCustomItemStack(name, stack);
+        }
         return stack;
     }
 
