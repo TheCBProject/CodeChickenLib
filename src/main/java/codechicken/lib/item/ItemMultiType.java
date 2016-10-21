@@ -39,6 +39,12 @@ public class ItemMultiType extends Item {
         setMaxStackSize(64);
     }
 
+    @Override
+    public ItemMultiType setUnlocalizedName(String unlocalizedName) {
+        super.setUnlocalizedName(unlocalizedName);
+        return this;
+    }
+
     public ItemStack registerSubItem(int meta, String name) {
         if (names.containsKey(meta)) {
             FMLLog.warning("[ItemMultiType.%s]: Variant %s with meta %s is already registered to %s with meta %s", getRegistryName(), name, meta, names.get(meta), meta);
