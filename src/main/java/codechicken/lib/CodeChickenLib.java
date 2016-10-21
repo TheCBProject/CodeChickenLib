@@ -1,9 +1,11 @@
 package codechicken.lib;
 
 import codechicken.lib.render.CCRenderEventHandler;
+import codechicken.lib.util.FuelUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
 /**
@@ -19,6 +21,7 @@ public class CodeChickenLib {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+        GameRegistry.registerFuelHandler(new FuelUtils());
         if (event.getSide().equals(Side.CLIENT)){
             CCRenderEventHandler.init();
         }

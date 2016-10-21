@@ -2,6 +2,7 @@ package codechicken.lib.util;
 
 import codechicken.lib.inventory.InventoryUtils;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -17,6 +18,18 @@ import java.util.List;
  * Created by covers1624 on 6/30/2016.
  */
 public class ItemUtils {
+
+    public static boolean isPlayerHoldingSomething(EntityPlayer player) {
+        return player.getHeldItemMainhand() != null && player.getHeldItemOffhand() != null;
+    }
+
+    public static ItemStack getHeldStack(EntityPlayer player) {
+        ItemStack stack = player.getHeldItemMainhand();
+        if (stack == null) {
+            stack = player.getHeldItemOffhand();
+        }
+        return stack;
+    }
 
     /**
      * Drops an item in the world at the given BlockPos
@@ -79,25 +92,25 @@ public class ItemUtils {
         entity.motionZ = 0.0;
 
         switch (dir) {
-        case DOWN:
-            entity.motionY = -0.3;
-            break;
-        case UP:
-            entity.motionY = 0.3;
-            break;
-        case NORTH:
-            entity.motionZ = -0.3;
-            break;
-        case SOUTH:
-            entity.motionZ = 0.3;
-            break;
-        case WEST:
-            entity.motionX = -0.3;
-            break;
-        case EAST:
-            entity.motionX = 0.3;
-            break;
-        default:
+            case DOWN:
+                entity.motionY = -0.3;
+                break;
+            case UP:
+                entity.motionY = 0.3;
+                break;
+            case NORTH:
+                entity.motionZ = -0.3;
+                break;
+            case SOUTH:
+                entity.motionZ = 0.3;
+                break;
+            case WEST:
+                entity.motionX = -0.3;
+                break;
+            case EAST:
+                entity.motionX = 0.3;
+                break;
+            default:
         }
 
         entity.setPickupDelay(10);

@@ -34,7 +34,7 @@ public class BlockUtils {
      * @param range  Range to check.
      * @return True if entity in range.
      */
-    public static boolean isEntityInRage(BlockPos pos, Entity entity, int range) {
+    public static boolean isEntityInRange(BlockPos pos, Entity entity, int range) {
         return entity.getDistanceSq(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= range;
     }
 
