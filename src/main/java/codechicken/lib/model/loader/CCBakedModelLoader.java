@@ -172,7 +172,10 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
 
         @Override
         public void execute() {
-            Map<String, IModKeyProvider> localQue = new HashMap<String, IModKeyProvider>(modelBakeQue);
+            Map<String, IModKeyProvider> localQue;
+            synchronized (modelBakeQue){
+                localQue = new HashMap<String, IModKeyProvider>(modelBakeQue);
+            }
             Iterator<Entry<String, IModKeyProvider>> queIterator = localQue.entrySet().iterator();
             while (queIterator.hasNext()) {
                 if (interrupted()) {
