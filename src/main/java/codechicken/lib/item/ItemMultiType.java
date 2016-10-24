@@ -69,6 +69,9 @@ public class ItemMultiType extends Item {
     public ItemStack registerSubItemOreDict(int meta, String name) {
         ItemStack stack = registerSubItem(meta, name);
         OreDictionary.registerOre(name, stack);
+        if (registerToStackRegistry){
+            ItemStackRegistry.registerCustomItemStack(name, stack);
+        }
         return stack;
     }
 
