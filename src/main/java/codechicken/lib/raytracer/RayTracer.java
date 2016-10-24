@@ -101,11 +101,14 @@ public class RayTracer {
         Vec3d endVec = getEndVec(player);
         return player.worldObj.rayTraceBlocks(startVec, endVec, stopOnFluid, false, true);
     }
-
-    public static RayTraceResult retrace(EntityPlayer player, double reach) {
+    public static RayTraceResult retrace(EntityPlayer player, double reach, boolean stopOnFluids) {
         Vec3d startVec = getStartVec(player);
         Vec3d endVec = getEndVec(player, reach);
-        return player.worldObj.rayTraceBlocks(startVec, endVec, true, false, true);
+        return player.worldObj.rayTraceBlocks(startVec, endVec, stopOnFluids, false, true);
+    }
+
+    public static RayTraceResult retrace(EntityPlayer player, double reach) {
+        return retrace(player, reach, true);
     }
 
     public static Vec3d getCorrectedHeadVec(EntityPlayer player) {

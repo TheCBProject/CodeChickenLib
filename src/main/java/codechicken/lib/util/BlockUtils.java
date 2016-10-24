@@ -54,7 +54,7 @@ public class BlockUtils {
      * Assumes the BlockState has not changed but a update is still needed.
      * @param world
      * @param pos
-     */
+     *///TODO fireBlockUpdate(TileEntity).
     public static void fireBlockUpdate(World world, BlockPos pos){
         IBlockState state = world.getBlockState(pos);
         world.notifyBlockUpdate(pos, state, state, 3);
