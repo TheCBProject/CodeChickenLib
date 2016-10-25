@@ -59,6 +59,7 @@ public class CCRenderState {
             return new CCRenderState();
         }
     };
+    private static final CCRenderState bakingRenderState = new CCRenderState();
 
     //pipeline state
     public IVertexSource model;
@@ -96,6 +97,10 @@ public class CCRenderState {
 
     public static CCRenderState instance() {
         return instances.get();
+    }
+
+    public static CCRenderState getBakingRenderState() {
+        return bakingRenderState;
     }
 
     public void reset() {

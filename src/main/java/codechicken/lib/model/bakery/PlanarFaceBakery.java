@@ -1,0 +1,179 @@
+package codechicken.lib.model.bakery;
+
+import codechicken.lib.colour.Colour;
+import codechicken.lib.colour.ColourRGBA;
+import codechicken.lib.util.VertexDataUtils;
+import codechicken.lib.vec.Cuboid6;
+import codechicken.lib.vec.Vector3;
+import codechicken.lib.vec.Vertex5;
+import codechicken.lib.vec.uv.IconTransformation;
+import codechicken.lib.vec.uv.UV;
+import codechicken.lib.vec.uv.UVTransformation;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
+
+/**
+ * Created by covers1624 on 26/10/2016.
+ */
+public class PlanarFaceBakery {
+
+
+
+    public static BakedQuad bakeFace(EnumFacing face, TextureAtlasSprite sprite, VertexFormat format){
+        ColourRGBA colour = new ColourRGBA(0xFFFFFFFF);
+        UVTransformation t = new IconTransformation(sprite);
+
+        double x1 = Cuboid6.full.min.x;
+        double x2 = Cuboid6.full.max.x;
+        double y1 = Cuboid6.full.min.y;
+        double y2 = Cuboid6.full.max.y;
+        double z1 = Cuboid6.full.min.z;
+        double z2 = Cuboid6.full.max.z;
+        double u1;
+        double u2;
+        double v1;
+        double v2;
+        Vertex5 vert1;
+        Vertex5 vert2;
+        Vertex5 vert3;
+        Vertex5 vert4;
+
+        switch (face){
+            case DOWN:
+                u1 = x1;
+                v1 = z1;
+                u2 = x2;
+                v2 = z2;
+                vert1 = new Vertex5(x1, y1, z2, u1, v2);
+                vert2 = new Vertex5(x1, y1, z1, u1, v1);
+                vert3 = new Vertex5(x2, y1, z1, u2, v1);
+                vert4 = new Vertex5(x2, y1, z2, u2, v2);
+                t.apply(vert1.uv);
+                t.apply(vert2.uv);
+                t.apply(vert3.uv);
+                t.apply(vert4.uv);
+                return buildQuad(format, sprite, face, colour, vert1, vert2, vert3, vert4);
+            case UP:
+                u1 = x1;
+                v1 = z1;
+                u2 = x2;
+                v2 = z2;
+                vert1 = new Vertex5(x2, y2, z2, u2, v2);
+                vert2 = new Vertex5(x2, y2, z1, u2, v1);
+                vert3 = new Vertex5(x1, y2, z1, u1, v1);
+                vert4 = new Vertex5(x1, y2, z2, u1, v2);
+                t.apply(vert1.uv);
+                t.apply(vert2.uv);
+                t.apply(vert3.uv);
+                t.apply(vert4.uv);
+                return buildQuad(format, sprite, face, colour, vert1, vert2, vert3, vert4);
+            case NORTH:
+                u1 = 1 - x1;
+                v1 = 1 - y2;
+                u2 = 1 - x2;
+                v2 = 1 - y1;
+                vert1 = new Vertex5(x1, y1, z1, u1, v2);
+                vert2 = new Vertex5(x1, y2, z1, u1, v1);
+                vert3 = new Vertex5(x2, y2, z1, u2, v1);
+                vert4 = new Vertex5(x2, y1, z1, u2, v2);
+                t.apply(vert1.uv);
+                t.apply(vert2.uv);
+                t.apply(vert3.uv);
+                t.apply(vert4.uv);
+                return buildQuad(format, sprite, face, colour, vert1, vert2, vert3, vert4);
+            case SOUTH:
+                u1 = x1;
+                v1 = 1 - y2;
+                u2 = x2;
+                v2 = 1 - y1;
+                vert1 = new Vertex5(x2, y1, z2, u2, v2);
+                vert2 = new Vertex5(x2, y2, z2, u2, v1);
+                vert3 = new Vertex5(x1, y2, z2, u1, v1);
+                vert4 = new Vertex5(x1, y1, z2, u1, v2);
+                t.apply(vert1.uv);
+                t.apply(vert2.uv);
+                t.apply(vert3.uv);
+                t.apply(vert4.uv);
+                return buildQuad(format, sprite, face, colour, vert1, vert2, vert3, vert4);
+            case WEST:
+                u1 = z1;
+                v1 = 1 - y2;
+                u2 = z2;
+                v2 = 1 - y1;
+                vert1 = new Vertex5(x1, y1, z2, u2, v2);
+                vert2 = new Vertex5(x1, y2, z2, u2, v1);
+                vert3 = new Vertex5(x1, y2, z1, u1, v1);
+                vert4 = new Vertex5(x1, y1, z1, u1, v2);
+                t.apply(vert1.uv);
+                t.apply(vert2.uv);
+                t.apply(vert3.uv);
+                t.apply(vert4.uv);
+                return buildQuad(format, sprite, face, colour, vert1, vert2, vert3, vert4);
+
+            case EAST:
+                u1 = 1 - z1;
+                v1 = 1 - y2;
+                u2 = 1 - z2;
+                v2 = 1 - y1;
+                vert1 = new Vertex5(x2, y1, z1, u1, v2);
+                vert2 = new Vertex5(x2, y2, z1, u1, v1);
+                vert3 = new Vertex5(x2, y2, z2, u2, v1);
+                vert4 = new Vertex5(x2, y1, z2, u2, v2);
+                t.apply(vert1.uv);
+                t.apply(vert2.uv);
+                t.apply(vert3.uv);
+                t.apply(vert4.uv);
+                return buildQuad(format, sprite, face, colour, vert1, vert2, vert3, vert4);
+        }
+        //This case will never happen. only here due to INTELLIJ NOT SHUTING UP ABOUT POTENTIAL NULLPOINTERS!
+        return new BakedQuad(null, 1, null, null, true, null);
+    }
+
+
+
+    private static BakedQuad buildQuad(VertexFormat format, TextureAtlasSprite sprite, EnumFacing face, Colour colour, Vertex5 v1, Vertex5 v2, Vertex5 v3, Vertex5 v4){
+        UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(format);
+        builder.setQuadTint(-1);
+        builder.setQuadOrientation(face);
+        builder.setTexture(sprite);
+
+        putVertex(builder, format, face, v1, colour);
+        putVertex(builder, format, face, v2, colour);
+        putVertex(builder, format, face, v3, colour);
+        putVertex(builder, format, face, v4, colour);
+
+        return VertexDataUtils.copyQuad(builder.build());
+    }
+
+
+    private static void putVertex(UnpackedBakedQuad.Builder builder, VertexFormat format, EnumFacing face, Vertex5 vert, Colour colour) {
+        for (int e = 0; e < format.getElementCount(); e++) {
+            VertexFormatElement element = format.getElement(e);
+            switch (element.getUsage()) {
+
+                case POSITION:
+                    Vector3 vec = vert.vec;
+                    builder.put(e, (float) vec.x, (float) vec.y, (float) vec.z, 1);
+                    break;
+                case NORMAL:
+                    builder.put(e, face.getFrontOffsetX(), face.getFrontOffsetY(), face.getFrontOffsetZ(), 0);
+                    break;
+                case COLOR:
+                    builder.put(e, (colour.r & 0xFF) / 255, (colour.g & 0xFF) / 255, (colour.b & 0xFF) / 255, (colour.a & 0xFF) / 255);
+                    break;
+                case UV:
+                    UV uv = vert.uv;
+                    builder.put(e, (float) uv.u, (float) uv.v, 0, 1);
+                    break;
+                default:
+                    builder.put(e);
+                    break;
+            }
+        }
+    }
+
+}

@@ -2,11 +2,13 @@ package codechicken.lib.util;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.vec.uv.UV;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
+import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
 /**
  * Created by covers1624 on 4/10/2016.
@@ -92,6 +94,15 @@ public class VertexDataUtils {
             }
         }
         return textureMap.getMissingSprite();
+    }
+
+    /**
+     * Copies the data from a UnpackedBakedQuad to a normal baked quad to save space in ram.
+     * @param quad The UnpackedBakedQuad to copy from.
+     * @return The copied BakedQuad.
+     */
+    public static BakedQuad copyQuad(UnpackedBakedQuad quad){
+        return new BakedQuad(quad.getVertexData(), quad.getTintIndex(), quad.getFace(), quad.getSprite(), quad.shouldApplyDiffuseLighting(), quad.getFormat());
     }
 
 }

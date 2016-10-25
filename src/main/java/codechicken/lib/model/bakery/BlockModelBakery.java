@@ -6,11 +6,13 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.util.EnumFacing;
 
 import java.util.LinkedList;
 
 /**
  * Created by covers1624 on 8/3/2016.
+ * TODO, Move the back end of this to the BakingVertexBuffer wrapped through the CCL render pipe.
  */
 public class BlockModelBakery {
 
@@ -80,6 +82,30 @@ public class BlockModelBakery {
         this.renderMinZ = minZ;
         this.renderMaxZ = maxZ;
 
+    }
+
+    public void bakeFace(TextureAtlasSprite sprite, EnumFacing face){
+        switch (face){
+
+            case DOWN:
+                bakeFaceYNeg(sprite);
+                break;
+            case UP:
+                bakeFaceYPos(sprite);
+                break;
+            case NORTH:
+                bakeFaceZNeg(sprite);
+                break;
+            case SOUTH:
+                bakeFaceZPos(sprite);
+                break;
+            case WEST:
+                bakeFaceXNeg(sprite);
+                break;
+            case EAST:
+                bakeFaceXPos(sprite);
+                break;
+        }
     }
 
     public void bakeFaceYNeg(TextureAtlasSprite sprite) {

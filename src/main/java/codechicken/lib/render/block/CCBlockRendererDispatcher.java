@@ -2,8 +2,11 @@ package codechicken.lib.render.block;
 
 import codechicken.lib.texture.TextureUtils;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.BlockModelRenderer;
+import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -68,5 +71,20 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher implement
     @Override
     public void registerIcons(TextureMap textureMap) {
         BlockRenderingRegistry.registerTextures(textureMap);
+    }
+
+    @Override
+    public BlockModelRenderer getBlockModelRenderer() {
+        return parentDispatcher.getBlockModelRenderer();
+    }
+
+    @Override
+    public IBakedModel getModelForState(IBlockState state) {
+        return parentDispatcher.getModelForState(state);
+    }
+
+    @Override
+    public BlockModelShapes getBlockModelShapes() {
+        return parentDispatcher.getBlockModelShapes();
     }
 }
