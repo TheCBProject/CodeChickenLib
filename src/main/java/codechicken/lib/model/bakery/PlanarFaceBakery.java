@@ -52,11 +52,7 @@ public class PlanarFaceBakery {
                 vert2 = new Vertex5(x1, y1, z1, u1, v1);
                 vert3 = new Vertex5(x2, y1, z1, u2, v1);
                 vert4 = new Vertex5(x2, y1, z2, u2, v2);
-                t.apply(vert1.uv);
-                t.apply(vert2.uv);
-                t.apply(vert3.uv);
-                t.apply(vert4.uv);
-                return buildQuad(format, sprite, face, colour, vert1, vert2, vert3, vert4);
+                return buildQuad(format, sprite, face, colour, t, vert1, vert2, vert3, vert4);
             case UP:
                 u1 = x1;
                 v1 = z1;
@@ -66,11 +62,7 @@ public class PlanarFaceBakery {
                 vert2 = new Vertex5(x2, y2, z1, u2, v1);
                 vert3 = new Vertex5(x1, y2, z1, u1, v1);
                 vert4 = new Vertex5(x1, y2, z2, u1, v2);
-                t.apply(vert1.uv);
-                t.apply(vert2.uv);
-                t.apply(vert3.uv);
-                t.apply(vert4.uv);
-                return buildQuad(format, sprite, face, colour, vert1, vert2, vert3, vert4);
+                return buildQuad(format, sprite, face, colour, t, vert1, vert2, vert3, vert4);
             case NORTH:
                 u1 = 1 - x1;
                 v1 = 1 - y2;
@@ -80,11 +72,7 @@ public class PlanarFaceBakery {
                 vert2 = new Vertex5(x1, y2, z1, u1, v1);
                 vert3 = new Vertex5(x2, y2, z1, u2, v1);
                 vert4 = new Vertex5(x2, y1, z1, u2, v2);
-                t.apply(vert1.uv);
-                t.apply(vert2.uv);
-                t.apply(vert3.uv);
-                t.apply(vert4.uv);
-                return buildQuad(format, sprite, face, colour, vert1, vert2, vert3, vert4);
+                return buildQuad(format, sprite, face, colour, t, vert1, vert2, vert3, vert4);
             case SOUTH:
                 u1 = x1;
                 v1 = 1 - y2;
@@ -94,11 +82,7 @@ public class PlanarFaceBakery {
                 vert2 = new Vertex5(x2, y2, z2, u2, v1);
                 vert3 = new Vertex5(x1, y2, z2, u1, v1);
                 vert4 = new Vertex5(x1, y1, z2, u1, v2);
-                t.apply(vert1.uv);
-                t.apply(vert2.uv);
-                t.apply(vert3.uv);
-                t.apply(vert4.uv);
-                return buildQuad(format, sprite, face, colour, vert1, vert2, vert3, vert4);
+                return buildQuad(format, sprite, face, colour, t, vert1, vert2, vert3, vert4);
             case WEST:
                 u1 = z1;
                 v1 = 1 - y2;
@@ -108,11 +92,7 @@ public class PlanarFaceBakery {
                 vert2 = new Vertex5(x1, y2, z2, u2, v1);
                 vert3 = new Vertex5(x1, y2, z1, u1, v1);
                 vert4 = new Vertex5(x1, y1, z1, u1, v2);
-                t.apply(vert1.uv);
-                t.apply(vert2.uv);
-                t.apply(vert3.uv);
-                t.apply(vert4.uv);
-                return buildQuad(format, sprite, face, colour, vert1, vert2, vert3, vert4);
+                return buildQuad(format, sprite, face, colour, t, vert1, vert2, vert3, vert4);
 
             case EAST:
                 u1 = 1 - z1;
@@ -123,24 +103,23 @@ public class PlanarFaceBakery {
                 vert2 = new Vertex5(x2, y2, z1, u1, v1);
                 vert3 = new Vertex5(x2, y2, z2, u2, v1);
                 vert4 = new Vertex5(x2, y1, z2, u2, v2);
-                t.apply(vert1.uv);
-                t.apply(vert2.uv);
-                t.apply(vert3.uv);
-                t.apply(vert4.uv);
-                return buildQuad(format, sprite, face, colour, vert1, vert2, vert3, vert4);
+                return buildQuad(format, sprite, face, colour, t, vert1, vert2, vert3, vert4);
         }
         //This case will never happen. only here due to INTELLIJ NOT SHUTING UP ABOUT POTENTIAL NULLPOINTERS!
         return new BakedQuad(null, 1, null, null, true, null);
     }
 
 
-
-    private static BakedQuad buildQuad(VertexFormat format, TextureAtlasSprite sprite, EnumFacing face, Colour colour, Vertex5 v1, Vertex5 v2, Vertex5 v3, Vertex5 v4){
+    private static BakedQuad buildQuad(VertexFormat format, TextureAtlasSprite sprite, EnumFacing face, Colour colour, UVTransformation t, Vertex5 v1, Vertex5 v2, Vertex5 v3, Vertex5 v4){
         UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(format);
         builder.setQuadTint(-1);
         builder.setQuadOrientation(face);
         builder.setTexture(sprite);
 
+        t.apply(v1.uv);
+        t.apply(v2.uv);
+        t.apply(v3.uv);
+        t.apply(v4.uv);
         putVertex(builder, format, face, v1, colour);
         putVertex(builder, format, face, v2, colour);
         putVertex(builder, format, face, v3, colour);
