@@ -14,7 +14,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 /**
  * Created by covers1624 on 12/10/2016.
  */
-@Mod(modid = CodeChickenLib.MOD_ID, name = CodeChickenLib.MOD_NAME, acceptedMinecraftVersions = CodeChickenLib.mcVersion, version = CodeChickenLib.version)
+@Mod(modid = CodeChickenLib.MOD_ID, name = CodeChickenLib.MOD_NAME, acceptedMinecraftVersions = CodeChickenLib.mcVersion)
 public class CodeChickenLib {
 
     public static final String MOD_ID = "CodeChickenLib";
