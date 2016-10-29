@@ -21,10 +21,15 @@ import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
  */
 public class PlanarFaceBakery {
 
+    public static BakedQuad bakeFace(EnumFacing face, TextureAtlasSprite sprite, VertexFormat format) {
+        return bakeFace(face, sprite, format, 0xFFFFFFFF);
+    }
 
+    public static BakedQuad bakeFace(EnumFacing face, TextureAtlasSprite sprite, VertexFormat format, int colour) {
+        return bakeFace(face, sprite, format, new ColourRGBA(colour));
+    }
 
-    public static BakedQuad bakeFace(EnumFacing face, TextureAtlasSprite sprite, VertexFormat format){
-        ColourRGBA colour = new ColourRGBA(0xFFFFFFFF);
+    public static BakedQuad bakeFace(EnumFacing face, TextureAtlasSprite sprite, VertexFormat format, Colour colour) {
         UVTransformation t = new IconTransformation(sprite);
 
         double x1 = Cuboid6.full.min.x;
@@ -42,7 +47,7 @@ public class PlanarFaceBakery {
         Vertex5 vert3;
         Vertex5 vert4;
 
-        switch (face){
+        switch (face) {
             case DOWN:
                 u1 = x1;
                 v1 = z1;
@@ -109,8 +114,7 @@ public class PlanarFaceBakery {
         return new BakedQuad(null, 1, null, null, true, null);
     }
 
-
-    private static BakedQuad buildQuad(VertexFormat format, TextureAtlasSprite sprite, EnumFacing face, Colour colour, UVTransformation t, Vertex5 v1, Vertex5 v2, Vertex5 v3, Vertex5 v4){
+    private static BakedQuad buildQuad(VertexFormat format, TextureAtlasSprite sprite, EnumFacing face, Colour colour, UVTransformation t, Vertex5 v1, Vertex5 v2, Vertex5 v3, Vertex5 v4) {
         UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(format);
         builder.setQuadTint(-1);
         builder.setQuadOrientation(face);
@@ -127,7 +131,6 @@ public class PlanarFaceBakery {
 
         return VertexDataUtils.copyQuad(builder.build());
     }
-
 
     private static void putVertex(UnpackedBakedQuad.Builder builder, VertexFormat format, EnumFacing face, Vertex5 vert, Colour colour) {
         for (int e = 0; e < format.getElementCount(); e++) {

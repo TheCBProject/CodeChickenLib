@@ -23,7 +23,6 @@ public class ItemStackRegistry {
 
     public static void registerCustomItemStack(String name, ItemStack stack) {
         stackRegistry.put(Loader.instance().activeModContainer().getModId(), name, stack);
-        FMLLog.info(new ResourceLocation(Loader.instance().activeModContainer().getModId().toLowerCase(), name).toString() + " : " + stack.getDisplayName());
     }
 
     public static ItemStack findItemStack(String modId, String name, int stackSize){
