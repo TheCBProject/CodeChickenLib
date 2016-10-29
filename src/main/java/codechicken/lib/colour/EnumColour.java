@@ -18,7 +18,7 @@ public enum EnumColour implements IStringSerializable {
     LIME      ("lime",       "dyeLime",      "item.fireworksCharge.lime",      0x6BF100),
     PINK      ("pink",       "dyePink",      "item.fireworksCharge.pink",      0xF14675),
     GRAY      ("gray",       "dyeGray",      "item.fireworksCharge.gray",      0x535353),
-    LIGHT_GRAY("light_gray", "dyeLightDray", "item.fireworksCharge.silver",    0x939393),
+    LIGHT_GRAY("light_gray", "dyeLightGray", "item.fireworksCharge.silver",    0x939393),
     CYAN      ("cyan",       "dyeCyan",      "item.fireworksCharge.cyan",      0x008787),
     PURPLE    ("purple",     "dyePurple",    "item.fireworksCharge.purple",    0x5E00C0),
     BLUE      ("blue",       "dyeBlue",      "item.fireworksCharge.blue",      0x1313C0),
