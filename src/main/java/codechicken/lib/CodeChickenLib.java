@@ -2,6 +2,7 @@ package codechicken.lib;
 
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.CCExtendedBlockRendererDispatcher;
+import codechicken.lib.render.item.CCRenderItem;
 import codechicken.lib.util.FuelUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -34,6 +35,7 @@ public class CodeChickenLib {
     @SideOnly(Side.CLIENT)
     public void init(FMLInitializationEvent event){
         CCExtendedBlockRendererDispatcher.init();
+        CCRenderItem.init();
     }
 
 }

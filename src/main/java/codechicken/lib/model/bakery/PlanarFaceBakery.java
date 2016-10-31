@@ -164,7 +164,7 @@ public class PlanarFaceBakery {
         }
     }
 
-    public static List<BakedQuad> shadeQuadFaces(BakedQuad... quads){
+    public static List<BakedQuad> shadeQuadFaces(BakedQuad... quads) {
         return shadeQuadFaces(Arrays.asList(quads));
     }
 

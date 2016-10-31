@@ -14,4 +14,6 @@ public interface IItemRenderer extends IBakedModel {
      * @param item Stack to render.
      */
     void renderItem(ItemStack item);
+
+    //boolean shouldHandleRender(ItemStack stack);
 }
