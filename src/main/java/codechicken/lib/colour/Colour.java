@@ -66,6 +66,8 @@ public abstract class Colour implements Copyable<Colour> {
 
     public abstract int pack();
 
+    public abstract float[] packArray();
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[0x" + Integer.toHexString(pack()).toUpperCase() + "]";

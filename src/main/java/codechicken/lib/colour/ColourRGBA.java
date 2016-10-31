@@ -13,12 +13,20 @@ public class ColourRGBA extends Colour {
         super(r, g, b, a);
     }
 
+    public ColourRGBA(float[] data) {
+        this(data[0], data[1], data[2], data[3]);
+    }
+
     public ColourRGBA(ColourRGBA colour) {
         super(colour);
     }
 
     public int pack() {
         return pack(this);
+    }
+
+    public float[] packArray() {
+        return new float[] { (r & 0xFF) / 255, (g & 0xFF) / 255, (b & 0xFF) / 255, (a & 0xFF) / 255 };
     }
 
     @Override

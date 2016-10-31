@@ -26,6 +26,10 @@ public class ColourARGB extends Colour {
         return pack(this);
     }
 
+    public float[] packArray() {
+        return new float[] { (a & 0xFF) / 255, (r & 0xFF) / 255, (g & 0xFF) / 255, (b & 0xFF) / 255 };
+    }
+
     public static int pack(Colour colour) {
         return (colour.a & 0xFF) << 24 | (colour.r & 0xFF) << 16 | (colour.g & 0xFF) << 8 | (colour.b & 0xFF);
     }
