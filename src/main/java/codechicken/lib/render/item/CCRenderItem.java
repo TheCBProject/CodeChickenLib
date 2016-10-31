@@ -12,9 +12,13 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.crash.CrashReport;
+import net.minecraft.crash.CrashReportCategory;
+import net.minecraft.crash.ICrashReportDetail;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ReportedException;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
@@ -27,6 +31,8 @@ import javax.annotation.Nullable;
 public class CCRenderItem extends RenderItem {
 
     private final RenderItem parent;
+    private static CCRenderItem instance;
+    private static boolean hasInit;
 
     public CCRenderItem(RenderItem renderItem) {
         super(renderItem.textureManager, renderItem.itemModelMesher.getModelManager(), renderItem.itemColors);
@@ -34,10 +40,18 @@ public class CCRenderItem extends RenderItem {
         this.parent = renderItem;
     }
 
-    public static void init(){
-        CCRenderItem renderItem = new CCRenderItem(Minecraft.getMinecraft().getRenderItem());
-        ObfMapping mapping = new ObfMapping("net/minecraft/client/Minecraft", "field_175621_X", "");
-        ReflectionManager.setField(mapping, Minecraft.getMinecraft(), renderItem);
+    public static void init() {
+        if (!hasInit) {
+            instance = new CCRenderItem(Minecraft.getMinecraft().getRenderItem());
+            ObfMapping mapping = new ObfMapping("net/minecraft/client/Minecraft", "field_175621_X", "");
+            ReflectionManager.setField(mapping, Minecraft.getMinecraft(), instance);
+            hasInit = true;
+        }
+    }
+
+    public static CCRenderItem instance(){
+        init();
+        return instance;
     }
 
     @Override
@@ -76,10 +90,14 @@ public class CCRenderItem extends RenderItem {
         return model;
     }
 
+    private boolean isValidModel(IBakedModel model) {
+        return model instanceof IItemRenderer || model instanceof IGLTransform || model instanceof IMatrixTransform;
+    }
+
     @Override
     public void renderItemModel(ItemStack stack, IBakedModel bakedModel, TransformType transform, boolean leftHanded) {
         if (stack.getItem() != null) {
-            if (bakedModel instanceof IItemRenderer || bakedModel instanceof IGLTransform || bakedModel instanceof IMatrixTransform) {
+            if (isValidModel(bakedModel)) {
                 this.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
                 this.textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -106,7 +124,7 @@ public class CCRenderItem extends RenderItem {
 
     @Override
     public void renderItemModelIntoGUI(ItemStack stack, int x, int y, IBakedModel bakedModel) {
-        if (bakedModel instanceof IItemRenderer || bakedModel instanceof IGLTransform || bakedModel instanceof IMatrixTransform) {
+        if (isValidModel(bakedModel)) {
             GlStateManager.pushMatrix();
             this.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
             this.textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
@@ -129,6 +147,90 @@ public class CCRenderItem extends RenderItem {
             parent.renderItemModelIntoGUI(stack, x, y, bakedModel);
         }
     }
+
+    // region Other Overrides
+
+    @Override
+    public void renderItem(ItemStack stack, TransformType cameraTransformType) {
+        if (stack != null) {
+            IBakedModel bakedModel = this.getItemModelWithOverrides(stack, (World) null, (EntityLivingBase) null);
+            if (isValidModel(bakedModel)) {
+                this.renderItemModel(stack, bakedModel, cameraTransformType, false);
+            }
+            parent.renderItem(stack, cameraTransformType);
+        }
+    }
+
+    @Override
+    public void renderItem(ItemStack stack, EntityLivingBase livingBase, TransformType transform, boolean leftHanded) {
+        if (stack != null && livingBase != null && stack.getItem() != null) {
+            IBakedModel bakedModel = this.getItemModelWithOverrides(stack, livingBase.worldObj, livingBase);
+            if (isValidModel(bakedModel)) {
+                this.renderItemModel(stack, bakedModel, transform, leftHanded);
+            } else {
+                parent.renderItem(stack, livingBase, transform, leftHanded);
+            }
+        }
+    }
+
+    @Override
+    public void renderItemIntoGUI(ItemStack stack, int x, int y) {
+        IBakedModel bakedModel = this.getItemModelWithOverrides(stack, (World) null, (EntityLivingBase) null);
+        if (isValidModel(bakedModel)) {
+            this.renderItemModelIntoGUI(stack, x, y, bakedModel);
+        } else {
+            parent.renderItemIntoGUI(stack, x, y);
+        }
+    }
+
+    @Override
+    public void renderItemAndEffectIntoGUI(ItemStack stack, int xPosition, int yPosition) {
+        this.renderItemAndEffectIntoGUI(Minecraft.getMinecraft().thePlayer, stack, xPosition, yPosition);
+    }
+
+    @Override
+    public void renderItemAndEffectIntoGUI(@Nullable EntityLivingBase livingBase, final ItemStack stack, int x, int y) {
+        if (stack != null && stack.getItem() != null) {
+            try {
+
+                IBakedModel model = this.getItemModelWithOverrides(stack, (World) null, livingBase);
+                if (isValidModel(model)) {
+                    this.zLevel += 50.0F;
+                    this.renderItemModelIntoGUI(stack, x, y, model);
+                    this.zLevel -= 50.0F;
+                } else {
+                    parent.renderItemAndEffectIntoGUI(livingBase, stack, x, y);
+                }
+
+            } catch (Throwable throwable) {
+                CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Rendering item");
+                CrashReportCategory crashreportcategory = crashreport.makeCategory("Item being rendered");
+                crashreportcategory.setDetail("Item Type", new ICrashReportDetail<String>() {
+                    public String call() throws Exception {
+                        return String.valueOf((Object) stack.getItem());
+                    }
+                });
+                crashreportcategory.setDetail("Item Aux", new ICrashReportDetail<String>() {
+                    public String call() throws Exception {
+                        return String.valueOf(stack.getMetadata());
+                    }
+                });
+                crashreportcategory.setDetail("Item NBT", new ICrashReportDetail<String>() {
+                    public String call() throws Exception {
+                        return String.valueOf((Object) stack.getTagCompound());
+                    }
+                });
+                crashreportcategory.setDetail("Item Foil", new ICrashReportDetail<String>() {
+                    public String call() throws Exception {
+                        return String.valueOf(stack.hasEffect());
+                    }
+                });
+                throw new ReportedException(crashreport);
+            }
+        }
+    }
+
+    // endregion
 
     // region parentOverrides
     @Override
