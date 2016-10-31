@@ -13,8 +13,14 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by covers1624 on 26/10/2016.
@@ -156,6 +162,60 @@ public class PlanarFaceBakery {
                     break;
             }
         }
+    }
+
+    public static List<BakedQuad> shadeQuadFaces(BakedQuad... quads){
+        return shadeQuadFaces(Arrays.asList(quads));
+    }
+
+    public static List<BakedQuad> shadeQuadFaces(List<BakedQuad> quads) {
+        LinkedList<BakedQuad> shadedQuads = new LinkedList<BakedQuad>();
+        for (BakedQuad quad : quads) {
+            int[] rawData = quad.getVertexData();
+            for (int v = 0; v < 4; v++) {
+                for (int e = 0; e < quad.getFormat().getElementCount(); e++) {
+                    VertexFormatElement element = quad.getFormat().getElement(e);
+                    if (element.getUsage() == EnumUsage.COLOR) {
+                        float[] data = new float[4];
+                        LightUtil.unpack(rawData, data, quad.getFormat(), v, e);
+
+                        data = diffuseFaceLight(quad.getFace(), data);
+
+                        LightUtil.pack(data, rawData, quad.getFormat(), v, e);
+                    }
+                }
+            }
+            shadedQuads.add(new BakedQuad(rawData, quad.getTintIndex(), quad.getFace(), quad.getSprite(), quad.shouldApplyDiffuseLighting(), quad.getFormat()));
+        }
+
+        return shadedQuads;
+    }
+
+    private static float[] diffuseFaceLight(EnumFacing face, float[] colour) {
+        double diffuse;
+        switch (face) {
+            case DOWN:
+                diffuse = 0.5D;
+                break;
+            case NORTH:
+            case SOUTH:
+                diffuse = 0.8D;
+                break;
+            case WEST:
+            case EAST:
+                diffuse = 0.6D;
+                break;
+            case UP:
+            default:
+                diffuse = 1.0D;
+                break;
+        }
+
+        colour[0] *= diffuse;
+        colour[1] *= diffuse;
+        colour[2] *= diffuse;
+
+        return colour;
     }
 
 }
