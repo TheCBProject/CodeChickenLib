@@ -24,7 +24,6 @@ public class ItemMultiType extends Item {
     private HashMap<Integer, String> names = new HashMap<Integer, String>();
     private HashMap<Integer, EnumRarity> rarityMap = new HashMap<Integer, EnumRarity>();
     private int nextVariant = 0;
-    @SideOnly(Side.CLIENT)
     private boolean hasRegistered = false;
     private boolean registerToStackRegistry = false;
 
