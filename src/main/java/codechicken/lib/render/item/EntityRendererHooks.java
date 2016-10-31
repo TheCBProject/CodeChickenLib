@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -50,7 +51,12 @@ public class EntityRendererHooks {
             @Override
             public Render<? super DummyEntity> createRenderFor(RenderManager manager) {
                 sanitizeEntityRenderers(manager);
-                return null;
+                return new Render<DummyEntity>(manager) {
+                    @Override
+                    protected ResourceLocation getEntityTexture(DummyEntity entity) {
+                        return null;
+                    }
+                };
             }
         });
     }
