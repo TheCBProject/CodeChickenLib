@@ -7,13 +7,13 @@ import codechicken.lib.render.pipeline.IVertexSource;
 import codechicken.lib.render.pipeline.VertexAttribute;
 import codechicken.lib.render.pipeline.attribute.*;
 import codechicken.lib.render.pipeline.attribute.AttributeKey.AttributeKeyRegistry;
+import codechicken.lib.util.ArrayUtils;
+import codechicken.lib.util.Copyable;
+import codechicken.lib.util.VectorUtils;
 import codechicken.lib.vec.*;
 import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.uv.UVTransformation;
 import codechicken.lib.vec.uv.UVTranslation;
-import codechicken.lib.util.ArrayUtils;
-import codechicken.lib.util.Copyable;
-import codechicken.lib.util.VectorUtils;
 
 import java.util.*;
 
@@ -281,6 +281,122 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
             verts[i++] = new Vertex5(x2, y2, z2, u2, v1, 5);
             verts[i++] = new Vertex5(x2, y1, z2, u2, v2, 5);
         }
+
+        return this;
+    }
+
+    /**
+     * Generates a model using 2 Cuboids.
+     * c1 defines the size of the top face.
+     * c2 defines the size of the bottom face.
+     * the sides are generated on an angle between c1 and c2.
+     *
+     * @param i  The vertex index to start generating at
+     * @param c1 The top face cuboid.
+     * @param c2 The bottom face cuboid.
+     * @return
+     */
+    public CCModel generateDualCuboidBlock(int i, Cuboid6 c1, Cuboid6 c2) {
+        double x11 = c1.min.x;
+        double y11 = c1.min.y;
+        double z11 = c1.min.z;
+        double x12 = c1.max.x;
+        double y12 = c1.max.y;
+        double z12 = c1.max.z;
+
+        double x21 = c2.min.x;
+        double y21 = c2.min.y;
+        double z21 = c2.min.z;
+        double x22 = c2.max.x;
+        double y22 = c2.max.y;
+        double z22 = c2.max.z;
+
+        double u11, v11, u12, v12;
+        double u21, v21, u22, v22;
+
+        //bottom face
+        u11 = x11;
+        v11 = z11;
+        u12 = x12;
+        v12 = z12;
+        verts[i++] = new Vertex5(x11, y11, z12, u11, v12, 0);
+        verts[i++] = new Vertex5(x11, y11, z11, u11, v11, 0);
+        verts[i++] = new Vertex5(x12, y11, z11, u12, v11, 0);
+        verts[i++] = new Vertex5(x12, y11, z12, u12, v12, 0);
+
+        //top face
+        u21 = x21;
+        v21 = z21;
+        u22 = x22;
+        v22 = z22;
+        verts[i++] = new Vertex5(x22, y22, z22, u22, v22, 1);
+        verts[i++] = new Vertex5(x22, y22, z21, u22, v21, 1);
+        verts[i++] = new Vertex5(x21, y22, z21, u21, v21, 1);
+        verts[i++] = new Vertex5(x21, y22, z22, u21, v22, 1);
+
+        //east face
+        u11 = 1 - x11;
+        v11 = 1 - y12;
+        u12 = 1 - x12;
+        v12 = 1 - y11;
+
+        u21 = 1 - x21;
+        v21 = 1 - y22;
+        u22 = 1 - x22;
+        v22 = 1 - y21;
+
+        verts[i++] = new Vertex5(x11, y11, z11, u11, v12, 2);
+        verts[i++] = new Vertex5(x21, y22, z21, u21, v21, 2);
+        verts[i++] = new Vertex5(x22, y22, z21, u22, v21, 2);
+        verts[i++] = new Vertex5(x12, y11, z11, u12, v12, 2);
+
+        //west face
+        u11 = x11;
+        v11 = 1 - y12;
+        u12 = x12;
+        v12 = 1 - y11;
+
+        u21 = x21;
+        v21 = 1 - y22;
+        u22 = x22;
+        v22 = 1 - y21;
+
+        verts[i++] = new Vertex5(x12, y11, z12, u12, v12, 3);
+        verts[i++] = new Vertex5(x22, y22, z22, u22, v21, 3);
+        verts[i++] = new Vertex5(x21, y22, z22, u21, v21, 3);
+        verts[i++] = new Vertex5(x11, y11, z12, u11, v12, 3);
+
+        //north face
+        u11 = z11;
+        v11 = 1 - y12;
+        u12 = z12;
+        v12 = 1 - y11;
+
+        u21 = z21;
+        v21 = 1 - y22;
+        u22 = z22;
+        v22 = 1 - y21;
+
+        verts[i++] = new Vertex5(x11, y11, z12, u12, v12, 4);
+        verts[i++] = new Vertex5(x21, y22, z22, u22, v21, 4);
+        verts[i++] = new Vertex5(x21, y22, z21, u21, v21, 4);
+        verts[i++] = new Vertex5(x11, y11, z11, u11, v12, 4);
+
+        //south face
+        u11 = 1 - z11;
+        v11 = 1 - y12;
+        u12 = 1 - z12;
+        v12 = 1 - y11;
+
+        u21 = 1 - z21;
+        v21 = 1 - y22;
+        u22 = 1 - z22;
+        v22 = 1 - y21;
+
+        verts[i++] = new Vertex5(x12, y11, z11, u11, v12, 5);
+        verts[i++] = new Vertex5(x22, y22, z21, u21, v21, 5);
+        verts[i++] = new Vertex5(x22, y22, z22, u22, v21, 5);
+        verts[i++] = new Vertex5(x12, y11, z12, u12, v12, 5);
 
         return this;
     }

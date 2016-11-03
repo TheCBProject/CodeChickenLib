@@ -260,6 +260,20 @@ public class TextureUtils {
         restoreLastMipmap(TextureMap.LOCATION_BLOCKS_TEXTURE);
     }
 
+    public static TextureAtlasSprite[] getSideIconsForBlock(IBlockState state){
+        TextureAtlasSprite[] sideSprites = new TextureAtlasSprite[6];
+        TextureAtlasSprite missingSprite = getMissingSprite();
+        for (int i = 0; i < 6; i++) {
+            TextureAtlasSprite[] sprites = getIconsForBlock(state, i);
+            TextureAtlasSprite sideSprite = missingSprite;
+            if (sprites.length != 0){
+                sideSprite = sprites[0];
+            }
+            sideSprites[i] = sideSprite;
+        }
+        return sideSprites;
+    }
+
     public static TextureAtlasSprite[] getIconsForBlock(IBlockState state, int side) {
         return getIconsForBlock(state, EnumFacing.values()[side]);
     }
