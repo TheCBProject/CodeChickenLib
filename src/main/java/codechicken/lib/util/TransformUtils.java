@@ -22,6 +22,7 @@ public class TransformUtils {
     public static final CCModelState DEFAULT_ITEM;
     public static final CCModelState DEFAULT_TOOL;
     public static final CCModelState DEFAULT_BOW;
+    public static final CCModelState DEFAULT_HANDHELD_ROD;
 
     static {
         TRSRTransformation thirdPerson = get(0, 2.5f, 0, 75, 45, 0, 0.375f);
@@ -61,6 +62,13 @@ public class TransformUtils {
         defaultBowBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, get(1.13F, 3.2F, 1.13F, 0, -90, 25, 0.68f));
         defaultBowBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, get(1.13f, 3.2f, 1.13f, 0, 90, -25, 0.68f));
         DEFAULT_BOW = new CCModelState(defaultBowBuilder.build());
+
+        ImmutableMap.Builder<TransformType, TRSRTransformation> defaultRodBuilder = ImmutableMap.builder();
+        defaultBowBuilder.put(TransformType.THIRD_PERSON_RIGHT_HAND, get(0F, 4F, 2.5F, 0, 90, 55, 0.85F));
+        defaultBowBuilder.put(TransformType.THIRD_PERSON_LEFT_HAND, get(0F, 4F, 2.5F, 0, -90, -55, 0.85f));
+        defaultBowBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, get(0F, 1.6F, 0.8F, 0, 90, 25, 0.68f));
+        defaultBowBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, get(0F, 1.6F, 0.8F, 0, -90, -25, 0.68f));
+        DEFAULT_HANDHELD_ROD = new CCModelState(defaultRodBuilder.build());
     }
 
     public static TRSRTransformation get(float tx, float ty, float tz, float rx, float ry, float rz, float s) {
