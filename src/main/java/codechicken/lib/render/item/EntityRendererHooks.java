@@ -45,7 +45,6 @@ public class EntityRendererHooks {
     @EventHandler
     @SideOnly(Side.CLIENT)
     public void preInt(FMLPreInitializationEvent event) {
-        FMLLog.bigWarning("JshfkjHKJFHAKJFHAKSJHKJLAFHKAJLSJHKAJLSFHKJLH");
         MinecraftForge.EVENT_BUS.register(instance);
         RenderingRegistry.registerEntityRenderingHandler(DummyEntity.class, new IRenderFactory<DummyEntity>() {
             @Override
@@ -88,7 +87,6 @@ public class EntityRendererHooks {
             try {
                 for (Render<? extends Entity> render : renderManager.entityRenderMap.values()) {
                     if (render != null) {
-                        FMLLog.info(render.getClass().getName());
                         for (Field field : render.getClass().getDeclaredFields()) {
                             if (field.getType().equals(RenderItem.class)) {
                                 field.setAccessible(true);

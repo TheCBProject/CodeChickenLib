@@ -22,8 +22,10 @@ import net.minecraft.util.ReportedException;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
+import javax.vecmath.Matrix4f;
 
 /**
  * Created by covers1624 on 17/10/2016.
@@ -33,6 +35,15 @@ public class CCRenderItem extends RenderItem {
     private final RenderItem parent;
     private static CCRenderItem instance;
     private static boolean hasInit;
+
+    //Because forge has this private.
+    private static final Matrix4f flipX;
+
+    static {
+        flipX = new Matrix4f();
+        flipX.setIdentity();
+        flipX.m00 = -1;
+    }
 
     public CCRenderItem(RenderItem renderItem) {
         super(renderItem.textureManager, renderItem.itemModelMesher.getModelManager(), renderItem.itemColors);
@@ -49,7 +60,7 @@ public class CCRenderItem extends RenderItem {
         }
     }
 
-    public static CCRenderItem instance(){
+    public static CCRenderItem instance() {
         init();
         return instance;
     }
@@ -79,19 +90,31 @@ public class CCRenderItem extends RenderItem {
         parent.renderItem(stack, model);
     }
 
-    private IBakedModel handleTransforms(IBakedModel model, TransformType transformType, boolean isLeftHand) {
+    private IBakedModel handleTransforms(ItemStack stack, IBakedModel model, TransformType transformType, boolean isLeftHand) {
         if (model instanceof IMatrixTransform) {
             ((IMatrixTransform) model).getTransform(transformType, isLeftHand).glApply();
         } else if (model instanceof IGLTransform) {
             ((IGLTransform) model).applyTransforms(transformType, isLeftHand);
         } else if (model instanceof IPerspectiveAwareModel) {
             model = ForgeHooksClient.handleCameraTransforms(model, transformType, isLeftHand);
+        } else if (model instanceof IStackPerspectiveAwareModel) {
+            Pair<? extends IBakedModel, Matrix4f> pair = ((IStackPerspectiveAwareModel) model).handlePerspective(stack, transformType);
+
+            if (pair.getRight() != null) {
+                Matrix4f matrix = new Matrix4f(pair.getRight());
+                if (isLeftHand) {
+                    matrix.mul(flipX, matrix);
+                    matrix.mul(matrix, flipX);
+                }
+                ForgeHooksClient.multiplyCurrentGlMatrix(matrix);
+            }
+            return pair.getLeft();
         }
         return model;
     }
 
     private boolean isValidModel(IBakedModel model) {
-        return model instanceof IItemRenderer || model instanceof IGLTransform || model instanceof IMatrixTransform;
+        return model instanceof IItemRenderer || model instanceof IGLTransform || model instanceof IMatrixTransform || model instanceof IStackPerspectiveAwareModel;
     }
 
     @Override
@@ -107,7 +130,7 @@ public class CCRenderItem extends RenderItem {
                 GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
                 GlStateManager.pushMatrix();
 
-                bakedModel = handleTransforms(bakedModel, transform, leftHanded);
+                bakedModel = handleTransforms(stack, bakedModel, transform, leftHanded);
 
                 this.renderItem(stack, bakedModel);
                 GlStateManager.cullFace(GlStateManager.CullFace.BACK);
@@ -135,7 +158,9 @@ public class CCRenderItem extends RenderItem {
             GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             this.setupGuiTransform(x, y, bakedModel.isGui3d());
-            bakedModel = handleTransforms(bakedModel, ItemCameraTransforms.TransformType.GUI, false);
+
+            bakedModel = handleTransforms(stack, bakedModel, ItemCameraTransforms.TransformType.GUI, false);
+
             this.renderItem(stack, bakedModel);
             GlStateManager.disableAlpha();
             GlStateManager.disableRescaleNormal();
