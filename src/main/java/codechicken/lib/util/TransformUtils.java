@@ -64,10 +64,10 @@ public class TransformUtils {
         DEFAULT_BOW = new CCModelState(defaultBowBuilder.build());
 
         ImmutableMap.Builder<TransformType, TRSRTransformation> defaultRodBuilder = ImmutableMap.builder();
-        defaultBowBuilder.put(TransformType.THIRD_PERSON_RIGHT_HAND, get(0F, 4F, 2.5F, 0, 90, 55, 0.85F));
-        defaultBowBuilder.put(TransformType.THIRD_PERSON_LEFT_HAND, get(0F, 4F, 2.5F, 0, -90, -55, 0.85f));
-        defaultBowBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, get(0F, 1.6F, 0.8F, 0, 90, 25, 0.68f));
-        defaultBowBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, get(0F, 1.6F, 0.8F, 0, -90, -25, 0.68f));
+        defaultRodBuilder.put(TransformType.THIRD_PERSON_RIGHT_HAND, get(0F, 4F, 2.5F, 0, 90, 55, 0.85F));
+        defaultRodBuilder.put(TransformType.THIRD_PERSON_LEFT_HAND, get(0F, 4F, 2.5F, 0, -90, -55, 0.85f));
+        defaultRodBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, get(0F, 1.6F, 0.8F, 0, 90, 25, 0.68f));
+        defaultRodBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, get(0F, 1.6F, 0.8F, 0, -90, -25, 0.68f));
         DEFAULT_HANDHELD_ROD = new CCModelState(defaultRodBuilder.build());
     }
 
