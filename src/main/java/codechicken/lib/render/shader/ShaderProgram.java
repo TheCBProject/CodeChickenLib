@@ -36,6 +36,30 @@ public class ShaderProgram {
         glUseProgramObjectARB(programID);
     }
 
+    /**
+     * Allows you to bind the shader for use outside an IShaderOperation.
+     * You can still pass variables to the shader using an IShaderOperation.
+     *
+     * Call this before you do your rendering.
+     * Then call ShaderProgram.unbindShader() when you have finished rendering.
+     */
+    public void freeBindShader() {
+        pipeline.reset();
+        pipeline.setPipeline(ops);
+        glLinkProgramARB(programID);
+        if (glGetObjectParameteriARB(programID, GL_OBJECT_LINK_STATUS_ARB) == GL11.GL_FALSE) {
+            throw new RuntimeException("Error linking program: " + getInfoLog(programID));
+        }
+
+        glValidateProgramARB(programID);
+        if (glGetObjectParameteriARB(programID, GL_OBJECT_VALIDATE_STATUS_ARB) == GL11.GL_FALSE) {
+            throw new RuntimeException("Error validating program: " + getInfoLog(programID));
+        }
+
+        glUseProgramObjectARB(programID);
+        pipeline.operate();
+    }
+
     public static void unbindShader() {
         glUseProgramObjectARB(0);
     }
@@ -138,5 +162,13 @@ public class ShaderProgram {
         ARBVertexShader.glVertexAttrib4fARB(loc + 1, matrix.m10, matrix.m11, matrix.m12, matrix.m13);
         ARBVertexShader.glVertexAttrib4fARB(loc + 2, matrix.m20, matrix.m21, matrix.m22, matrix.m23);
         ARBVertexShader.glVertexAttrib4fARB(loc + 3, matrix.m30, matrix.m31, matrix.m32, matrix.m33);
+    }
+
+    /**
+     * This method will completely remove the shader.
+     */
+    public void cleanup() {
+        ops.clear();
+        ARBShaderObjects.glDeleteObjectARB(programID);
     }
 }
