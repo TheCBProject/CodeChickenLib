@@ -6,6 +6,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -19,8 +20,29 @@ import net.minecraft.util.EnumFacing.Plane;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.wrapper.EmptyHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 public class InventoryUtils {
+
+    public static boolean hasItemHandlerCap(TileEntity tileEntity, EnumFacing face) {
+        return tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, face) || tileEntity instanceof ISidedInventory || tileEntity instanceof IInventory;
+    }
+
+    public static IItemHandler getItemHandlerCap(TileEntity tileEntity, EnumFacing face) {
+        if (tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, face)){
+            return tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, face);
+        } else if (tileEntity instanceof ISidedInventory) {
+            return new SidedInvWrapper(((ISidedInventory) tileEntity), face);
+        } else if (tileEntity instanceof IInventory) {
+            return new InvWrapper(((IInventory) tileEntity));
+        }
+        return new EmptyHandler();
+    }
+
     /**
      * Constructor for ItemStack with tag
      */
