@@ -69,7 +69,7 @@ public class ItemUtils {
     public static void dropInventory(World world, BlockPos pos, IInventory inventory) {
         for (int i = 0; i < inventory.getSizeInventory(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
-            if (stack != null && stack.stackSize > 0) {
+            if (stack != null && stack.func_190916_E() > 0) {
                 dropItem(world, pos, stack);
             }
         }

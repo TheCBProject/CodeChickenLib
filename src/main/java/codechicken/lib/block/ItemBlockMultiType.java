@@ -5,6 +5,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,7 @@ public class ItemBlockMultiType extends ItemBlock {
     }
 
     @Override
-    public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems) {
+    public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems) {
         for (Map.Entry<Integer, String> entry : names.entrySet()) {
             subItems.add(new ItemStack(this, 1, entry.getKey()));
         }

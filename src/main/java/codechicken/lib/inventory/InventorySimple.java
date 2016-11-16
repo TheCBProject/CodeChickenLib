@@ -59,6 +59,17 @@ public class InventorySimple implements IInventory, ICapabilityProvider {
     }
 
     @Override
+    public boolean func_191420_l() {//TODO Nonull lists.
+        for (ItemStack itemstack : this.items) {
+            if (!itemstack.func_190926_b()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
     public ItemStack getStackInSlot(int slot) {
         return items[slot];
     }

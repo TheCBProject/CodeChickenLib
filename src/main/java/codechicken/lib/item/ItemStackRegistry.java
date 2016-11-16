@@ -29,7 +29,7 @@ public class ItemStackRegistry {
         ItemStack foundStack = findItemStack(modId, name);
         if (foundStack != null){
             ItemStack copy = foundStack.copy();
-            copy.stackSize = Math.min(stackSize, copy.getMaxStackSize());
+            copy.func_190920_e(Math.min(stackSize, copy.getMaxStackSize()));
             return copy;
         }
         return null;

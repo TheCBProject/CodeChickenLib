@@ -19,14 +19,14 @@ public class FontUtils {
     public static final String[] prefixes = new String[] { "K", "M", "G" };
 
     public static void drawItemQuantity(int x, int y, ItemStack item, String quantity, int mode) {
-        if (item == null || (quantity == null && item.stackSize <= 1)) {
+        if (item == null || (quantity == null && item.func_190916_E() <= 1)) {
             return;
         }
 
         if (quantity == null) {
             switch (mode) {
             case 2:
-                int q = item.stackSize;
+                int q = item.func_190916_E();
                 String postfix = "";
                 for (int p = 0; p < 3 && q > 1000; p++) {
                     q /= 1000;
@@ -36,15 +36,15 @@ public class FontUtils {
                 break;
             case 1:
                 quantity = "";
-                if (item.stackSize / 64 > 0) {
-                    quantity += item.stackSize / 64 + "s";
+                if (item.func_190916_E() / 64 > 0) {
+                    quantity += item.func_190916_E() / 64 + "s";
                 }
-                if (item.stackSize % 64 > 0) {
-                    quantity += item.stackSize % 64;
+                if (item.func_190916_E() % 64 > 0) {
+                    quantity += item.func_190916_E() % 64;
                 }
                 break;
             default:
-                quantity = Integer.toString(item.stackSize);
+                quantity = Integer.toString(item.func_190916_E());
                 break;
             }
         }

@@ -21,7 +21,7 @@ public class CodeChickenLib {
     public static final String MOD_ID = "CodeChickenLib";
     public static final String MOD_NAME = "CodeChicken Lib";
     public static final String version = "${mod_version}";
-    public static final String mcVersion = "[1.10.2]";
+    public static final String mcVersion = "[1.11]";
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {

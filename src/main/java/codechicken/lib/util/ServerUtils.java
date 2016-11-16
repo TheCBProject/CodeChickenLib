@@ -74,7 +74,7 @@ public class ServerUtils {
 
     public static void sendChatToAll(ITextComponent msg) {
         for (EntityPlayer p : getPlayers()) {
-            p.addChatComponentMessage(msg);
+            p.addChatComponentMessage(msg, true);//TODO
         }
     }
 

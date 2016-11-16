@@ -66,8 +66,8 @@ public class SimpleCreativeTab extends CreativeTabs {
     }
 
     @Override
-    public Item getTabIconItem() {
-        return Items.REDSTONE;
+    public ItemStack getTabIconItem() {
+        return new ItemStack(Items.REDSTONE);
     }
 
     @Override

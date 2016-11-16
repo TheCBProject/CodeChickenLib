@@ -66,13 +66,13 @@ public class InventoryUtils {
         ItemStack item = inv.getStackInSlot(slot);
 
         if (item != null) {
-            if (item.stackSize <= size) {
+            if (item.func_190916_E() <= size) {
                 inv.setInventorySlotContents(slot, null);
                 inv.markDirty();
                 return item;
             }
             ItemStack itemstack1 = item.splitStack(size);
-            if (item.stackSize == 0) {
+            if (item.func_190916_E() == 0) {
                 inv.setInventorySlotContents(slot, null);
             } else {
                 inv.setInventorySlotContents(slot, item);
@@ -98,7 +98,7 @@ public class InventoryUtils {
      */
     public static int incrStackSize(ItemStack base, ItemStack addition) {
         if (canStack(base, addition)) {
-            return incrStackSize(base, addition.stackSize);
+            return incrStackSize(base, addition.func_190916_E());
         }
 
         return 0;
@@ -108,12 +108,12 @@ public class InventoryUtils {
      * @return The quantity of items from addition that can be added to base
      */
     public static int incrStackSize(ItemStack base, int addition) {
-        int totalSize = base.stackSize + addition;
+        int totalSize = base.func_190916_E() + addition;
 
         if (totalSize <= base.getMaxStackSize()) {
             return addition;
-        } else if (base.stackSize < base.getMaxStackSize()) {
-            return base.getMaxStackSize() - base.stackSize;
+        } else if (base.func_190916_E() < base.getMaxStackSize()) {
+            return base.getMaxStackSize() - base.func_190916_E();
         }
 
         return 0;
@@ -138,9 +138,9 @@ public class InventoryUtils {
                 items[i].writeToNBT(tag);
 
                 if (maxQuantity > Short.MAX_VALUE) {
-                    tag.setInteger("Quantity", items[i].stackSize);
+                    tag.setInteger("Quantity", items[i].func_190916_E());
                 } else if (maxQuantity > Byte.MAX_VALUE) {
-                    tag.setShort("Quantity", (short) items[i].stackSize);
+                    tag.setShort("Quantity", (short) items[i].func_190916_E());
                 }
 
                 tagList.appendTag(tag);
@@ -156,9 +156,9 @@ public class InventoryUtils {
         for (int i = 0; i < tagList.tagCount(); i++) {
             NBTTagCompound tag = tagList.getCompoundTagAt(i);
             int b = tag.getShort("Slot");
-            items[b] = ItemStack.loadItemStackFromNBT(tag);
+            items[b] = new ItemStack(tag);
             if (tag.hasKey("Quantity")) {
-                items[b].stackSize = ((NBTPrimitive) tag.getTag("Quantity")).getInt();
+                items[b].func_190920_e(((NBTPrimitive) tag.getTag("Quantity")).getInt());
             }
         }
     }
@@ -183,7 +183,7 @@ public class InventoryUtils {
         }
 
         stack = stack.copy();
-        stack.stackSize = quantity;
+        stack.func_190920_e(quantity);
         return stack;
     }
 
@@ -210,8 +210,8 @@ public class InventoryUtils {
             return 0;
         }
 
-        int fit = base != null ? incrStackSize(base, inv.inv.getInventoryStackLimit() - base.stackSize) : inv.inv.getInventoryStackLimit();
-        return Math.min(fit, stack.stackSize);
+        int fit = base != null ? incrStackSize(base, inv.inv.getInventoryStackLimit() - base.func_190916_E()) : inv.inv.getInventoryStackLimit();
+        return Math.min(fit, stack.func_190916_E());
     }
 
     public static int fitStackInSlot(IInventory inv, int slot, ItemStack stack) {
@@ -236,23 +236,23 @@ public class InventoryUtils {
                 }
 
                 if (base != null) {
-                    stack.stackSize -= fit;
+                    stack.func_190918_g(fit);
                     if (!simulate) {
-                        base.stackSize += fit;
+                        base.func_190917_f(fit);
                         inv.inv.setInventorySlotContents(slot, base);
                     }
                 } else {
                     if (!simulate) {
                         inv.inv.setInventorySlotContents(slot, copyStack(stack, fit));
                     }
-                    stack.stackSize -= fit;
+                    stack.func_190918_g(fit);
                 }
-                if (stack.stackSize == 0) {
+                if (stack.func_190916_E() == 0) {
                     return 0;
                 }
             }
         }
-        return stack.stackSize;
+        return stack.func_190916_E();
     }
 
     public static int insertItem(IInventory inv, ItemStack stack, boolean simulate) {
@@ -280,7 +280,7 @@ public class InventoryUtils {
             return stack1 == stack2;
         }
 
-        return stack1.getItem() == stack2.getItem() && stack1.getItemDamage() == stack2.getItemDamage() && stack1.stackSize == stack2.stackSize && Objects.equal(stack1.getTagCompound(), stack2.getTagCompound());
+        return stack1.getItem() == stack2.getItem() && stack1.getItemDamage() == stack2.getItemDamage() && stack1.func_190916_E() == stack2.func_190916_E() && Objects.equal(stack1.getTagCompound(), stack2.getTagCompound());
     }
 
     /**
@@ -333,7 +333,7 @@ public class InventoryUtils {
      */
     public static int stackSize(IInventory inv, int slot) {
         ItemStack stack = inv.getStackInSlot(slot);
-        return stack == null ? 0 : stack.stackSize;
+        return stack == null ? 0 : stack.func_190916_E();
     }
 
     /**
