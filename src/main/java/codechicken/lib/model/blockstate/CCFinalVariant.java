@@ -1,0 +1,59 @@
+package codechicken.lib.model.blockstate;
+
+import com.google.common.collect.ImmutableMap;
+import net.minecraft.client.renderer.block.model.ModelRotation;
+import net.minecraft.client.renderer.block.model.Variant;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.client.model.ModelProcessingHelper;
+import net.minecraftforge.common.model.IModelState;
+
+import java.util.Map;
+
+/**
+ * Created by covers1624 on 19/11/2016.
+ * Here because ForgeVariant is yet again private..
+ * Credits to fry.
+ */
+public class CCFinalVariant extends Variant {
+
+    private final IModelState state;
+    private final boolean smooth;
+    private final boolean gui3d;
+    private final ImmutableMap<String, String> textures;
+
+    public CCFinalVariant(ResourceLocation model, IModelState state, boolean uvLock, boolean smooth, boolean gui3d, int weight, Map<String, String> textures) {
+        super(model == null ? new ResourceLocation("builtin/missing") : model, state instanceof ModelRotation ? ((ModelRotation) state) : ModelRotation.X0_Y0, uvLock, weight);
+        this.state = state;
+        this.smooth = smooth;
+        this.gui3d = gui3d;
+        this.textures = ImmutableMap.copyOf(textures);
+    }
+
+    public static IModel runModelHooks(IModel base, boolean smooth, boolean gui3d, boolean uvlock, ImmutableMap<String, String> textureMap) {
+        //base = ModelProcessingHelper.customData(base, customData);//TODO
+        base = ModelProcessingHelper.retexture(base, textureMap);
+        base = ModelProcessingHelper.smoothLighting(base, smooth);
+        base = ModelProcessingHelper.gui3d(base, gui3d);
+        base = ModelProcessingHelper.uvlock(base, uvlock);
+        return base;
+    }
+
+    @Override
+    public IModel process(IModel base) {
+
+        boolean hasBase = base != ModelLoaderRegistry.getMissingModel();
+
+        if (hasBase) {
+            base = runModelHooks(base, smooth, gui3d, isUvLock(), textures);
+        }
+
+        return base;
+    }
+
+    @Override
+    public IModelState getState() {
+        return state;
+    }
+}

@@ -9,14 +9,13 @@ import org.apache.logging.log4j.Logger;
 import java.util.Map;
 
 @TransformerExclusions({ "codechicken.lib.asm", "codechicken.lib.config" })
-@Deprecated//To be fully phased out by 1.11. Kept to keep backwards compat.
 public class CCLCorePlugin implements IFMLLoadingPlugin , IFMLCallHook{
 
     public static Logger logger = LogManager.getLogger("CodeChicken Lib");
 
     @Override
     public String[] getASMTransformerClass() {
-        return new String[] { "codechicken.lib.asm.ClassHeirachyManager" };
+        return new String[] { "codechicken.lib.asm.ClassHeirachyManager", "codechicken.lib.asm.BlockStateLoaderTransformer" };
     }
 
     @Override

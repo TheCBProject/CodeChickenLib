@@ -42,6 +42,21 @@ public class ArrayUtils {
     }
 
     /**
+     * Prefixes a string array with the desired value.
+     *
+     * @param prefix The prefix to apply.
+     * @param list   The list to apply the prefix to.
+     * @return The list with the prefix applied.
+     */
+    public static List<String> prefixStringList(String prefix, List<String> list) {
+        List<String> finalList = new ArrayList<String>();
+        for (String string : list) {
+            finalList.add(prefix + string);
+        }
+        return finalList;
+    }
+
+    /**
      * Checks if a map contains all keys passed in.
      *
      * @param map  Map to check.
