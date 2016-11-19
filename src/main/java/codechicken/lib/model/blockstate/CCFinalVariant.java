@@ -9,7 +9,9 @@ import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.ModelProcessingHelper;
 import net.minecraftforge.common.model.IModelState;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Created by covers1624 on 19/11/2016.
@@ -23,12 +25,21 @@ public class CCFinalVariant extends Variant {
     private final boolean gui3d;
     private final ImmutableMap<String, String> textures;
 
-    public CCFinalVariant(ResourceLocation model, IModelState state, boolean uvLock, boolean smooth, boolean gui3d, int weight, Map<String, String> textures) {
+    public CCFinalVariant(ResourceLocation model, IModelState state, boolean uvLock, boolean smooth, boolean gui3d, int weight, Map<String, String> textures, String textureDomain) {
         super(model == null ? new ResourceLocation("builtin/missing") : model, state instanceof ModelRotation ? ((ModelRotation) state) : ModelRotation.X0_Y0, uvLock, weight);
         this.state = state;
         this.smooth = smooth;
         this.gui3d = gui3d;
-        this.textures = ImmutableMap.copyOf(textures);
+
+        Map<String, String> newTextures = new HashMap<String, String>();
+        for (Entry<String, String> entry : textures.entrySet()) {
+            String prefixedTexture = entry.getValue();
+            if (!entry.getValue().contains(":")){
+                prefixedTexture = textureDomain + ":" + prefixedTexture;
+            }
+            newTextures.put(entry.getKey(), prefixedTexture);
+        }
+        this.textures = ImmutableMap.copyOf(newTextures);
     }
 
     public static IModel runModelHooks(IModel base, boolean smooth, boolean gui3d, boolean uvlock, ImmutableMap<String, String> textureMap) {

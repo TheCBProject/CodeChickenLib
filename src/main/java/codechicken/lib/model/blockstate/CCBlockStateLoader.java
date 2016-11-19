@@ -44,9 +44,15 @@ public class CCBlockStateLoader {
             JsonParser parser = new JsonParser();
             JsonObject object = parser.parse(json).getAsJsonObject();
             if (JsonUtils.hasField(object, "ccl_marker")) {
+
                 String marker = JsonUtils.getString(object, "ccl_marker");
                 String blockVariants = JsonUtils.getString(object, "block_variants");
                 String inventoryVariants = JsonUtils.getString(object, "inventory_variants");
+                String textureDomain = "";
+                if (object.has("texture_domain")) {
+                    textureDomain = object.get("texture_domain").getAsString();
+                }
+
                 final List<String> blockVariantKeys = Lists.newLinkedList(Arrays.asList(blockVariants.split(",")));
                 final List<String> inventoryVariantKeys = Lists.newLinkedList(Arrays.asList(inventoryVariants.split(",")));
 
@@ -107,7 +113,7 @@ public class CCBlockStateLoader {
                     if (variant.model != null && variant.textures.size() == 0 && variant.state.orNull() instanceof ModelRotation) {
                         vars.add(new Variant(variant.model, ((ModelRotation) variant.state.get()), uvLock, weight));
                     } else {
-                        vars.add(new CCFinalVariant(variant.model, variant.state.or(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures));
+                        vars.add(new CCFinalVariant(variant.model, variant.state.or(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures, textureDomain));
                     }
                     variantList.put(entry.getKey(), new VariantList(vars));
                 }
