@@ -70,16 +70,16 @@ public class RotationUtils {
      */
     public static EnumFacing rotateCounterClockwise(EnumFacing facing) {
         switch (facing) {
-        case NORTH:
-            return EnumFacing.WEST;
-        case EAST:
-            return EnumFacing.NORTH;
-        case SOUTH:
-            return EnumFacing.EAST;
-        case WEST:
-            return EnumFacing.SOUTH;
-        default:
-            throw new IllegalStateException("Unable to get CCW facing of " + facing);
+            case NORTH:
+                return EnumFacing.WEST;
+            case EAST:
+                return EnumFacing.NORTH;
+            case SOUTH:
+                return EnumFacing.EAST;
+            case WEST:
+                return EnumFacing.SOUTH;
+            default:
+                throw new IllegalStateException("Unable to get CCW facing of " + facing);
         }
     }
 
@@ -91,16 +91,16 @@ public class RotationUtils {
      */
     public static EnumFacing rotateClockwise(EnumFacing facing) {
         switch (facing) {
-        case NORTH:
-            return EnumFacing.EAST;
-        case EAST:
-            return EnumFacing.SOUTH;
-        case SOUTH:
-            return EnumFacing.WEST;
-        case WEST:
-            return EnumFacing.NORTH;
-        default:
-            throw new IllegalStateException("Unable to get CW facing of " + facing);
+            case NORTH:
+                return EnumFacing.EAST;
+            case EAST:
+                return EnumFacing.SOUTH;
+            case SOUTH:
+                return EnumFacing.WEST;
+            case WEST:
+                return EnumFacing.NORTH;
+            default:
+                throw new IllegalStateException("Unable to get CW facing of " + facing);
         }
     }
 
@@ -112,18 +112,18 @@ public class RotationUtils {
      */
     public static EnumFacing rotateForward(EnumFacing facing) {
         switch (facing) {
-        case NORTH:
-            return EnumFacing.DOWN;
-        case DOWN:
-            return EnumFacing.UP;
-        case UP:
-            return EnumFacing.WEST;
-        case WEST:
-            return EnumFacing.EAST;
-        case EAST:
-            return EnumFacing.SOUTH;
-        case SOUTH:
-            return EnumFacing.NORTH;
+            case NORTH:
+                return EnumFacing.DOWN;
+            case DOWN:
+                return EnumFacing.UP;
+            case UP:
+                return EnumFacing.WEST;
+            case WEST:
+                return EnumFacing.EAST;
+            case EAST:
+                return EnumFacing.SOUTH;
+            case SOUTH:
+                return EnumFacing.NORTH;
         }
         return EnumFacing.NORTH;
     }
@@ -136,18 +136,18 @@ public class RotationUtils {
      */
     public static EnumFacing rotateBackwards(EnumFacing facing) {
         switch (facing) {
-        case NORTH:
-            return EnumFacing.SOUTH;
-        case SOUTH:
-            return EnumFacing.EAST;
-        case EAST:
-            return EnumFacing.WEST;
-        case WEST:
-            return EnumFacing.UP;
-        case UP:
-            return EnumFacing.DOWN;
-        case DOWN:
-            return EnumFacing.NORTH;
+            case NORTH:
+                return EnumFacing.SOUTH;
+            case SOUTH:
+                return EnumFacing.EAST;
+            case EAST:
+                return EnumFacing.WEST;
+            case WEST:
+                return EnumFacing.UP;
+            case UP:
+                return EnumFacing.DOWN;
+            case DOWN:
+                return EnumFacing.NORTH;
         }
         return EnumFacing.NORTH;
     }
@@ -160,17 +160,17 @@ public class RotationUtils {
      */
     public static EnumFacing entityRotationToSide(int rotation) {
         switch (rotation) {
-        case 0:
-            return EnumFacing.SOUTH;
+            case 0:
+                return EnumFacing.SOUTH;
 
-        case 1:
-            return EnumFacing.WEST;
+            case 1:
+                return EnumFacing.WEST;
 
-        case 2:
-            return EnumFacing.NORTH;
+            case 2:
+                return EnumFacing.NORTH;
 
-        default:
-            return EnumFacing.EAST;
+            default:
+                return EnumFacing.EAST;
         }
     }
 
