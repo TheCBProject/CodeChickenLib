@@ -1,9 +1,11 @@
 package codechicken.lib;
 
+import codechicken.lib.model.cube.CCCubeLoader;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.CCExtendedBlockRendererDispatcher;
 import codechicken.lib.render.item.CCRenderItem;
 import codechicken.lib.util.FuelUtils;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -28,6 +30,7 @@ public class CodeChickenLib {
         GameRegistry.registerFuelHandler(new FuelUtils());
         if (event.getSide().equals(Side.CLIENT)){
             CCRenderEventHandler.init();
+            ModelLoaderRegistry.registerLoader(CCCubeLoader.INSTANCE);
         }
     }
 
