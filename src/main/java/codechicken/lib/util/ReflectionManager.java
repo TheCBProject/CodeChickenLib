@@ -1,6 +1,7 @@
 package codechicken.lib.util;
 
 import codechicken.lib.asm.ObfMapping;
+import jdk.internal.org.objectweb.asm.Type;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -58,6 +59,18 @@ public class ReflectionManager {
         return findClass(name, false) != null;
     }
 
+    public static Class<?> findClass(ObfMapping mapping) {
+        return findClass(mapping, true);
+    }
+
+    public static Class<?> findClass(ObfMapping mapping, boolean init) {
+        try {
+            return Class.forName(mapping.javaClass(), init, ReflectionManager.class.getClassLoader());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Class<?> findClass(String name, boolean init) {
         try {
             return Class.forName(name, init, ReflectionManager.class.getClassLoader());
@@ -75,7 +88,7 @@ public class ReflectionManager {
             Field field = getField(mapping);
             field.setAccessible(true);
             field.set(instance, value);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -114,6 +127,7 @@ public class ReflectionManager {
      * void return type
      * single name
      */
+    @Deprecated
     public static void callMethod(Class<?> class1, String name, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         callMethod(class1, null, new String[] { name }, params);
     }
@@ -123,6 +137,7 @@ public class ReflectionManager {
      * void return type
      * single name
      */
+    @Deprecated
     public static void callMethod(Class<?> class1, String[] names, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         callMethod(class1, null, names, params);
     }
@@ -131,6 +146,7 @@ public class ReflectionManager {
      * void return type
      * single name
      */
+    @Deprecated
     public static void callMethod(Class<?> class1, Object instance, String name, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         callMethod(class1, null, instance, new String[] { name }, params);
     }
@@ -138,6 +154,7 @@ public class ReflectionManager {
     /**
      * void return type
      */
+    @Deprecated
     public static void callMethod(Class<?> class1, Object instance, String[] names, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         callMethod(class1, null, instance, names, params);
     }
@@ -146,6 +163,7 @@ public class ReflectionManager {
      * Static method
      * single name
      */
+    @Deprecated
     public static <R> R callMethod(Class<?> class1, Class<R> returntype, String name, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         return callMethod(class1, returntype, null, new String[] { name }, params);
     }
@@ -153,6 +171,7 @@ public class ReflectionManager {
     /**
      * Static method
      */
+    @Deprecated
     public static <R> R callMethod(Class<?> class1, Class<R> returntype, String[] names, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         return callMethod(class1, returntype, null, names, params);
     }
@@ -160,10 +179,12 @@ public class ReflectionManager {
     /**
      * sinlge name
      */
+    @Deprecated
     public static <R> R callMethod(Class<?> class1, Class<R> returntype, Object instance, String name, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         return callMethod(class1, returntype, instance, new String[] { name }, params);
     }
 
+    @Deprecated
     public static <R> R callMethod(Class<?> class1, Class<R> returntype, Object instance, String[] names, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         nextMethod:
         for (Method method : class1.getDeclaredMethods()) {
@@ -189,6 +210,31 @@ public class ReflectionManager {
                 }
             }
 
+            method.setAccessible(true);
+            return (R) method.invoke(instance, params);
+        }
+        return null;
+    }
+
+    public static <R> R callMethod(ObfMapping mapping, Class<R> returnType, Object instance, Object... params) {
+        try {
+            return callMethod_Unsafe(mapping, returnType, instance, params);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <R> R callMethod_Unsafe(ObfMapping mapping, Class<R> returnType, Object instance, Object... params) throws InvocationTargetException, IllegalAccessException {
+        mapping.toRuntime();
+        Class<?> clazz = findClass(mapping);
+        Method method = null;
+        for (Method m : clazz.getDeclaredMethods()) {
+            if (m.getName().equals(mapping.s_name) && Type.getMethodDescriptor(m).equals(mapping.s_desc)) {
+                method = m;
+                break;
+            }
+        }
+        if (method != null) {
             method.setAccessible(true);
             return (R) method.invoke(instance, params);
         }
@@ -259,6 +305,15 @@ public class ReflectionManager {
     public static void set(Field field, Object instance, Object value) {
         try {
             field.set(instance, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <V> V getField(ObfMapping mapping, Object instance, Class<V> clazz) {
+        try {
+            Field field = getField(mapping);
+            return (V) field.get(instance);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
