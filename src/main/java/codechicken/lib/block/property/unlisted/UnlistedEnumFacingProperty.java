@@ -6,7 +6,7 @@ import net.minecraft.util.EnumFacing;
  * Created by covers1624 on 23/11/2016.
  */
 public class UnlistedEnumFacingProperty extends UnlistedPropertyBase<EnumFacing> {
-    
+
     public UnlistedEnumFacingProperty(String name) {
         super(name);
     }
