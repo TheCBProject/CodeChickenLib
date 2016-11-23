@@ -20,6 +20,14 @@ public class DigIconParticle extends Particle {
         particleScale /= 2.0F;
     }
 
+    public static DigIconParticle newLandingParticle(World world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
+        DigIconParticle particle = new DigIconParticle(world, x, y, z, dx, dy, dz, icon);
+        particle.motionX = dx;
+        particle.motionY = dy;
+        particle.motionZ = dz;
+        return particle;
+    }
+
     @Override
     public int getFXLayer() {
         return 1;
@@ -78,20 +86,8 @@ public class DigIconParticle extends Particle {
         CustomParticleHandler.addBlockHitEffects(world, bounds, EnumFacing.VALUES[side], icon, effectRenderer);
     }
 
+    @Deprecated//Use CustomParticleHandler.addBlockDestroyEffects This will be removed in 1.11
     public static void addBlockDestroyEffects(World world, Cuboid6 bounds, TextureAtlasSprite[] icons, ParticleManager effectRenderer) {
-        Vector3 diff = bounds.max.copy().subtract(bounds.min);
-        Vector3 center = bounds.min.copy().add(bounds.max).multiply(0.5);
-        Vector3 density = diff.copy().multiply(4).celi();
-
-        for (int i = 0; i < density.x; ++i) {
-            for (int j = 0; j < density.y; ++j) {
-                for (int k = 0; k < density.z; ++k) {
-                    double x = bounds.min.x + (i + 0.5) * diff.x / density.x;
-                    double y = bounds.min.y + (j + 0.5) * diff.y / density.y;
-                    double z = bounds.min.z + (k + 0.5) * diff.z / density.z;
-                    effectRenderer.addEffect(new DigIconParticle(world, x, y, z, x - center.x, y - center.y, z - center.z, icons[world.rand.nextInt(icons.length)]));
-                }
-            }
-        }
+        CustomParticleHandler.addBlockDestroyEffects(world, bounds, icons, effectRenderer);
     }
 }
