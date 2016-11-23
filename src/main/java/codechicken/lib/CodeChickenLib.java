@@ -1,18 +1,13 @@
 package codechicken.lib;
 
-import codechicken.lib.model.cube.CCCubeLoader;
-import codechicken.lib.render.CCRenderEventHandler;
-import codechicken.lib.render.block.CCExtendedBlockRendererDispatcher;
-import codechicken.lib.render.item.CCRenderItem;
+import codechicken.lib.internal.proxy.CommonProxy;
 import codechicken.lib.util.FuelUtils;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Created by covers1624 on 12/10/2016.
@@ -25,20 +20,18 @@ public class CodeChickenLib {
     public static final String version = "${mod_version}";
     public static final String mcVersion = "[1.10.2]";
 
+    @SidedProxy(clientSide = "codechicken.lib.internal.proxy.ClientProxy", serverSide = "codechicken.lib.internal.proxy.CommonProxy")
+    public static CommonProxy proxy;
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         GameRegistry.registerFuelHandler(new FuelUtils());
-        if (event.getSide().equals(Side.CLIENT)){
-            CCRenderEventHandler.init();
-            ModelLoaderRegistry.registerLoader(CCCubeLoader.INSTANCE);
-        }
+        proxy.preInit();
     }
 
     @EventHandler
-    @SideOnly(Side.CLIENT)
-    public void init(FMLInitializationEvent event){
-        CCExtendedBlockRendererDispatcher.init();
-        CCRenderItem.init();
+    public void init(FMLInitializationEvent event) {
+        proxy.init();
     }
 
 }
