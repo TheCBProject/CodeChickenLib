@@ -24,6 +24,9 @@ public class TaskProfiler {
     private long startTime;
     private long totalTime;
 
+    private long startTimeOnce;
+    private String currentOnceSection;
+
     public void start(String section) {
         if (currentSection != null) {
             end();
@@ -43,6 +46,16 @@ public class TaskProfiler {
         }
         times.put(currentSection, prev + time);
         currentSection = null;
+    }
+
+    public void startOnce(String name) {
+        currentOnceSection = name;
+        startTimeOnce = System.nanoTime();
+    }
+
+    public ProfilerResult endOnce() {
+        long end = System.nanoTime() - startTimeOnce;
+        return new ProfilerResult(currentOnceSection, end, end);
     }
 
     public List<ProfilerResult> getResults() {
