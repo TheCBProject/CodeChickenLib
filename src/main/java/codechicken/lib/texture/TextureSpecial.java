@@ -62,7 +62,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
     public void initSprite(int sheetWidth, int sheetHeight, int originX, int originY, boolean rotated) {
         super.initSprite(sheetWidth, sheetHeight, originX, originY, rotated);
         if (textureFX != null) {
-            textureFX.onTextureDimensionsUpdate(rawWidth, rawHeight);
+            textureFX.onTextureDimensionsUpdate(width, height);
         }
     }
 
@@ -73,40 +73,11 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
             if (textureFX.changed()) {
                 int[][] mipmaps = new int[mipmapLevels + 1][];
                 mipmaps[0] = textureFX.imageData;
-                //TODO mipmaps = prepareAnisotropicFiltering(mipmaps);
                 mipmaps = TextureUtil.generateMipmapData(mipmapLevels, width, mipmaps);
                 TextureUtil.uploadTextureMipmap(mipmaps, width, height, originX, originY, false, false);
             }
         }
     }
-
-    /*
-     * Copy paste mojang code because it's private, and CCL can't have access transformers or reflection
-     */
-    /*public int[][] prepareAnisotropicFiltering(int[][] mipmaps) {
-        if (Minecraft.getMinecraft().gameSettings.anisotropicFiltering <= 1)
-        {
-            return mipmaps;
-        }
-        else
-        {
-            int[][] aint1 = new int[mipmaps.length][];
-
-            for (int k = 0; k < mipmaps.length; ++k)
-            {
-                int[] aint2 = mipmaps[k];
-
-                if (aint2 != null)
-                {
-                    int[] aint3 = new int[(rawWidth + 16 >> k) * (rawHeight + 16 >> k)];
-                    System.arraycopy(aint2, 0, aint3, 0, aint2.length);
-                    aint1[k] = TextureUtil.prepareAnisotropicData(aint3, rawWidth >> k, rawHeight >> k, 8 >> k);
-                }
-            }
-
-            return aint1;
-        }
-    }*/
 
     @Override
     public void loadSprite(PngSizeInfo sizeInfo, boolean animationMeta) {
