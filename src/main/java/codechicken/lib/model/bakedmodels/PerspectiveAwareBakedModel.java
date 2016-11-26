@@ -1,5 +1,7 @@
-package codechicken.lib.model;
+package codechicken.lib.model.bakedmodels;
 
+import codechicken.lib.model.BakedModelProperties;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -8,48 +10,56 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
-import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraftforge.common.model.IModelState;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by covers1624 on 19/11/2016.
+ * Created by covers1624 on 25/11/2016.
  */
-public class SimplePerspectiveAwareLayeredModel implements IPerspectiveAwareModel {
+public class PerspectiveAwareBakedModel implements IPerspectiveAwareModel {
 
-    private final ImmutableMap<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap;
-    private final ImmutableMap<TransformType, TRSRTransformation> cameraTransforms;
+    private final ImmutableMap<EnumFacing, List<BakedQuad>> faceQuads;
+    private final ImmutableList<BakedQuad> generalQuads;
+    private final IModelState state;
     private final BakedModelProperties properties;
 
-    public SimplePerspectiveAwareLayeredModel(Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap, Map<TransformType, TRSRTransformation> cameraTransforms, BakedModelProperties properties) {
+    public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, IModelState state, BakedModelProperties properties) {
+        this(faceQuads, ImmutableList.<BakedQuad>of(), state, properties);
+    }
 
-        this.layerFaceQuadMap = ImmutableMap.copyOf(layerFaceQuadMap);
-        this.cameraTransforms = ImmutableMap.copyOf(cameraTransforms);
+    public PerspectiveAwareBakedModel(List<BakedQuad> generalQuads, IModelState state, BakedModelProperties properties) {
+        this(ImmutableMap.<EnumFacing, List<BakedQuad>>of(), generalQuads, state, properties);
+    }
+
+    public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, IModelState state, BakedModelProperties properties) {
+        this.faceQuads = ImmutableMap.copyOf(faceQuads);
+        this.generalQuads = ImmutableList.copyOf(generalQuads);
+        this.state = state;
         this.properties = properties.copy();
     }
 
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
-        if (side == null){
-            return new ArrayList<BakedQuad>();
-        }
-        BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
-        if (layerFaceQuadMap.containsKey(layer)) {
-            Map<EnumFacing, List<BakedQuad>> faceQuadMap = layerFaceQuadMap.get(layer);
-            if (faceQuadMap.containsKey(side)) {
-                return faceQuadMap.get(side);
+        if (side == null) {
+            return generalQuads;
+        } else {
+            if (faceQuads.containsKey(side)) {
+                return faceQuads.get(side);
             }
         }
-        return new ArrayList<BakedQuad>();
+        return ImmutableList.of();
+    }
+
+    @Override
+    public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
+        return MapWrapper.handlePerspective(this, state, cameraTransformType);
     }
 
     @Override
@@ -80,10 +90,5 @@ public class SimplePerspectiveAwareLayeredModel implements IPerspectiveAwareMode
     @Override
     public ItemOverrideList getOverrides() {
         return ItemOverrideList.NONE;
-    }
-
-    @Override
-    public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
-        return MapWrapper.handlePerspective(this, cameraTransforms, cameraTransformType);
     }
 }

@@ -11,6 +11,7 @@ import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.uv.UVTransformation;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
@@ -26,6 +27,10 @@ import java.util.List;
  * Created by covers1624 on 26/10/2016.
  */
 public class PlanarFaceBakery {
+
+    public static BakedQuad bakeFace(EnumFacing face, TextureAtlasSprite sprite) {
+        return bakeFace(face, sprite, DefaultVertexFormats.ITEM);
+    }
 
     public static BakedQuad bakeFace(EnumFacing face, TextureAtlasSprite sprite, VertexFormat format) {
         return bakeFace(face, sprite, format, 0xFFFFFFFF);
@@ -116,7 +121,7 @@ public class PlanarFaceBakery {
                 vert4 = new Vertex5(x2, y1, z2, u2, v2);
                 return buildQuad(format, sprite, face, colour, t, vert1, vert2, vert3, vert4);
         }
-        //This case will never happen. only here due to INTELLIJ NOT SHUTING UP ABOUT POTENTIAL NULLPOINTERS!
+        //This case will never happen. only here due to INTELLIJ NOT SHUTTING UP ABOUT POTENTIAL NULLPOINTERS!
         return new BakedQuad(null, 1, null, null, true, null);
     }
 

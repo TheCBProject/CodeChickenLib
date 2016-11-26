@@ -1,7 +1,7 @@
 package codechicken.lib.model.cube;
 
 import codechicken.lib.model.BakedModelProperties;
-import codechicken.lib.model.SimplePerspectiveAwareLayeredModelWrapper;
+import codechicken.lib.model.bakedmodels.PerspectiveAwareLayeredModelWrapper;
 import codechicken.lib.texture.TextureUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
@@ -16,7 +16,6 @@ import net.minecraftforge.client.model.*;
 import net.minecraftforge.client.model.IPerspectiveAwareModel.MapWrapper;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
-import net.minecraftforge.fml.common.FMLLog;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -90,7 +89,7 @@ public class CCModelCube implements IModel, IRetexturableModel, IModelSimpleProp
             layerModelMap.put(layerEntry.getKey(), model);
         }
 
-        return new SimplePerspectiveAwareLayeredModelWrapper(layerModelMap, MapWrapper.getTransforms(state), new BakedModelProperties(isAO, gui3d, particle));
+        return new PerspectiveAwareLayeredModelWrapper(layerModelMap, state, new BakedModelProperties(isAO, gui3d, particle));
     }
 
     private static Map<String, String> addMissing(Map<String, String> textures) {

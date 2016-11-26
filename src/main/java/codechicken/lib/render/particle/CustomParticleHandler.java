@@ -1,34 +1,34 @@
 package codechicken.lib.render.particle;
 
-import codechicken.lib.block.IBlockTextureProvider;
 import codechicken.lib.render.DigIconParticle;
+import codechicken.lib.texture.IWorldBlockTextureProvider;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 
 /**
  * Created by covers1624 on 21/11/2016.
  */
 public class CustomParticleHandler {
 
-    public static void addHitEffects(IBlockState state, World world, RayTraceResult trace, ParticleManager particleManager, IBlockTextureProvider provider) {
-        TextureAtlasSprite sprite = provider.getTexture(trace.sideHit, state.getBlock().getMetaFromState(state));
+    public static void addHitEffects(IBlockState state, World world, RayTraceResult trace, ParticleManager particleManager, IWorldBlockTextureProvider provider) {
+        TextureAtlasSprite sprite = provider.getTexture(trace.sideHit, state, BlockRenderLayer.SOLID, world, trace.getBlockPos());
         Cuboid6 cuboid = new Cuboid6(state.getBoundingBox(world, trace.getBlockPos())).add(trace.getBlockPos());
         addBlockHitEffects(world, cuboid, trace.sideHit, sprite, particleManager);
     }
 
-    public static void addDestroyEffects(World world, BlockPos pos, ParticleManager particleManager, IBlockTextureProvider provider) {
+    public static void addDestroyEffects(World world, BlockPos pos, ParticleManager particleManager, IWorldBlockTextureProvider provider) {
         TextureAtlasSprite[] sprites = new TextureAtlasSprite[6];
         IBlockState state = world.getBlockState(pos);
         for (EnumFacing face : EnumFacing.VALUES) {
-            sprites[face.ordinal()] = provider.getTexture(face, state.getBlock().getMetaFromState(state));
+            sprites[face.ordinal()] = provider.getTexture(face, state, BlockRenderLayer.SOLID, world, pos);
         }
         Cuboid6 cuboid = new Cuboid6(state.getBoundingBox(world, pos)).add(pos);
         addBlockDestroyEffects(world, cuboid, sprites, particleManager);

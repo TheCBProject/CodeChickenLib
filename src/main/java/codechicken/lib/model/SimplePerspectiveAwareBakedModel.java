@@ -25,6 +25,7 @@ import java.util.List;
  * <p/>
  * Basically a wrapper for baked quads and IPerspectiveAwareModel.
  */
+@Deprecated
 public class SimplePerspectiveAwareBakedModel implements IPerspectiveAwareModel {
 
     private final ImmutableMap<TransformType, TRSRTransformation> transforms;
