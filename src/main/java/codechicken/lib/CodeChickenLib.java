@@ -8,6 +8,9 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.FMLInjectionData;
+
+import java.io.File;
 
 /**
  * Created by covers1624 on 12/10/2016.
@@ -19,6 +22,8 @@ public class CodeChickenLib {
     public static final String MOD_NAME = "CodeChicken Lib";
     public static final String version = "${mod_version}";
     public static final String mcVersion = "[1.10.2]";
+
+    public static final File minecraftDir = (File) FMLInjectionData.data()[6];
 
     @SidedProxy(clientSide = "codechicken.lib.internal.proxy.ClientProxy", serverSide = "codechicken.lib.internal.proxy.CommonProxy")
     public static CommonProxy proxy;

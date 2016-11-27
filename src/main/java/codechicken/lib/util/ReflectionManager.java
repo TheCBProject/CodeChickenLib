@@ -1,7 +1,7 @@
 package codechicken.lib.util;
 
 import codechicken.lib.asm.ObfMapping;
-import jdk.internal.org.objectweb.asm.Type;
+import org.objectweb.asm.Type;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
