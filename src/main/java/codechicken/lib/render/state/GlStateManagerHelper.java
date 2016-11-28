@@ -325,6 +325,14 @@ public class GlStateManagerHelper {
         savedStates.addLast(state);
     }
 
+    public static void pushStates(State... states) {
+        if (states == null || states.length == 0){
+            states = State.values();
+        }
+        SavedState state = SavedState.createSavedState(states);
+        savedStates.addLast(state);
+    }
+
     public static void pushState(State[] states) {
         if (states == null || states.length == 0){
             states = State.values();
