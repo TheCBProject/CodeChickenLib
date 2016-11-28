@@ -54,7 +54,7 @@ public class Vector3 implements Copyable<Vector3> {
         z = vec.zCoord;
     }
 
-    @Deprecated // use Vector3.fromBlockPos
+    @Deprecated // use Vector3.fromBlockPos //TODO, 1.11 move this to Vec3i
     public Vector3(BlockPos pos) {
         x = pos.getX();
         y = pos.getY();

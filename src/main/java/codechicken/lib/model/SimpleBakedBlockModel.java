@@ -16,6 +16,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 8/4/2016.
  */
+@Deprecated
 public class SimpleBakedBlockModel implements IBakedModel {
 
     public List<BakedQuad> quads;

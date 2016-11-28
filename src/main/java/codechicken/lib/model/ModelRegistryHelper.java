@@ -1,8 +1,8 @@
 package codechicken.lib.model;
 
-import codechicken.lib.util.TransformUtils;
 import codechicken.lib.render.item.IItemRenderer;
 import codechicken.lib.texture.TextureUtils;
+import codechicken.lib.util.TransformUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import net.minecraft.block.Block;
@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.registry.IRegistry;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
@@ -30,10 +31,16 @@ import java.util.Map;
 
 public class ModelRegistryHelper {
     private static List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<Pair<ModelResourceLocation, IBakedModel>>();
+    private static List<IModelBakeCallback> modelBakeCallbacks = new LinkedList<IModelBakeCallback>();
 
     static {
         MinecraftForge.EVENT_BUS.register(new ModelRegistryHelper());
     }
+
+    public static void registerCallback(IModelBakeCallback callback) {
+        modelBakeCallbacks.add(callback);
+    }
+
 
     public static void register(ModelResourceLocation location, IBakedModel model) {
         registerModels.add(new ImmutablePair<ModelResourceLocation, IBakedModel>(location, model));
@@ -57,6 +64,9 @@ public class ModelRegistryHelper {
     public void onModelBake(ModelBakeEvent event) {
         for (Pair<ModelResourceLocation, IBakedModel> pair : registerModels) {
             event.getModelRegistry().putObject(pair.getKey(), pair.getValue());
+        }
+        for (IModelBakeCallback callback : modelBakeCallbacks) {
+            callback.onModelBake(event.getModelRegistry());
         }
     }
 
@@ -82,5 +92,14 @@ public class ModelRegistryHelper {
                 });
             }
         });
+    }
+
+    public interface IModelBakeCallback {
+        /**
+         * A Simple callback for model baking.
+         *
+         * @param modelRegistry
+         */
+        void onModelBake(IRegistry<ModelResourceLocation, IBakedModel> modelRegistry);
     }
 }

@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
  * You can return an entirely different model for this or just set some flags. What ever you want.
  * Useful for on-the-fly model baking, where you need to generate from an IExtendedBlockState.
  */
+@Deprecated
 public interface IExtendedModel extends IBakedModel {
 
     /**

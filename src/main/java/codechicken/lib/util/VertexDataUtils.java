@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
+import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
 /**
@@ -98,11 +99,28 @@ public class VertexDataUtils {
 
     /**
      * Copies the data from a UnpackedBakedQuad to a normal baked quad to save space in ram.
+     *
      * @param quad The UnpackedBakedQuad to copy from.
      * @return The copied BakedQuad.
      */
-    public static BakedQuad copyQuad(UnpackedBakedQuad quad){
+    public static BakedQuad copyQuad(UnpackedBakedQuad quad) {
         return new BakedQuad(quad.getVertexData(), quad.getTintIndex(), quad.getFace(), quad.getSprite(), quad.shouldApplyDiffuseLighting(), quad.getFormat());
+    }
+
+    public static void fullyPackQuads(int[] packedData, float[][][] unpackedData, VertexFormat format) {
+        for (int e = 0; e < format.getElementCount(); e++) {
+            for (int v = 0; v < 4; v++) {
+                LightUtil.pack(unpackedData[v][e], packedData, format, v, e);
+            }
+        }
+    }
+
+    public static void fullyUnPackQuads(int[] packedData, float[][][] unpackedData, VertexFormat format) {
+        for (int e = 0; e < format.getElementCount(); e++) {
+            for (int v = 0; v < 4; v++) {
+                LightUtil.unpack(packedData, unpackedData[v][e], format, v, e);
+            }
+        }
     }
 
 }

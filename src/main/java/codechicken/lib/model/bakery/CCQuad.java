@@ -16,22 +16,27 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.model.pipeline.IVertexConsumer;
+import net.minecraftforge.client.model.pipeline.IVertexProducer;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by covers1624 on 8/20/2016.
  * Basically just a holder for quads before baking.
  */
-public class CCQuad implements Copyable<CCQuad> {
+public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
     public Vertex5[] vertices = new Vertex5[4];
     public Vector3[] normals = new Vector3[4];
     public Colour[] colours = new Colour[4];
     public Integer[] lightMaps = new Integer[4];
 
     public EnumFacing face = null;
+    public int tintIndex = -1;
     public boolean applyDifuseLighting = true;
     public TextureAtlasSprite sprite;
 
@@ -52,11 +57,14 @@ public class CCQuad implements Copyable<CCQuad> {
 
         VertexFormat format = quad.getFormat();
         face = quad.getFace();
-        Arrays.fill(vertices, new Vertex5());
+        tintIndex = quad.getTintIndex();
+        ArrayUtils.fillArray(vertices, new Vertex5());
+        UnpackingVertexConsumer consumer = new UnpackingVertexConsumer(quad.getFormat());
+        quad.pipe(consumer);
+        float[][][] unpackedData = consumer.getUnpackedData();
         for (int v = 0; v < 4; v++) {
             for (int e = 0; e < format.getElementCount(); e++) {
-                float[] data = new float[4];
-                LightUtil.unpack(quad.getVertexData(), data, format, v, e);
+                float[] data = unpackedData[v][e];
                 switch (format.getElement(e).getUsage()) {
                     case POSITION:
                         vertices[v].vec.set(data);
@@ -143,6 +151,10 @@ public class CCQuad implements Copyable<CCQuad> {
         return counter == 4;
     }
 
+    public boolean hasTint(){
+        return tintIndex != -1;
+    }
+
     /**
      * Quadulates the quad by copying any element at index 2 to index 3 only if there are 3 of any given element.
      */
@@ -170,11 +182,13 @@ public class CCQuad implements Copyable<CCQuad> {
      * Will attempt to Quadulate the model first.
      */
     public void computeNormals() {
-        quadulate();
-        Vector3 normal = VectorUtils.calculateNormal(vertices[0].vec, vertices[1].vec, vertices[3].vec);
+        if (ArrayUtils.countNoNull(normals) != 4) {
+            quadulate();
+            Vector3 normal = VectorUtils.calculateNormal(vertices[0].vec, vertices[1].vec, vertices[3].vec);
 
-        for (int i = 0; i < 4; i++) {
-            normals[i] = normal.copy();
+            for (int i = 0; i < 4; i++) {
+                normals[i] = normal.copy();
+            }
         }
     }
 
@@ -199,6 +213,7 @@ public class CCQuad implements Copyable<CCQuad> {
         quadBuilder.setApplyDiffuseLighting(applyDifuseLighting);
         quadBuilder.setTexture(sprite);
         quadBuilder.setQuadOrientation(getQuadFace());
+        quadBuilder.setQuadTint(tintIndex);
         for (int v = 0; v < 4; v++) {
             for (int e = 0; e < format.getElementCount(); e++) {
                 VertexFormatElement element = format.getElement(e);
@@ -231,8 +246,57 @@ public class CCQuad implements Copyable<CCQuad> {
                 }
             }
         }
-        UnpackedBakedQuad quad = quadBuilder.build();
-        return new BakedQuad(quad.getVertexData(), quad.getTintIndex(), quad.getFace(), quad.getSprite(), quad.shouldApplyDiffuseLighting(), quad.getFormat());
+        return quadBuilder.build();
+    }
+
+    @Override
+    public void pipe(IVertexConsumer consumer) {
+        quadulate();
+        computeNormals();
+        consumer.setApplyDiffuseLighting(applyDifuseLighting);
+        consumer.setTexture(sprite);
+        consumer.setQuadOrientation(getQuadFace());
+        consumer.setQuadTint(tintIndex);
+        for (int v = 0; v < 4; v++) {
+            for (int e = 0; e < consumer.getVertexFormat().getElementCount(); e++) {
+                VertexFormatElement element = consumer.getVertexFormat().getElement(e);
+                switch (element.getUsage()) {
+                    case POSITION:
+                        Vector3 pos = vertices[v].vec;
+                        consumer.put(e, (float) pos.x, (float) pos.y, (float) pos.z, 1);
+                        break;
+                    case NORMAL:
+                        Vector3 normal = normals[v];
+                        consumer.put(e, (float) normal.x, (float) normal.y, (float) normal.z, 0);
+                        break;
+                    case COLOR:
+                        Colour colour = colours[v];
+                        consumer.put(e, (colour.r & 0xFF) / 255, (colour.g & 0xFF) / 255, (colour.b & 0xFF) / 255, (colour.a & 0xFF) / 255);
+                        break;
+                    case UV:
+                        if (element.getIndex() == 0) {
+                            UV uv = vertices[v].uv;
+                            consumer.put(e, (float) uv.u, (float) uv.v, 0, 1);
+                        } else {
+                            int brightness = lightMaps[v];
+                            consumer.put(e, (float) ((brightness >> 4) & 15 * 32) / 65535, (float) ((brightness >> 20) & 15 * 32) / 65535, 0, 1);
+                        }
+                        break;
+                    case PADDING:
+                    case GENERIC:
+                    default:
+                        consumer.put(e);
+                }
+            }
+        }
+    }
+
+    public static List<CCQuad> fromArray(List<BakedQuad> bakedQuads) {
+        List<CCQuad> quads = new LinkedList<CCQuad>();
+        for (BakedQuad quad : bakedQuads) {
+            quads.add(new CCQuad(quad));
+        }
+        return quads;
     }
 
     @Override

@@ -1,8 +1,10 @@
 package codechicken.lib.util;
 
+import codechicken.lib.gui.IGuiPacketSender;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Container;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache.ProfileEntry;
 import net.minecraft.util.math.ChunkPos;
@@ -74,5 +76,14 @@ public class ServerUtils {
         for (EntityPlayer p : getPlayers()) {
             p.addChatComponentMessage(msg);
         }
+    }
+
+    public static void openSMPContainer(EntityPlayerMP player, Container container, IGuiPacketSender packetSender) {
+        player.getNextWindowId();
+        player.closeContainer();
+        packetSender.sendPacket(player, player.currentWindowId);
+        player.openContainer = container;
+        player.openContainer.windowId = player.currentWindowId;
+        player.openContainer.addListener(player);
     }
 }

@@ -1,6 +1,8 @@
 package codechicken.lib.model.bakery;
 
+import codechicken.lib.model.BakedModelProperties;
 import codechicken.lib.model.SimplePerspectiveAwareBakedModel;
+import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.texture.TextureUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -30,16 +32,14 @@ public class SimplePerspectiveAwareLayerModelBakery {
         this.layers = layers;
     }
 
-    public SimplePerspectiveAwareBakedModel bake(IModelState state) {
-        ImmutableMap<TransformType, TRSRTransformation> transformMap = MapWrapper.getTransforms(state);
+    public IBakedModel bake(IModelState state) {
 
         ImmutableList.Builder<BakedQuad> quadBuilder = ImmutableList.builder();
         ImmutableList<ResourceLocation> textureLayers = ImmutableList.<ResourceLocation>builder().add(baseTexture).addAll(Arrays.asList(layers)).build();
-        TextureAtlasSprite particle = TextureUtils.bakedTextureGetter.apply(baseTexture);
 
         IBakedModel layerModel = new ItemLayerModel(textureLayers).bake(state, DefaultVertexFormats.ITEM, TextureUtils.bakedTextureGetter);
         quadBuilder.addAll(layerModel.getQuads(null, null, 0));
 
-        return new SimplePerspectiveAwareBakedModel(quadBuilder.build(), particle, transformMap);
+        return new PerspectiveAwareBakedModel(quadBuilder.build(), state, BakedModelProperties.createFromModel(layerModel));
     }
 }

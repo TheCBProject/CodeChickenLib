@@ -13,3 +13,9 @@ ALOAD 1
 INVOKEINTERFACE codechicken/lib/render/item/IItemRenderer.renderItem (Lnet/minecraft/item/ItemStack;)V
 GOTO LEND
 LELSE
+
+list i_BlockStateLoader
+ALOAD 0
+GETSTATIC net/minecraft/client/renderer/block/model/ModelBlockDefinition.field_178333_a : Lcom/google/gson/Gson;
+INVOKESTATIC codechicken/lib/model/blockstate/CCBlockStateLoader.handleLoad (Ljava/io/Reader;Lcom/google/gson/Gson;)Lnet/minecraft/client/renderer/block/model/ModelBlockDefinition;
+ARETURN
