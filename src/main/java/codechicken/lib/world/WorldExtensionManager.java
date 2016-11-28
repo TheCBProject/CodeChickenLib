@@ -59,7 +59,7 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkUnLoad(ChunkEvent.Unload event) {
-            if (event.getChunk() instanceof EmptyChunk) {
+            if (event.getChunk().isEmpty()) {
                 return;
             }
 
