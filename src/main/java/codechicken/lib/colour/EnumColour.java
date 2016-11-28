@@ -2,7 +2,9 @@ package codechicken.lib.colour;
 
 import codechicken.lib.util.TripleABC;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
+import net.minecraftforge.oredict.OreDictionary;
 
 /**
  * Created by covers1624 on 16/09/2016.
@@ -59,8 +61,12 @@ public enum EnumColour implements IStringSerializable {
         return unlocalizedName;
     }
 
-    public EnumColour mix(EnumColour b) {
-        return mix(this, b);
+    public int getWoolDamage() {
+        return ordinal();
+    }
+
+    public int getDyeDamage() {
+        return 15-ordinal();
     }
 
     public int rgba() {
@@ -79,12 +85,36 @@ public enum EnumColour implements IStringSerializable {
         return (alpha & 0xFF) << 24 | rgb;
     }
 
+    public int rgb() {
+        return rgb;
+    }
+
+    public float rF() {
+        return (rgb>>16&255)/255.0f;
+    }
+
+    public float gF() {
+        return (rgb>>8&255)/255.0f;
+    }
+
+    public float bF() {
+        return (rgb>>4&255)/255.0f;
+    }
+
+    public float aF() {
+        return (rgb&255)/255.0f;
+    }
+
     public ColourRGBA getColour() {
         return getColour(0xFF);
     }
 
     public ColourRGBA getColour(int alpha) {
         return new ColourRGBA(rgba(alpha));
+    }
+
+    public EnumColour mix(EnumColour b) {
+        return mix(this, b);
     }
 
     public static EnumColour mix(EnumColour a, EnumColour b) {
@@ -97,6 +127,28 @@ public enum EnumColour implements IStringSerializable {
                     return triple.getC();
                 }
             }
+        }
+        return null;
+    }
+
+    public static EnumColour fromWoolID(int id) {
+        return values()[id];
+    }
+    public static EnumColour fromDyeID(int id) {
+        return values()[15-id];
+    }
+    public static EnumColour fromOreDictID(String id) {
+        for (EnumColour c : values()) {
+            if (c.getOreDictionaryName().equals(id))
+                return c;
+        }
+        return null;
+    }
+    public static EnumColour fromStack(ItemStack stack) {
+        for (int id : OreDictionary.getOreIDs(stack)) {
+            EnumColour c = fromOreDictID(OreDictionary.getOreName(id));
+            if (c != null)
+                return c;
         }
         return null;
     }

@@ -54,10 +54,18 @@ public class Vector3 implements Copyable<Vector3> {
         z = vec.zCoord;
     }
 
+    @Deprecated // use Vector3.fromBlockPos
     public Vector3(BlockPos pos) {
         x = pos.getX();
         y = pos.getY();
         z = pos.getZ();
+    }
+
+    public static Vector3 fromBlockPos(BlockPos pos) {
+        return new Vector3(pos.getX(), pos.getY(), pos.getZ());
+    }
+    public static Vector3 fromBlockPosCenter(BlockPos pos) {
+        return fromBlockPos(pos).add(0.5);
     }
 
     public static Vector3 fromEntity(Entity e) {
@@ -69,7 +77,7 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public static Vector3 fromTile(TileEntity tile) {
-        return new Vector3(tile.getPos());
+        return fromBlockPos(tile.getPos());
     }
 
     public static Vector3 fromTileCenter(TileEntity tile) {
