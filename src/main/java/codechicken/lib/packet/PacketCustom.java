@@ -25,6 +25,7 @@ import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerChunkMapEntry;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -524,6 +525,10 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
 
     public static void sendToDimension(Packet packet, int dim) {
         FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendPacketToAllPlayersInDimension(packet, dim);
+    }
+
+    public void sendToChunk(TileEntity tile) {
+        sendToChunk(tile.getWorld(), tile.getPos().getX() >> 4, tile.getPos().getZ() >> 4);
     }
 
     public void sendToChunk(World world, int chunkX, int chunkZ) {
