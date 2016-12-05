@@ -11,6 +11,7 @@ import net.minecraftforge.oredict.OreDictionary;
  */
 public enum EnumColour implements IStringSerializable {
     //Formatted like this due to the cancerous nature of the constructors..
+    //TODO Should we have our own localizations for this?
     //@formatter:off
     WHITE     ("white",      "dyeWhite",     "item.fireworksCharge.white",     0xFFFFFF),
     ORANGE    ("orange",     "dyeOrange",    "item.fireworksCharge.orange",    0xC06300),
@@ -66,7 +67,7 @@ public enum EnumColour implements IStringSerializable {
     }
 
     public int getDyeDamage() {
-        return 15-ordinal();
+        return 15 - ordinal();
     }
 
     public int rgba() {
@@ -90,19 +91,19 @@ public enum EnumColour implements IStringSerializable {
     }
 
     public float rF() {
-        return (rgb>>16&255)/255.0f;
+        return (rgb >> 16 & 255) / 255.0f;
     }
 
     public float gF() {
-        return (rgb>>8&255)/255.0f;
+        return (rgb >> 8 & 255) / 255.0f;
     }
 
     public float bF() {
-        return (rgb>>4&255)/255.0f;
+        return (rgb >> 4 & 255) / 255.0f;
     }
 
     public float aF() {
-        return (rgb&255)/255.0f;
+        return (rgb & 255) / 255.0f;
     }
 
     public ColourRGBA getColour() {
@@ -134,21 +135,26 @@ public enum EnumColour implements IStringSerializable {
     public static EnumColour fromWoolID(int id) {
         return values()[id];
     }
+
     public static EnumColour fromDyeID(int id) {
-        return values()[15-id];
+        return values()[15 - id];
     }
+
     public static EnumColour fromOreDictID(String id) {
         for (EnumColour c : values()) {
-            if (c.getOreDictionaryName().equals(id))
+            if (c.getOreDictionaryName().equals(id)) {
                 return c;
+            }
         }
         return null;
     }
+
     public static EnumColour fromStack(ItemStack stack) {
         for (int id : OreDictionary.getOreIDs(stack)) {
             EnumColour c = fromOreDictID(OreDictionary.getOreName(id));
-            if (c != null)
+            if (c != null) {
                 return c;
+            }
         }
         return null;
     }
