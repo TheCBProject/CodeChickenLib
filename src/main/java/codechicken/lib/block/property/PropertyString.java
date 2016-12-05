@@ -2,11 +2,13 @@ package codechicken.lib.block.property;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import net.minecraft.block.properties.PropertyHelper;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by covers1624 on 2/6/2016.
@@ -24,6 +26,10 @@ public class PropertyString extends PropertyHelper<String> {
         super(name, String.class);
         valuesSet = new HashSet<String>();
         Collections.addAll(valuesSet, values);
+    }
+
+    public List<String> values() {
+        return Lists.newLinkedList(valuesSet);
     }
 
     @Override
