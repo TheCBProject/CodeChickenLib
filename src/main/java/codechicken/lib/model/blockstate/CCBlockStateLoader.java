@@ -46,15 +46,15 @@ public class CCBlockStateLoader {
             if (JsonUtils.hasField(object, "ccl_marker")) {
 
                 String marker = JsonUtils.getString(object, "ccl_marker");
-                String blockVariants = JsonUtils.getString(object, "block_variants");
-                String inventoryVariants = JsonUtils.getString(object, "inventory_variants");
+                List<String> variantSets = new ArrayList<String>();
+                for (JsonElement element : object.getAsJsonArray("variant_sets")) {
+                    variantSets.add(element.getAsString());
+                }
+
                 String textureDomain = "";
                 if (object.has("texture_domain")) {
                     textureDomain = object.get("texture_domain").getAsString();
                 }
-
-                final List<String> blockVariantKeys = Lists.newLinkedList(Arrays.asList(blockVariants.split(",")));
-                final List<String> inventoryVariantKeys = Lists.newLinkedList(Arrays.asList(inventoryVariants.split(",")));
 
                 CCVariant defaultVariant = null;
                 if (object.has("defaults")) {
@@ -64,12 +64,12 @@ public class CCBlockStateLoader {
 
                 Map<String, CCVariant> compiledVariants = new LinkedHashMap<String, CCVariant>();
 
-                Map<String, List<String>> blockVariantValueMap = generateVariantValueMap(blockVariantKeys, variants);
-                Map<String, List<String>> itemVariantValueMap = generateVariantValueMap(inventoryVariantKeys, variants);
-
                 List<String> possibleCombos = new ArrayList<String>();
-                possibleCombos.addAll(generatePossibleCombos(blockVariantValueMap));
-                possibleCombos.addAll(generatePossibleCombos(itemVariantValueMap));
+
+                for (String variantSet : variantSets) {
+                    Map<String, List<String>> variantValueMap = generateVariantValueMap(Arrays.asList(variantSet.split(",")), variants);
+                    possibleCombos.addAll(generatePossibleCombos(variantValueMap));
+                }
 
                 for (String var : possibleCombos) {
                     Map<String, String> kvArray = ArrayUtils.convertKeyValueArrayToMap(var.split(","));
