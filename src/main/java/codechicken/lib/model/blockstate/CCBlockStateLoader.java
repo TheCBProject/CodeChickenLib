@@ -4,6 +4,7 @@ import codechicken.lib.util.ArrayUtils;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
 import net.minecraft.client.renderer.block.model.ModelBlockDefinition;
 import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.block.model.Variant;
@@ -42,7 +43,9 @@ public class CCBlockStateLoader {
     public static ModelBlockDefinition load(String json) {
         try {
             JsonParser parser = new JsonParser();
-            JsonObject object = parser.parse(json).getAsJsonObject();
+            JsonReader reader = new JsonReader(new StringReader(json));
+            reader.setLenient(true);
+            JsonObject object = parser.parse(reader).getAsJsonObject();
             if (JsonUtils.hasField(object, "ccl_marker")) {
 
                 String marker = JsonUtils.getString(object, "ccl_marker");
@@ -113,7 +116,7 @@ public class CCBlockStateLoader {
                     if (variant.model != null && variant.textures.size() == 0 && variant.state.orNull() instanceof ModelRotation) {
                         vars.add(new Variant(variant.model, ((ModelRotation) variant.state.get()), uvLock, weight));
                     } else {
-                        vars.add(new CCFinalVariant(variant.model, variant.state.or(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures, textureDomain));
+                        vars.add(new CCFinalVariant(variant.model, variant.state.or(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures, textureDomain, variant.customData));
                     }
                     variantList.put(entry.getKey(), new VariantList(vars));
                 }

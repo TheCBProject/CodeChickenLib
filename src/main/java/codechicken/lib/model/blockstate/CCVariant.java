@@ -17,7 +17,7 @@ import java.util.Map.Entry;
 /**
  * Created by covers1624 on 18/11/2016.
  */
-public class CCVariant implements Copyable<CCVariant>{
+public class CCVariant implements Copyable<CCVariant> {
 
     protected ResourceLocation model;
     protected Optional<IModelState> state = Optional.absent();
@@ -26,6 +26,7 @@ public class CCVariant implements Copyable<CCVariant>{
     protected Optional<Boolean> gui3d = Optional.absent();
     protected Optional<Integer> weight = Optional.absent();
     protected Map<String, String> textures = new HashMap<String, String>();
+    protected Map<String, String> customData = new HashMap<String, String>();
     protected Map<String, Map<String, CCVariant>> subVariants = new LinkedHashMap<String, Map<String, CCVariant>>();
 
     public CCVariant() {
@@ -39,6 +40,7 @@ public class CCVariant implements Copyable<CCVariant>{
         this.gui3d = variant.gui3d;
         this.weight = variant.weight;
         this.textures = new HashMap<String, String>(variant.textures);
+        this.customData = new HashMap<String, String>(customData);
         this.subVariants = new LinkedHashMap<String, Map<String, CCVariant>>(variant.subVariants);
     }
 
@@ -66,6 +68,10 @@ public class CCVariant implements Copyable<CCVariant>{
         newTextures.putAll(textures);
         newTextures.putAll(other.textures);
         this.textures = new LinkedHashMap<String, String>(newTextures);
+        HashMap<String, String> newCustomData = new HashMap<String, String>();
+        newCustomData.putAll(customData);
+        newCustomData.putAll(other.customData);
+        this.customData = new LinkedHashMap<String, String>(newCustomData);
         return this;
     }
 
@@ -176,6 +182,16 @@ public class CCVariant implements Copyable<CCVariant>{
 
             if (json.has("variants")) {
                 variant.subVariants.putAll(CCBlockStateLoader.parseVariants(json.getAsJsonObject("variants")));
+            }
+
+            if (json.has("custom")) {
+                for (Entry<String, JsonElement> e : json.get("custom").getAsJsonObject().entrySet()) {
+                    if (e.getValue().isJsonNull()) {
+                        variant.customData.put(e.getKey(), null);
+                    } else {
+                        variant.customData.put(e.getKey(), e.getValue().toString());
+                    }
+                }
             }
 
             return variant;
