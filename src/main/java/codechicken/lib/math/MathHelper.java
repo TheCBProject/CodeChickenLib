@@ -159,6 +159,34 @@ public class MathHelper {
         return value;
     }
 
+    /**
+     * Maps a value range to another value range.
+     *
+     * @param valueIn The value to map.
+     * @param inMin   The minimum of the input value range.
+     * @param inMax   The maximum of the input value range
+     * @param outMin  The minimum of the output value range.
+     * @param outMax  The maximum of the output value range.
+     * @return The mapped value.
+     */
+    public static double map(double valueIn, double inMin, double inMax, double outMin, double outMax) {
+        return (valueIn - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    }
+
+
+    /**
+     * Maps a value range to another value range.
+     *
+     * @param valueIn The value to map.
+     * @param inMin   The minimum of the input value range.
+     * @param inMax   The maximum of the input value range
+     * @param outMin  The minimum of the output value range.
+     * @param outMax  The maximum of the output value range.
+     * @return The mapped value.
+     */
+    public static float map(float valueIn, float inMin, float inMax, float outMin, float outMax) {
+        return (valueIn - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    }
 
     /**
      * @return min <= value <= max
