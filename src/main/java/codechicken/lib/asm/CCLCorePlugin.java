@@ -16,8 +16,8 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-@TransformerExclusions({ "codechicken.lib.asm", "codechicken.lib.config" })
-public class CCLCorePlugin implements IFMLLoadingPlugin , IFMLCallHook{
+@TransformerExclusions({ "codechicken.lib.asm", "codechicken.lib.config", "codechicken.lib.fingerprint" })
+public class CCLCorePlugin implements IFMLLoadingPlugin, IFMLCallHook {
 
     public static Logger logger = LogManager.getLogger("CodeChicken Lib");
 
