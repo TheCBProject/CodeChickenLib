@@ -29,7 +29,7 @@ import net.minecraftforge.items.wrapper.SidedInvWrapper;
 public class InventoryUtils {
 
     public static boolean hasItemHandlerCap(TileEntity tileEntity, EnumFacing face) {
-        return tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, face) || tileEntity instanceof ISidedInventory || tileEntity instanceof IInventory;
+        return tileEntity != null && (tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, face) || tileEntity instanceof ISidedInventory || tileEntity instanceof IInventory);
     }
 
     public static IItemHandler getItemHandlerCap(TileEntity tileEntity, EnumFacing face) {
