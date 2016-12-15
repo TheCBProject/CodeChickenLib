@@ -76,7 +76,7 @@ task srcJar(type: Jar) {
     manifest commonManifest
 }
 
-task signjar(type: SignJar, dependsOn: reobfJar) {
+task signJar(type: SignJar, dependsOn: reobfJar) {
     onlyIf { // Skip the task if our secret data isn't available
         project.hasProperty('keyStore')
     }
@@ -89,7 +89,7 @@ task signjar(type: SignJar, dependsOn: reobfJar) {
     outputFile = jar.archivePath
 }
 
-build.dependsOn signjar
+build.dependsOn signJar
 
 // Tell the artifact system about our extra jars
 artifacts {
