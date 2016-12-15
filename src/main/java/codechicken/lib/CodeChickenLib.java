@@ -17,7 +17,7 @@ import java.io.File;
 /**
  * Created by covers1624 on 12/10/2016.
  */
-@Mod(modid = CodeChickenLib.MOD_ID, name = CodeChickenLib.MOD_NAME, acceptedMinecraftVersions = CodeChickenLib.mcVersion)
+@Mod(modid = CodeChickenLib.MOD_ID, name = CodeChickenLib.MOD_NAME, acceptedMinecraftVersions = CodeChickenLib.mcVersion, certificateFingerprint = "f1850c39b2516232a2108a7bd84d1cb5df93b261")
 public class CodeChickenLib {
 
     public static final String MOD_ID = "CodeChickenLib";

@@ -76,6 +76,21 @@ task srcJar(type: Jar) {
     manifest commonManifest
 }
 
+task signjar(type: SignJar, dependsOn: reobfJar) {
+    onlyIf { // Skip the task if our secret data isn't available
+        project.hasProperty('keyStore')
+    }
+
+    keyStore = project.keyStore // This needs to be a path to the keystore file
+    alias = project.keyStoreAlias
+    storePass = project.keyStorePass
+    keyPass = project.keyStoreKeyPass
+    inputFile = jar.archivePath
+    outputFile = jar.archivePath
+}
+
+build.dependsOn signjar
+
 // Tell the artifact system about our extra jars
 artifacts {
     archives deobfJar
