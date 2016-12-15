@@ -25,13 +25,13 @@ public class FingerprintChecker {
 
     static {
         //@formatter:off
-        modCertMap.put("CodeChickenLib" , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
-        modCertMap.put("CodeChickenCore", "f1850c39b2516232a2108a7bd84d1cb5df93b261");
-        modCertMap.put("ChickenChunks"  , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
-        modCertMap.put("EnderStorage"   , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
-        modCertMap.put("Translocators"  , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
-        modCertMap.put("NotEnoughItems" , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
-        modCertMap.put("ForgeMultipart" , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("CodeChickenLib"    , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("CodeChickenCore"   , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("ChickenChunks"     , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("EnderStorage"      , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("Translocator"      , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("NotEnoughItems"    , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("forgemultipartcbe" , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
         //@formatter:on
     }
 
