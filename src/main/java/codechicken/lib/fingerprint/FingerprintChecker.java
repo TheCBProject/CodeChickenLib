@@ -68,7 +68,7 @@ public class FingerprintChecker {
                                 invalidMods.add(modEntry.getKey());
                                 break;
                             } else {
-                                FMLLog.log(activeContainer.getModId() + " Fingerprint Verification", Level.INFO, "Valid fingerprint found for mod %s.", modEntry.getKey());
+                                FMLLog.log(activeContainer.getModId() + " Fingerprint Verification", Level.DEBUG, "Valid fingerprint found for mod %s.", modEntry.getKey());
                             }
                         }
 
