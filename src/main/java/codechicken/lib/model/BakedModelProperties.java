@@ -14,6 +14,14 @@ public class BakedModelProperties implements Copyable<BakedModelProperties> {
     private final boolean isBuiltInRenderer;
     private final TextureAtlasSprite particle;
 
+    public BakedModelProperties(boolean isAO, boolean isGui3D) {
+        this(isAO, isGui3D, false, null);
+    }
+
+    public BakedModelProperties(BakedModelProperties properties, TextureAtlasSprite sprite) {
+        this(properties.isAmbientOcclusion(), properties.isGui3d(), properties.isBuiltInRenderer(), sprite);
+    }
+
     public BakedModelProperties(boolean isAO, boolean isGui3D, TextureAtlasSprite sprite) {
         this(isAO, isGui3D, false, sprite);
     }

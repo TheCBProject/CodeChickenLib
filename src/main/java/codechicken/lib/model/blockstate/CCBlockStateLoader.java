@@ -65,46 +65,43 @@ public class CCBlockStateLoader {
                 }
                 Map<String, Map<String, CCVariant>> variants = parseVariants(object.getAsJsonObject("variants"));
 
+                Map<String, Map<String, Map<String, CCVariant>>> subModels = parseSubModels(object.getAsJsonObject("sub_model"));
+
                 Map<String, CCVariant> compiledVariants = new LinkedHashMap<String, CCVariant>();
+                Map<String, Map<String, CCVariant>> compiledSubModelVariants = new LinkedHashMap<String, Map<String, CCVariant>>();
 
                 List<String> possibleCombos = new ArrayList<String>();
 
                 for (String variantSet : variantSets) {
-                    Map<String, List<String>> variantValueMap = generateVariantValueMap(Arrays.asList(variantSet.split(",")), variants);
+                    Map<String, List<String>> variantValueMap = generateVariantValueMap(Arrays.asList(variantSet.split(",")), variants, subModels);
                     possibleCombos.addAll(generatePossibleCombos(variantValueMap));
                 }
 
                 for (String var : possibleCombos) {
                     Map<String, String> kvArray = ArrayUtils.convertKeyValueArrayToMap(var.split(","));
-                    CCVariant finalVariant = defaultVariant.copy();
-                    if (finalVariant == null) {
-                        finalVariant = new CCVariant();
+                    CCVariant finalVariant = new CCVariant();
+                    if (defaultVariant != null) {
+                        finalVariant = defaultVariant.copy();
                     }
-                    for (Entry<String, String> entry : kvArray.entrySet()) {
-                        for (Entry<String, Map<String, CCVariant>> variantsEntry : variants.entrySet()) {
-                            if (entry.getKey().equals(variantsEntry.getKey())) {
-                                Map<String, CCVariant> variantMap = variantsEntry.getValue();
-                                if (variantMap.containsKey(entry.getValue())) {
-                                    finalVariant = finalVariant.with(variantMap.get(entry.getValue()));
-                                }
-                            }
+                    compiledVariants.put(var, compileVariant(finalVariant.copy(), kvArray, variants));
+
+                }
+                for (Entry<String, Map<String, Map<String, CCVariant>>> subModelVariantEntry : subModels.entrySet()) {
+                    Map<String, CCVariant> compiledVariants2 = new LinkedHashMap<String, CCVariant>();
+                    for (String var : possibleCombos) {
+                        Map<String, String> kvArray = ArrayUtils.convertKeyValueArrayToMap(var.split(","));
+                        CCVariant finalVariant = new CCVariant();
+                        if (defaultVariant != null) {
+                            finalVariant = defaultVariant.copy();
                         }
+                        compiledVariants2.put(var, compileVariant(finalVariant.copy(), kvArray, subModelVariantEntry.getValue()));
                     }
-                    for (Entry<String, String> entry : kvArray.entrySet()) {
-                        for (Entry<String, Map<String, CCVariant>> variantsEntry : variants.entrySet()) {
-                            if (entry.getKey().equals(variantsEntry.getKey())) {
-                                Map<String, CCVariant> variantMap = variantsEntry.getValue();
-                                if (variantMap.containsKey(entry.getValue())) {
-                                    finalVariant = variantMap.get(entry.getValue()).applySubOverrides(finalVariant, kvArray);
-                                }
-                            }
-                        }
-                    }
-                    compiledVariants.put(var, finalVariant);
+                    compiledSubModelVariants.put(subModelVariantEntry.getKey(), compiledVariants2);
                 }
 
                 Map<String, VariantList> variantList = new HashMap<String, VariantList>();
                 for (Entry<String, CCVariant> entry : compiledVariants.entrySet()) {
+                    Map<String, CCVariant> subModelVariants = getSubModelsForKey(entry.getKey(), compiledSubModelVariants);
                     List<Variant> vars = new ArrayList<Variant>();
                     CCVariant variant = entry.getValue();
 
@@ -113,10 +110,12 @@ public class CCBlockStateLoader {
                     boolean gui3d = variant.gui3d.or(true);
                     int weight = variant.weight.or(1);
 
-                    if (variant.model != null && variant.textures.size() == 0 && variant.state.orNull() instanceof ModelRotation) {
+                    if (variant.model != null && subModelVariants.size() == 0 && variant.textures.size() == 0 && variant.customData.size() == 0 && variant.state.orNull() instanceof ModelRotation) {
                         vars.add(new Variant(variant.model, ((ModelRotation) variant.state.get()), uvLock, weight));
-                    } else {
+                    } else if (subModelVariants.size() == 0){
                         vars.add(new CCFinalVariant(variant.model, variant.state.or(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures, textureDomain, variant.customData));
+                    } else {
+                        vars.add(new CCFinalMultiVariant(variant, textureDomain, subModelVariants));
                     }
                     variantList.put(entry.getKey(), new VariantList(vars));
                 }
@@ -146,6 +145,54 @@ public class CCBlockStateLoader {
             }
         }
         return variants;
+    }
+
+    public static Map<String, Map<String, Map<String, CCVariant>>> parseSubModels(JsonObject object) {
+        Map<String, Map<String, Map<String, CCVariant>>> subModels = new LinkedHashMap<String, Map<String, Map<String, CCVariant>>>();
+
+        if (object != null) {
+            for (Entry<String, JsonElement> subModelEntry : object.entrySet()) {
+                subModels.put(subModelEntry.getKey(), parseVariants(subModelEntry.getValue().getAsJsonObject().getAsJsonObject("variants")));
+            }
+        }
+
+        return subModels;
+    }
+
+    public static CCVariant compileVariant(CCVariant finalVariant, Map<String, String> kvArray, Map<String, Map<String, CCVariant>> variants){
+        for (Entry<String, String> entry : kvArray.entrySet()) {
+            for (Entry<String, Map<String, CCVariant>> variantsEntry : variants.entrySet()) {
+                if (entry.getKey().equals(variantsEntry.getKey())) {
+                    Map<String, CCVariant> variantMap = variantsEntry.getValue();
+                    if (variantMap.containsKey(entry.getValue())) {
+                        finalVariant = finalVariant.with(variantMap.get(entry.getValue()));
+                    }
+                }
+            }
+        }
+        for (Entry<String, String> entry : kvArray.entrySet()) {
+            for (Entry<String, Map<String, CCVariant>> variantsEntry : variants.entrySet()) {
+                if (entry.getKey().equals(variantsEntry.getKey())) {
+                    Map<String, CCVariant> variantMap = variantsEntry.getValue();
+                    if (variantMap.containsKey(entry.getValue())) {
+                        finalVariant = variantMap.get(entry.getValue()).applySubOverrides(finalVariant, kvArray);
+                    }
+                }
+            }
+        }
+        return finalVariant;
+    }
+
+    public static Map<String, CCVariant> getSubModelsForKey(String key, Map<String, Map<String, CCVariant>> subModels) {
+        Map<String, CCVariant> subModelVariants = new LinkedHashMap<String, CCVariant>();
+        for (Entry<String, Map<String, CCVariant>> subModelEntry : subModels.entrySet()) {
+            for (Entry<String, CCVariant> variantEntry : subModelEntry.getValue().entrySet()) {
+                if (variantEntry.getKey().equals(key)) {
+                    subModelVariants.put(subModelEntry.getKey(), variantEntry.getValue());
+                }
+            }
+        }
+        return subModelVariants;
     }
 
     /**
@@ -194,17 +241,28 @@ public class CCBlockStateLoader {
      * @param variants The CCVariants parsed from json.
      * @return Map of Key to value lists.
      */
-    public static Map<String, List<String>> generateVariantValueMap(List<String> keys, Map<String, Map<String, CCVariant>> variants) {
+    public static Map<String, List<String>> generateVariantValueMap(List<String> keys, Map<String, Map<String, CCVariant>> variants, Map<String, Map<String, Map<String, CCVariant>>> subModels) {
         Map<String, List<String>> variantValueMap = new LinkedHashMap<String, List<String>>();
         for (String variant : keys) {
             List<String> variantValues = new ArrayList<String>();
             for (String variantName : variants.keySet()) {
-                if (variantName.equals(variant)) {
+                if (variantName.equals(variant) && variants.containsKey(variant)) {
                     variantValues.addAll(variants.get(variant).keySet());
                 }
 
                 for (CCVariant subVariant : variants.get(variantName).values()) {
                     variantValues.addAll(subVariant.getPossibleVariantValues(variant));
+                }
+            }
+            for (Map<String, Map<String, CCVariant>> subModelVariants : subModels.values()) {
+                for (String variantName : subModelVariants.keySet()) {
+                    if (variantName.equals(variant) && subModelVariants.containsKey(variant)) {
+                        variantValues.addAll(subModelVariants.get(variant).keySet());
+                    }
+
+                    for (CCVariant subVariant : subModelVariants.get(variantName).values()) {
+                        variantValues.addAll(subVariant.getPossibleVariantValues(variant));
+                    }
                 }
             }
             variantValueMap.put(variant, variantValues);

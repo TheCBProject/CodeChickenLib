@@ -89,7 +89,7 @@ public class CCVariant implements Copyable<CCVariant> {
     public List<String> getPossibleVariantValues(String variant) {
         List<String> variantValues = new ArrayList<String>();
         for (String variantName : subVariants.keySet()) {
-            if (variantName.equals(variant)) {
+            if (variantName.equals(variant) && subVariants.containsKey(variant)) {
                 variantValues.addAll(subVariants.get(variant).keySet());
             }
 
