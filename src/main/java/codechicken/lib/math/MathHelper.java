@@ -173,7 +173,6 @@ public class MathHelper {
         return (valueIn - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 
-
     /**
      * Maps a value range to another value range.
      *
@@ -186,6 +185,40 @@ public class MathHelper {
      */
     public static float map(float valueIn, float inMin, float inMax, float outMin, float outMax) {
         return (valueIn - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    }
+
+    /**
+     * Rounds the number of decimal places based on the given multiplier.<br>
+     * e.g.<br>
+     * Input: 17.5245743<br>
+     * multiplier: 1000<br>
+     * Output: 17.534<br>
+     * multiplier: 10<br>
+     * Output 17.5<br><br>
+     *
+     * @param number     The input value.
+     * @param multiplier The multiplier.
+     * @return The input rounded to a number of decimal places based on the multiplier.
+     */
+    public static double round(double number, double multiplier) {
+        return Math.round(number * multiplier) / multiplier;
+    }
+
+    /**
+     * Rounds the number of decimal places based on the given multiplier.<br>
+     * e.g.<br>
+     * Input: 17.5245743<br>
+     * multiplier: 1000<br>
+     * Output: 17.534<br>
+     * multiplier: 10<br>
+     * Output 17.5<br><br>
+     *
+     * @param number     The input value.
+     * @param multiplier The multiplier.
+     * @return The input rounded to a number of decimal places based on the multiplier.
+     */
+    public static float round(float number, float multiplier) {
+        return Math.round(number * multiplier) / multiplier;
     }
 
     /**
