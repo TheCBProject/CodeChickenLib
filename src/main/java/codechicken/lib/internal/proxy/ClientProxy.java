@@ -1,6 +1,7 @@
 package codechicken.lib.internal.proxy;
 
 import codechicken.lib.command.DumpClassCommand;
+import codechicken.lib.command.client.DumpModelLocationsCommand;
 import codechicken.lib.model.cube.CCCubeLoader;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.CCExtendedBlockRendererDispatcher;
@@ -23,6 +24,7 @@ public class ClientProxy extends CommonProxy {
                 return "c_" + super.getCommandName();
             }
         });
+        ClientCommandHandler.instance.registerCommand(new DumpModelLocationsCommand());
     }
 
     @Override
