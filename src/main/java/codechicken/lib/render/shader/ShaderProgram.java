@@ -46,15 +46,6 @@ public class ShaderProgram {
     public void freeBindShader() {
         pipeline.reset();
         pipeline.setPipeline(ops);
-        glLinkProgramARB(programID);
-        if (glGetObjectParameteriARB(programID, GL_OBJECT_LINK_STATUS_ARB) == GL11.GL_FALSE) {
-            throw new RuntimeException("Error linking program: " + getInfoLog(programID));
-        }
-
-        glValidateProgramARB(programID);
-        if (glGetObjectParameteriARB(programID, GL_OBJECT_VALIDATE_STATUS_ARB) == GL11.GL_FALSE) {
-            throw new RuntimeException("Error validating program: " + getInfoLog(programID));
-        }
 
         glUseProgramObjectARB(programID);
         pipeline.operate();
@@ -65,16 +56,6 @@ public class ShaderProgram {
     }
 
     public void runShader() {
-        glLinkProgramARB(programID);
-        if (glGetObjectParameteriARB(programID, GL_OBJECT_LINK_STATUS_ARB) == GL11.GL_FALSE) {
-            throw new RuntimeException("Error linking program: " + getInfoLog(programID));
-        }
-
-        glValidateProgramARB(programID);
-        if (glGetObjectParameteriARB(programID, GL_OBJECT_VALIDATE_STATUS_ARB) == GL11.GL_FALSE) {
-            throw new RuntimeException("Error validating program: " + getInfoLog(programID));
-        }
-
         pipeline.reset();
         pipeline.setPipeline(ops);
 
@@ -83,24 +64,24 @@ public class ShaderProgram {
         unbindShader();
     }
 
-    public void attachVert(String resource) {
-        attach(ARBVertexShader.GL_VERTEX_SHADER_ARB, resource);
+    public ShaderProgram attachVert(String resource) {
+        return attach(ARBVertexShader.GL_VERTEX_SHADER_ARB, resource);
     }
 
-    public void attachFrag(String resource) {
-        attach(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB, resource);
+    public ShaderProgram attachFrag(String resource) {
+        return attach(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB, resource);
     }
 
-    public void attach(int shaderType, String resource) {
+    public ShaderProgram attach(int shaderType, String resource) {
         InputStream stream = ShaderProgram.class.getResourceAsStream(resource);
         if (stream == null) {
             throw new RuntimeException("Unable to locate resource: " + resource);
         }
 
-        attach(shaderType, stream);
+        return attach(shaderType, stream);
     }
 
-    public void attach(int shaderType, InputStream stream) {
+    public ShaderProgram attach(int shaderType, InputStream stream) {
         if (stream == null) {
             throw new RuntimeException("Invalid shader inputstream");
         }
@@ -128,6 +109,23 @@ public class ShaderProgram {
             glDeleteObjectARB(shaderID);
             throw e;
         }
+        return this;
+    }
+
+    /**
+     * Call this once you have bound your frag and vert shader.
+     */
+    public ShaderProgram validate() {
+        glLinkProgramARB(programID);
+        if (glGetObjectParameteriARB(programID, GL_OBJECT_LINK_STATUS_ARB) == GL11.GL_FALSE) {
+            throw new RuntimeException("Error linking program: " + getInfoLog(programID));
+        }
+
+        glValidateProgramARB(programID);
+        if (glGetObjectParameteriARB(programID, GL_OBJECT_VALIDATE_STATUS_ARB) == GL11.GL_FALSE) {
+            throw new RuntimeException("Error validating program: " + getInfoLog(programID));
+        }
+        return this;
     }
 
     public static String asString(InputStream stream) throws IOException {
