@@ -203,7 +203,7 @@ public class RenderUtils {
         double xPos = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) partialTicks;
         double yPos = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) partialTicks;
         double zPos = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) partialTicks;
-        RenderGlobal.func_189697_a(cuboid.aabb().expandXyz(0.0020000000949949026D).offset(-xPos, -yPos, -zPos), 0.0F, 0.0F, 0.0F, 0.4F);
+        RenderGlobal.drawSelectionBoundingBox(cuboid.aabb().expandXyz(0.0020000000949949026D).offset(-xPos, -yPos, -zPos), 0.0F, 0.0F, 0.0F, 0.4F);
         GlStateManager.depthMask(true);
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
