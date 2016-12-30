@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.*;
 
 import static codechicken.lib.asm.ASMHelper.*;
@@ -45,13 +46,20 @@ public class ModularASMTransformer {
                 }
 
                 bytes = createBytes(cnode, writeFlags);
-                if (config.getTag("dump_asm").getBooleanValue(true)) {
+                if(config.getTag("dump_asm_raw").getBooleanValue(false)) {
+                    File file = new File("asm/ccl_modular/" + cnode.name.replace('/', '#') + ".class");
+                    FileOutputStream fos = new FileOutputStream(file);
+                    fos.write(bytes);
+                    fos.flush();
+                    fos.close();
+
+                } else if (config.getTag("dump_asm").getBooleanValue(true)) {
                     dump(bytes, new File("asm/ccl_modular/" + cnode.name.replace('/', '#') + ".txt"), false, false);
                 }
                 return bytes;
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 dump(bytes, new File("asm/ccl_modular/" + cnode.name.replace('/', '#') + ".txt"), false, false);
-                throw e;
+                throw new RuntimeException(e);
             }
         }
     }
