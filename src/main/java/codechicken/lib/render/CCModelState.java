@@ -39,7 +39,7 @@ public class CCModelState implements IModelState {
         return MapWrapper.getTransforms(this);
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation")//TODO, This seems to create invalid transforms.
     public ItemCameraTransforms toVanillaTransform() {
         ItemTransformVec3f thirdPLeft = ItemTransformVec3f.DEFAULT;
         ItemTransformVec3f thirdPRight = ItemTransformVec3f.DEFAULT;

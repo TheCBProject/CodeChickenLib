@@ -114,24 +114,24 @@ public class BakingVertexBuffer extends VertexBuffer {
         List<BakedQuad> quads = new LinkedList<BakedQuad>();
         TextureAtlasSprite sprite = TextureUtils.getMissingSprite();
 
-        int next = 0;
-        int i = 0;
-        while (rawBuffer.length > next) {
-            next = format.getNextOffset() * i;
-            int[] quadData = Arrays.copyOfRange(rawBuffer, next, next + format.getNextOffset());
+        int curr = 0;
+        int next = format.getNextOffset();
+        int i = 1;
+        while (rawBuffer.length >= next) {
+            int[] quadData = Arrays.copyOfRange(rawBuffer, curr, next);
             Vector3 normal = new Vector3();
             if (format.hasNormal()) {
                 //Grab first normal.
                 float[] normalData = new float[4];
                 LightUtil.unpack(quadData, normalData, format, 0, VertexDataUtils.getNormalElement(format));
-                normal = Vector3.fromAxes(normalData);
+                normal = Vector3.fromArray(normalData);
             } else {
                 //No normal provided in format, so we calculate.
                 float[][] posData = new float[4][4];
                 for (int v = 0; v < 4; v++) {
                     LightUtil.unpack(quadData, posData[v], format, v, VertexDataUtils.getPositionElement(format));
                 }
-                normal.set(VectorUtils.calculateNormal(Vector3.fromAxes(posData[0]), Vector3.fromAxes(posData[1]), Vector3.fromAxes(posData[3])));
+                normal.set(VectorUtils.calculateNormal(Vector3.fromArray(posData[0]), Vector3.fromArray(posData[1]), Vector3.fromArray(posData[3])));
             }
             if (useSprites) {
                 //Attempt to get sprite for vertex.
@@ -153,7 +153,8 @@ public class BakingVertexBuffer extends VertexBuffer {
             }
             BakedQuad quad = new BakedQuad(quadData, -1, facing, sprite, useDiffuseLighting, format);
             quads.add(quad);
-            i++;
+            curr = next;
+            next += format.getNextOffset();
         }
         return ImmutableList.copyOf(quads);
     }

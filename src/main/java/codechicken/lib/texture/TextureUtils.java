@@ -19,6 +19,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -31,6 +33,7 @@ import java.util.List;
 
 public class TextureUtils {
     public interface IIconRegister {
+        @SideOnly(Side.CLIENT)
         void registerIcons(TextureMap textureMap);
     }
 

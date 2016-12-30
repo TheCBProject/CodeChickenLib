@@ -8,8 +8,14 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by covers1624 on 4/10/2016.
@@ -105,6 +111,19 @@ public class VertexDataUtils {
      */
     public static BakedQuad copyQuad(UnpackedBakedQuad quad) {
         return new BakedQuad(quad.getVertexData(), quad.getTintIndex(), quad.getFace(), quad.getSprite(), quad.shouldApplyDiffuseLighting(), quad.getFormat());
+    }
+
+    public static Map<EnumFacing, List<BakedQuad>> sortFaceData(List<BakedQuad> quads) {
+        Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<EnumFacing, List<BakedQuad>>();
+        for (BakedQuad quad : quads) {
+            List<BakedQuad> faceQuads = faceQuadMap.get(quad.getFace());
+            if (faceQuads == null) {
+                faceQuads = new ArrayList<BakedQuad>();
+                faceQuadMap.put(quad.getFace(), faceQuads);
+            }
+            faceQuads.add(quad);
+        }
+        return faceQuadMap;
     }
 
     public static void fullyPackQuads(int[] packedData, float[][][] unpackedData, VertexFormat format) {

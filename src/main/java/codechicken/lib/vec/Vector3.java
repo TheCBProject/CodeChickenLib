@@ -92,6 +92,15 @@ public class Vector3 implements Copyable<Vector3> {
         return new Vector3(fa[2], fa[0], fa[1]);
     }
 
+    public static Vector3 fromArray(double[] da) {
+        return new Vector3(da[0], da[1], da[2]);
+    }
+
+    public static Vector3 fromArray(float[] fa) {
+        return new Vector3(fa[0], fa[1], fa[2]);
+    }
+
+
     public Vec3d vec3() {
         return new Vec3d(x, y, z);
     }
