@@ -4,6 +4,8 @@ import codechicken.lib.data.MCDataHandler;
 import codechicken.lib.data.MCDataIO;
 import com.google.common.collect.Maps;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,6 +17,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
@@ -31,10 +35,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
-import net.minecraftforge.fml.common.network.FMLOutboundHandler;
-import net.minecraftforge.fml.common.network.NetworkHandshakeEstablished;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.*;
 import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.relauncher.Side;
@@ -336,7 +337,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     @Override
 
     public PacketCustom writeVarInt(int i) {
-        writeVarIntToBuffer(i);
+        super.writeVarInt(i);
         return this;
     }
 
@@ -383,7 +384,22 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
 
     @Override
     public PacketCustom writeNBTTagCompound(NBTTagCompound tag) {
-        writeNBTTagCompoundToBuffer(tag);
+        if (tag == null)
+        {
+            this.writeByte(0);
+        }
+        else
+        {
+            try
+            {
+                CompressedStreamTools.write(tag, new ByteBufOutputStream(this));
+            }
+            catch (IOException ioexception)
+            {
+                throw new EncoderException(ioexception);
+            }
+        }
+
         return this;
     }
 
@@ -408,7 +424,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
 
     @Override
     public int readVarInt() {
-        return readVarIntFromBuffer();
+        return super.readVarInt();
     }
 
     @Override
@@ -428,7 +444,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
 
     @Override
     public String readString() {
-        return readStringFromBuffer(32767);
+        return readString(32767);
     }
 
     @Override
@@ -438,10 +454,25 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
 
     @Override
     public NBTTagCompound readNBTTagCompound() {
-        try {
-            return readNBTTagCompoundFromBuffer();
-        } catch (IOException e) {
-            throw new EncoderException(e);
+        int i = this.readerIndex();
+        byte b0 = this.readByte();
+
+        if (b0 == 0)
+        {
+            return null;
+        }
+        else
+        {
+            this.readerIndex(i);
+
+            try
+            {
+                return CompressedStreamTools.read(new ByteBufInputStream(this), new NBTSizeTracker(2097152L));
+            }
+            catch (IOException ioexception)
+            {
+                throw new EncoderException(ioexception);
+            }
         }
     }
 
@@ -542,7 +573,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     }
 
     public static void sendToOps(Packet packet) {
-        for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerList()) {
+        for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
             if (FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().canSendCommands(player.getGameProfile())) {
                 sendToPlayer(packet, player);
             }

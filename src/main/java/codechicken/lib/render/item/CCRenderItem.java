@@ -189,7 +189,7 @@ public class CCRenderItem extends RenderItem {
     @Override
     public void renderItem(ItemStack stack, EntityLivingBase livingBase, TransformType transform, boolean leftHanded) {
         if (stack != null && livingBase != null && stack.getItem() != null) {
-            IBakedModel bakedModel = this.getItemModelWithOverrides(stack, livingBase.worldObj, livingBase);
+            IBakedModel bakedModel = this.getItemModelWithOverrides(stack, livingBase.world, livingBase);
             if (isValidModel(bakedModel)) {
                 this.renderItemModel(stack, bakedModel, transform, leftHanded);
             } else {
@@ -210,7 +210,7 @@ public class CCRenderItem extends RenderItem {
 
     @Override
     public void renderItemAndEffectIntoGUI(ItemStack stack, int xPosition, int yPosition) {
-        this.renderItemAndEffectIntoGUI(Minecraft.getMinecraft().thePlayer, stack, xPosition, yPosition);
+        this.renderItemAndEffectIntoGUI(Minecraft.getMinecraft().player, stack, xPosition, yPosition);
     }
 
     @Override

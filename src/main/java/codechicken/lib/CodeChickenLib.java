@@ -18,10 +18,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @Mod(modid = CodeChickenLib.MOD_ID, name = CodeChickenLib.MOD_NAME, acceptedMinecraftVersions = CodeChickenLib.mcVersion)
 public class CodeChickenLib {
 
-    public static final String MOD_ID = "CodeChickenLib";
+    public static final String MOD_ID = "codechickenlib";
     public static final String MOD_NAME = "CodeChicken Lib";
     public static final String version = "${mod_version}";
-    public static final String mcVersion = "[1.11]";
+    public static final String mcVersion = "[1.11.2]";
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {

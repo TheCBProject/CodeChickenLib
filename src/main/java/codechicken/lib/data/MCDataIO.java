@@ -115,7 +115,7 @@ public class MCDataIO {
             out.writeShort(-1);
         } else {
             out.writeShort(Item.getIdFromItem(stack.getItem()));
-            out.writeVarInt(stack.func_190916_E());
+            out.writeVarInt(stack.getCount());
             out.writeShort(stack.getItemDamage());
             out.writeNBTTagCompound(stack.getItem().getShareTag() ? stack.getTagCompound() : null);
         }

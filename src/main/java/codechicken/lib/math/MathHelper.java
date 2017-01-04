@@ -178,19 +178,19 @@ public class MathHelper {
     }
 
     public static int floor(double d) {
-        return net.minecraft.util.math.MathHelper.floor_double(d);
+        return net.minecraft.util.math.MathHelper.floor(d);
     }
 
     public static int floor(float d) {
-        return net.minecraft.util.math.MathHelper.floor_float(d);
+        return net.minecraft.util.math.MathHelper.floor(d);
     }
 
     public static int ceil(double d) {
-        return net.minecraft.util.math.MathHelper.ceiling_double_int(d);
+        return net.minecraft.util.math.MathHelper.ceil(d);
     }
 
     public static int ceil(float d) {
-        return net.minecraft.util.math.MathHelper.ceiling_float_int(d);
+        return net.minecraft.util.math.MathHelper.ceil(d);
     }
 
     public static int roundAway(double d) {

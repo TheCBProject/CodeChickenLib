@@ -193,6 +193,6 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
 
     @Override
     public void registerIcons(TextureMap textureMap) {
-        textureMap.setTextureEntry(getIconName(), this);
+        textureMap.setTextureEntry(this);
     }
 }

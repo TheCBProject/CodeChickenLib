@@ -18,7 +18,7 @@ public class RotationUtils {
      * @return Direction placed.
      */
     public static EnumFacing getPlacedRotationHorizontal(EntityLivingBase entity) {
-        int facing = MathHelper.floor_double((entity.rotationYaw * 4F) / 360F + 0.5D) & 3;
+        int facing = MathHelper.floor((entity.rotationYaw * 4F) / 360F + 0.5D) & 3;
         return entityRotationToSide(facing).getOpposite();
     }
 

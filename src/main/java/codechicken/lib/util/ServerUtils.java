@@ -28,7 +28,7 @@ public class ServerUtils {
     }
 
     public static List<EntityPlayerMP> getPlayers() {
-        return mc().getPlayerList().getPlayerList();
+        return mc().getPlayerList().getPlayers();
     }
 
     public static ArrayList<EntityPlayer> getPlayersInDimension(int dimension) {
@@ -74,7 +74,7 @@ public class ServerUtils {
 
     public static void sendChatToAll(ITextComponent msg) {
         for (EntityPlayer p : getPlayers()) {
-            p.addChatComponentMessage(msg, true);//TODO
+            p.sendMessage(msg);
         }
     }
 
