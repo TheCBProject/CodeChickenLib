@@ -60,8 +60,11 @@ public class CCLCorePlugin implements IFMLLoadingPlugin, IFMLCallHook {
         }
         File versionModsDir = new File(modsDir, (String) FMLInjectionData.data()[4]);
         if (versionModsDir.exists()) {
-            for (File file : versionModsDir.listFiles()) {
-                scanMod(file);
+            File[] files = versionModsDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    scanMod(file);
+                }
             }
         }
     }
