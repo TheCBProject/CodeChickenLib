@@ -115,7 +115,7 @@ public class TextureUtils {
         String s = "blank_" + size;
         TextureAtlasSprite icon = textureMap.getTextureExtry(s);
         if (icon == null) {
-            textureMap.setTextureEntry(s, icon = new TextureSpecial(s).blank(size));
+            textureMap.setTextureEntry(icon = new TextureSpecial(s).blank(size));
         }
 
         return icon;
@@ -127,7 +127,7 @@ public class TextureUtils {
         }
 
         TextureSpecial icon = new TextureSpecial(name);
-        textureMap.setTextureEntry(name, icon);
+        textureMap.setTextureEntry(icon);
         return icon;
     }
 
@@ -163,7 +163,7 @@ public class TextureUtils {
      */
     public static boolean refreshTexture(TextureMap map, String name) {
         if (map.getTextureExtry(name) == null) {
-            map.setTextureEntry(name, new PlaceholderTexture(name));
+            map.setTextureEntry(new PlaceholderTexture(name));
             return true;
         }
         return false;

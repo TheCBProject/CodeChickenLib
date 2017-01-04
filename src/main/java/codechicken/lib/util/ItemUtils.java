@@ -45,7 +45,7 @@ public class ItemUtils {
         double zVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
         EntityItem entityItem = new EntityItem(world, pos.getX() + xVelocity, pos.getY() + yVelocity, pos.getZ() + zVelocity, stack);
         entityItem.setPickupDelay(10);
-        world.spawnEntityInWorld(entityItem);
+        world.spawnEntity(entityItem);
     }
 
     /**
@@ -69,7 +69,7 @@ public class ItemUtils {
     public static void dropInventory(World world, BlockPos pos, IInventory inventory) {
         for (int i = 0; i < inventory.getSizeInventory(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
-            if (stack != null && stack.func_190916_E() > 0) {
+            if (stack != null && stack.getCount() > 0) {
                 dropItem(world, pos, stack);
             }
         }
@@ -124,7 +124,7 @@ public class ItemUtils {
         }
 
         entity.setPickupDelay(10);
-        world.spawnEntityInWorld(entity);
+        world.spawnEntity(entity);
     }
 
     /**

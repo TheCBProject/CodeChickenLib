@@ -36,9 +36,9 @@ public class InventoryNBT implements IInventory {
     }
 
     @Override
-    public boolean func_191420_l() {//TODO Nonull lists.
+    public boolean isEmpty() {//TODO Nonull lists.
         for (ItemStack itemstack : this.items) {
-            if (!itemstack.func_190926_b()) {
+            if (!itemstack.isEmpty()) {
                 return false;
             }
         }
@@ -100,7 +100,7 @@ public class InventoryNBT implements IInventory {
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer var1) {
+    public boolean isUsableByPlayer(EntityPlayer var1) {
         return true;
     }
 

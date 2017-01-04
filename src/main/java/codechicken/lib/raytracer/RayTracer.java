@@ -99,12 +99,12 @@ public class RayTracer {
     public static RayTraceResult retrace(EntityPlayer player, boolean stopOnFluid){
         Vec3d startVec = getStartVec(player);
         Vec3d endVec = getEndVec(player);
-        return player.worldObj.rayTraceBlocks(startVec, endVec, stopOnFluid, false, true);
+        return player.world.rayTraceBlocks(startVec, endVec, stopOnFluid, false, true);
     }
     public static RayTraceResult retrace(EntityPlayer player, double reach, boolean stopOnFluids) {
         Vec3d startVec = getStartVec(player);
         Vec3d endVec = getEndVec(player, reach);
-        return player.worldObj.rayTraceBlocks(startVec, endVec, stopOnFluids, false, true);
+        return player.world.rayTraceBlocks(startVec, endVec, stopOnFluids, false, true);
     }
 
     public static RayTraceResult retrace(EntityPlayer player, double reach) {
@@ -121,7 +121,7 @@ public class RayTracer {
     }
 
     public static double getBlockReachDistance(EntityPlayer player) {
-        return player.worldObj.isRemote ? getBlockReachDistance_client() : player instanceof EntityPlayerMP ? getBlockReachDistance_server((EntityPlayerMP) player) : 5D;
+        return player.world.isRemote ? getBlockReachDistance_client() : player instanceof EntityPlayerMP ? getBlockReachDistance_server((EntityPlayerMP) player) : 5D;
     }
 
     public static Vec3d getEndVec(EntityPlayer player) {

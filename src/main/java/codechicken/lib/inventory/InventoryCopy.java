@@ -53,9 +53,9 @@ public class InventoryCopy implements IInventory {
     }
 
     @Override
-    public boolean func_191420_l() {//TODO Nonull lists.
+    public boolean isEmpty() {//TODO Nonull lists.
         for (ItemStack itemstack : this.items) {
-            if (!itemstack.func_190926_b()) {
+            if (!itemstack.isEmpty()) {
                 return false;
             }
         }
@@ -84,7 +84,7 @@ public class InventoryCopy implements IInventory {
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer player) {
+    public boolean isUsableByPlayer(EntityPlayer player) {
         return true;
     }
 

@@ -31,7 +31,7 @@ import java.util.ArrayList;
  * Created by covers1624 on 31/10/2016.
  */
 //Used to make sure all references to RenderItem are of CCL's overridden renderer.
-@Mod(modid = "ccl-entityhook", dependencies = "before:*")
+@Mod(modid = "ccl-entityhook", name = "CCL EntityHook", dependencies = "before:*")
 public class EntityRendererHooks {
 
     private static boolean hasSanitized;

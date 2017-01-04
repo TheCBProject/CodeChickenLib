@@ -43,12 +43,12 @@ public class SpriteSheetManager {
                 reloadTexture();
                 for (TextureSpecial sprite : sprites) {
                     if (sprite != null) {
-                        textureMap.setTextureEntry(sprite.getIconName(), sprite);
+                        textureMap.setTextureEntry(sprite);
                     }
                 }
             } else {
                 for (int i : newSprites) {
-                    textureMap.setTextureEntry(sprites[i].getIconName(), sprites[i]);
+                    textureMap.setTextureEntry(sprites[i]);
                 }
             }
             newSprites.clear();

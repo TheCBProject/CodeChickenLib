@@ -33,7 +33,7 @@ public class TileEntityProperty implements IUnlistedProperty<TileEntity> {
 
     @Override
     public String valueToString(TileEntity value) {
-        Object worldID = value.hasWorldObj() ? value.getWorld().provider.getDimension() : "NoWorld!";
+        Object worldID = value.hasWorld() ? value.getWorld().provider.getDimension() : "NoWorld!";
         return Objects.toStringHelper(value).add("position", value.getPos().toString()).add("worldID", worldID).toString();
     }
 }
