@@ -153,6 +153,22 @@ public abstract class Colour implements Copyable<Colour> {
         return this;
     }
 
+    public static int packRGBA(byte r, byte g, byte b, byte a) {
+        return (r & 0xFF) << 24 | (g & 0xFF) << 16 | (b & 0xFF) << 8 | (a & 0xFF);
+    }
+
+    public static int packARGB(byte r, byte g, byte b, byte a) {
+        return (a & 0xFF) << 24 | (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF);
+    }
+
+    public static int packRGBA(int r, int g, int b, int a) {
+        return r << 24 | g << 16 | b << 8 | a;
+    }
+
+    public static int packARGB(int r, int g, int b, int a) {
+        return a << 24 | r << 16 | g << 8 | b;
+    }
+
     public boolean equals(Colour colour) {
         return colour != null && rgba() == colour.rgba();
     }
