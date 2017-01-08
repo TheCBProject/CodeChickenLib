@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
  * It will then check the cache for a key -> IBakedModel reference, if the cache contains a model it is returned otherwise it bakes a model using IBakedModelLoader.
  * <p/>
  * To use this call registerLoader(IBakedModelLoader) from PRE INIT!
+ * //TODO This system needs to be scrapped for the new BlockBakery system that was newly implemented.
  */
 public class CCBakedModelLoader implements IIconRegister, IResourceManagerReloadListener {
 
@@ -184,16 +185,22 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
                     return;
                 }
                 Entry<String, IModKeyProvider> entry = queIterator.next();
-                IBakedModelLoader loader = modelLoaders.get(entry.getValue());
-                String key = stripMapHeader(entry.getKey());
-                IBakedModel model = loader.bakeModel(key);
-                queIterator.remove();
-                synchronized (modelBakeQue) {
-                    modelBakeQue.remove(entry.getKey());
-                }
-                if (model != null) {
-                    synchronized (modelCache) {
-                        modelCache.put(entry.getKey(), model);
+                try {
+                    IBakedModelLoader loader = modelLoaders.get(entry.getValue());
+                    String key = stripMapHeader(entry.getKey());
+                    IBakedModel model = loader.bakeModel(key);
+                    queIterator.remove();
+
+                    if (model != null) {
+                        synchronized (modelCache) {
+                            modelCache.put(entry.getKey(), model);
+                        }
+                    }
+                } catch (Exception e) {
+                    FMLLog.log("CodeChickenLib Dyn Model baking", Level.FATAL, e, "A fatal exception has occurred whilst baking a model with key: %s", entry.getKey());
+                } finally {
+                    synchronized (modelBakeQue) {
+                        modelBakeQue.remove(entry.getKey());
                     }
                 }
             }
