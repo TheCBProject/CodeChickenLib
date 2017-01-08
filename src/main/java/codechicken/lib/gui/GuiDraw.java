@@ -2,6 +2,7 @@ package codechicken.lib.gui;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.texture.TextureUtils;
+import codechicken.lib.vec.Rectangle4i;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -9,10 +10,15 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.client.event.RenderTooltipEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.config.GuiUtils;
 import org.lwjgl.input.Mouse;
 
+import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +50,10 @@ public class GuiDraw {
 
     public static void drawRect(int x, int y, int w, int h, int colour) {
         drawGradientRect(x, y, w, h, colour, colour);
+    }
+
+    public static void drawGradientRectDirect(int left, int top, int right, int bottom, int colour1, int colour2) {
+        gui.drawGradientRect(left, top, right, bottom, colour1, colour2);
     }
 
     public static void drawGradientRect(int x, int y, int w, int h, int colour1, int colour2) {
@@ -97,12 +107,14 @@ public class GuiDraw {
         return fontRenderer.getStringWidth(TextFormatting.getTextWithoutFormattingCodes(s));
     }
 
+    //TODO, getDisplaySize.
     public static Dimension displaySize() {
         Minecraft mc = Minecraft.getMinecraft();
         ScaledResolution res = new ScaledResolution(mc);
         return new Dimension(res.getScaledWidth(), res.getScaledHeight());
     }
 
+    //TODO, getDisplayRes
     public static Dimension displayRes() {
         Minecraft mc = Minecraft.getMinecraft();
         return new Dimension(mc.displayWidth, mc.displayHeight);
@@ -137,29 +149,35 @@ public class GuiDraw {
     /**
      * Have a string in the tooltip list with TOOLTIP_HANDLER + getTipLineId(handler) for a custom handler
      */
+    @Deprecated
     public static final String TOOLTIP_HANDLER = "\u00A7x";
+    @Deprecated
     private static List<ITooltipLineHandler> tipLineHandlers = new ArrayList<ITooltipLineHandler>();
 
+    @Deprecated//This is dead as there are forge events.
     public interface ITooltipLineHandler {
         Dimension getSize();
 
         void draw(int x, int y);
     }
 
+    @Deprecated
     public static int getTipLineId(ITooltipLineHandler handler) {
-        tipLineHandlers.add(handler);
-        return tipLineHandlers.size() - 1;
+        return -1;
     }
 
     public static ITooltipLineHandler getTipLine(String line) {
-        if (!line.startsWith(TOOLTIP_HANDLER)) {
-            return null;
-        }
-        return tipLineHandlers.get(Integer.parseInt(line.substring(2)));
+        return null;
     }
 
+    @Deprecated
     public static void drawMultilineTip(int x, int y, List<String> list) {
-        if (list.isEmpty()) {
+        drawMultilineTip(null, x, y, list);
+    }
+
+    public static void drawMultilineTip(@Nullable ItemStack stack, int x, int y, List<String> lines) {
+        //TODO TOOLTIP_LINESPACE support, pr forge to clip the box in the top bound of the screen + TOOLTIP_LINESPACE
+        /*if (lines.isEmpty()) {
             return;
         }
 
@@ -169,10 +187,10 @@ public class GuiDraw {
 
         int w = 0;
         int h = -2;
-        for (int i = 0; i < list.size(); i++) {
-            String s = list.get(i);
+        for (int i = 0; i < lines.size(); i++) {
+            String s = lines.get(i);
             ITooltipLineHandler line = getTipLine(s);
-            Dimension d = line != null ? line.getSize() : new Dimension(getStringWidth(s), list.get(i).endsWith(TOOLTIP_LINESPACE) && i + 1 < list.size() ? 12 : 10);
+            Dimension d = line != null ? line.getSize() : new Dimension(getStringWidth(s), lines.get(i).endsWith(TOOLTIP_LINESPACE) && i + 1 < lines.size() ? 12 : 10);
             w = Math.max(w, d.width);
             h += d.height;
         }
@@ -189,7 +207,7 @@ public class GuiDraw {
 
         gui.incZLevel(300);
         drawTooltipBox(x - 4, y - 4, w + 7, h + 7);
-        for (String s : list) {
+        for (String s : lines) {
             ITooltipLineHandler line = getTipLine(s);
             if (line != null) {
                 line.draw(x, y);
@@ -205,9 +223,165 @@ public class GuiDraw {
 
         GlStateManager.enableDepth();
         RenderHelper.enableStandardItemLighting();
+        GlStateManager.enableRescaleNormal();*/
+
+        ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft());
+        int screenWidth = res.getScaledWidth();
+        int screenHeight = res.getScaledHeight();
+
+        if (lines.isEmpty()) {
+            return;
+        }
+
+        RenderTooltipEvent.Pre event = new RenderTooltipEvent.Pre(stack, lines, x, y, screenWidth, screenHeight, -1, fontRenderer);
+        if (MinecraftForge.EVENT_BUS.post(event)) {
+            return;
+        }
+        x = event.getX();
+        y = event.getY();
+        screenWidth = event.getScreenWidth();
+        screenHeight = event.getScreenHeight();
+        int maxTextWidth = event.getMaxWidth();
+        FontRenderer font = event.getFontRenderer();
+
+        GlStateManager.disableRescaleNormal();
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.disableLighting();
+        GlStateManager.disableDepth();
+
+        if (x < 8) {
+            x = 8;
+        }
+        y = MathHelper.clip(y, 8, displaySize().height - 8);
+        int tooltipTextWidth = 0;
+
+        for (String textLine : lines)
+        {
+            int textLineWidth = font.getStringWidth(textLine);
+
+            if (textLineWidth > tooltipTextWidth)
+            {
+                tooltipTextWidth = textLineWidth;
+            }
+        }
+
+        boolean needsWrap = false;
+
+        int titleLinesCount = 1;
+        int tooltipX = x + 12;
+        if (tooltipX + tooltipTextWidth + 4 > screenWidth)
+        {
+            tooltipX = x - 16 - tooltipTextWidth;
+            if (tooltipX < 4) // if the tooltip doesn't fit on the screen
+            {
+                if (x > screenWidth / 2)
+                {
+                    tooltipTextWidth = x - 12 - 8;
+                }
+                else
+                {
+                    tooltipTextWidth = screenWidth - 16 - x;
+                }
+                needsWrap = true;
+            }
+        }
+
+        if (maxTextWidth > 0 && tooltipTextWidth > maxTextWidth)
+        {
+            tooltipTextWidth = maxTextWidth;
+            needsWrap = true;
+        }
+
+        if (needsWrap)
+        {
+            int wrappedTooltipWidth = 0;
+            List<String> wrappedTextLines = new ArrayList<String>();
+            for (int i = 0; i < lines.size(); i++)
+            {
+                String textLine = lines.get(i);
+                List<String> wrappedLine = font.listFormattedStringToWidth(textLine, tooltipTextWidth);
+                if (i == 0)
+                {
+                    titleLinesCount = wrappedLine.size();
+                }
+
+                for (String line : wrappedLine)
+                {
+                    int lineWidth = font.getStringWidth(line);
+                    if (lineWidth > wrappedTooltipWidth)
+                    {
+                        wrappedTooltipWidth = lineWidth;
+                    }
+                    wrappedTextLines.add(line);
+                }
+            }
+            tooltipTextWidth = wrappedTooltipWidth;
+            lines = wrappedTextLines;
+
+            if (x > screenWidth / 2)
+            {
+                tooltipX = x - 16 - tooltipTextWidth;
+            }
+            else
+            {
+                tooltipX = x;
+            }
+        }
+
+        int tooltipY = y;
+        int tooltipHeight = 8;
+
+        if (lines.size() > 1)
+        {
+            tooltipHeight += (lines.size() - 1) * 10;
+            if (lines.size() > titleLinesCount) {
+                tooltipHeight += 2; // gap between title lines and next lines
+            }
+        }
+
+        if (tooltipY + tooltipHeight + 6 > screenHeight) {
+            tooltipY = screenHeight - tooltipHeight - 6;
+        }
+
+        int backgroundColor = 0xF0100010;
+        drawGradientRectDirect(tooltipX - 3, tooltipY - 4, tooltipX + tooltipTextWidth + 3, tooltipY - 3, backgroundColor, backgroundColor);
+        drawGradientRectDirect(tooltipX - 3, tooltipY + tooltipHeight + 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 4, backgroundColor, backgroundColor);
+        drawGradientRectDirect(tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+        drawGradientRectDirect(tooltipX - 4, tooltipY - 3, tooltipX - 3, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+        drawGradientRectDirect(tooltipX + tooltipTextWidth + 3, tooltipY - 3, tooltipX + tooltipTextWidth + 4, tooltipY + tooltipHeight + 3, backgroundColor, backgroundColor);
+        int borderColorStart = 0x505000FF;
+        int borderColorEnd = (borderColorStart & 0xFEFEFE) >> 1 | borderColorStart & 0xFF000000;
+        drawGradientRectDirect(tooltipX - 3, tooltipY - 3 + 1, tooltipX - 3 + 1, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
+        drawGradientRectDirect(tooltipX + tooltipTextWidth + 2, tooltipY - 3 + 1, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
+        drawGradientRectDirect(tooltipX - 3, tooltipY - 3, tooltipX + tooltipTextWidth + 3, tooltipY - 3 + 1, borderColorStart, borderColorStart);
+        drawGradientRectDirect(tooltipX - 3, tooltipY + tooltipHeight + 2, tooltipX + tooltipTextWidth + 3, tooltipY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
+
+        MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, lines, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));
+        int tooltipTop = tooltipY;
+
+        for (int lineNumber = 0; lineNumber < lines.size(); ++lineNumber)
+        {
+            String line = lines.get(lineNumber);
+            font.drawStringWithShadow(line, (float)tooltipX, (float)tooltipY, -1);
+
+            if (lineNumber + 1 == titleLinesCount)
+            {
+                tooltipY += 2;
+            }
+
+            tooltipY += 10;
+        }
+
+        MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostText(stack, lines, tooltipX, tooltipTop, font, tooltipTextWidth, tooltipHeight));
+
+        GlStateManager.enableLighting();
+        GlStateManager.enableDepth();
+        RenderHelper.enableStandardItemLighting();
         GlStateManager.enableRescaleNormal();
+
     }
 
+    @Deprecated//TODO 1.11, update this to do what is done in the other method(vague, i know what it means tho :P)
     public static void drawTooltipBox(int x, int y, int w, int h) {
         int bg = 0xf0100010;
         drawGradientRect(x + 1, y, w - 1, 1, bg, bg);
