@@ -1,5 +1,6 @@
 package codechicken.lib.render.buffer;
 
+import codechicken.lib.math.MathHelper;
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.vec.uv.UV;
 import codechicken.lib.util.VectorUtils;
@@ -59,7 +60,7 @@ public class BakingVertexBuffer extends VertexBuffer {
      * @param sprite The sprite to set.
      */
     public BakingVertexBuffer setSprite(TextureAtlasSprite sprite) {
-        spriteMap.put(getVertexCount(), sprite);
+        spriteMap.put(MathHelper.floor(getVertexCount() / 4D), sprite);
         return this;
     }
 
@@ -116,7 +117,7 @@ public class BakingVertexBuffer extends VertexBuffer {
 
         int curr = 0;
         int next = format.getNextOffset();
-        int i = 1;
+        int i = 0;
         while (rawBuffer.length >= next) {
             int[] quadData = Arrays.copyOfRange(rawBuffer, curr, next);
             Vector3 normal = new Vector3();
@@ -155,6 +156,7 @@ public class BakingVertexBuffer extends VertexBuffer {
             quads.add(quad);
             curr = next;
             next += format.getNextOffset();
+            i++;
         }
         return ImmutableList.copyOf(quads);
     }
