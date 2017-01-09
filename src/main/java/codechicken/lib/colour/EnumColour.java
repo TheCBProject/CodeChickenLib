@@ -99,10 +99,6 @@ public enum EnumColour implements IStringSerializable {
     }
 
     public float bF() {
-        return (rgb >> 4 & 255) / 255.0f;
-    }
-
-    public float aF() {
         return (rgb & 255) / 255.0f;
     }
 
