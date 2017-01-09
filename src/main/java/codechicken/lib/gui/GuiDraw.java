@@ -1,5 +1,6 @@
 package codechicken.lib.gui;
 
+import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.texture.TextureUtils;
@@ -72,7 +73,7 @@ public class GuiDraw {
         GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        new ColourRGBA(colour).glColour();
+        Colour.glColourRGBA(colour);
 
         VertexBuffer vb = Tessellator.getInstance().getBuffer();
         vb.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
