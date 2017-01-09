@@ -1,22 +1,25 @@
 package codechicken.lib.gui;
 
+import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.texture.TextureUtils;
-import codechicken.lib.vec.Rectangle4i;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.config.GuiUtils;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -62,6 +65,24 @@ public class GuiDraw {
 
     public static void drawTexturedModalRect(int x, int y, int tx, int ty, int w, int h) {
         gui.drawTexturedModalRect(x, y, tx, ty, w, h);
+    }
+
+    public static void drawLine(int x1, int y1, int x2, int y2, float thickness, int colour) {
+        GlStateManager.glLineWidth(thickness);
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        new ColourRGBA(colour).glColour();
+
+        VertexBuffer vb = Tessellator.getInstance().getBuffer();
+        vb.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
+        vb.pos(x1, y1, gui.getZLevel()).endVertex();
+        vb.pos(x2, y2, gui.getZLevel()).endVertex();
+        vb.finishDrawing();
+
+        GlStateManager.resetColor();
+        GlStateManager.disableBlend();
+        GlStateManager.enableTexture2D();
     }
 
     public static void drawString(String text, int x, int y, int colour, boolean shadow) {
