@@ -169,6 +169,21 @@ public abstract class Colour implements Copyable<Colour> {
         return a << 24 | r << 16 | g << 8 | b;
     }
 
+    public static void glColourRGBA(int colour) {
+        float r = ((colour >> 24) & 0xFF) / 255F;
+        float g = ((colour >> 16) & 0xFF) / 255F;
+        float b = ((colour >> 8) & 0xFF) / 255F;
+        float a = (colour & 0xFF) / 255F;
+        GlStateManager.color(r, g, b, a);
+    }
+    public static void glColourARGB(int colour) {
+        float r = ((colour >> 16) & 0xFF) / 255F;
+        float g = ((colour >> 8) & 0xFF) / 255F;
+        float b = (colour & 0xFF) / 255F;
+        float a = ((colour >> 24 & 0xFF)) / 255F;
+        GlStateManager.color(r, g, b, a);
+    }
+
     public boolean equals(Colour colour) {
         return colour != null && rgba() == colour.rgba();
     }
