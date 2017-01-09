@@ -1,8 +1,7 @@
 package codechicken.lib.internal.proxy;
 
-import codechicken.lib.command.DumpClassCommand;
-import codechicken.lib.command.client.DumpModelLocationsCommand;
-import codechicken.lib.command.client.NukeCCModelCacheCommand;
+import codechicken.lib.internal.command.client.DumpModelLocationsCommand;
+import codechicken.lib.internal.command.client.NukeCCModelCacheCommand;
 import codechicken.lib.model.blockbakery.BlockBakery;
 import codechicken.lib.model.cube.CCCubeLoader;
 import codechicken.lib.render.CCRenderEventHandler;
@@ -21,12 +20,6 @@ public class ClientProxy extends CommonProxy {
         BlockBakery.init();
         CCRenderEventHandler.init();
         ModelLoaderRegistry.registerLoader(CCCubeLoader.INSTANCE);
-        ClientCommandHandler.instance.registerCommand(new DumpClassCommand() {
-            @Override
-            public String getCommandName() {
-                return "c_" + super.getCommandName();
-            }
-        });
         ClientCommandHandler.instance.registerCommand(new DumpModelLocationsCommand());
         ClientCommandHandler.instance.registerCommand(new NukeCCModelCacheCommand());
     }

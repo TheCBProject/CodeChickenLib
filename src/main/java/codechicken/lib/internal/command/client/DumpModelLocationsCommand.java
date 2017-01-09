@@ -1,4 +1,4 @@
-package codechicken.lib.command.client;
+package codechicken.lib.internal.command.client;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

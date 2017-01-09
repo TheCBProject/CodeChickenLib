@@ -1,6 +1,5 @@
 package codechicken.lib;
 
-import codechicken.lib.command.DumpClassCommand;
 import codechicken.lib.fingerprint.FingerprintChecker;
 import codechicken.lib.internal.proxy.CommonProxy;
 import codechicken.lib.util.FuelUtils;
@@ -45,7 +44,7 @@ public class CodeChickenLib {
 
     @EventHandler
     public void onServerStartingEvent(FMLServerStartingEvent event) {
-        event.registerServerCommand(new DumpClassCommand());
+        proxy.serverStarting(event);
     }
 
 }
