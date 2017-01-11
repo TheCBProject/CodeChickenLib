@@ -4,12 +4,18 @@ import codechicken.lib.math.MathHelper;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 
 public class IndexedCuboid6 extends Cuboid6 {
     public Object data;
 
     public IndexedCuboid6(Object data, Cuboid6 cuboid) {
         super(cuboid);
+        this.data = data;
+    }
+
+    public IndexedCuboid6(Object data, AxisAlignedBB box) {
+        super(box);
         this.data = data;
     }
 
