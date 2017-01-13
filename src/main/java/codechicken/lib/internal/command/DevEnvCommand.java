@@ -1,6 +1,10 @@
 package codechicken.lib.internal.command;
 
 import codechicken.lib.raytracer.RayTracer;
+import codechicken.lib.thread.ProfileTimer;
+import codechicken.lib.thread.TaskProfiler;
+import codechicken.lib.thread.TaskProfiler.ProfilerResult;
+import codechicken.lib.util.BlockStateUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
@@ -14,6 +18,7 @@ import net.minecraft.util.text.TextComponentString;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by covers1624 on 9/01/2017.
@@ -45,7 +50,14 @@ public class DevEnvCommand implements ICommand {
             }
             IBlockState state =  player.worldObj.getBlockState(trace.getBlockPos());
             addMessage(sender, state);
+            TaskProfiler timer = new TaskProfiler();
+            timer.startOnce("task");
+            int hash = BlockStateUtils.hashBlockState(state.getBlock().getExtendedState(state, player.worldObj, trace.getBlockPos()));
+            ProfilerResult result = timer.endOnce();
 
+            addMessage(sender, "Hash: " + hash);
+
+            addMessage(sender, "Time: " + result.time / 1000);
 
 
         } else {

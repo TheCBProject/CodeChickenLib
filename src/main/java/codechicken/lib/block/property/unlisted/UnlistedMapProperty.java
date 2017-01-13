@@ -1,21 +1,22 @@
 package codechicken.lib.block.property.unlisted;
 
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraftforge.common.property.IUnlistedProperty;
-
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 /**
  * Created by covers1624 on 25/10/2016.
  */
 public class UnlistedMapProperty extends UnlistedPropertyBase<Map> {
+    private IMapStringGenerator generator = null;
 
     public UnlistedMapProperty(String name) {
         super(name);
+    }
+
+    public UnlistedMapProperty setStringGenerator(IMapStringGenerator generator) {
+        if (generator == null) {
+            this.generator = generator;
+        }
+        return this;
     }
 
     @Override
@@ -25,7 +26,14 @@ public class UnlistedMapProperty extends UnlistedPropertyBase<Map> {
 
     @Override
     public String valueToString(Map value) {
-        return value.toString();
+        if (value == null) {
+            return "null";
+        }
+        return generator != null ? generator.makeString(value) : value.toString();
+    }
+
+    public interface IMapStringGenerator {
+        String makeString(Map map);
     }
 
 }

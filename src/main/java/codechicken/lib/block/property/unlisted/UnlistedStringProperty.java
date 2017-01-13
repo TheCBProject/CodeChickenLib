@@ -17,6 +17,6 @@ public class UnlistedStringProperty extends UnlistedPropertyBase<String> {
 
     @Override
     public String valueToString(String value) {
-        return value.toString();
+        return value;
     }
 }
