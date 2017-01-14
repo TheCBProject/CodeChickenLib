@@ -42,7 +42,7 @@ public class CCBakedModelLoader implements IIconRegister, IResourceManagerReload
     public static final CCBakedModelLoader INSTANCE = new CCBakedModelLoader();
 
     //TODO use cache factories.
-    private static final Cache<String, IBakedModel> modelCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
+    private static final Cache<String, IBakedModel> modelCache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
     private static final Map<String, IModKeyProvider> modelBakeQue = new HashMap<String, IModKeyProvider>();
 
     private static final ModelBakeTask bakingTask = new ModelBakeTask();
