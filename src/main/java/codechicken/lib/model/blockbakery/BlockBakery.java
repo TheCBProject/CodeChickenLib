@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 @SideOnly(Side.CLIENT)
 public class BlockBakery implements IResourceManagerReloadListener {
 
-    private static Cache<String, IBakedModel> keyModelCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
+    private static Cache<String, IBakedModel> keyModelCache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
 
     private static Map<Item, IItemStackKeyGenerator> itemKeyGeneratorMap = new HashMap<Item, IItemStackKeyGenerator>();
     private static Map<Block, IBlockStateKeyGenerator> blockKeyGeneratorMap = new HashMap<Block, IBlockStateKeyGenerator>();

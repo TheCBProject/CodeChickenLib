@@ -5,7 +5,6 @@ import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
-import net.minecraftforge.fml.common.FMLLog;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -34,7 +33,7 @@ public class BlockStateUtils {
         toHash.add("meta=" + state.getBlock().getMetaFromState(state));
         for (Entry<IUnlistedProperty<?>, Optional<?>> entry : state.getUnlistedProperties().entrySet()) {
             IUnlistedProperty property = entry.getKey();
-            toHash.add(property.getName() + "+" + property.valueToString(state.getValue(property)));
+            toHash.add(property.getName() + "=" + property.valueToString(state.getValue(property)));
         }
         return Objects.hashCode(toHash.toArray());
     }
