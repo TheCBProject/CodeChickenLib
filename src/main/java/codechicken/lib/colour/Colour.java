@@ -169,6 +169,22 @@ public abstract class Colour implements Copyable<Colour> {
         return a << 24 | r << 16 | g << 8 | b;
     }
 
+    public static int packRGBA(double r, double g, double b, double a) {
+        return (int) (r * 255) << 24 | (int) (g * 255) << 16 | (int) (b * 255) << 8 | (int) (a * 255);
+    }
+
+    public static int packARGB(double r, double g, double b, double a) {
+        return (int) (a * 255) << 24 | (int) (r * 255) << 16 | (int) (g * 255) << 8 | (int) (b * 255);
+    }
+
+    public static int packRGBA(float[] data) {
+        return packRGBA(data[0], data[1], data[2], data[3]);
+    }
+
+    public static int packARGB(float[] data) {
+        return packARGB(data[0], data[1], data[2], data[3]);
+    }
+
     public static void glColourRGBA(int colour) {
         float r = ((colour >> 24) & 0xFF) / 255F;
         float g = ((colour >> 16) & 0xFF) / 255F;
@@ -176,6 +192,7 @@ public abstract class Colour implements Copyable<Colour> {
         float a = (colour & 0xFF) / 255F;
         GlStateManager.color(r, g, b, a);
     }
+
     public static void glColourARGB(int colour) {
         float r = ((colour >> 16) & 0xFF) / 255F;
         float g = ((colour >> 8) & 0xFF) / 255F;
