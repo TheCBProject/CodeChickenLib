@@ -111,6 +111,9 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
         }
         System.arraycopy(quad.lightMaps, 0, lightMaps, 0, vertices.length);
         face = quad.face;
+        tintIndex = quad.tintIndex;
+        applyDifuseLighting = quad.applyDifuseLighting;
+        sprite = quad.sprite;
     }
 
     public void apply(Transformation... transforms) {
