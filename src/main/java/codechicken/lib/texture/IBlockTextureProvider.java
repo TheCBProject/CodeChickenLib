@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
 /**
  * Created by covers1624 on 30/10/2016.
  */
-public interface IBlockTextureProvider extends IIconRegister {
+public interface IBlockTextureProvider {
 
     TextureAtlasSprite getTexture(EnumFacing side, int metadata);
 

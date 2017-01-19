@@ -296,6 +296,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
      * @param c2 The bottom face cuboid.
      * @return
      */
+    @Deprecated
     public CCModel generateDualCuboidBlock(int i, Cuboid6 c1, Cuboid6 c2) {
         double x11 = c1.min.x;
         double y11 = c1.min.y;
