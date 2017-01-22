@@ -17,6 +17,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 7/31/2016.
  */
+@Deprecated
 public class CCOverrideBakedBlockModel implements IBakedModel {
 
     private final String particle;

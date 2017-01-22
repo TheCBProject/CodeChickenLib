@@ -16,6 +16,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 8/24/2016.
  * A ModelRenderer that is compatible with FastTESR's.
+ * TODO See CCModelBase's comment,
  */
 public class CCModelRenderer {
 

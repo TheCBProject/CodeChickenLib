@@ -12,11 +12,13 @@ import net.minecraft.util.ResourceLocation;
  * This defines a sub bakery of CCBakedModelLoader
  * See EnderStorage's EnderStorageBakedModelProvider for a "Default" implementation.
  */
+@Deprecated
 public interface IBakedModelLoader {
 
     /**
      * This defines a Mod Key provider.
      */
+    @Deprecated
     interface IModKeyProvider {
         /**
          * Gets the mod to operate for.

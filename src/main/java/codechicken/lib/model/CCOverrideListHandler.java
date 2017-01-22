@@ -14,6 +14,7 @@ import net.minecraft.world.World;
  * <p/>
  * Default implementation for CCBakedModelLoader.
  */
+@Deprecated
 public class CCOverrideListHandler extends ItemOverrideList {
 
     public CCOverrideListHandler() {

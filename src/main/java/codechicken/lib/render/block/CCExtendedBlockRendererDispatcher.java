@@ -19,6 +19,7 @@ import net.minecraft.world.WorldType;
 
 /**
  * Created by covers1624 on 26/10/2016.
+ * TODO remove IExtendedModel.
  */
 public class CCExtendedBlockRendererDispatcher extends BlockRendererDispatcher {
 

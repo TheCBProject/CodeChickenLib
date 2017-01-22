@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 /**
  * Created by covers1624 on 26/12/2016.
+ * TODO, Maybe move away from this, Instead of storing the entire render context inside the state, store the important data, then compute if necessary, will require changes basically everywhere.
  */
 public class BlockBakeryProperties {
     public static final UnlistedMapProperty LAYER_FACE_SPRITE_MAP;

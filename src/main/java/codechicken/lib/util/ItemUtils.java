@@ -16,6 +16,7 @@ import java.util.List;
 
 /**
  * Created by covers1624 on 6/30/2016.
+ * TODO, InventoryUtils needs to have things merged to here and such.
  */
 public class ItemUtils {
 

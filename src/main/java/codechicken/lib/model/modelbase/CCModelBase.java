@@ -14,6 +14,7 @@ import java.util.Random;
 
 /**
  * Created by covers1624 on 8/24/2016.
+ * TODO, instead of just copying how vanillas works, create a wrapper that pulls data from existing ModelBases and allows some sort of Animation callback.
  */
 public abstract class CCModelBase {
     public float swingProgress;

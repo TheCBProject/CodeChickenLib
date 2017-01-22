@@ -32,8 +32,7 @@ import java.util.List;
  * The core of the CodeChickenLib render system.
  * Where possible assign a local var of CCRenderState to avoid millions of calls to instance();
  * Uses a ThreadLocal system to assign each thread their own CCRenderState so we can use it in Multithreaded chunk batching.
- * TODO move to a cache system and have each CCRS instance die after a specific time.
- * TODO find performance impacts of using ThreadLocal.
+ * TODO, proper piping of BakedQuads and CCBakedQuads.
  */
 public class CCRenderState {
     private static int nextOperationIndex;

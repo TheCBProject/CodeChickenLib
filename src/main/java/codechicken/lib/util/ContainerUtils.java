@@ -7,6 +7,7 @@ import net.minecraft.inventory.Slot;
 /**
  * Created by covers1624 on 30/08/2016.
  */
+@Deprecated
 public class ContainerUtils {
 
     public static void bindPlayerInventory(Container container, InventoryPlayer inventoryPlayer, int xStart, int yStart) {

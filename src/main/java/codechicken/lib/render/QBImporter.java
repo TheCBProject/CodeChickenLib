@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 
+//TODO, Is this needed anymore?
 public class QBImporter {
     private static class ImagePackNode {
         Rectangle4i rect;

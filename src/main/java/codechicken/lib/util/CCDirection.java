@@ -6,7 +6,7 @@ import net.minecraft.util.IStringSerializable;
 /**
  * Created by covers1624 on 5/17/2016.
  */
-@Deprecated
+@Deprecated//Brandon this isn't needed anymore, use null and special case it instead of UNKNOWN
 public enum CCDirection implements IStringSerializable {
 
     /**

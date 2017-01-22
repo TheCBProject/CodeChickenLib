@@ -22,6 +22,7 @@ import java.util.Map.Entry;
 
 /**
  * Created by covers1624 on 19/11/2016.
+ * TODO Document that this exists and what it does to jsons.
  */
 public class CCModelCube implements IModel, IRetexturableModel, IModelSimpleProperties {
     public static String[] layerNames = { "solid", "cutout_mipped", "cutout", "translucent" };

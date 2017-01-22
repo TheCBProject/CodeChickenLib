@@ -26,6 +26,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 26/10/2016.
  */
+//TODO General cleanup.
 public class PlanarFaceBakery {
 
     public static BakedQuad bakeFace(EnumFacing face, TextureAtlasSprite sprite) {

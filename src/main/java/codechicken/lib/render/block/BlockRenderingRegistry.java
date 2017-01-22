@@ -22,6 +22,7 @@ import java.util.Map;
 
 /**
  * Created by covers1624 on 8/09/2016.
+ * TODO Start phase out of this system.
  */
 public class BlockRenderingRegistry {
 

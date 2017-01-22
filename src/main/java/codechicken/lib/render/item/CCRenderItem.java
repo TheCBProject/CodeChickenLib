@@ -29,6 +29,8 @@ import javax.vecmath.Matrix4f;
 
 /**
  * Created by covers1624 on 17/10/2016.
+ * TODO, Generify how this works. might be different from vanilla in the end but we should probably try and sniff off if the model is ours at an earlier date.
+ * TODO, Some sort of registry over IMC for mods to add their own hooks to this.
  */
 public class CCRenderItem extends RenderItem {
 

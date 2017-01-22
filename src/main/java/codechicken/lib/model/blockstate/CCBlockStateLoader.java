@@ -21,6 +21,12 @@ import java.util.Map.Entry;
 
 /**
  * Created by covers1624 on 17/11/2016.
+ * TODO, ASM copy instructions from ModelBlockDefinition to bouncer method here, in case someone is doing the same thing as me.
+ * TODO, Vanilla Predicate support inside json. Maybe allow variants inside predicates??
+ * TODO, Allow all unhandled BlockState Json data to be passed to custom IModels.
+ * TODO, Allow automatic assigning of IItemRenderer callbacks from json.
+ * TODO, Allow the BlockBakery to assign blocks models from json.
+ * TODO, Custom Sided particle system from json maybe / support for sided particles loaded from this loader.
  */
 public class CCBlockStateLoader {
 

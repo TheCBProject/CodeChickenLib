@@ -2,6 +2,7 @@ package codechicken.lib.math;
 
 import net.minecraft.util.math.BlockPos;
 
+//TODO cleanup.
 public class MathHelper {
     public static final double phi = 1.618033988749894;
     public static final double pi = Math.PI;

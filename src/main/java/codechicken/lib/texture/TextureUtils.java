@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TextureUtils {
+	//TODO, Move this somewhere else.
     public interface IIconRegister {
         @SideOnly(Side.CLIENT)
         void registerIcons(TextureMap textureMap);
@@ -50,6 +51,7 @@ public class TextureUtils {
         }
     };
 
+    //TODO Rename this.
     public static void addIconRegister(IIconRegister registrar) {
         iconRegisters.add(registrar);
     }

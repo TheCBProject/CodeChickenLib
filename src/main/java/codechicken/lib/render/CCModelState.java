@@ -13,6 +13,7 @@ import net.minecraftforge.common.model.TRSRTransformation;
 /**
  * Created by covers1624 on 5/16/2016.
  * Same as a SimpleModelState except has a getter for the Transform map.
+ * TODO Fix toVanillaTransform.
  */
 public class CCModelState implements IModelState {
 

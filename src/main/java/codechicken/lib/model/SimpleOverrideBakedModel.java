@@ -14,6 +14,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 7/25/2016.
  * This defines a model that's soul purpose is to act as a wrapper for an ItemOverrideList.
+ * TODO Cleanup, BakedModelProperties support and move to bakedmodels package.
  */
 public class SimpleOverrideBakedModel implements IBakedModel {
     private ItemOverrideList overrideList;

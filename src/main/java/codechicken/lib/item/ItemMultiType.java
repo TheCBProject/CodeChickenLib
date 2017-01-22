@@ -18,6 +18,7 @@ import java.util.Map;
 
 /**
  * Created by covers1624 on 3/27/2016.
+ * TODO cleanup.
  */
 public class ItemMultiType extends Item {
 

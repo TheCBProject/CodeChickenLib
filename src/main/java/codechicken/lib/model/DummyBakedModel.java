@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 7/25/2016.
  * A baked model to make minecraft shut the fuck up with baked model errors.
+ * TODO, Json support.
  */
 public class DummyBakedModel implements IBakedModel {
     @Override

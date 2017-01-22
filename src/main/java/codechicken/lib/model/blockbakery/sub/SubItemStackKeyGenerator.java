@@ -9,6 +9,7 @@ import java.util.Map;
 
 /**
  * Created by covers1624 on 30/12/2016.
+ * TODO Document.
  */
 public class SubItemStackKeyGenerator implements IItemStackKeyGenerator {
 

@@ -16,6 +16,7 @@ import java.util.List;
  * Created by covers1624 on 8/20/2016.
  * Uses the CCL RenderPipe to bake a CCModel to an array of BakedQuads with the provided VertexFormat.
  */
+@Deprecated// Use CCRenderState with a BakingVertexBuffer bound.
 public class CCModelBakery {
 
     /**

@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 /**
  * Hooks to the location of RenderItem#renderItem(ItemStack, IBakedModel)
  */
+//TODO, We need a perspective aware IItemRenderer
 public interface IItemRenderer extends IBakedModel {
 
     /**

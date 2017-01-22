@@ -2,14 +2,12 @@ package codechicken.lib;
 
 import codechicken.lib.fingerprint.FingerprintChecker;
 import codechicken.lib.internal.proxy.CommonProxy;
-import codechicken.lib.util.FuelUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.FMLInjectionData;
 
 import java.io.File;
@@ -33,7 +31,6 @@ public class CodeChickenLib {
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         FingerprintChecker.runFingerprintChecks();
-        GameRegistry.registerFuelHandler(new FuelUtils());
         proxy.preInit();
     }
 

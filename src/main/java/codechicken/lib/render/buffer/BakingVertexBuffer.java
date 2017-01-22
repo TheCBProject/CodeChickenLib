@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 4/10/2016.
  * Creates a List of BakedQuads from a VertexBuffer. That's it really..
- * //TODO Allow baking on a thread for more efficiency.
+ * //TODO, support triangles & quadulate.
  */
 public class BakingVertexBuffer extends VertexBuffer {
 

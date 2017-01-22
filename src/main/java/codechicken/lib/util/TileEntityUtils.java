@@ -26,7 +26,7 @@ public class TileEntityUtils {
                 TileEntityChest first = (TileEntityChest) tileEntity;
                 TileEntityChest second = null;
                 for (BlockPos adjacentPos : BlockUtils.getAdjacent(pos, false)) {
-                    TileEntity suspect = world.getTileEntity(pos);
+                    TileEntity suspect = world.getTileEntity(adjacentPos);
                     if (suspect instanceof TileEntityChest) {
                         second = (TileEntityChest) suspect;
                         break;

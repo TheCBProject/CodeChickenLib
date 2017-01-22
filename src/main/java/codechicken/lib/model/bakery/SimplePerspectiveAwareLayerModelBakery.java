@@ -22,6 +22,7 @@ import java.util.Arrays;
 /**
  * Created by covers1624 on 7/25/2016.
  */
+//TODO Find better name and integrate with IModel / Jsons.
 public class SimplePerspectiveAwareLayerModelBakery {
 
     private final ResourceLocation baseTexture;

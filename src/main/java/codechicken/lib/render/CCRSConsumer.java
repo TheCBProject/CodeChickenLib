@@ -10,6 +10,7 @@ import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 
 /**
  * Created by covers1624 on 15/01/2017.
+ * TODO, Maybe merge with CCRS??
  */
 public class CCRSConsumer implements IVertexConsumer {
     private final CCRenderState ccrs;

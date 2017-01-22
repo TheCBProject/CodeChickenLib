@@ -7,6 +7,7 @@ import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 
 /**
  * Created by covers1624 on 5/11/2016.
+ * TODO Document.
  */
 public class UnpackingVertexConsumer implements IVertexConsumer {
 

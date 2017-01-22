@@ -21,6 +21,7 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
 
+//TODO Document and reorder things in here.
 public class RenderUtils {
     private static Vector3[] vectors = new Vector3[8];
     private static RenderEntityItem uniformRenderItem;

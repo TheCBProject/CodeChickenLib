@@ -13,6 +13,7 @@ import java.util.Collection;
 
 /**
  * Created by covers1624 on 17/12/2016.
+ * TODO Decide on a standard place for CCL's IModels.
  */
 public class StateOverrideIModel implements IModel, IRetexturableModel, IModelCustomData, IModelSimpleProperties, IModelUVLock{
 

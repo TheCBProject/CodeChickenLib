@@ -14,6 +14,7 @@ import java.util.LinkedList;
  * Created by covers1624 on 8/3/2016.
  * TODO, Move the back end of this to the BakingVertexBuffer wrapped through the CCL render pipe.
  */
+@Deprecated// Use CCModel.generateBlock(0, new Cuboid6(<bounds>)).apply<rotation and such.>
 public class BlockModelBakery {
 
     public boolean flipTexture;

@@ -6,6 +6,7 @@ import codechicken.lib.vec.Vertex5;
 
 import static codechicken.lib.math.MathHelper.phi;
 
+//TODO Maybe expand to some more platonic solids at some point.
 public class CCModelLibrary {
     public static CCModel icosahedron4;
     public static CCModel icosahedron7;

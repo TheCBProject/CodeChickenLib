@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
+//TODO Clean cruft and move basically everything to OBFMapping.
 public class ReflectionManager {
     public static HashMap<Class<?>, Class<?>> primitiveWrappers = new HashMap<Class<?>, Class<?>>();
 

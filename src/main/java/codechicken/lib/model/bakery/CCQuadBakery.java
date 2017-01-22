@@ -18,6 +18,7 @@ import java.util.LinkedList;
  * Created by covers1624 on 8/2/2016.
  * Bakes Quads..
  */
+@Deprecated//TODO a Tessellator style BakingVertexBuffer.
 public class CCQuadBakery {
 
     private VertexFormat format;

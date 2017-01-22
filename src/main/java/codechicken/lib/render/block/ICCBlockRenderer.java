@@ -9,6 +9,7 @@ import net.minecraft.world.IBlockAccess;
 
 /**
  * Created by covers1624 on 8/09/2016.
+ * TODO, Some sort of automatic block breaking texture stuff.
  */
 public interface ICCBlockRenderer {
 

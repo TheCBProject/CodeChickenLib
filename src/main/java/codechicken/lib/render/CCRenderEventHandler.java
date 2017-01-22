@@ -41,7 +41,7 @@ public class CCRenderEventHandler {
     }
 
     @SideOnly(Side.CLIENT)
-    @SubscribeEvent
+    @SubscribeEvent//TODO Change event priority.
     public void onBlockHighlight(DrawBlockHighlightEvent event) {
         BlockPos pos = event.getTarget().getBlockPos();
 

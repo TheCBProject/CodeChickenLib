@@ -20,6 +20,7 @@ import java.util.LinkedList;
 
 /**
  * Created by covers1624 on 8/1/2016.
+ * TODO, Rethink this entire system, we need to cache blocks for the delayed lighting calculation.
  */
 public class BlockPlacementBatcher {
 

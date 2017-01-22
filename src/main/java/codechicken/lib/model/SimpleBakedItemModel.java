@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * Created by covers1624 on 7/18/2016.
+ * TODO, Cleanup and move to bakedmodels package.
  */
 public class SimpleBakedItemModel implements IPerspectiveAwareModel {
 

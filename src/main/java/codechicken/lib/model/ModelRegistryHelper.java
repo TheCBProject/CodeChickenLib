@@ -28,7 +28,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
+//TODO General cleanup, move to a less modular fashion now that CCL is a ModContainer.
 public class ModelRegistryHelper {
     private static List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<Pair<ModelResourceLocation, IBakedModel>>();
     private static List<IModelBakeCallback> modelBakeCallbacks = new LinkedList<IModelBakeCallback>();

@@ -8,6 +8,7 @@ import codechicken.lib.render.pipeline.attribute.SideAttribute;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vertex5;
 
+//TODO Ability to use this without lighting.
 public class BlockRenderer {
     public static class BlockFace implements IVertexSource {
         public Vertex5[] verts = new Vertex5[] { new Vertex5(), new Vertex5(), new Vertex5(), new Vertex5() };

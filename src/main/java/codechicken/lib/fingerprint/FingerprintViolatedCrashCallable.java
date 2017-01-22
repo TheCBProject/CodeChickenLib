@@ -7,6 +7,7 @@ import java.util.List;
 
 /**
  * Created by covers1624 on 12/12/2016.
+ * TODO, report all good when no invalid mods are found.
  */
 public class FingerprintViolatedCrashCallable implements ICrashCallable {
 

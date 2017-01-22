@@ -2,6 +2,7 @@ package codechicken.lib.util;
 
 /**
  * Created by covers1624 on 8/29/2016.
+ * TODO Copyable.
  */
 public class TripleABC<A, B, C> {
     private final A a;

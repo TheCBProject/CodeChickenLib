@@ -12,6 +12,8 @@ import java.util.LinkedList;
  * Dumps specific GL states from GlStateManager
  * Ability to push and pop most of the GL state.
  * TODO Ability to auto compare between different saved states. So basically a GlLeak analyser.
+ * TODO Support both Raw GL and GLStateManager, would be useful for detecting GLLeaks that occur due to raw GL calls.
+ * TODO Support all the things.
  */
 public class GlStateManagerHelper {
 

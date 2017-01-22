@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by covers1624 on 25/10/2016.
  */
+//TODO, We need a hook for CCRenderItem to allow switching the model being rendered on ItemOverrideList.handleItemState, possibly an interface.
 @SideOnly(Side.CLIENT)
 public class BlockBakery implements IResourceManagerReloadListener {
 

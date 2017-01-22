@@ -32,6 +32,7 @@ import java.util.ArrayList;
  */
 //Used to make sure all references to RenderItem are of CCL's overridden renderer.
 @Mod(modid = "ccl-entityhook", dependencies = "before:*")
+//TODO Find another way to do this, Maybe an ASM hook to load the CCRenderItem.
 public class EntityRendererHooks {
 
     private static boolean hasSanitized;

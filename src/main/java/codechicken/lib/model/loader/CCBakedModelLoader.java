@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
  * To use this call registerLoader(IBakedModelLoader) from PRE INIT!
  * //TODO This system needs to be scrapped for the new BlockBakery system that was newly implemented.
  */
+@Deprecated
 public class CCBakedModelLoader implements IIconRegister, IResourceManagerReloadListener {
 
     public static final CCBakedModelLoader INSTANCE = new CCBakedModelLoader();

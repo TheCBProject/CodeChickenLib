@@ -6,6 +6,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 
+//TODO Copyable.
 public class DistanceRayTraceResult extends RayTraceResult implements Comparable<DistanceRayTraceResult> {
     /**
      * The square distance from the start of the raytrace.
@@ -37,6 +38,7 @@ public class DistanceRayTraceResult extends RayTraceResult implements Comparable
         hitInfo = data;
     }
 
+    @Deprecated//TODO Is this actually needed.. Can remove an AT line if not needed.
     public void setPos(BlockPos pos) {
         this.blockPos = pos;
     }
