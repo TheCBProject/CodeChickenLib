@@ -157,7 +157,7 @@ public enum EnumColour implements IStringSerializable {
 
     public static EnumColour fromName(String name) {
         for (EnumColour colour : values()) {
-            if (colour.getName().equals(name)) {
+            if (colour.getName().equalsIgnoreCase(name)) {
                 return colour;
             }
         }
