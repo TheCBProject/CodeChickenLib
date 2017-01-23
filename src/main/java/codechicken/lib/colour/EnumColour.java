@@ -155,6 +155,15 @@ public enum EnumColour implements IStringSerializable {
         return null;
     }
 
+    public static EnumColour fromName(String name) {
+        for (EnumColour colour : values()) {
+            if (colour.getName().equals(name)) {
+                return colour;
+            }
+        }
+        return null;
+    }
+
     static {
         ImmutableList.Builder<TripleABC<EnumColour, EnumColour, EnumColour>> builder = ImmutableList.builder();
         //WHITE
