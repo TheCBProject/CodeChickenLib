@@ -43,7 +43,7 @@ public class ServerUtils {
     }
 
     public static boolean isPlayerLoadingChunk(EntityPlayerMP player, ChunkPos chunk){
-        return player.getServerWorld().getPlayerChunkMap().getEntry(chunk.chunkXPos, chunk.chunkZPos) != null;
+        return player.getServerWorld().getPlayerChunkMap().contains(chunk.chunkXPos, chunk.chunkZPos);
     }
 
     public static GameProfile getGameProfile(String username) {
