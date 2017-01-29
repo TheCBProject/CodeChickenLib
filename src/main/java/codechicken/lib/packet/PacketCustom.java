@@ -26,6 +26,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -342,23 +343,25 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     }
 
     @Override
-
     public PacketCustom writeVarShort(int s) {
         MCDataIO.writeVarShort(this, s);
         return this;
     }
 
     @Override
-
     public PacketCustom writeArray(byte[] barray) {
         writeBytes(barray);
         return this;
     }
 
     @Override
-
     public PacketCustom writeString(String s) {
         super.writeString(s);
+        return this;
+    }
+
+    public PacketCustom writeLocation(ResourceLocation loc) {
+        writeString(loc.toString());
         return this;
     }
 
@@ -430,6 +433,11 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     @Override
     public String readString() {
         return readStringFromBuffer(32767);
+    }
+
+    //TODO 1.11 pull to MC data in / out.
+    public ResourceLocation readLocation() {
+        return new ResourceLocation(readString());
     }
 
     @Override
