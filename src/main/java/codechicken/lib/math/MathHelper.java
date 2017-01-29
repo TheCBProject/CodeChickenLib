@@ -255,6 +255,14 @@ public class MathHelper {
         return net.minecraft.util.math.MathHelper.ceiling_float_int(d);
     }
 
+    public static float sqrt(float f) {
+        return net.minecraft.util.math.MathHelper.sqrt_float(f);
+    }
+
+    public static float sqrt(double f) {
+        return net.minecraft.util.math.MathHelper.sqrt_double(f);
+    }
+
     public static int roundAway(double d) {
         return (int) (d < 0 ? Math.floor(d) : Math.ceil(d));
     }
