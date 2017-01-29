@@ -1,10 +1,13 @@
 package codechicken.lib.render.block;
 
+import codechicken.lib.model.SimpleBakedBlockModel;
+import codechicken.lib.render.buffer.BakingVertexBuffer;
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.ReflectionManager;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
@@ -72,7 +75,15 @@ public class BlockRenderingRegistry {
         ICCBlockRenderer renderer = blockRendererList.get(state.getRenderType());
         if (renderer != null) {
             state = state.getActualState(world, pos);
-            renderer.handleRenderBlockDamage(world, pos, state, sprite, Tessellator.getInstance().getBuffer());
+            //TODO This needs to be optimized, probably not the most efficient thing in the world..
+            VertexBuffer parent = Tessellator.getInstance().getBuffer();
+	        BakingVertexBuffer buffer = BakingVertexBuffer.create();
+	        buffer.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
+	        buffer.begin(7, parent.getVertexFormat());
+            renderer.handleRenderBlockDamage(world, pos, state, sprite, buffer);
+            buffer.finishDrawing();
+            BlockModelRenderer modelRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer();
+            modelRenderer.renderModel(world, new SimpleBakedBlockModel(buffer.bake()), state, pos, parent, true);
         }
     }
 

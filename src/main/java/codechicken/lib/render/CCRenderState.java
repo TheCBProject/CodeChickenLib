@@ -187,7 +187,12 @@ public class CCRenderState {
                     }
                     break;
                 case COLOR:
-                    r.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+                	if (r.isColorDisabled()) {
+                		//-_- Fucking mojang..
+		                r.nextVertexFormatIndex();
+	                } else {
+		                r.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+	                }
                     break;
                 case NORMAL:
                     r.normal((float) normal.x, (float) normal.y, (float) normal.z);
