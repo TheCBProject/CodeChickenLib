@@ -2,6 +2,7 @@ package codechicken.lib.render;
 
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.vec.*;
+import codechicken.lib.vec.uv.IconTransformation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -23,9 +24,17 @@ import org.lwjgl.opengl.GL11;
 
 //TODO Document and reorder things in here.
 public class RenderUtils {
+
     private static Vector3[] vectors = new Vector3[8];
     private static RenderEntityItem uniformRenderItem;
     private static boolean hasInitRenderItem;
+
+    private static ThreadLocal<IconTransformation> iconTransformCache = new ThreadLocal<IconTransformation>(){
+        @Override
+        protected IconTransformation initialValue() {
+            return new IconTransformation(TextureUtils.getBlockTexture("stone"));
+        }
+    };
 
     private static EntityItem entityItem;
 
@@ -425,4 +434,11 @@ public class RenderUtils {
     public static int getTimeOffset(int x, int y, int z) {
         return x * 3 + y * 5 + z * 9;
     }
+
+    public static IconTransformation getIconTransformation(TextureAtlasSprite sprite) {
+        IconTransformation transformation = iconTransformCache.get();
+        transformation.icon = sprite;
+        return transformation;
+    }
+
 }

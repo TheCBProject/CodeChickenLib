@@ -22,6 +22,7 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -107,6 +108,12 @@ public class CCRenderState {
         pipeline.reset();
         computeLighting = true;
         baseColour = alphaOverride = -1;
+    }
+
+    public void preRenderWorld(IBlockAccess world, BlockPos pos) {
+        this.reset();
+        this.colour = 0xFFFFFFFF;
+        this.setBrightness(world, pos);
     }
 
     public void setPipeline(IVertexOperation... ops) {
@@ -220,6 +227,14 @@ public class CCRenderState {
 
     public void pushLightmap() {
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, brightness & 0xFFFF, brightness >>> 16);
+    }
+
+    public void setFluidColour(FluidStack fluidStack) {
+    	setFluidColour(fluidStack, 0xFF);
+    }
+
+    public void setFluidColour(FluidStack fluidStack, int alpha) {
+    	this.colour = fluidStack.getFluid().getColor(fluidStack) << 8 | alpha;
     }
 
     public void setColour(Colour colour) {
