@@ -142,6 +142,7 @@ public class CCRenderItem extends RenderItem {
                 this.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
                 this.textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
             } else {
+                parent.zLevel = this.zLevel;
                 parent.renderItemModel(stack, bakedModel, transform, leftHanded);
             }
         }
@@ -171,6 +172,7 @@ public class CCRenderItem extends RenderItem {
             this.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
             this.textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
         } else {
+            parent.zLevel = this.zLevel;
             parent.renderItemModelIntoGUI(stack, x, y, bakedModel);
         }
     }
@@ -184,6 +186,7 @@ public class CCRenderItem extends RenderItem {
             if (isValidModel(bakedModel)) {
                 this.renderItemModel(stack, bakedModel, cameraTransformType, false);
             }
+            parent.zLevel = this.zLevel;
             parent.renderItem(stack, cameraTransformType);
         }
     }
@@ -195,6 +198,7 @@ public class CCRenderItem extends RenderItem {
             if (isValidModel(bakedModel)) {
                 this.renderItemModel(stack, bakedModel, transform, leftHanded);
             } else {
+                parent.zLevel = this.zLevel;
                 parent.renderItem(stack, livingBase, transform, leftHanded);
             }
         }
@@ -206,6 +210,7 @@ public class CCRenderItem extends RenderItem {
         if (isValidModel(bakedModel)) {
             this.renderItemModelIntoGUI(stack, x, y, bakedModel);
         } else {
+            parent.zLevel = this.zLevel;
             parent.renderItemIntoGUI(stack, x, y);
         }
     }
@@ -226,6 +231,7 @@ public class CCRenderItem extends RenderItem {
                     this.renderItemModelIntoGUI(stack, x, y, model);
                     this.zLevel -= 50.0F;
                 } else {
+                    parent.zLevel = this.zLevel;
                     parent.renderItemAndEffectIntoGUI(livingBase, stack, x, y);
                 }
 
