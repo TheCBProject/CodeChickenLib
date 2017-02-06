@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.LightUtil;
+import net.minecraftforge.fml.common.FMLLog;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,8 +31,15 @@ public class BakingVertexBuffer extends VertexBuffer {
     private boolean useSprites = true;
     private boolean useDiffuseLighting = true;
 
+    private static ThreadLocal<BakingVertexBuffer> threadBuffers = new ThreadLocal<BakingVertexBuffer>() {
+        @Override
+        protected BakingVertexBuffer initialValue() {
+            return new BakingVertexBuffer(0x200000);
+        }
+    };
+
     public static BakingVertexBuffer create() {
-        return new BakingVertexBuffer(0x200000);
+        return threadBuffers.get();
     }
 
     private BakingVertexBuffer(int bufferSizeIn) {
@@ -105,6 +113,10 @@ public class BakingVertexBuffer extends VertexBuffer {
      * @return The list of quads baked.
      */
     public List<BakedQuad> bake() {
+        if (isDrawing) {
+            FMLLog.info("CodeChickenLib", new IllegalStateException("Bake called before finishDrawing!"),"Someone is calling bake before finishDrawing!");
+            finishDrawing();
+        }
         State state = getVertexState();
         VertexFormat format = state.getVertexFormat();
         if (!format.hasUvOffset(0)) {
