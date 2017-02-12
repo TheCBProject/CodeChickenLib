@@ -134,7 +134,7 @@ public class ItemMultiType extends Item {
     @Override
     public String getUnlocalizedName(ItemStack stack) {
         int meta = stack.getItemDamage();
-        return getUnlocalizedName() + names.get(meta);
+        return getUnlocalizedName() + "." + names.get(meta);
     }
 
     @Override

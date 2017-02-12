@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Created by covers1624 on 6/21/2016.
  * TODO Support MatLib files.
+ * TODO Custom Mat file for loading LightModels, calculating normals and applying the lighting and rotations.
  */
 public class CCOBJParser {
 
