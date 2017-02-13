@@ -22,6 +22,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -44,6 +45,7 @@ import java.util.concurrent.TimeUnit;
  * Created by covers1624 on 25/10/2016.
  */
 //TODO, We need a hook for CCRenderItem to allow switching the model being rendered on ItemOverrideList.handleItemState, possibly an interface.
+//TODO, BlockBakery > CachedModelBakery? dunno.
 @SideOnly(Side.CLIENT)
 public class BlockBakery implements IResourceManagerReloadListener {
 
@@ -158,36 +160,57 @@ public class BlockBakery implements IResourceManagerReloadListener {
     }
 
     public static IBakedModel generateItemModel(ItemStack stack) {
-        Block block = Block.getBlockFromItem(stack.getItem());
-        if (block instanceof IBakeryBlock) {
-            ICustomBlockBakery bakery = ((IBakeryBlock) block).getCustomBakery();
-            List<BakedQuad> generalQuads = new LinkedList<BakedQuad>();
-            Map<EnumFacing, List<BakedQuad>> faceQuads = new HashMap<EnumFacing, List<BakedQuad>>();
-            generalQuads.addAll(bakery.bakeItemQuads(null, stack));
+        Item item = stack.getItem();
+        if (item instanceof ItemBlock) {
+            Block block = Block.getBlockFromItem(item);
+            if (block instanceof IBakeryBlock) {
+                ICustomBlockBakery bakery = ((IBakeryBlock) block).getCustomBakery();
+                List<BakedQuad> generalQuads = new LinkedList<BakedQuad>();
+                Map<EnumFacing, List<BakedQuad>> faceQuads = new HashMap<EnumFacing, List<BakedQuad>>();
+                generalQuads.addAll(bakery.bakeItemQuads(null, stack));
 
-            for (EnumFacing face : EnumFacing.VALUES) {
-                List<BakedQuad> quads = new LinkedList<BakedQuad>();
+                for (EnumFacing face : EnumFacing.VALUES) {
+                    List<BakedQuad> quads = new LinkedList<BakedQuad>();
 
-                quads.addAll(PlanarFaceBakery.shadeQuadFaces(bakery.bakeItemQuads(face, stack)));
+                    quads.addAll(PlanarFaceBakery.shadeQuadFaces(bakery.bakeItemQuads(face, stack)));
 
-                faceQuads.put(face, quads);
+                    faceQuads.put(face, quads);
+                }
+
+                BakedModelProperties properties = new BakedModelProperties(true, true, null);
+                return new PerspectiveAwareBakedModel(faceQuads, generalQuads, TransformUtils.DEFAULT_BLOCK, properties);
+
+            } else if (block instanceof IBlockTextureProvider) {
+                IBlockTextureProvider provider = ((IBlockTextureProvider) block);
+                Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<EnumFacing, List<BakedQuad>>();
+                for (EnumFacing face : EnumFacing.VALUES) {
+                    List<BakedQuad> faceQuads = new LinkedList<BakedQuad>();
+
+                    faceQuads.addAll(PlanarFaceBakery.shadeQuadFaces(PlanarFaceBakery.bakeFace(face, provider.getTexture(face, stack.getMetadata()), DefaultVertexFormats.ITEM)));
+
+                    faceQuadMap.put(face, faceQuads);
+                }
+                BakedModelProperties properties = new BakedModelProperties(true, true, null);
+                return new PerspectiveAwareBakedModel(faceQuadMap, TransformUtils.DEFAULT_BLOCK, properties);
             }
+        } else {
+            if (item instanceof IBakeryItem) {
+                IItemBakery bakery = ((IBakeryItem) item).getBakery();
+                List<BakedQuad> generalQuads = new LinkedList<BakedQuad>();
+                Map<EnumFacing, List<BakedQuad>> faceQuads = new HashMap<EnumFacing, List<BakedQuad>>();
+                generalQuads.addAll(bakery.bakeItemQuads(null, stack));
 
-            BakedModelProperties properties = new BakedModelProperties(true, true, null);
-            return new PerspectiveAwareBakedModel(faceQuads, generalQuads, TransformUtils.DEFAULT_BLOCK, properties);
+                for (EnumFacing face : EnumFacing.VALUES) {
+                    List<BakedQuad> quads = new LinkedList<BakedQuad>();
 
-        } else if (block instanceof IBlockTextureProvider) {
-            IBlockTextureProvider provider = ((IBlockTextureProvider) block);
-            Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<EnumFacing, List<BakedQuad>>();
-            for (EnumFacing face : EnumFacing.VALUES) {
-                List<BakedQuad> faceQuads = new LinkedList<BakedQuad>();
+                    quads.addAll(bakery.bakeItemQuads(face, stack));
 
-                faceQuads.addAll(PlanarFaceBakery.shadeQuadFaces(PlanarFaceBakery.bakeFace(face, provider.getTexture(face, stack.getMetadata()), DefaultVertexFormats.ITEM)));
+                    faceQuads.put(face, quads);
+                }
 
-                faceQuadMap.put(face, faceQuads);
+                BakedModelProperties properties = new BakedModelProperties(true, true, null);
+                return new PerspectiveAwareBakedModel(faceQuads, generalQuads, TransformUtils.DEFAULT_ITEM, properties);
             }
-            BakedModelProperties properties = new BakedModelProperties(true, true, null);
-            return new PerspectiveAwareBakedModel(faceQuadMap, TransformUtils.DEFAULT_BLOCK, properties);
         }
         return missingModel;
     }

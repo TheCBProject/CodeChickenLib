@@ -13,9 +13,12 @@ import java.util.List;
 /**
  * Created by covers1624 on 28/10/2016.
  * TODO Document.
+ * TODO ICustomBlockBakery > IItemBakery
+ * TODO new Base class ICustomBakery
  */
 public interface ICustomBlockBakery {
 
+    //TODO Move to IBlockBakery.
     @SideOnly(Side.CLIENT)
     IExtendedBlockState handleState(IExtendedBlockState state, TileEntity tileEntity);
 
