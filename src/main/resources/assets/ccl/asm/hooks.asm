@@ -14,6 +14,17 @@ INVOKEINTERFACE codechicken/lib/render/item/IItemRenderer.renderItem (Lnet/minec
 GOTO LEND
 LELSE
 
+list i_renderMapFirstPerson
+ALOAD 1
+ICONST_0
+INVOKESTATIC codechicken/lib/render/item/map/MapRenderRegistry.shouldHandle (Lnet/minecraft/item/ItemStack;Z)Z
+IFEQ LELSE
+ALOAD 1
+ICONST_0
+INVOKESTATIC codechicken/lib/render/item/map/MapRenderRegistry.handleRender (Lnet/minecraft/item/ItemStack;Z)V
+RETURN
+LELSE
+
 list i_BlockStateLoader
 ALOAD 0
 GETSTATIC net/minecraft/client/renderer/block/model/ModelBlockDefinition.field_178333_a : Lcom/google/gson/Gson;
