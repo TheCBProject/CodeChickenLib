@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.fml.common.FMLLog;
+import org.apache.logging.log4j.Level;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -114,7 +115,7 @@ public class BakingVertexBuffer extends VertexBuffer {
      */
     public List<BakedQuad> bake() {
         if (isDrawing) {
-            FMLLog.info("CodeChickenLib", new IllegalStateException("Bake called before finishDrawing!"),"Someone is calling bake before finishDrawing!");
+            FMLLog.log("CodeChickenLib", Level.WARN, new IllegalStateException("Bake called before finishDrawing!"),"Someone is calling bake before finishDrawing!");
             finishDrawing();
         }
         State state = getVertexState();

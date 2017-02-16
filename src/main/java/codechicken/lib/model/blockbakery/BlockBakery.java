@@ -46,8 +46,10 @@ import java.util.concurrent.TimeUnit;
  */
 //TODO, We need a hook for CCRenderItem to allow switching the model being rendered on ItemOverrideList.handleItemState, possibly an interface.
 //TODO, BlockBakery > CachedModelBakery? dunno.
-@SideOnly(Side.CLIENT)
+@SideOnly (Side.CLIENT)
 public class BlockBakery implements IResourceManagerReloadListener {
+
+    private static boolean DEBUG = Boolean.parseBoolean(System.getProperty("ccl.debugBakeryLogging"));
 
     private static Cache<String, IBakedModel> keyModelCache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
 
@@ -150,7 +152,9 @@ public class BlockBakery implements IResourceManagerReloadListener {
         model = keyModelCache.getIfPresent(key);
         if (model == null) {
             model = generateItemModel(stack);
-            FMLLog.info("Baking item model: " + key);
+            if (DEBUG) {
+                FMLLog.info("Baking item model: " + key);
+            }
             if (model != missingModel) {
                 keyModelCache.put(key, model);
             }
@@ -222,7 +226,9 @@ public class BlockBakery implements IResourceManagerReloadListener {
         model = keyModelCache.getIfPresent(key);
         if (model == null) {
             model = generateModel(state);
-            FMLLog.info("Baking block model: " + key);
+            if (DEBUG) {
+                FMLLog.info("Baking block model: " + key);
+            }
             if (model != missingModel) {
                 keyModelCache.put(key, model);
             }

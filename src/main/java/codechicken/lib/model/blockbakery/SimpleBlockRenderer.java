@@ -59,6 +59,7 @@ public abstract class SimpleBlockRenderer implements ISimpleBlockBakery, IIconRe
         ccrs.reset();
         ccrs.startDrawing(0x7, DefaultVertexFormats.ITEM, buffer);
         models[worldData.getA()][worldData.getB()].render(ccrs, worldData.getC());
+        buffer.finishDrawing();
         List<BakedQuad> quads = buffer.bake();
         if (face == null && !shouldCull()) {
             return quads;
@@ -76,6 +77,7 @@ public abstract class SimpleBlockRenderer implements ISimpleBlockBakery, IIconRe
         ccrs.reset();
         ccrs.startDrawing(0x7, DefaultVertexFormats.ITEM, buffer);
         models[worldData.getA()][worldData.getB()].render(ccrs, worldData.getC());
+        buffer.finishDrawing();
         List<BakedQuad> quads = buffer.bake();
 
         if (face == null && !shouldCull()) {

@@ -91,6 +91,7 @@ public class CCModelBakery {
         ccrs.bind(buffer);
         ccrs.setPipeline(model, start, end, ops);
         ccrs.render();
+        buffer.finishDrawing();
         return buffer.bake();
     }
 }
