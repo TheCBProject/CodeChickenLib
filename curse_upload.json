@@ -1,6 +1,6 @@
 {
-  "archivesBase" : "codechicken.CodeChickenLib",
-  "displayName" : "CodeChicken Lib",
-  "projectId" : "242818",
-  "uploadSRC" : false
+	"archivesBase": "codechicken.CodeChickenLib",
+	"displayName": "CodeChicken Lib",
+	"projectId": "242818",
+	"uploadSRC": false
 }

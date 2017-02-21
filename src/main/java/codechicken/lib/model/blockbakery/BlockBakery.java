@@ -3,6 +3,7 @@ package codechicken.lib.model.blockbakery;
 import codechicken.lib.model.BakedModelProperties;
 import codechicken.lib.model.ModelRegistryHelper;
 import codechicken.lib.model.ModelRegistryHelper.IModelBakeCallback;
+import codechicken.lib.model.PerspectiveAwareModelProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareLayeredModel;
 import codechicken.lib.model.bakery.PlanarFaceBakery;
@@ -212,8 +213,15 @@ public class BlockBakery implements IResourceManagerReloadListener {
                     faceQuads.put(face, quads);
                 }
 
-                BakedModelProperties properties = new BakedModelProperties(true, true, null);
-                return new PerspectiveAwareBakedModel(faceQuads, generalQuads, TransformUtils.DEFAULT_ITEM, properties);
+                PerspectiveAwareModelProperties bakeryProperties = PerspectiveAwareModelProperties.DEFAULT_ITEM;
+
+                try {
+                    bakeryProperties = bakery.getModelProperties(stack);
+                } catch (Exception ignored) {
+                }
+
+                BakedModelProperties properties = bakeryProperties.getProperties();
+                return new PerspectiveAwareBakedModel(faceQuads, generalQuads, bakeryProperties.getModelState(), properties);
             }
         }
         return missingModel;

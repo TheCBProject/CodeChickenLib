@@ -31,7 +31,7 @@ import java.util.ArrayList;
  * Created by covers1624 on 31/10/2016.
  */
 //Used to make sure all references to RenderItem are of CCL's overridden renderer.
-@Mod(modid = "ccl-entityhook", dependencies = "before:*")
+@Mod (modid = "ccl-entityhook", dependencies = "before:*")
 //TODO Find another way to do this, Maybe an ASM hook to load the CCRenderItem.
 public class EntityRendererHooks {
 
@@ -44,7 +44,7 @@ public class EntityRendererHooks {
     }
 
     @EventHandler
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public void preInt(FMLPreInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(instance);
         RenderingRegistry.registerEntityRenderingHandler(DummyEntity.class, new IRenderFactory<DummyEntity>() {
@@ -61,9 +61,9 @@ public class EntityRendererHooks {
         });
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings ("unchecked")
     @SubscribeEvent
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public void onGuiInit(GuiOpenEvent event) {
         try {
             if (event.getGui() instanceof GuiModList) {
@@ -82,7 +82,7 @@ public class EntityRendererHooks {
         }
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public static void sanitizeEntityRenderers(RenderManager renderManager) {
         if (!hasSanitized) {
             try {
@@ -103,7 +103,7 @@ public class EntityRendererHooks {
         }
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public class DummyEntity extends Entity {
 
         public DummyEntity(World worldIn) {

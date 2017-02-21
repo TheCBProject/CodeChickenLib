@@ -5,6 +5,7 @@ package codechicken.lib.util;
  * TODO Copyable.
  */
 public class TripleABC<A, B, C> {
+
     private final A a;
     private final B b;
     private final C c;

@@ -2,9 +2,9 @@ package codechicken.lib.model.bakery;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
+import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
 import codechicken.lib.vec.uv.UV;
-import codechicken.lib.vec.Vector3;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -92,7 +92,7 @@ public class CCQuadBakery {
     }
 
     public CCQuadBakery setSprite(TextureAtlasSprite sprite) {
-        if (this.sprite == sprite){
+        if (this.sprite == sprite) {
             return this;
         }
         if (quad != null) {
@@ -133,7 +133,6 @@ public class CCQuadBakery {
         return this;
         //return setLightMap(new UV((double) ((brightness >> 4) & 15 * 32) / 65535, (double) ((brightness >> 20) & 15 * 32) / 65535));
     }
-
 
     public CCQuadBakery setNormal(Vector3 normal) {
         this.normal = normal;

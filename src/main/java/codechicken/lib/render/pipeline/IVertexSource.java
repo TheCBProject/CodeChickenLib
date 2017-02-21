@@ -1,13 +1,14 @@
 package codechicken.lib.render.pipeline;
 
 import codechicken.lib.render.CCRenderState;
-import codechicken.lib.vec.Vertex5;
 import codechicken.lib.render.pipeline.attribute.AttributeKey;
+import codechicken.lib.vec.Vertex5;
 
 /**
  * Created by covers1624 on 10/10/2016.
  */
 public interface IVertexSource {
+
     Vertex5[] getVertices();
 
     /**

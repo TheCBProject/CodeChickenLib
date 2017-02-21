@@ -9,6 +9,7 @@ import codechicken.lib.vec.Vector3;
  * Apples normals to the render operation. If the model is a planar model it uses known normals.
  */
 public class NormalAttribute extends VertexAttribute<Vector3[]> {
+
     public static final AttributeKey<Vector3[]> attributeKey = new AttributeKey<Vector3[]>() {
         @Override
         public Vector3[] newArray(int length) {

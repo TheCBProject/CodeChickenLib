@@ -1,6 +1,7 @@
 package codechicken.lib.colour;
 
 public class ColourARGB extends Colour {
+
     public ColourARGB(int colour) {
         super((colour >> 16) & 0xFF, (colour >> 8) & 0xFF, colour & 0xFF, (colour >> 24) & 0xFF);
     }

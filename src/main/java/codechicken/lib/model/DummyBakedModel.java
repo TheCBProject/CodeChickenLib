@@ -18,6 +18,7 @@ import java.util.List;
  * TODO, Json support.
  */
 public class DummyBakedModel implements IBakedModel {
+
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
         return ImmutableList.of();

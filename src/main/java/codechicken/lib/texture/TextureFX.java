@@ -5,8 +5,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly(Side.CLIENT)
+@SideOnly (Side.CLIENT)
 public class TextureFX {
+
     public int[] imageData;
     public int tileSizeBase = 16;
     public int tileSizeSquare = 256;

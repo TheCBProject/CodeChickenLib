@@ -8,6 +8,7 @@ import codechicken.lib.render.pipeline.VertexAttribute;
  * Created by covers1624 on 10/10/2016.
  */
 public class LightingAttribute extends VertexAttribute<int[]> {
+
     public static final AttributeKey<int[]> attributeKey = new AttributeKey<int[]>() {
         @Override
         public int[] newArray(int length) {

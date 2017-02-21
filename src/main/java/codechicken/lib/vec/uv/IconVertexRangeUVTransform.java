@@ -73,6 +73,7 @@ public class IconVertexRangeUVTransform extends UVTransformation {
      * Builds a IconVertexRangeUVTransform.
      */
     public static class Builder {
+
         private LinkedList<TripleABC<Integer, Integer, TextureAtlasSprite>> transformMap;
 
         private Builder() {

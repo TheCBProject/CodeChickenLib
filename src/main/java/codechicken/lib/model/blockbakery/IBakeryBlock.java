@@ -11,8 +11,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public interface IBakeryBlock {
 
-    @SideOnly(Side.CLIENT)
-    //TODO ICustomBakery
+    @SideOnly (Side.CLIENT)
+        //TODO ICustomBakery
     ICustomBlockBakery getCustomBakery();
 
 }

@@ -2,14 +2,14 @@ package codechicken.lib.model.bakery;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
-import codechicken.lib.vec.Vertex5;
-import codechicken.lib.vec.uv.UV;
-import codechicken.lib.vec.uv.UVTransformation;
 import codechicken.lib.util.ArrayUtils;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.VectorUtils;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
+import codechicken.lib.vec.Vertex5;
+import codechicken.lib.vec.uv.UV;
+import codechicken.lib.vec.uv.UVTransformation;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -18,10 +18,8 @@ import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.IVertexProducer;
-import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,6 +28,7 @@ import java.util.List;
  * Basically just a holder for quads before baking.
  */
 public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
+
     public Vertex5[] vertices = new Vertex5[4];
     public Vector3[] normals = new Vector3[4];
     public Colour[] colours = new Colour[4];
@@ -155,7 +154,7 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
         return counter == 4;
     }
 
-    public boolean hasTint(){
+    public boolean hasTint() {
         return tintIndex != -1;
     }
 

@@ -11,6 +11,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class MCDataOutputWrapper implements MCDataOutput {
+
     public DataOutput dataout;
 
     public MCDataOutputWrapper(DataOutput out) {

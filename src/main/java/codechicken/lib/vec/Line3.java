@@ -1,6 +1,7 @@
 package codechicken.lib.vec;
 
 public class Line3 {
+
     public static final double tol = 0.0001D;
 
     public Vector3 pt1;
@@ -16,7 +17,7 @@ public class Line3 {
     }
 
     public static boolean intersection2D(Line3 line1, Line3 line2, Vector3 store) {
-        // calculate differences  
+        // calculate differences
         double xD1 = line1.pt2.x - line1.pt1.x;
         double zD1 = line1.pt2.z - line1.pt1.z;
         double xD2 = line2.pt2.x - line2.pt1.x;

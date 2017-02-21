@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import static org.objectweb.asm.Opcodes.ASM4;
 
 public class MethodASMifier extends ClassVisitor {
+
     PrintWriter printWriter;
     ObfMapping method;
     Printer asmifier;

@@ -10,6 +10,7 @@ import codechicken.lib.vec.Vector3;
  * Uses the position of the lightmatrix to compute LC if not provided
  */
 public class LightCoordAttribute extends VertexAttribute<LC[]> {
+
     public static final AttributeKey<LC[]> attributeKey = new AttributeKey<LC[]>() {
         @Override
         public LC[] newArray(int length) {

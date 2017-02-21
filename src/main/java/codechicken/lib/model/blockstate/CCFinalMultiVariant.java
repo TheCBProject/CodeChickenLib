@@ -3,18 +3,14 @@ package codechicken.lib.model.blockstate;
 import codechicken.lib.model.BakedModelProperties;
 import codechicken.lib.model.CCMultiModel;
 import codechicken.lib.model.StateOverrideIModel;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.ModelProcessingHelper;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +64,7 @@ public class CCFinalMultiVariant extends Variant {
         boolean gui3d = variant.gui3d.or(true);
         int weight = variant.weight.or(1);
         if (variant.model != null && variant.textures.size() == 0 && variant.customData.size() == 0 && variant.state.orNull() instanceof ModelRotation) {
-            return  new Variant(variant.model, ((ModelRotation) variant.state.get()), uvLock, weight);
+            return new Variant(variant.model, ((ModelRotation) variant.state.get()), uvLock, weight);
         } else {
             return new CCFinalVariant(variant.model, variant.state.or(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures, textureDomain, variant.customData);
         }

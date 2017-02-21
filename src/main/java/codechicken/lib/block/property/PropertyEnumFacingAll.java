@@ -10,6 +10,7 @@ import java.util.Collection;
  * Created by covers1624 on 3/27/2016.
  */
 public class PropertyEnumFacingAll extends PropertyDirection {
+
     protected PropertyEnumFacingAll(String name, Collection<EnumFacing> values) {
         super(name, values);
     }

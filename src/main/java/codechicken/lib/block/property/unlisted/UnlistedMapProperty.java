@@ -6,6 +6,7 @@ import java.util.Map;
  * Created by covers1624 on 25/10/2016.
  */
 public class UnlistedMapProperty extends UnlistedPropertyBase<Map> {
+
     private IMapStringGenerator generator = null;
 
     public UnlistedMapProperty(String name) {
@@ -33,6 +34,7 @@ public class UnlistedMapProperty extends UnlistedPropertyBase<Map> {
     }
 
     public interface IMapStringGenerator {
+
         String makeString(Map map);
     }
 

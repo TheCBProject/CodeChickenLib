@@ -48,14 +48,18 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 public final class PacketCustom extends PacketBuffer implements MCDataHandler {
+
     public interface ICustomPacketHandler {
+
     }
 
     public interface IClientPacketHandler extends ICustomPacketHandler {
+
         void handlePacket(PacketCustom packetCustom, Minecraft mc, INetHandlerPlayClient handler);
     }
 
     public interface IServerPacketHandler extends ICustomPacketHandler {
+
         void handlePacket(PacketCustom packetCustom, EntityPlayerMP sender, INetHandlerPlayServer handler);
     }
 
@@ -63,6 +67,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
 
     @ChannelHandler.Sharable
     public static class CustomInboundHandler extends SimpleChannelInboundHandler<FMLProxyPacket> {
+
         public EnumMap<Side, CustomHandler> handlers = Maps.newEnumMap(Side.class);
 
         @Override
@@ -78,10 +83,12 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     }
 
     private interface CustomHandler {
+
         void handle(INetHandler handler, String channel, PacketCustom packet);
     }
 
     public static class ClientInboundHandler implements CustomHandler {
+
         private IClientPacketHandler handler;
 
         public ClientInboundHandler(ICustomPacketHandler handler) {
@@ -108,6 +115,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     }
 
     public static class ServerInboundHandler implements CustomHandler {
+
         private IServerPacketHandler handler;
 
         public ServerInboundHandler(ICustomPacketHandler handler) {
@@ -134,10 +142,12 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     }
 
     public interface IHandshakeHandler {
+
         void handshakeReceived(NetHandlerPlayServer netHandler);
     }
 
     public static class HandshakeInboundHandler extends ChannelInboundHandlerAdapter {
+
         public IHandshakeHandler handler;
 
         public HandshakeInboundHandler(IHandshakeHandler handler) {
@@ -365,7 +375,6 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         return this;
     }
 
-
     @Override
     public PacketCustom writePos(BlockPos pos) {
         writeInt(pos.getX());
@@ -490,7 +499,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         return new SPacketUpdateTileEntity(pos, 0, toNBTTag());
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public static PacketCustom fromTilePacket(SPacketUpdateTileEntity tilePacket) {
         return fromNBTTag(tilePacket.getNbtCompound());
     }
@@ -562,12 +571,12 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         }
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public void sendToServer() {
         sendToServer(toPacket());
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public static void sendToServer(Packet packet) {
         Minecraft.getMinecraft().getConnection().sendPacket(packet);
     }

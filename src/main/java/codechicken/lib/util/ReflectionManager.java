@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 //TODO Clean cruft and move basically everything to OBFMapping.
 public class ReflectionManager {
+
     public static HashMap<Class<?>, Class<?>> primitiveWrappers = new HashMap<Class<?>, Class<?>>();
 
     static {

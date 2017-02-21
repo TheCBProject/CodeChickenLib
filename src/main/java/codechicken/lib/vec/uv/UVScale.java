@@ -5,6 +5,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 public class UVScale extends UVTransformation {
+
     double su;
     double sv;
 

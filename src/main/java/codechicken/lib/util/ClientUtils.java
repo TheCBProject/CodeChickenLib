@@ -10,6 +10,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ClientUtils extends CommonUtils {
+
     private static Minecraft mc() {
         return Minecraft.getMinecraft();
     }
@@ -50,7 +51,7 @@ public class ClientUtils extends CommonUtils {
         }
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public static String getWorldSaveName() {
         return mc().isSingleplayer() ? FMLCommonHandler.instance().getMinecraftServerInstance().getFolderName() : null;
     }

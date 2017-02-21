@@ -14,6 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CCRenderEventHandler {
+
     public static int renderTime;
     public static float renderFrame;
 
@@ -40,7 +41,7 @@ public class CCRenderEventHandler {
         }
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     @SubscribeEvent//TODO Change event priority.
     public void onBlockHighlight(DrawBlockHighlightEvent event) {
         BlockPos pos = event.getTarget().getBlockPos();

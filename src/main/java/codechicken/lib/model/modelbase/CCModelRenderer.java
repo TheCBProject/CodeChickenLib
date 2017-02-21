@@ -2,9 +2,8 @@ package codechicken.lib.model.modelbase;
 
 import codechicken.lib.model.bakery.CCQuad;
 import codechicken.lib.render.CCModel;
-import codechicken.lib.vec.Vertex5;
-import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.*;
+import codechicken.lib.vec.uv.UV;
 import com.google.common.collect.Lists;
 import net.minecraft.client.renderer.VertexBuffer;
 import org.lwjgl.opengl.GL11;

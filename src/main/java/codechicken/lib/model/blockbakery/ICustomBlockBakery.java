@@ -19,9 +19,9 @@ import java.util.List;
 public interface ICustomBlockBakery {
 
     //TODO Move to IBlockBakery.
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     IExtendedBlockState handleState(IExtendedBlockState state, TileEntity tileEntity);
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     List<BakedQuad> bakeItemQuads(EnumFacing face, ItemStack stack);
 }

@@ -9,6 +9,7 @@ import net.minecraft.world.chunk.Chunk;
 import java.util.HashMap;
 
 public abstract class WorldExtension {
+
     public final World world;
     public HashMap<Chunk, ChunkExtension> chunkMap = new HashMap<Chunk, ChunkExtension>();
 

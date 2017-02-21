@@ -16,8 +16,9 @@ public interface IExtendedModel extends IBakedModel {
      * You can return what ever model you like.
      * This is fired from BlockRendererDispatcher#renderBlock before blockModelRenderer#renderModel,
      * but after getExtendedState.
+     *
      * @param prevModel The model that was going to be rendered.
-     * @param state The IBlockState returned from getExtendedState.
+     * @param state     The IBlockState returned from getExtendedState.
      * @return Another IBakedModel, can be different, same, whatever.
      */
     IBakedModel handleExtendedModel(IBakedModel prevModel, IBlockState state);

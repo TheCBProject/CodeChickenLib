@@ -42,6 +42,7 @@ public class CCShaderPipeline {
     }
 
     private class PipelineNode {
+
         public ArrayList<CCShaderPipeline.PipelineNode> deps = new ArrayList<CCShaderPipeline.PipelineNode>();
         public IShaderOperation op;
 

@@ -15,7 +15,7 @@ public class EntityUtils {
 
     public static int entityId = 0;
 
-    public static int nextEntityId(){
+    public static int nextEntityId() {
         return entityId++;
     }
 

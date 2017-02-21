@@ -7,6 +7,7 @@ import net.minecraft.util.ResourceLocation;
 import java.awt.image.BufferedImage;
 
 public class CustomGradient {
+
     public int[] gradient;
 
     public CustomGradient(ResourceLocation textureFile) {

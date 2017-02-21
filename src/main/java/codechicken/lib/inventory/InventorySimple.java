@@ -15,6 +15,7 @@ import net.minecraftforge.items.wrapper.InvWrapper;
  * Simple IInventory implementation with an array of items, name and maximum stack size
  */
 public class InventorySimple implements IInventory, ICapabilityProvider {
+
     public ItemStack[] items;
     public int limit;
     public String name;
@@ -147,7 +148,7 @@ public class InventorySimple implements IInventory, ICapabilityProvider {
         return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings ("unchecked")
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {

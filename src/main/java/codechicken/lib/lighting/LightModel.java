@@ -6,9 +6,11 @@ import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Vector3;
 
 public class LightModel implements IVertexOperation {
+
     public static final int operationIndex = CCRenderState.registerOperation();
 
     public static class Light {
+
         public Vector3 ambient = new Vector3();
         public Vector3 diffuse = new Vector3();
         public Vector3 position;

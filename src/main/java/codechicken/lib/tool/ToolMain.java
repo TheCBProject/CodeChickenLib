@@ -3,7 +3,9 @@ package codechicken.lib.tool;
 import codechicken.lib.tool.module.ModuleQBConverter;
 
 public class ToolMain {
+
     public interface Module {
+
         void main(String[] args);
 
         String name();

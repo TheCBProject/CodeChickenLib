@@ -13,11 +13,13 @@ import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+
 //TODO Decompose to individual transforms.
 public class Matrix4 extends Transformation implements Copyable<Matrix4> {
+
     private static FloatBuffer glBuf = ByteBuffer.allocateDirect(16 * 8).order(ByteOrder.nativeOrder()).asFloatBuffer();
 
-    //m<row><column>    
+    //m<row><column>
     public double m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33;
 
     public Matrix4() {
@@ -352,7 +354,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public void glApply() {
         glBuf.put((float) m00).put((float) m10).put((float) m20).put((float) m30).put((float) m01).put((float) m11).put((float) m21).put((float) m31).put((float) m02).put((float) m12).put((float) m22).put((float) m32).put((float) m03).put((float) m13).put((float) m23).put((float) m33);
         glBuf.flip();

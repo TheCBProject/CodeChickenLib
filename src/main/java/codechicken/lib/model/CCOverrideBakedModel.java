@@ -6,6 +6,7 @@ package codechicken.lib.model;
  */
 @Deprecated
 public class CCOverrideBakedModel extends SimpleOverrideBakedModel {
+
     public CCOverrideBakedModel() {
         super(new CCOverrideListHandler());
     }

@@ -17,6 +17,7 @@ import java.util.List;
  * TODO Cleanup, BakedModelProperties support and move to bakedmodels package.
  */
 public class SimpleOverrideBakedModel implements IBakedModel {
+
     private ItemOverrideList overrideList;
 
     public SimpleOverrideBakedModel(ItemOverrideList overrideList) {

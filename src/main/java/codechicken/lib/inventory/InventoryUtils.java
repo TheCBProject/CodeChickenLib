@@ -33,7 +33,7 @@ public class InventoryUtils {
     }
 
     public static IItemHandler getItemHandlerCap(TileEntity tileEntity, EnumFacing face) {
-        if (tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, face)){
+        if (tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, face)) {
             return tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, face);
         } else if (tileEntity instanceof ISidedInventory) {
             return new SidedInvWrapper(((ISidedInventory) tileEntity), face);

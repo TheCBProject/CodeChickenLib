@@ -9,6 +9,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * Abstract supertype for any 3D vector transformation
  */
 public abstract class Transformation extends ITransformation<Vector3, Transformation> implements IVertexOperation {
+
     public static final int operationIndex = CCRenderState.registerOperation();
 
     /**
@@ -33,7 +34,7 @@ public abstract class Transformation extends ITransformation<Vector3, Transforma
         return new TransformationList(this, t);
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public abstract void glApply();
 
     @Override

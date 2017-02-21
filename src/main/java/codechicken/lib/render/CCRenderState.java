@@ -36,6 +36,7 @@ import java.util.List;
  * TODO, proper piping of BakedQuads and CCBakedQuads.
  */
 public class CCRenderState {
+
     private static int nextOperationIndex;
 
     public static int registerOperation() {
@@ -67,9 +68,9 @@ public class CCRenderState {
     public int lastVertexIndex;
     public int vertexIndex;
     public CCRenderPipeline pipeline;
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public VertexBuffer r;
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public VertexFormat fmt;
 
     //context
@@ -87,7 +88,7 @@ public class CCRenderState {
     //attribute storage
     public int side;
     public LC lc = new LC();
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public TextureAtlasSprite sprite;
 
     private CCRenderState() {
@@ -194,12 +195,12 @@ public class CCRenderState {
                     }
                     break;
                 case COLOR:
-                	if (r.isColorDisabled()) {
-                		//-_- Fucking mojang..
-		                r.nextVertexFormatIndex();
-	                } else {
-		                r.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
-	                }
+                    if (r.isColorDisabled()) {
+                        //-_- Fucking mojang..
+                        r.nextVertexFormatIndex();
+                    } else {
+                        r.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+                    }
                     break;
                 case NORMAL:
                     r.normal((float) normal.x, (float) normal.y, (float) normal.z);
@@ -230,11 +231,11 @@ public class CCRenderState {
     }
 
     public void setFluidColour(FluidStack fluidStack) {
-    	setFluidColour(fluidStack, 0xFF);
+        setFluidColour(fluidStack, 0xFF);
     }
 
     public void setFluidColour(FluidStack fluidStack, int alpha) {
-    	this.colour = fluidStack.getFluid().getColor(fluidStack) << 8 | alpha;
+        this.colour = fluidStack.getFluid().getColor(fluidStack) << 8 | alpha;
     }
 
     public void setColour(Colour colour) {
@@ -245,7 +246,7 @@ public class CCRenderState {
         return new ColourRGBA(colour);
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public VertexBuffer startDrawing(int mode, VertexFormat format) {
         VertexBuffer r = Tessellator.getInstance().getBuffer();
         r.begin(mode, format);
@@ -253,25 +254,25 @@ public class CCRenderState {
         return r;
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public VertexBuffer startDrawing(int mode, VertexFormat format, VertexBuffer buffer) {
         buffer.begin(mode, format);
         bind(buffer);
         return buffer;
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public void bind(VertexBuffer r) {
         this.r = r;
         fmt = r.getVertexFormat();
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public VertexBuffer getBuffer() {
         return r;
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public VertexFormat getVertexFormat() {
         return fmt;
     }

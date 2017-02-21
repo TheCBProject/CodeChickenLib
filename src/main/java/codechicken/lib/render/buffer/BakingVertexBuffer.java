@@ -2,10 +2,10 @@ package codechicken.lib.render.buffer;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.texture.TextureUtils;
-import codechicken.lib.vec.uv.UV;
 import codechicken.lib.util.VectorUtils;
 import codechicken.lib.util.VertexDataUtils;
 import codechicken.lib.vec.Vector3;
+import codechicken.lib.vec.uv.UV;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -94,7 +94,7 @@ public class BakingVertexBuffer extends VertexBuffer {
     /**
      * Disables DiffuseLighting on quads.
      */
-    public BakingVertexBuffer dissableDiffuseLighting(){
+    public BakingVertexBuffer dissableDiffuseLighting() {
         useDiffuseLighting = false;
         return this;
     }
@@ -103,7 +103,7 @@ public class BakingVertexBuffer extends VertexBuffer {
      * Enables DiffuseLighting on quads.
      * This is enabled by default.
      */
-    public BakingVertexBuffer enableDiffuseLighting(){
+    public BakingVertexBuffer enableDiffuseLighting() {
         useDiffuseLighting = true;
         return this;
     }
@@ -115,7 +115,7 @@ public class BakingVertexBuffer extends VertexBuffer {
      */
     public List<BakedQuad> bake() {
         if (isDrawing) {
-            FMLLog.log("CodeChickenLib", Level.WARN, new IllegalStateException("Bake called before finishDrawing!"),"Someone is calling bake before finishDrawing!");
+            FMLLog.log("CodeChickenLib", Level.WARN, new IllegalStateException("Bake called before finishDrawing!"), "Someone is calling bake before finishDrawing!");
             finishDrawing();
         }
         State state = getVertexState();
@@ -162,7 +162,7 @@ public class BakingVertexBuffer extends VertexBuffer {
             }
             //Use normal to calculate facing.
             EnumFacing facing = VectorUtils.calcNormalSide(normal);
-            if (facing == null){
+            if (facing == null) {
                 facing = EnumFacing.UP;
             }
             BakedQuad quad = new BakedQuad(quadData, -1, facing, sprite, useDiffuseLighting, format);

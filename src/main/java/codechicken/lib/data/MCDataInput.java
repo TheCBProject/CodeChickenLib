@@ -6,6 +6,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
 
 public interface MCDataInput {
+
     long readLong();
 
     int readInt();

@@ -10,6 +10,7 @@ import net.minecraft.util.text.TextComponentString;
  * Creates a copy of an IInventory for extended simulation
  */
 public class InventoryCopy implements IInventory {
+
     public boolean[] accessible;
     public ItemStack[] items;
     public IInventory inv;

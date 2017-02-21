@@ -4,6 +4,7 @@ import net.minecraft.util.math.BlockPos;
 
 //TODO cleanup.
 public class MathHelper {
+
     public static final double phi = 1.618033988749894;
     public static final double pi = Math.PI;
     public static final double todeg = 57.29577951308232;

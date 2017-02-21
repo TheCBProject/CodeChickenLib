@@ -8,6 +8,7 @@ import codechicken.lib.util.VectorUtils;
  * Sets the side state in CCRS based on the provided model. If the model does not have side data it requires normals.
  */
 public class SideAttribute extends VertexAttribute<int[]> {
+
     public static final AttributeKey<int[]> attributeKey = new AttributeKey<int[]>() {
         @Override
         public int[] newArray(int length) {

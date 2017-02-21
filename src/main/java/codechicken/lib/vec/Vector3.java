@@ -17,6 +17,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 public class Vector3 implements Copyable<Vector3> {
+
     public static Vector3 zero = new Vector3();
     public static Vector3 one = new Vector3(1, 1, 1);
     public static Vector3 center = new Vector3(0.5, 0.5, 0.5);
@@ -64,6 +65,7 @@ public class Vector3 implements Copyable<Vector3> {
     public static Vector3 fromBlockPos(BlockPos pos) {
         return new Vector3(pos.getX(), pos.getY(), pos.getZ());
     }
+
     public static Vector3 fromBlockPosCenter(BlockPos pos) {
         return fromBlockPos(pos).add(0.5);
     }
@@ -100,7 +102,6 @@ public class Vector3 implements Copyable<Vector3> {
         return new Vector3(fa[0], fa[1], fa[2]);
     }
 
-
     public Vec3d vec3() {
         return new Vec3d(x, y, z);
     }
@@ -109,17 +110,17 @@ public class Vector3 implements Copyable<Vector3> {
         return new BlockPos(x, y, z);
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public Vector3f vector3f() {
         return new Vector3f((float) x, (float) y, (float) z);
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public Vector4f vector4f() {
         return new Vector4f((float) x, (float) y, (float) z, 1);
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public void glVertex() {
         GlStateManager.glVertex3f((float) x, (float) y, (float) z);
     }
@@ -139,11 +140,11 @@ public class Vector3 implements Copyable<Vector3> {
         return set(vec.x, vec.y, vec.z);
     }
 
-    public Vector3 set(double[] da){
+    public Vector3 set(double[] da) {
         return set(da[0], da[1], da[2]);
     }
 
-    public Vector3 set(float[] fa){
+    public Vector3 set(float[] fa) {
         return set(fa[0], fa[1], fa[2]);
     }
 
@@ -229,14 +230,14 @@ public class Vector3 implements Copyable<Vector3> {
         return divide(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public Vector3 floor(){
+    public Vector3 floor() {
         x = MathHelper.floor(x);
         y = MathHelper.floor(y);
         z = MathHelper.floor(z);
         return this;
     }
 
-    public Vector3 celi(){
+    public Vector3 celi() {
         x = MathHelper.ceil(x);
         y = MathHelper.ceil(y);
         z = MathHelper.ceil(z);

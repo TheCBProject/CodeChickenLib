@@ -1,7 +1,6 @@
 package codechicken.lib.gui;
 
 import codechicken.lib.colour.Colour;
-import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.texture.TextureUtils;
 import net.minecraft.client.Minecraft;
@@ -29,7 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GuiDraw {
+
     public static class GuiHook extends Gui {
+
         public void setZLevel(float f) {
             zLevel = f;
         }
@@ -178,6 +179,7 @@ public class GuiDraw {
 
     @Deprecated//This is dead as there are forge events.
     public interface ITooltipLineHandler {
+
         Dimension getSize();
 
         void draw(int x, int y);
@@ -277,12 +279,10 @@ public class GuiDraw {
         y = MathHelper.clip(y, 8, displaySize().height - 8);
         int tooltipTextWidth = 0;
 
-        for (String textLine : lines)
-        {
+        for (String textLine : lines) {
             int textLineWidth = font.getStringWidth(textLine);
 
-            if (textLineWidth > tooltipTextWidth)
-            {
+            if (textLineWidth > tooltipTextWidth) {
                 tooltipTextWidth = textLineWidth;
             }
         }
@@ -291,47 +291,37 @@ public class GuiDraw {
 
         int titleLinesCount = 1;
         int tooltipX = x + 12;
-        if (tooltipX + tooltipTextWidth + 4 > screenWidth)
-        {
+        if (tooltipX + tooltipTextWidth + 4 > screenWidth) {
             tooltipX = x - 16 - tooltipTextWidth;
             if (tooltipX < 4) // if the tooltip doesn't fit on the screen
             {
-                if (x > screenWidth / 2)
-                {
+                if (x > screenWidth / 2) {
                     tooltipTextWidth = x - 12 - 8;
-                }
-                else
-                {
+                } else {
                     tooltipTextWidth = screenWidth - 16 - x;
                 }
                 needsWrap = true;
             }
         }
 
-        if (maxTextWidth > 0 && tooltipTextWidth > maxTextWidth)
-        {
+        if (maxTextWidth > 0 && tooltipTextWidth > maxTextWidth) {
             tooltipTextWidth = maxTextWidth;
             needsWrap = true;
         }
 
-        if (needsWrap)
-        {
+        if (needsWrap) {
             int wrappedTooltipWidth = 0;
             List<String> wrappedTextLines = new ArrayList<String>();
-            for (int i = 0; i < lines.size(); i++)
-            {
+            for (int i = 0; i < lines.size(); i++) {
                 String textLine = lines.get(i);
                 List<String> wrappedLine = font.listFormattedStringToWidth(textLine, tooltipTextWidth);
-                if (i == 0)
-                {
+                if (i == 0) {
                     titleLinesCount = wrappedLine.size();
                 }
 
-                for (String line : wrappedLine)
-                {
+                for (String line : wrappedLine) {
                     int lineWidth = font.getStringWidth(line);
-                    if (lineWidth > wrappedTooltipWidth)
-                    {
+                    if (lineWidth > wrappedTooltipWidth) {
                         wrappedTooltipWidth = lineWidth;
                     }
                     wrappedTextLines.add(line);
@@ -340,12 +330,9 @@ public class GuiDraw {
             tooltipTextWidth = wrappedTooltipWidth;
             lines = wrappedTextLines;
 
-            if (x > screenWidth / 2)
-            {
+            if (x > screenWidth / 2) {
                 tooltipX = x - 16 - tooltipTextWidth;
-            }
-            else
-            {
+            } else {
                 tooltipX = x;
             }
         }
@@ -353,8 +340,7 @@ public class GuiDraw {
         int tooltipY = y;
         int tooltipHeight = 8;
 
-        if (lines.size() > 1)
-        {
+        if (lines.size() > 1) {
             tooltipHeight += (lines.size() - 1) * 10;
             if (lines.size() > titleLinesCount) {
                 tooltipHeight += 2; // gap between title lines and next lines
@@ -381,13 +367,11 @@ public class GuiDraw {
         MinecraftForge.EVENT_BUS.post(new RenderTooltipEvent.PostBackground(stack, lines, tooltipX, tooltipY, font, tooltipTextWidth, tooltipHeight));
         int tooltipTop = tooltipY;
 
-        for (int lineNumber = 0; lineNumber < lines.size(); ++lineNumber)
-        {
+        for (int lineNumber = 0; lineNumber < lines.size(); ++lineNumber) {
             String line = lines.get(lineNumber);
-            font.drawStringWithShadow(line, (float)tooltipX, (float)tooltipY, -1);
+            font.drawStringWithShadow(line, (float) tooltipX, (float) tooltipY, -1);
 
-            if (lineNumber + 1 == titleLinesCount)
-            {
+            if (lineNumber + 1 == titleLinesCount) {
                 tooltipY += 2;
             }
 

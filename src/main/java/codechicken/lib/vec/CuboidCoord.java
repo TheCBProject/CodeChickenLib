@@ -6,6 +6,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import java.util.Iterator;
 
 public class CuboidCoord implements Iterable<BlockCoord>, Copyable<CuboidCoord> {
+
     public BlockCoord min;
     public BlockCoord max;
 
@@ -104,9 +105,7 @@ public class CuboidCoord implements Iterable<BlockCoord>, Copyable<CuboidCoord> 
     }
 
     public boolean contains(int x, int y, int z) {
-        return x >= min.x && x <= max.x &&
-                y >= min.y && y <= max.y &&
-                z >= min.z && z <= max.z;
+        return x >= min.x && x <= max.x && y >= min.y && y <= max.y && z >= min.z && z <= max.z;
     }
 
     public boolean contains(BlockCoord coord) {
@@ -114,8 +113,7 @@ public class CuboidCoord implements Iterable<BlockCoord>, Copyable<CuboidCoord> 
     }
 
     public boolean intersects(CuboidCoord c) {
-        return max.x >= c.min.x && max.y >= c.min.y && max.z >= c.min.z &&
-                min.x <= c.max.x && min.y <= c.max.y && min.z <= c.max.z;
+        return max.x >= c.min.x && max.y >= c.min.y && max.z >= c.min.z && min.x <= c.max.x && min.y <= c.max.y && min.z <= c.max.z;
     }
 
     public int volume() {

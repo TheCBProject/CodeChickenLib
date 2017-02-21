@@ -10,6 +10,7 @@ import java.math.RoundingMode;
 
 //TODO Constructor for BlockPos.
 public class Translation extends Transformation {
+
     public Vector3 vec;
 
     public Translation(Vector3 vec) {
@@ -40,7 +41,7 @@ public class Translation extends Transformation {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public void glApply() {
         GlStateManager.translate(vec.x, vec.y, vec.z);
     }

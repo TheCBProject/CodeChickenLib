@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map.Entry;
 
 public class TaskProfiler {
+
     public static class ProfilerResult {
+
         public final String name;
         public final long time;
         public final double fraction;

@@ -6,6 +6,7 @@ import codechicken.lib.render.CCRenderState;
  * Represents an operation to be run for each vertex that operates on and modifies the current state
  */
 public interface IVertexOperation {
+
     /**
      * Load any required references and add dependencies to the pipeline based on the current model (may be null)
      * Return false if this operation is redundant in the pipeline with the given model

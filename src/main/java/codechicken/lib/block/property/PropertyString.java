@@ -4,7 +4,10 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.properties.PropertyHelper;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by covers1624 on 2/6/2016.

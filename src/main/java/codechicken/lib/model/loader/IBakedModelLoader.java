@@ -20,6 +20,7 @@ public interface IBakedModelLoader {
      */
     @Deprecated
     interface IModKeyProvider {
+
         /**
          * Gets the mod to operate for.
          *

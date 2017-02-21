@@ -1,6 +1,7 @@
 package codechicken.lib.colour;
 
 public class ColourRGBA extends Colour {
+
     public ColourRGBA(int colour) {
         super((colour >> 24) & 0xFF, (colour >> 16) & 0xFF, (colour >> 8) & 0xFF, colour & 0xFF);
     }

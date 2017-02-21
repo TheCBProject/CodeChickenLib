@@ -9,6 +9,7 @@ import net.minecraft.world.chunk.Chunk;
 import java.util.HashSet;
 
 public abstract class ChunkExtension {
+
     public final Chunk chunk;
     public final ChunkPos coord;
     public final WorldExtension world;

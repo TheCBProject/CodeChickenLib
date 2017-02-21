@@ -11,8 +11,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SpriteSheetManager {
-    @SideOnly(Side.CLIENT)
+
+    @SideOnly (Side.CLIENT)
     public static class SpriteSheet implements IIconRegister {
+
         private int tilesX;
         private int tilesY;
         private ArrayList<Integer> newSprites = new ArrayList<Integer>();

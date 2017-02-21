@@ -5,10 +5,12 @@ import codechicken.lib.render.CCRenderState;
 import java.util.ArrayList;
 
 public class CCRenderPipeline {
+
     public class PipelineBuilder {
+
         CCRenderState renderState;
 
-        public PipelineBuilder(CCRenderState renderState){
+        public PipelineBuilder(CCRenderState renderState) {
             this.renderState = renderState;
         }
 
@@ -35,6 +37,7 @@ public class CCRenderPipeline {
     }
 
     private class PipelineNode {
+
         public ArrayList<PipelineNode> deps = new ArrayList<PipelineNode>();
         public IVertexOperation op;
 
@@ -64,11 +67,10 @@ public class CCRenderPipeline {
     private PipelineNode loading;
     private PipelineBuilder builder;
 
-    public CCRenderPipeline(CCRenderState renderState){
+    public CCRenderPipeline(CCRenderState renderState) {
         this.renderState = renderState;
         builder = new PipelineBuilder(renderState);
     }
-
 
     public void setPipeline(IVertexOperation... ops) {
         this.ops.clear();

@@ -24,6 +24,7 @@ import java.util.EnumMap;
  * If you have an idea for another transform just make a pull request.
  */
 public class TransformUtils {
+
     private static final TRSRTransformation flipX = new TRSRTransformation(null, null, new Vector3f(-1, 1, 1), null);
 
     public static final Gson GSON = new GsonBuilder().registerTypeAdapter(TRSRTransformation.class, TRSRDeserializer.INSTANCE).create();

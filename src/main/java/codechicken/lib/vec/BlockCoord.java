@@ -9,6 +9,7 @@ import net.minecraft.util.math.BlockPos;
 //TODO, Maybe we should keep this and extend BlockPos..
 @Deprecated
 public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord> {
+
     public static final BlockCoord[] sideOffsets = new BlockCoord[] { new BlockCoord(0, -1, 0), new BlockCoord(0, 1, 0), new BlockCoord(0, 0, -1), new BlockCoord(0, 0, 1), new BlockCoord(-1, 0, 0), new BlockCoord(1, 0, 0) };
 
     public int x;
@@ -153,35 +154,35 @@ public class BlockCoord implements Comparable<BlockCoord>, Copyable<BlockCoord> 
 
     public int getSide(int side) {
         switch (side) {
-        case 0:
-        case 1:
-            return y;
-        case 2:
-        case 3:
-            return z;
-        case 4:
-        case 5:
-            return x;
+            case 0:
+            case 1:
+                return y;
+            case 2:
+            case 3:
+                return z;
+            case 4:
+            case 5:
+                return x;
         }
         throw new IndexOutOfBoundsException("Switch Falloff");
     }
 
     public BlockCoord setSide(int s, int v) {
         switch (s) {
-        case 0:
-        case 1:
-            y = v;
-            break;
-        case 2:
-        case 3:
-            z = v;
-            break;
-        case 4:
-        case 5:
-            x = v;
-            break;
-        default:
-            throw new IndexOutOfBoundsException("Switch Falloff");
+            case 0:
+            case 1:
+                y = v;
+                break;
+            case 2:
+            case 3:
+                z = v;
+                break;
+            case 4:
+            case 5:
+                x = v;
+                break;
+            default:
+                throw new IndexOutOfBoundsException("Switch Falloff");
         }
         return this;
     }

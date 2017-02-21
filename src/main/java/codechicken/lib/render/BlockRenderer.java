@@ -10,7 +10,9 @@ import codechicken.lib.vec.Vertex5;
 
 //TODO Ability to use this without lighting.
 public class BlockRenderer {
+
     public static class BlockFace implements IVertexSource {
+
         public Vertex5[] verts = new Vertex5[] { new Vertex5(), new Vertex5(), new Vertex5(), new Vertex5() };
         public LC[] lightCoords = new LC[] { new LC(), new LC(), new LC(), new LC() };
         public boolean lcComputed = false;
@@ -126,6 +128,7 @@ public class BlockRenderer {
     }
 
     public static class FullBlock implements IVertexSource {
+
         public Vertex5[] verts = CCModel.quadModel(24).generateBlock(0, Cuboid6.full).verts;
         public LC[] lightCoords = new LC[24];
 

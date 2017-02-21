@@ -11,6 +11,7 @@ import codechicken.lib.util.ArrayUtils;
  * @param <T> The array type for this attribute eg. int[], Vector3[]
  */
 public abstract class VertexAttribute<T> implements IVertexOperation {
+
     private final int operationIndex = CCRenderState.registerOperation();
 
     /**

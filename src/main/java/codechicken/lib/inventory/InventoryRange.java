@@ -9,6 +9,7 @@ import net.minecraft.util.EnumFacing;
  * Inventory wrapper for unified ISided/IInventory access
  */
 public class InventoryRange {
+
     public IInventory inv;
     public EnumFacing face;
     public ISidedInventory sidedInv;

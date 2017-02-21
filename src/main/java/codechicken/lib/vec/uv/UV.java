@@ -7,6 +7,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 public class UV implements Copyable<UV> {
+
     public double u;
     public double v;
     public int tex;

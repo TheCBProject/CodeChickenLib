@@ -1,21 +1,15 @@
 package codechicken.lib.model.bakery;
 
 import codechicken.lib.model.BakedModelProperties;
-import codechicken.lib.model.SimplePerspectiveAwareBakedModel;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.texture.TextureUtils;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.IPerspectiveAwareModel.MapWrapper;
 import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.common.model.IModelState;
-import net.minecraftforge.common.model.TRSRTransformation;
 
 import java.util.Arrays;
 

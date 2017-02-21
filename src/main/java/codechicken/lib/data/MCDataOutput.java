@@ -6,6 +6,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
 
 public interface MCDataOutput {
+
     MCDataOutput writeLong(long l);
 
     MCDataOutput writeInt(int i);

@@ -26,7 +26,7 @@ public class BlockStateUtils {
         return Objects.hashCode(state.toString());
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings ("unchecked")
     private static int hashBlockState(IExtendedBlockState state) {
         List<String> toHash = new LinkedList<String>();
         toHash.add(state.toString());

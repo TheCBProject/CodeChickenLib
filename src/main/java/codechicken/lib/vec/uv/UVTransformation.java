@@ -8,6 +8,7 @@ import codechicken.lib.vec.ITransformation;
  * Abstract supertype for any UV transformation
  */
 public abstract class UVTransformation extends ITransformation<UV, UVTransformation> implements IVertexOperation {
+
     public static final int operationIndex = CCRenderState.registerOperation();
 
     public UVTransformation at(UV point) {

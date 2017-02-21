@@ -19,6 +19,7 @@ import java.util.Locale;
  * Created by covers1624 on 22/10/2016.
  */
 public class ServerUtils {
+
     public static MinecraftServer mc() {
         return FMLCommonHandler.instance().getMinecraftServerInstance();
     }
@@ -42,7 +43,7 @@ public class ServerUtils {
         return players;
     }
 
-    public static boolean isPlayerLoadingChunk(EntityPlayerMP player, ChunkPos chunk){
+    public static boolean isPlayerLoadingChunk(EntityPlayerMP player, ChunkPos chunk) {
         return player.getServerWorld().getPlayerChunkMap().contains(chunk.chunkXPos, chunk.chunkZPos);
     }
 

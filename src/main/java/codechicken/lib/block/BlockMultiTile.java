@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Level;
  */
 public class BlockMultiTile extends Block implements ITileEntityProvider {
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings ("unchecked")
     private Class<? extends TileEntity>[] tileEntityMap = new Class[16];
 
     public BlockMultiTile(Material material) {

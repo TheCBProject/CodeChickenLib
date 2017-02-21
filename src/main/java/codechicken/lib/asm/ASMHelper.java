@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ASMHelper {
+
     public static ConfigFile config = loadConfig();
     public static Logger logger = LogManager.getLogger("CCL ASM");
 
@@ -45,6 +46,7 @@ public class ASMHelper {
     }
 
     public interface Acceptor {
+
         void accept(ClassVisitor cv) throws IOException;
     }
 

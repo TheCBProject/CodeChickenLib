@@ -5,6 +5,7 @@ import codechicken.lib.vec.IrreversibleTransformationException;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 public class MultiIconTransformation extends UVTransformation {
+
     public TextureAtlasSprite[] icons;
     private TextureAtlasSprite icon;
 

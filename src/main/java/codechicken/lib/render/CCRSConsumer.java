@@ -13,6 +13,7 @@ import net.minecraftforge.client.model.pipeline.IVertexConsumer;
  * TODO, Maybe merge with CCRS??
  */
 public class CCRSConsumer implements IVertexConsumer {
+
     private final CCRenderState ccrs;
     private BlockPos offset = BlockPos.ORIGIN;
 
@@ -62,8 +63,7 @@ public class CCRSConsumer implements IVertexConsumer {
         }
     }
 
-    public void setOffset(BlockPos offset)
-    {
+    public void setOffset(BlockPos offset) {
         this.offset = new BlockPos(offset);
     }
 

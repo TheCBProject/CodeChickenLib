@@ -1,6 +1,7 @@
 package codechicken.lib.vec;
 
 public class Rectangle4i {
+
     public int x;
     public int y;
     public int w;

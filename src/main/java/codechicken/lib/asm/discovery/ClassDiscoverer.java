@@ -19,6 +19,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class ClassDiscoverer {
+
     public IStringMatcher matcher;
     public String[] superclasses;
     public ArrayList<Class<?>> classes;

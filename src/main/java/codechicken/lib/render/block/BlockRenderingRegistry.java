@@ -77,9 +77,9 @@ public class BlockRenderingRegistry {
             state = state.getActualState(world, pos);
             //TODO This needs to be optimized, probably not the most efficient thing in the world..
             VertexBuffer parent = Tessellator.getInstance().getBuffer();
-	        BakingVertexBuffer buffer = BakingVertexBuffer.create();
-	        buffer.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
-	        buffer.begin(7, parent.getVertexFormat());
+            BakingVertexBuffer buffer = BakingVertexBuffer.create();
+            buffer.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
+            buffer.begin(7, parent.getVertexFormat());
             renderer.handleRenderBlockDamage(world, pos, state, sprite, buffer);
             buffer.finishDrawing();
             BlockModelRenderer modelRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer();

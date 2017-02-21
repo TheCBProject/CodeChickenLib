@@ -153,7 +153,7 @@ public class ArrayUtils {
      * @param value Value to fill with.
      * @param <T>   What we are dealing with.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings ("unchecked")
     public static <T> void fillArray(T[] array, T value) {
         for (int i = 0; i < array.length; i++) {
             T newValue = value;

@@ -3,6 +3,7 @@ package codechicken.lib.util;
 import net.minecraft.util.text.translation.I18n;
 
 public class LangProxy {
+
     public final String namespace;
 
     public LangProxy(String namespace) {

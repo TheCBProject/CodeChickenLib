@@ -50,7 +50,7 @@ public class CCExtendedBlockRendererDispatcher extends BlockRendererDispatcher {
 
             if (enumblockrendertype == EnumBlockRenderType.MODEL && blockAccess.getWorldType() != WorldType.DEBUG_WORLD) {
                 IBakedModel model = this.getModelForState(state);
-                if (!(model instanceof IExtendedModel)){
+                if (!(model instanceof IExtendedModel)) {
                     return parentDispatcher.renderBlock(state, pos, blockAccess, worldRendererIn);
                 }
                 state = state.getBlock().getExtendedState(state, blockAccess, pos);

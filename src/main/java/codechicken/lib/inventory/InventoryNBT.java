@@ -11,6 +11,7 @@ import net.minecraft.util.text.TextComponentString;
  * IInventory implementation which saves and loads from an NBT tag
  */
 public class InventoryNBT implements IInventory {
+
     protected ItemStack[] items;
     protected NBTTagCompound tag;
 

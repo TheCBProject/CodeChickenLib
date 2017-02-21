@@ -13,7 +13,7 @@ import java.util.Random;
  */
 public interface IDisplayTickTile {
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     void randomDisplayTick(World world, BlockPos position, IBlockState state, Random random);
 
 }

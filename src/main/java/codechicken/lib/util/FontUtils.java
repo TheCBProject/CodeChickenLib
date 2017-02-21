@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 
 public class FontUtils {
+
     public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
 
     public static void drawCenteredString(String s, int xCenter, int y, int colour) {
@@ -25,27 +26,27 @@ public class FontUtils {
 
         if (quantity == null) {
             switch (mode) {
-            case 2:
-                int q = item.stackSize;
-                String postfix = "";
-                for (int p = 0; p < 3 && q > 1000; p++) {
-                    q /= 1000;
-                    postfix = prefixes[p];
-                }
-                quantity = Integer.toString(q) + postfix;
-                break;
-            case 1:
-                quantity = "";
-                if (item.stackSize / 64 > 0) {
-                    quantity += item.stackSize / 64 + "s";
-                }
-                if (item.stackSize % 64 > 0) {
-                    quantity += item.stackSize % 64;
-                }
-                break;
-            default:
-                quantity = Integer.toString(item.stackSize);
-                break;
+                case 2:
+                    int q = item.stackSize;
+                    String postfix = "";
+                    for (int p = 0; p < 3 && q > 1000; p++) {
+                        q /= 1000;
+                        postfix = prefixes[p];
+                    }
+                    quantity = Integer.toString(q) + postfix;
+                    break;
+                case 1:
+                    quantity = "";
+                    if (item.stackSize / 64 > 0) {
+                        quantity += item.stackSize / 64 + "s";
+                    }
+                    if (item.stackSize % 64 > 0) {
+                        quantity += item.stackSize % 64;
+                    }
+                    break;
+                default:
+                    quantity = Integer.toString(item.stackSize);
+                    break;
             }
         }
 

@@ -29,7 +29,7 @@ public class RenderUtils {
     private static RenderEntityItem uniformRenderItem;
     private static boolean hasInitRenderItem;
 
-    private static ThreadLocal<IconTransformation> iconTransformCache = new ThreadLocal<IconTransformation>(){
+    private static ThreadLocal<IconTransformation> iconTransformCache = new ThreadLocal<IconTransformation>() {
         @Override
         protected IconTransformation initialValue() {
             return new IconTransformation(TextureUtils.getBlockTexture("stone"));

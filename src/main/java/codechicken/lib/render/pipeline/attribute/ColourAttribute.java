@@ -8,6 +8,7 @@ import codechicken.lib.render.pipeline.VertexAttribute;
  * Sets colour in CCRS to the specified colour in the model.
  */
 public class ColourAttribute extends VertexAttribute<int[]> {
+
     public static final AttributeKey<int[]> attributeKey = new AttributeKey<int[]>() {
         @Override
         public int[] newArray(int length) {

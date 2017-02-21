@@ -64,10 +64,10 @@ public class RayTracer {
      * This method goes by the assumption you don't care about IndexedCuboids and their extra data.
      * Useful for adding hitboxes to blocks that don't actually do anything but visuals.
      *
-     * @param start   The vector to start RayTracing from.
-     * @param end     The vector to stop RayTracing at.
-     * @param pos     The position offset for the start and enc vector.
-     * @param boxes   The cuboids to trace.
+     * @param start The vector to start RayTracing from.
+     * @param end   The vector to stop RayTracing at.
+     * @param pos   The position offset for the start and enc vector.
+     * @param boxes The cuboids to trace.
      * @return The closest hit to the start vector.
      */
     public static CuboidRayTraceResult rayTraceCuboidsClosest(Vector3 start, Vector3 end, BlockPos pos, AxisAlignedBB... boxes) {
@@ -84,10 +84,10 @@ public class RayTracer {
      * This method goes by the assumption you don't care about IndexedCuboids and their extra data.
      * Useful for adding hitboxes to blocks that don't actually do anything but visuals.
      *
-     * @param start   The vector to start RayTracing from.
-     * @param end     The vector to stop RayTracing at.
-     * @param pos     The position offset for the start and enc vector.
-     * @param boxes   The cuboids to trace.
+     * @param start The vector to start RayTracing from.
+     * @param end   The vector to stop RayTracing at.
+     * @param pos   The position offset for the start and enc vector.
+     * @param boxes The cuboids to trace.
      * @return The closest hit to the start vector.
      */
     public static CuboidRayTraceResult rayTraceCuboidsClosest(Vec3d start, Vec3d end, BlockPos pos, AxisAlignedBB... boxes) {
@@ -154,6 +154,7 @@ public class RayTracer {
         }
         return rayTraceCuboidsClosest(start, end, cuboidList, pos);
     }
+
     /**
      * @param start   The vector to start RayTracing from.
      * @param end     The Vector to stop RayTracing at.
@@ -202,7 +203,7 @@ public class RayTracer {
         return player.interactionManager.getBlockReachDistance();
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     private static double getBlockReachDistance_client() {
         return Minecraft.getMinecraft().playerController.getBlockReachDistance();
     }

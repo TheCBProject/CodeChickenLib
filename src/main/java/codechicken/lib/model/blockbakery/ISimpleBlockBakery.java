@@ -14,6 +14,6 @@ import java.util.List;
  */
 public interface ISimpleBlockBakery extends ICustomBlockBakery {
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     List<BakedQuad> bakeQuads(EnumFacing face, IExtendedBlockState state);
 }

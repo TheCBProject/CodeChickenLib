@@ -14,14 +14,14 @@ import java.util.Map.Entry;
  * TODO, Maybe move away from this, Instead of storing the entire render context inside the state, store the important data, then compute if necessary, will require changes basically everywhere.
  */
 public class BlockBakeryProperties {
+
     public static final UnlistedMapProperty LAYER_FACE_SPRITE_MAP;
 
     static {
         LAYER_FACE_SPRITE_MAP = new UnlistedMapProperty("layer_face_sprite");
 
-
         LAYER_FACE_SPRITE_MAP.setStringGenerator(new IMapStringGenerator() {
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings ("unchecked")
             @Override
             public String makeString(Map map) {
                 StringBuilder builder = new StringBuilder();

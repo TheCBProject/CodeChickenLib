@@ -32,9 +32,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TextureUtils {
-	//TODO, Move this somewhere else.
+
+    //TODO, Move this somewhere else.
     public interface IIconRegister {
-        @SideOnly(Side.CLIENT)
+
+        @SideOnly (Side.CLIENT)
         void registerIcons(TextureMap textureMap);
     }
 
@@ -146,12 +148,12 @@ public class TextureUtils {
         }
 
         switch (target) {
-        case GL12.GL_TEXTURE_3D:
-            GlStateManager.glTexParameteri(target, GL12.GL_TEXTURE_WRAP_R, wrap);
-        case GL11.GL_TEXTURE_2D:
-            GlStateManager.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_T, wrap);
-        case GL11.GL_TEXTURE_1D:
-            GlStateManager.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_S, wrap);
+            case GL12.GL_TEXTURE_3D:
+                GlStateManager.glTexParameteri(target, GL12.GL_TEXTURE_WRAP_R, wrap);
+            case GL11.GL_TEXTURE_2D:
+                GlStateManager.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_T, wrap);
+            case GL11.GL_TEXTURE_1D:
+                GlStateManager.glTexParameteri(target, GL11.GL_TEXTURE_WRAP_S, wrap);
         }
     }
 
@@ -193,7 +195,7 @@ public class TextureUtils {
         return (IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager();
     }
 
-    public static TextureAtlasSprite getMissingSprite(){
+    public static TextureAtlasSprite getMissingSprite() {
         return getTextureMap().getMissingSprite();
     }
 
@@ -265,13 +267,13 @@ public class TextureUtils {
         restoreLastMipmap(TextureMap.LOCATION_BLOCKS_TEXTURE);
     }
 
-    public static TextureAtlasSprite[] getSideIconsForBlock(IBlockState state){
+    public static TextureAtlasSprite[] getSideIconsForBlock(IBlockState state) {
         TextureAtlasSprite[] sideSprites = new TextureAtlasSprite[6];
         TextureAtlasSprite missingSprite = getMissingSprite();
         for (int i = 0; i < 6; i++) {
             TextureAtlasSprite[] sprites = getIconsForBlock(state, i);
             TextureAtlasSprite sideSprite = missingSprite;
-            if (sprites.length != 0){
+            if (sprites.length != 0) {
                 sideSprite = sprites[0];
             }
             sideSprites[i] = sideSprite;
@@ -289,8 +291,9 @@ public class TextureUtils {
             List<BakedQuad> quads = model.getQuads(state, side, 0);
             if (quads != null && quads.size() > 0) {
                 TextureAtlasSprite[] sprites = new TextureAtlasSprite[quads.size()];
-                for (int i = 0; i < quads.size(); i++)
+                for (int i = 0; i < quads.size(); i++) {
                     sprites[i] = quads.get(i).getSprite();
+                }
                 return sprites;
             }
         }
@@ -299,8 +302,9 @@ public class TextureUtils {
 
     public static TextureAtlasSprite getParticleIconForBlock(IBlockState state) {
         IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(state);
-        if (model != null)
+        if (model != null) {
             return model.getParticleTexture();
+        }
         return null;
     }
 

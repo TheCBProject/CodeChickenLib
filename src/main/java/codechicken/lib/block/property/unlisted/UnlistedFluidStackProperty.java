@@ -6,7 +6,7 @@ import net.minecraftforge.fluids.FluidStack;
 /**
  * Created by covers1624 on 30/10/2016.
  */
-public class UnlistedFluidStackProperty extends UnlistedPropertyBase<FluidStack>{
+public class UnlistedFluidStackProperty extends UnlistedPropertyBase<FluidStack> {
 
     public UnlistedFluidStackProperty(String name) {
         super(name);
@@ -19,10 +19,6 @@ public class UnlistedFluidStackProperty extends UnlistedPropertyBase<FluidStack>
 
     @Override
     public String valueToString(FluidStack value) {
-        return Objects.toStringHelper("FluidStack")
-                .add("Fluid", value.getFluid().getName())
-                .add("Amount", value.amount)
-                .add("Tag", value.tag.toString())
-                .toString();
+        return Objects.toStringHelper("FluidStack").add("Fluid", value.getFluid().getName()).add("Amount", value.amount).add("Tag", value.tag.toString()).toString();
     }
 }

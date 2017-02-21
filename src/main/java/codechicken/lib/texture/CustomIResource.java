@@ -30,12 +30,10 @@ public class CustomIResource implements IResource {
             stream = new ByteArrayInputStream(baos.toByteArray());
             this.wrapped = wrapped;
 
-
         } catch (Exception e) {
             throw new RuntimeException("Unable to create CustomIResource", e);
         }
     }
-
 
     @Override
     public ResourceLocation getResourceLocation() {

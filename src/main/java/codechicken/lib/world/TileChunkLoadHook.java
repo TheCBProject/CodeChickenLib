@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TileChunkLoadHook {
+
     private static boolean init;
 
     public static void init() {

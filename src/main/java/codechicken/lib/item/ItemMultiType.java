@@ -46,7 +46,7 @@ public class ItemMultiType extends Item {
         return this;
     }
 
-    public ItemMultiType setUseStackRegistry(){
+    public ItemMultiType setUseStackRegistry() {
         registerToStackRegistry = true;
         return this;
     }
@@ -69,7 +69,7 @@ public class ItemMultiType extends Item {
     public ItemStack registerSubItemOreDict(int meta, String name) {
         ItemStack stack = registerSubItem(meta, name);
         OreDictionary.registerOre(name, stack);
-        if (registerToStackRegistry){
+        if (registerToStackRegistry) {
             ItemStackRegistry.registerCustomItemStack(name, stack);
         }
         return stack;
@@ -92,7 +92,7 @@ public class ItemMultiType extends Item {
     public ItemStack registerSubItemOreDict(String name) {
         ItemStack stack = registerSubItem(nextVariant, name);
         OreDictionary.registerOre(name, stack);
-        if (registerToStackRegistry){
+        if (registerToStackRegistry) {
             ItemStackRegistry.registerCustomItemStack(name, stack);
         }
         return stack;
@@ -112,8 +112,8 @@ public class ItemMultiType extends Item {
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
-    @SideOnly(Side.CLIENT)
+    @SuppressWarnings ("ConstantConditions")
+    @SideOnly (Side.CLIENT)
     public void registerModelVariants() {
         if (!hasRegistered) {
             for (Map.Entry<Integer, String> entry : names.entrySet()) {

@@ -41,7 +41,7 @@ public class SubBlockBakery implements ILayeredBlockBakery, IIconRegister {
         registerSubBakery(meta, bakery, null, itemKeyGen);
     }
 
-    public void registerSubBakery(int meta, ICustomBlockBakery bakery, IBlockStateKeyGenerator blockKeyGen,  IItemStackKeyGenerator itemKeyGen) {
+    public void registerSubBakery(int meta, ICustomBlockBakery bakery, IBlockStateKeyGenerator blockKeyGen, IItemStackKeyGenerator itemKeyGen) {
         subBakeries.put(meta, bakery);
         if (blockKeyGen != null) {
             blockKeyGenerator.register(meta, blockKeyGen);
@@ -76,7 +76,7 @@ public class SubBlockBakery implements ILayeredBlockBakery, IIconRegister {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public List<BakedQuad> bakeLayerFace(EnumFacing face, BlockRenderLayer layer, IExtendedBlockState state) {
         ICustomBlockBakery bakery = subBakeries.get(state.getBlock().getMetaFromState(state));
         if (bakery instanceof ISimpleBlockBakery) {
@@ -90,7 +90,7 @@ public class SubBlockBakery implements ILayeredBlockBakery, IIconRegister {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public IExtendedBlockState handleState(IExtendedBlockState state, TileEntity tileEntity) {
         ICustomBlockBakery bakery = subBakeries.get(state.getBlock().getMetaFromState(state));
         if (bakery == null) {
@@ -100,7 +100,7 @@ public class SubBlockBakery implements ILayeredBlockBakery, IIconRegister {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public List<BakedQuad> bakeItemQuads(EnumFacing face, ItemStack stack) {
         ICustomBlockBakery bakery = subBakeries.get(stack.getMetadata());
         if (bakery == null) {
@@ -110,7 +110,7 @@ public class SubBlockBakery implements ILayeredBlockBakery, IIconRegister {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public void registerIcons(TextureMap textureMap) {
         for (ICustomBlockBakery bakery : subBakeries.values()) {
             if (bakery instanceof IIconRegister) {

@@ -35,7 +35,6 @@ public class MapRenderRegistry {
         }
     }
 
-
     public static void registerMapRenderer(Item item, IMapRenderer mapRenderer) {
         mapRenderers.put(item, mapRenderer);
     }

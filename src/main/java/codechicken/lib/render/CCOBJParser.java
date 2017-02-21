@@ -1,9 +1,9 @@
 package codechicken.lib.render;
 
-import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.RedundantTransformation;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
+import codechicken.lib.vec.uv.UV;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
 

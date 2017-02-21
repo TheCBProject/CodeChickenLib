@@ -2,9 +2,9 @@ package codechicken.lib.render;
 
 import codechicken.lib.texture.TextureDataHolder;
 import codechicken.lib.texture.TextureUtils;
+import codechicken.lib.vec.*;
 import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.uv.UVScale;
-import codechicken.lib.vec.*;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.client.Minecraft;
@@ -19,7 +19,9 @@ import java.util.*;
 
 //TODO, Is this needed anymore?
 public class QBImporter {
+
     private static class ImagePackNode {
+
         Rectangle4i rect;
         ImagePackNode child1;
         ImagePackNode child2;
@@ -147,6 +149,7 @@ public class QBImporter {
     }
 
     private static class ImageTransform {
+
         int transform;
 
         public ImageTransform(int i) {
@@ -203,6 +206,7 @@ public class QBImporter {
     }
 
     public static class QBImage implements Comparable<QBImage> {
+
         int[][] data;
         ImageTransform packT;
         Rectangle4i packSlot;
@@ -271,6 +275,7 @@ public class QBImporter {
             { 3, 0 }, { 1, 0 }, { 1, 2 }, { 3, 2 } };
 
     public static class QBQuad {
+
         public Vertex5[] verts = new Vertex5[4];
         public QBImage image = new QBImage();
         public ImageTransform t = new ImageTransform();
@@ -312,6 +317,7 @@ public class QBImporter {
     }
 
     public static class QBCuboid {
+
         public QBMatrix mat;
         public CuboidCoord c;
         public int sides;
@@ -401,6 +407,7 @@ public class QBImporter {
     }
 
     public static class QBMatrix {
+
         public String name;
         public BlockCoord pos;
         public BlockCoord size;
@@ -618,6 +625,7 @@ public class QBImporter {
     public static final int SCALEMC = 8;
 
     public static class QBModel {
+
         public QBMatrix[] matrices;
         public boolean rightHanded;
 
@@ -656,7 +664,9 @@ public class QBImporter {
     }
 
     public static class RasterisedModel {
+
         private class Holder {
+
             CCModel m;
             int img;
 

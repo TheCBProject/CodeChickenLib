@@ -17,7 +17,7 @@ import java.io.File;
 /**
  * Created by covers1624 on 12/10/2016.
  */
-@Mod(modid = CodeChickenLib.MOD_ID, name = CodeChickenLib.MOD_NAME, acceptedMinecraftVersions = CodeChickenLib.mcVersion, certificateFingerprint = "f1850c39b2516232a2108a7bd84d1cb5df93b261")
+@Mod (modid = CodeChickenLib.MOD_ID, name = CodeChickenLib.MOD_NAME, acceptedMinecraftVersions = CodeChickenLib.mcVersion, certificateFingerprint = "f1850c39b2516232a2108a7bd84d1cb5df93b261")
 public class CodeChickenLib {
 
     public static final String MOD_ID = "CodeChickenLib";
@@ -27,13 +27,13 @@ public class CodeChickenLib {
 
     public static final File minecraftDir = (File) FMLInjectionData.data()[6];
 
-    @SidedProxy(clientSide = "codechicken.lib.internal.proxy.ClientProxy", serverSide = "codechicken.lib.internal.proxy.CommonProxy")
+    @SidedProxy (clientSide = "codechicken.lib.internal.proxy.ClientProxy", serverSide = "codechicken.lib.internal.proxy.CommonProxy")
     public static CommonProxy proxy;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         FingerprintChecker.runFingerprintChecks();
-	    GameRegistry.registerFuelHandler(new FuelUtils());
+        GameRegistry.registerFuelHandler(new FuelUtils());
         proxy.preInit();
     }
 

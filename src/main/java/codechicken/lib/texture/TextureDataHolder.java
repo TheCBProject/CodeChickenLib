@@ -3,6 +3,7 @@ package codechicken.lib.texture;
 import java.awt.image.BufferedImage;
 
 public class TextureDataHolder {
+
     public int width;
     public int height;
     public int[] data;

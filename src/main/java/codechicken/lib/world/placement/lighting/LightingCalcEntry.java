@@ -7,6 +7,7 @@ import net.minecraft.util.math.BlockPos;
  * Created by covers1624 on 8/1/2016.
  */
 public class LightingCalcEntry {
+
     public final int dimension;
     public final BlockPos pos;
     public final boolean chunkHeightModified;

@@ -10,10 +10,11 @@ public class VectorUtils {
 
     /**
      * Calculates a normal for the given vertices.
+     *
      * @param vertices The vertices to calculate a normal for, Expected to be a length of 3.
      * @return The normal.
      */
-    public static Vector3 calculateNormal(Vector3... vertices){
+    public static Vector3 calculateNormal(Vector3... vertices) {
         Vector3 diff1 = vertices[1].copy().subtract(vertices[0]);
         Vector3 diff2 = vertices[2].copy().subtract(vertices[0]);
         return diff1.crossProduct(diff2).normalize().copy();

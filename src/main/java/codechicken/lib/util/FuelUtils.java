@@ -17,19 +17,21 @@ public class FuelUtils implements IFuelHandler {
     @Override
     public int getBurnTime(ItemStack fuel) {
 
-        if (fuelBurnMap.containsKey(fuel)){
+        if (fuelBurnMap.containsKey(fuel)) {
             return fuelBurnMap.get(fuel);
         }
         return -1;
     }
 
-    public static void registerFuel(ItemStack stack, int burn){
+    public static void registerFuel(ItemStack stack, int burn) {
         fuelBurnMap.put(stack, burn);
     }
-    public static void registerFuel(Block block, int burn){
+
+    public static void registerFuel(Block block, int burn) {
         registerFuel(new ItemStack(block), burn);
     }
-    public static void registerFuel(Item item, int burn){
+
+    public static void registerFuel(Item item, int burn) {
         registerFuel(new ItemStack(item), burn);
     }
 }

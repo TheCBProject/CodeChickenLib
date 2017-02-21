@@ -5,6 +5,7 @@ package codechicken.lib.thread;
  * It is recommended to implement
  */
 public abstract class RestartableTask {
+
     public final String name;
     private Thread thread;
     private volatile boolean restart;

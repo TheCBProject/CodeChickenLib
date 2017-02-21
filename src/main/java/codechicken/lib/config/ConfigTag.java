@@ -15,6 +15,7 @@ public class ConfigTag extends ConfigTagParent {
     private int IDBase;
 
     public interface IConfigType<T> {
+
         String configValue(T entry);
 
         T valueOf(String text) throws Exception;

@@ -11,6 +11,7 @@ import net.minecraft.world.IBlockAccess;
  * Simple brightness model that only works for axis planar sides
  */
 public class SimpleBrightnessModel implements IVertexOperation {
+
     public static final int operationIndex = CCRenderState.registerOperation();
     public static SimpleBrightnessModel instance = new SimpleBrightnessModel();
 

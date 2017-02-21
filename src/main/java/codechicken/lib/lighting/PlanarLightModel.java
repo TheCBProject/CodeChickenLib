@@ -8,6 +8,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
  * Faster precomputed version of LightModel that only works for axis planar sides
  */
 public class PlanarLightModel implements IVertexOperation {
+
     public static PlanarLightModel standardLightModel = LightModel.standardLightModel.reducePlanar();
 
     public int[] colours;

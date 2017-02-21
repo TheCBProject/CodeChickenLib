@@ -6,6 +6,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 public class PlanarLightMatrix extends PlanarLightModel {
+
     public static final int operationIndex = CCRenderState.registerOperation();
     public static PlanarLightMatrix instance = new PlanarLightMatrix();
 

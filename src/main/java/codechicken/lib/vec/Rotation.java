@@ -12,6 +12,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 public class Rotation extends Transformation {
+
     /**
      * Clockwise pi/2 about y looking down
      */
@@ -242,7 +243,7 @@ public class Rotation extends Transformation {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public void glApply() {
         GlStateManager.rotate((float) (angle * MathHelper.todeg), (float) axis.x, (float) axis.y, (float) axis.z);
     }

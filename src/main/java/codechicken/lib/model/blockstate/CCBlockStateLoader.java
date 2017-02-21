@@ -118,7 +118,7 @@ public class CCBlockStateLoader {
 
                     if (variant.model != null && subModelVariants.size() == 0 && variant.textures.size() == 0 && variant.customData.size() == 0 && variant.state.orNull() instanceof ModelRotation) {
                         vars.add(new Variant(variant.model, ((ModelRotation) variant.state.get()), uvLock, weight));
-                    } else if (subModelVariants.size() == 0){
+                    } else if (subModelVariants.size() == 0) {
                         vars.add(new CCFinalVariant(variant.model, variant.state.or(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures, textureDomain, variant.customData));
                     } else {
                         vars.add(new CCFinalMultiVariant(variant, textureDomain, subModelVariants));
@@ -165,7 +165,7 @@ public class CCBlockStateLoader {
         return subModels;
     }
 
-    public static CCVariant compileVariant(CCVariant finalVariant, Map<String, String> kvArray, Map<String, Map<String, CCVariant>> variants){
+    public static CCVariant compileVariant(CCVariant finalVariant, Map<String, String> kvArray, Map<String, Map<String, CCVariant>> variants) {
         for (Entry<String, String> entry : kvArray.entrySet()) {
             for (Entry<String, Map<String, CCVariant>> variantsEntry : variants.entrySet()) {
                 if (entry.getKey().equals(variantsEntry.getKey())) {

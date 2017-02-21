@@ -20,7 +20,9 @@ import java.util.*;
 import static codechicken.lib.vec.Rotation.sideRotations;
 
 public class CCModel implements IVertexSource, Copyable<CCModel> {
+
     private static class PositionNormalEntry {
+
         public Vector3 pos;
         public LinkedList<Vector3> normals = new LinkedList<Vector3>();
 

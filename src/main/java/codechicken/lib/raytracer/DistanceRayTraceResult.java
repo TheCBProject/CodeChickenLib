@@ -8,6 +8,7 @@ import net.minecraft.util.math.RayTraceResult;
 
 //TODO Copyable.
 public class DistanceRayTraceResult extends RayTraceResult implements Comparable<DistanceRayTraceResult> {
+
     /**
      * The square distance from the start of the raytrace.
      */

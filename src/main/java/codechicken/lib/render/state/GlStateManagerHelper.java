@@ -254,6 +254,7 @@ public class GlStateManagerHelper {
     }
 
     public static class SavedState {
+
         private ArrayList<State> savedStates = new ArrayList<State>();
 
         boolean alphaTest;
@@ -328,7 +329,7 @@ public class GlStateManagerHelper {
     }
 
     public static void pushStates(State... states) {
-        if (states == null || states.length == 0){
+        if (states == null || states.length == 0) {
             states = State.values();
         }
         SavedState state = SavedState.createSavedState(states);
@@ -336,7 +337,7 @@ public class GlStateManagerHelper {
     }
 
     public static void pushState(State[] states) {
-        if (states == null || states.length == 0){
+        if (states == null || states.length == 0) {
             states = State.values();
         }
         SavedState state = SavedState.createSavedState(states);

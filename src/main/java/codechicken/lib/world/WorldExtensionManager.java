@@ -3,7 +3,6 @@ package codechicken.lib.world;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
@@ -19,7 +18,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class WorldExtensionManager {
+
     public static class WorldExtensionEventHandler {
+
         @SubscribeEvent
         public void onChunkDataLoad(ChunkDataEvent.Load event) {
             if (!worldMap.containsKey(event.getWorld())) {
@@ -62,7 +63,7 @@ public class WorldExtensionManager {
             if (event.getChunk().isEmpty()) {
                 return;
             }
-
+            //TODO Maybe gate against worldMap.get returning null. Some dimension may be doing stupid things.
             for (WorldExtension extension : worldMap.get(event.getWorld())) {
                 extension.unloadChunk(event.getChunk());
             }
@@ -107,7 +108,7 @@ public class WorldExtensionManager {
         }
 
         @SubscribeEvent
-        @SideOnly(Side.CLIENT)
+        @SideOnly (Side.CLIENT)
         public void onChunkUnWatch(UnWatch event) {
             Chunk chunk = event.getPlayer().worldObj.getChunkFromChunkCoords(event.getChunk().chunkXPos, event.getChunk().chunkZPos);
             for (WorldExtension extension : worldMap.get(event.getPlayer().worldObj)) {
@@ -116,7 +117,7 @@ public class WorldExtensionManager {
         }
 
         @SubscribeEvent
-        @SideOnly(Side.CLIENT)
+        @SideOnly (Side.CLIENT)
         public void clientTick(TickEvent.ClientTickEvent event) {
             World world = Minecraft.getMinecraft().theWorld;
             if (worldMap.containsKey(world)) {

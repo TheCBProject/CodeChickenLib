@@ -1,6 +1,7 @@
 package codechicken.lib.thread;
 
 public class ProfileTimer {
+
     public double decay;
     public long startTime;
     public long nanoTime;

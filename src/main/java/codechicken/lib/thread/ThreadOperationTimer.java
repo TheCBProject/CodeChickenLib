@@ -7,8 +7,10 @@ import com.google.common.base.Objects;
  * Used to control how long a thread can run for before a TimeoutException is thrown.
  */
 public class ThreadOperationTimer extends Thread {
-    @SuppressWarnings("serial")
+
+    @SuppressWarnings ("serial")
     public static class TimeoutException extends RuntimeException {
+
         public final Object operation;
 
         public TimeoutException(String msg, Object op) {
@@ -48,7 +50,7 @@ public class ThreadOperationTimer extends Thread {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings ("deprecation")
     @Override
     public void run() {
         if (ObfMapping.obfuscated) {

@@ -9,6 +9,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 public class Cuboid6 implements Copyable<Cuboid6> {
+
     public static Cuboid6 full = new Cuboid6(0, 0, 0, 1, 1, 1);
 
     public Vector3 min;
@@ -152,8 +153,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     }
 
     public boolean contains(double x, double y, double z) {
-        return min.x-1E-5 <= x && min.y-1E-5 <= y && min.z-1E-5 <= z &&
-                max.x+1E-5 >= x && max.y+1E-5 >= y && max.z+1E-5 >= z;
+        return min.x - 1E-5 <= x && min.y - 1E-5 <= y && min.z - 1E-5 <= z && max.x + 1E-5 >= x && max.y + 1E-5 >= y && max.z + 1E-5 >= z;
     }
 
     public boolean contains(Vector3 vec) {
@@ -161,8 +161,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     }
 
     public boolean intersects(Cuboid6 b) {
-        return max.x - 1E-5 > b.min.x && max.y - 1E-5 > b.min.y && max.z - 1E-5 > b.min.z &&
-                b.max.x - 1E-5 > min.x && b.max.y - 1E-5 > min.y && b.max.z - 1E-5 > min.z;
+        return max.x - 1E-5 > b.min.x && max.y - 1E-5 > b.min.y && max.z - 1E-5 > b.min.z && b.max.x - 1E-5 > min.x && b.max.y - 1E-5 > min.y && b.max.z - 1E-5 > min.z;
     }
 
     public Vector3 center() {

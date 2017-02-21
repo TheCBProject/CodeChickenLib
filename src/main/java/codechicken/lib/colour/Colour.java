@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class Colour implements Copyable<Colour> {
+
     public static IConfigType<Colour> configRGB = new IConfigType<Colour>() {
         @Override
         public String configValue(Colour entry) {
@@ -54,12 +55,12 @@ public abstract class Colour implements Copyable<Colour> {
         a = colour.a;
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public void glColour() {
         GlStateManager.color((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, (a & 0xFF) / 255F);
     }
 
-    @SideOnly(Side.CLIENT)
+    @SideOnly (Side.CLIENT)
     public void glColour(int a) {
         GlStateManager.color((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, a / 255F);
     }

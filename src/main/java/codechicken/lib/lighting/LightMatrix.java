@@ -12,6 +12,7 @@ import net.minecraft.world.IBlockAccess;
  * Note that when using the class as a vertex transformer, the vertices are assumed to be within the BB (x, y, z) -> (x+1, y+1, z+1)
  */
 public class LightMatrix implements IVertexOperation {
+
     public static final int operationIndex = CCRenderState.registerOperation();
 
     public int computed = 0;

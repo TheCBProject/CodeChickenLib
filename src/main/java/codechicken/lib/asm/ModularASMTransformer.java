@@ -21,6 +21,7 @@ public class ModularASMTransformer {
      * Also contains some basic logic for doing the actual transform.
      */
     public static class ClassNodeTransformerList {
+
         List<ClassNodeTransformer> transformers = new LinkedList<ClassNodeTransformer>();
         HashSet<ObfMapping> methodsToSort = new HashSet<ObfMapping>();
 
@@ -46,7 +47,7 @@ public class ModularASMTransformer {
                 }
 
                 bytes = createBytes(cnode, writeFlags);
-                if(config.getTag("dump_asm_raw").getBooleanValue(false)) {
+                if (config.getTag("dump_asm_raw").getBooleanValue(false)) {
                     File file = new File("asm/ccl_modular/" + cnode.name.replace('/', '#') + ".class");
                     FileOutputStream fos = new FileOutputStream(file);
                     fos.write(bytes);
@@ -68,6 +69,7 @@ public class ModularASMTransformer {
      * Parent to all transformer's.
      */
     public static abstract class ClassNodeTransformer {
+
         public int writeFlags;
 
         public ClassNodeTransformer(int writeFlags) {
@@ -90,6 +92,7 @@ public class ModularASMTransformer {
      * Base Method transformer.
      */
     public static abstract class MethodTransformer extends ClassNodeTransformer {
+
         public final ObfMapping method;
 
         public MethodTransformer(ObfMapping method) {
@@ -122,6 +125,7 @@ public class ModularASMTransformer {
      * Writes a method containing the provided InsnList with the ObfMapping as the method name and desc.
      */
     public static class MethodWriter extends ClassNodeTransformer {
+
         public final int access;
         public final ObfMapping method;
         public final String[] exceptions;
@@ -189,6 +193,7 @@ public class ModularASMTransformer {
      * If needle is null it will inject at the start or end of the method.
      */
     public static class MethodInjector extends MethodTransformer {
+
         public ASMBlock needle;
         public ASMBlock injection;
         public boolean before;
@@ -246,6 +251,7 @@ public class ModularASMTransformer {
      * Can replace more than one needle.
      */
     public static class MethodReplacer extends MethodTransformer {
+
         public ASMBlock needle;
         public ASMBlock replacement;
 
@@ -279,6 +285,7 @@ public class ModularASMTransformer {
      * ObfMapping contains the class to put the field.
      */
     public static class FieldWriter extends ClassNodeTransformer {
+
         public final ObfMapping field;
         public final int access;
         public final Object value;

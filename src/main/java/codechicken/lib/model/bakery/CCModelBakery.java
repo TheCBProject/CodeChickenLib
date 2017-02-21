@@ -6,7 +6,6 @@ import codechicken.lib.render.buffer.BakingVertexBuffer;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.render.pipeline.IVertexSource;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 
@@ -24,8 +23,8 @@ public class CCModelBakery {
      * Assumes DefaultVertexFormats.BLOCK.
      * Assumes you want to bake the entire model.
      *
-     * @param model  Model to bake.
-     * @param ops    Any Operations to apply.
+     * @param model Model to bake.
+     * @param ops   Any Operations to apply.
      * @return The BakedQuads for the model.
      */
     public static List<BakedQuad> bakeModel(CCModel model, IVertexOperation... ops) {
@@ -36,10 +35,10 @@ public class CCModelBakery {
      * Bakes a CCModel to a List of BakedQuads.
      * Assumes DefaultVertexFormats.BLOCK.
      *
-     * @param model  Model to bake.
-     * @param start  The first vertex index to bake.
-     * @param end    The Vertex index to bake until.
-     * @param ops    Any Operations to apply.
+     * @param model Model to bake.
+     * @param start The first vertex index to bake.
+     * @param end   The Vertex index to bake until.
+     * @param ops   Any Operations to apply.
      * @return The BakedQuads for the model.
      */
     public static List<BakedQuad> bakeModel(CCModel model, int start, int end, IVertexOperation... ops) {

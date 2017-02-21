@@ -16,6 +16,7 @@ import java.util.List;
  * Created by covers1624 on 30/12/2016.
  */
 public class NukeCCModelCacheCommand implements ICommand {
+
     @Override
     public String getCommandName() {
         return "nukeCCModelCache";

@@ -7,12 +7,8 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by covers1624 on 22/10/2016.
@@ -26,9 +22,9 @@ public class ItemStackRegistry {
         stackRegistry.put(Loader.instance().activeModContainer().getModId(), name, stack);
     }
 
-    public static ItemStack findItemStack(String modId, String name, int stackSize){
+    public static ItemStack findItemStack(String modId, String name, int stackSize) {
         ItemStack foundStack = findItemStack(modId, name);
-        if (foundStack != null){
+        if (foundStack != null) {
             ItemStack copy = foundStack.copy();
             copy.stackSize = Math.min(stackSize, copy.getMaxStackSize());
             return copy;
@@ -44,9 +40,9 @@ public class ItemStackRegistry {
                 stack = new ItemStack(item, 0, 0);
             }
         }
-        if (stack == null){
+        if (stack == null) {
             Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(modId, name));
-            if (block != null && block != Blocks.AIR){
+            if (block != null && block != Blocks.AIR) {
                 stack = new ItemStack(block, 0, Short.MAX_VALUE);
             }
         }

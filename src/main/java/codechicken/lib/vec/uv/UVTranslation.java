@@ -7,6 +7,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 
 public class UVTranslation extends UVTransformation {
+
     public double du;
     public double dv;
 

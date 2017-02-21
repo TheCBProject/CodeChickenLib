@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import static org.lwjgl.opengl.ARBShaderObjects.*;
 
 public class ShaderProgram {
+
     private int programID;
     public CCShaderPipeline pipeline = new CCShaderPipeline(this);
     private ArrayList<IShaderOperation> ops = new ArrayList<IShaderOperation>();

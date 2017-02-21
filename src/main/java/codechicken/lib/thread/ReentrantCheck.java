@@ -1,6 +1,7 @@
 package codechicken.lib.thread;
 
 public class ReentrantCheck {
+
     private boolean entered;
 
     public ReentrantCheck() {

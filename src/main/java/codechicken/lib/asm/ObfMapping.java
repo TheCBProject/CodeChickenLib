@@ -25,7 +25,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class ObfMapping {
+
     public static class ObfRemapper extends Remapper {
+
         private HashMap<String, String> fields = new HashMap<String, String>();
         private HashMap<String, String> funcs = new HashMap<String, String>();
 
@@ -89,6 +91,7 @@ public class ObfMapping {
     }
 
     public static class MCPRemapper extends Remapper implements LineProcessor<Void> {
+
         public static File[] getConfFiles() {
 
             // check for GradleStart system vars
@@ -136,20 +139,20 @@ public class ObfMapping {
         public static File confDirectoryGuess(int i, ConfigTag tag) {
             File mcDir = (File) FMLInjectionData.data()[6];
             switch (i) {
-            case 0:
-                return tag.value != null ? new File(tag.getValue()) : null;
-            case 1:
-                return new File(mcDir, "../conf");
-            case 2:
-                return new File(mcDir, "../build/unpacked/conf");
-            case 3:
-                return new File(System.getProperty("user.home"), ".gradle/caches/minecraft/net/minecraftforge/forge/" + FMLInjectionData.data()[4] + "-" + ForgeVersion.getVersion() + "/unpacked/conf");
-            default:
-                JFileChooser fc = new JFileChooser(mcDir);
-                fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                fc.setDialogTitle("Select an mcp conf dir for the deobfuscator.");
-                int ret = fc.showDialog(null, "Select");
-                return ret == JFileChooser.APPROVE_OPTION ? fc.getSelectedFile() : null;
+                case 0:
+                    return tag.value != null ? new File(tag.getValue()) : null;
+                case 1:
+                    return new File(mcDir, "../conf");
+                case 2:
+                    return new File(mcDir, "../build/unpacked/conf");
+                case 3:
+                    return new File(System.getProperty("user.home"), ".gradle/caches/minecraft/net/minecraftforge/forge/" + FMLInjectionData.data()[4] + "-" + ForgeVersion.getVersion() + "/unpacked/conf");
+                default:
+                    JFileChooser fc = new JFileChooser(mcDir);
+                    fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    fc.setDialogTitle("Select an mcp conf dir for the deobfuscator.");
+                    int ret = fc.showDialog(null, "Select");
+                    return ret == JFileChooser.APPROVE_OPTION ? fc.getSelectedFile() : null;
             }
         }
 

@@ -1,6 +1,7 @@
 package codechicken.lib.texture;
 
 public class ManagedTextureFX extends TextureFX {
+
     public boolean changed;
 
     public ManagedTextureFX(int size, String name) {

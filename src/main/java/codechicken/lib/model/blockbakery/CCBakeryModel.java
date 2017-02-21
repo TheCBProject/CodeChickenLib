@@ -1,7 +1,6 @@
 package codechicken.lib.model.blockbakery;
 
 import codechicken.lib.texture.TextureUtils;
-import codechicken.lib.model.blockbakery.BlockBakery;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.*;
@@ -22,7 +21,7 @@ public class CCBakeryModel implements IBakedModel {
 
     private final String particle;
 
-    public CCBakeryModel(String particle){
+    public CCBakeryModel(String particle) {
         this.particle = particle;
     }
 
@@ -58,11 +57,11 @@ public class CCBakeryModel implements IBakedModel {
 
     @Override
     public ItemOverrideList getOverrides() {
-        return new ItemOverrideList(ImmutableList.<ItemOverride>of()){
+        return new ItemOverrideList(ImmutableList.<ItemOverride>of()) {
             @Override
             public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, World world, EntityLivingBase entity) {
                 IBakedModel model = BlockBakery.getCachedItemModel(stack);
-                if (model == null){
+                if (model == null) {
                     return originalModel;
                 }
                 return model;

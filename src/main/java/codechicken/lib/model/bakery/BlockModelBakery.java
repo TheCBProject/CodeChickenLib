@@ -85,8 +85,8 @@ public class BlockModelBakery {
 
     }
 
-    public void bakeFace(TextureAtlasSprite sprite, EnumFacing face){
-        switch (face){
+    public void bakeFace(TextureAtlasSprite sprite, EnumFacing face) {
+        switch (face) {
 
             case DOWN:
                 bakeFaceYNeg(sprite);

@@ -17,8 +17,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@SideOnly(Side.CLIENT)
+@SideOnly (Side.CLIENT)
 public class TextureSpecial extends TextureAtlasSprite implements IIconRegister {
+
     //sprite sheet fields
     private int spriteIndex;
     private SpriteSheet spriteSheet;
