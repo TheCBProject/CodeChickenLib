@@ -124,7 +124,6 @@ public class BlockBakery implements IResourceManagerReloadListener {
     }
 
     //TODO, Move this to pass IExtendedBlockState, IBlockAccess, BlockPos. Leave tile usage to
-    @Deprecated
     public static IBlockState handleExtendedState(IExtendedBlockState state, TileEntity tileEntity) {
         Block block = state.getBlock();
 
