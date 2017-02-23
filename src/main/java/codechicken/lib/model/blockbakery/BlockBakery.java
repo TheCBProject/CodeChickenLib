@@ -7,7 +7,7 @@ import codechicken.lib.model.PerspectiveAwareModelProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareLayeredModel;
 import codechicken.lib.model.bakery.PlanarFaceBakery;
-import codechicken.lib.texture.IBlockTextureProvider;
+import codechicken.lib.texture.IItemBlockTextureProvider;
 import codechicken.lib.texture.IWorldBlockTextureProvider;
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.TransformUtils;
@@ -28,7 +28,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.IRegistry;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.common.FMLLog;
@@ -121,6 +123,8 @@ public class BlockBakery implements IResourceManagerReloadListener {
         itemKeyGeneratorMap.put(item, generator);
     }
 
+    //TODO, Move this to pass IExtendedBlockState, IBlockAccess, BlockPos. Leave tile usage to
+    @Deprecated
     public static IBlockState handleExtendedState(IExtendedBlockState state, TileEntity tileEntity) {
         Block block = state.getBlock();
 
@@ -185,13 +189,13 @@ public class BlockBakery implements IResourceManagerReloadListener {
                 BakedModelProperties properties = new BakedModelProperties(true, true, null);
                 return new PerspectiveAwareBakedModel(faceQuads, generalQuads, TransformUtils.DEFAULT_BLOCK, properties);
 
-            } else if (block instanceof IBlockTextureProvider) {
-                IBlockTextureProvider provider = ((IBlockTextureProvider) block);
+            } else if (block instanceof IItemBlockTextureProvider) {
+                IItemBlockTextureProvider provider = ((IItemBlockTextureProvider) block);
                 Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<EnumFacing, List<BakedQuad>>();
                 for (EnumFacing face : EnumFacing.VALUES) {
                     List<BakedQuad> faceQuads = new LinkedList<BakedQuad>();
 
-                    faceQuads.addAll(PlanarFaceBakery.shadeQuadFaces(PlanarFaceBakery.bakeFace(face, provider.getTexture(face, stack.getMetadata()), DefaultVertexFormats.ITEM)));
+                    faceQuads.addAll(PlanarFaceBakery.shadeQuadFaces(PlanarFaceBakery.bakeFace(face, provider.getTexture(face, stack), DefaultVertexFormats.ITEM)));
 
                     faceQuadMap.put(face, faceQuads);
                 }
@@ -294,7 +298,7 @@ public class BlockBakery implements IResourceManagerReloadListener {
             Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap = generateLayerFaceQuadMap(state);
             BakedModelProperties properties = new BakedModelProperties(true, true, null);
             return new PerspectiveAwareLayeredModel(layerFaceQuadMap, TransformUtils.DEFAULT_BLOCK, properties);
-        } else if (state.getBlock() instanceof IBlockTextureProvider) {
+        } /*else if (state.getBlock() instanceof IBlockTextureProvider) {
             IBlockTextureProvider provider = ((IBlockTextureProvider) state.getBlock());
             int meta = state.getBlock().getMetaFromState(state);
 
@@ -309,7 +313,7 @@ public class BlockBakery implements IResourceManagerReloadListener {
             BakedModelProperties properties = new BakedModelProperties(true, true, null);
             return new PerspectiveAwareBakedModel(quadFaceMap, TransformUtils.DEFAULT_BLOCK, properties);
 
-        }
+        }*/
         return missingModel;
     }
 

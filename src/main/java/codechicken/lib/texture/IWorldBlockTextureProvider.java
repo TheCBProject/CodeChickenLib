@@ -10,7 +10,7 @@ import net.minecraft.world.IBlockAccess;
 /**
  * Created by covers1624 on 25/11/2016.
  */
-public interface IWorldBlockTextureProvider extends IBlockTextureProvider {
+public interface IWorldBlockTextureProvider extends IItemBlockTextureProvider {
 
     /**
      * Gets the texture for the given face of an in world block.
