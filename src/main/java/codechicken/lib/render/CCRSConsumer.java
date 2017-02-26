@@ -1,6 +1,7 @@
 package codechicken.lib.render;
 
 import codechicken.lib.colour.Colour;
+import codechicken.lib.vec.Vector3;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
@@ -15,7 +16,7 @@ import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 public class CCRSConsumer implements IVertexConsumer {
 
     private final CCRenderState ccrs;
-    private BlockPos offset = BlockPos.ORIGIN;
+    private Vector3 offset = Vector3.zero;
 
     public CCRSConsumer(CCRenderState ccrs) {
         this.ccrs = ccrs;
@@ -63,8 +64,12 @@ public class CCRSConsumer implements IVertexConsumer {
         }
     }
 
+    public void setOffset(Vector3 offset) {
+        this.offset = offset;
+    }
+
     public void setOffset(BlockPos offset) {
-        this.offset = new BlockPos(offset);
+        this.offset = Vector3.fromBlockPos(offset);
     }
 
     @Override
