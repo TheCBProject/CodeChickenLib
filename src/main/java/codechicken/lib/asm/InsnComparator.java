@@ -80,7 +80,7 @@ public class InsnComparator {
     }
 
     public static Set<LabelNode> getControlFlowLabels(InsnList list) {
-        HashSet<LabelNode> controlFlowLabels = new HashSet<LabelNode>();
+        HashSet<LabelNode> controlFlowLabels = new HashSet<>();
         for (AbstractInsnNode insn = list.getFirst(); insn != null; insn = insn.getNext()) {
             switch (insn.getType()) {
                 case JUMP_INSN:

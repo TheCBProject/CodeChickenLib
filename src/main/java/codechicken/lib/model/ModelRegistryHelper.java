@@ -32,7 +32,7 @@ import java.util.Map;
 //TODO General cleanup, move to a less modular fashion now that CCL is a ModContainer.
 public class ModelRegistryHelper {
 
-    private static List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<Pair<ModelResourceLocation, IBakedModel>>();
+    private static List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<>();
     private static List<IModelBakeCallback> modelBakeCallbacks = new LinkedList<>();
 
     static {
@@ -44,7 +44,7 @@ public class ModelRegistryHelper {
     }
 
     public static void register(ModelResourceLocation location, IBakedModel model) {
-        registerModels.add(new ImmutablePair<ModelResourceLocation, IBakedModel>(location, model));
+        registerModels.add(new ImmutablePair<>(location, model));
     }
 
     /**

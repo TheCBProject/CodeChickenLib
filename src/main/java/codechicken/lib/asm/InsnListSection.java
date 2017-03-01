@@ -185,7 +185,7 @@ public class InsnListSection implements Iterable<AbstractInsnNode> {
     }
 
     public HashMap<LabelNode, LabelNode> identityLabelMap() {
-        HashMap<LabelNode, LabelNode> labelMap = new HashMap<LabelNode, LabelNode>();
+        HashMap<LabelNode, LabelNode> labelMap = new HashMap<>();
         for (AbstractInsnNode insn : this) {
             switch (insn.getType()) {
                 case LABEL:
