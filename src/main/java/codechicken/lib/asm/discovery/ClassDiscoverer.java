@@ -32,16 +32,12 @@ public class ClassDiscoverer {
             this.superclasses[i] = superclasses[i].getName().replace('.', '/');
         }
 
-        classes = new ArrayList<Class<?>>();
+        classes = new ArrayList<>();
         modClassLoader = Loader.instance().getModClassLoader();
     }
 
     public ClassDiscoverer(Class<?>... superclasses) {
-        this(new IStringMatcher() {
-            public boolean matches(String test) {
-                return true;
-            }
-        }, superclasses);
+        this(test -> true, superclasses);
     }
 
     public ArrayList<Class<?>> findClasses() {
@@ -85,7 +81,7 @@ public class ClassDiscoverer {
 
     private void findClasspathMods() {
         List<ModContainer> mods = Loader.instance().getActiveModList();
-        HashSet<String> searched = new HashSet<String>();
+        HashSet<String> searched = new HashSet<>();
         for (ModContainer mod : mods) {
             File source = mod.getSource();
             if (source == null || searched.contains(source.getAbsolutePath())) {

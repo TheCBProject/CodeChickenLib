@@ -105,7 +105,7 @@ public class TransformUtils {
             int x = JsonUtils.getInt(json, "x", 0);
             int y = JsonUtils.getInt(json, "y", 0);
             ModelRotation rot = ModelRotation.getModelRotation(x, y);
-            ret = Optional.<IModelState>of(new TRSRTransformation(rot));
+            ret = Optional.of(new TRSRTransformation(rot));
             if (!ret.isPresent()) {
                 throw new JsonParseException("Invalid BlockModelRotation x: " + x + " y: " + y);
             }
@@ -114,23 +114,30 @@ public class TransformUtils {
             JsonElement transformElement = json.get("transform");
             if (transformElement.isJsonPrimitive() && transformElement.getAsJsonPrimitive().isString()) {
                 String transform = transformElement.getAsString();
-                if (transform.equals("identity")) {
-                    ret = Optional.<IModelState>of(TRSRTransformation.identity());
-                } else if (transform.equals("ccl:default-block")) {
-                    ret = Optional.<IModelState>of(DEFAULT_BLOCK);
-                } else if (transform.equals("ccl:default-item")) {
-                    ret = Optional.<IModelState>of(DEFAULT_ITEM);
-                } else if (transform.equals("ccl:default-tool")) {
-                    ret = Optional.<IModelState>of(DEFAULT_TOOL);
-                } else if (transform.equals("ccl:default-bow")) {
-                    ret = Optional.<IModelState>of(DEFAULT_BOW);
-                } else if (transform.equals("ccl:default-handheld-rod")) {
-                    ret = Optional.<IModelState>of(DEFAULT_HANDHELD_ROD);
+                switch (transform) {
+                    case "identity":
+                        ret = Optional.of(TRSRTransformation.identity());
+                        break;
+                    case "ccl:default-block":
+                        ret = Optional.of(DEFAULT_BLOCK);
+                        break;
+                    case "ccl:default-item":
+                        ret = Optional.of(DEFAULT_ITEM);
+                        break;
+                    case "ccl:default-tool":
+                        ret = Optional.of(DEFAULT_TOOL);
+                        break;
+                    case "ccl:default-bow":
+                        ret = Optional.of(DEFAULT_BOW);
+                        break;
+                    case "ccl:default-handheld-rod":
+                        ret = Optional.of(DEFAULT_HANDHELD_ROD);
+                        break;
                 }
             } else if (!transformElement.isJsonObject()) {
                 try {
                     TRSRTransformation base = GSON.fromJson(transformElement, TRSRTransformation.class);
-                    ret = Optional.<IModelState>of(TRSRTransformation.blockCenterToCorner(base));
+                    ret = Optional.of(TRSRTransformation.blockCenterToCorner(base));
                 } catch (JsonParseException e) {
                     throw new JsonParseException("transform: expected a string, object or valid base transformation, got: " + transformElement);
                 }

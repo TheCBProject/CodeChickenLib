@@ -1,11 +1,10 @@
 package codechicken.lib.util;
 
-import com.google.common.base.Function;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Created by covers1624 on 3/27/2016.
@@ -33,7 +32,7 @@ public class ArrayUtils {
      * @return Map of values.
      */
     public static Map<String, String> convertKeyValueArrayToMap(String[] array) {
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         for (String entry : array) {
             String[] split = entry.split("=");
             map.put(split[0], split[1]);
@@ -49,7 +48,7 @@ public class ArrayUtils {
      * @return The list with the prefix applied.
      */
     public static List<String> prefixStringList(String prefix, List<String> list) {
-        List<String> finalList = new ArrayList<String>();
+        List<String> finalList = new ArrayList<>();
         for (String string : list) {
             finalList.add(prefix + string);
         }
@@ -146,6 +145,24 @@ public class ArrayUtils {
     }
 
     /**
+     * Counts elements in the array that conform to the Function check.
+     *
+     * @param array The array to check.
+     * @param check The Function to apply to each element.
+     * @param <T>   What we are dealing with.
+     * @return The count.
+     */
+    public static <T> int count(T[] array, Function<T, Boolean> check) {
+        int counter = 0;
+        for (T value : array) {
+            if (check.apply(value)) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    /**
      * Fills the array with the specified value.
      * If the value is an instance of Copyable it will call copy.
      *
@@ -165,6 +182,29 @@ public class ArrayUtils {
     }
 
     /**
+     * Fills the array with the specified value.
+     * A Function is used to check if the value should be replaced.
+     * If the value is an instance of Copyable it will call copy.
+     *
+     * @param array Array to fill.
+     * @param value Value to fill with.
+     * @param check Called to decide if the value should be replaced.
+     * @param <T>   What we are dealing with.
+     */
+    @SuppressWarnings ("unchecked")
+    public static <T> void fillArray(T[] array, T value, Function<T, Boolean> check) {
+        for (int i = 0; i < array.length; i++) {
+            if (check.apply(array[i])) {
+                T newValue = value;
+                if (value instanceof Copyable) {
+                    newValue = ((Copyable<T>) value).copy();
+                }
+                array[i] = newValue;
+            }
+        }
+    }
+
+    /**
      * Apples the Specified function to the entire array and returns a new List of the result.
      * The input to the function may be null.
      *
@@ -175,7 +215,7 @@ public class ArrayUtils {
      * @return A list of the output of the specified function.
      */
     public static <I, O> List<O> applyArray(Function<I, O> function, I... array) {
-        List<O> finalList = new ArrayList<O>();
+        List<O> finalList = new ArrayList<>();
         for (I i : array) {
             finalList.add(function.apply(i));
         }

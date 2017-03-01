@@ -8,7 +8,7 @@ import com.google.common.base.Objects;
  */
 public class ThreadOperationTimer extends Thread {
 
-    @SuppressWarnings ("serial")
+
     public static class TimeoutException extends RuntimeException {
 
         public final Object operation;
@@ -65,7 +65,7 @@ public class ThreadOperationTimer extends Thread {
             }
             try {
                 Thread.sleep(50);
-            } catch (InterruptedException ie) {
+            } catch (InterruptedException ignored) {
             }
         }
     }

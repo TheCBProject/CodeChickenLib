@@ -54,12 +54,7 @@ public class CCRenderState {
     public final VertexAttribute<int[]> sideAttrib = new SideAttribute();
     public final VertexAttribute<LC[]> lightCoordAttrib = new LightCoordAttribute();
 
-    private static final ThreadLocal<CCRenderState> instances = new ThreadLocal<CCRenderState>() {
-        @Override
-        protected CCRenderState initialValue() {
-            return new CCRenderState();
-        }
-    };
+    private static final ThreadLocal<CCRenderState> instances = ThreadLocal.withInitial(CCRenderState::new);
     private static final CCRenderState bakingRenderState = new CCRenderState();
 
     //pipeline state

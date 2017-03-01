@@ -11,7 +11,7 @@ import java.util.HashMap;
 public abstract class WorldExtension {
 
     public final World world;
-    public HashMap<Chunk, ChunkExtension> chunkMap = new HashMap<Chunk, ChunkExtension>();
+    public HashMap<Chunk, ChunkExtension> chunkMap = new HashMap<>();
 
     public WorldExtension(World world) {
         this.world = world;

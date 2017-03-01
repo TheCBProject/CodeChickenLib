@@ -172,27 +172,6 @@ public class GuiDraw {
     /**
      * Have a string in the tooltip list with TOOLTIP_HANDLER + getTipLineId(handler) for a custom handler
      */
-    @Deprecated
-    public static final String TOOLTIP_HANDLER = "\u00A7x";
-    @Deprecated
-    private static List<ITooltipLineHandler> tipLineHandlers = new ArrayList<ITooltipLineHandler>();
-
-    @Deprecated//This is dead as there are forge events.
-    public interface ITooltipLineHandler {
-
-        Dimension getSize();
-
-        void draw(int x, int y);
-    }
-
-    @Deprecated
-    public static int getTipLineId(ITooltipLineHandler handler) {
-        return -1;
-    }
-
-    public static ITooltipLineHandler getTipLine(String line) {
-        return null;
-    }
 
     @Deprecated
     public static void drawMultilineTip(int x, int y, List<String> list) {
@@ -311,7 +290,7 @@ public class GuiDraw {
 
         if (needsWrap) {
             int wrappedTooltipWidth = 0;
-            List<String> wrappedTextLines = new ArrayList<String>();
+            List<String> wrappedTextLines = new ArrayList<>();
             for (int i = 0; i < lines.size(); i++) {
                 String textLine = lines.get(i);
                 List<String> wrappedLine = font.listFormattedStringToWidth(textLine, tooltipTextWidth);

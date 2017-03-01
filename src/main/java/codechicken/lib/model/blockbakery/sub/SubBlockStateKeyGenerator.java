@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class SubBlockStateKeyGenerator implements IBlockStateKeyGenerator {
 
-    private final Map<Integer, IBlockStateKeyGenerator> subKeyGenMap = new HashMap<Integer, IBlockStateKeyGenerator>();
+    private final Map<Integer, IBlockStateKeyGenerator> subKeyGenMap = new HashMap<>();
 
     public void register(int meta, IBlockStateKeyGenerator subGenerator) {
         subKeyGenMap.put(meta, subGenerator);

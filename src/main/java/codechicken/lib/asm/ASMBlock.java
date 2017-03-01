@@ -24,7 +24,7 @@ public class ASMBlock {
     }
 
     public ASMBlock(InsnListSection list) {
-        this(list, HashBiMap.<String, LabelNode>create());
+        this(list, HashBiMap.create());
     }
 
     public ASMBlock(InsnList list) {
@@ -78,7 +78,7 @@ public class ASMBlock {
     }
 
     public void replaceLabels(Map<LabelNode, LabelNode> labelMap) {
-        replaceLabels(labelMap, Collections.EMPTY_SET);
+        replaceLabels(labelMap, Collections.emptySet());
     }
 
     public void replaceLabel(String s, LabelNode l) {
@@ -106,7 +106,7 @@ public class ASMBlock {
                 labelMap.put(old, entry.getValue());
             }
         }
-        HashSet<LabelNode> usedLabels = new HashSet<LabelNode>();
+        HashSet<LabelNode> usedLabels = new HashSet<>();
         for (AbstractInsnNode insn = other.list.list.getFirst(); insn != null; insn = insn.getNext()) {
             if (insn.getType() == LABEL) {
                 usedLabels.add((LabelNode) insn);
@@ -147,7 +147,7 @@ public class ASMBlock {
         Set<LabelNode> cFlowLabels2 = InsnComparator.getControlFlowLabels(list2);
         ASMBlock block = new ASMBlock(list2);
 
-        HashMap<LabelNode, LabelNode> labelMap = new HashMap<LabelNode, LabelNode>();
+        HashMap<LabelNode, LabelNode> labelMap = new HashMap<>();
 
         for (int i = 0, k = 0; i < list.size() && k < list2.size(); ) {
             AbstractInsnNode insn1 = list.get(i);

@@ -77,7 +77,7 @@ public class IconVertexRangeUVTransform extends UVTransformation {
         private LinkedList<TripleABC<Integer, Integer, TextureAtlasSprite>> transformMap;
 
         private Builder() {
-            transformMap = new LinkedList<TripleABC<Integer, Integer, TextureAtlasSprite>>();
+            transformMap = new LinkedList<>();
         }
 
         /**
@@ -104,7 +104,7 @@ public class IconVertexRangeUVTransform extends UVTransformation {
                     throw new IllegalArgumentException("Unable to have overlapping sprite transforms!");
                 }
             }
-            transformMap.add(new TripleABC<Integer, Integer, TextureAtlasSprite>(start, end, sprite));
+            transformMap.add(new TripleABC<>(start, end, sprite));
             return this;
         }
 

@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.block.properties.PropertyHelper;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 
 /**
@@ -28,21 +29,25 @@ public class PropertyInteger extends PropertyHelper<Integer> {
         valueSet = builder.build();
     }
 
+    @Nonnull
     @Override
     public Collection<Integer> getAllowedValues() {
         return valueSet;
     }
 
+    @SuppressWarnings ("Guava")
     @Override
-    public Optional<Integer> parseValue(String value) {
+    @Nonnull
+    public Optional<Integer> parseValue(@Nonnull String value) {
         if (valueSet.contains(Integer.valueOf(value))) {
             return Optional.of(Integer.valueOf(value));
         }
         return Optional.absent();
     }
 
+    @Nonnull
     @Override
-    public String getName(Integer value) {
+    public String getName(@Nonnull Integer value) {
         return String.valueOf(value);
     }
 }

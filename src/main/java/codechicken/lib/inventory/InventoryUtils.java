@@ -1,5 +1,6 @@
 package codechicken.lib.inventory;
 
+import codechicken.lib.util.ItemUtils;
 import codechicken.lib.vec.Vector3;
 import com.google.common.base.Objects;
 import net.minecraft.entity.item.EntityItem;
@@ -26,6 +27,8 @@ import net.minecraftforge.items.wrapper.EmptyHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
+import javax.annotation.Nonnull;
+
 public class InventoryUtils {
 
     public static boolean hasItemHandlerCap(TileEntity tileEntity, EnumFacing face) {
@@ -46,6 +49,7 @@ public class InventoryUtils {
     /**
      * Constructor for ItemStack with tag
      */
+    @Nonnull
     public static ItemStack newItemStack(Item item, int size, int damage, NBTTagCompound tag) {
         ItemStack stack = new ItemStack(item, size, damage);
         stack.setTagCompound(tag);
@@ -55,25 +59,26 @@ public class InventoryUtils {
     /**
      * Gets the actual damage of an item without asking the Item
      */
-    public static int actualDamage(ItemStack stack) {
+    public static int actualDamage(@Nonnull ItemStack stack) {
         return Items.DIAMOND.getDamage(stack);
     }
 
     /**
      * Static default implementation for IInventory method
      */
+    @Nonnull
     public static ItemStack decrStackSize(IInventory inv, int slot, int size) {
         ItemStack item = inv.getStackInSlot(slot);
 
-        if (item != null) {
-            if (item.stackSize <= size) {
-                inv.setInventorySlotContents(slot, null);
+        if (!item.isEmpty()) {
+            if (item.getCount() <= size) {
+                inv.setInventorySlotContents(slot, ItemStack.EMPTY);
                 inv.markDirty();
                 return item;
             }
             ItemStack itemstack1 = item.splitStack(size);
-            if (item.stackSize == 0) {
-                inv.setInventorySlotContents(slot, null);
+            if (item.getCount() == 0) {
+                inv.setInventorySlotContents(slot, ItemStack.EMPTY);
             } else {
                 inv.setInventorySlotContents(slot, item);
             }
@@ -81,7 +86,7 @@ public class InventoryUtils {
             inv.markDirty();
             return itemstack1;
         }
-        return null;
+        return ItemStack.EMPTY;
     }
 
     /**
@@ -89,16 +94,16 @@ public class InventoryUtils {
      */
     public static ItemStack removeStackFromSlot(IInventory inv, int slot) {
         ItemStack stack = inv.getStackInSlot(slot);
-        inv.setInventorySlotContents(slot, null);
+        inv.setInventorySlotContents(slot, ItemStack.EMPTY);
         return stack;
     }
 
     /**
      * @return The quantity of items from addition that can be added to base
      */
-    public static int incrStackSize(ItemStack base, ItemStack addition) {
+    public static int incrStackSize(@Nonnull ItemStack base, @Nonnull ItemStack addition) {
         if (canStack(base, addition)) {
-            return incrStackSize(base, addition.stackSize);
+            return incrStackSize(base, addition.getCount());
         }
 
         return 0;
@@ -107,13 +112,13 @@ public class InventoryUtils {
     /**
      * @return The quantity of items from addition that can be added to base
      */
-    public static int incrStackSize(ItemStack base, int addition) {
-        int totalSize = base.stackSize + addition;
+    public static int incrStackSize(@Nonnull ItemStack base, int addition) {
+        int totalSize = base.getCount() + addition;
 
         if (totalSize <= base.getMaxStackSize()) {
             return addition;
-        } else if (base.stackSize < base.getMaxStackSize()) {
-            return base.getMaxStackSize() - base.stackSize;
+        } else if (base.getCount() < base.getMaxStackSize()) {
+            return base.getMaxStackSize() - base.getCount();
         }
 
         return 0;
@@ -132,19 +137,17 @@ public class InventoryUtils {
     public static NBTTagList writeItemStacksToTag(ItemStack[] items, int maxQuantity) {
         NBTTagList tagList = new NBTTagList();
         for (int i = 0; i < items.length; i++) {
-            if (items[i] != null) {
-                NBTTagCompound tag = new NBTTagCompound();
-                tag.setShort("Slot", (short) i);
-                items[i].writeToNBT(tag);
+            NBTTagCompound tag = new NBTTagCompound();
+            tag.setShort("Slot", (short) i);
+            items[i].writeToNBT(tag);
 
-                if (maxQuantity > Short.MAX_VALUE) {
-                    tag.setInteger("Quantity", items[i].stackSize);
-                } else if (maxQuantity > Byte.MAX_VALUE) {
-                    tag.setShort("Quantity", (short) items[i].stackSize);
-                }
-
-                tagList.appendTag(tag);
+            if (maxQuantity > Short.MAX_VALUE) {
+                tag.setInteger("Quantity", items[i].getCount());
+            } else if (maxQuantity > Byte.MAX_VALUE) {
+                tag.setShort("Quantity", (short) items[i].getCount());
             }
+
+            tagList.appendTag(tag);
         }
         return tagList;
     }
@@ -156,41 +159,37 @@ public class InventoryUtils {
         for (int i = 0; i < tagList.tagCount(); i++) {
             NBTTagCompound tag = tagList.getCompoundTagAt(i);
             int b = tag.getShort("Slot");
-            items[b] = ItemStack.loadItemStackFromNBT(tag);
+            items[b] = new ItemStack(tag);
             if (tag.hasKey("Quantity")) {
-                items[b].stackSize = ((NBTPrimitive) tag.getTag("Quantity")).getInt();
+                items[b].setCount(((NBTPrimitive) tag.getTag("Quantity")).getInt());
             }
         }
     }
 
     /**
      * Spawns an itemstack in the world at a location
-     */
+     *///TODO Move to ItemUtils.
+    @Deprecated
     public static void dropItem(ItemStack stack, World world, Vector3 dropLocation) {
         EntityItem item = new EntityItem(world, dropLocation.x, dropLocation.y, dropLocation.z, stack);
         item.motionX = world.rand.nextGaussian() * 0.05;
         item.motionY = world.rand.nextGaussian() * 0.05 + 0.2F;
         item.motionZ = world.rand.nextGaussian() * 0.05;
-        world.spawnEntityInWorld(item);
+        world.spawnEntity(item);
     }
 
     /**
      * Copies an itemstack with a new quantity
-     */
+     *///TODO Move to ItemUtils.
+    @Deprecated
     public static ItemStack copyStack(ItemStack stack, int quantity) {
-        if (stack == null) {
-            return null;
-        }
-
-        stack = stack.copy();
-        stack.stackSize = quantity;
-        return stack;
+       return ItemUtils.copyStack(stack, quantity);
     }
 
     /**
      * Gets the maximum quantity of an item that can be inserted into inv
      */
-    public static int getInsertibleQuantity(InventoryRange inv, ItemStack stack) {
+    public static int getInsertibleQuantity(InventoryRange inv, @Nonnull ItemStack stack) {
         int quantity = 0;
         stack = copyStack(stack, Integer.MAX_VALUE);
         for (int slot : inv.slots) {
@@ -200,7 +199,7 @@ public class InventoryUtils {
         return quantity;
     }
 
-    public static int getInsertibleQuantity(IInventory inv, ItemStack stack) {
+    public static int getInsertibleQuantity(IInventory inv, @Nonnull ItemStack stack) {
         return getInsertibleQuantity(new InventoryRange(inv), stack);
     }
 
@@ -210,11 +209,11 @@ public class InventoryUtils {
             return 0;
         }
 
-        int fit = base != null ? incrStackSize(base, inv.inv.getInventoryStackLimit() - base.stackSize) : inv.inv.getInventoryStackLimit();
-        return Math.min(fit, stack.stackSize);
+        int fit = !base.isEmpty() ? incrStackSize(base, inv.inv.getInventoryStackLimit() - base.getCount()) : inv.inv.getInventoryStackLimit();
+        return Math.min(fit, stack.getCount());
     }
 
-    public static int fitStackInSlot(IInventory inv, int slot, ItemStack stack) {
+    public static int fitStackInSlot(IInventory inv, int slot, @Nonnull ItemStack stack) {
         return fitStackInSlot(new InventoryRange(inv), slot, stack);
     }
 
@@ -222,12 +221,12 @@ public class InventoryUtils {
      * @param simulate If set to true, no items will actually be inserted
      * @return The number of items unable to be inserted
      */
-    public static int insertItem(InventoryRange inv, ItemStack stack, boolean simulate) {
+    public static int insertItem(InventoryRange inv, @Nonnull ItemStack stack, boolean simulate) {
         stack = stack.copy();
         for (int pass = 0; pass < 2; pass++) {
             for (int slot : inv.slots) {
                 ItemStack base = inv.inv.getStackInSlot(slot);
-                if ((pass == 0) == (base == null)) {
+                if ((pass == 0) == (base.isEmpty())) {
                     continue;
                 }
                 int fit = fitStackInSlot(inv, slot, stack);
@@ -235,27 +234,27 @@ public class InventoryUtils {
                     continue;
                 }
 
-                if (base != null) {
-                    stack.stackSize -= fit;
+                if (!base.isEmpty()) {
+                    stack.shrink(fit);
                     if (!simulate) {
-                        base.stackSize += fit;
+                        base.grow(fit);
                         inv.inv.setInventorySlotContents(slot, base);
                     }
                 } else {
                     if (!simulate) {
                         inv.inv.setInventorySlotContents(slot, copyStack(stack, fit));
                     }
-                    stack.stackSize -= fit;
+                    stack.shrink(fit);
                 }
-                if (stack.stackSize == 0) {
+                if (stack.getCount() == 0) {
                     return 0;
                 }
             }
         }
-        return stack.stackSize;
+        return stack.getCount();
     }
 
-    public static int insertItem(IInventory inv, ItemStack stack, boolean simulate) {
+    public static int insertItem(IInventory inv, @Nonnull ItemStack stack, boolean simulate) {
         return insertItem(new InventoryRange(inv), stack, simulate);
     }
 
@@ -264,8 +263,8 @@ public class InventoryUtils {
      */
     public static ItemStack getExtractableStack(InventoryRange inv, int slot) {
         ItemStack stack = inv.inv.getStackInSlot(slot);
-        if (stack == null || !inv.canExtractItem(slot, stack)) {
-            return null;
+        if (stack.isEmpty() || !inv.canExtractItem(slot, stack)) {
+            return ItemStack.EMPTY;
         }
 
         return stack;
@@ -275,12 +274,12 @@ public class InventoryUtils {
         return getExtractableStack(new InventoryRange(inv), slot);
     }
 
-    public static boolean areStacksIdentical(ItemStack stack1, ItemStack stack2) {
-        if (stack1 == null || stack2 == null) {
+    public static boolean areStacksIdentical(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
+        if (stack1.isEmpty() || stack2.isEmpty()) {
             return stack1 == stack2;
         }
 
-        return stack1.getItem() == stack2.getItem() && stack1.getItemDamage() == stack2.getItemDamage() && stack1.stackSize == stack2.stackSize && Objects.equal(stack1.getTagCompound(), stack2.getTagCompound());
+        return stack1.getItem() == stack2.getItem() && stack1.getItemDamage() == stack2.getItemDamage() && stack1.getCount() == stack2.getCount() && Objects.equal(stack1.getTagCompound(), stack2.getTagCompound());
     }
 
     /**
@@ -310,8 +309,8 @@ public class InventoryUtils {
         return chest;
     }
 
-    public static boolean canStack(ItemStack stack1, ItemStack stack2) {
-        return stack1 == null || stack2 == null || (stack1.getItem() == stack2.getItem() && (!stack2.getHasSubtypes() || stack2.getItemDamage() == stack1.getItemDamage()) && ItemStack.areItemStackTagsEqual(stack2, stack1)) && stack1.isStackable();
+    public static boolean canStack(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
+        return stack1.isEmpty() || stack2.isEmpty() || (stack1.getItem() == stack2.getItem() && (!stack2.getHasSubtypes() || stack2.getItemDamage() == stack1.getItemDamage()) && ItemStack.areItemStackTagsEqual(stack2, stack1)) && stack1.isStackable();
     }
 
     /**
@@ -329,11 +328,11 @@ public class InventoryUtils {
     }
 
     /**
-     * Gets the size of the stack in a slot. Returns 0 on null stacks
+     * Gets the size of the stack in a slot. Returns 0 on empty stacks
      */
     public static int stackSize(IInventory inv, int slot) {
         ItemStack stack = inv.getStackInSlot(slot);
-        return stack == null ? 0 : stack.stackSize;
+        return stack.isEmpty() ? 0 : stack.getCount();
     }
 
     /**
@@ -342,7 +341,7 @@ public class InventoryUtils {
     public static void dropOnClose(EntityPlayer player, IInventory inv) {
         for (int i = 0; i < inv.getSizeInventory(); i++) {
             ItemStack stack = inv.removeStackFromSlot(i);
-            if (stack != null) {
+            if (!stack.isEmpty()) {
                 player.dropItem(stack, false);
             }
         }
@@ -359,7 +358,7 @@ public class InventoryUtils {
         String name = tag.getString("name");
         Item item = Item.REGISTRY.getObject(new ResourceLocation(name));
         if (item == null) {
-            return null;
+            return ItemStack.EMPTY;
         }
         int count = tag.hasKey("Count") ? tag.getByte("Count") : 1;
         int damage = tag.hasKey("Damage") ? tag.getShort("Damage") : 0;

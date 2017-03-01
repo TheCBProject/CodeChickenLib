@@ -13,18 +13,18 @@ import net.minecraft.world.World;
 public class SoundUtils {
 
     public static void playSoundAt(Entity entity, SoundCategory category, SoundEvent sound, float volume, float pitch, boolean distanceDelay) {
-        entity.worldObj.playSound(entity.posX, entity.posY, entity.posZ, sound, category, volume, pitch, distanceDelay);
+        entity.world.playSound(entity.posX, entity.posY, entity.posZ, sound, category, volume, pitch, distanceDelay);
     }
 
     public static void playSoundAt(Entity entity, SoundCategory category, SoundEvent sound, float volume, float pitch) {
         EntityPlayer player = null;
 
         //only assigning player on client as if triggered on server the player passed here would be omitted from hearing the sound
-        if (entity.worldObj.isRemote && entity instanceof EntityPlayer) {
+        if (entity.world.isRemote && entity instanceof EntityPlayer) {
             player = (EntityPlayer) entity;
         }
 
-        entity.worldObj.playSound(player, entity.posX, entity.posY, entity.posZ, sound, category, volume, pitch);
+        entity.world.playSound(player, entity.posX, entity.posY, entity.posZ, sound, category, volume, pitch);
     }
 
     public static void playSoundAt(Entity entity, SoundCategory category, SoundEvent sound) {

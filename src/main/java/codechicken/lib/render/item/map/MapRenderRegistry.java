@@ -16,12 +16,12 @@ import java.util.IdentityHashMap;
  */
 public class MapRenderRegistry {
 
-    private static IdentityHashMap<Item, IMapRenderer> mapRenderers = new IdentityHashMap<Item, IMapRenderer>();
+    private static IdentityHashMap<Item, IMapRenderer> mapRenderers = new IdentityHashMap<>();
 
     public static boolean shouldHandle(ItemStack stack, boolean inFrame) {
         IMapRenderer mapRenderer = mapRenderers.get(stack.getItem());
         if (mapRenderer != null) {
-            MapData data = Items.FILLED_MAP.getMapData(stack, Minecraft.getMinecraft().theWorld);
+            MapData data = Items.FILLED_MAP.getMapData(stack, Minecraft.getMinecraft().world);
             return mapRenderer.shouldHandle(stack, data, inFrame);
         }
         return false;
@@ -30,7 +30,7 @@ public class MapRenderRegistry {
     public static void handleRender(ItemStack stack, boolean inFrame) {
         IMapRenderer mapRenderer = mapRenderers.get(stack.getItem());
         if (mapRenderer != null) {
-            MapData data = Items.FILLED_MAP.getMapData(stack, Minecraft.getMinecraft().theWorld);
+            MapData data = Items.FILLED_MAP.getMapData(stack, Minecraft.getMinecraft().world);
             mapRenderer.renderMap(stack, data, inFrame);
         }
     }

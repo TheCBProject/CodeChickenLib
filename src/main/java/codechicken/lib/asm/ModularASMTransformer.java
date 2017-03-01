@@ -22,8 +22,8 @@ public class ModularASMTransformer {
      */
     public static class ClassNodeTransformerList {
 
-        List<ClassNodeTransformer> transformers = new LinkedList<ClassNodeTransformer>();
-        HashSet<ObfMapping> methodsToSort = new HashSet<ObfMapping>();
+        List<ClassNodeTransformer> transformers = new LinkedList<>();
+        HashSet<ObfMapping> methodsToSort = new HashSet<>();
 
         public void add(ClassNodeTransformer t) {
             transformers.add(t);
@@ -311,7 +311,7 @@ public class ModularASMTransformer {
         }
     }
 
-    public HashMap<String, ClassNodeTransformerList> transformers = new HashMap<String, ClassNodeTransformerList>();
+    public HashMap<String, ClassNodeTransformerList> transformers = new HashMap<>();
 
     /**
      * Adds a ClassNodeTransformer to this transformer.

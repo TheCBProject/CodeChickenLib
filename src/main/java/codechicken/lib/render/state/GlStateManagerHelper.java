@@ -255,7 +255,7 @@ public class GlStateManagerHelper {
 
     public static class SavedState {
 
-        private ArrayList<State> savedStates = new ArrayList<State>();
+        private ArrayList<State> savedStates = new ArrayList<>();
 
         boolean alphaTest;
         int alphaFunc;
@@ -302,7 +302,7 @@ public class GlStateManagerHelper {
 
     }
 
-    private static final LinkedList<SavedState> savedStates = new LinkedList<SavedState>();
+    private static final LinkedList<SavedState> savedStates = new LinkedList<>();
 
     private static String parseBoolState(BooleanState boolState) {
         return String.valueOf(boolState.currentState).toUpperCase();

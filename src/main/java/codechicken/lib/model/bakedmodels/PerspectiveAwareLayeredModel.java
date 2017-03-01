@@ -60,7 +60,7 @@ public class PerspectiveAwareLayeredModel implements IPerspectiveAwareModel {
                 return faceQuadMap.get(side);
             }
         }
-        return new ArrayList<BakedQuad>();
+        return new ArrayList<>();
     }
 
     @Override

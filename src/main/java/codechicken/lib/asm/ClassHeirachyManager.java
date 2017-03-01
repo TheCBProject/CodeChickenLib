@@ -18,7 +18,7 @@ public class ClassHeirachyManager implements IClassTransformer {
     public static class SuperCache {
 
         String superclass;
-        public HashSet<String> parents = new HashSet<String>();
+        public HashSet<String> parents = new HashSet<>();
         private boolean flattened;
 
         public void add(String parent) {
@@ -30,7 +30,7 @@ public class ClassHeirachyManager implements IClassTransformer {
                 return;
             }
 
-            for (String s : new ArrayList<String>(parents)) {
+            for (String s : new ArrayList<>(parents)) {
                 SuperCache c = declareClass(s);
                 if (c != null) {
                     c.flatten();
@@ -41,7 +41,7 @@ public class ClassHeirachyManager implements IClassTransformer {
         }
     }
 
-    public static HashMap<String, SuperCache> superclasses = new HashMap<String, SuperCache>();
+    public static HashMap<String, SuperCache> superclasses = new HashMap<>();
     private static LaunchClassLoader cl = Launch.classLoader;
 
     public static String toKey(String name) {
@@ -94,7 +94,7 @@ public class ClassHeirachyManager implements IClassTransformer {
             if (bytes != null) {
                 cache = declareASM(bytes);
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         if (cache != null) {
@@ -103,7 +103,7 @@ public class ClassHeirachyManager implements IClassTransformer {
 
         try {
             cache = declareReflection(name);
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException ignored) {
         }
 
         return cache;

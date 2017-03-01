@@ -175,7 +175,7 @@ public class PlanarFaceBakery {
     }
 
     public static List<BakedQuad> shadeQuadFaces(List<BakedQuad> quads) {
-        LinkedList<BakedQuad> shadedQuads = new LinkedList<BakedQuad>();
+        LinkedList<BakedQuad> shadedQuads = new LinkedList<>();
         for (BakedQuad quad : quads) {
             int[] rawData = quad.getVertexData();
             for (int v = 0; v < 4; v++) {

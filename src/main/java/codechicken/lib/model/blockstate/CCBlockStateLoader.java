@@ -55,7 +55,7 @@ public class CCBlockStateLoader {
             if (JsonUtils.hasField(object, "ccl_marker")) {
 
                 String marker = JsonUtils.getString(object, "ccl_marker");
-                List<String> variantSets = new ArrayList<String>();
+                List<String> variantSets = new ArrayList<>();
                 for (JsonElement element : object.getAsJsonArray("variant_sets")) {
                     variantSets.add(element.getAsString());
                 }
@@ -73,10 +73,10 @@ public class CCBlockStateLoader {
 
                 Map<String, Map<String, Map<String, CCVariant>>> subModels = parseSubModels(object.getAsJsonObject("sub_model"));
 
-                Map<String, CCVariant> compiledVariants = new LinkedHashMap<String, CCVariant>();
-                Map<String, Map<String, CCVariant>> compiledSubModelVariants = new LinkedHashMap<String, Map<String, CCVariant>>();
+                Map<String, CCVariant> compiledVariants = new LinkedHashMap<>();
+                Map<String, Map<String, CCVariant>> compiledSubModelVariants = new LinkedHashMap<>();
 
-                List<String> possibleCombos = new ArrayList<String>();
+                List<String> possibleCombos = new ArrayList<>();
 
                 for (String variantSet : variantSets) {
                     Map<String, List<String>> variantValueMap = generateVariantValueMap(Arrays.asList(variantSet.split(",")), variants, subModels);
@@ -93,7 +93,7 @@ public class CCBlockStateLoader {
 
                 }
                 for (Entry<String, Map<String, Map<String, CCVariant>>> subModelVariantEntry : subModels.entrySet()) {
-                    Map<String, CCVariant> compiledVariants2 = new LinkedHashMap<String, CCVariant>();
+                    Map<String, CCVariant> compiledVariants2 = new LinkedHashMap<>();
                     for (String var : possibleCombos) {
                         Map<String, String> kvArray = ArrayUtils.convertKeyValueArrayToMap(var.split(","));
                         CCVariant finalVariant = new CCVariant();
@@ -105,10 +105,10 @@ public class CCBlockStateLoader {
                     compiledSubModelVariants.put(subModelVariantEntry.getKey(), compiledVariants2);
                 }
 
-                Map<String, VariantList> variantList = new HashMap<String, VariantList>();
+                Map<String, VariantList> variantList = new HashMap<>();
                 for (Entry<String, CCVariant> entry : compiledVariants.entrySet()) {
                     Map<String, CCVariant> subModelVariants = getSubModelsForKey(entry.getKey(), compiledSubModelVariants);
-                    List<Variant> vars = new ArrayList<Variant>();
+                    List<Variant> vars = new ArrayList<>();
                     CCVariant variant = entry.getValue();
 
                     boolean uvLock = variant.uvLock.or(false);
@@ -136,12 +136,12 @@ public class CCBlockStateLoader {
     }
 
     public static Map<String, Map<String, CCVariant>> parseVariants(JsonObject variantElement) {
-        Map<String, Map<String, CCVariant>> variants = new LinkedHashMap<String, Map<String, CCVariant>>();
+        Map<String, Map<String, CCVariant>> variants = new LinkedHashMap<>();
         for (Entry<String, JsonElement> variantsEntry : variantElement.entrySet()) {
             String variantName = variantsEntry.getKey();
             Map<String, CCVariant> variantValues = variants.get(variantName);
             if (variantValues == null) {
-                variantValues = new LinkedHashMap<String, CCVariant>();
+                variantValues = new LinkedHashMap<>();
                 variants.put(variantName, variantValues);
             }
             for (Entry<String, JsonElement> variantEntry : variantsEntry.getValue().getAsJsonObject().entrySet()) {
@@ -154,7 +154,7 @@ public class CCBlockStateLoader {
     }
 
     public static Map<String, Map<String, Map<String, CCVariant>>> parseSubModels(JsonObject object) {
-        Map<String, Map<String, Map<String, CCVariant>>> subModels = new LinkedHashMap<String, Map<String, Map<String, CCVariant>>>();
+        Map<String, Map<String, Map<String, CCVariant>>> subModels = new LinkedHashMap<>();
 
         if (object != null) {
             for (Entry<String, JsonElement> subModelEntry : object.entrySet()) {
@@ -190,7 +190,7 @@ public class CCBlockStateLoader {
     }
 
     public static Map<String, CCVariant> getSubModelsForKey(String key, Map<String, Map<String, CCVariant>> subModels) {
-        Map<String, CCVariant> subModelVariants = new LinkedHashMap<String, CCVariant>();
+        Map<String, CCVariant> subModelVariants = new LinkedHashMap<>();
         for (Entry<String, Map<String, CCVariant>> subModelEntry : subModels.entrySet()) {
             for (Entry<String, CCVariant> variantEntry : subModelEntry.getValue().entrySet()) {
                 if (variantEntry.getKey().equals(key)) {
@@ -211,7 +211,7 @@ public class CCBlockStateLoader {
      * @return A compiled list of all possible combos.
      */
     public static List<String> generatePossibleCombos(Map<String, List<String>> variantValueMap) {
-        List<String> possibleCombos = new ArrayList<String>();
+        List<String> possibleCombos = new ArrayList<>();
 
         List<String> keys = Lists.newArrayList(variantValueMap.keySet());
 
@@ -248,9 +248,9 @@ public class CCBlockStateLoader {
      * @return Map of Key to value lists.
      */
     public static Map<String, List<String>> generateVariantValueMap(List<String> keys, Map<String, Map<String, CCVariant>> variants, Map<String, Map<String, Map<String, CCVariant>>> subModels) {
-        Map<String, List<String>> variantValueMap = new LinkedHashMap<String, List<String>>();
+        Map<String, List<String>> variantValueMap = new LinkedHashMap<>();
         for (String variant : keys) {
-            List<String> variantValues = new ArrayList<String>();
+            List<String> variantValues = new ArrayList<>();
             for (String variantName : variants.keySet()) {
                 if (variantName.equals(variant) && variants.containsKey(variant)) {
                     variantValues.addAll(variants.get(variant).keySet());

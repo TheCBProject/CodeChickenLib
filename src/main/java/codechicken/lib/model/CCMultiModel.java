@@ -31,7 +31,7 @@ public class CCMultiModel implements IModel {
 
     @Override
     public Collection<ResourceLocation> getDependencies() {
-        List<ResourceLocation> deps = new ArrayList<ResourceLocation>();
+        List<ResourceLocation> deps = new ArrayList<>();
         if (base != null) {
             deps.addAll(base.getDependencies());
         }
@@ -43,7 +43,7 @@ public class CCMultiModel implements IModel {
 
     @Override
     public Collection<ResourceLocation> getTextures() {
-        List<ResourceLocation> deps = new ArrayList<ResourceLocation>();
+        List<ResourceLocation> deps = new ArrayList<>();
         if (base != null) {
             deps.addAll(base.getTextures());
         }
@@ -59,7 +59,7 @@ public class CCMultiModel implements IModel {
         if (base != null) {
             baseBakedModel = base.bake(state, format, bakedTextureGetter);
         }
-        List<IBakedModel> subBakedModels = new ArrayList<IBakedModel>();
+        List<IBakedModel> subBakedModels = new ArrayList<>();
         TextureAtlasSprite particle = null;
         if (baseBakedModel != null) {
             particle = baseBakedModel.getParticleTexture();

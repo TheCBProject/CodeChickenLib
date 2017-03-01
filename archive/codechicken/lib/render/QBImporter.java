@@ -496,7 +496,7 @@ public class QBImporter {
         }
 
         public List<QBCuboid> rectangulate() {
-            List<QBCuboid> list = new ArrayList<QBCuboid>();
+            List<QBCuboid> list = new ArrayList<>();
             boolean[][][] solid = new boolean[size.x][size.y][size.z];
             for (int z = 0; z < size.z; z++) {
                 for (int y = 0; y < size.y; y++) {
@@ -526,7 +526,7 @@ public class QBImporter {
         }
 
         public List<QBQuad> extractQuads(boolean texturePlanes) {
-            List<QBQuad> quads = new LinkedList<QBQuad>();
+            List<QBQuad> quads = new LinkedList<>();
             for (QBCuboid c : rectangulate()) {
                 c.extractQuads(quads);
             }
@@ -630,9 +630,9 @@ public class QBImporter {
         public boolean rightHanded;
 
         public RasterisedModel toRasterisedModel(int flags) {
-            List<QBImage> qbImages = new ArrayList<QBImage>();
-            List<List<QBQuad>> modelQuads = new ArrayList<List<QBQuad>>();
-            List<BufferedImage> images = new ArrayList<BufferedImage>();
+            List<QBImage> qbImages = new ArrayList<>();
+            List<List<QBQuad>> modelQuads = new ArrayList<>();
+            List<BufferedImage> images = new ArrayList<>();
 
             boolean texturePlanes = (flags & TEXTUREPLANES) != 0;
             boolean squareTextures = (flags & SQUARETEXTURE) != 0;
@@ -676,7 +676,7 @@ public class QBImporter {
             }
         }
 
-        private Map<String, Holder> map = new HashMap<String, Holder>();
+        private Map<String, Holder> map = new HashMap<>();
         private List<BufferedImage> images;
 
         public RasterisedModel(List<BufferedImage> images) {
@@ -718,7 +718,7 @@ public class QBImporter {
                     imgDir.mkdirs();
                 }
 
-                Map<String, CCModel> modelMap = new HashMap<String, CCModel>();
+                Map<String, CCModel> modelMap = new HashMap<>();
                 for (Map.Entry<String, Holder> e : map.entrySet()) {
                     modelMap.put(e.getKey(), e.getValue().m);
                 }

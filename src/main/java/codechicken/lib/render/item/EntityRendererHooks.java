@@ -47,17 +47,14 @@ public class EntityRendererHooks {
     @SideOnly (Side.CLIENT)
     public void preInt(FMLPreInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(instance);
-        RenderingRegistry.registerEntityRenderingHandler(DummyEntity.class, new IRenderFactory<DummyEntity>() {
-            @Override
-            public Render<? super DummyEntity> createRenderFor(RenderManager manager) {
-                sanitizeEntityRenderers(manager);
-                return new Render<DummyEntity>(manager) {
-                    @Override
-                    protected ResourceLocation getEntityTexture(DummyEntity entity) {
-                        return null;
-                    }
-                };
-            }
+        RenderingRegistry.registerEntityRenderingHandler(DummyEntity.class, manager -> {
+            sanitizeEntityRenderers(manager);
+            return new Render<DummyEntity>(manager) {
+                @Override
+                protected ResourceLocation getEntityTexture(DummyEntity entity) {
+                    return null;
+                }
+            };
         });
     }
 

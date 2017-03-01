@@ -8,6 +8,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
+import javax.annotation.Nonnull;
+
 /**
  * Created by covers1624 on 7/11/2016.
  * Provides a Simple way to create a CreativeTab
@@ -67,11 +69,13 @@ public class SimpleCreativeTab extends CreativeTabs {
     }
 
     @Override
-    public Item getTabIconItem() {
-        return Items.REDSTONE;
+    @Nonnull
+    public ItemStack getTabIconItem() {
+        return new ItemStack(Items.REDSTONE);
     }
 
     @Override
+    @Nonnull
     public ItemStack getIconItemStack() {
         if (tabIcon == null) {
             bakeTab();

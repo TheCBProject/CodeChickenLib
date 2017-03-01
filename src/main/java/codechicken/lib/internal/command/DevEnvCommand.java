@@ -14,6 +14,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,23 +24,26 @@ import java.util.List;
  */
 public class DevEnvCommand implements ICommand {
 
+    @Nonnull
     @Override
-    public String getCommandName() {
+    public String getName() {
         return "devStuff";
     }
 
+    @Nonnull
     @Override
-    public String getCommandUsage(ICommandSender sender) {
+    public String getUsage(@Nonnull ICommandSender sender) {
         return "Does dev stuff.";
     }
 
+    @Nonnull
     @Override
-    public List<String> getCommandAliases() {
-        return new ArrayList<String>();
+    public List<String> getAliases() {
+        return new ArrayList<>();
     }
 
     @Override
-    public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+    public void execute(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args) throws CommandException {
         if (sender instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) sender;
             RayTraceResult trace = RayTracer.retrace(player);
@@ -47,11 +51,11 @@ public class DevEnvCommand implements ICommand {
                 addMessage(sender, "Null trace.");
                 return;
             }
-            IBlockState state = player.worldObj.getBlockState(trace.getBlockPos());
+            IBlockState state = player.world.getBlockState(trace.getBlockPos());
             addMessage(sender, state);
             TaskProfiler timer = new TaskProfiler();
             timer.startOnce("task");
-            int hash = BlockStateUtils.hashBlockState(state.getBlock().getExtendedState(state, player.worldObj, trace.getBlockPos()));
+            int hash = BlockStateUtils.hashBlockState(state.getBlock().getExtendedState(state, player.world, trace.getBlockPos()));
             ProfilerResult result = timer.endOnce();
 
             addMessage(sender, "Hash: " + hash);
@@ -65,26 +69,27 @@ public class DevEnvCommand implements ICommand {
     }
 
     private static void addMessage(ICommandSender sender, Object object, Object... format) {
-        sender.addChatMessage(new TextComponentString(String.format(String.valueOf(object), format)));
+        sender.sendMessage(new TextComponentString(String.format(String.valueOf(object), format)));
     }
 
     @Override
-    public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+    public boolean checkPermission(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender) {
         return true;
     }
 
+    @Nonnull
     @Override
-    public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos pos) {
-        return new ArrayList<String>();
+    public List<String> getTabCompletions(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args, @Nullable BlockPos pos) {
+        return new ArrayList<>();
     }
 
     @Override
-    public boolean isUsernameIndex(String[] args, int index) {
+    public boolean isUsernameIndex(@Nonnull String[] args, int index) {
         return false;
     }
 
     @Override
-    public int compareTo(ICommand o) {
+    public int compareTo(@Nonnull ICommand o) {
         return 0;
     }
 }

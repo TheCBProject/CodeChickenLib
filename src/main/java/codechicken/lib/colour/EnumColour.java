@@ -187,7 +187,7 @@ public enum EnumColour implements IStringSerializable {
     }
 
     private static TripleABC<EnumColour, EnumColour, EnumColour> getTriple(EnumColour a, EnumColour b, EnumColour result) {
-        return new TripleABC<EnumColour, EnumColour, EnumColour>(a, b, result);
+        return new TripleABC<>(a, b, result);
     }
 
 }

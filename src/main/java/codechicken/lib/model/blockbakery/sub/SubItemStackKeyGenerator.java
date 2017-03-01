@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class SubItemStackKeyGenerator implements IItemStackKeyGenerator {
 
-    private final Map<Integer, IItemStackKeyGenerator> subKeyGenMap = new HashMap<Integer, IItemStackKeyGenerator>();
+    private final Map<Integer, IItemStackKeyGenerator> subKeyGenMap = new HashMap<>();
 
     public void register(int meta, IItemStackKeyGenerator subGenerator) {
         subKeyGenMap.put(meta, subGenerator);

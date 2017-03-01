@@ -23,7 +23,7 @@ public class SimpleBakedBlockModel implements IBakedModel {
 
     public SimpleBakedBlockModel(List<BakedQuad> quads) {
         //Copy the quads because reasons.
-        this.quads = new LinkedList<BakedQuad>(quads);
+        this.quads = new LinkedList<>(quads);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class SimpleBakedBlockModel implements IBakedModel {
         if (side == null) {
             return quads;
         }
-        return new ArrayList<BakedQuad>();
+        return new ArrayList<>();
     }
 
     @Override

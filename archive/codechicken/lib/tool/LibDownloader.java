@@ -98,7 +98,7 @@ public class LibDownloader {
     }
 
     private static List<String> checkExists() {
-        LinkedList<String> list = new LinkedList<String>();
+        LinkedList<String> list = new LinkedList<>();
         for (String lib : libs) {
             File file = new File(libDir, fileName(lib));
             if (!file.exists()) {

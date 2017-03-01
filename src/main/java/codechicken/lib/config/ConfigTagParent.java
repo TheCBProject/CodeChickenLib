@@ -45,7 +45,7 @@ public abstract class ConfigTagParent {
         }
     }
 
-    private TreeMap<String, ConfigTag> childtags = new TreeMap<String, ConfigTag>();
+    private TreeMap<String, ConfigTag> childtags = new TreeMap<>();
     public String comment;
     /**
      * 0 = name, 1 = value
@@ -152,12 +152,12 @@ public abstract class ConfigTagParent {
     }
 
     public <T extends ConfigTag> ArrayList<T> getSortedTagList() {
-        ArrayList<T> taglist = new ArrayList<T>(childtags.size());
+        ArrayList<T> taglist = new ArrayList<>(childtags.size());
         for (Entry<String, ConfigTag> tag : childtags.entrySet()) {
             taglist.add((T) tag.getValue());
         }
 
-        Collections.sort(taglist, new TagOrderComparator(sortMode));
+        taglist.sort(new TagOrderComparator(sortMode));
         return taglist;
     }
 
@@ -207,8 +207,8 @@ public abstract class ConfigTagParent {
     public void writeComment(PrintWriter writer, int tabs) {
         if (comment != null && !comment.equals("")) {
             String[] comments = comment.split("\n");
-            for (int i = 0; i < comments.length; i++) {
-                ConfigFile.writeLine(writer, "#" + comments[i], tabs);
+            for (String comment1 : comments) {
+                ConfigFile.writeLine(writer, "#" + comment1, tabs);
             }
         }
     }

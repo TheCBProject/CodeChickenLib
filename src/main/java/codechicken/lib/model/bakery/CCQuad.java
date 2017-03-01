@@ -295,7 +295,7 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
     }
 
     public static List<CCQuad> fromArray(List<BakedQuad> bakedQuads) {
-        List<CCQuad> quads = new LinkedList<CCQuad>();
+        List<CCQuad> quads = new LinkedList<>();
         for (BakedQuad quad : bakedQuads) {
             quads.add(new CCQuad(quad));
         }

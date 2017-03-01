@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.util.EnumFacing;
 
+import javax.annotation.Nonnull;
 import java.util.Collection;
 
 /**
@@ -15,7 +16,8 @@ public class PropertyEnumFacingAll extends PropertyDirection {
         super(name, values);
     }
 
-    public static PropertyEnumFacingAll create(String name) {
+    @Nonnull
+    public static PropertyEnumFacingAll create(@Nonnull String name) {
         return new PropertyEnumFacingAll(name, Lists.newArrayList(EnumFacing.VALUES));
     }
 }

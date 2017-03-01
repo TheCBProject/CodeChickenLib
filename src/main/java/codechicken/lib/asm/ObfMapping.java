@@ -16,6 +16,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.*;
 
+import javax.annotation.Nonnull;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
@@ -28,9 +29,10 @@ public class ObfMapping {
 
     public static class ObfRemapper extends Remapper {
 
-        private HashMap<String, String> fields = new HashMap<String, String>();
-        private HashMap<String, String> funcs = new HashMap<String, String>();
+        private HashMap<String, String> fields = new HashMap<>();
+        private HashMap<String, String> funcs = new HashMap<>();
 
+        @SuppressWarnings ("unchecked")
         public ObfRemapper() {
             try {
                 Field rawFieldMapsField = FMLDeobfuscatingRemapper.class.getDeclaredField("rawFieldMaps");
@@ -187,8 +189,8 @@ public class ObfMapping {
             return new File[] { srgs, methods, fields };
         }
 
-        private HashMap<String, String> fields = new HashMap<String, String>();
-        private HashMap<String, String> funcs = new HashMap<String, String>();
+        private HashMap<String, String> fields = new HashMap<>();
+        private HashMap<String, String> funcs = new HashMap<>();
 
         public MCPRemapper() {
             File[] mappings = getConfFiles();
@@ -213,7 +215,7 @@ public class ObfMapping {
         }
 
         @Override
-        public boolean processLine(String line) throws IOException {
+        public boolean processLine(@Nonnull String line) throws IOException {
             int i = line.indexOf(',');
             String srg = line.substring(0, i);
             int i2 = i + 1;

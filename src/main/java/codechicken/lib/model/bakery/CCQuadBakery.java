@@ -63,7 +63,7 @@ public class CCQuadBakery {
             throw new IllegalStateException("Quads are still baking or baking has not finished yet!");
         }
         isBakingTriModel = isTriangles;
-        bakedQuads = new LinkedList<BakedQuad>();
+        bakedQuads = new LinkedList<>();
         return this;
     }
 

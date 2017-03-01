@@ -12,7 +12,7 @@ import java.util.HashMap;
 //TODO Clean cruft and move basically everything to OBFMapping.
 public class ReflectionManager {
 
-    public static HashMap<Class<?>, Class<?>> primitiveWrappers = new HashMap<Class<?>, Class<?>>();
+    public static HashMap<Class<?>, Class<?>> primitiveWrappers = new HashMap<>();
 
     static {
         primitiveWrappers.put(Integer.TYPE, Integer.class);

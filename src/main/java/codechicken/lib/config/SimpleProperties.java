@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 
 public class SimpleProperties {
 
-    public HashMap<String, String> propertyMap = new HashMap<String, String>();
+    public HashMap<String, String> propertyMap = new HashMap<>();
     public File propertyFile;
     public boolean saveOnChange = false;
     public String encoding;

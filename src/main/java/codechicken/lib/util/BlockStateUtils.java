@@ -28,7 +28,7 @@ public class BlockStateUtils {
 
     @SuppressWarnings ("unchecked")
     private static int hashBlockState(IExtendedBlockState state) {
-        List<String> toHash = new LinkedList<String>();
+        List<String> toHash = new LinkedList<>();
         toHash.add(state.toString());
         toHash.add("meta=" + state.getBlock().getMetaFromState(state));
         for (Entry<IUnlistedProperty<?>, Optional<?>> entry : state.getUnlistedProperties().entrySet()) {

@@ -6,7 +6,7 @@ import codechicken.lib.model.blockbakery.BlockBakery;
 import codechicken.lib.model.blockbakery.loader.CCBakeryModelLoader;
 import codechicken.lib.model.cube.CCCubeLoader;
 import codechicken.lib.render.CCRenderEventHandler;
-import codechicken.lib.render.block.CCExtendedBlockRendererDispatcher;
+import codechicken.lib.render.block.BlockRenderingRegistry;
 import codechicken.lib.render.item.CCRenderItem;
 import codechicken.lib.render.item.map.MapRenderRegistry;
 import net.minecraftforge.client.ClientCommandHandler;
@@ -31,7 +31,7 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public void init() {
-        CCExtendedBlockRendererDispatcher.init();
+        BlockRenderingRegistry.init();
         CCRenderItem.init();
     }
 }

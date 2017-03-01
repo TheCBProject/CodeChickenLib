@@ -5,6 +5,8 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nonnull;
+
 public class FontUtils {
 
     public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
@@ -19,15 +21,15 @@ public class FontUtils {
 
     public static final String[] prefixes = new String[] { "K", "M", "G" };
 
-    public static void drawItemQuantity(int x, int y, ItemStack item, String quantity, int mode) {
-        if (item == null || (quantity == null && item.stackSize <= 1)) {
+    public static void drawItemQuantity(int x, int y, @Nonnull ItemStack item, String quantity, int mode) {
+        if (item.isEmpty() || (quantity == null && item.getCount() <= 1)) {
             return;
         }
 
         if (quantity == null) {
             switch (mode) {
                 case 2:
-                    int q = item.stackSize;
+                    int q = item.getCount();
                     String postfix = "";
                     for (int p = 0; p < 3 && q > 1000; p++) {
                         q /= 1000;
@@ -37,15 +39,15 @@ public class FontUtils {
                     break;
                 case 1:
                     quantity = "";
-                    if (item.stackSize / 64 > 0) {
-                        quantity += item.stackSize / 64 + "s";
+                    if (item.getCount() / 64 > 0) {
+                        quantity += item.getCount() / 64 + "s";
                     }
-                    if (item.stackSize % 64 > 0) {
-                        quantity += item.stackSize % 64;
+                    if (item.getCount() % 64 > 0) {
+                        quantity += item.getCount() % 64;
                     }
                     break;
                 default:
-                    quantity = Integer.toString(item.stackSize);
+                    quantity = Integer.toString(item.getCount());
                     break;
             }
         }

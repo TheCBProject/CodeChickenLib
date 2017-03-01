@@ -29,11 +29,11 @@ public class ServerUtils {
     }
 
     public static List<EntityPlayerMP> getPlayers() {
-        return mc().getPlayerList().getPlayerList();
+        return mc().getPlayerList().getPlayers();
     }
 
     public static ArrayList<EntityPlayer> getPlayersInDimension(int dimension) {
-        ArrayList<EntityPlayer> players = new ArrayList<EntityPlayer>();
+        ArrayList<EntityPlayer> players = new ArrayList<>();
         for (EntityPlayer p : getPlayers()) {
             if (p.dimension == dimension) {
                 players.add(p);
@@ -75,7 +75,7 @@ public class ServerUtils {
 
     public static void sendChatToAll(ITextComponent msg) {
         for (EntityPlayer p : getPlayers()) {
-            p.addChatComponentMessage(msg);
+            p.sendMessage(msg);
         }
     }
 

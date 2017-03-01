@@ -42,7 +42,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
 
     public TextureSpecial addTexture(TextureDataHolder t) {
         if (baseTextures == null) {
-            baseTextures = new ArrayList<TextureDataHolder>();
+            baseTextures = new ArrayList<>();
         }
         baseTextures.add(t);
         return this;
@@ -165,6 +165,6 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
 
     @Override
     public void registerIcons(TextureMap textureMap) {
-        textureMap.setTextureEntry(getIconName(), this);
+        textureMap.setTextureEntry(this);
     }
 }

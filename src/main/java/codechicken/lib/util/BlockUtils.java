@@ -1,10 +1,9 @@
 package codechicken.lib.util;
 
-import codechicken.lib.vec.Vector3;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -13,20 +12,8 @@ import java.util.List;
 
 /**
  * Created by covers1624 on 6/30/2016.
- * TODO Nuke things in here that aren't needed anymore.
  */
 public class BlockUtils {
-
-    /**
-     * Generates a bounding box.
-     *
-     * @param pos     Position of block.
-     * @param dir     Direction to create Box.
-     * @param vector3 Size of the box.
-     */
-    public static AxisAlignedBB getBox(BlockPos pos, EnumFacing dir, Vector3 vector3) {
-        return new AxisAlignedBB(pos, pos.add(vector3.x, vector3.y, vector3.z));
-    }
 
     /**
      * Checks if an entity is in range of the position passed in.
@@ -54,12 +41,22 @@ public class BlockUtils {
      * Fires a block update.
      * Assumes the BlockState has not changed but a update is still needed.
      *
-     * @param world
-     * @param pos
-     *///TODO fireBlockUpdate(TileEntity).
+     * @param world The world.
+     * @param pos The position.
+     */
     public static void fireBlockUpdate(World world, BlockPos pos) {
         IBlockState state = world.getBlockState(pos);
         world.notifyBlockUpdate(pos, state, state, 3);
+    }
+
+    /**
+     * Fires a block update.
+     * Assumes the BlockState has not changed but a update is still needed.
+     *
+     * @param tileEntity The tile to fire an update for.
+     */
+    public static void fireBlockUpdate(TileEntity tileEntity) {
+        fireBlockUpdate(tileEntity.getWorld(), tileEntity.getPos());
     }
 
     /**
@@ -70,7 +67,7 @@ public class BlockUtils {
      * @return List of adjacent blocks.
      */
     public static List<BlockPos> getAdjacent(BlockPos pos, boolean includeVertical) {
-        LinkedList<BlockPos> adjacentPositions = new LinkedList<BlockPos>();
+        LinkedList<BlockPos> adjacentPositions = new LinkedList<>();
         for (EnumFacing step : (includeVertical ? EnumFacing.VALUES : EnumFacing.HORIZONTALS)) {
             adjacentPositions.add(pos.offset(step));
         }

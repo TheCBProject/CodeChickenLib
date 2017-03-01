@@ -33,7 +33,7 @@ import java.util.Map;
 public class ModelRegistryHelper {
 
     private static List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<Pair<ModelResourceLocation, IBakedModel>>();
-    private static List<IModelBakeCallback> modelBakeCallbacks = new LinkedList<IModelBakeCallback>();
+    private static List<IModelBakeCallback> modelBakeCallbacks = new LinkedList<>();
 
     static {
         MinecraftForge.EVENT_BUS.register(new ModelRegistryHelper());

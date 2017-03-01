@@ -1,6 +1,7 @@
 package codechicken.lib.vec;
 
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -8,13 +9,16 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
-//TODO Constructor for BlockPos.
 public class Translation extends Transformation {
 
     public Vector3 vec;
 
     public Translation(Vector3 vec) {
         this.vec = vec;
+    }
+
+    public Translation(Vec3i vec) {
+        this.vec = Vector3.fromVec3i(vec);
     }
 
     public Translation(double x, double y, double z) {

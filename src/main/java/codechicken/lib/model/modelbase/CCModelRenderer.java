@@ -125,8 +125,8 @@ public class CCModelRenderer {
                 if (!this.compiled) {
                     this.compileModel(scale);
                 }
-                LinkedList<Transformation> transforms = new LinkedList<Transformation>();
-                LinkedList<CCModel> finalModelElements = new LinkedList<CCModel>();
+                LinkedList<Transformation> transforms = new LinkedList<>();
+                LinkedList<CCModel> finalModelElements = new LinkedList<>();
                 transforms.add(new Translation(offsetX, offsetY, offsetZ));
                 //GlStateManager.translate(this.offsetX, this.offsetY, this.offsetZ);
 
@@ -256,7 +256,7 @@ public class CCModelRenderer {
         }
 
         CCModel model = CCModel.newModel(GL11.GL_QUADS);
-        LinkedList<Vertex5> vertices = new LinkedList<Vertex5>();
+        LinkedList<Vertex5> vertices = new LinkedList<>();
         for (CCModelBox box : cubeList) {
             for (CCQuad quad : box.getQuads()) {
                 Collections.addAll(vertices, quad.vertices);

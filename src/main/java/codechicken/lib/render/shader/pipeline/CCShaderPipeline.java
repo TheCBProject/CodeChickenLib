@@ -30,9 +30,7 @@ public class CCShaderPipeline {
         }
 
         public CCShaderPipeline.PipelineBuilder add(IShaderOperation... ops) {
-            for (int i = 0; i < ops.length; i++) {
-                CCShaderPipeline.this.ops.add(ops[i]);
-            }
+            Collections.addAll(CCShaderPipeline.this.ops, ops);
             return this;
         }
 
@@ -43,7 +41,7 @@ public class CCShaderPipeline {
 
     private class PipelineNode {
 
-        public ArrayList<CCShaderPipeline.PipelineNode> deps = new ArrayList<CCShaderPipeline.PipelineNode>();
+        public ArrayList<CCShaderPipeline.PipelineNode> deps = new ArrayList<>();
         public IShaderOperation op;
 
         public void add() {
@@ -51,8 +49,8 @@ public class CCShaderPipeline {
                 return;
             }
 
-            for (int i = 0; i < deps.size(); i++) {
-                deps.get(i).add();
+            for (PipelineNode dep : deps) {
+                dep.add();
             }
             deps.clear();
             sorted.add(op);
@@ -62,9 +60,9 @@ public class CCShaderPipeline {
 
     private ShaderProgram program;
 
-    private ArrayList<IShaderOperation> ops = new ArrayList<IShaderOperation>();
-    private ArrayList<CCShaderPipeline.PipelineNode> nodes = new ArrayList<CCShaderPipeline.PipelineNode>();
-    private ArrayList<IShaderOperation> sorted = new ArrayList<IShaderOperation>();
+    private ArrayList<IShaderOperation> ops = new ArrayList<>();
+    private ArrayList<CCShaderPipeline.PipelineNode> nodes = new ArrayList<>();
+    private ArrayList<IShaderOperation> sorted = new ArrayList<>();
     private CCShaderPipeline.PipelineNode loading;
     private CCShaderPipeline.PipelineBuilder builder = new CCShaderPipeline.PipelineBuilder();
 

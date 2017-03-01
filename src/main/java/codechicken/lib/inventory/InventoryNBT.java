@@ -1,11 +1,15 @@
 package codechicken.lib.inventory;
 
+import codechicken.lib.util.ArrayUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+
+import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  * IInventory implementation which saves and loads from an NBT tag
@@ -18,6 +22,7 @@ public class InventoryNBT implements IInventory {
     public InventoryNBT(int size, NBTTagCompound tag) {
         this.tag = tag;
         items = new ItemStack[size];
+        ArrayUtils.fillArray(items, ItemStack.EMPTY, (Objects::isNull));
         readNBT();
     }
 
@@ -37,22 +42,30 @@ public class InventoryNBT implements IInventory {
     }
 
     @Override
+    public boolean isEmpty() {
+        return ArrayUtils.count(items, (stack -> !stack.isEmpty())) <= 0;
+    }
+
+    @Override
+    @Nonnull
     public ItemStack getStackInSlot(int slot) {
         return items[slot];
     }
 
     @Override
+    @Nonnull
     public ItemStack decrStackSize(int slot, int amount) {
         return InventoryUtils.decrStackSize(this, slot, amount);
     }
 
     @Override
+    @Nonnull
     public ItemStack removeStackFromSlot(int slot) {
         return InventoryUtils.removeStackFromSlot(this, slot);
     }
 
     @Override
-    public void setInventorySlotContents(int slot, ItemStack stack) {
+    public void setInventorySlotContents(int slot, @Nonnull ItemStack stack) {
         items[slot] = stack;
         markDirty();
     }
@@ -70,7 +83,7 @@ public class InventoryNBT implements IInventory {
     @Override
     public void clear() {
         for (int i = 0; i < items.length; i++) {
-            items[i] = null;
+            items[i] = ItemStack.EMPTY;
         }
         markDirty();
     }
@@ -90,24 +103,25 @@ public class InventoryNBT implements IInventory {
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer var1) {
+    public boolean isUsableByPlayer(@Nonnull EntityPlayer player) {
         return true;
     }
 
     @Override
-    public void openInventory(EntityPlayer player) {
+    public void openInventory(@Nonnull EntityPlayer player) {
     }
 
     @Override
-    public void closeInventory(EntityPlayer player) {
+    public void closeInventory(@Nonnull EntityPlayer player) {
     }
 
     @Override
-    public boolean isItemValidForSlot(int i, ItemStack itemstack) {
+    public boolean isItemValidForSlot(int i, @Nonnull ItemStack itemstack) {
         return true;
     }
 
     @Override
+    @Nonnull
     public String getName() {
         return "NBT";
     }
@@ -118,6 +132,7 @@ public class InventoryNBT implements IInventory {
     }
 
     @Override
+    @Nonnull
     public ITextComponent getDisplayName() {
         return new TextComponentString(getName());
     }

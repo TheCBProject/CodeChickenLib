@@ -15,7 +15,7 @@ import static org.objectweb.asm.tree.AbstractInsnNode.*;
 
 public class ASMReader {
 
-    public static Map<String, Integer> opCodes = new HashMap<String, Integer>();
+    public static Map<String, Integer> opCodes = new HashMap<>();
     public static byte[] TYPE;
 
     static {
@@ -190,7 +190,7 @@ public class ASMReader {
     }
 
     public static Map<String, ASMBlock> loadResource(InputStream in, String res) {
-        HashMap<String, ASMBlock> blocks = new HashMap<String, ASMBlock>();
+        HashMap<String, ASMBlock> blocks = new HashMap<>();
         String current = "unnamed";
         ASMBlock block = new ASMBlock();
         try {

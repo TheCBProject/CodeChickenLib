@@ -21,7 +21,7 @@ public class CCModelState implements IModelState {
     private final Optional<TRSRTransformation> defaultTransform;
 
     public CCModelState(ImmutableMap<TransformType, TRSRTransformation> map) {
-        this(map, Optional.<TRSRTransformation>absent());
+        this(map, Optional.absent());
     }
 
     public CCModelState(ImmutableMap<TransformType, TRSRTransformation> map, Optional<TRSRTransformation> defaultTransform) {

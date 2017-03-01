@@ -5,6 +5,8 @@ import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 
+import javax.annotation.Nonnull;
+
 /**
  * Inventory wrapper for unified ISided/IInventory access
  */
@@ -55,11 +57,11 @@ public class InventoryRange {
         }
     }
 
-    public boolean canInsertItem(int slot, ItemStack item) {
+    public boolean canInsertItem(int slot, @Nonnull ItemStack item) {
         return sidedInv == null ? inv.isItemValidForSlot(slot, item) : sidedInv.canInsertItem(slot, item, face);
     }
 
-    public boolean canExtractItem(int slot, ItemStack item) {
+    public boolean canExtractItem(int slot, @Nonnull ItemStack item) {
         return sidedInv == null ? inv.isItemValidForSlot(slot, item) : sidedInv.canExtractItem(slot, item, face);
     }
 

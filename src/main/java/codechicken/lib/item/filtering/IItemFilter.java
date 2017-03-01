@@ -2,6 +2,8 @@ package codechicken.lib.item.filtering;
 
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nonnull;
+
 /**
  * This is an item filter.
  * Implement it and do stuff, Its pretty simple.
@@ -16,5 +18,5 @@ public interface IItemFilter {
      * @param item Item to check.
      * @return True if the item matches the filter.
      */
-    boolean matches(ItemStack item);
+    boolean matches(@Nonnull ItemStack item);
 }

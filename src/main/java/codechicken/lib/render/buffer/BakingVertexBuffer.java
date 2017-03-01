@@ -57,7 +57,7 @@ public class BakingVertexBuffer extends VertexBuffer {
 
     @Override
     public void reset() {
-        spriteMap = new HashMap<Integer, TextureAtlasSprite>();
+        spriteMap = new HashMap<>();
         useSprites = true;
         useDiffuseLighting = true;
         super.reset();
@@ -125,7 +125,7 @@ public class BakingVertexBuffer extends VertexBuffer {
         }
         int[] rawBuffer = Arrays.copyOf(state.getRawBuffer(), state.getRawBuffer().length);
 
-        List<BakedQuad> quads = new LinkedList<BakedQuad>();
+        List<BakedQuad> quads = new LinkedList<>();
         TextureAtlasSprite sprite = TextureUtils.getMissingSprite();
 
         int curr = 0;

@@ -22,7 +22,7 @@ public class CCFinalMultiVariant extends Variant {
 
     private Variant baseVariant;
     private BakedModelProperties baseProperties;
-    private List<Variant> finalVariants = new LinkedList<Variant>();
+    private List<Variant> finalVariants = new LinkedList<>();
     private IModelState state;
 
     public CCFinalMultiVariant(CCVariant baseVariant, String textureDomain, Map<String, CCVariant> subModels) {
@@ -42,7 +42,7 @@ public class CCFinalMultiVariant extends Variant {
             base = baseVariant.process(base);
         }
 
-        List<IModel> subModels = new LinkedList<IModel>();
+        List<IModel> subModels = new LinkedList<>();
         for (Variant variant : finalVariants) {
             if (!variant.getModelLocation().equals(new ResourceLocation("builtin/missing"))) {
                 IModel subModel = ModelLoaderRegistry.getModelOrLogError(variant.getModelLocation(), "Unable to load subModel's Model: " + variant.getModelLocation());

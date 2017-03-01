@@ -11,6 +11,8 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.apache.logging.log4j.Level;
 
+import javax.annotation.Nonnull;
+
 /**
  * Created by covers1624 on 3/27/2016.
  */
@@ -43,7 +45,7 @@ public class BlockMultiTile extends Block implements ITileEntityProvider {
     }
 
     @Override
-    public TileEntity createNewTileEntity(World worldIn, int meta) {
+    public TileEntity createNewTileEntity(@Nonnull World worldIn, int meta) {
         Class<? extends TileEntity> clazz = tileEntityMap[meta];
         try {
             return clazz.getDeclaredConstructor(new Class[0]).newInstance();

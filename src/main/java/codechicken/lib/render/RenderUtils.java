@@ -29,12 +29,7 @@ public class RenderUtils {
     private static RenderEntityItem uniformRenderItem;
     private static boolean hasInitRenderItem;
 
-    private static ThreadLocal<IconTransformation> iconTransformCache = new ThreadLocal<IconTransformation>() {
-        @Override
-        protected IconTransformation initialValue() {
-            return new IconTransformation(TextureUtils.getBlockTexture("stone"));
-        }
-    };
+    private static ThreadLocal<IconTransformation> iconTransformCache = ThreadLocal.withInitial(() -> new IconTransformation(TextureUtils.getBlockTexture("stone")));
 
     private static EntityItem entityItem;
 
@@ -163,7 +158,6 @@ public class RenderUtils {
         double[] points = new double[] { x - 0.009, x + 1.009, y - 0.009, y + 1.009, z - 0.009, z + 1.009 };
 
         VertexBuffer r = Tessellator.getInstance().getBuffer();
-        //TODO
         switch (side) {
             case 0:
                 r.pos(points[0], points[2], points[4]).tex(tx1, ty1).endVertex();
@@ -213,40 +207,11 @@ public class RenderUtils {
         double xPos = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) partialTicks;
         double yPos = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) partialTicks;
         double zPos = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) partialTicks;
-        RenderGlobal.drawSelectionBoundingBox(cuboid.aabb().expandXyz(0.0020000000949949026D).offset(-xPos, -yPos, -zPos), 0.0F, 0.0F, 0.0F, 0.4F);
+        GlStateManager.color(0.0F, 0.0F, 0.0F, 0.4F);
+        drawCuboidOutline(cuboid.copy().expand(0.0020000000949949026D).subtract(xPos, yPos, zPos));
         GlStateManager.depthMask(true);
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
-    }
-
-    public static void drawSelectionBoundingBox(AxisAlignedBB boundingBox) {
-
-        Tessellator tessellator = Tessellator.getInstance();
-        VertexBuffer vertexbuffer = tessellator.getBuffer();
-        vertexbuffer.begin(3, DefaultVertexFormats.POSITION);
-        vertexbuffer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();
-        vertexbuffer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex();
-        vertexbuffer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex();
-        vertexbuffer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex();
-        vertexbuffer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();
-        tessellator.draw();
-        vertexbuffer.begin(3, DefaultVertexFormats.POSITION);
-        vertexbuffer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex();
-        vertexbuffer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex();
-        vertexbuffer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex();
-        vertexbuffer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex();
-        vertexbuffer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex();
-        tessellator.draw();
-        vertexbuffer.begin(1, DefaultVertexFormats.POSITION);
-        vertexbuffer.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();
-        vertexbuffer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.minZ).endVertex();
-        vertexbuffer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.minZ).endVertex();
-        vertexbuffer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.minZ).endVertex();
-        vertexbuffer.pos(boundingBox.maxX, boundingBox.minY, boundingBox.maxZ).endVertex();
-        vertexbuffer.pos(boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ).endVertex();
-        vertexbuffer.pos(boundingBox.minX, boundingBox.minY, boundingBox.maxZ).endVertex();
-        vertexbuffer.pos(boundingBox.minX, boundingBox.maxY, boundingBox.maxZ).endVertex();
-        tessellator.draw();
     }
 
     /**
@@ -388,31 +353,11 @@ public class RenderUtils {
      */
     public static void renderItemUniform(ItemStack item, double spin) {
         loadItemRenderer();
-        //IItemRenderer customRenderer = MinecraftForgeClient.getItemRenderer(item, ENTITY);
-        //boolean is3D = customRenderer != null && customRenderer.shouldUseRenderHelper(ENTITY, item, BLOCK_3D);
-
-        //boolean larger = false;
-        //if (item.getItem() instanceof ItemBlock && RenderBlocks.renderItemIn3d(Block.getBlockFromItem(item.getItem()).getRenderType())) {
-        //    int renderType = Block.getBlockFromItem(item.getItem()).getRenderType();
-        //    larger = !(renderType == 1 || renderType == 19 || renderType == 12 || renderType == 2);
-        //} else if (is3D) {
-        //    larger = true;
-        //}
-
-        //double d = 2;
-        //double d1 = 1 / d;
-        //if (larger) {
-        //    GLStateManager.scale(d, d, d);
-        //}
 
         GlStateManager.color(1, 1, 1, 1);
 
         entityItem.setEntityItemStack(item);
         uniformRenderItem.doRender(entityItem, 0, 0.06, 0, 0, (float) (spin * 9 / Math.PI));
-
-        //if (larger) {
-        //    GLStateManager.scale(d1, d1, d1);
-        //}*/
     }
 
     /**

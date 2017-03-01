@@ -1,7 +1,6 @@
 package codechicken.lib.render;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
-import codechicken.lib.vec.Vector3;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
@@ -48,9 +47,9 @@ public class CCRenderEventHandler {
 
         //We have found a CuboidRayTraceResult, Lets render it properly..
         RayTraceResult hit = event.getTarget();
-        if (hit.typeOfHit == Type.BLOCK && hit instanceof CuboidRayTraceResult && !((CuboidRayTraceResult) hit).disableAutoHitboxRender) {
+        if (hit.typeOfHit == Type.BLOCK && hit instanceof CuboidRayTraceResult) {
             event.setCanceled(true);
-            RenderUtils.renderHitBox(event.getPlayer(), ((CuboidRayTraceResult) event.getTarget()).cuboid6.copy().add(new Vector3(pos)), event.getPartialTicks());
+            RenderUtils.renderHitBox(event.getPlayer(), ((CuboidRayTraceResult) event.getTarget()).cuboid6.copy().add(pos), event.getPartialTicks());
         }
     }
 }

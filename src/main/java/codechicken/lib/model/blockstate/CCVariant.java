@@ -25,9 +25,9 @@ public class CCVariant implements Copyable<CCVariant> {
     protected Optional<Boolean> smooth = Optional.absent();
     protected Optional<Boolean> gui3d = Optional.absent();
     protected Optional<Integer> weight = Optional.absent();
-    protected Map<String, String> textures = new HashMap<String, String>();
-    protected Map<String, String> customData = new HashMap<String, String>();
-    protected Map<String, Map<String, CCVariant>> subVariants = new LinkedHashMap<String, Map<String, CCVariant>>();
+    protected Map<String, String> textures = new HashMap<>();
+    protected Map<String, String> customData = new HashMap<>();
+    protected Map<String, Map<String, CCVariant>> subVariants = new LinkedHashMap<>();
 
     public CCVariant() {
     }
@@ -39,9 +39,9 @@ public class CCVariant implements Copyable<CCVariant> {
         this.smooth = variant.smooth;
         this.gui3d = variant.gui3d;
         this.weight = variant.weight;
-        this.textures = new HashMap<String, String>(variant.textures);
-        this.customData = new HashMap<String, String>(customData);
-        this.subVariants = new LinkedHashMap<String, Map<String, CCVariant>>(variant.subVariants);
+        this.textures = new HashMap<>(variant.textures);
+        this.customData = new HashMap<>(customData);
+        this.subVariants = new LinkedHashMap<>(variant.subVariants);
     }
 
     public CCVariant with(CCVariant other) {
@@ -64,19 +64,19 @@ public class CCVariant implements Copyable<CCVariant> {
         if (other.weight.isPresent()) {
             this.weight = other.weight;
         }
-        HashMap<String, String> newTextures = new HashMap<String, String>();
+        HashMap<String, String> newTextures = new HashMap<>();
         newTextures.putAll(textures);
         newTextures.putAll(other.textures);
-        this.textures = new LinkedHashMap<String, String>(newTextures);
-        HashMap<String, String> newCustomData = new HashMap<String, String>();
+        this.textures = new LinkedHashMap<>(newTextures);
+        HashMap<String, String> newCustomData = new HashMap<>();
         newCustomData.putAll(customData);
         newCustomData.putAll(other.customData);
-        this.customData = new LinkedHashMap<String, String>(newCustomData);
+        this.customData = new LinkedHashMap<>(newCustomData);
         return this;
     }
 
     public List<String> getPossibleVariantNames() {
-        List<String> variantNames = new ArrayList<String>();
+        List<String> variantNames = new ArrayList<>();
         for (String variantName : subVariants.keySet()) {
             variantNames.add(variantName);
             for (CCVariant subVariant : subVariants.get(variantName).values()) {
@@ -87,7 +87,7 @@ public class CCVariant implements Copyable<CCVariant> {
     }
 
     public List<String> getPossibleVariantValues(String variant) {
-        List<String> variantValues = new ArrayList<String>();
+        List<String> variantValues = new ArrayList<>();
         for (String variantName : subVariants.keySet()) {
             if (variantName.equals(variant) && subVariants.containsKey(variant)) {
                 variantValues.addAll(subVariants.get(variant).keySet());

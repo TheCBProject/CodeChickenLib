@@ -21,11 +21,15 @@ public class FingerprintViolatedCrashCallable implements ICrashCallable {
 
     @Override
     public String getLabel() {
-        return mod + " Invalid Fingerprint Reports";
+        String append = invalidMods.isEmpty() ? "- No invalid fingerprints." : "- " + invalidMods.size() + " Invalid Fingerprints!";
+        return mod + " Invalid Fingerprint Reports: " + append;
     }
 
     @Override
     public String call() throws Exception {
+        if (invalidMods.isEmpty()) {
+            return "";
+        }
         StringBuilder builder = new StringBuilder();
         for (String invalidMod : invalidMods) {
             builder.append("\n\t\t");

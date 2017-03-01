@@ -1,6 +1,5 @@
 package codechicken.lib.render.particle;
 
-import codechicken.lib.render.DigIconParticle;
 import codechicken.lib.texture.IWorldBlockTextureProvider;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;

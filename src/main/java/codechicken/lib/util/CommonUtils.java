@@ -50,10 +50,4 @@ public class CommonUtils {
         }
         return child.getPath().substring(parent.getPath().length() + 1);
     }
-
-    @Deprecated
-    public static void registerHandledEntity(Class<? extends Entity> entityClass, String identifier) {
-        EntityList.CLASS_TO_NAME.put(entityClass, identifier);
-        EntityList.NAME_TO_CLASS.put(identifier, entityClass);
-    }
 }

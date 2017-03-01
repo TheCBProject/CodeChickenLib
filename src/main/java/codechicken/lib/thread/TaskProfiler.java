@@ -20,7 +20,7 @@ public class TaskProfiler {
         }
     }
 
-    public HashMap<String, Long> times = new HashMap<String, Long>();
+    public HashMap<String, Long> times = new HashMap<>();
 
     public String currentSection;
     private long startTime;
@@ -61,7 +61,7 @@ public class TaskProfiler {
     }
 
     public List<ProfilerResult> getResults() {
-        ArrayList<ProfilerResult> results = new ArrayList<ProfilerResult>(times.size());
+        ArrayList<ProfilerResult> results = new ArrayList<>(times.size());
         for (Entry<String, Long> e : times.entrySet()) {
             results.add(new ProfilerResult(e.getKey(), e.getValue(), totalTime));
         }

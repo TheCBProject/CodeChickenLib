@@ -8,7 +8,7 @@ import java.util.Iterator;
 
 public class TransformationList extends Transformation {
 
-    private ArrayList<Transformation> transformations = new ArrayList<Transformation>();
+    private ArrayList<Transformation> transformations = new ArrayList<>();
     private Matrix4 mat;
 
     public TransformationList(Transformation... transforms) {
@@ -51,8 +51,8 @@ public class TransformationList extends Transformation {
         if (mat != null) {
             mat.apply(vec);
         } else {
-            for (int i = 0; i < transformations.size(); i++) {
-                transformations.get(i).apply(vec);
+            for (Transformation transformation : transformations) {
+                transformation.apply(vec);
             }
         }
     }
@@ -62,8 +62,8 @@ public class TransformationList extends Transformation {
         if (mat != null) {
             mat.applyN(normal);
         } else {
-            for (int i = 0; i < transformations.size(); i++) {
-                transformations.get(i).applyN(normal);
+            for (Transformation transformation : transformations) {
+                transformation.applyN(normal);
             }
         }
     }
@@ -107,7 +107,7 @@ public class TransformationList extends Transformation {
     }
 
     private void compact() {
-        ArrayList<Transformation> newList = new ArrayList<Transformation>(transformations.size());
+        ArrayList<Transformation> newList = new ArrayList<>(transformations.size());
         Iterator<Transformation> iterator = transformations.iterator();
         Transformation prev = null;
         while (iterator.hasNext()) {

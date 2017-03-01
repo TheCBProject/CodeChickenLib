@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
  * Created by covers1624 on 6/21/2016.
  * TODO Support MatLib files.
  * TODO Custom Mat file for loading LightModels, calculating normals and applying the lighting and rotations.
+ * TODO Rename, ObjParser.
  */
 public class CCOBJParser {
 
@@ -83,11 +84,11 @@ public class CCOBJParser {
         }
         int vp = vertexMode == 7 ? 4 : 3;
 
-        HashMap<String, CCModel> modelMap = new HashMap<String, CCModel>();
-        ArrayList<Vector3> verts = new ArrayList<Vector3>();
-        ArrayList<Vector3> uvs = new ArrayList<Vector3>();
-        ArrayList<Vector3> normals = new ArrayList<Vector3>();
-        ArrayList<int[]> polys = new ArrayList<int[]>();
+        HashMap<String, CCModel> modelMap = new HashMap<>();
+        ArrayList<Vector3> verts = new ArrayList<>();
+        ArrayList<Vector3> uvs = new ArrayList<>();
+        ArrayList<Vector3> normals = new ArrayList<>();
+        ArrayList<int[]> polys = new ArrayList<>();
         String modelName = "unnamed";
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -166,10 +167,10 @@ public class CCOBJParser {
      * @param p      PrintWriter to write the model to.
      */
     public static void exportObj(Map<String, CCModel> models, PrintWriter p) {
-        List<Vector3> verts = new ArrayList<Vector3>();
-        List<UV> uvs = new ArrayList<UV>();
-        List<Vector3> normals = new ArrayList<Vector3>();
-        List<int[]> polys = new ArrayList<int[]>();
+        List<Vector3> verts = new ArrayList<>();
+        List<UV> uvs = new ArrayList<>();
+        List<Vector3> normals = new ArrayList<>();
+        List<int[]> polys = new ArrayList<>();
         for (Map.Entry<String, CCModel> e : models.entrySet()) {
             p.println("g " + e.getKey());
             CCModel m = e.getValue();

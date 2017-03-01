@@ -32,7 +32,7 @@ public class CCFinalVariant extends Variant {
         this.smooth = smooth;
         this.gui3d = gui3d;
 
-        Map<String, String> newTextures = new HashMap<String, String>();
+        Map<String, String> newTextures = new HashMap<>();
         for (Entry<String, String> entry : textures.entrySet()) {
             String prefixedTexture = entry.getValue();
             if (!entry.getValue().contains(":")) {

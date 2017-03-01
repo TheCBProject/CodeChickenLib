@@ -17,7 +17,7 @@ public class SpriteSheetManager {
 
         private int tilesX;
         private int tilesY;
-        private ArrayList<Integer> newSprites = new ArrayList<Integer>();
+        private ArrayList<Integer> newSprites = new ArrayList<>();
         private TextureSpecial[] sprites;
         private ResourceLocation resource;
         private TextureDataHolder texture;
@@ -45,12 +45,12 @@ public class SpriteSheetManager {
                 reloadTexture();
                 for (TextureSpecial sprite : sprites) {
                     if (sprite != null) {
-                        textureMap.setTextureEntry(sprite.getIconName(), sprite);
+                        textureMap.setTextureEntry(sprite);
                     }
                 }
             } else {
                 for (int i : newSprites) {
-                    textureMap.setTextureEntry(sprites[i].getIconName(), sprites[i]);
+                    textureMap.setTextureEntry(sprites[i]);
                 }
             }
             newSprites.clear();
@@ -105,7 +105,7 @@ public class SpriteSheetManager {
         }
     }
 
-    private static HashMap<String, SpriteSheet> spriteSheets = new HashMap<String, SpriteSheet>();
+    private static HashMap<String, SpriteSheet> spriteSheets = new HashMap<>();
 
     public static SpriteSheet getSheet(ResourceLocation resource) {
         return getSheet(16, 16, resource);

@@ -54,7 +54,7 @@ public abstract class CCModelBase {
     }
 
     public static void renderModels(float scale, VertexBuffer buffer, TextureAtlasSprite sprite, CCModelRenderer... modelRenders) {
-        LinkedList<CCModel> models = new LinkedList<CCModel>();
+        LinkedList<CCModel> models = new LinkedList<>();
         for (CCModelRenderer modelRenderer : modelRenders) {
             models.add(modelRenderer.bake(scale));
         }

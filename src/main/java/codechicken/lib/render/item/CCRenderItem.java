@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.crash.ICrashReportDetail;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -71,23 +70,17 @@ public class CCRenderItem extends RenderItem {
     public void renderItem(ItemStack stack, IBakedModel model) {
         if (stack != null && model instanceof IItemRenderer) {
             IItemRenderer renderer = (IItemRenderer) model;
-            boolean shouldHandleRender = true;
-            try {//Catch AME's from new method.
-                shouldHandleRender = true;//renderer.shouldHandleRender(stack);
-            } catch (AbstractMethodError ignored) {
-            }
-            if (shouldHandleRender) {
-                GlStateManager.pushMatrix();
-                GlStateManager.translate(-0.5F, -0.5F, -0.5F);
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(-0.5F, -0.5F, -0.5F);
 
-                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                GlStateManager.enableRescaleNormal();
-                GlStateManagerHelper.pushState();
-                renderer.renderItem(stack);
-                GlStateManagerHelper.popState();
-                GlStateManager.popMatrix();
-                return;
-            }
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.enableRescaleNormal();
+            GlStateManagerHelper.pushState();
+            renderer.renderItem(stack);
+            GlStateManagerHelper.popState();
+            GlStateManager.popMatrix();
+            return;
+
         }
         parent.renderItem(stack, model);
     }
@@ -182,7 +175,7 @@ public class CCRenderItem extends RenderItem {
     @Override
     public void renderItem(ItemStack stack, TransformType cameraTransformType) {
         if (stack != null) {
-            IBakedModel bakedModel = this.getItemModelWithOverrides(stack, (World) null, (EntityLivingBase) null);
+            IBakedModel bakedModel = this.getItemModelWithOverrides(stack, null, null);
             if (isValidModel(bakedModel)) {
                 this.renderItemModel(stack, bakedModel, cameraTransformType, false);
             }
@@ -194,7 +187,7 @@ public class CCRenderItem extends RenderItem {
     @Override
     public void renderItem(ItemStack stack, EntityLivingBase livingBase, TransformType transform, boolean leftHanded) {
         if (stack != null && livingBase != null && stack.getItem() != null) {
-            IBakedModel bakedModel = this.getItemModelWithOverrides(stack, livingBase.worldObj, livingBase);
+            IBakedModel bakedModel = this.getItemModelWithOverrides(stack, livingBase.world, livingBase);
             if (isValidModel(bakedModel)) {
                 this.renderItemModel(stack, bakedModel, transform, leftHanded);
             } else {
@@ -206,7 +199,7 @@ public class CCRenderItem extends RenderItem {
 
     @Override
     public void renderItemIntoGUI(ItemStack stack, int x, int y) {
-        IBakedModel bakedModel = this.getItemModelWithOverrides(stack, (World) null, (EntityLivingBase) null);
+        IBakedModel bakedModel = this.getItemModelWithOverrides(stack, null, null);
         if (isValidModel(bakedModel)) {
             this.renderItemModelIntoGUI(stack, x, y, bakedModel);
         } else {
@@ -217,7 +210,7 @@ public class CCRenderItem extends RenderItem {
 
     @Override
     public void renderItemAndEffectIntoGUI(ItemStack stack, int xPosition, int yPosition) {
-        this.renderItemAndEffectIntoGUI(Minecraft.getMinecraft().thePlayer, stack, xPosition, yPosition);
+        this.renderItemAndEffectIntoGUI(Minecraft.getMinecraft().player, stack, xPosition, yPosition);
     }
 
     @Override
@@ -225,7 +218,7 @@ public class CCRenderItem extends RenderItem {
         if (stack != null && stack.getItem() != null) {
             try {
 
-                IBakedModel model = this.getItemModelWithOverrides(stack, (World) null, livingBase);
+                IBakedModel model = this.getItemModelWithOverrides(stack, null, livingBase);
                 if (isValidModel(model)) {
                     this.zLevel += 50.0F;
                     this.renderItemModelIntoGUI(stack, x, y, model);
@@ -238,26 +231,10 @@ public class CCRenderItem extends RenderItem {
             } catch (Throwable throwable) {
                 CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Rendering item");
                 CrashReportCategory crashreportcategory = crashreport.makeCategory("Item being rendered");
-                crashreportcategory.setDetail("Item Type", new ICrashReportDetail<String>() {
-                    public String call() throws Exception {
-                        return String.valueOf((Object) stack.getItem());
-                    }
-                });
-                crashreportcategory.setDetail("Item Aux", new ICrashReportDetail<String>() {
-                    public String call() throws Exception {
-                        return String.valueOf(stack.getMetadata());
-                    }
-                });
-                crashreportcategory.setDetail("Item NBT", new ICrashReportDetail<String>() {
-                    public String call() throws Exception {
-                        return String.valueOf((Object) stack.getTagCompound());
-                    }
-                });
-                crashreportcategory.setDetail("Item Foil", new ICrashReportDetail<String>() {
-                    public String call() throws Exception {
-                        return String.valueOf(stack.hasEffect());
-                    }
-                });
+                crashreportcategory.setDetail("Item Type", () -> String.valueOf(stack.getItem()));
+                crashreportcategory.setDetail("Item Aux", () -> String.valueOf(stack.getMetadata()));
+                crashreportcategory.setDetail("Item NBT", () -> String.valueOf(stack.getTagCompound()));
+                crashreportcategory.setDetail("Item Foil", () -> String.valueOf(stack.hasEffect()));
                 throw new ReportedException(crashreport);
             }
         }

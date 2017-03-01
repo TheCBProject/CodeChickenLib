@@ -39,7 +39,7 @@ public class LightCoordAttribute extends VertexAttribute<LC[]> {
             return lcRef != null;
         }
 
-        pos.set(new Vector3(state.lightMatrix.pos));
+        pos.set(state.lightMatrix.pos);
         state.pipeline.addDependency(state.sideAttrib);
         state.pipeline.addRequirement(Transformation.operationIndex);
         return true;

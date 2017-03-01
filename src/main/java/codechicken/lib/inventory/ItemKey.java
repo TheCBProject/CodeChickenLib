@@ -6,6 +6,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.oredict.OreDictionary;
 
+import javax.annotation.Nonnull;
+
 import static codechicken.lib.inventory.InventoryUtils.actualDamage;
 
 /**
@@ -16,7 +18,7 @@ public class ItemKey implements Comparable<ItemKey> {
     public ItemStack stack;
     private int hashcode = 0;
 
-    public ItemKey(ItemStack k) {
+    public ItemKey(@Nonnull ItemStack k) {
         stack = k;
     }
 

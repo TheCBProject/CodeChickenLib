@@ -101,8 +101,8 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkWatch(Watch event) {
-            Chunk chunk = event.getPlayer().worldObj.getChunkFromChunkCoords(event.getChunk().chunkXPos, event.getChunk().chunkZPos);
-            for (WorldExtension extension : worldMap.get(event.getPlayer().worldObj)) {
+            Chunk chunk = event.getPlayer().world.getChunkFromChunkCoords(event.getChunk().chunkXPos, event.getChunk().chunkZPos);
+            for (WorldExtension extension : worldMap.get(event.getPlayer().world)) {
                 extension.watchChunk(chunk, event.getPlayer());
             }
         }
@@ -110,8 +110,8 @@ public class WorldExtensionManager {
         @SubscribeEvent
         @SideOnly (Side.CLIENT)
         public void onChunkUnWatch(UnWatch event) {
-            Chunk chunk = event.getPlayer().worldObj.getChunkFromChunkCoords(event.getChunk().chunkXPos, event.getChunk().chunkZPos);
-            for (WorldExtension extension : worldMap.get(event.getPlayer().worldObj)) {
+            Chunk chunk = event.getPlayer().world.getChunkFromChunkCoords(event.getChunk().chunkXPos, event.getChunk().chunkZPos);
+            for (WorldExtension extension : worldMap.get(event.getPlayer().world)) {
                 extension.unwatchChunk(chunk, event.getPlayer());
             }
         }
@@ -119,7 +119,7 @@ public class WorldExtensionManager {
         @SubscribeEvent
         @SideOnly (Side.CLIENT)
         public void clientTick(TickEvent.ClientTickEvent event) {
-            World world = Minecraft.getMinecraft().theWorld;
+            World world = Minecraft.getMinecraft().world;
             if (worldMap.containsKey(world)) {
                 if (event.phase == TickEvent.Phase.START) {
                     preTick(world);
@@ -144,7 +144,7 @@ public class WorldExtensionManager {
     }
 
     private static boolean initialised;
-    private static ArrayList<WorldExtensionInstantiator> extensionIntialisers = new ArrayList<WorldExtensionInstantiator>();
+    private static ArrayList<WorldExtensionInstantiator> extensionIntialisers = new ArrayList<>();
 
     public static void registerWorldExtension(WorldExtensionInstantiator init) {
         if (!initialised) {
@@ -160,7 +160,7 @@ public class WorldExtensionManager {
         MinecraftForge.EVENT_BUS.register(new WorldExtensionEventHandler());
     }
 
-    private static HashMap<World, WorldExtension[]> worldMap = new HashMap<World, WorldExtension[]>();
+    private static HashMap<World, WorldExtension[]> worldMap = new HashMap<>();
 
     private static void onWorldLoad(World world) {
         WorldExtension[] extensions = new WorldExtension[extensionIntialisers.size()];

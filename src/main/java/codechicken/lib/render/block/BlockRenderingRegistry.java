@@ -29,14 +29,10 @@ import java.util.Map;
  */
 public class BlockRenderingRegistry {
 
-    private static final Map<EnumBlockRenderType, ICCBlockRenderer> blockRendererList = new HashMap<EnumBlockRenderType, ICCBlockRenderer>();
+    private static final Map<EnumBlockRenderType, ICCBlockRenderer> blockRendererList = new HashMap<>();
     private static final ImmutableList<EnumBlockRenderType> vanillaRenderTypes = ImmutableList.copyOf(EnumBlockRenderType.values());
 
     private static boolean initialized = false;
-
-    static {
-        init();
-    }
 
     public static void init() {
         if (!initialized) {

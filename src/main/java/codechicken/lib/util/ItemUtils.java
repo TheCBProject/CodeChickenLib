@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -21,9 +22,10 @@ import java.util.List;
 public class ItemUtils {
 
     public static boolean isPlayerHoldingSomething(EntityPlayer player) {
-        return player.getHeldItemMainhand() != null || player.getHeldItemOffhand() != null;
+        return !player.getHeldItemMainhand().isEmpty() || !player.getHeldItemOffhand().isEmpty();
     }
 
+    @Nonnull
     public static ItemStack getHeldStack(EntityPlayer player) {
         ItemStack stack = player.getHeldItemMainhand();
         if (stack == null) {
@@ -40,13 +42,13 @@ public class ItemUtils {
      * @param stack    ItemStack to drop.
      * @param velocity The velocity to add.
      */
-    public static void dropItem(World world, BlockPos pos, ItemStack stack, double velocity) {
+    public static void dropItem(World world, BlockPos pos, @Nonnull ItemStack stack, double velocity) {
         double xVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
         double yVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
         double zVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
         EntityItem entityItem = new EntityItem(world, pos.getX() + xVelocity, pos.getY() + yVelocity, pos.getZ() + zVelocity, stack);
         entityItem.setPickupDelay(10);
-        world.spawnEntityInWorld(entityItem);
+        world.spawnEntity(entityItem);
     }
 
     /**
@@ -56,7 +58,7 @@ public class ItemUtils {
      * @param pos   Location to drop item.
      * @param stack ItemStack to drop.
      */
-    public static void dropItem(World world, BlockPos pos, ItemStack stack) {
+    public static void dropItem(World world, BlockPos pos, @Nonnull ItemStack stack) {
         dropItem(world, pos, stack, 0.7D);
     }
 
@@ -70,7 +72,7 @@ public class ItemUtils {
     public static void dropInventory(World world, BlockPos pos, IInventory inventory) {
         for (int i = 0; i < inventory.getSizeInventory(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
-            if (stack != null && stack.stackSize > 0) {
+            if (!stack.isEmpty() && stack.getCount() > 0) {
                 dropItem(world, pos, stack);
             }
         }
@@ -80,11 +82,17 @@ public class ItemUtils {
      * Copy's an ItemStack.
      *
      * @param stack     Stack to copy.
-     * @param stackSize Size of the new stack.
+     * @param quantity Size of the new stack.
      * @return The new stack.
      */
-    public static ItemStack copyStack(ItemStack stack, int stackSize) {
-        return InventoryUtils.copyStack(stack, stackSize);
+    public static ItemStack copyStack(@Nonnull ItemStack stack, int quantity) {
+        if (stack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+
+        stack = stack.copy();
+        stack.setCount(quantity);
+        return stack;
     }
 
     /**
@@ -95,7 +103,7 @@ public class ItemUtils {
      * @param stack Stack to spawn.
      * @param dir   Direction to shoot.
      */
-    public static void ejectItem(World world, BlockPos pos, ItemStack stack, EnumFacing dir) {
+    public static void ejectItem(World world, BlockPos pos, @Nonnull ItemStack stack, EnumFacing dir) {
         pos.offset(dir);
         EntityItem entity = new EntityItem(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
         entity.motionX = 0.0;
@@ -125,7 +133,7 @@ public class ItemUtils {
         }
 
         entity.setPickupDelay(10);
-        world.spawnEntityInWorld(entity);
+        world.spawnEntity(entity);
     }
 
     /**
@@ -149,7 +157,7 @@ public class ItemUtils {
      * @param itemStack Stack to get Burn time on.
      * @return Burn time for the Stack.
      */
-    public static int getBurnTime(ItemStack itemStack) {
+    public static int getBurnTime(@Nonnull ItemStack itemStack) {
         return TileEntityFurnace.getItemBurnTime(itemStack);
     }
 
@@ -160,7 +168,7 @@ public class ItemUtils {
      * @param stack2 Second Stack.
      * @return Returns the difference.
      */
-    public static int compareItemStack(ItemStack stack1, ItemStack stack2) {
+    public static int compareItemStack(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
         int itemStack1ID = Item.getIdFromItem(stack1.getItem());
         int itemStack2ID = Item.getIdFromItem(stack1.getItem());
         return itemStack1ID != itemStack2ID ? itemStack1ID - itemStack2ID : (stack1.getItemDamage() == stack2.getItemDamage() ? 0 : (stack1.getItem().getHasSubtypes() ? stack1.getItemDamage() - stack2.getItemDamage() : 0));
@@ -171,7 +179,7 @@ public class ItemUtils {
      * @param stack2 The {@link ItemStack} to compare to.
      * @return whether the two items are the same in terms of damage and itemID.
      */
-    public static boolean areStacksSameType(ItemStack stack1, ItemStack stack2) {
+    public static boolean areStacksSameType(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
         return stack1 != null && stack2 != null && (stack1.getItem() == stack2.getItem() && (!stack2.getHasSubtypes() || stack2.getItemDamage() == stack1.getItemDamage()) && ItemStack.areItemStackTagsEqual(stack2, stack1));
     }
 
@@ -182,7 +190,7 @@ public class ItemUtils {
      * @param stack2 The {@link ItemStack} to compare to.
      * @return whether the two items are the same from the perspective of a crafting inventory.
      */
-    public static boolean areStacksSameTypeCrafting(ItemStack stack1, ItemStack stack2) {
+    public static boolean areStacksSameTypeCrafting(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
         return stack1 != null && stack2 != null && stack1.getItem() == stack2.getItem() && (stack1.getItemDamage() == stack2.getItemDamage() || stack1.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack2.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack1.getItem().isDamageable());
     }
 }

@@ -42,7 +42,7 @@ public class CCModelCube implements IModel, IRetexturableModel, IModelSimpleProp
     private boolean gui3d;
 
     public CCModelCube() {
-        this(new HashMap<BlockRenderLayer, Map<EnumFacing, String>>());
+        this(new HashMap<>());
     }
 
     public CCModelCube(Map<BlockRenderLayer, Map<EnumFacing, String>> layerFaceSpriteMap) {
@@ -56,7 +56,7 @@ public class CCModelCube implements IModel, IRetexturableModel, IModelSimpleProp
 
     @Override
     public Collection<ResourceLocation> getTextures() {
-        List<ResourceLocation> textures = new ArrayList<ResourceLocation>();
+        List<ResourceLocation> textures = new ArrayList<>();
         for (Entry<BlockRenderLayer, Map<EnumFacing, String>> layerEnrty : layerFaceSpriteMap.entrySet()) {
             for (Entry<EnumFacing, String> faceEntry : layerEnrty.getValue().entrySet()) {
                 textures.add(new ResourceLocation(faceEntry.getValue()));
@@ -68,10 +68,10 @@ public class CCModelCube implements IModel, IRetexturableModel, IModelSimpleProp
     @Override
     public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
 
-        Map<BlockRenderLayer, IBakedModel> layerModelMap = new HashMap<BlockRenderLayer, IBakedModel>();
+        Map<BlockRenderLayer, IBakedModel> layerModelMap = new HashMap<>();
         TextureAtlasSprite particle = TextureUtils.getMissingSprite();
         for (Entry<BlockRenderLayer, Map<EnumFacing, String>> layerEntry : layerFaceSpriteMap.entrySet()) {
-            Map<String, String> kvTextures = new HashMap<String, String>();
+            Map<String, String> kvTextures = new HashMap<>();
             for (Entry<EnumFacing, String> faceEntry : layerEntry.getValue().entrySet()) {
                 if (faceEntry.getKey() == null) {
                     kvTextures.put("particle", faceEntry.getValue());
@@ -94,7 +94,7 @@ public class CCModelCube implements IModel, IRetexturableModel, IModelSimpleProp
     }
 
     private static Map<String, String> addMissing(Map<String, String> textures) {
-        Map<String, String> newTextures = new HashMap<String, String>(textures);
+        Map<String, String> newTextures = new HashMap<>(textures);
         for (EnumFacing face : EnumFacing.VALUES) {
             if (!textures.containsKey(face.getName())) {
                 newTextures.put("#" + face.getName(), "");
@@ -110,14 +110,14 @@ public class CCModelCube implements IModel, IRetexturableModel, IModelSimpleProp
 
     @Override
     public IModel retexture(ImmutableMap<String, String> textures) {
-        Map<BlockRenderLayer, Map<EnumFacing, String>> layerFaceSpriteMap = new HashMap<BlockRenderLayer, Map<EnumFacing, String>>();
+        Map<BlockRenderLayer, Map<EnumFacing, String>> layerFaceSpriteMap = new HashMap<>();
 
         for (Entry<String, String> entry : textures.entrySet()) {
             EnumFacing face = getFaceForKey(entry.getKey());
             BlockRenderLayer layer = getLayerForTexKey(entry.getKey());
             Map<EnumFacing, String> faceMap = layerFaceSpriteMap.get(layer);
             if (faceMap == null) {
-                faceMap = new HashMap<EnumFacing, String>();
+                faceMap = new HashMap<>();
                 layerFaceSpriteMap.put(layer, faceMap);
             }
             faceMap.put(face, entry.getValue());

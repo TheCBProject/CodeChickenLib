@@ -114,13 +114,9 @@ public class VertexDataUtils {
     }
 
     public static Map<EnumFacing, List<BakedQuad>> sortFaceData(List<BakedQuad> quads) {
-        Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<EnumFacing, List<BakedQuad>>();
+        Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<>();
         for (BakedQuad quad : quads) {
-            List<BakedQuad> faceQuads = faceQuadMap.get(quad.getFace());
-            if (faceQuads == null) {
-                faceQuads = new ArrayList<BakedQuad>();
-                faceQuadMap.put(quad.getFace(), faceQuads);
-            }
+            List<BakedQuad> faceQuads = faceQuadMap.computeIfAbsent(quad.getFace(), k -> new ArrayList<>());
             faceQuads.add(quad);
         }
         return faceQuadMap;

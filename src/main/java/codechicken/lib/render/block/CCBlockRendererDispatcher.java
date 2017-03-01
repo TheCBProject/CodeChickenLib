@@ -19,7 +19,6 @@ import net.minecraft.world.WorldType;
 
 /**
  * Created by covers1624 on 8/09/2016.
- * TODO Move back end of this to CCExtendedBlockRenderDispatcher
  */
 public class CCBlockRendererDispatcher extends BlockRendererDispatcher implements TextureUtils.IIconRegister {
 

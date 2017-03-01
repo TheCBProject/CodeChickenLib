@@ -13,7 +13,7 @@ import java.util.HashMap;
 public class ShaderRenderTimeOperation implements IShaderOperation {
 
     public static final int operationID = CCShaderPipeline.registerOperation();
-    private final HashMap<ShaderProgram, Float> shaderRenderTimeCache = new HashMap<ShaderProgram, Float>();
+    private final HashMap<ShaderProgram, Float> shaderRenderTimeCache = new HashMap<>();
 
     @Override
     public boolean load(ShaderProgram program) {

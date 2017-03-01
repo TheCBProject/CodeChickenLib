@@ -1,6 +1,5 @@
 package codechicken.lib.asm;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.*;
@@ -117,12 +116,7 @@ public class InsnComparator {
         }
 
         Set<LabelNode> controlFlowLabels = getControlFlowLabels(list);
-        Map<LabelNode, LabelNode> labelMap = Maps.asMap(controlFlowLabels, new Function<LabelNode, LabelNode>() {
-            @Override
-            public LabelNode apply(LabelNode input) {
-                return input;
-            }
-        });
+        Map<LabelNode, LabelNode> labelMap = Maps.asMap(controlFlowLabels, input -> input);
 
         InsnListSection importantNodeList = new InsnListSection();
         for (AbstractInsnNode insn : list) {
@@ -136,7 +130,7 @@ public class InsnComparator {
 
     public static List<InsnListSection> find(InsnListSection haystack, InsnListSection needle) {
         Set<LabelNode> controlFlowLabels = getControlFlowLabels(haystack);
-        LinkedList<InsnListSection> list = new LinkedList<InsnListSection>();
+        LinkedList<InsnListSection> list = new LinkedList<>();
         for (int start = 0; start <= haystack.size() - needle.size(); start++) {
             InsnListSection section = matches(haystack.drop(start), needle, controlFlowLabels);
             if (section != null) {

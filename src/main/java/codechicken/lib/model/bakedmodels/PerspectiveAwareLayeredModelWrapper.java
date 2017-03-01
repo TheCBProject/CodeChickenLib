@@ -47,7 +47,7 @@ public class PerspectiveAwareLayeredModelWrapper implements IPerspectiveAwareMod
         if (layerModelMap.containsKey(layer)) {
             return layerModelMap.get(layer).getQuads(state, side, rand);
         }
-        return new ArrayList<BakedQuad>();
+        return new ArrayList<>();
     }
 
     @Override

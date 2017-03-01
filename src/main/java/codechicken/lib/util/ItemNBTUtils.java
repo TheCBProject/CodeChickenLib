@@ -4,6 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import javax.annotation.Nonnull;
 import java.util.UUID;
 
 /**
@@ -17,7 +18,7 @@ public class ItemNBTUtils {
      * @param stack Stack to check.
      * @return If tag is in existence.
      */
-    public static boolean hasTag(ItemStack stack) {
+    public static boolean hasTag(@Nonnull ItemStack stack) {
         return stack.hasTagCompound();
     }
 
@@ -27,7 +28,7 @@ public class ItemNBTUtils {
      * @param stack       Stack to set tag on.
      * @param tagCompound Tag to set on item.
      */
-    public static void setTag(ItemStack stack, NBTTagCompound tagCompound) {
+    public static void setTag(@Nonnull ItemStack stack, NBTTagCompound tagCompound) {
         stack.setTagCompound(tagCompound);
     }
 
@@ -37,7 +38,7 @@ public class ItemNBTUtils {
      * @param stack Stack to get tag from.
      * @return Tag from the ItemStack.
      */
-    public static NBTTagCompound getTag(ItemStack stack) {
+    public static NBTTagCompound getTag(@Nonnull ItemStack stack) {
         return stack.getTagCompound();
     }
 
@@ -47,7 +48,7 @@ public class ItemNBTUtils {
      * @param stack Stack to check.
      * @return The Tag on the item.
      */
-    public static NBTTagCompound validateTagExists(ItemStack stack) {
+    public static NBTTagCompound validateTagExists(@Nonnull ItemStack stack) {
         if (!hasTag(stack)) {
             setTag(stack, new NBTTagCompound());
         }
@@ -61,7 +62,7 @@ public class ItemNBTUtils {
      * @param key   Key to check for.
      * @return False if key does not exist or if the tag does not exist.
      */
-    public static boolean hasKey(ItemStack stack, String key) {
+    public static boolean hasKey(@Nonnull ItemStack stack, String key) {
         return hasTag(stack) && getTag(stack).hasKey(key);
     }
 
@@ -73,7 +74,7 @@ public class ItemNBTUtils {
      * @param nbtType Primitive NBT Type.
      * @return False if key does not exist or if the tag does not exist.
      */
-    public static boolean hasKey(ItemStack stack, String key, int nbtType) {
+    public static boolean hasKey(@Nonnull ItemStack stack, String key, int nbtType) {
         return hasTag(stack) && getTag(stack).hasKey(key, nbtType);
     }
 
@@ -83,7 +84,7 @@ public class ItemNBTUtils {
      * @param stack Stack to edit.
      * @param key   Key to remove.
      */
-    public static void removeTag(ItemStack stack, String key) {
+    public static void removeTag(@Nonnull ItemStack stack, String key) {
         if (hasTag(stack)) {
             getTag(stack).removeTag(key);
         }
@@ -98,7 +99,7 @@ public class ItemNBTUtils {
      * @param key   Key.
      * @param b     Value.
      */
-    public static void setByte(ItemStack stack, String key, byte b) {
+    public static void setByte(@Nonnull ItemStack stack, String key, byte b) {
         validateTagExists(stack);
         getTag(stack).setByte(key, b);
     }
@@ -110,7 +111,7 @@ public class ItemNBTUtils {
      * @param key   Key.
      * @param s     Value.
      */
-    public static void setShort(ItemStack stack, String key, short s) {
+    public static void setShort(@Nonnull ItemStack stack, String key, short s) {
         validateTagExists(stack);
         getTag(stack).setShort(key, s);
     }
@@ -122,7 +123,7 @@ public class ItemNBTUtils {
      * @param key   Key.
      * @param i     Value.
      */
-    public static void setInteger(ItemStack stack, String key, int i) {
+    public static void setInteger(@Nonnull ItemStack stack, String key, int i) {
         validateTagExists(stack);
         getTag(stack).setInteger(key, i);
     }
@@ -134,7 +135,7 @@ public class ItemNBTUtils {
      * @param key   Key.
      * @param l     Value.
      */
-    public static void setLong(ItemStack stack, String key, long l) {
+    public static void setLong(@Nonnull ItemStack stack, String key, long l) {
         validateTagExists(stack);
         getTag(stack).setLong(key, l);
     }
@@ -146,7 +147,7 @@ public class ItemNBTUtils {
      * @param key   Key.
      * @param uuid  Value.
      */
-    public static void setUUID(ItemStack stack, String key, UUID uuid) {
+    public static void setUUID(@Nonnull ItemStack stack, String key, UUID uuid) {
         validateTagExists(stack);
         getTag(stack).setUniqueId(key, uuid);
     }
@@ -158,7 +159,7 @@ public class ItemNBTUtils {
      * @param key   Key.
      * @param f     Value.
      */
-    public static void setFloat(ItemStack stack, String key, float f) {
+    public static void setFloat(@Nonnull ItemStack stack, String key, float f) {
         validateTagExists(stack);
         getTag(stack).setFloat(key, f);
     }
@@ -170,7 +171,7 @@ public class ItemNBTUtils {
      * @param key   Key.
      * @param d     Value.
      */
-    public static void setDouble(ItemStack stack, String key, double d) {
+    public static void setDouble(@Nonnull ItemStack stack, String key, double d) {
         validateTagExists(stack);
         getTag(stack).setDouble(key, d);
     }
@@ -182,7 +183,7 @@ public class ItemNBTUtils {
      * @param key   Key.
      * @param s     Value.
      */
-    public static void setString(ItemStack stack, String key, String s) {
+    public static void setString(@Nonnull ItemStack stack, String key, String s) {
         validateTagExists(stack);
         getTag(stack).setString(key, s);
     }
@@ -194,7 +195,7 @@ public class ItemNBTUtils {
      * @param key   Key.
      * @param b     Value.
      */
-    public static void setByteArray(ItemStack stack, String key, byte[] b) {
+    public static void setByteArray(@Nonnull ItemStack stack, String key, byte[] b) {
         validateTagExists(stack);
         getTag(stack).setByteArray(key, b);
     }
@@ -206,7 +207,7 @@ public class ItemNBTUtils {
      * @param key   Key.
      * @param i     Value.
      */
-    public static void setIntArray(ItemStack stack, String key, int[] i) {
+    public static void setIntArray(@Nonnull ItemStack stack, String key, int[] i) {
         validateTagExists(stack);
         getTag(stack).setIntArray(key, i);
     }
@@ -218,7 +219,7 @@ public class ItemNBTUtils {
      * @param key   Key.
      * @param b     Value.
      */
-    public static void setBoolean(ItemStack stack, String key, boolean b) {
+    public static void setBoolean(@Nonnull ItemStack stack, String key, boolean b) {
         validateTagExists(stack);
         getTag(stack).setBoolean(key, b);
     }
@@ -234,7 +235,7 @@ public class ItemNBTUtils {
      * @param key   Key for the value.
      * @return Value.
      */
-    public static byte getByte(ItemStack stack, String key) {
+    public static byte getByte(@Nonnull ItemStack stack, String key) {
         validateTagExists(stack);
         return getTag(stack).getByte(key);
     }
@@ -246,7 +247,7 @@ public class ItemNBTUtils {
      * @param key   Key for the value.
      * @return Value.
      */
-    public static short getShort(ItemStack stack, String key) {
+    public static short getShort(@Nonnull ItemStack stack, String key) {
         validateTagExists(stack);
         return getTag(stack).getShort(key);
     }
@@ -258,7 +259,7 @@ public class ItemNBTUtils {
      * @param key   Key for the value.
      * @return Value.
      */
-    public static int getInteger(ItemStack stack, String key) {
+    public static int getInteger(@Nonnull ItemStack stack, String key) {
         validateTagExists(stack);
         return getTag(stack).getInteger(key);
     }
@@ -270,7 +271,7 @@ public class ItemNBTUtils {
      * @param key   Key for the value.
      * @return Value.
      */
-    public static long getLong(ItemStack stack, String key) {
+    public static long getLong(@Nonnull ItemStack stack, String key) {
         validateTagExists(stack);
         return getTag(stack).getLong(key);
     }
@@ -282,7 +283,7 @@ public class ItemNBTUtils {
      * @param key   Key for the value.
      * @return Value.
      */
-    public static UUID getUUID(ItemStack stack, String key) {
+    public static UUID getUUID(@Nonnull ItemStack stack, String key) {
         validateTagExists(stack);
         return getTag(stack).getUniqueId(key);
     }
@@ -294,7 +295,7 @@ public class ItemNBTUtils {
      * @param key   Key for the value.
      * @return Value.
      */
-    public static float getFloat(ItemStack stack, String key) {
+    public static float getFloat(@Nonnull ItemStack stack, String key) {
         validateTagExists(stack);
         return getTag(stack).getFloat(key);
     }
@@ -306,7 +307,7 @@ public class ItemNBTUtils {
      * @param key   Key for the value.
      * @return Value.
      */
-    public static double getDouble(ItemStack stack, String key) {
+    public static double getDouble(@Nonnull ItemStack stack, String key) {
         validateTagExists(stack);
         return getTag(stack).getDouble(key);
     }
@@ -318,7 +319,7 @@ public class ItemNBTUtils {
      * @param key   Key for the value.
      * @return Value.
      */
-    public static String getString(ItemStack stack, String key) {
+    public static String getString(@Nonnull ItemStack stack, String key) {
         validateTagExists(stack);
         return getTag(stack).getString(key);
     }
@@ -330,7 +331,7 @@ public class ItemNBTUtils {
      * @param key   Key for the value.
      * @return Value.
      */
-    public static byte[] getByteArray(ItemStack stack, String key) {
+    public static byte[] getByteArray(@Nonnull ItemStack stack, String key) {
         validateTagExists(stack);
         return getTag(stack).getByteArray(key);
     }
@@ -342,7 +343,7 @@ public class ItemNBTUtils {
      * @param key   Key for the value.
      * @return Value.
      */
-    public static int[] getIntArray(ItemStack stack, String key) {
+    public static int[] getIntArray(@Nonnull ItemStack stack, String key) {
         validateTagExists(stack);
         return getTag(stack).getIntArray(key);
     }
@@ -354,7 +355,7 @@ public class ItemNBTUtils {
      * @param key   Key for the value.
      * @return Value.
      */
-    public static boolean getBoolean(ItemStack stack, String key) {
+    public static boolean getBoolean(@Nonnull ItemStack stack, String key) {
         validateTagExists(stack);
         return getTag(stack).getBoolean(key);
     }
@@ -366,7 +367,7 @@ public class ItemNBTUtils {
      * @param key   Key for the value.
      * @return Value.
      */
-    public static NBTTagCompound getCompoundTag(ItemStack stack, String key) {
+    public static NBTTagCompound getCompoundTag(@Nonnull ItemStack stack, String key) {
         validateTagExists(stack);
         return getTag(stack).getCompoundTag(key);
     }
@@ -379,7 +380,7 @@ public class ItemNBTUtils {
      * @param type  Primitive NBT Type the List should be made up of.
      * @return Value.
      */
-    public static NBTTagList getTagList(ItemStack stack, String key, int type) {
+    public static NBTTagList getTagList(@Nonnull ItemStack stack, String key, int type) {
         validateTagExists(stack);
         return getTag(stack).getTagList(key, type);
     }

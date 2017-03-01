@@ -2,14 +2,12 @@ package codechicken.lib;
 
 import codechicken.lib.fingerprint.FingerprintChecker;
 import codechicken.lib.internal.proxy.CommonProxy;
-import codechicken.lib.util.FuelUtils;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.FMLInjectionData;
 
 import java.io.File;
@@ -17,13 +15,15 @@ import java.io.File;
 /**
  * Created by covers1624 on 12/10/2016.
  */
-@Mod (modid = CodeChickenLib.MOD_ID, name = CodeChickenLib.MOD_NAME, acceptedMinecraftVersions = CodeChickenLib.mcVersion, certificateFingerprint = "f1850c39b2516232a2108a7bd84d1cb5df93b261")
+@Mod (modid = CodeChickenLib.MOD_ID, name = CodeChickenLib.MOD_NAME, acceptedMinecraftVersions = CodeChickenLib.MC_VERSION_DEP, certificateFingerprint = "f1850c39b2516232a2108a7bd84d1cb5df93b261", updateJSON = CodeChickenLib.UPDATE_URL)
 public class CodeChickenLib {
 
-    public static final String MOD_ID = "CodeChickenLib";
+    public static final String MOD_ID = "codechickenlib";
     public static final String MOD_NAME = "CodeChicken Lib";
     public static final String version = "${mod_version}";
-    public static final String mcVersion = "[1.10.2]";
+    public static final String MC_VERSION = "1.11.2";
+    public static final String MC_VERSION_DEP = "[" + MC_VERSION +"]";
+    static final String UPDATE_URL = "http://chickenbones.net/Files/notification/version.php?query=forge&version=" + MC_VERSION + "&file=CodeChickenLib";
 
     public static final File minecraftDir = (File) FMLInjectionData.data()[6];
 
@@ -33,7 +33,6 @@ public class CodeChickenLib {
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         FingerprintChecker.runFingerprintChecks();
-        GameRegistry.registerFuelHandler(new FuelUtils());
         proxy.preInit();
     }
 

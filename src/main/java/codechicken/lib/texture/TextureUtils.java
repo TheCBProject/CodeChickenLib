@@ -44,14 +44,9 @@ public class TextureUtils {
         MinecraftForge.EVENT_BUS.register(new TextureUtils());
     }
 
-    private static ArrayList<IIconRegister> iconRegisters = new ArrayList<IIconRegister>();
+    private static ArrayList<IIconRegister> iconRegisters = new ArrayList<>();
 
-    public static Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter = new Function<ResourceLocation, TextureAtlasSprite>() {
-        @Override
-        public TextureAtlasSprite apply(ResourceLocation input) {
-            return getTexture(input);
-        }
-    };
+    public static Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter = TextureUtils::getTexture;
 
     //TODO Rename this.
     public static void addIconRegister(IIconRegister registrar) {
@@ -122,7 +117,8 @@ public class TextureUtils {
         String s = "blank_" + size;
         TextureAtlasSprite icon = textureMap.getTextureExtry(s);
         if (icon == null) {
-            textureMap.setTextureEntry(s, icon = new TextureSpecial(s).blank(size));
+            icon = new TextureSpecial(s).blank(size);
+            textureMap.setTextureEntry(icon);
         }
 
         return icon;
@@ -134,7 +130,7 @@ public class TextureUtils {
         }
 
         TextureSpecial icon = new TextureSpecial(name);
-        textureMap.setTextureEntry(name, icon);
+        textureMap.setTextureEntry(icon);
         return icon;
     }
 
@@ -170,18 +166,11 @@ public class TextureUtils {
      */
     public static boolean refreshTexture(TextureMap map, String name) {
         if (map.getTextureExtry(name) == null) {
-            map.setTextureEntry(name, new PlaceholderTexture(name));
+            map.setTextureEntry(new PlaceholderTexture(name));
             return true;
         }
         return false;
     }
-
-    /*public static IIcon safeIcon(IIcon icon) {
-        if (icon == null)
-            icon = ((TextureMap) Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.locationBlocksTexture)).getAtlasSprite("missingno");
-
-        return icon;
-    }*/
 
     public static TextureManager getTextureManager() {
         return Minecraft.getMinecraft().renderEngine;

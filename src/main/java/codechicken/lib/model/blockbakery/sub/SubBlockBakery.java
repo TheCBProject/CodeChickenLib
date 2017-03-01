@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class SubBlockBakery implements ILayeredBlockBakery, IIconRegister {
 
-    private final Map<Integer, ICustomBlockBakery> subBakeries = new HashMap<Integer, ICustomBlockBakery>();
+    private final Map<Integer, ICustomBlockBakery> subBakeries = new HashMap<>();
     private final SubBlockStateKeyGenerator blockKeyGenerator = new SubBlockStateKeyGenerator();
     private final SubItemStackKeyGenerator itemKeyGenerator = new SubItemStackKeyGenerator();
 

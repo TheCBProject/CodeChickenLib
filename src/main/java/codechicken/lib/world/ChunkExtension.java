@@ -17,9 +17,9 @@ public abstract class ChunkExtension {
 
     public ChunkExtension(Chunk chunk, WorldExtension world) {
         this.chunk = chunk;
-        coord = chunk.getChunkCoordIntPair();
+        coord = chunk.getPos();
         this.world = world;
-        watchedPlayers = new HashSet<EntityPlayerMP>();
+        watchedPlayers = new HashSet<>();
     }
 
     public void loadData(NBTTagCompound tag) {

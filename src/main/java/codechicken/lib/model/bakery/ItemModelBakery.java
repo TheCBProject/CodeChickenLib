@@ -31,7 +31,7 @@ public class ItemModelBakery {
     }
 
     public static List<BakedQuad> bakeItem(List<TextureAtlasSprite> sprites, VertexFormat format, IModelState state) {
-        List<BakedQuad> quads = new LinkedList<BakedQuad>();
+        List<BakedQuad> quads = new LinkedList<>();
         for (int i = 0; i < sprites.size(); i++) {
             TextureAtlasSprite sprite = sprites.get(i);
             quads.addAll(ItemLayerModel.getQuadsForSprite(i, sprite, format, state.apply(Optional.<IModelPart>absent())));

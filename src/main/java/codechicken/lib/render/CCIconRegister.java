@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public class CCIconRegister implements IIconRegister {
 
-    public static ArrayList<ResourceLocation> locations = new ArrayList<ResourceLocation>();
+    public static ArrayList<ResourceLocation> locations = new ArrayList<>();
 
     static {
         TextureUtils.addIconRegister(new CCIconRegister());

@@ -7,6 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.util.vector.Vector3f;
@@ -55,14 +56,11 @@ public class Vector3 implements Copyable<Vector3> {
         z = vec.zCoord;
     }
 
-    @Deprecated // use Vector3.fromBlockPos //TODO, 1.11 move this to Vec3i
-    public Vector3(BlockPos pos) {
-        x = pos.getX();
-        y = pos.getY();
-        z = pos.getZ();
+    public static Vector3 fromBlockPos(BlockPos pos) {
+        return fromVec3i(pos);
     }
 
-    public static Vector3 fromBlockPos(BlockPos pos) {
+    public static Vector3 fromVec3i(Vec3i pos) {
         return new Vector3(pos.getX(), pos.getY(), pos.getZ());
     }
 
@@ -140,6 +138,10 @@ public class Vector3 implements Copyable<Vector3> {
         return set(vec.x, vec.y, vec.z);
     }
 
+    public Vector3 set(Vec3i vec) {
+        return set(vec.getX(), vec.getY(), vec.getZ());
+    }
+
     public Vector3 set(double[] da) {
         return set(da[0], da[1], da[2]);
     }
@@ -184,16 +186,6 @@ public class Vector3 implements Copyable<Vector3> {
 
     public Vector3 subtract(BlockPos pos) {
         return subtract(pos.getX(), pos.getY(), pos.getZ());
-    }
-
-    @Deprecated //Use subtract
-    public Vector3 sub(Vector3 vec) {
-        return subtract(vec);
-    }
-
-    @Deprecated //Use subtract
-    public Vector3 sub(BlockPos pos) {
-        return subtract(pos);
     }
 
     public Vector3 multiply(double fx, double fy, double fz) {

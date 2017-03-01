@@ -3,6 +3,7 @@ package codechicken.lib.render.pipeline;
 import codechicken.lib.render.CCRenderState;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class CCRenderPipeline {
 
@@ -20,9 +21,7 @@ public class CCRenderPipeline {
         }
 
         public PipelineBuilder add(IVertexOperation... ops) {
-            for (int i = 0; i < ops.length; i++) {
-                CCRenderPipeline.this.ops.add(ops[i]);
-            }
+            Collections.addAll(CCRenderPipeline.this.ops, ops);
             return this;
         }
 
@@ -38,7 +37,7 @@ public class CCRenderPipeline {
 
     private class PipelineNode {
 
-        public ArrayList<PipelineNode> deps = new ArrayList<PipelineNode>();
+        public ArrayList<PipelineNode> deps = new ArrayList<>();
         public IVertexOperation op;
 
         public void add() {
@@ -46,8 +45,8 @@ public class CCRenderPipeline {
                 return;
             }
 
-            for (int i = 0; i < deps.size(); i++) {
-                deps.get(i).add();
+            for (PipelineNode dep : deps) {
+                dep.add();
             }
             deps.clear();
             sorted.add(op);
@@ -60,10 +59,10 @@ public class CCRenderPipeline {
     //By default we want to force format attributes.
     public boolean forceFormatAttributes = true;
 
-    private ArrayList<VertexAttribute> attribs = new ArrayList<VertexAttribute>();
-    private ArrayList<IVertexOperation> ops = new ArrayList<IVertexOperation>();
-    private ArrayList<PipelineNode> nodes = new ArrayList<PipelineNode>();
-    private ArrayList<IVertexOperation> sorted = new ArrayList<IVertexOperation>();
+    private ArrayList<VertexAttribute> attribs = new ArrayList<>();
+    private ArrayList<IVertexOperation> ops = new ArrayList<>();
+    private ArrayList<PipelineNode> nodes = new ArrayList<>();
+    private ArrayList<IVertexOperation> sorted = new ArrayList<>();
     private PipelineNode loading;
     private PipelineBuilder builder;
 
@@ -74,9 +73,7 @@ public class CCRenderPipeline {
 
     public void setPipeline(IVertexOperation... ops) {
         this.ops.clear();
-        for (int i = 0; i < ops.length; i++) {
-            this.ops.add(ops[i]);
-        }
+        Collections.addAll(this.ops, ops);
         rebuild();
     }
 
@@ -86,8 +83,8 @@ public class CCRenderPipeline {
     }
 
     private void unbuild() {
-        for (int i = 0; i < attribs.size(); i++) {
-            attribs.get(i).active = false;
+        for (VertexAttribute attrib : attribs) {
+            attrib.active = false;
         }
         attribs.clear();
         sorted.clear();
@@ -117,8 +114,7 @@ public class CCRenderPipeline {
         }
         unbuild();
 
-        for (int i = 0; i < ops.size(); i++) {
-            IVertexOperation op = ops.get(i);
+        for (IVertexOperation op : ops) {
             loading = nodes.get(op.operationID());
             boolean loaded = op.load(renderState);
             if (loaded) {
@@ -134,8 +130,8 @@ public class CCRenderPipeline {
             }
         }
 
-        for (int i = 0; i < nodes.size(); i++) {
-            nodes.get(i).add();
+        for (PipelineNode node : nodes) {
+            node.add();
         }
     }
 
@@ -156,8 +152,8 @@ public class CCRenderPipeline {
     }
 
     public void operate() {
-        for (int i = 0; i < sorted.size(); i++) {
-            sorted.get(i).operate(renderState);
+        for (IVertexOperation aSorted : sorted) {
+            aSorted.operate(renderState);
         }
     }
 

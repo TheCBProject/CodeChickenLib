@@ -5,7 +5,9 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +18,7 @@ import java.util.Map;
 //TODO Merge Model variant code in to here. maybe.
 public class ItemBlockMultiType extends ItemBlock {
 
-    private HashMap<Integer, String> names = new HashMap<Integer, String>();
+    private HashMap<Integer, String> names = new HashMap<>();
 
     public ItemBlockMultiType(Block block) {
         super(block);
@@ -41,13 +43,14 @@ public class ItemBlockMultiType extends ItemBlock {
         return this;
     }
 
+    @Nonnull
     @Override
-    public String getUnlocalizedName(ItemStack stack) {
+    public String getUnlocalizedName(@Nonnull ItemStack stack) {
         return "tile." + names.get(stack.getItemDamage());
     }
 
     @Override
-    public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems) {
+    public void getSubItems(@Nonnull Item itemIn, @Nonnull CreativeTabs tab, @Nonnull NonNullList<ItemStack> subItems) {
         for (Map.Entry<Integer, String> entry : names.entrySet()) {
             subItems.add(new ItemStack(this, 1, entry.getKey()));
         }

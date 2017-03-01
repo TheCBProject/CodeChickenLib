@@ -93,11 +93,6 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return subtract(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    @Deprecated //Use subtract
-    public Cuboid6 sub(Vector3 vec) {
-        return subtract(vec);
-    }
-
     public Cuboid6 expand(double dx, double dy, double dz) {
         min.subtract(dx, dy, dz);
         max.add(dx, dy, dz);

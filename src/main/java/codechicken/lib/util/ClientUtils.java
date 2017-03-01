@@ -16,7 +16,7 @@ public class ClientUtils extends CommonUtils {
     }
 
     public static World getWorld() {
-        return mc().theWorld;
+        return mc().world;
     }
 
     public static boolean inWorld() {
@@ -26,7 +26,7 @@ public class ClientUtils extends CommonUtils {
     public static void openSMPGui(int windowId, GuiScreen gui) {
         mc().displayGuiScreen(gui);
         if (windowId != 0) {
-            mc().thePlayer.openContainer.windowId = windowId;
+            mc().player.openContainer.windowId = windowId;
         }
     }
 

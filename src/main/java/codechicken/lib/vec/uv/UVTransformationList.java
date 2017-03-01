@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 public class UVTransformationList extends UVTransformation {
 
-    private ArrayList<UVTransformation> transformations = new ArrayList<UVTransformation>();
+    private ArrayList<UVTransformation> transformations = new ArrayList<>();
 
     public UVTransformationList(UVTransformation... transforms) {
         for (UVTransformation t : transforms) {
@@ -21,8 +21,8 @@ public class UVTransformationList extends UVTransformation {
 
     @Override
     public void apply(UV uv) {
-        for (int i = 0; i < transformations.size(); i++) {
-            transformations.get(i).apply(uv);
+        for (UVTransformation transformation : transformations) {
+            transformation.apply(uv);
         }
     }
 
@@ -58,7 +58,7 @@ public class UVTransformationList extends UVTransformation {
     }
 
     private void compact() {
-        ArrayList<UVTransformation> newList = new ArrayList<UVTransformation>(transformations.size());
+        ArrayList<UVTransformation> newList = new ArrayList<>(transformations.size());
         Iterator<UVTransformation> iterator = transformations.iterator();
         UVTransformation prev = null;
         while (iterator.hasNext()) {

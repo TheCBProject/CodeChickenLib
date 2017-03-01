@@ -21,7 +21,7 @@ public abstract class AttributeKey<T> {
 
     public static class AttributeKeyRegistry {
 
-        private static ArrayList<AttributeKey<?>> attributeKeys = new ArrayList<AttributeKey<?>>();
+        private static ArrayList<AttributeKey<?>> attributeKeys = new ArrayList<>();
 
         private static int registerAttributeKey(AttributeKey<?> attr) {
             attributeKeys.add(attr);

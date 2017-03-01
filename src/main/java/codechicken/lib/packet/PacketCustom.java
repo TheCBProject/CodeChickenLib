@@ -47,6 +47,7 @@ import java.util.EnumMap;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
+//TODO Method names in MCDataInput/Output now conflict with methods in PacketBuffer.
 public final class PacketCustom extends PacketBuffer implements MCDataHandler {
 
     public interface ICustomPacketHandler {
@@ -63,7 +64,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
         void handlePacket(PacketCustom packetCustom, EntityPlayerMP sender, INetHandlerPlayServer handler);
     }
 
-    public static AttributeKey<CustomInboundHandler> cclHandler = new AttributeKey<CustomInboundHandler>("ccl:handler");
+    public static AttributeKey<CustomInboundHandler> cclHandler = AttributeKey.valueOf("ccl:handler");
 
     @ChannelHandler.Sharable
     public static class CustomInboundHandler extends SimpleChannelInboundHandler<FMLProxyPacket> {
@@ -100,11 +101,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
             if (netHandler instanceof INetHandlerPlayClient) {
                 Minecraft mc = Minecraft.getMinecraft();
                 if (!mc.isCallingFromMinecraftThread()) {
-                    mc.addScheduledTask(new Runnable() {
-                        public void run() {
-                            handle(netHandler, channel, packet);
-                        }
-                    });
+                    mc.addScheduledTask(() -> handle(netHandler, channel, packet));
                 } else {
                     handler.handlePacket(packet, mc, (INetHandlerPlayClient) netHandler);
                 }
@@ -127,11 +124,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
             if (netHandler instanceof NetHandlerPlayServer) {
                 MinecraftServer mc = FMLCommonHandler.instance().getMinecraftServerInstance();
                 if (!mc.isCallingFromMinecraftThread()) {
-                    mc.addScheduledTask(new Runnable() {
-                        public void run() {
-                            handle(netHandler, channel, packet);
-                        }
-                    });
+                    mc.addScheduledTask(() -> handle(netHandler, channel, packet));
                 } else {
                     handler.handlePacket(packet, ((NetHandlerPlayServer) netHandler).playerEntity, (INetHandlerPlayServer) netHandler);
                 }
@@ -348,7 +341,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     @Override
 
     public PacketCustom writeVarInt(int i) {
-        writeVarIntToBuffer(i);
+        super.writeVarInt(i);
         return this;
     }
 
@@ -396,7 +389,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
 
     @Override
     public PacketCustom writeNBTTagCompound(NBTTagCompound tag) {
-        writeNBTTagCompoundToBuffer(tag);
+        writeCompoundTag(tag);
         return this;
     }
 
@@ -421,7 +414,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
 
     @Override
     public int readVarInt() {
-        return readVarIntFromBuffer();
+        return super.readVarInt();
     }
 
     @Override
@@ -441,7 +434,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
 
     @Override
     public String readString() {
-        return readStringFromBuffer(32767);
+        return readString(32767);
     }
 
     //TODO 1.11 pull to MC data in / out.
@@ -457,7 +450,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     @Override
     public NBTTagCompound readNBTTagCompound() {
         try {
-            return readNBTTagCompoundFromBuffer();
+            return readCompoundTag();
         } catch (IOException e) {
             throw new EncoderException(e);
         }
@@ -564,7 +557,7 @@ public final class PacketCustom extends PacketBuffer implements MCDataHandler {
     }
 
     public static void sendToOps(Packet packet) {
-        for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerList()) {
+        for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
             if (FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().canSendCommands(player.getGameProfile())) {
                 sendToPlayer(packet, player);
             }

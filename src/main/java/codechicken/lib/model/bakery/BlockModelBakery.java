@@ -35,7 +35,7 @@ public class BlockModelBakery {
     public Colour colourTopRight = new ColourRGBA(0xFFFFFFFF);
 
     private CCQuadBakery quadBakery;
-    private LinkedList<BakedQuad> quadList = new LinkedList<BakedQuad>();
+    private LinkedList<BakedQuad> quadList = new LinkedList<>();
 
     public BlockModelBakery() {
         this(DefaultVertexFormats.BLOCK);
@@ -67,7 +67,7 @@ public class BlockModelBakery {
     }
 
     public LinkedList<BakedQuad> finishBaking() {
-        return new LinkedList<BakedQuad>(quadList);
+        return new LinkedList<>(quadList);
     }
 
     public CCQuadBakery getQuadBakery() {

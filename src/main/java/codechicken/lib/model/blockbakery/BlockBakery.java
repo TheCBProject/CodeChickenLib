@@ -56,8 +56,8 @@ public class BlockBakery implements IResourceManagerReloadListener {
 
     private static Cache<String, IBakedModel> keyModelCache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
 
-    private static Map<Item, IItemStackKeyGenerator> itemKeyGeneratorMap = new HashMap<Item, IItemStackKeyGenerator>();
-    private static Map<Block, IBlockStateKeyGenerator> blockKeyGeneratorMap = new HashMap<Block, IBlockStateKeyGenerator>();
+    private static Map<Item, IItemStackKeyGenerator> itemKeyGeneratorMap = new HashMap<>();
+    private static Map<Block, IBlockStateKeyGenerator> blockKeyGeneratorMap = new HashMap<>();
     private static IBakedModel missingModel;
 
     public static final IBlockStateKeyGenerator defaultBlockKeyGenerator = new IBlockStateKeyGenerator() {
@@ -131,10 +131,10 @@ public class BlockBakery implements IResourceManagerReloadListener {
             return ((IBakeryBlock) block).getCustomBakery().handleState(state, tileEntity);
         } else if (block instanceof IWorldBlockTextureProvider) {
             IWorldBlockTextureProvider provider = ((IWorldBlockTextureProvider) block);
-            Map<BlockRenderLayer, Map<EnumFacing, TextureAtlasSprite>> layerFaceSpriteMap = new HashMap<BlockRenderLayer, Map<EnumFacing, TextureAtlasSprite>>();
+            Map<BlockRenderLayer, Map<EnumFacing, TextureAtlasSprite>> layerFaceSpriteMap = new HashMap<>();
             for (BlockRenderLayer layer : BlockRenderLayer.values()) {
                 if (block.canRenderInLayer(state, layer)) {
-                    Map<EnumFacing, TextureAtlasSprite> faceSpriteMap = new HashMap<EnumFacing, TextureAtlasSprite>();
+                    Map<EnumFacing, TextureAtlasSprite> faceSpriteMap = new HashMap<>();
                     for (EnumFacing face : EnumFacing.VALUES) {
                         TextureAtlasSprite sprite = provider.getTexture(face, state, layer, tileEntity.getWorld(), tileEntity.getPos());
                         if (sprite != null) {
@@ -173,12 +173,12 @@ public class BlockBakery implements IResourceManagerReloadListener {
             Block block = Block.getBlockFromItem(item);
             if (block instanceof IBakeryBlock) {
                 ICustomBlockBakery bakery = ((IBakeryBlock) block).getCustomBakery();
-                List<BakedQuad> generalQuads = new LinkedList<BakedQuad>();
-                Map<EnumFacing, List<BakedQuad>> faceQuads = new HashMap<EnumFacing, List<BakedQuad>>();
+                List<BakedQuad> generalQuads = new LinkedList<>();
+                Map<EnumFacing, List<BakedQuad>> faceQuads = new HashMap<>();
                 generalQuads.addAll(bakery.bakeItemQuads(null, stack));
 
                 for (EnumFacing face : EnumFacing.VALUES) {
-                    List<BakedQuad> quads = new LinkedList<BakedQuad>();
+                    List<BakedQuad> quads = new LinkedList<>();
 
                     quads.addAll(PlanarFaceBakery.shadeQuadFaces(bakery.bakeItemQuads(face, stack)));
 
@@ -190,9 +190,9 @@ public class BlockBakery implements IResourceManagerReloadListener {
 
             } else if (block instanceof IItemBlockTextureProvider) {
                 IItemBlockTextureProvider provider = ((IItemBlockTextureProvider) block);
-                Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<EnumFacing, List<BakedQuad>>();
+                Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<>();
                 for (EnumFacing face : EnumFacing.VALUES) {
-                    List<BakedQuad> faceQuads = new LinkedList<BakedQuad>();
+                    List<BakedQuad> faceQuads = new LinkedList<>();
 
                     faceQuads.addAll(PlanarFaceBakery.shadeQuadFaces(PlanarFaceBakery.bakeFace(face, provider.getTexture(face, stack), DefaultVertexFormats.ITEM)));
 
@@ -204,12 +204,12 @@ public class BlockBakery implements IResourceManagerReloadListener {
         } else {
             if (item instanceof IBakeryItem) {
                 IItemBakery bakery = ((IBakeryItem) item).getBakery();
-                List<BakedQuad> generalQuads = new LinkedList<BakedQuad>();
-                Map<EnumFacing, List<BakedQuad>> faceQuads = new HashMap<EnumFacing, List<BakedQuad>>();
+                List<BakedQuad> generalQuads = new LinkedList<>();
+                Map<EnumFacing, List<BakedQuad>> faceQuads = new HashMap<>();
                 generalQuads.addAll(bakery.bakeItemQuads(null, stack));
 
                 for (EnumFacing face : EnumFacing.VALUES) {
-                    List<BakedQuad> quads = new LinkedList<BakedQuad>();
+                    List<BakedQuad> quads = new LinkedList<>();
 
                     quads.addAll(bakery.bakeItemQuads(face, stack));
 
@@ -252,12 +252,12 @@ public class BlockBakery implements IResourceManagerReloadListener {
             ICustomBlockBakery bakery = ((IBakeryBlock) state.getBlock()).getCustomBakery();
             if (bakery instanceof ISimpleBlockBakery) {
                 ISimpleBlockBakery simpleBakery = ((ISimpleBlockBakery) bakery);
-                List<BakedQuad> generalQuads = new LinkedList<BakedQuad>();
-                Map<EnumFacing, List<BakedQuad>> faceQuads = new HashMap<EnumFacing, List<BakedQuad>>();
+                List<BakedQuad> generalQuads = new LinkedList<>();
+                Map<EnumFacing, List<BakedQuad>> faceQuads = new HashMap<>();
                 generalQuads.addAll(simpleBakery.bakeQuads(null, state));
 
                 for (EnumFacing face : EnumFacing.VALUES) {
-                    List<BakedQuad> quads = new LinkedList<BakedQuad>();
+                    List<BakedQuad> quads = new LinkedList<>();
 
                     quads.addAll(simpleBakery.bakeQuads(face, state));
 
@@ -268,11 +268,11 @@ public class BlockBakery implements IResourceManagerReloadListener {
             }
             if (bakery instanceof ILayeredBlockBakery) {
                 ILayeredBlockBakery layeredBakery = ((ILayeredBlockBakery) bakery);
-                Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap = new HashMap<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>>();
-                Map<BlockRenderLayer, List<BakedQuad>> layerGeneralQuads = new HashMap<BlockRenderLayer, List<BakedQuad>>();
+                Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap = new HashMap<>();
+                Map<BlockRenderLayer, List<BakedQuad>> layerGeneralQuads = new HashMap<>();
                 for (BlockRenderLayer layer : BlockRenderLayer.values()) {
                     if (state.getBlock().canRenderInLayer(state, layer)) {
-                        LinkedList<BakedQuad> quads = new LinkedList<BakedQuad>();
+                        LinkedList<BakedQuad> quads = new LinkedList<>();
                         quads.addAll(layeredBakery.bakeLayerFace(null, layer, state));
                         layerGeneralQuads.put(layer, quads);
                     }
@@ -280,9 +280,9 @@ public class BlockBakery implements IResourceManagerReloadListener {
 
                 for (BlockRenderLayer layer : BlockRenderLayer.values()) {
                     if (state.getBlock().canRenderInLayer(state, layer)) {
-                        Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<EnumFacing, List<BakedQuad>>();
+                        Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<>();
                         for (EnumFacing face : EnumFacing.VALUES) {
-                            List<BakedQuad> quads = new LinkedList<BakedQuad>();
+                            List<BakedQuad> quads = new LinkedList<>();
                             quads.addAll(layeredBakery.bakeLayerFace(face, layer, state));
                             faceQuadMap.put(face, quads);
                         }
@@ -318,12 +318,12 @@ public class BlockBakery implements IResourceManagerReloadListener {
 
     public static Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> generateLayerFaceQuadMap(IExtendedBlockState state) {
         Map<BlockRenderLayer, Map<EnumFacing, TextureAtlasSprite>> layerFaceSpriteMap = state.getValue(BlockBakeryProperties.LAYER_FACE_SPRITE_MAP);
-        Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap = new HashMap<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>>();
+        Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap = new HashMap<>();
         for (BlockRenderLayer layer : layerFaceSpriteMap.keySet()) {
             Map<EnumFacing, TextureAtlasSprite> faceSpriteMap = layerFaceSpriteMap.get(layer);
-            Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<EnumFacing, List<BakedQuad>>();
+            Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<>();
             for (EnumFacing face : faceSpriteMap.keySet()) {
-                List<BakedQuad> quads = new LinkedList<BakedQuad>();
+                List<BakedQuad> quads = new LinkedList<>();
                 quads.add(PlanarFaceBakery.bakeFace(face, faceSpriteMap.get(face)));
                 faceQuadMap.put(face, quads);
             }

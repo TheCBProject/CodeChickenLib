@@ -45,7 +45,7 @@ public class SimpleBakedItemModel implements IPerspectiveAwareModel {
             }
             return quads;
         }
-        return new ArrayList<BakedQuad>();
+        return new ArrayList<>();
     }
 
     @Override

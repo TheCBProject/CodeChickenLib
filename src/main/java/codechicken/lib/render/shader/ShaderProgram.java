@@ -20,7 +20,7 @@ public class ShaderProgram {
 
     private int programID;
     public CCShaderPipeline pipeline = new CCShaderPipeline(this);
-    private ArrayList<IShaderOperation> ops = new ArrayList<IShaderOperation>();
+    private ArrayList<IShaderOperation> ops = new ArrayList<>();
 
     public ShaderProgram() {
         programID = glCreateProgramObjectARB();

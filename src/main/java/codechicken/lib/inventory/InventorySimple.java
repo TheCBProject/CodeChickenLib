@@ -1,5 +1,6 @@
 package codechicken.lib.inventory;
 
+import codechicken.lib.util.ArrayUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -10,6 +11,9 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
+
+import javax.annotation.Nonnull;
+import java.util.Objects;
 
 /**
  * Simple IInventory implementation with an array of items, name and maximum stack size
@@ -22,6 +26,7 @@ public class InventorySimple implements IInventory, ICapabilityProvider {
 
     public InventorySimple(ItemStack[] items, int limit, String name) {
         this.items = items;
+        ArrayUtils.fillArray(items, ItemStack.EMPTY, (Objects::isNull));
         this.limit = limit;
         this.name = name;
     }
@@ -60,22 +65,30 @@ public class InventorySimple implements IInventory, ICapabilityProvider {
     }
 
     @Override
+    public boolean isEmpty() {
+        return ArrayUtils.count(items, (stack -> !stack.isEmpty())) <= 0;
+    }
+
+    @Override
+    @Nonnull
     public ItemStack getStackInSlot(int slot) {
         return items[slot];
     }
 
     @Override
+    @Nonnull
     public ItemStack decrStackSize(int slot, int amount) {
         return InventoryUtils.decrStackSize(this, slot, amount);
     }
 
     @Override
+    @Nonnull
     public ItemStack removeStackFromSlot(int slot) {
         return InventoryUtils.removeStackFromSlot(this, slot);
     }
 
     @Override
-    public void setInventorySlotContents(int slot, ItemStack stack) {
+    public void setInventorySlotContents(int slot, @Nonnull ItemStack stack) {
         items[slot] = stack;
         markDirty();
     }
@@ -86,12 +99,12 @@ public class InventorySimple implements IInventory, ICapabilityProvider {
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer var1) {
+    public boolean isUsableByPlayer(@Nonnull EntityPlayer player) {
         return true;
     }
 
     @Override
-    public boolean isItemValidForSlot(int i, ItemStack itemstack) {
+    public boolean isItemValidForSlot(int i, @Nonnull ItemStack itemstack) {
         return true;
     }
 
@@ -100,11 +113,11 @@ public class InventorySimple implements IInventory, ICapabilityProvider {
     }
 
     @Override
-    public void openInventory(EntityPlayer player) {
+    public void openInventory(@Nonnull EntityPlayer player) {
     }
 
     @Override
-    public void closeInventory(EntityPlayer player) {
+    public void closeInventory(@Nonnull EntityPlayer player) {
     }
 
     @Override
@@ -129,6 +142,7 @@ public class InventorySimple implements IInventory, ICapabilityProvider {
     }
 
     @Override
+    @Nonnull
     public String getName() {
         return "name";
     }
@@ -139,18 +153,19 @@ public class InventorySimple implements IInventory, ICapabilityProvider {
     }
 
     @Override
+    @Nonnull
     public ITextComponent getDisplayName() {
         return new TextComponentString(getName());
     }
 
     @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+    public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing facing) {
         return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
     }
 
     @SuppressWarnings ("unchecked")
     @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+    public <T> T getCapability(@Nonnull Capability<T> capability, EnumFacing facing) {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return (T) new InvWrapper(this);
         }

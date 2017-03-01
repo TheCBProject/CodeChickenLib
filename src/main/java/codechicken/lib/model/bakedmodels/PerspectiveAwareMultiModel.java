@@ -37,7 +37,7 @@ public class PerspectiveAwareMultiModel implements IPerspectiveAwareModel {
 
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
-        List<BakedQuad> quads = new LinkedList<BakedQuad>();
+        List<BakedQuad> quads = new LinkedList<>();
         if (baseModel != null) {
             quads.addAll(baseModel.getQuads(state, side, rand));
         }

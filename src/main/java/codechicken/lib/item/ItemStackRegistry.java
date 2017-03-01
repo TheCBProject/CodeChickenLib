@@ -4,11 +4,15 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Created by covers1624 on 22/10/2016.
@@ -18,25 +22,27 @@ public class ItemStackRegistry {
 
     private static Table<String, String, ItemStack> stackRegistry = HashBasedTable.create();
 
-    public static void registerCustomItemStack(String name, ItemStack stack) {
+    public static void registerCustomItemStack(String name, @Nonnull ItemStack stack) {
         stackRegistry.put(Loader.instance().activeModContainer().getModId(), name, stack);
     }
 
+    @Nonnull
     public static ItemStack findItemStack(String modId, String name, int stackSize) {
         ItemStack foundStack = findItemStack(modId, name);
-        if (foundStack != null) {
+        if (!foundStack.isEmpty()) {
             ItemStack copy = foundStack.copy();
-            copy.stackSize = Math.min(stackSize, copy.getMaxStackSize());
+            copy.setCount(Math.min(stackSize, copy.getMaxStackSize()));
             return copy;
         }
         return null;
     }
 
+    @Nonnull
     public static ItemStack findItemStack(String modId, String name) {
         ItemStack stack = stackRegistry.get(modId, name);
         if (stack == null) {
             Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(modId, name));
-            if (item != null) {
+            if (item != null && item != Items.AIR) {
                 stack = new ItemStack(item, 0, 0);
             }
         }
@@ -45,6 +51,9 @@ public class ItemStackRegistry {
             if (block != null && block != Blocks.AIR) {
                 stack = new ItemStack(block, 0, Short.MAX_VALUE);
             }
+        }
+        if (stack == null) {
+            return ItemStack.EMPTY;
         }
         return stack;
     }

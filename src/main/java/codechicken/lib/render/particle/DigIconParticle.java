@@ -1,13 +1,9 @@
-package codechicken.lib.render;
+package codechicken.lib.render.particle;
 
-import codechicken.lib.render.particle.CustomParticleHandler;
-import codechicken.lib.vec.Cuboid6;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 public class DigIconParticle extends Particle {
@@ -78,15 +74,5 @@ public class DigIconParticle extends Particle {
         vertexBuffer.pos((double) (f5 - rotationX * f4 + rotationXY * f4), (double) (f6 + rotationZ * f4), (double) (f7 - rotationYZ * f4 + rotationXZ * f4)).tex((double) f, (double) f2).color(this.particleRed, this.particleGreen, this.particleBlue, 1.0F).lightmap(j, k).endVertex();
         vertexBuffer.pos((double) (f5 + rotationX * f4 + rotationXY * f4), (double) (f6 + rotationZ * f4), (double) (f7 + rotationYZ * f4 + rotationXZ * f4)).tex((double) f1, (double) f2).color(this.particleRed, this.particleGreen, this.particleBlue, 1.0F).lightmap(j, k).endVertex();
         vertexBuffer.pos((double) (f5 + rotationX * f4 - rotationXY * f4), (double) (f6 - rotationZ * f4), (double) (f7 + rotationYZ * f4 - rotationXZ * f4)).tex((double) f1, (double) f3).color(this.particleRed, this.particleGreen, this.particleBlue, 1.0F).lightmap(j, k).endVertex();
-    }
-
-    @Deprecated//Use CustomParticleHandler.addBlockHitEffects This will be removed in 1.11
-    public static void addBlockHitEffects(World world, Cuboid6 bounds, int side, TextureAtlasSprite icon, ParticleManager effectRenderer) {
-        CustomParticleHandler.addBlockHitEffects(world, bounds, EnumFacing.VALUES[side], icon, effectRenderer);
-    }
-
-    @Deprecated//Use CustomParticleHandler.addBlockDestroyEffects This will be removed in 1.11
-    public static void addBlockDestroyEffects(World world, Cuboid6 bounds, TextureAtlasSprite[] icons, ParticleManager effectRenderer) {
-        CustomParticleHandler.addBlockDestroyEffects(world, bounds, icons, effectRenderer);
     }
 }
