@@ -111,6 +111,11 @@ public class RenderUtils {
         GlStateManager.translate(-interpPosX, -interpPosY, -interpPosZ);
     }
 
+    /**
+     * Draws an outline using the provided cuboid.
+     *
+     * @param c Cuboid.
+     */
     public static void drawCuboidOutline(Cuboid6 c) {
         CCRenderState state = CCRenderState.instance();
         VertexBuffer r = state.startDrawing(3, DefaultVertexFormats.POSITION);
@@ -137,6 +142,41 @@ public class RenderUtils {
         r.pos(c.min.x, c.min.y, c.max.z).endVertex();
         r.pos(c.min.x, c.max.y, c.max.z).endVertex();
         state.draw();
+    }
+
+    /**
+     * Draws a solid cuboid.
+     *
+     * @param c Cuboid.
+     */
+    public static void drawCuboidSolid(Cuboid6 c) {
+        CCRenderState ccrs = CCRenderState.instance();
+        VertexBuffer buffer = ccrs.startDrawing(7, DefaultVertexFormats.POSITION);
+        buffer.pos(c.min.x, c.max.y, c.min.z).endVertex();
+        buffer.pos(c.max.x, c.max.y, c.min.z).endVertex();
+        buffer.pos(c.max.x, c.min.y, c.min.z).endVertex();
+        buffer.pos(c.min.x, c.min.y, c.min.z).endVertex();
+        buffer.pos(c.min.x, c.min.y, c.max.z).endVertex();
+        buffer.pos(c.max.x, c.min.y, c.max.z).endVertex();
+        buffer.pos(c.max.x, c.max.y, c.max.z).endVertex();
+        buffer.pos(c.min.x, c.max.y, c.max.z).endVertex();
+        buffer.pos(c.min.x, c.min.y, c.min.z).endVertex();
+        buffer.pos(c.max.x, c.min.y, c.min.z).endVertex();
+        buffer.pos(c.max.x, c.min.y, c.max.z).endVertex();
+        buffer.pos(c.min.x, c.min.y, c.max.z).endVertex();
+        buffer.pos(c.min.x, c.max.y, c.max.z).endVertex();
+        buffer.pos(c.max.x, c.max.y, c.max.z).endVertex();
+        buffer.pos(c.max.x, c.max.y, c.min.z).endVertex();
+        buffer.pos(c.min.x, c.max.y, c.min.z).endVertex();
+        buffer.pos(c.min.x, c.min.y, c.max.z).endVertex();
+        buffer.pos(c.min.x, c.max.y, c.max.z).endVertex();
+        buffer.pos(c.min.x, c.max.y, c.min.z).endVertex();
+        buffer.pos(c.min.x, c.min.y, c.min.z).endVertex();
+        buffer.pos(c.max.x, c.min.y, c.min.z).endVertex();
+        buffer.pos(c.max.x, c.max.y, c.min.z).endVertex();
+        buffer.pos(c.max.x, c.max.y, c.max.z).endVertex();
+        buffer.pos(c.max.x, c.min.y, c.max.z).endVertex();
+        ccrs.draw();
     }
 
     public static void renderFluidCuboid(Cuboid6 bound, TextureAtlasSprite tex, double res) {

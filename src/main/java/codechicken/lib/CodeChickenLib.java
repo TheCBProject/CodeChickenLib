@@ -1,11 +1,13 @@
 package codechicken.lib;
 
 import codechicken.lib.fingerprint.FingerprintChecker;
+import codechicken.lib.internal.MigrationManager;
 import codechicken.lib.internal.proxy.CommonProxy;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.FMLInjectionData;
@@ -46,4 +48,8 @@ public class CodeChickenLib {
         proxy.serverStarting(event);
     }
 
+    @EventHandler
+    public void missingMapping(FMLMissingMappingsEvent event) {
+        MigrationManager.handleMissingMappings(event);
+    }
 }
