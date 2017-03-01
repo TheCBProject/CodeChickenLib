@@ -17,6 +17,9 @@ apply plugin: 'maven'
 group = "codechicken" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "CodeChickenLib"
 
+targetCompatibility = "1.8"
+sourceCompatibility = "1.8"
+
 // Define properties file
 ext.configFile = file "build.properties"
 
