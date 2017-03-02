@@ -4,15 +4,25 @@ import com.google.common.base.Charsets;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTSizeTracker;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
-public class MCDataIO {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
+public class MCDataUtils {
 
     /**
      * PacketBuffer.readVarIntFromBuffer
      */
     public static int readVarInt(MCDataInput in) {
+
         int i = 0;
         int j = 0;
         byte b0;
@@ -30,6 +40,7 @@ public class MCDataIO {
     }
 
     public static int readVarShort(MCDataInput in) {
+
         int low = in.readUShort();
         int high = 0;
         if ((low & 0x8000) != 0) {
@@ -39,12 +50,35 @@ public class MCDataIO {
         return ((high & 0xFF) << 15) | low;
     }
 
+    public static long readVarLong(MCDataInput in) {
+
+        long i = 0L;
+        int j = 0;
+
+        while (true) {
+            byte b0 = in.readByte();
+            i |= (long) (b0 & 127) << j++ * 7;
+
+            if (j > 10) {
+                throw new RuntimeException("VarLong too big");
+            }
+
+            if ((b0 & 128) != 128) {
+                break;
+            }
+        }
+
+        return i;
+    }
+
     public static String readString(MCDataInput in) {
+
         return new String(in.readArray(in.readVarInt()), Charsets.UTF_8);
     }
 
     public static ItemStack readItemStack(MCDataInput in) {
-        ItemStack item = null;
+
+        ItemStack item = ItemStack.EMPTY;
         short itemID = in.readShort();
 
         if (itemID >= 0) {
@@ -58,6 +92,7 @@ public class MCDataIO {
     }
 
     public static FluidStack readFluidStack(MCDataInput in) {
+
         FluidStack fluid = null;
         String fluidName = in.readString();
 
@@ -68,10 +103,28 @@ public class MCDataIO {
         return fluid;
     }
 
+    @Nullable
+    public static NBTTagCompound readNBTTagCompound(MCDataInput input) {
+
+        byte flag = input.readByte();
+        if (flag == 0) {
+            return null;
+        } else if (flag == 1) {
+            try {
+                return CompressedStreamTools.read(new DataInputStream(new MCDataInputStream(input)), new NBTSizeTracker(2097152L));
+            } catch (IOException e) {
+                throw new EncoderException(e);
+            }
+        } else {
+            throw new EncoderException("Invalid flag for readNBTTagCompound. Expected 0 || 1 Got: " + flag + " Possible incorrect read order?");
+        }
+    }
+
     /**
      * PacketBuffer.writeVarIntToBuffer
      */
     public static void writeVarInt(MCDataOutput out, int i) {
+
         while ((i & 0x80) != 0) {
             out.writeByte(i & 0x7F | 0x80);
             i >>>= 7;
@@ -84,6 +137,7 @@ public class MCDataIO {
      * ByteBufUtils.readVarShort
      */
     public static void writeVarShort(MCDataOutput out, int s) {
+
         int low = s & 0x7FFF;
         int high = (s & 0x7F8000) >> 15;
         if (high != 0) {
@@ -95,10 +149,20 @@ public class MCDataIO {
         }
     }
 
+    public static void writeVarLong(MCDataOutput out, long value) {
+
+        while ((value & -128L) != 0L) {
+            out.writeByte((int) (value & 127L) | 128);
+            value >>>= 7;
+        }
+        out.writeByte((int) value);
+    }
+
     /**
      * PacketBuffer.writeString
      */
     public static void writeString(MCDataOutput out, String string) {
+
         byte[] abyte = string.getBytes(Charsets.UTF_8);
         if (abyte.length > 32767) {
             throw new EncoderException("String too big (was " + string.length() + " bytes encoded, max " + 32767 + ")");
@@ -112,7 +176,8 @@ public class MCDataIO {
      * Supports large stacks by writing stackSize as a varInt
      */
     public static void writeItemStack(MCDataOutput out, ItemStack stack) {
-        if (stack == null) {
+
+        if (stack.isEmpty()) {
             out.writeShort(-1);
         } else {
             out.writeShort(Item.getIdFromItem(stack.getItem()));
@@ -123,12 +188,27 @@ public class MCDataIO {
     }
 
     public static void writeFluidStack(MCDataOutput out, FluidStack fluid) {
+
         if (fluid == null || FluidRegistry.getFluidName(fluid) == null) {
             out.writeString("");
         } else {
             out.writeString(FluidRegistry.getFluidName(fluid));
             out.writeVarInt(fluid.amount);
             out.writeNBTTagCompound(fluid.tag);
+        }
+    }
+
+    public static void writeNBTTagCompount(@Nonnull MCDataOutput out, @Nullable NBTTagCompound tag) {
+
+        if (tag == null) {
+            out.writeByte(0);
+            return;
+        }
+        try {
+            out.writeByte(1);
+            CompressedStreamTools.write(tag, new DataOutputStream(new MCDataOutputStream(out)));
+        } catch (IOException e) {
+            throw new EncoderException(e);
         }
     }
 }

@@ -2,8 +2,12 @@ package codechicken.lib.data;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
+
+import java.util.UUID;
 
 public interface MCDataInput {
 
@@ -27,21 +31,59 @@ public interface MCDataInput {
 
     char readChar();
 
-    int readVarShort();
+    default int readVarShort() {
 
-    int readVarInt();
+        return MCDataUtils.readVarShort(this);
+    }
 
-    long readVarLong();
+    default int readVarInt() {
+
+        return MCDataUtils.readVarInt(this);
+    }
+
+    default long readVarLong() {
+
+        return MCDataUtils.readVarLong(this);
+    }
 
     byte[] readArray(int length);
 
-    String readString();
+    default String readString() {
 
-    BlockPos readPos();
+        return MCDataUtils.readString(this);
+    }
 
-    NBTTagCompound readNBTTagCompound();
+    default UUID readUUID() {
+        return new UUID(readLong(), readLong());
+    }
 
-    ItemStack readItemStack();
+    default EnumFacing readEnumFacing() {
 
-    FluidStack readFluidStack();
+        return EnumFacing.VALUES[readByte()];
+    }
+
+    default ResourceLocation readLocation() {
+
+        return new ResourceLocation(readString());
+    }
+
+    default BlockPos readPos() {
+
+        return new BlockPos(readInt(), readInt(), readInt());
+    }
+
+    default NBTTagCompound readNBTTagCompound() {
+
+        return MCDataUtils.readNBTTagCompound(this);
+    }
+
+    default ItemStack readItemStack() {
+
+        return MCDataUtils.readItemStack(this);
+    }
+
+    default FluidStack readFluidStack() {
+
+        return MCDataUtils.readFluidStack(this);
+    }
 }

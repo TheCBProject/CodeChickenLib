@@ -3,7 +3,6 @@ package codechicken.lib.asm;
 import codechicken.lib.config.ConfigTag;
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
-import com.google.common.base.Strings;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
 import net.minecraft.launchwrapper.Launch;
@@ -34,6 +33,7 @@ public class ObfMapping {
 
         @SuppressWarnings ("unchecked")
         public ObfRemapper() {
+
             try {
                 Field rawFieldMapsField = FMLDeobfuscatingRemapper.class.getDeclaredField("rawFieldMaps");
                 Field rawMethodMapsField = FMLDeobfuscatingRemapper.class.getDeclaredField("rawMethodMaps");
@@ -68,26 +68,31 @@ public class ObfMapping {
 
         @Override
         public String mapMethodName(String owner, String name, String desc) {
+
             String s = funcs.get(name);
             return s == null ? name : s;
         }
 
         @Override
         public String mapFieldName(String owner, String name, String desc) {
+
             String s = fields.get(name);
             return s == null ? name : s;
         }
 
         @Override
         public String map(String typeName) {
+
             return FMLDeobfuscatingRemapper.INSTANCE.unmap(typeName);
         }
 
         public String unmap(String typeName) {
+
             return FMLDeobfuscatingRemapper.INSTANCE.map(typeName);
         }
 
         public boolean isObf(String typeName) {
+
             return !map(typeName).equals(typeName) || !unmap(typeName).equals(typeName);
         }
     }
@@ -97,102 +102,26 @@ public class ObfMapping {
         public static File[] getConfFiles() {
 
             // check for GradleStart system vars
-            if (!Strings.isNullOrEmpty(System.getProperty("net.minecraftforge.gradle.GradleStart.srg.notch-srg"))) {
-                File notchSrg = new File(System.getProperty("net.minecraftforge.gradle.GradleStart.srg.notch-srg"));
-                File csvDir = new File(System.getProperty("net.minecraftforge.gradle.GradleStart.csvDir"));
+            File notchSrg = new File(System.getProperty("net.minecraftforge.gradle.GradleStart.srg.notch-srg"));
+            File csvDir = new File(System.getProperty("net.minecraftforge.gradle.GradleStart.csvDir"));
 
-                if (notchSrg.exists() && csvDir.exists()) {
-                    File fieldCsv = new File(csvDir, "fields.csv");
-                    File methodCsv = new File(csvDir, "methods.csv");
+            if (notchSrg.exists() && csvDir.exists()) {
+                File fieldCsv = new File(csvDir, "fields.csv");
+                File methodCsv = new File(csvDir, "methods.csv");
 
-                    if (notchSrg.exists() && fieldCsv.exists() && methodCsv.exists()) {
-                        return new File[] { notchSrg, fieldCsv, methodCsv };
-                    }
+                if (notchSrg.exists() && fieldCsv.exists() && methodCsv.exists()) {
+                    return new File[] { notchSrg, fieldCsv, methodCsv };
                 }
             }
 
-            ConfigTag tag = ASMHelper.config.getTag("mappingDir").setComment("Path to directory holding packaged.srg, fields.csv and methods.csv for mcp remapping");
-            for (int i = 0; i < DIR_GUESSES + DIR_ASKS; i++) {
-                File dir = confDirectoryGuess(i, tag);
-                if (dir == null || dir.isFile()) {
-                    continue;
-                }
-
-                File[] mappings;
-                try {
-                    mappings = parseConfDir(dir);
-                } catch (Exception e) {
-                    if (i >= DIR_GUESSES) {
-                        e.printStackTrace();
-                    }
-                    continue;
-                }
-
-                tag.setValue(dir.getPath());
-                return mappings;
-            }
-
-            throw new RuntimeException("Failed to select mappings directory, set it manually in the config");
-        }
-
-        private static final int DIR_GUESSES = 4;
-        private static final int DIR_ASKS = 3;
-
-        public static File confDirectoryGuess(int i, ConfigTag tag) {
-            File mcDir = (File) FMLInjectionData.data()[6];
-            switch (i) {
-                case 0:
-                    return tag.value != null ? new File(tag.getValue()) : null;
-                case 1:
-                    return new File(mcDir, "../conf");
-                case 2:
-                    return new File(mcDir, "../build/unpacked/conf");
-                case 3:
-                    return new File(System.getProperty("user.home"), ".gradle/caches/minecraft/net/minecraftforge/forge/" + FMLInjectionData.data()[4] + "-" + ForgeVersion.getVersion() + "/unpacked/conf");
-                default:
-                    JFileChooser fc = new JFileChooser(mcDir);
-                    fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                    fc.setDialogTitle("Select an mcp conf dir for the deobfuscator.");
-                    int ret = fc.showDialog(null, "Select");
-                    return ret == JFileChooser.APPROVE_OPTION ? fc.getSelectedFile() : null;
-            }
-        }
-
-        public static File[] parseConfDir(File confDir) {
-            File srgDir = new File(confDir, "conf");
-            if (!srgDir.exists()) {
-                srgDir = confDir;
-            }
-
-            File srgs = new File(srgDir, "packaged.srg");
-            if (!srgs.exists()) {
-                srgs = new File(srgDir, "joined.srg");
-            }
-            if (!srgs.exists()) {
-                throw new RuntimeException("Could not find packaged.srg or joined.srg");
-            }
-
-            File mapDir = new File(confDir, "mappings");
-            if (!mapDir.exists()) {
-                mapDir = confDir;
-            }
-
-            File methods = new File(mapDir, "methods.csv");
-            if (!methods.exists()) {
-                throw new RuntimeException("Could not find methods.csv");
-            }
-            File fields = new File(mapDir, "fields.csv");
-            if (!fields.exists()) {
-                throw new RuntimeException("Could not find fields.csv");
-            }
-
-            return new File[] { srgs, methods, fields };
+            throw new RuntimeException("Failed to grab mappings from GradleStart args.");
         }
 
         private HashMap<String, String> fields = new HashMap<>();
         private HashMap<String, String> funcs = new HashMap<>();
 
         public MCPRemapper() {
+
             File[] mappings = getConfFiles();
             try {
                 Resources.readLines(mappings[1].toURI().toURL(), Charsets.UTF_8, this);
@@ -204,18 +133,21 @@ public class ObfMapping {
 
         @Override
         public String mapMethodName(String owner, String name, String desc) {
+
             String s = funcs.get(name);
             return s == null ? name : s;
         }
 
         @Override
         public String mapFieldName(String owner, String name, String desc) {
+
             String s = fields.get(name);
             return s == null ? name : s;
         }
 
         @Override
         public boolean processLine(@Nonnull String line) throws IOException {
+
             int i = line.indexOf(',');
             String srg = line.substring(0, i);
             int i2 = i + 1;
@@ -227,6 +159,7 @@ public class ObfMapping {
 
         @Override
         public Void getResult() {
+
             return null;
         }
     }
@@ -235,6 +168,7 @@ public class ObfMapping {
     public static Remapper mcpMapper = null;
 
     public static void loadMCPRemapper() {
+
         if (mcpMapper == null) {
             mcpMapper = new MCPRemapper();
         }
@@ -259,10 +193,12 @@ public class ObfMapping {
     public String s_desc;
 
     public ObfMapping(String owner) {
+
         this(owner, "", "");
     }
 
     public ObfMapping(String owner, String name, String desc) {
+
         this.s_owner = owner;
         this.s_name = name;
         this.s_desc = desc;
@@ -273,10 +209,12 @@ public class ObfMapping {
     }
 
     public ObfMapping(ObfMapping descmap, String subclass) {
+
         this(subclass, descmap.s_name, descmap.s_desc);
     }
 
     public static ObfMapping fromDesc(String s) {
+
         int lastDot = s.lastIndexOf('.');
         if (lastDot < 0) {
             return new ObfMapping(s, "", "");
@@ -299,18 +237,22 @@ public class ObfMapping {
     }
 
     public ObfMapping subclass(String subclass) {
+
         return new ObfMapping(this, subclass);
     }
 
     public boolean matches(MethodNode node) {
+
         return s_name.equals(node.name) && s_desc.equals(node.desc);
     }
 
     public boolean matches(MethodInsnNode node) {
+
         return s_owner.equals(node.owner) && s_name.equals(node.name) && s_desc.equals(node.desc);
     }
 
     public AbstractInsnNode toInsn(int opcode) {
+
         if (isClass()) {
             return new TypeInsnNode(opcode, s_owner);
         } else if (isMethod()) {
@@ -321,47 +263,58 @@ public class ObfMapping {
     }
 
     public void visitTypeInsn(MethodVisitor mv, int opcode) {
+
         mv.visitTypeInsn(opcode, s_owner);
     }
 
     public void visitMethodInsn(MethodVisitor mv, int opcode) {
+
         mv.visitMethodInsn(opcode, s_owner, s_name, s_desc);
     }
 
     public void visitFieldInsn(MethodVisitor mv, int opcode) {
+
         mv.visitFieldInsn(opcode, s_owner, s_name, s_desc);
     }
 
     public MethodVisitor visitMethod(ClassVisitor visitor, int access, String[] exceptions) {
+
         return visitor.visitMethod(access, s_name, s_desc, null, exceptions);
     }
 
     public FieldVisitor visitField(ClassVisitor visitor, int access, Object value) {
+
         return visitor.visitField(access, s_name, s_desc, null, value);
     }
 
     public boolean isClass(String name) {
+
         return name.replace('.', '/').equals(s_owner);
     }
 
     public boolean matches(String name, String desc) {
+
         return s_name.equals(name) && s_desc.equals(desc);
     }
 
     public boolean matches(FieldNode node) {
+
         return s_name.equals(node.name) && s_desc.equals(node.desc);
     }
 
     public boolean matches(FieldInsnNode node) {
+
         return s_owner.equals(node.owner) && s_name.equals(node.name) && s_desc.equals(node.desc);
     }
 
     public String javaClass() {
+
         return s_owner.replace('/', '.');
     }
 
     @Override
     public boolean equals(Object obj) {
+
         if (!(obj instanceof ObfMapping)) {
             return false;
         }
@@ -372,11 +325,13 @@ public class ObfMapping {
 
     @Override
     public int hashCode() {
+
         return Objects.hashCode(s_desc, s_name, s_owner);
     }
 
     @Override
     public String toString() {
+
         if (s_name.length() == 0) {
             return "[" + s_owner + "]";
         }
@@ -387,26 +342,32 @@ public class ObfMapping {
     }
 
     public String methodDesc() {
+
         return s_owner + "." + s_name + s_desc;
     }
 
     public String fieldDesc() {
+
         return s_owner + "." + s_name + ":" + s_desc;
     }
 
     public boolean isClass() {
+
         return s_name.length() == 0;
     }
 
     public boolean isMethod() {
+
         return s_desc.contains("(");
     }
 
     public boolean isField() {
+
         return !isClass() && !isMethod();
     }
 
     public ObfMapping map(Remapper mapper) {
+
         if (mapper == null) {
             return this;
         }
@@ -429,11 +390,13 @@ public class ObfMapping {
     }
 
     public ObfMapping toRuntime() {
+
         map(mcpMapper);
         return this;
     }
 
     public ObfMapping toClassloading() {
+
         if (!obfuscated) {
             map(mcpMapper);
         } else if (obfMapper.isObf(s_owner)) {
@@ -443,6 +406,7 @@ public class ObfMapping {
     }
 
     public ObfMapping copy() {
+
         return new ObfMapping(s_owner, s_name, s_desc);
     }
 }

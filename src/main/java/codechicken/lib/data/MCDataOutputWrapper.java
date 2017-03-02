@@ -93,13 +93,13 @@ public class MCDataOutputWrapper implements MCDataOutput {
 
     @Override
     public MCDataOutput writeVarInt(int i) {
-        MCDataIO.writeVarInt(this, i);
+        MCDataUtils.writeVarInt(this, i);
         return this;
     }
 
     @Override
     public MCDataOutput writeVarShort(int s) {
-        MCDataIO.writeVarShort(this, s);
+        MCDataUtils.writeVarShort(this, s);
         return this;
     }
 
@@ -121,12 +121,12 @@ public class MCDataOutputWrapper implements MCDataOutput {
     }
 
     public MCDataOutputWrapper writeString(String s) {
-        MCDataIO.writeString(this, s);
+        MCDataUtils.writeString(this, s);
         return this;
     }
 
     public MCDataOutputWrapper writeItemStack(ItemStack stack) {
-        MCDataIO.writeItemStack(this, stack);
+        MCDataUtils.writeItemStack(this, stack);
         return this;
     }
 
@@ -144,7 +144,7 @@ public class MCDataOutputWrapper implements MCDataOutput {
     }
 
     public MCDataOutputWrapper writeFluidStack(FluidStack fluid) {
-        MCDataIO.writeFluidStack(this, fluid);
+        MCDataUtils.writeFluidStack(this, fluid);
         return this;
     }
 }

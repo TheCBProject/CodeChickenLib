@@ -2,8 +2,12 @@ package codechicken.lib.data;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
+
+import java.util.UUID;
 
 public interface MCDataOutput {
 
@@ -23,22 +27,77 @@ public interface MCDataOutput {
 
     MCDataOutput writeChar(char c);
 
-    MCDataOutput writeVarInt(int i);
+    default MCDataOutput writeVarInt(int i) {
 
-    MCDataOutput writeVarShort(int s);
+        MCDataUtils.writeVarInt(this, i);
+        return this;
+    }
+
+    default MCDataOutput writeVarShort(int s) {
+
+        MCDataUtils.writeVarShort(this, s);
+        return this;
+    }
+
+    default MCDataOutput writeVarLong(long l) {
+
+        MCDataUtils.writeVarLong(this, l);
+        return this;
+    }
 
     MCDataOutput writeArray(byte[] array);
 
-    MCDataOutput writeString(String s);
+    default MCDataOutput writeString(String s) {
 
-    MCDataOutput writePos(BlockPos pos);
+        MCDataUtils.writeString(this, s);
+        return this;
+    }
 
-    MCDataOutput writeNBTTagCompound(NBTTagCompound tag);
+    default MCDataOutput writeUUID(UUID uuid) {
+
+        writeLong(uuid.getMostSignificantBits());
+        writeLong(uuid.getLeastSignificantBits());
+        return this;
+    }
+
+    default MCDataOutput writeEnumFacing(EnumFacing facing) {
+
+        writeByte(facing.ordinal());
+        return this;
+    }
+
+    default MCDataOutput writeResourceLocation(ResourceLocation location) {
+
+        writeString(location.toString());
+        return this;
+    }
+
+    default MCDataOutput writePos(BlockPos pos) {
+
+        writeInt(pos.getX());
+        writeInt(pos.getY());
+        writeInt(pos.getZ());
+        return this;
+    }
+
+    default MCDataOutput writeNBTTagCompound(NBTTagCompound tag) {
+
+        MCDataUtils.writeNBTTagCompount(this, tag);
+        return this;
+    }
 
     /**
      * Supports large stacks by writing stackSize as a varInt
      */
-    MCDataOutput writeItemStack(ItemStack stack);
+    default MCDataOutput writeItemStack(ItemStack stack) {
 
-    MCDataOutput writeFluidStack(FluidStack liquid);
+        MCDataUtils.writeItemStack(this, stack);
+        return this;
+    }
+
+    default MCDataOutput writeFluidStack(FluidStack liquid) {
+
+        MCDataUtils.writeFluidStack(this, liquid);
+        return this;
+    }
 }

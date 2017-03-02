@@ -48,7 +48,6 @@ public class CCRenderItem extends RenderItem {
 
     public CCRenderItem(RenderItem renderItem) {
         super(renderItem.textureManager, renderItem.itemModelMesher.getModelManager(), renderItem.itemColors);
-        ReflectionManager.setField(new ObfMapping("net/minecraft/client/renderer/RenderItem", "field_175059_m", ""), renderItem, renderItem.itemModelMesher);
         this.parent = renderItem;
     }
 

@@ -39,11 +39,6 @@ public class DistanceRayTraceResult extends RayTraceResult implements Comparable
         hitInfo = data;
     }
 
-    @Deprecated//TODO Is this actually needed.. Can remove an AT line if not needed.
-    public void setPos(BlockPos pos) {
-        this.blockPos = pos;
-    }
-
     public void offsetHit(BlockPos pos) {
         hitVec = hitVec.addVector(pos.getX(), pos.getY(), pos.getZ());
     }
