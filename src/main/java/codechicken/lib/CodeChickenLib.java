@@ -22,7 +22,7 @@ public class CodeChickenLib {
 
     public static final String MOD_ID = "codechickenlib";
     public static final String MOD_NAME = "CodeChicken Lib";
-    public static final String version = "${mod_version}";
+    public static final String MOD_VERSION = "${mod_version}";
     public static final String MC_VERSION = "1.11.2";
     public static final String MC_VERSION_DEP = "[" + MC_VERSION +"]";
     static final String UPDATE_URL = "http://chickenbones.net/Files/notification/version.php?query=forge&version=" + MC_VERSION + "&file=CodeChickenLib";
