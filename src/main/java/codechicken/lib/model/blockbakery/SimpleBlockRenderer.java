@@ -35,6 +35,7 @@ public abstract class SimpleBlockRenderer implements ISimpleBlockBakery, IIconRe
             for (int r = 0; r < 4; r++) {
                 CCModel m = model.copy().apply(Rotation.sideOrientation(s, r).at(Vector3.center));
                 m.computeNormals();
+                m.shrinkUVs(0.0005);
                 models[s][r] = m;
             }
         }
