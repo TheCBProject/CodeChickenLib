@@ -15,7 +15,6 @@ import java.util.Map;
 /**
  * Created by covers1624 on 3/27/2016.
  */
-//TODO Merge Model variant code in to here. maybe.
 public class ItemBlockMultiType extends ItemBlock {
 
     private HashMap<Integer, String> names = new HashMap<>();

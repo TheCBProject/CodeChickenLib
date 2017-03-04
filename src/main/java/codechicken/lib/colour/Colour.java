@@ -154,6 +154,18 @@ public abstract class Colour implements Copyable<Colour> {
         return this;
     }
 
+    public Colour set(double r, double g, double b, double a) {
+        return set((int) (255 * r), (int) (255 * g), (int) (255 * b), (int) (255 * a));
+    }
+
+    public Colour set(int r, int g, int b, int a) {
+        this.r = (byte) r;
+        this.g = (byte) g;
+        this.b = (byte) b;
+        this.a = (byte) a;
+        return this;
+    }
+
     public static int packRGBA(byte r, byte g, byte b, byte a) {
         return (r & 0xFF) << 24 | (g & 0xFF) << 16 | (b & 0xFF) << 8 | (a & 0xFF);
     }

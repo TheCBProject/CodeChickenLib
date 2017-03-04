@@ -7,13 +7,14 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.*;
 
 import static codechicken.lib.asm.ASMHelper.*;
 
-//TODO Java doc all the internal class constructors.
 public class ModularASMTransformer {
 
     /**
@@ -131,30 +132,73 @@ public class ModularASMTransformer {
         public final String[] exceptions;
         public InsnList list;
 
-        public MethodWriter(int access, ObfMapping method) {
+        /**
+         * Write a new method with no instructions or exceptions.
+         *
+         * @param access Access flags.
+         * @param method The method name and desc.
+         */
+        public MethodWriter(int access, @Nonnull ObfMapping method) {
             this(access, method, null, (InsnList) null);
         }
 
-        public MethodWriter(int access, ObfMapping method, InsnList list) {
+        /**
+         * Write a new method with the provided instructions.
+         *
+         * @param access Access flags.
+         * @param method The method name and desc.
+         * @param list   The instructions to use.
+         */
+        public MethodWriter(int access, @Nonnull ObfMapping method, @Nullable InsnList list) {
             this(access, method, null, list);
         }
 
-        public MethodWriter(int access, ObfMapping method, ASMBlock block) {
+        /**
+         * Write a new method with the provided instructions.
+         *
+         * @param access Access flags.
+         * @param method The method name and desc.
+         * @param block  The instructions to use.
+         */
+        public MethodWriter(int access, @Nonnull ObfMapping method, @Nonnull ASMBlock block) {
             this(access, method, null, block);
         }
 
-        public MethodWriter(int access, ObfMapping method, String[] exceptions) {
+        /**
+         * Write a new method with no instructions and the provided exceptions.
+         *
+         * @param access     Access flags.
+         * @param method     The method name and desc.
+         * @param exceptions The exceptions this method can throw.
+         */
+        public MethodWriter(int access, @Nonnull ObfMapping method, @Nullable String[] exceptions) {
             this(access, method, exceptions, (InsnList) null);
         }
 
-        public MethodWriter(int access, ObfMapping method, String[] exceptions, InsnList list) {
+        /**
+         * Write a new method with the provided instructions and the provided exceptions.
+         *
+         * @param access     Access flags.
+         * @param method     The method name and desc.
+         * @param exceptions The exceptions this method can throw.
+         * @param list       The instructions to use.
+         */
+        public MethodWriter(int access, @Nonnull ObfMapping method, @Nullable String[] exceptions, @Nullable InsnList list) {
             this.access = access;
             this.method = method.toClassloading();
             this.exceptions = exceptions;
             this.list = list;
         }
 
-        public MethodWriter(int access, ObfMapping method, String[] exceptions, ASMBlock block) {
+        /**
+         * Write a new method with the provided instructions and the provided exceptions.
+         *
+         * @param access     Access flags.
+         * @param method     The method name and desc.
+         * @param exceptions The exceptions this method can throw.
+         * @param block      The instructions to use.
+         */
+        public MethodWriter(int access, @Nonnull ObfMapping method, @Nullable String[] exceptions, @Nonnull ASMBlock block) {
             this(access, method, exceptions, block.rawListCopy());
         }
 
@@ -194,26 +238,58 @@ public class ModularASMTransformer {
      */
     public static class MethodInjector extends MethodTransformer {
 
+        @Nullable
         public ASMBlock needle;
+        @Nonnull
         public ASMBlock injection;
         public boolean before;
 
-        public MethodInjector(ObfMapping method, ASMBlock needle, ASMBlock injection, boolean before) {
+        /**
+         * Injects the provided injection instructions at the location of the needle.
+         *
+         * @param method    The method to inject to.
+         * @param needle    Where to inject.
+         * @param injection The injection to apply.
+         * @param before    Weather to apply before or after the provided needle.
+         */
+        public MethodInjector(@Nonnull ObfMapping method, @Nullable ASMBlock needle, @Nonnull ASMBlock injection, @Nonnull boolean before) {
             super(method);
             this.needle = needle;
             this.injection = injection;
             this.before = before;
         }
 
-        public MethodInjector(ObfMapping method, ASMBlock injection, boolean before) {
+        /**
+         * Injects the provided injection to the beginning or end of the method.
+         *
+         * @param method    The method to inject to.
+         * @param injection The injection to apply.
+         * @param before    Weather to apply at the start of the method or the end.
+         */
+        public MethodInjector(@Nonnull ObfMapping method, @Nonnull ASMBlock injection, @Nonnull boolean before) {
             this(method, null, injection, before);
         }
 
-        public MethodInjector(ObfMapping method, InsnList needle, InsnList injection, boolean before) {
+        /**
+         * Injects the provided injection instructions at the location of the needle.
+         *
+         * @param method    The method to inject to.
+         * @param needle    Where to inject.
+         * @param injection The injection to apply.
+         * @param before    Weather to apply before or after the provided needle.
+         */
+        public MethodInjector(@Nonnull ObfMapping method, @Nonnull InsnList needle, @Nonnull InsnList injection, @Nonnull boolean before) {
             this(method, new ASMBlock(needle), new ASMBlock(injection), before);
         }
 
-        public MethodInjector(ObfMapping method, InsnList injection, boolean before) {
+        /**
+         * Injects the provided injection to the beginning or end of the method.
+         *
+         * @param method    The method to inject to.
+         * @param injection The injection to apply.
+         * @param before    Weather to apply at the start of the method or the end.
+         */
+        public MethodInjector(@Nonnull ObfMapping method, @Nonnull InsnList injection, @Nonnull boolean before) {
             this(method, null, new ASMBlock(injection), before);
         }
 
@@ -255,13 +331,27 @@ public class ModularASMTransformer {
         public ASMBlock needle;
         public ASMBlock replacement;
 
-        public MethodReplacer(ObfMapping method, ASMBlock needle, ASMBlock replacement) {
+        /**
+         * Replaces the provided needle with the provided replacement.
+         *
+         * @param method      The method to replace in.
+         * @param needle      The needle to replace.
+         * @param replacement The replacement to apply.
+         */
+        public MethodReplacer(@Nonnull ObfMapping method, @Nonnull ASMBlock needle, @Nonnull ASMBlock replacement) {
             super(method);
             this.needle = needle;
             this.replacement = replacement;
         }
 
-        public MethodReplacer(ObfMapping method, InsnList needle, InsnList replacement) {
+        /**
+         * Replaces the provided needle with the provided replacement.
+         *
+         * @param method      The method to replace in.
+         * @param needle      The needle to replace.
+         * @param replacement The replacement to apply.
+         */
+        public MethodReplacer(@Nonnull ObfMapping method, @Nonnull InsnList needle, @Nonnull InsnList replacement) {
             this(method, new ASMBlock(needle), new ASMBlock(replacement));
         }
 
@@ -290,13 +380,26 @@ public class ModularASMTransformer {
         public final int access;
         public final Object value;
 
-        public FieldWriter(int access, ObfMapping field, Object value) {
+        /**
+         * Writes a field to the provided class with a default value.
+         *
+         * @param access The access modifiers the field will have.
+         * @param field  The name and class for the field.
+         * @param value  The default value for the field.
+         */
+        public FieldWriter(@Nonnull int access, @Nonnull ObfMapping field, @Nullable Object value) {
             this.field = field.toClassloading();
             this.access = access;
             this.value = value;
         }
 
-        public FieldWriter(int access, ObfMapping field) {
+        /**
+         * Writes a field to the provided class.
+         *
+         * @param access The access modifiers the field will have.
+         * @param field  The name and class for the field.
+         */
+        public FieldWriter(@Nonnull int access, @Nonnull ObfMapping field) {
             this(access, field, null);
         }
 
@@ -318,7 +421,7 @@ public class ModularASMTransformer {
      *
      * @param t Transformer to add.
      */
-    public void add(ClassNodeTransformer t) {
+    public void add(@Nonnull ClassNodeTransformer t) {
         ClassNodeTransformerList list = transformers.get(t.className());
         if (list == null) {
             transformers.put(t.className(), list = new ClassNodeTransformerList());
@@ -334,7 +437,7 @@ public class ModularASMTransformer {
      * @return Returns null if the class passed is null, returns original class if there are no transformers for a given class.
      * Otherwise returns transformed class.
      */
-    public byte[] transform(String name, byte[] bytes) {
+    public byte[] transform(@Nonnull String name, @Nullable byte[] bytes) {
         if (bytes == null) {
             return null;
         }

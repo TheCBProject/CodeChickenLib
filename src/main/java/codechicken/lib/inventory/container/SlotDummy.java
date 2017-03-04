@@ -1,6 +1,7 @@
 package codechicken.lib.inventory.container;
 
 import codechicken.lib.inventory.InventoryUtils;
+import codechicken.lib.util.ItemUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.IInventory;
@@ -38,7 +39,7 @@ public class SlotDummy extends SlotHandleClicks {
             if (button == 1) {
                 quantity = 1;
             }
-            putStack(InventoryUtils.copyStack(held, quantity));
+            putStack(ItemUtils.copyStack(held, quantity));
         } else if (!tstack.isEmpty()) {
             int inc;
             if (!held.isEmpty()) {
@@ -56,7 +57,7 @@ public class SlotDummy extends SlotHandleClicks {
             if (quantity <= 0) {
                 putStack(ItemStack.EMPTY);
             } else {
-                putStack(InventoryUtils.copyStack(tstack, quantity));
+                putStack(ItemUtils.copyStack(tstack, quantity));
             }
         }
     }
@@ -64,7 +65,7 @@ public class SlotDummy extends SlotHandleClicks {
     @Override
     public void putStack(@Nonnull ItemStack stack) {
         if (!stack.isEmpty() && stack.getCount() > stackLimit) {
-            stack = InventoryUtils.copyStack(stack, stackLimit);
+            stack = ItemUtils.copyStack(stack, stackLimit);
         }
         super.putStack(stack);
     }

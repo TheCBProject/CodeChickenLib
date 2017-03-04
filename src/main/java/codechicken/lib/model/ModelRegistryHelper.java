@@ -29,15 +29,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-//TODO General cleanup, move to a less modular fashion now that CCL is a ModContainer.
 public class ModelRegistryHelper {
 
     private static List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<>();
     private static List<IModelBakeCallback> modelBakeCallbacks = new LinkedList<>();
-
-    static {
-        MinecraftForge.EVENT_BUS.register(new ModelRegistryHelper());
-    }
 
     public static void registerCallback(IModelBakeCallback callback) {
         modelBakeCallbacks.add(callback);
@@ -53,12 +48,7 @@ public class ModelRegistryHelper {
     public static void registerItemRenderer(Item item, IItemRenderer renderer) {
         final ModelResourceLocation modelLoc = new ModelResourceLocation(item.getRegistryName(), "inventory");
         register(modelLoc, renderer);
-        ModelLoader.setCustomMeshDefinition(item, new ItemMeshDefinition() {
-            @Override
-            public ModelResourceLocation getModelLocation(ItemStack stack) {
-                return modelLoc;
-            }
-        });
+        ModelLoader.setCustomMeshDefinition(item, stack -> modelLoc);
     }
 
     @SubscribeEvent
@@ -82,17 +72,7 @@ public class ModelRegistryHelper {
                 return TextureUtils.getTexture(tex);
             }
         });
-        ModelLoader.setCustomStateMapper(block, new IStateMapper() {
-            @Override
-            public Map<IBlockState, ModelResourceLocation> putStateModelLocations(Block blockIn) {
-                return Maps.toMap(blockIn.getBlockState().getValidStates(), new Function<IBlockState, ModelResourceLocation>() {
-                    @Override
-                    public ModelResourceLocation apply(IBlockState input) {
-                        return modelLoc;
-                    }
-                });
-            }
-        });
+        ModelLoader.setCustomStateMapper(block, blockIn -> Maps.toMap(blockIn.getBlockState().getValidStates(), input -> modelLoc));
     }
 
     public interface IModelBakeCallback {
@@ -100,7 +80,7 @@ public class ModelRegistryHelper {
         /**
          * A Simple callback for model baking.
          *
-         * @param modelRegistry
+         * @param modelRegistry Current models.
          */
         void onModelBake(IRegistry<ModelResourceLocation, IBakedModel> modelRegistry);
     }

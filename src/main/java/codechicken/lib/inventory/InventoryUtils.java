@@ -1,9 +1,7 @@
 package codechicken.lib.inventory;
 
 import codechicken.lib.util.ItemUtils;
-import codechicken.lib.vec.Vector3;
 import com.google.common.base.Objects;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
@@ -167,31 +165,11 @@ public class InventoryUtils {
     }
 
     /**
-     * Spawns an itemstack in the world at a location
-     *///TODO Move to ItemUtils.
-    @Deprecated
-    public static void dropItem(ItemStack stack, World world, Vector3 dropLocation) {
-        EntityItem item = new EntityItem(world, dropLocation.x, dropLocation.y, dropLocation.z, stack);
-        item.motionX = world.rand.nextGaussian() * 0.05;
-        item.motionY = world.rand.nextGaussian() * 0.05 + 0.2F;
-        item.motionZ = world.rand.nextGaussian() * 0.05;
-        world.spawnEntity(item);
-    }
-
-    /**
-     * Copies an itemstack with a new quantity
-     *///TODO Move to ItemUtils.
-    @Deprecated
-    public static ItemStack copyStack(ItemStack stack, int quantity) {
-       return ItemUtils.copyStack(stack, quantity);
-    }
-
-    /**
      * Gets the maximum quantity of an item that can be inserted into inv
      */
     public static int getInsertibleQuantity(InventoryRange inv, @Nonnull ItemStack stack) {
         int quantity = 0;
-        stack = copyStack(stack, Integer.MAX_VALUE);
+        stack = ItemUtils.copyStack(stack, Integer.MAX_VALUE);
         for (int slot : inv.slots) {
             quantity += fitStackInSlot(inv, slot, stack);
         }
@@ -242,7 +220,7 @@ public class InventoryUtils {
                     }
                 } else {
                     if (!simulate) {
-                        inv.inv.setInventorySlotContents(slot, copyStack(stack, fit));
+                        inv.inv.setInventorySlotContents(slot, ItemUtils.copyStack(stack, fit));
                     }
                     stack.shrink(fit);
                 }

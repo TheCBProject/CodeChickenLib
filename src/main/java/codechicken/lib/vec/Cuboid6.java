@@ -3,6 +3,7 @@ package codechicken.lib.vec;
 import codechicken.lib.util.Copyable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -22,6 +23,11 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     public Cuboid6(Vector3 min, Vector3 max) {
         this.min = min;
         this.max = max;
+    }
+
+    public Cuboid6(Vec3i min, Vec3i max) {
+        this.min = Vector3.fromVec3i(min);
+        this.max = Vector3.fromVec3i(max);
     }
 
     public Cuboid6(AxisAlignedBB aabb) {

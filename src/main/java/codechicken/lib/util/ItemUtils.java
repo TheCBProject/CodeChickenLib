@@ -1,6 +1,6 @@
 package codechicken.lib.util;
 
-import codechicken.lib.inventory.InventoryUtils;
+import codechicken.lib.vec.Vector3;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -17,7 +17,6 @@ import java.util.List;
 
 /**
  * Created by covers1624 on 6/30/2016.
- * TODO, InventoryUtils needs to have things merged to here and such.
  */
 public class ItemUtils {
 
@@ -32,6 +31,17 @@ public class ItemUtils {
             stack = player.getHeldItemOffhand();
         }
         return stack;
+    }
+
+    /**
+     * Drops an item with basic default random velocity.
+     */
+    public static void dropItem(ItemStack stack, World world, Vector3 dropLocation) {
+        EntityItem item = new EntityItem(world, dropLocation.x, dropLocation.y, dropLocation.z, stack);
+        item.motionX = world.rand.nextGaussian() * 0.05;
+        item.motionY = world.rand.nextGaussian() * 0.05 + 0.2F;
+        item.motionZ = world.rand.nextGaussian() * 0.05;
+        world.spawnEntity(item);
     }
 
     /**
@@ -81,7 +91,7 @@ public class ItemUtils {
     /**
      * Copy's an ItemStack.
      *
-     * @param stack     Stack to copy.
+     * @param stack    Stack to copy.
      * @param quantity Size of the new stack.
      * @return The new stack.
      */

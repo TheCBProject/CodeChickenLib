@@ -27,10 +27,9 @@ public class RayTracer {
      * @param cuboids The cuboids to check for a hit.
      * @param pos     The position offset for the start and end vector.
      * @return The closest hit to the start vector.
-     * //TODO 1.11, Re arrange args to (start, end, pos, cuboids)
      */
-    public static CuboidRayTraceResult rayTraceCuboidsClosest(Vec3d start, Vec3d end, List<IndexedCuboid6> cuboids, BlockPos pos) {
-        return rayTraceCuboidsClosest(new Vector3(start), new Vector3(end), cuboids, pos);
+    public static CuboidRayTraceResult rayTraceCuboidsClosest(Vec3d start, Vec3d end, BlockPos pos, List<IndexedCuboid6> cuboids) {
+        return rayTraceCuboidsClosest(new Vector3(start), new Vector3(end), pos, cuboids);
     }
 
     /**
@@ -39,9 +38,8 @@ public class RayTracer {
      * @param cuboids The cuboids to check for a hit.
      * @param pos     The position offset for the start and end vector.
      * @return The closest hit to the start vector.
-     * //TODO 1.11, Re arrange args to (start, end, pos, cuboids)
      */
-    public static CuboidRayTraceResult rayTraceCuboidsClosest(Vector3 start, Vector3 end, List<IndexedCuboid6> cuboids, BlockPos pos) {
+    public static CuboidRayTraceResult rayTraceCuboidsClosest(Vector3 start, Vector3 end, BlockPos pos, List<IndexedCuboid6> cuboids) {
         List<CuboidRayTraceResult> results = new ArrayList<>();
         for (IndexedCuboid6 cuboid6 : cuboids) {
             CuboidRayTraceResult hit = rayTrace(pos, start, end, cuboid6);
@@ -77,7 +75,7 @@ public class RayTracer {
                 cuboidList.add(new IndexedCuboid6(0, box));
             }
         }
-        return rayTraceCuboidsClosest(start, end, cuboidList, pos);
+        return rayTraceCuboidsClosest(start, end, pos, cuboidList);
     }
 
     /**
@@ -97,7 +95,7 @@ public class RayTracer {
                 cuboidList.add(new IndexedCuboid6(0, box));
             }
         }
-        return rayTraceCuboidsClosest(start, end, cuboidList, pos);
+        return rayTraceCuboidsClosest(start, end, pos, cuboidList);
     }
 
     /**
@@ -117,7 +115,7 @@ public class RayTracer {
                 cuboidList.add(new IndexedCuboid6(0, cuboid));
             }
         }
-        return rayTraceCuboidsClosest(start, end, cuboidList, pos);
+        return rayTraceCuboidsClosest(start, end, pos, cuboidList);
     }
 
     /**
@@ -137,7 +135,7 @@ public class RayTracer {
                 cuboidList.add(new IndexedCuboid6(0, cuboid));
             }
         }
-        return rayTraceCuboidsClosest(start, end, cuboidList, pos);
+        return rayTraceCuboidsClosest(start, end, pos, cuboidList);
     }
 
     /**
@@ -152,7 +150,7 @@ public class RayTracer {
         if (cuboids != null) {
             Collections.addAll(cuboidList, cuboids);
         }
-        return rayTraceCuboidsClosest(start, end, cuboidList, pos);
+        return rayTraceCuboidsClosest(start, end, pos, cuboidList);
     }
 
     /**
@@ -167,7 +165,7 @@ public class RayTracer {
         if (cuboids != null) {
             Collections.addAll(cuboidList, cuboids);
         }
-        return rayTraceCuboidsClosest(start, end, cuboidList, pos);
+        return rayTraceCuboidsClosest(start, end, pos, cuboidList);
     }
 
     /**

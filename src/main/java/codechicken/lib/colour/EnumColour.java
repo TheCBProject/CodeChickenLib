@@ -10,8 +10,8 @@ import net.minecraftforge.oredict.OreDictionary;
  * Created by covers1624 on 16/09/2016.
  */
 public enum EnumColour implements IStringSerializable {
+    
     //Formatted like this due to the cancerous nature of the constructors..
-    //TODO Should we have our own localizations for this?
     //@formatter:off
     WHITE     ("white",      "dyeWhite",     "item.fireworksCharge.white",     0xFFFFFF),
     ORANGE    ("orange",     "dyeOrange",    "item.fireworksCharge.orange",    0xC06300),

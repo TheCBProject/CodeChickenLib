@@ -31,7 +31,7 @@ public class ASMHelper {
             File mcDir = (File) ((Object[]) Class.forName("net.minecraftforge.fml.relauncher.FMLInjectionData").getMethod("data").invoke(null))[6];
             File file = new File(mcDir, "config/CodeChickenLib.cfg");
             boolean obf = true;
-            try {//TODO Move the config initializer to a better spot..
+            try {
                 obf = Launch.classLoader.getClassBytes("net.minecraft.world.World") == null;
             } catch (Exception ignored) {
             }

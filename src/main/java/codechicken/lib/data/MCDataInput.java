@@ -32,24 +32,20 @@ public interface MCDataInput {
     char readChar();
 
     default int readVarShort() {
-
         return MCDataUtils.readVarShort(this);
     }
 
     default int readVarInt() {
-
         return MCDataUtils.readVarInt(this);
     }
 
     default long readVarLong() {
-
         return MCDataUtils.readVarLong(this);
     }
 
     byte[] readArray(int length);
 
     default String readString() {
-
         return MCDataUtils.readString(this);
     }
 
@@ -58,32 +54,26 @@ public interface MCDataInput {
     }
 
     default EnumFacing readEnumFacing() {
-
         return EnumFacing.VALUES[readByte()];
     }
 
     default ResourceLocation readLocation() {
-
         return new ResourceLocation(readString());
     }
 
     default BlockPos readPos() {
-
         return new BlockPos(readInt(), readInt(), readInt());
     }
 
     default NBTTagCompound readNBTTagCompound() {
-
         return MCDataUtils.readNBTTagCompound(this);
     }
 
     default ItemStack readItemStack() {
-
         return MCDataUtils.readItemStack(this);
     }
 
     default FluidStack readFluidStack() {
-
         return MCDataUtils.readFluidStack(this);
     }
 }

@@ -28,5 +28,5 @@ LELSE
 list i_BlockStateLoader
 ALOAD 0
 GETSTATIC net/minecraft/client/renderer/block/model/ModelBlockDefinition.field_178333_a : Lcom/google/gson/Gson;
-INVOKESTATIC codechicken/lib/model/blockstate/CCBlockStateLoader.handleLoad (Ljava/io/Reader;Lcom/google/gson/Gson;)Lnet/minecraft/client/renderer/block/model/ModelBlockDefinition;
+INVOKESTATIC codechicken/lib/model/loader/blockstate/CCBlockStateLoader.handleLoad (Ljava/io/Reader;Lcom/google/gson/Gson;)Lnet/minecraft/client/renderer/block/model/ModelBlockDefinition;
 ARETURN

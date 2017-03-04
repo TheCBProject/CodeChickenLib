@@ -18,6 +18,7 @@ import io.netty.util.AttributeKey;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
@@ -29,9 +30,12 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
@@ -52,6 +56,7 @@ import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
 import java.util.EnumMap;
+import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
@@ -441,130 +446,183 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     }
     //endregion
 
+    //region MCDataOutput. Write.
     @Override
     public PacketCustom writeBoolean(boolean b) {
-
         buf.writeBoolean(b);
         return this;
     }
 
     @Override
     public PacketCustom writeByte(int b) {
-
         buf.writeByte(b);
         return this;
     }
 
     @Override
     public PacketCustom writeShort(int s) {
-
         buf.writeShort(s);
         return this;
     }
 
     @Override
     public PacketCustom writeInt(int i) {
-
         buf.writeInt(i);
         return this;
     }
 
     @Override
     public PacketCustom writeFloat(float f) {
-
         buf.writeFloat(f);
         return this;
     }
 
     @Override
     public PacketCustom writeDouble(double d) {
-
         buf.writeDouble(d);
         return this;
     }
 
     @Override
     public PacketCustom writeLong(long l) {
-
         buf.writeLong(l);
         return this;
     }
 
     public PacketCustom writeChar(char c) {
-
         buf.writeChar(c);
         return this;
     }
 
-    public PacketCustom writeArray(byte[] barray) {
+    @Override
+    public PacketCustom writeVarInt(int i) {
+        MCDataOutput.super.writeVarInt(i);
+        return this;
+    }
 
+    @Override
+    public PacketCustom writeVarShort(int s) {
+        MCDataOutput.super.writeVarShort(s);
+        return this;
+    }
+
+    @Override
+    public PacketCustom writeVarLong(long l) {
+        MCDataOutput.super.writeVarLong(l);
+        return this;
+    }
+
+    public PacketCustom writeArray(byte[] barray) {
         buf.writeBytes(barray);
         return this;
     }
 
-    public short readUByte() {
+    @Override
+    public PacketCustom writeString(String s) {
+        MCDataOutput.super.writeString(s);
+        return this;
+    }
 
+    @Override
+    public PacketCustom writeUUID(UUID uuid) {
+        MCDataOutput.super.writeUUID(uuid);
+        return this;
+    }
+
+    @Override
+    public PacketCustom writeEnumFacing(EnumFacing facing) {
+        MCDataOutput.super.writeEnumFacing(facing);
+        return this;
+    }
+
+    @Override
+    public PacketCustom writeResourceLocation(ResourceLocation location) {
+        MCDataOutput.super.writeResourceLocation(location);
+        return this;
+    }
+
+    @Override
+    public PacketCustom writePos(BlockPos pos) {
+        MCDataOutput.super.writePos(pos);
+        return this;
+    }
+
+    @Override
+    public PacketCustom writeNBTTagCompound(NBTTagCompound tag) {
+        MCDataOutput.super.writeNBTTagCompound(tag);
+        return this;
+    }
+
+    @Override
+    public PacketCustom writeItemStack(ItemStack stack) {
+        MCDataOutput.super.writeItemStack(stack);
+        return this;
+    }
+
+    @Override
+    public PacketCustom writeFluidStack(FluidStack liquid) {
+        MCDataOutput.super.writeFluidStack(liquid);
+        return this;
+    }
+
+    //endregion
+
+    //region MCDataInput. Read.
+    public short readUByte() {
         return buf.readUnsignedByte();
     }
 
     @Override
     public double readDouble() {
-
         return buf.readDouble();
     }
 
     @Override
     public float readFloat() {
-
         return buf.readFloat();
     }
 
     @Override
     public boolean readBoolean() {
-
         return buf.readBoolean();
     }
 
     @Override
     public char readChar() {
-
         return buf.readChar();
     }
 
     @Override
     public long readLong() {
-
         return buf.readLong();
     }
 
     @Override
     public int readInt() {
-
         return buf.readInt();
     }
 
     @Override
     public short readShort() {
-
         return buf.readShort();
     }
 
     public int readUShort() {
-
         return buf.readUnsignedShort();
     }
 
     @Override
     public byte readByte() {
-
         return buf.readByte();
     }
 
     public byte[] readArray(int length) {
-
         return buf.readBytes(length).array();
     }
 
+    //endregion
+
+    //region ByteBuf wrapper overrides.
     //@formatter:off \o/ wrappers.
     @Override public boolean hasMemoryAddress() {return buf.hasMemoryAddress();}
     @Override public long memoryAddress() {return buf.memoryAddress();}
@@ -696,4 +754,5 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     @Override public boolean release() {return buf.release();}
     @Override public boolean release(int decrement) {return buf.release(decrement);}
     //@formatter:on
+    //endregion
 }

@@ -23,7 +23,6 @@ import java.util.Map.Entry;
 
 /**
  * Created by covers1624 on 19/12/2016.
- * TODO Items.
  */
 public class DumpModelLocationsCommand implements ICommand {
 
@@ -48,7 +47,7 @@ public class DumpModelLocationsCommand implements ICommand {
     @Override
     public void execute(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args) throws CommandException {
         ItemStack stack = Minecraft.getMinecraft().player.getHeldItemMainhand();
-        if (stack != null && stack.getItem() instanceof ItemBlock) {
+        if (!stack.isEmpty() && stack.getItem() instanceof ItemBlock) {
             Block block = Block.getBlockFromItem(stack.getItem());
             BlockStateMapper stateMapper = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getBlockStateMapper();
             for (Entry<IBlockState, ModelResourceLocation> entry : stateMapper.getVariants(block).entrySet()) {

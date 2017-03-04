@@ -24,7 +24,7 @@ import org.lwjgl.opengl.GL11;
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class GuiDraw {
@@ -130,22 +130,20 @@ public class GuiDraw {
         return fontRenderer.getStringWidth(TextFormatting.getTextWithoutFormattingCodes(s));
     }
 
-    //TODO, getDisplaySize.
-    public static Dimension displaySize() {
+    public static Dimension getDisplaySize() {
         Minecraft mc = Minecraft.getMinecraft();
         ScaledResolution res = new ScaledResolution(mc);
         return new Dimension(res.getScaledWidth(), res.getScaledHeight());
     }
 
-    //TODO, getDisplayRes
-    public static Dimension displayRes() {
+    public static Dimension getDisplayRes() {
         Minecraft mc = Minecraft.getMinecraft();
         return new Dimension(mc.displayWidth, mc.displayHeight);
     }
 
     public static Point getMousePosition(int eventX, int eventY) {
-        Dimension size = displaySize();
-        Dimension res = displayRes();
+        Dimension size = getDisplaySize();
+        Dimension res = getDisplayRes();
         return new Point(eventX * size.width / res.width, size.height - eventY * size.height / res.height - 1);
     }
 
@@ -153,80 +151,16 @@ public class GuiDraw {
         return getMousePosition(Mouse.getX(), Mouse.getY());
     }
 
-    public static void changeTexture(String s) {
-        TextureUtils.changeTexture(s);
-    }
-
-    public static void changeTexture(ResourceLocation r) {
-        TextureUtils.changeTexture(r);
-    }
-
     public static void drawTip(int x, int y, String text) {
-        drawMultilineTip(x, y, Arrays.asList(text));
+        drawMultiLineTip(x, y, Collections.singletonList(text));
     }
 
-    /**
-     * Append a string in the tooltip list with TOOLTIP_LINESPACE to have a small gap between it and the next line
-     */
-    public static final String TOOLTIP_LINESPACE = "\u00A7h";
-    /**
-     * Have a string in the tooltip list with TOOLTIP_HANDLER + getTipLineId(handler) for a custom handler
-     */
-
-    @Deprecated
-    public static void drawMultilineTip(int x, int y, List<String> list) {
-        drawMultilineTip(null, x, y, list);
+    public static void drawMultiLineTip(int x, int y, List<String> list) {
+        drawMultiLineTip(null, x, y, list);
     }
 
-    public static void drawMultilineTip(@Nullable ItemStack stack, int x, int y, List<String> lines) {
-        //TODO TOOLTIP_LINESPACE support, pr forge to clip the box in the top bound of the screen + TOOLTIP_LINESPACE
-        /*if (lines.isEmpty()) {
-            return;
-        }
-
-        GlStateManager.disableRescaleNormal();
-        RenderHelper.disableStandardItemLighting();
-        GlStateManager.disableDepth();
-
-        int w = 0;
-        int h = -2;
-        for (int i = 0; i < lines.size(); i++) {
-            String s = lines.get(i);
-            ITooltipLineHandler line = getTipLine(s);
-            Dimension d = line != null ? line.getSize() : new Dimension(getStringWidth(s), lines.get(i).endsWith(TOOLTIP_LINESPACE) && i + 1 < lines.size() ? 12 : 10);
-            w = Math.max(w, d.width);
-            h += d.height;
-        }
-
-        if (x < 8) {
-            x = 8;
-        } else if (x > displaySize().width - w - 8) {
-            x -= 24 + w;//flip side of cursor
-            if (x < 8) {
-                x = 8;
-            }
-        }
-        y = (int) MathHelper.clip(y, 8, displaySize().height - 8 - h);
-
-        gui.incZLevel(300);
-        drawTooltipBox(x - 4, y - 4, w + 7, h + 7);
-        for (String s : lines) {
-            ITooltipLineHandler line = getTipLine(s);
-            if (line != null) {
-                line.draw(x, y);
-                y += line.getSize().height;
-            } else {
-                fontRenderer.drawStringWithShadow(s, x, y, -1);
-                y += s.endsWith(TOOLTIP_LINESPACE) ? 12 : 10;
-            }
-        }
-
-        tipLineHandlers.clear();
-        gui.incZLevel(-300);
-
-        GlStateManager.enableDepth();
-        RenderHelper.enableStandardItemLighting();
-        GlStateManager.enableRescaleNormal();*/
+    public static void drawMultiLineTip(@Nullable ItemStack stack, int x, int y, List<String> lines) {
+        //TODO pr forge to clip the box in the top bound of the screen + TOOLTIP_LINESPACE
 
         ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft());
         int screenWidth = res.getScaledWidth();
@@ -255,7 +189,7 @@ public class GuiDraw {
         if (x < 8) {
             x = 8;
         }
-        y = MathHelper.clip(y, 8, displaySize().height - 8);
+        y = MathHelper.clip(y, 8, getDisplaySize().height - 8);
         int tooltipTextWidth = 0;
 
         for (String textLine : lines) {
@@ -364,22 +298,5 @@ public class GuiDraw {
         RenderHelper.enableStandardItemLighting();
         GlStateManager.enableRescaleNormal();
 
-    }
-
-    @Deprecated//TODO 1.11, update this to do what is done in the other method(vague, i know what it means tho :P)
-    public static void drawTooltipBox(int x, int y, int w, int h) {
-        int bg = 0xf0100010;
-        drawGradientRect(x + 1, y, w - 1, 1, bg, bg);
-        drawGradientRect(x + 1, y + h, w - 1, 1, bg, bg);
-        drawGradientRect(x + 1, y + 1, w - 1, h - 1, bg, bg);//center
-        drawGradientRect(x, y + 1, 1, h - 1, bg, bg);
-        drawGradientRect(x + w, y + 1, 1, h - 1, bg, bg);
-        int grad1 = 0x505000ff;
-        int grad2 = 0x5028007F;
-        drawGradientRect(x + 1, y + 2, 1, h - 3, grad1, grad2);
-        drawGradientRect(x + w - 1, y + 2, 1, h - 3, grad1, grad2);
-
-        drawGradientRect(x + 1, y + 1, w - 1, 1, grad1, grad1);
-        drawGradientRect(x + 1, y + h - 1, w - 1, 1, grad2, grad2);
     }
 }

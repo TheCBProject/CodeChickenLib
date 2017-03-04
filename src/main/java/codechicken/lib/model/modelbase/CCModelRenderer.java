@@ -1,6 +1,6 @@
 package codechicken.lib.model.modelbase;
 
-import codechicken.lib.model.bakery.CCQuad;
+import codechicken.lib.render.CCQuad;
 import codechicken.lib.render.CCModel;
 import codechicken.lib.vec.*;
 import codechicken.lib.vec.uv.UV;

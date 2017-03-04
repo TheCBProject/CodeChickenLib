@@ -2,9 +2,10 @@ package codechicken.lib.internal.proxy;
 
 import codechicken.lib.internal.command.client.DumpModelLocationsCommand;
 import codechicken.lib.internal.command.client.NukeCCModelCacheCommand;
-import codechicken.lib.model.blockbakery.BlockBakery;
-import codechicken.lib.model.blockbakery.loader.CCBakeryModelLoader;
-import codechicken.lib.model.cube.CCCubeLoader;
+import codechicken.lib.model.ModelRegistryHelper;
+import codechicken.lib.model.bakery.ModelBakery;
+import codechicken.lib.model.loader.bakery.CCBakeryModelLoader;
+import codechicken.lib.model.loader.cube.CCCubeLoader;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.BlockRenderingRegistry;
 import codechicken.lib.render.item.CCRenderItem;
@@ -20,9 +21,10 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public void preInit() {
-        BlockBakery.init();
+        ModelBakery.init();
         CCRenderEventHandler.init();
         MinecraftForge.EVENT_BUS.register(new MapRenderRegistry());
+        MinecraftForge.EVENT_BUS.register(new ModelRegistryHelper());
         ModelLoaderRegistry.registerLoader(CCCubeLoader.INSTANCE);
         ModelLoaderRegistry.registerLoader(CCBakeryModelLoader.INSTANCE);
         ClientCommandHandler.instance.registerCommand(new DumpModelLocationsCommand());

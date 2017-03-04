@@ -13,7 +13,6 @@ import javax.annotation.Nonnull;
 /**
  * Created by covers1624 on 7/11/2016.
  * Provides a Simple way to create a CreativeTab
- * TODO BlockState parsing.
  */
 public class SimpleCreativeTab extends CreativeTabs {
 

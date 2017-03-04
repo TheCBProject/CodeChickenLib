@@ -2,7 +2,6 @@ package codechicken.lib.item;
 
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -15,13 +14,10 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * Created by covers1624 on 3/27/2016.
- * TODO cleanup.
- * TODO Rename a bunch of things in here.
  */
 public class ItemMultiType extends Item {
 
@@ -48,13 +44,13 @@ public class ItemMultiType extends Item {
         return this;
     }
 
-    public ItemMultiType setUseStackRegistry() {
+    public ItemMultiType enableStackRegistry() {
         registerToStackRegistry = true;
         return this;
     }
 
     @Nonnull
-    public ItemStack registerSubItem(int meta, String name) {
+    public ItemStack registerItem(int meta, String name) {
         if (names.containsKey(meta)) {
             FMLLog.warning("[ItemMultiType.%s]: Variant %s with meta %s is already registered to %s with meta %s", getRegistryName(), name, meta, names.get(meta), meta);
         }
@@ -65,8 +61,8 @@ public class ItemMultiType extends Item {
     }
 
     @Nonnull
-    public ItemStack registerSubItemOreDict(int meta, String name) {
-        ItemStack stack = registerSubItem(meta, name);
+    public ItemStack registerOreDict(int meta, String name) {
+        ItemStack stack = registerItem(meta, name);
         OreDictionary.registerOre(name, stack);
         if (registerToStackRegistry) {
             ItemStackRegistry.registerCustomItemStack(name, stack);
@@ -75,13 +71,13 @@ public class ItemMultiType extends Item {
     }
 
     @Nonnull
-    public ItemStack registerSubItem(String name) {
-        return registerSubItem(nextVariant, name);
+    public ItemStack registerItem(String name) {
+        return registerItem(nextVariant, name);
     }
 
     @Nonnull
-    public ItemStack registerSubItemOreDict(String name) {
-        ItemStack stack = registerSubItem(nextVariant, name);
+    public ItemStack registerOreDict(String name) {
+        ItemStack stack = registerItem(nextVariant, name);
         OreDictionary.registerOre(name, stack);
         if (registerToStackRegistry) {
             ItemStackRegistry.registerCustomItemStack(name, stack);
@@ -100,7 +96,7 @@ public class ItemMultiType extends Item {
 
     @SuppressWarnings ("ConstantConditions")
     @SideOnly (Side.CLIENT)
-    public void registerModelVariants() {
+    public void registerModels() {
         if (!hasRegistered) {
             for (Map.Entry<Integer, String> entry : names.entrySet()) {
                 ModelResourceLocation location = new ModelResourceLocation(getRegistryName(), "type=" + entry.getValue().toLowerCase());
@@ -122,6 +118,5 @@ public class ItemMultiType extends Item {
         int meta = stack.getItemDamage();
         return getUnlocalizedName() + "." + names.get(meta);
     }
-
 
 }

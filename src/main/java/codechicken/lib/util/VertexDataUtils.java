@@ -1,7 +1,11 @@
 package codechicken.lib.util;
 
+import codechicken.lib.colour.Colour;
 import codechicken.lib.math.MathHelper;
+import codechicken.lib.vec.Vector3;
+import codechicken.lib.vec.Vertex5;
 import codechicken.lib.vec.uv.UV;
+import codechicken.lib.vec.uv.UVTransformation;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -12,10 +16,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by covers1624 on 4/10/2016.
@@ -138,4 +139,101 @@ public class VertexDataUtils {
         }
     }
 
+    public static BakedQuad buildQuad(VertexFormat format, TextureAtlasSprite sprite, EnumFacing face, Colour colour, UVTransformation t, Vertex5 v1, Vertex5 v2, Vertex5 v3, Vertex5 v4) {
+        UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(format);
+        builder.setQuadTint(-1);
+        builder.setQuadOrientation(face);
+        builder.setTexture(sprite);
+
+        t.apply(v1.uv);
+        t.apply(v2.uv);
+        t.apply(v3.uv);
+        t.apply(v4.uv);
+        putVertex(builder, format, face, v1, colour);
+        putVertex(builder, format, face, v2, colour);
+        putVertex(builder, format, face, v3, colour);
+        putVertex(builder, format, face, v4, colour);
+
+        return copyQuad(builder.build());
+    }
+
+    private static void putVertex(UnpackedBakedQuad.Builder builder, VertexFormat format, EnumFacing face, Vertex5 vert, Colour colour) {
+        for (int e = 0; e < format.getElementCount(); e++) {
+            VertexFormatElement element = format.getElement(e);
+            switch (element.getUsage()) {
+
+                case POSITION:
+                    Vector3 vec = vert.vec;
+                    builder.put(e, (float) vec.x, (float) vec.y, (float) vec.z, 1);
+                    break;
+                case NORMAL:
+                    builder.put(e, face.getFrontOffsetX(), face.getFrontOffsetY(), face.getFrontOffsetZ(), 0);
+                    break;
+                case COLOR:
+                    builder.put(e, (colour.r & 0xFF) / 255F, (colour.g & 0xFF) / 255F, (colour.b & 0xFF) / 255F, (colour.a & 0xFF) / 255F);
+                    break;
+                case UV:
+                    UV uv = vert.uv;
+                    builder.put(e, (float) uv.u, (float) uv.v, 0, 1);
+                    break;
+                default:
+                    builder.put(e);
+                    break;
+            }
+        }
+    }
+
+    public static List<BakedQuad> shadeQuadFaces(BakedQuad... quads) {
+        return shadeQuadFaces(Arrays.asList(quads));
+    }
+
+    public static List<BakedQuad> shadeQuadFaces(List<BakedQuad> quads) {
+        LinkedList<BakedQuad> shadedQuads = new LinkedList<>();
+        for (BakedQuad quad : quads) {
+            int[] rawData = quad.getVertexData();
+            for (int v = 0; v < 4; v++) {
+                for (int e = 0; e < quad.getFormat().getElementCount(); e++) {
+                    VertexFormatElement element = quad.getFormat().getElement(e);
+                    if (element.getUsage() == EnumUsage.COLOR) {
+                        float[] data = new float[4];
+                        LightUtil.unpack(rawData, data, quad.getFormat(), v, e);
+
+                        data = diffuseFaceLight(quad.getFace(), data);
+
+                        LightUtil.pack(data, rawData, quad.getFormat(), v, e);
+                    }
+                }
+            }
+            shadedQuads.add(new BakedQuad(rawData, quad.getTintIndex(), quad.getFace(), quad.getSprite(), quad.shouldApplyDiffuseLighting(), quad.getFormat()));
+        }
+
+        return shadedQuads;
+    }
+
+    private static float[] diffuseFaceLight(EnumFacing face, float[] colour) {
+        double diffuse;
+        switch (face) {
+            case DOWN:
+                diffuse = 0.5D;
+                break;
+            case NORTH:
+            case SOUTH:
+                diffuse = 0.8D;
+                break;
+            case WEST:
+            case EAST:
+                diffuse = 0.6D;
+                break;
+            case UP:
+            default:
+                diffuse = 1.0D;
+                break;
+        }
+
+        colour[0] *= diffuse;
+        colour[1] *= diffuse;
+        colour[2] *= diffuse;
+
+        return colour;
+    }
 }

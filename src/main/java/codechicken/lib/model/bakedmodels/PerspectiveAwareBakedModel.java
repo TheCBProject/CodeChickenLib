@@ -31,11 +31,11 @@ public class PerspectiveAwareBakedModel implements IPerspectiveAwareModel {
     private final BakedModelProperties properties;
 
     public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, IModelState state, BakedModelProperties properties) {
-        this(faceQuads, ImmutableList.<BakedQuad>of(), state, properties);
+        this(faceQuads, ImmutableList.of(), state, properties);
     }
 
     public PerspectiveAwareBakedModel(List<BakedQuad> generalQuads, IModelState state, BakedModelProperties properties) {
-        this(ImmutableMap.<EnumFacing, List<BakedQuad>>of(), generalQuads, state, properties);
+        this(ImmutableMap.of(), generalQuads, state, properties);
     }
 
     public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, IModelState state, BakedModelProperties properties) {

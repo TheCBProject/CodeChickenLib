@@ -1,6 +1,6 @@
 package codechicken.lib.internal.command.client;
 
-import codechicken.lib.model.blockbakery.BlockBakery;
+import codechicken.lib.model.bakery.ModelBakery;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
@@ -38,7 +38,7 @@ public class NukeCCModelCacheCommand implements ICommand {
 
     @Override
     public void execute(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args) throws CommandException {
-        BlockBakery.nukeModelCache();
+        ModelBakery.nukeModelCache();
         sender.sendMessage(new TextComponentString("Model cache nuked!"));
     }
 
