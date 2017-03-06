@@ -231,6 +231,9 @@ public class BlockBakery implements IResourceManagerReloadListener {
     }
 
     public static IBakedModel getCachedModel(IExtendedBlockState state) {
+        if (state == null) {
+            return missingModel;
+	    }
         IBakedModel model;
         IBlockStateKeyGenerator keyGenerator = getKeyGenerator(state.getBlock());
         String key = keyGenerator.generateKey(state);
