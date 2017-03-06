@@ -4,7 +4,7 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.ClassReader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -130,13 +130,13 @@ public class ClassHierarchyManager implements IClassTransformer {
     }
 
     private static SuperCache declareASM(byte[] bytes) {
-        ClassNode node = ASMHelper.createClassNode(bytes);
-        String name = toKey(node.name);
+        ClassReader reader = new ClassReader(bytes);
+        String name = toKey(reader.getClassName());
 
         SuperCache cache = getOrCreateCache(name);
-        cache.superclass = toKey(node.superName.replace('/', '.'));
+        cache.superclass = toKey(reader.getSuperName().replace('/', '.'));
         cache.add(cache.superclass);
-        for (String iclass : node.interfaces) {
+        for (String iclass : reader.getInterfaces()) {
             cache.add(toKey(iclass.replace('/', '.')));
         }
 
