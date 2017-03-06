@@ -3,11 +3,12 @@ package codechicken.lib.asm.discovery;
 import codechicken.lib.asm.ASMHelper;
 import codechicken.lib.asm.CCLCorePlugin;
 import codechicken.lib.util.CommonUtils;
+import com.google.common.collect.Lists;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModClassLoader;
 import net.minecraftforge.fml.common.ModContainer;
-import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.ClassReader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,9 +62,13 @@ public class ClassDiscoverer {
                 return;
             }
 
-            ClassNode cnode = ASMHelper.createClassNode(bytes);
+            ClassReader reader = new ClassReader(bytes);
+            List<String> interfaces = Lists.newArrayList(reader.getSuperName());
+            for (String itf : reader.getInterfaces())
+                interfaces.add(itf);
+
             for (String superclass : superclasses) {
-                if (!cnode.interfaces.contains(superclass) && !cnode.superName.equals(superclass)) {
+                if (!interfaces.contains(superclass)) {
                     return;
                 }
             }
