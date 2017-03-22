@@ -89,7 +89,7 @@ public class LightMatrix implements IVertexOperation {
             BlockPos bp = new BlockPos(pos.getX() + (i % 3) - 1, pos.getY() + (i / 9) - 1, pos.getZ() + (i / 3 % 3) - 1);
             IBlockState b = access.getBlockState(bp);
             bSamples[i] = access.getCombinedLight(bp, b.getLightValue(access, bp));
-            aSamples[i] = b.getBlock().getAmbientOcclusionLightValue(b);
+            aSamples[i] = b.getAmbientOcclusionLightValue();
             sampled |= 1 << i;
         }
     }
