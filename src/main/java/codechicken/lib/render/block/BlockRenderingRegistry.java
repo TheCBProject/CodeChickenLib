@@ -81,6 +81,7 @@ public class BlockRenderingRegistry {
             buffer.begin(7, parent.getVertexFormat());
             renderer.handleRenderBlockDamage(world, pos, state, sprite, buffer);
             buffer.finishDrawing();
+            buffer.setTranslation(0, 0, 0);
             BlockModelRenderer modelRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer();
             modelRenderer.renderModel(world, new PerspectiveAwareBakedModel(buffer.bake(), TransformUtils.DEFAULT_BLOCK, new BakedModelProperties(true, true, null)), state, pos, parent, true);
         }
