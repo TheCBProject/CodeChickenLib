@@ -17,6 +17,8 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
 import java.util.List;
@@ -49,7 +51,7 @@ public abstract class SimpleBlockRenderer implements ISimpleBlockBakery, IIconRe
     public abstract boolean shouldCull();
 
     @Override
-    public IExtendedBlockState handleState(IExtendedBlockState state, TileEntity tileEntity) {
+    public IExtendedBlockState handleState(IExtendedBlockState state, IBlockAccess world, BlockPos pos) {
         return state;
     }
 
