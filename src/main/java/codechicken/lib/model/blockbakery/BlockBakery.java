@@ -135,11 +135,13 @@ public class BlockBakery implements IResourceManagerReloadListener {
             for (BlockRenderLayer layer : BlockRenderLayer.values()) {
                 if (block.canRenderInLayer(state, layer)) {
                     Map<EnumFacing, TextureAtlasSprite> faceSpriteMap = new HashMap<EnumFacing, TextureAtlasSprite>();
-                    for (EnumFacing face : EnumFacing.VALUES) {
-                        TextureAtlasSprite sprite = provider.getTexture(face, state, layer, tileEntity.getWorld(), tileEntity.getPos());
-                        if (sprite != null) {
-                            faceSpriteMap.put(face, sprite);
-                        }
+                    if(tileEntity != null) {
+	                    for (EnumFacing face : EnumFacing.VALUES) {
+		                    TextureAtlasSprite sprite = provider.getTexture(face, state, layer, tileEntity.getWorld(), tileEntity.getPos());
+		                    if (sprite != null) {
+			                    faceSpriteMap.put(face, sprite);
+		                    }
+	                    }
                     }
                     layerFaceSpriteMap.put(layer, faceSpriteMap);
                 }
