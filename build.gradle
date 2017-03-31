@@ -2,6 +2,10 @@ buildscript {
     repositories {
         jcenter()
         maven {
+        	name = "forge"
+        	url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
             name = "covers1624"
             url = "http://maven.covers1624.net/"
         }
@@ -46,14 +50,14 @@ minecraft {
     makeObfSourceJar = false
 }
 
-
+import org.apache.tools.ant.filters.ReplaceTokens
 processResources {
     inputs.property "version", project.version
     inputs.property "mc_version", project.config.mc_version
 
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-        expand 'version': project.version, 'mc_version': project.config.mc_version
+        filter(ReplaceTokens, tokens: ['version': project.version, 'mc_version': project.config.mc_version])
     }
     rename '(.+_at.cfg)', 'META-INF/$1'
 }
