@@ -1,5 +1,6 @@
 package codechicken.lib.asm;
 
+import codechicken.lib.CodeChickenLib;
 import codechicken.lib.config.ConfigFile;
 import codechicken.lib.config.DefaultingConfigFile;
 import net.minecraft.launchwrapper.Launch;
@@ -176,7 +177,7 @@ public class ASMHelper {
             acceptor.accept(cv);
             pout.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.fatal("Fatal exception occurred whilst trying to dump ASM to file!", e);
         }
     }
 
