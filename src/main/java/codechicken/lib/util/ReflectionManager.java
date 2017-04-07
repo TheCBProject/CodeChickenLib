@@ -3,10 +3,7 @@ package codechicken.lib.util;
 import codechicken.lib.asm.ObfMapping;
 import org.objectweb.asm.Type;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.HashMap;
 
 //TODO Clean cruft and move basically everything to OBFMapping.
@@ -51,6 +48,18 @@ public class ReflectionManager {
             return primitive.isInstance(obj);
         }
         return class1.isInstance(obj);
+    }
+
+    public static boolean isStatic(int modifiers) {
+        return (modifiers & Modifier.STATIC) != 0;
+    }
+
+    public static boolean isStatic(Method method) {
+        return isStatic(method.getModifiers());
+    }
+
+    public static boolean isStatic(Field field) {
+        return isStatic(field.getModifiers());
     }
 
     public static Class<?> findClass(String name) {

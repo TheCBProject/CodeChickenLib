@@ -2,12 +2,8 @@ buildscript {
     repositories {
         jcenter()
         maven {
-            name = "covers1624"
-            url = "http://maven.covers1624.net/"
-        }
-        maven {
-            name = "covers1624"
-            url = "http://mavenmirror.covers1624.net/"
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
         }
     }
     dependencies {
@@ -60,7 +56,6 @@ processResources {
 
 version = "${project.minecraft.version}-${project.version}"
 def commonManifest = {
-    attributes 'Main-Class': 'codechicken.lib.tool.Main'
     attributes 'FMLCorePlugin': 'codechicken.lib.asm.CCLCorePlugin'
     attributes 'FMLCorePluginContainsFMLMod': 'true'
     attributes 'FMLAT': 'ccl_at.cfg'

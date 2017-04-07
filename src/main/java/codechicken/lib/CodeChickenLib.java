@@ -1,5 +1,6 @@
 package codechicken.lib;
 
+import codechicken.lib.asm.proxy.ProxyInjector;
 import codechicken.lib.fingerprint.FingerprintChecker;
 import codechicken.lib.internal.MigrationManager;
 import codechicken.lib.internal.proxy.Proxy;
@@ -36,6 +37,7 @@ public class CodeChickenLib {
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         FingerprintChecker.runFingerprintChecks();
+        ProxyInjector.runInjector(event.getAsmData());
         proxy.preInit();
     }
 
