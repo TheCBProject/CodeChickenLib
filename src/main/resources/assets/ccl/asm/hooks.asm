@@ -32,12 +32,12 @@ INVOKESTATIC codechicken/lib/model/loader/blockstate/CCBlockStateLoader.handleLo
 ARETURN
 
 list n_foregroundHook
-INVOKESTATIC net/minecraft/client/renderer/RenderHelper.disableStandardItemLighting ()V
+INVOKESTATIC net/minecraft/client/renderer/RenderHelper.func_74518_a ()V
 ALOAD 0
 ILOAD 1
 ILOAD 2
-INVOKEVIRTUAL net/minecraft/client/gui/inventory/GuiContainer.drawGuiContainerForegroundLayer (II)V
-INVOKESTATIC net/minecraft/client/renderer/RenderHelper.enableGUIStandardItemLighting ()V
+INVOKEVIRTUAL net/minecraft/client/gui/inventory/GuiContainer.func_146979_b (II)V
+INVOKESTATIC net/minecraft/client/renderer/RenderHelper.func_74520_c ()V
 
 list i_foregroundHook
 ALOAD 0
