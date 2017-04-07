@@ -17,10 +17,11 @@ import net.minecraftforge.common.MinecraftForge;
 /**
  * Created by covers1624 on 23/11/2016.
  */
-public class ClientProxy extends CommonProxy {
+public class ProxyClient extends Proxy {
 
     @Override
     public void preInit() {
+        super.preInit();
         ModelBakery.init();
         CCRenderEventHandler.init();
         MinecraftForge.EVENT_BUS.register(new MapRenderRegistry());

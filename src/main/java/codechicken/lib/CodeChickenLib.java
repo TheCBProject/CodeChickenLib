@@ -2,7 +2,7 @@ package codechicken.lib;
 
 import codechicken.lib.fingerprint.FingerprintChecker;
 import codechicken.lib.internal.MigrationManager;
-import codechicken.lib.internal.proxy.CommonProxy;
+import codechicken.lib.internal.proxy.Proxy;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -30,8 +30,8 @@ public class CodeChickenLib {
 
     public static final File MINECRAFT_DIR = (File) FMLInjectionData.data()[6];
 
-    @SidedProxy (clientSide = "codechicken.lib.internal.proxy.ClientProxy", serverSide = "codechicken.lib.internal.proxy.CommonProxy")
-    public static CommonProxy proxy;
+    @SidedProxy (clientSide = "codechicken.lib.internal.proxy.ProxyClient", serverSide = "codechicken.lib.internal.proxy.Proxy")
+    public static Proxy proxy;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {

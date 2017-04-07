@@ -15,7 +15,7 @@ import java.util.LinkedList;
  * TODO Support both Raw GL and GLStateManager, would be useful for detecting GLLeaks that occur due to raw GL calls.
  * TODO Support all the things.
  */
-public class GlStateManagerHelper {
+public class GlStateTracker {
 
     public static enum State {
         GL_ALPHA_TEST {

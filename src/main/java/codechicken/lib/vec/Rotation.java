@@ -15,7 +15,7 @@ public class Rotation extends Transformation {
 
     /**
      * Clockwise pi/2 about y looking down
-     */
+     *///TODO Separate these out and explain what each one does / readability.
     public static Transformation[] quarterRotations = new Transformation[] { new RedundantTransformation(), new VariableTransformation(new Matrix4(0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1)) {
         @Override
         public void apply(Vector3 vec) {

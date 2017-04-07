@@ -1,7 +1,7 @@
 package codechicken.lib.render.item;
 
 import codechicken.lib.asm.ObfMapping;
-import codechicken.lib.render.state.GlStateManagerHelper;
+import codechicken.lib.render.state.GlStateTracker;
 import codechicken.lib.util.ReflectionManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -74,9 +74,9 @@ public class CCRenderItem extends RenderItem {
 
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             GlStateManager.enableRescaleNormal();
-            GlStateManagerHelper.pushState();
+            GlStateTracker.pushState();
             renderer.renderItem(stack);
-            GlStateManagerHelper.popState();
+            GlStateTracker.popState();
             GlStateManager.popMatrix();
             return;
 

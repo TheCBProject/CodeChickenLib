@@ -69,4 +69,9 @@ public class SlotDummy extends SlotHandleClicks {
         }
         super.putStack(stack);
     }
+
+    @Override
+    public boolean canTakeStack(EntityPlayer playerIn) {
+        return false;
+    }
 }

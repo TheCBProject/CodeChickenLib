@@ -30,3 +30,15 @@ ALOAD 0
 GETSTATIC net/minecraft/client/renderer/block/model/ModelBlockDefinition.field_178333_a : Lcom/google/gson/Gson;
 INVOKESTATIC codechicken/lib/model/loader/blockstate/CCBlockStateLoader.handleLoad (Ljava/io/Reader;Lcom/google/gson/Gson;)Lnet/minecraft/client/renderer/block/model/ModelBlockDefinition;
 ARETURN
+
+list n_foregroundHook
+INVOKESTATIC net/minecraft/client/renderer/RenderHelper.disableStandardItemLighting ()V
+ALOAD 0
+ILOAD 1
+ILOAD 2
+INVOKEVIRTUAL net/minecraft/client/gui/inventory/GuiContainer.drawGuiContainerForegroundLayer (II)V
+INVOKESTATIC net/minecraft/client/renderer/RenderHelper.enableGUIStandardItemLighting ()V
+
+list i_foregroundHook
+ALOAD 0
+INVOKESTATIC codechicken/lib/gui/GuiDraw.handleForegroundRender (Lnet/minecraft/client/gui/inventory/GuiContainer;)V

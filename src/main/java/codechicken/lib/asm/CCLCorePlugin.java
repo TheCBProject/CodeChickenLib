@@ -23,7 +23,7 @@ public class CCLCorePlugin implements IFMLLoadingPlugin, IFMLCallHook {
 
     @Override
     public String[] getASMTransformerClass() {
-        return new String[] { "codechicken.lib.asm.ClassHeirachyManager", "codechicken.lib.asm.CCL_ASMTransformer" };
+        return new String[] { "codechicken.lib.asm.ClassHierarchyManager", "codechicken.lib.asm.CCL_ASMTransformer" };
     }
 
     @Override

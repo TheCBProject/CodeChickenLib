@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -25,6 +26,7 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class GuiDraw {
@@ -49,9 +51,27 @@ public class GuiDraw {
         }
     }
 
+    public static interface IContainerForegroundRenderHook {
+
+        void draw(GuiContainer gui);
+
+    }
+
     public static final GuiHook gui = new GuiHook();
     public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
     public static TextureManager renderEngine = Minecraft.getMinecraft().renderEngine;
+
+    private static List<IContainerForegroundRenderHook> containerForegroundRenderHooks = new LinkedList<>();
+
+    public static void addContainerForegroundHook(IContainerForegroundRenderHook hook) {
+        containerForegroundRenderHooks.add(hook);
+    }
+
+    public static void handleForegroundRender(GuiContainer container) {
+        for (IContainerForegroundRenderHook hook : containerForegroundRenderHooks) {
+            hook.draw(container);
+        }
+    }
 
     public static void drawRect(int x, int y, int w, int h, int colour) {
         drawGradientRect(x, y, w, h, colour, colour);
@@ -162,13 +182,13 @@ public class GuiDraw {
     public static void drawMultiLineTip(@Nullable ItemStack stack, int x, int y, List<String> lines) {
         //TODO pr forge to clip the box in the top bound of the screen + TOOLTIP_LINESPACE
 
-        ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft());
-        int screenWidth = res.getScaledWidth();
-        int screenHeight = res.getScaledHeight();
-
         if (lines.isEmpty()) {
             return;
         }
+
+        ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft());
+        int screenWidth = res.getScaledWidth();
+        int screenHeight = res.getScaledHeight();
 
         RenderTooltipEvent.Pre event = new RenderTooltipEvent.Pre(stack, lines, x, y, screenWidth, screenHeight, -1, fontRenderer);
         if (MinecraftForge.EVENT_BUS.post(event)) {
@@ -186,10 +206,7 @@ public class GuiDraw {
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
 
-        if (x < 8) {
-            x = 8;
-        }
-        y = MathHelper.clip(y, 8, getDisplaySize().height - 8);
+        //y = MathHelper.clip(y, 8, getDisplaySize().height - 8);
         int tooltipTextWidth = 0;
 
         for (String textLine : lines) {
@@ -259,6 +276,8 @@ public class GuiDraw {
                 tooltipHeight += 2; // gap between title lines and next lines
             }
         }
+
+        tooltipY = net.minecraft.util.math.MathHelper.clamp(tooltipY, 6 , screenHeight - 6);
 
         if (tooltipY + tooltipHeight + 6 > screenHeight) {
             tooltipY = screenHeight - tooltipHeight - 6;

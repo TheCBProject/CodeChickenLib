@@ -5,10 +5,9 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 /**
  * Created by covers1624 on 23/11/2016.
  */
-public class CommonProxy {
+public class Proxy {
 
     public void preInit() {
-
     }
 
     public void init() {

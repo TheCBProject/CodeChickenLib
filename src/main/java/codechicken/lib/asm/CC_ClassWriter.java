@@ -19,14 +19,14 @@ public class CC_ClassWriter extends ClassWriter {
     protected String getCommonSuperClass(String type1, String type2) {
         String c = type1.replace('/', '.');
         String d = type2.replace('/', '.');
-        if (ClassHeirachyManager.classExtends(d, c)) {
+        if (ClassHierarchyManager.classExtends(d, c)) {
             return type1;
         }
-        if (ClassHeirachyManager.classExtends(c, d)) {
+        if (ClassHierarchyManager.classExtends(c, d)) {
             return type2;
         }
         do
-            c = ClassHeirachyManager.getSuperClass(c, runtime); while (!ClassHeirachyManager.classExtends(d, c));
+            c = ClassHierarchyManager.getSuperClass(c, runtime); while (!ClassHierarchyManager.classExtends(d, c));
 
         return c.replace('.', '/');
     }

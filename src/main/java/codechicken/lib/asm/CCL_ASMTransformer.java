@@ -22,6 +22,9 @@ public class CCL_ASMTransformer implements IClassTransformer {
 
         mapping = new ObfMapping("net/minecraft/client/renderer/ItemRenderer", "func_187461_a", "(Lnet/minecraft/item/ItemStack;)V");
         transformer.add(new MethodInjector(mapping, blocks.get("i_renderMapFirstPerson"), true));
+
+        mapping = new ObfMapping("net/minecraft/client/gui/inventory/GuiContainer", "func_73863_a", "(IIF)V");
+        transformer.add(new MethodInjector(mapping, blocks.get("n_foregroundHook"), blocks.get("i_foregroundHook"), false));
     }
 
     @Override
