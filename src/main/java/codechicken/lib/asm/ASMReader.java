@@ -257,7 +257,11 @@ public class ASMReader {
                                 insn = new JumpInsnNode(opcode, block.getOrAdd(split[1]));
                                 break;
                             case LDC_INSN:
-                                String cst = split[1];
+                                StringBuilder csb = new StringBuilder();
+                                for (int i = 1; i < split.length; i++) {
+                                    csb.append(split[i]);
+                                }
+                                String cst = csb.toString();
                                 if (cst.equals("*")) {
                                     insn = new LdcInsnNode(null);
                                 } else if (cst.endsWith("\"")) {
