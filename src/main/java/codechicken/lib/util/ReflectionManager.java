@@ -4,76 +4,49 @@ import codechicken.lib.asm.ObfMapping;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.*;
-import java.util.HashMap;
 
-//TODO Clean cruft and move basically everything to OBFMapping.
 public class ReflectionManager {
 
-    public static HashMap<Class<?>, Class<?>> primitiveWrappers = new HashMap<>();
+    private static Field modifiersField;
 
-    static {
-        primitiveWrappers.put(Integer.TYPE, Integer.class);
-        primitiveWrappers.put(Short.TYPE, Short.class);
-        primitiveWrappers.put(Byte.TYPE, Byte.class);
-        primitiveWrappers.put(Long.TYPE, Long.class);
-        primitiveWrappers.put(Double.TYPE, Double.class);
-        primitiveWrappers.put(Float.TYPE, Float.class);
-        primitiveWrappers.put(Boolean.TYPE, Boolean.class);
-        primitiveWrappers.put(Character.TYPE, Character.class);
-    }
-
-    public static boolean isInstance(Class<?> class1, Object obj) {
-        Class<?> primitive = primitiveWrappers.get(class1);
-        if (primitive != null) {
-            if (primitive == Long.class && Long.class.isInstance(obj)) {
-                return true;
-            }
-            if ((primitive == Long.class || primitive == Integer.class) && Integer.class.isInstance(obj)) {
-                return true;
-            }
-            if ((primitive == Long.class || primitive == Integer.class || primitive == Short.class) && Short.class.isInstance(obj)) {
-                return true;
-            }
-            if ((primitive == Long.class || primitive == Integer.class || primitive == Short.class || primitive == Byte.class) && Integer.class.isInstance(obj)) {
-                return true;
-            }
-
-            if (primitive == Double.class && Double.class.isInstance(obj)) {
-                return true;
-            }
-            if ((primitive == Double.class || primitive == Float.class) && Float.class.isInstance(obj)) {
-                return true;
-            }
-
-            return primitive.isInstance(obj);
-        }
-        return class1.isInstance(obj);
-    }
-
+    /**
+     * Checks if a Method or Field contains the static bit.
+     *
+     * @param modifiers The Method or Fields modifier bits.
+     * @return If modifiers contains a bit a Modifier.STATIC
+     */
     public static boolean isStatic(int modifiers) {
         return (modifiers & Modifier.STATIC) != 0;
     }
 
+    /**
+     * Checks if a method is static.
+     *
+     * @param method The method.
+     * @return If the method is static.
+     */
     public static boolean isStatic(Method method) {
         return isStatic(method.getModifiers());
     }
 
+    /**
+     * Checks if a field is static.
+     *
+     * @param field The field.
+     * @return If the field is static.
+     */
     public static boolean isStatic(Field field) {
         return isStatic(field.getModifiers());
     }
 
-    public static Class<?> findClass(String name) {
-        return findClass(name, true);
-    }
-
-    public static boolean classExists(String name) {
-        return findClass(name, false) != null;
-    }
-
-    public static Class<?> findClass(ObfMapping mapping) {
-        return findClass(mapping, true);
-    }
-
+    /**
+     * Finds a class.
+     *
+     * @param mapping The ObfMapping to find a class for.
+     * @param init    if {@code true} the class will be initialized.
+     *                See Section 12.4 of <em>The Java Language Specification</em>.
+     * @return The class. Null if the class does not exist.
+     */
     public static Class<?> findClass(ObfMapping mapping, boolean init) {
         try {
             return Class.forName(mapping.javaClass(), init, ReflectionManager.class.getClassLoader());
@@ -82,151 +55,65 @@ public class ReflectionManager {
         }
     }
 
-    public static Class<?> findClass(String name, boolean init) {
-        try {
-            return Class.forName(name, init, ReflectionManager.class.getClassLoader());
-        } catch (ClassNotFoundException cnfe) {
-            try {
-                return Class.forName("net.minecraft.src." + name, init, ReflectionManager.class.getClassLoader());
-            } catch (ClassNotFoundException cnfe2) {
-                return null;
-            }
-        }
+    /**
+     * Finds a class.
+     * Defaults to initialize the class.
+     *
+     * @param mapping The mapping to find a class for.
+     * @return The class. Null if the class does nto exist.
+     */
+    public static Class<?> findClass(ObfMapping mapping) {
+        return findClass(mapping, true);
     }
 
+    /**
+     * Checks if a class exists.
+     *
+     * @param mapping The mapping to check.
+     * @return If the class exists.
+     */
+    public static boolean classExists(ObfMapping mapping) {
+        return findClass(mapping, false) != null;
+    }
+
+    /**
+     * Finds a class.
+     *
+     * @param name The name of the class.
+     * @return The class, Null if the class does not exist.
+     */
+    public static Class<?> findClass(String name) {
+        return findClass(new ObfMapping(name.replace(".", "/")), true);
+    }
+
+    /**
+     * Sets a field.
+     *
+     * @param mapping  The mapping.
+     * @param instance The Class instance holding the field, May be null for static classes.
+     * @param value    The value to set in the field.
+     */
     public static void setField(ObfMapping mapping, Object instance, Object value) {
         try {
             Field field = getField(mapping);
             field.setAccessible(true);
+            removeFinal(field);
             field.set(instance, value);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void setField(Class<?> class1, Object instance, String name, Object value) throws IllegalArgumentException, IllegalAccessException {
-        setField(class1, instance, new String[] { name }, value);
-    }
-
-    public static void setField(Class<?> class1, Object instance, String[] names, Object value) throws IllegalArgumentException, IllegalAccessException {
-        for (Field field : class1.getDeclaredFields()) {
-            boolean match = false;
-            for (String name : names) {
-                if (field.getName().equals(name)) {
-                    match = true;
-                    break;
-                }
-            }
-            if (!match) {
-                continue;
-            }
-
-            field.setAccessible(true);
-            field.set(instance, value);
-            return;
-        }
-    }
-
-    public static void setField(Class<?> class1, Object instance, int fieldindex, Object value) throws IllegalArgumentException, IllegalAccessException {
-        Field field = class1.getDeclaredFields()[fieldindex];
-        field.setAccessible(true);
-        field.set(instance, value);
-    }
-
     /**
-     * Static function
-     * void return type
-     * single name
+     * Calls a method.
+     *
+     * @param mapping    The mapping.
+     * @param returnType The return type of the method you are invoking.
+     * @param instance   The instance of the class containing the method, May be null for static classes.
+     * @param params     Any method parameters the method requires.
+     * @param <R>        The return type.
+     * @return Anything returned from the method.
      */
-    @Deprecated
-    public static void callMethod(Class<?> class1, String name, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        callMethod(class1, null, new String[] { name }, params);
-    }
-
-    /**
-     * Static function
-     * void return type
-     * single name
-     */
-    @Deprecated
-    public static void callMethod(Class<?> class1, String[] names, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        callMethod(class1, null, names, params);
-    }
-
-    /**
-     * void return type
-     * single name
-     */
-    @Deprecated
-    public static void callMethod(Class<?> class1, Object instance, String name, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        callMethod(class1, null, instance, new String[] { name }, params);
-    }
-
-    /**
-     * void return type
-     */
-    @Deprecated
-    public static void callMethod(Class<?> class1, Object instance, String[] names, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        callMethod(class1, null, instance, names, params);
-    }
-
-    /**
-     * Static method
-     * single name
-     */
-    @Deprecated
-    public static <R> R callMethod(Class<?> class1, Class<R> returntype, String name, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        return callMethod(class1, returntype, null, new String[] { name }, params);
-    }
-
-    /**
-     * Static method
-     */
-    @Deprecated
-    public static <R> R callMethod(Class<?> class1, Class<R> returntype, String[] names, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        return callMethod(class1, returntype, null, names, params);
-    }
-
-    /**
-     * sinlge name
-     */
-    @Deprecated
-    public static <R> R callMethod(Class<?> class1, Class<R> returntype, Object instance, String name, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        return callMethod(class1, returntype, instance, new String[] { name }, params);
-    }
-
-    @Deprecated
-    public static <R> R callMethod(Class<?> class1, Class<R> returntype, Object instance, String[] names, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        nextMethod:
-        for (Method method : class1.getDeclaredMethods()) {
-            boolean match = false;
-            for (String name : names) {
-                if (method.getName().equals(name)) {
-                    match = true;
-                    break;
-                }
-            }
-            if (!match) {
-                continue;
-            }
-
-            Class<?>[] paramtypes = method.getParameterTypes();
-            if (paramtypes.length != params.length) {
-                continue;
-            }
-
-            for (int i = 0; i < params.length; i++) {
-                if (!isInstance(paramtypes[i], params[i])) {
-                    continue nextMethod;
-                }
-            }
-
-            method.setAccessible(true);
-            return (R) method.invoke(instance, params);
-        }
-        return null;
-    }
-
     public static <R> R callMethod(ObfMapping mapping, Class<R> returnType, Object instance, Object... params) {
         try {
             return callMethod_Unsafe(mapping, returnType, instance, params);
@@ -235,6 +122,20 @@ public class ReflectionManager {
         }
     }
 
+    /**
+     * This method is Unsafe and will throw exceptions.
+     * Calls a method.
+     *
+     * @param mapping    The mapping.
+     * @param returnType The return type of the method you are invoking.
+     * @param instance   The instance of the class containing the method, May be null for static classes.
+     * @param params     Any method parameters the method requires.
+     * @param <R>        The return type.
+     * @return Anything returned from the method.
+     * @throws InvocationTargetException if the underlying method throws an exception.
+     * @throws IllegalAccessException    if the method is inaccessible.
+     */
+    @SuppressWarnings ("unchecked")
     public static <R> R callMethod_Unsafe(ObfMapping mapping, Class<R> returnType, Object instance, Object... params) throws InvocationTargetException, IllegalAccessException {
         mapping.toRuntime();
         Class<?> clazz = findClass(mapping);
@@ -252,92 +153,140 @@ public class ReflectionManager {
         return null;
     }
 
-    public static <T> T getField(Class<?> class1, Class<T> fieldType, Object instance, int fieldIndex) throws IllegalArgumentException, IllegalAccessException {
-        Field field = class1.getDeclaredFields()[fieldIndex];
-        field.setAccessible(true);
-        return (T) field.get(instance);
-    }
-
-    public static <T> T getField(Class<?> class1, Class<T> fieldType, Object instance, String fieldName) {
+    /**
+     * Invokes a Classes constructor.
+     * The mapping is used to provide both the constructors descriptor and the class name.
+     * The mappings method name doesn't really matter, but the proper name is "<init>"
+     *
+     * @param mapping    The mapping.
+     * @param returnType The return type of the constructor.
+     * @param params     The parameters the constructor requires.
+     * @param <R>        The return type.
+     * @return The new instance.
+     */
+    public static <R> R newInstance(ObfMapping mapping, Class<R> returnType, Object... params) {
         try {
-            Field field = class1.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return (T) field.get(instance);
+            return newInstance_Unsafe(mapping, returnType, params);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static <T> T newInstance(Class<T> class1, Object... params) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        nextMethod:
-        for (Constructor<?> constructor : class1.getDeclaredConstructors()) {
-            Class<?>[] paramtypes = constructor.getParameterTypes();
-            if (paramtypes.length != params.length) {
-                continue;
-            }
+    /**
+     * This method is Unsafe and will throw exceptions.
+     * Invokes a Classes constructor.
+     * The mapping is used to provide both the constructors descriptor and the class name.
+     * The mappings method name doesn't really matter, but the proper name is "<init>"
+     *
+     * @param mapping    The mapping.
+     * @param returnType The return type of the constructor.
+     * @param params     The parameters the constructor requires.
+     * @param <R>        The return type.
+     * @return The new instance.
+     */
+    @SuppressWarnings ("unchecked")
+    public static <R> R newInstance_Unsafe(ObfMapping mapping, Class<R> returnType, Object... params) throws IllegalAccessException, InvocationTargetException, InstantiationException {
 
-            for (int i = 0; i < params.length; i++) {
-                if (!isInstance(paramtypes[i], params[i])) {
-                    continue nextMethod;
-                }
+        Class<?> clazz = findClass(mapping);
+        Constructor<?> constructor = null;
+        for (Constructor<?> c : clazz.getDeclaredConstructors()) {
+            if (Type.getConstructorDescriptor(c).equals(mapping.s_desc)) {
+                constructor = c;
+                break;
             }
+        }
 
+        if (constructor != null) {
             constructor.setAccessible(true);
-            return (T) constructor.newInstance(params);
+            return (R) constructor.newInstance(params);
         }
         return null;
     }
 
-    public static boolean hasField(Class<?> class1, String fieldName) {
+    /**
+     * Checks if a field exists.
+     *
+     * @param mapping The mapping.
+     * @return If the field exists.
+     */
+    public static boolean hasField(ObfMapping mapping) {
         try {
-            class1.getDeclaredField(fieldName);
+            getField_Unsafe(mapping);
             return true;
         } catch (NoSuchFieldException nfe) {
             return false;
         }
     }
 
-    public static <T> T get(Field field, Class<T> class1) {
-        return get(field, class1, null);
-    }
-
-    public static <T> T get(Field field, Class<T> class1, Object instance) {
-        try {
-            return (T) field.get(instance);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void set(Field field, Object value) {
-        set(field, null, value);
-    }
-
-    public static void set(Field field, Object instance, Object value) {
-        try {
-            field.set(instance, value);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static <V> V getField(ObfMapping mapping, Object instance, Class<V> clazz) {
+    /**
+     * Gets a fields value.
+     *
+     * @param mapping  The mapping.
+     * @param instance The Class instance holding the field, May be null for static classes.
+     * @param clazz    The fields type.
+     * @param <R>      The return type.
+     * @return The fields value.
+     */
+    @SuppressWarnings ("unchecked")
+    public static <R> R getField(ObfMapping mapping, Object instance, Class<R> clazz) {
         try {
             Field field = getField(mapping);
-            return (V) field.get(instance);
+            return (R) field.get(instance);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * Gets a field.
+     *
+     * @param mapping The mapping.
+     * @return The field.
+     */
     public static Field getField(ObfMapping mapping) {
         mapping.toRuntime();
 
         try {
-            Class<?> clazz = ReflectionManager.class.getClassLoader().loadClass(mapping.javaClass());
-            Field field = clazz.getDeclaredField(mapping.s_name);
-            field.setAccessible(true);
-            return field;
+            return getField_Unsafe(mapping);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * This method is Unsafe and will throw exceptions.
+     * Gets a field.
+     *
+     * @param mapping The mapping.
+     * @return The field.
+     * @throws NoSuchFieldException If the field does not exist.
+     */
+    public static Field getField_Unsafe(ObfMapping mapping) throws NoSuchFieldException {
+        mapping.toRuntime();
+
+        Class<?> clazz = findClass(mapping);
+        Field field = clazz.getDeclaredField(mapping.s_name);
+        field.setAccessible(true);
+        removeFinal(field);
+        return field;
+    }
+
+    /**
+     * Removes the final modifier from a field allowing you to set final fields.
+     *
+     * @param field The field to remove the final modifer for.
+     */
+    public static void removeFinal(Field field) {
+
+        if ((field.getModifiers() & Modifier.FINAL) == 0) {
+            return;
+        }
+        try {
+            if (modifiersField == null) {
+                modifiersField = getField(new ObfMapping("java/lang/reflect/Field", "modifiers"));
+                modifiersField.setAccessible(true);
+            }
+            modifiersField.set(field, field.getModifiers() & ~Modifier.FINAL);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -197,6 +197,11 @@ public class ObfMapping {
         this(owner, "", "");
     }
 
+    public ObfMapping(String owner, String name) {
+
+    	this(owner, name, "");
+    }
+
     public ObfMapping(String owner, String name, String desc) {
 
         this.s_owner = owner;

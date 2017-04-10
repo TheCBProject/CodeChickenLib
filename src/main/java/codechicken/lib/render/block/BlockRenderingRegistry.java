@@ -1,5 +1,6 @@
 package codechicken.lib.render.block;
 
+import codechicken.lib.asm.ObfMapping;
 import codechicken.lib.model.BakedModelProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.render.buffer.BakingVertexBuffer;
@@ -42,8 +43,8 @@ public class BlockRenderingRegistry {
             BlockRendererDispatcher parentDispatcher = mc.getBlockRendererDispatcher();
             CCBlockRendererDispatcher newDispatcher = new CCBlockRendererDispatcher(parentDispatcher, mc.getBlockColors());
 
-            Field field = ReflectionHelper.findField(Minecraft.class, "blockRenderDispatcher", "field_175618_aM", "aR");
-            ReflectionManager.set(field, mc, newDispatcher);
+            ObfMapping mapping = new ObfMapping("net/minecraft/client/Minecraft", "field_175618_aM");
+            ReflectionManager.setField(mapping, mc, newDispatcher);
 
             TextureUtils.addIconRegister(newDispatcher);
 

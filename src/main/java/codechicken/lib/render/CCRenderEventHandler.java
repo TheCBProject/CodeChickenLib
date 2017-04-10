@@ -6,6 +6,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -41,7 +42,7 @@ public class CCRenderEventHandler {
     }
 
     @SideOnly (Side.CLIENT)
-    @SubscribeEvent//TODO Change event priority.
+    @SubscribeEvent(priority = EventPriority.LOW)
     public void onBlockHighlight(DrawBlockHighlightEvent event) {
         BlockPos pos = event.getTarget().getBlockPos();
 

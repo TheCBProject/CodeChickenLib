@@ -114,7 +114,10 @@ public class CCRenderPipeline {
         }
         unbuild();
 
-        for (IVertexOperation op : ops) {
+        //This needs to be an indexed loop as things are added to ops from VertexAttributes.
+        //noinspection ForLoopReplaceableByForEach
+        for (int i = 0; i < ops.size(); i++) {
+            IVertexOperation op = ops.get(i);
             loading = nodes.get(op.operationID());
             boolean loaded = op.load(renderState);
             if (loaded) {
