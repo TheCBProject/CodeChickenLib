@@ -6,25 +6,26 @@ import net.minecraftforge.fml.common.registry.LegacyNamespacedRegistry;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 
-public class DuplicateValueRegistry<V> extends LegacyNamespacedRegistry<V> {
+public class DuplicateValueRegistry extends LegacyNamespacedRegistry {
 
-    private final LegacyNamespacedRegistry<V> wrapped;
-    private final HashMap<V, ResourceLocation> classMap = new HashMap<>();
+    private final LegacyNamespacedRegistry wrapped;
+    private final HashMap<Object, ResourceLocation> classMap = new HashMap<>();
 
-    public DuplicateValueRegistry(LegacyNamespacedRegistry<V> wrapped) {
+    public DuplicateValueRegistry(LegacyNamespacedRegistry wrapped) {
         this.wrapped = wrapped;
     }
 
+    @SuppressWarnings ("unchecked")
     @Nullable
     @Override
-    public ResourceLocation getNameForObject(V value) {
+    public ResourceLocation getNameForObject(Object value) {
         if (classMap.containsKey(value)) {
             return classMap.get(value);
         }
-        return wrapped.getNameForObject(value);
+        return (ResourceLocation) wrapped.getNameForObject(value);
     }
 
-    public void addMapping(V clazz, ResourceLocation mapping) {
+    public void addMapping(Object clazz, ResourceLocation mapping) {
         classMap.put(clazz, mapping);
     }
 }
