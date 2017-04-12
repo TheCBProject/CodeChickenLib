@@ -2,16 +2,21 @@ package codechicken.lib.asm.proxy;
 
 import codechicken.lib.util.ReflectionManager;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Sets;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.LoaderException;
 import net.minecraftforge.fml.common.ModClassLoader;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
+import net.minecraftforge.fml.common.discovery.asm.ModAnnotation.EnumHolder;
+import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -23,10 +28,32 @@ public class ProxyInjector {
 
     public static void runInjector(ASMDataTable table) {
 
+        Side loadSide = FMLLaunchHandler.side();
+
         Set<ASMData> targets = table.getAll(FunctionProxy.class.getName());
+        Set<ASMData> sidedClasses = table.getAll(SideOnly.class.getName());
+        Set<ASMData> filteredTargets = Sets.filter(targets, input -> {
+            for (ASMData data : sidedClasses) {
+                //Narrow down to our class.
+                if (data.getClassName().equals(input.getClassName())) {
+                    //If the SideOnly annotation is on the class or the object we are attached to.
+                    if (data.getObjectName().equalsIgnoreCase(input.getClassName()) || data.getObjectName().equalsIgnoreCase(input.getObjectName())) {
+                        for (Entry<String, Object> entry : data.getAnnotationInfo().entrySet()) {
+                            if (entry.getKey().equals("value") && entry.getValue() instanceof EnumHolder) {
+                                EnumHolder holder = ((EnumHolder) entry.getValue());
+                                if (!loadSide.toString().equalsIgnoreCase(holder.getValue())) {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+        });
         ModClassLoader classLoader = Loader.instance().getModClassLoader();
 
-        for (ASMData data : targets) {
+        for (ASMData data : filteredTargets) {
             try {
                 Class<?> proxyTarget = Class.forName(data.getClassName(), true, classLoader);
                 Field target = proxyTarget.getDeclaredField(data.getObjectName());
