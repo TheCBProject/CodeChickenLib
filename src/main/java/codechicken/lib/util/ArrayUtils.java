@@ -1,9 +1,7 @@
 package codechicken.lib.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -63,6 +61,7 @@ public class ArrayUtils {
      * @param <T>  The type of data in the map key.
      * @return False if fail.
      */
+    @SafeVarargs
     public static <T> boolean containsKeys(Map<T, ?> map, T... keys) {
         for (T object : keys) {
             if (!map.containsKey(object)) {
@@ -78,8 +77,9 @@ public class ArrayUtils {
      * @param array Array to add to.
      * @param value Value to add.
      * @param <T>   Type of value.
+     * @return Returns a new array in the event the input was expanded.
      */
-    public static <T> void addToArrayFirstNull(T[] array, T value) {
+    public static <T> T[] addToArrayFirstNull(T[] array, T value) {
         int nullIndex = -1;
         for (int i = 0; i < array.length; i++) {
             T v = array[i];
@@ -88,10 +88,14 @@ public class ArrayUtils {
                 break;
             }
         }
-        if (nullIndex == -1) {//We aren't able to expand it as we are using generics.
-            throw new RuntimeException("Unable to add to array as it is full! Expand it before adding to it!");
+        if (nullIndex == -1) {
+            T[] copy = createNewArray(array, array.length + 1);
+            System.arraycopy(array, 0, copy, 0, array.length);
+            nullIndex = array.length;
+            array = copy;
         }
         array[nullIndex] = value;
+        return array;
     }
 
     /**
@@ -135,13 +139,7 @@ public class ArrayUtils {
      * @return The count of non-null objects in the array.
      */
     public static <T> int countNoNull(T[] array) {
-        int counter = 0;
-        for (T value : array) {
-            if (value != null) {
-                counter++;
-            }
-        }
-        return counter;
+        return count(array, Objects::nonNull);
     }
 
     /**
@@ -271,4 +269,50 @@ public class ArrayUtils {
         return -1;
     }
 
+    /**
+     * Create a new array using the provided array as a template for both type and length.
+     *
+     * @param array The template.
+     * @param <T>   The type.
+     * @return The new array.
+     */
+    @SuppressWarnings ("unchecked")
+    public static <T> T[] createNewArray(T[] array) {
+        return createNewArray(array, array.length);
+    }
+
+    /**
+     * Create a new array using the provided array as a template for the type and with the provided length.
+     *
+     * @param array  The type template.
+     * @param length The new array's length.
+     * @param <T>    The type.
+     * @return The new array.
+     */
+    @SuppressWarnings ("unchecked")
+    public static <T> T[] createNewArray(T[] array, int length) {
+        Class<? extends T[]> newType = (Class<? extends T[]>) array.getClass();
+        T[] copy;
+        //noinspection RedundantCast
+        if (newType.equals(Object[].class)) {
+            copy = (T[]) new Object[length];
+        } else {
+            copy = (T[]) Array.newInstance(newType.getComponentType(), length);
+        }
+        return copy;
+    }
+
+    public static <T> T[] rollArray(T[] input, int shift) {
+        T[] newArray = createNewArray(input);
+
+        for (int i = 0; i < input.length; i++) {
+            int newPos = (i + shift) % input.length;
+
+            if (newPos < 0) {
+                newPos += input.length;
+            }
+            newArray[newPos] = input[i];
+        }
+        return newArray;
+    }
 }

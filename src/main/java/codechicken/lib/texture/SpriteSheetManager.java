@@ -112,10 +112,6 @@ public class SpriteSheetManager {
     }
 
     public static SpriteSheet getSheet(int tilesX, int tilesY, ResourceLocation resource) {
-        SpriteSheet sheet = spriteSheets.get(resource.toString());
-        if (sheet == null) {
-            spriteSheets.put(resource.toString(), sheet = new SpriteSheet(tilesX, tilesY, resource));
-        }
-        return sheet;
+        return spriteSheets.computeIfAbsent(resource.toString(), k -> new SpriteSheet(tilesX, tilesY, resource));
     }
 }

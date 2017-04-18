@@ -1,13 +1,10 @@
 package codechicken.lib.gui;
 
 import codechicken.lib.colour.Colour;
-import codechicken.lib.math.MathHelper;
-import codechicken.lib.texture.TextureUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
@@ -15,7 +12,6 @@ import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -26,7 +22,6 @@ import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 public class GuiDraw {
@@ -51,27 +46,9 @@ public class GuiDraw {
         }
     }
 
-    public static interface IContainerForegroundRenderHook {
-
-        void draw(GuiContainer gui);
-
-    }
-
     public static final GuiHook gui = new GuiHook();
     public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
     public static TextureManager renderEngine = Minecraft.getMinecraft().renderEngine;
-
-    private static List<IContainerForegroundRenderHook> containerForegroundRenderHooks = new LinkedList<>();
-
-    public static void addContainerForegroundHook(IContainerForegroundRenderHook hook) {
-        containerForegroundRenderHooks.add(hook);
-    }
-
-    public static void handleForegroundRender(GuiContainer container) {
-        for (IContainerForegroundRenderHook hook : containerForegroundRenderHooks) {
-            hook.draw(container);
-        }
-    }
 
     public static void drawRect(int x, int y, int w, int h, int colour) {
         drawGradientRect(x, y, w, h, colour, colour);
@@ -206,7 +183,6 @@ public class GuiDraw {
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
 
-        //y = MathHelper.clip(y, 8, getDisplaySize().height - 8);
         int tooltipTextWidth = 0;
 
         for (String textLine : lines) {
@@ -277,7 +253,7 @@ public class GuiDraw {
             }
         }
 
-        tooltipY = net.minecraft.util.math.MathHelper.clamp(tooltipY, 6 , screenHeight - 6);
+        tooltipY = net.minecraft.util.math.MathHelper.clamp(tooltipY, 6, screenHeight - 6);
 
         if (tooltipY + tooltipHeight + 6 > screenHeight) {
             tooltipY = screenHeight - tooltipHeight - 6;

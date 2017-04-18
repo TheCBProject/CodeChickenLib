@@ -33,7 +33,7 @@ public class PerspectiveAwareLayeredModel implements IPerspectiveAwareModel {
     private final BakedModelProperties properties;
 
     public PerspectiveAwareLayeredModel(Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap, IModelState state, BakedModelProperties properties) {
-        this(layerFaceQuadMap, ImmutableMap.<BlockRenderLayer, List<BakedQuad>>of(), state, properties);
+        this(layerFaceQuadMap, ImmutableMap.of(), state, properties);
     }
 
     public PerspectiveAwareLayeredModel(Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap, Map<BlockRenderLayer, List<BakedQuad>> layerGeneralQuads, IModelState state, BakedModelProperties properties) {

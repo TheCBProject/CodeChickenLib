@@ -20,19 +20,15 @@ public class BlockBakeryProperties {
     static {
         LAYER_FACE_SPRITE_MAP = new UnlistedMapProperty("layer_face_sprite");
 
-        LAYER_FACE_SPRITE_MAP.setStringGenerator(new IMapStringGenerator() {
-            @SuppressWarnings ("unchecked")
-            @Override
-            public String makeString(Map map) {
-                StringBuilder builder = new StringBuilder();
-                for (Entry<BlockRenderLayer, Map<EnumFacing, TextureAtlasSprite>> layerEntry : ((Map<BlockRenderLayer, Map<EnumFacing, TextureAtlasSprite>>) map).entrySet()) {
-                    builder.append(layerEntry.getKey().toString()).append(",");
-                    for (Entry<EnumFacing, TextureAtlasSprite> faceSpriteEntry : layerEntry.getValue().entrySet()) {
-                        builder.append(faceSpriteEntry.getKey()).append(",").append(faceSpriteEntry.getValue().getIconName()).append(",");
-                    }
+        LAYER_FACE_SPRITE_MAP.setStringGenerator(map -> {
+            StringBuilder builder = new StringBuilder();
+            for (Entry<BlockRenderLayer, Map<EnumFacing, TextureAtlasSprite>> layerEntry : ((Map<BlockRenderLayer, Map<EnumFacing, TextureAtlasSprite>>) map).entrySet()) {
+                builder.append(layerEntry.getKey().toString()).append(",");
+                for (Entry<EnumFacing, TextureAtlasSprite> faceSpriteEntry : layerEntry.getValue().entrySet()) {
+                    builder.append(faceSpriteEntry.getKey()).append(",").append(faceSpriteEntry.getValue().getIconName()).append(",");
                 }
-                return builder.toString();
             }
+            return builder.toString();
         });
     }
 }

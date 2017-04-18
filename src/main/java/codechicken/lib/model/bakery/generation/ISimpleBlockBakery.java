@@ -18,7 +18,7 @@ import java.util.List;
 public interface ISimpleBlockBakery extends IBlockBakery {
 
     /**
-     * Used to actually generate quads fro your block. Using this interface it is assumed that you only wish to render on one specific layer.
+     * Used to actually generate quads for your block. Using this interface it is assumed that you only wish to render on one specific layer.
      * If you want to render on multiple layers use {@link ILayeredBlockBakery}
      *
      * Face may be null!!

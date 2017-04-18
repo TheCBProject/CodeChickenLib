@@ -57,7 +57,7 @@ public class CCBakeryModel implements IBakedModel {
 
     @Override
     public ItemOverrideList getOverrides() {
-        return new ItemOverrideList(ImmutableList.<ItemOverride>of()) {
+        return new ItemOverrideList(ImmutableList.of()) {
             @Override
             public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, World world, EntityLivingBase entity) {
                 IBakedModel model = ModelBakery.getCachedItemModel(stack);

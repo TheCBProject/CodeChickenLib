@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * Created by covers1624 on 12/02/2017.
- * This IS used for ItemBlocks and Items. For ItemBlock implementation, Implement this on your block.
+ * This IS used for ItemBlocks and Items. For ItemBlock implementation, Implement IBakeryProvider on your block and return an instance of this class.
  */
 public interface IItemBakery extends IBakery {
 

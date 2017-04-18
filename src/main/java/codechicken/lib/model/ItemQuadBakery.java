@@ -34,7 +34,7 @@ public class ItemQuadBakery {
         List<BakedQuad> quads = new LinkedList<>();
         for (int i = 0; i < sprites.size(); i++) {
             TextureAtlasSprite sprite = sprites.get(i);
-            quads.addAll(ItemLayerModel.getQuadsForSprite(i, sprite, format, state.apply(Optional.<IModelPart>absent())));
+            quads.addAll(ItemLayerModel.getQuadsForSprite(i, sprite, format, state.apply(Optional.absent())));
         }
         return quads;
     }
