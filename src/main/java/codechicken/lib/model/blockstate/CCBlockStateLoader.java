@@ -54,7 +54,7 @@ public class CCBlockStateLoader {
             JsonObject object = parser.parse(reader).getAsJsonObject();
             if (JsonUtils.hasField(object, "ccl_marker")) {
 
-                String marker = JsonUtils.getString(object, "ccl_marker");
+                //String marker = JsonUtils.getString(object, "ccl_marker");
                 List<String> variantSets = new ArrayList<String>();
                 for (JsonElement element : object.getAsJsonArray("variant_sets")) {
                     variantSets.add(element.getAsString());

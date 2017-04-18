@@ -22,8 +22,8 @@ import java.util.Map;
  */
 public class ItemMultiType extends Item {
 
-    private HashMap<Integer, String> names = new HashMap<Integer, String>();
-    private HashMap<Integer, EnumRarity> rarityMap = new HashMap<Integer, EnumRarity>();
+    protected HashMap<Integer, String> names = new HashMap<Integer, String>();
+    protected HashMap<Integer, EnumRarity> rarityMap = new HashMap<Integer, EnumRarity>();
     private int nextVariant = 0;
     private boolean hasRegistered = false;
     private boolean registerToStackRegistry = false;

@@ -49,7 +49,7 @@ public class DumpModelLocationsCommand implements ICommand {
             BlockStateMapper stateMapper = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getBlockStateMapper();
             for (Entry<IBlockState, ModelResourceLocation> entry : stateMapper.getVariants(block).entrySet()) {
                 sender.addChatMessage(new TextComponentString(entry.getKey().toString() + " | " + entry.getValue().toString()));
-                FMLLog.info(entry.getKey().toString() + " | " + entry.getValue().toString());
+                //FMLLog.info(entry.getKey().toString() + " | " + entry.getValue().toString());
             }
         }
     }
