@@ -71,13 +71,18 @@ public class GuiDraw {
         GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        Colour.glColourRGBA(colour);
+        Colour.glColourARGB(colour);
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(0, 0, gui.getZLevel());
 
         VertexBuffer vb = Tessellator.getInstance().getBuffer();
         vb.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
         vb.pos(x1, y1, gui.getZLevel()).endVertex();
         vb.pos(x2, y2, gui.getZLevel()).endVertex();
-        vb.finishDrawing();
+        Tessellator.getInstance().draw();
+
+        GlStateManager.popMatrix();
 
         GlStateManager.resetColor();
         GlStateManager.disableBlend();
