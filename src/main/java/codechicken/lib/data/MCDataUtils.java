@@ -125,7 +125,7 @@ public class MCDataUtils {
      */
     public static void writeVarInt(MCDataOutput out, int i) {
 
-        while ((i & 0x80) != 0) {
+        while ((i & 0xffffff80) != 0) {
             out.writeByte(i & 0x7F | 0x80);
             i >>>= 7;
         }
