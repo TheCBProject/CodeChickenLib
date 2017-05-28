@@ -20,7 +20,7 @@ public class ClientUtils extends CommonUtils {
     }
 
     public static boolean inWorld() {
-        return mc().getConnection() != null;
+        return mc().theWorld != null;
     }
 
     public static void openSMPGui(int windowId, GuiScreen gui) {
