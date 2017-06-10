@@ -5,7 +5,6 @@ import codechicken.lib.render.CCModel;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.buffer.BakingVertexBuffer;
 import codechicken.lib.texture.TextureUtils.IIconRegister;
-import codechicken.lib.util.TripleABC;
 import codechicken.lib.util.VertexDataUtils;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Rotation;
@@ -15,11 +14,11 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.property.IExtendedBlockState;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.List;
 
@@ -44,9 +43,9 @@ public abstract class SimpleBlockRenderer implements ISimpleBlockBakery, IIconRe
         }
     }
 
-    public abstract TripleABC<Integer, Integer, UVTransformation> getWorldTransforms(IExtendedBlockState state);
+    public abstract Triple<Integer, Integer, UVTransformation> getWorldTransforms(IExtendedBlockState state);
 
-    public abstract TripleABC<Integer, Integer, UVTransformation> getItemTransforms(ItemStack stack);
+    public abstract Triple<Integer, Integer, UVTransformation> getItemTransforms(ItemStack stack);
 
     public abstract boolean shouldCull();
 
@@ -58,11 +57,11 @@ public abstract class SimpleBlockRenderer implements ISimpleBlockBakery, IIconRe
     @Override
     public List<BakedQuad> bakeQuads(EnumFacing face, IExtendedBlockState state) {
         BakingVertexBuffer buffer = BakingVertexBuffer.create();
-        TripleABC<Integer, Integer, UVTransformation> worldData = getWorldTransforms(state);
+        Triple<Integer, Integer, UVTransformation> worldData = getWorldTransforms(state);
         CCRenderState ccrs = CCRenderState.instance();
         ccrs.reset();
         ccrs.startDrawing(0x7, DefaultVertexFormats.ITEM, buffer);
-        models[worldData.getA()][worldData.getB()].render(ccrs, worldData.getC());
+        models[worldData.getLeft()][worldData.getMiddle()].render(ccrs, worldData.getRight());
         buffer.finishDrawing();
         List<BakedQuad> quads = buffer.bake();
         if (face == null && !shouldCull()) {
@@ -76,11 +75,11 @@ public abstract class SimpleBlockRenderer implements ISimpleBlockBakery, IIconRe
     @Override
     public List<BakedQuad> bakeItemQuads(EnumFacing face, ItemStack stack) {
         BakingVertexBuffer buffer = BakingVertexBuffer.create();
-        TripleABC<Integer, Integer, UVTransformation> worldData = getItemTransforms(stack);
+        Triple<Integer, Integer, UVTransformation> worldData = getItemTransforms(stack);
         CCRenderState ccrs = CCRenderState.instance();
         ccrs.reset();
         ccrs.startDrawing(0x7, DefaultVertexFormats.ITEM, buffer);
-        models[worldData.getA()][worldData.getB()].render(ccrs, worldData.getC());
+        models[worldData.getLeft()][worldData.getMiddle()].render(ccrs, worldData.getRight());
         buffer.finishDrawing();
         List<BakedQuad> quads = buffer.bake();
 

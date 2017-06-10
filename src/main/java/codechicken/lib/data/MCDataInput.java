@@ -53,6 +53,10 @@ public interface MCDataInput {
         return new UUID(readLong(), readLong());
     }
 
+    default <T extends Enum<T>> T readEnum(Class<T> enumClass) {
+       return enumClass.getEnumConstants()[readVarInt()];
+    }
+
     default EnumFacing readEnumFacing() {
         return EnumFacing.VALUES[readByte()];
     }

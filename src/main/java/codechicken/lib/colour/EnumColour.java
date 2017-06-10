@@ -1,10 +1,10 @@
 package codechicken.lib.colour;
 
-import codechicken.lib.util.TripleABC;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraftforge.oredict.OreDictionary;
+import org.apache.commons.lang3.tuple.Triple;
 
 /**
  * Created by covers1624 on 16/09/2016.
@@ -36,7 +36,7 @@ public enum EnumColour implements IStringSerializable {
     private String unlocalizedName;
     private int rgb;
 
-    private static final ImmutableList<TripleABC<EnumColour, EnumColour, EnumColour>> mixMap;
+    private static final ImmutableList<Triple<EnumColour, EnumColour, EnumColour>> mixMap;
 
     EnumColour(String minecraftName, String oreDictionaryName, String unlocalizedName, int rgb) {
         this.minecraftName = minecraftName;
@@ -119,9 +119,9 @@ public enum EnumColour implements IStringSerializable {
             return a;
         }
         synchronized (mixMap) {
-            for (TripleABC<EnumColour, EnumColour, EnumColour> triple : mixMap) {
-                if ((triple.getA().equals(a) && triple.getB().equals(b)) || (triple.getA().equals(b) && triple.getB().equals(a))) {
-                    return triple.getC();
+            for (Triple<EnumColour, EnumColour, EnumColour> triple : mixMap) {
+                if ((triple.getLeft().equals(a) && triple.getMiddle().equals(b)) || (triple.getLeft().equals(b) && triple.getMiddle().equals(a))) {
+                    return triple.getRight();
                 }
             }
         }
@@ -165,7 +165,7 @@ public enum EnumColour implements IStringSerializable {
     }
 
     static {
-        ImmutableList.Builder<TripleABC<EnumColour, EnumColour, EnumColour>> builder = ImmutableList.builder();
+        ImmutableList.Builder<Triple<EnumColour, EnumColour, EnumColour>> builder = ImmutableList.builder();
         //WHITE
         builder.add(getTriple(YELLOW, RED, ORANGE));
         builder.add(getTriple(PINK, PURPLE, MAGENTA));
@@ -186,8 +186,8 @@ public enum EnumColour implements IStringSerializable {
         mixMap = builder.build();
     }
 
-    private static TripleABC<EnumColour, EnumColour, EnumColour> getTriple(EnumColour a, EnumColour b, EnumColour result) {
-        return new TripleABC<>(a, b, result);
+    private static Triple<EnumColour, EnumColour, EnumColour> getTriple(EnumColour a, EnumColour b, EnumColour result) {
+        return Triple.of(a, b, result);
     }
 
 }

@@ -55,8 +55,8 @@ public interface MCDataOutput {
         return this;
     }
 
-    default MCDataOutput writeEnumFacing(EnumFacing facing) {
-        writeByte(facing.ordinal());
+    default MCDataOutput writeEnum(Enum<?> value) {
+        writeVarInt(value.ordinal());
         return this;
     }
 

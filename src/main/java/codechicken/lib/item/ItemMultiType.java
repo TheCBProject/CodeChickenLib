@@ -24,7 +24,6 @@ public class ItemMultiType extends Item {
     protected HashMap<Integer, String> names = new HashMap<>();
     private int nextVariant = 0;
     private boolean hasRegistered = false;
-    private boolean registerToStackRegistry = false;
 
     /**
      * @param registryName The name to be registered with."
@@ -44,11 +43,6 @@ public class ItemMultiType extends Item {
         return this;
     }
 
-    public ItemMultiType enableStackRegistry() {
-        registerToStackRegistry = true;
-        return this;
-    }
-
     @Nonnull
     public ItemStack registerItem(int meta, String name) {
         if (names.containsKey(meta)) {
@@ -64,9 +58,6 @@ public class ItemMultiType extends Item {
     public ItemStack registerOreDict(int meta, String name) {
         ItemStack stack = registerItem(meta, name);
         OreDictionary.registerOre(name, stack);
-        if (registerToStackRegistry) {
-            ItemStackRegistry.registerCustomItemStack(name, stack);
-        }
         return stack;
     }
 
@@ -79,9 +70,6 @@ public class ItemMultiType extends Item {
     public ItemStack registerOreDict(String name) {
         ItemStack stack = registerItem(nextVariant, name);
         OreDictionary.registerOre(name, stack);
-        if (registerToStackRegistry) {
-            ItemStackRegistry.registerCustomItemStack(name, stack);
-        }
         return stack;
     }
 

@@ -1,6 +1,7 @@
 package codechicken.lib.util;
 
 import codechicken.lib.vec.Vector3;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -8,17 +9,31 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Created by covers1624 on 6/30/2016.
  */
 public class ItemUtils {
+
+    public static boolean isPlayerHolding(EntityLivingBase entity, Predicate<Item> predicate) {
+        for (EnumHand hand : EnumHand.values()) {
+            ItemStack stack = entity.getHeldItem(hand);
+            if (stack != null) {
+                if (predicate.test(stack.getItem())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     public static boolean isPlayerHoldingSomething(EntityPlayer player) {
         return !player.getHeldItemMainhand().isEmpty() || !player.getHeldItemOffhand().isEmpty();

@@ -40,6 +40,10 @@ public class CCRenderItem extends RenderItem {
     //Because forge has this private.
     private static final Matrix4f flipX;
 
+
+    //State fields.
+    private TransformType lastKnownTransformType;
+
     static {
         flipX = new Matrix4f();
         flipX.setIdentity();
@@ -60,9 +64,14 @@ public class CCRenderItem extends RenderItem {
         }
     }
 
-    public static CCRenderItem instance() {
+    /**
+     * Gets the current RenderItem instance, attempts to initialize CCL's if needed.
+     *
+     * @return The current RenderItem.
+     */
+    public static RenderItem getOverridenRenderItem() {
         init();
-        return instance;
+        return Minecraft.getMinecraft().getRenderItem();
     }
 
     @Override
@@ -75,7 +84,7 @@ public class CCRenderItem extends RenderItem {
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             GlStateManager.enableRescaleNormal();
             GlStateTracker.pushState();
-            renderer.renderItem(stack);
+            renderer.renderItem(stack, lastKnownTransformType);
             GlStateTracker.popState();
             GlStateManager.popMatrix();
             return;
@@ -85,13 +94,12 @@ public class CCRenderItem extends RenderItem {
     }
 
     private IBakedModel handleTransforms(ItemStack stack, IBakedModel model, TransformType transformType, boolean isLeftHand) {
+        lastKnownTransformType = transformType;
         if (model instanceof IMatrixTransform) {
             ((IMatrixTransform) model).getTransform(transformType, isLeftHand).glApply();
         } else if (model instanceof IGLTransform) {
             ((IGLTransform) model).applyTransforms(transformType, isLeftHand);
-        } else if (model instanceof IPerspectiveAwareModel) {
-            model = ForgeHooksClient.handleCameraTransforms(model, transformType, isLeftHand);
-        } else if (model instanceof IStackPerspectiveAwareModel) {
+        }  else if (model instanceof IStackPerspectiveAwareModel) {
             Pair<? extends IBakedModel, Matrix4f> pair = ((IStackPerspectiveAwareModel) model).handlePerspective(stack, transformType);
 
             if (pair.getRight() != null) {
@@ -103,6 +111,8 @@ public class CCRenderItem extends RenderItem {
                 ForgeHooksClient.multiplyCurrentGlMatrix(matrix);
             }
             return pair.getLeft();
+        } else if (model instanceof IPerspectiveAwareModel) {
+            model = ForgeHooksClient.handleCameraTransforms(model, transformType, isLeftHand);
         }
         return model;
     }

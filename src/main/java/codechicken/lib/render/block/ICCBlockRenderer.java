@@ -13,11 +13,43 @@ import net.minecraft.world.IBlockAccess;
  */
 public interface ICCBlockRenderer {
 
+    /**
+     * Exactly the same as {@link #renderBlock} Except you MUST use the provided sprite.
+     *
+     * @param world  World.
+     * @param pos    Position.
+     * @param state  Your state.
+     * @param sprite The overriden sprite.
+     * @param buffer The buffer.
+     */
     void handleRenderBlockDamage(IBlockAccess world, BlockPos pos, IBlockState state, TextureAtlasSprite sprite, VertexBuffer buffer);
 
+    /**
+     * Called to render your block in world.
+     * You MUST use the provided VertexBuffer.
+     * THE BUFFER IS ALREADY DRAWING!
+     * YOU MAY BE FIRED ON THE CHUNK BATCHING THREAD!
+     *
+     * @param world  World.
+     * @param pos    Position.
+     * @param state  Your state.
+     * @param buffer The buffer.
+     * @return If quads were added.
+     */
     boolean renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, VertexBuffer buffer);
 
+    /**
+     * Only ever called for Golems holding things, so don't really bother with it.
+     *
+     * @param state      State.
+     * @param brightness Brightness.
+     */
     void renderBrightness(IBlockState state, float brightness);
 
+    /**
+     * Register your textures.
+     *
+     * @param map The map!
+     */
     void registerTextures(TextureMap map);
 }

@@ -2,10 +2,10 @@ package codechicken.lib.vec.uv;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.render.CCRenderState;
-import codechicken.lib.util.TripleABC;
 import codechicken.lib.vec.IrreversibleTransformationException;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,9 +16,9 @@ import java.util.List;
  */
 public class IconVertexRangeUVTransform extends UVTransformation {
 
-    private final ImmutableList<TripleABC<Integer, Integer, TextureAtlasSprite>> transformMap;
+    private final ImmutableList<Triple<Integer, Integer, TextureAtlasSprite>> transformMap;
 
-    private IconVertexRangeUVTransform(List<TripleABC<Integer, Integer, TextureAtlasSprite>> transformMap) {
+    private IconVertexRangeUVTransform(List<Triple<Integer, Integer, TextureAtlasSprite>> transformMap) {
         this.transformMap = ImmutableList.copyOf(transformMap);
     }
 
@@ -61,9 +61,9 @@ public class IconVertexRangeUVTransform extends UVTransformation {
      * @return Returns the Icon, Null if no transform for the vertex index.
      */
     public TextureAtlasSprite getSpriteForVertexIndex(int index) {
-        for (TripleABC<Integer, Integer, TextureAtlasSprite> entry : transformMap) {
-            if (MathHelper.between(entry.getA(), index, entry.getB())) {
-                return entry.getC();
+        for (Triple<Integer, Integer, TextureAtlasSprite> entry : transformMap) {
+            if (MathHelper.between(entry.getLeft(), index, entry.getMiddle())) {
+                return entry.getRight();
             }
         }
         return null;
@@ -74,7 +74,7 @@ public class IconVertexRangeUVTransform extends UVTransformation {
      */
     public static class Builder {
 
-        private LinkedList<TripleABC<Integer, Integer, TextureAtlasSprite>> transformMap;
+        private LinkedList<Triple<Integer, Integer, TextureAtlasSprite>> transformMap;
 
         private Builder() {
             transformMap = new LinkedList<>();
@@ -99,12 +99,12 @@ public class IconVertexRangeUVTransform extends UVTransformation {
          * @throws IllegalArgumentException Thrown if the specified vertex range is already reserved.
          */
         public Builder addTransform(int start, int end, TextureAtlasSprite sprite) {
-            for (TripleABC<Integer, Integer, TextureAtlasSprite> entry : transformMap) {
-                if (MathHelper.between(entry.getA(), start, entry.getB()) || MathHelper.between(entry.getA(), end, entry.getB())) {
+            for (Triple<Integer, Integer, TextureAtlasSprite> entry : transformMap) {
+                if (MathHelper.between(entry.getLeft(), start, entry.getMiddle()) || MathHelper.between(entry.getLeft(), end, entry.getMiddle())) {
                     throw new IllegalArgumentException("Unable to have overlapping sprite transforms!");
                 }
             }
-            transformMap.add(new TripleABC<>(start, end, sprite));
+            transformMap.add(Triple.of(start, end, sprite));
             return this;
         }
 

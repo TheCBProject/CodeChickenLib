@@ -26,12 +26,13 @@ public class FingerprintChecker {
 
     static {
         //@formatter:off
-        modCertMap.put("CodeChickenLib"    , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
-        modCertMap.put("ChickenChunks"     , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
-        modCertMap.put("EnderStorage"      , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
-        modCertMap.put("Translocator"      , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
-        modCertMap.put("NotEnoughItems"    , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
-        modCertMap.put("forgemultipartcbe" , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("codechickenlib"     , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("chickenchunks"      , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("enderstorage"       , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("translocatr"        , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("nei"                , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("forgemultipartcbe"  , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
+        modCertMap.put("wrcbe"              , "f1850c39b2516232a2108a7bd84d1cb5df93b261");
         //@formatter:on
     }
 
@@ -81,12 +82,9 @@ public class FingerprintChecker {
                     }
                 }
             }
-            if (!invalidMods.isEmpty()) {
-                FMLCommonHandler.instance().registerCrashCallable(new FingerprintViolatedCrashCallable(activeContainer.getModId(), invalidMods));
-            }
+            FMLCommonHandler.instance().registerCrashCallable(new FingerprintViolatedCrashCallable(activeContainer.getModId(), invalidMods));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

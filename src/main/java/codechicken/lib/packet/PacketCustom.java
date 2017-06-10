@@ -530,8 +530,8 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     }
 
     @Override
-    public PacketCustom writeEnumFacing(EnumFacing facing) {
-        MCDataOutput.super.writeEnumFacing(facing);
+    public PacketCustom writeEnum(Enum<?> value) {
+        MCDataOutput.super.writeEnum(value);
         return this;
     }
 
