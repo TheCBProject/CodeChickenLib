@@ -51,9 +51,9 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public Vector3(Vec3d vec) {
-        x = vec.xCoord;
-        y = vec.yCoord;
-        z = vec.zCoord;
+        x = vec.x;
+        y = vec.y;
+        z = vec.z;
     }
 
     public static Vector3 fromBlockPos(BlockPos pos) {

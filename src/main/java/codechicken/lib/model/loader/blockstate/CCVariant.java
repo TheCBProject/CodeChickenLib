@@ -1,18 +1,29 @@
 package codechicken.lib.model.loader.blockstate;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
+import com.google.common.base.Optional;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.TransformUtils;
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
-import com.google.common.base.Optional;
-import com.google.gson.*;
 import net.minecraft.util.JsonUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.model.IModelState;
-
-import java.lang.reflect.Type;
-import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * Created by covers1624 on 18/11/2016.
@@ -200,7 +211,7 @@ public class CCVariant implements Copyable<CCVariant> {
 
     @Override
     public String toString() {
-        ToStringHelper helper = Objects.toStringHelper("CCVariant");
+        ToStringHelper helper = MoreObjects.toStringHelper("CCVariant");
         helper.add("Model", model);
         helper.add("IModelState", state);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

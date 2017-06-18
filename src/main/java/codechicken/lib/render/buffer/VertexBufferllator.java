@@ -1,21 +1,21 @@
 package codechicken.lib.render.buffer;
 
+import java.nio.ByteBuffer;
+
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.uv.UV;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-
-import java.nio.ByteBuffer;
 
 /**
  * Created by covers1624 on 4/03/2017.
  */
-public class VertexBufferllator extends VertexBuffer {
+public class VertexBufferllator extends BufferBuilder {
 
-    private final VertexBuffer wrapped;
+    private final BufferBuilder wrapped;
 
     //Storage.
     private final UV uv = new UV();
@@ -24,7 +24,7 @@ public class VertexBufferllator extends VertexBuffer {
     private final Vector3 pos = new Vector3();
     private final Vector3 normal = new Vector3();
 
-    public VertexBufferllator(VertexBuffer buffer) {
+    public VertexBufferllator(BufferBuilder buffer) {
         super(1);
         wrapped = buffer;
     }
@@ -78,7 +78,7 @@ public class VertexBufferllator extends VertexBuffer {
     }
 
     @Override
-    public VertexBuffer normal(float x, float y, float z) {
+    public BufferBuilder normal(float x, float y, float z) {
         normal.set(x, y, z);
         return this;
     }

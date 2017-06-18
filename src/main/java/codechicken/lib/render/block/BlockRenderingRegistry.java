@@ -1,5 +1,10 @@
 package codechicken.lib.render.block;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.google.common.collect.ImmutableList;
+
 import codechicken.lib.asm.ObfMapping;
 import codechicken.lib.model.BakedModelProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
@@ -7,24 +12,18 @@ import codechicken.lib.render.buffer.BakingVertexBuffer;
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.ReflectionManager;
 import codechicken.lib.util.TransformUtils;
-import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.util.EnumHelper;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by covers1624 on 8/09/2016.
@@ -75,7 +74,7 @@ public class BlockRenderingRegistry {
         if (renderer != null) {
             state = state.getActualState(world, pos);
             //TODO This needs to be optimized, probably not the most efficient thing in the world..
-            VertexBuffer parent = Tessellator.getInstance().getBuffer();
+            BufferBuilder parent = Tessellator.getInstance().getBuffer();
             BakingVertexBuffer buffer = BakingVertexBuffer.create();
             buffer.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
             buffer.begin(7, parent.getVertexFormat());
@@ -87,7 +86,7 @@ public class BlockRenderingRegistry {
         }
     }
 
-    static boolean renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, VertexBuffer buffer) {
+    static boolean renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, BufferBuilder buffer) {
         ICCBlockRenderer renderer = blockRendererList.get(state.getRenderType());
         if (renderer != null) {
             return renderer.renderBlock(world, pos, state, buffer);

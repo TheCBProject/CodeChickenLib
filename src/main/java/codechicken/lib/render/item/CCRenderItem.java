@@ -240,10 +240,10 @@ public class CCRenderItem extends RenderItem {
             } catch (Throwable throwable) {
                 CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Rendering item");
                 CrashReportCategory crashreportcategory = crashreport.makeCategory("Item being rendered");
-                crashreportcategory.setDetail("Item Type", () -> String.valueOf(stack.getItem()));
-                crashreportcategory.setDetail("Item Aux", () -> String.valueOf(stack.getMetadata()));
-                crashreportcategory.setDetail("Item NBT", () -> String.valueOf(stack.getTagCompound()));
-                crashreportcategory.setDetail("Item Foil", () -> String.valueOf(stack.hasEffect()));
+                crashreportcategory.addDetail("Item Type", () -> String.valueOf(stack.getItem()));
+                crashreportcategory.addDetail("Item Aux", () -> String.valueOf(stack.getMetadata()));
+                crashreportcategory.addDetail("Item NBT", () -> String.valueOf(stack.getTagCompound()));
+                crashreportcategory.addDetail("Item Foil", () -> String.valueOf(stack.hasEffect()));
                 throw new ReportedException(crashreport);
             }
         }
@@ -261,11 +261,6 @@ public class CCRenderItem extends RenderItem {
     public void registerItem(Item item, int subType, String identifier) {
         //Pass this through because why not.
         parent.registerItem(item, subType, identifier);
-    }
-
-    @Override
-    public void isNotRenderingEffectsInGUI(boolean isNot) {
-        parent.isNotRenderingEffectsInGUI(isNot);
     }
 
     @Override

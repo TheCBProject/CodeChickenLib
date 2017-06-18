@@ -1,13 +1,27 @@
 package codechicken.lib.packet;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
+import java.nio.channels.GatheringByteChannel;
+import java.nio.channels.ScatteringByteChannel;
+import java.nio.charset.Charset;
+import java.util.EnumMap;
+import java.util.UUID;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
+
+import com.google.common.collect.Maps;
+
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.packet.ICustomPacketHandler.IClientPacketHandler;
 import codechicken.lib.packet.ICustomPacketHandler.IServerPacketHandler;
-import com.google.common.collect.Maps;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.ByteBufProcessor;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,6 +29,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.AttributeKey;
+import io.netty.util.ByteProcessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -30,7 +45,6 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -46,19 +60,6 @@ import net.minecraftforge.fml.common.network.handshake.NetworkDispatcher;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.GatheringByteChannel;
-import java.nio.channels.ScatteringByteChannel;
-import java.nio.charset.Charset;
-import java.util.EnumMap;
-import java.util.UUID;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
 
 public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOutput {
 
@@ -131,7 +132,7 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
                 if (!mc.isCallingFromMinecraftThread()) {
                     mc.addScheduledTask(() -> handle(netHandler, channel, packet));
                 } else {
-                    handler.handlePacket(packet, ((NetHandlerPlayServer) netHandler).playerEntity, (INetHandlerPlayServer) netHandler);
+                    handler.handlePacket(packet, ((NetHandlerPlayServer) netHandler).player, (INetHandlerPlayServer) netHandler);
                 }
             } else {
                 System.err.println("Invalid INetHandler for PacketCustom on channel: " + channel);
@@ -722,10 +723,10 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     @Override public int bytesBefore(byte value) {return buf.bytesBefore(value);}
     @Override public int bytesBefore(int length, byte value) {return buf.bytesBefore(length, value);}
     @Override public int bytesBefore(int index, int length, byte value) {return buf.bytesBefore(index, length, value);}
-    @Override public int forEachByte(ByteBufProcessor processor) {return buf.forEachByte(processor);}
-    @Override public int forEachByte(int index, int length, ByteBufProcessor processor) {return buf.forEachByte(index, length, processor);}
-    @Override public int forEachByteDesc(ByteBufProcessor processor) {return buf.forEachByteDesc(processor);}
-    @Override public int forEachByteDesc(int index, int length, ByteBufProcessor processor) {return buf.forEachByteDesc(index, length, processor);}
+    @Override public int forEachByte(ByteProcessor processor) {return buf.forEachByte(processor);}
+    @Override public int forEachByte(int index, int length, ByteProcessor processor) {return buf.forEachByte(index, length, processor);}
+    @Override public int forEachByteDesc(ByteProcessor processor) {return buf.forEachByteDesc(processor);}
+    @Override public int forEachByteDesc(int index, int length, ByteProcessor processor) {return buf.forEachByteDesc(index, length, processor);}
     @Override public ByteBuf copy() {return buf.copy();}
     @Override public ByteBuf copy(int index, int length) {return buf.copy(index, length);}
     @Override public ByteBuf slice() {return buf.slice();}
@@ -753,6 +754,44 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     @Override public int refCnt() {return buf.refCnt();}
     @Override public boolean release() {return buf.release();}
     @Override public boolean release(int decrement) {return buf.release(decrement);}
+    @Override public boolean isReadOnly() {return buf.isReadOnly();}
+    @Override public ByteBuf asReadOnly() {return buf.asReadOnly();}
+    @Override public short getShortLE(int index) {return buf.getShortLE(index);}
+    @Override public int getUnsignedShortLE(int index) {return buf.getUnsignedShortLE(index);}
+    @Override public int getMediumLE(int index) {return buf.getMediumLE(index);}
+    @Override public int getUnsignedMediumLE(int index) {return buf.getUnsignedMediumLE(index);}
+    @Override public int getIntLE(int index) {return buf.getIntLE(index);}
+    @Override public long getUnsignedIntLE(int index) {return buf.getUnsignedIntLE(index);}
+    @Override public long getLongLE(int index) {return buf.getLongLE(index);}
+    @Override public int getBytes(int index, FileChannel out, long position, int length) throws IOException {return buf.getBytes(index, out, position, length);}
+    @Override public CharSequence getCharSequence(int index, int length, Charset charset) {return buf.getCharSequence(index, length, charset);}
+    @Override public ByteBuf setShortLE(int index, int value) {return buf.setShortLE(index, value);}
+    @Override public ByteBuf setMediumLE(int index, int value) {return buf.setMediumLE(index, value);}
+    @Override public ByteBuf setIntLE(int index, int value) {return buf.setIntLE(index, value);}
+    @Override public ByteBuf setLongLE(int index, long value) {return buf.setLongLE(index, value);}
+    @Override public int setBytes(int index, FileChannel in, long position, int length) throws IOException {return buf.setBytes(index, in, position, length);}
+    @Override public int setCharSequence(int index, CharSequence sequence, Charset charset) {return buf.setCharSequence(index, sequence, charset);}
+    @Override public short readShortLE() {return buf.readShortLE();}
+    @Override public int readUnsignedShortLE() {return buf.readUnsignedShortLE();}
+    @Override public int readMediumLE() {return buf.readMediumLE();}
+    @Override public int readUnsignedMediumLE() {return buf.readUnsignedMediumLE();}
+    @Override public int readIntLE() {return buf.readIntLE();}
+    @Override public long readUnsignedIntLE() {return buf.readUnsignedIntLE();}
+    @Override public long readLongLE() {return buf.readLongLE();}
+    @Override public ByteBuf readRetainedSlice(int length) {return buf.readRetainedSlice(length);}
+    @Override public CharSequence readCharSequence(int length, Charset charset) {return buf.readCharSequence(length, charset);}
+    @Override public int readBytes(FileChannel out, long position, int length) throws IOException {return buf.readBytes(out, position, length);}
+    @Override public ByteBuf writeShortLE(int value) {return buf.writeShortLE(value);}
+    @Override public ByteBuf writeMediumLE(int value) {return buf.writeMediumLE(value);}
+    @Override public ByteBuf writeIntLE(int value) {return buf.writeIntLE(value);}
+    @Override public ByteBuf writeLongLE(long value) {return buf.writeLongLE(value);}
+    @Override public int writeBytes(FileChannel in, long position, int length) throws IOException {return buf.writeBytes(in, position, length);}
+    @Override public int writeCharSequence(CharSequence sequence, Charset charset) {return buf.writeCharSequence(sequence, charset);}
+    @Override public ByteBuf retainedSlice() {return buf.retainedSlice();}
+    @Override public ByteBuf retainedSlice(int index, int length) {return buf.retainedSlice(index, length);}
+    @Override public ByteBuf retainedDuplicate() {return buf.retainedDuplicate();}
+    @Override public ByteBuf touch() {return buf.touch();}
+    @Override public ByteBuf touch(Object hint) {return buf.touch(hint);}
     //@formatter:on
     //endregion
 }

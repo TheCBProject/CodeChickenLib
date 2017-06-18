@@ -4,10 +4,10 @@ import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.vec.*;
 import codechicken.lib.vec.uv.IconTransformation;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.Tessellator;	
 import net.minecraft.client.renderer.entity.RenderEntityItem;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -63,7 +63,7 @@ public class RenderUtils {
      * @param res  Units per icon
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, TextureAtlasSprite icon, double res) {
-        VertexBuffer r = CCRenderState.instance().getBuffer();
+        BufferBuilder r = CCRenderState.instance().getBuffer();
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
         double v2 = icon.getMaxV();
@@ -118,7 +118,7 @@ public class RenderUtils {
      */
     public static void drawCuboidOutline(Cuboid6 c) {
         CCRenderState state = CCRenderState.instance();
-        VertexBuffer r = state.startDrawing(3, DefaultVertexFormats.POSITION);
+        BufferBuilder r = state.startDrawing(3, DefaultVertexFormats.POSITION);
         r.pos(c.min.x, c.min.y, c.min.z).endVertex();
         r.pos(c.max.x, c.min.y, c.min.z).endVertex();
         r.pos(c.max.x, c.min.y, c.max.z).endVertex();
@@ -151,7 +151,7 @@ public class RenderUtils {
      */
     public static void drawCuboidSolid(Cuboid6 c) {
         CCRenderState ccrs = CCRenderState.instance();
-        VertexBuffer buffer = ccrs.startDrawing(7, DefaultVertexFormats.POSITION);
+        BufferBuilder buffer = ccrs.startDrawing(7, DefaultVertexFormats.POSITION);
         buffer.pos(c.min.x, c.max.y, c.min.z).endVertex();
         buffer.pos(c.max.x, c.max.y, c.min.z).endVertex();
         buffer.pos(c.max.x, c.min.y, c.min.z).endVertex();
@@ -197,7 +197,7 @@ public class RenderUtils {
     public static void renderBlockOverlaySide(int x, int y, int z, int side, double tx1, double tx2, double ty1, double ty2) {
         double[] points = new double[] { x - 0.009, x + 1.009, y - 0.009, y + 1.009, z - 0.009, z + 1.009 };
 
-        VertexBuffer r = Tessellator.getInstance().getBuffer();
+        BufferBuilder r = Tessellator.getInstance().getBuffer();
         switch (side) {
             case 0:
                 r.pos(points[0], points[2], points[4]).tex(tx1, ty1).endVertex();
@@ -396,7 +396,7 @@ public class RenderUtils {
 
         GlStateManager.color(1, 1, 1, 1);
 
-        entityItem.setEntityItemStack(item);
+        entityItem.setItem(item);
         uniformRenderItem.doRender(entityItem, 0, 0.06, 0, 0, (float) (spin * 9 / Math.PI));
     }
 

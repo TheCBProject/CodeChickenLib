@@ -24,7 +24,7 @@ public class WrappedEntityItemRenderer extends RenderEntityItem {
 
     @Override
     public void doRender(EntityItem entity, double x, double y, double z, float entityYaw, float partialTicks) {
-        ItemStack stack = entity.getEntityItem();
+        ItemStack stack = entity.getItem();
         RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
         IBakedModel model = renderItem.getItemModelMesher().getItemModel(stack);
         if (model instanceof IEntityItemPreRenderCallback) {
