@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 
 public class FontUtils {
 
-    public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+    public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
 
     public static void drawCenteredString(String s, int xCenter, int y, int colour) {
         fontRenderer.drawString(s, xCenter - fontRenderer.getStringWidth(s) / 2, y, colour);

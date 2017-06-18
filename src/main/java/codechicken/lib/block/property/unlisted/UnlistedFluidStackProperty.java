@@ -1,6 +1,7 @@
 package codechicken.lib.block.property.unlisted;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
+
 import net.minecraftforge.fluids.FluidStack;
 
 /**
@@ -19,6 +20,6 @@ public class UnlistedFluidStackProperty extends UnlistedPropertyBase<FluidStack>
 
     @Override
     public String valueToString(FluidStack value) {
-        return Objects.toStringHelper("FluidStack").add("Fluid", value.getFluid().getName()).add("Amount", value.amount).add("Tag", value.tag.toString()).toString();
+        return MoreObjects.toStringHelper("FluidStack").add("Fluid", value.getFluid().getName()).add("Amount", value.amount).add("Tag", value.tag.toString()).toString();
     }
 }

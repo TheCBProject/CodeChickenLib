@@ -1,16 +1,24 @@
 package codechicken.lib.model.modelbase;
 
-import codechicken.lib.render.CCQuad;
-import codechicken.lib.render.CCModel;
-import codechicken.lib.vec.*;
-import codechicken.lib.vec.uv.UV;
-import com.google.common.collect.Lists;
-import net.minecraft.client.renderer.VertexBuffer;
-import org.lwjgl.opengl.GL11;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.lwjgl.opengl.GL11;
+
+import com.google.common.collect.Lists;
+
+import codechicken.lib.render.CCModel;
+import codechicken.lib.render.CCQuad;
+import codechicken.lib.vec.Rotation;
+import codechicken.lib.vec.Scale;
+import codechicken.lib.vec.Transformation;
+import codechicken.lib.vec.TransformationList;
+import codechicken.lib.vec.Translation;
+import codechicken.lib.vec.Vector3;
+import codechicken.lib.vec.Vertex5;
+import codechicken.lib.vec.uv.UV;
+import net.minecraft.client.renderer.BufferBuilder;
 
 /**
  * Created by covers1624 on 8/24/2016.
@@ -106,7 +114,7 @@ public class CCModelRenderer {
         this.rotationPointZ = rotationPointZIn;
     }
 
-    public void render(float scale, VertexBuffer buffer) {
+    public void render(float scale, BufferBuilder buffer) {
         //TODO
         //CCRenderState.bind(buffer);
         //boolean startDrawing = !CCRenderState.isDrawing();

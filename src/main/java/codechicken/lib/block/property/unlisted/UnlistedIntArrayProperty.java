@@ -1,7 +1,7 @@
 package codechicken.lib.block.property.unlisted;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 /**
  * Created by covers1624 on 21/02/2017.
@@ -19,7 +19,7 @@ public class UnlistedIntArrayProperty extends UnlistedPropertyBase<int[]> {
 
     @Override
     public String valueToString(int[] value) {
-        ToStringHelper helper = Objects.toStringHelper("IntArray");
+        ToStringHelper helper = MoreObjects.toStringHelper("IntArray");
         if (value != null) {
             for (int i1 = 0; i1 < value.length; i1++) {
                 int i = value[i1];

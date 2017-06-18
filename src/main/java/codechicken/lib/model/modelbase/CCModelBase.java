@@ -1,16 +1,17 @@
 package codechicken.lib.model.modelbase;
 
-import codechicken.lib.render.CCModel;
-import codechicken.lib.vec.uv.UV;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import codechicken.lib.render.CCModel;
+import codechicken.lib.vec.uv.UV;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 /**
  * Created by covers1624 on 8/24/2016.
@@ -53,7 +54,7 @@ public abstract class CCModelBase {
         this.isChild = model.isChild;
     }
 
-    public static void renderModels(float scale, VertexBuffer buffer, TextureAtlasSprite sprite, CCModelRenderer... modelRenders) {
+    public static void renderModels(float scale, BufferBuilder buffer, TextureAtlasSprite sprite, CCModelRenderer... modelRenders) {
         LinkedList<CCModel> models = new LinkedList<>();
         for (CCModelRenderer modelRenderer : modelRenders) {
             models.add(modelRenderer.bake(scale));

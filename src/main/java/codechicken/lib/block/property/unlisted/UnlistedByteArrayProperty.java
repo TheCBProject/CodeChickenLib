@@ -1,7 +1,7 @@
 package codechicken.lib.block.property.unlisted;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 
 /**
  * Created by covers1624 on 21/02/2017.
@@ -19,7 +19,7 @@ public class UnlistedByteArrayProperty extends UnlistedPropertyBase<byte[]> {
 
     @Override
     public String valueToString(byte[] value) {
-        ToStringHelper helper = Objects.toStringHelper("ByteArray");
+        ToStringHelper helper = MoreObjects.toStringHelper("ByteArray");
         if (value != null) {
             for (int i1 = 0; i1 < value.length; i1++) {
                 byte i = value[i1];

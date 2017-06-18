@@ -1,32 +1,34 @@
 package codechicken.lib.render.buffer;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.logging.log4j.Level;
+
+import com.google.common.collect.ImmutableList;
+
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.VectorUtils;
 import codechicken.lib.util.VertexDataUtils;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.uv.UV;
-import com.google.common.collect.ImmutableList;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.fml.common.FMLLog;
-import org.apache.logging.log4j.Level;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by covers1624 on 4/10/2016.
  * Creates a List of BakedQuads from a VertexBuffer. That's it really..
  * //TODO, support triangles & quadulate.
  */
-public class BakingVertexBuffer extends VertexBuffer {
+public class BakingVertexBuffer extends BufferBuilder {
 
     private HashMap<Integer, TextureAtlasSprite> spriteMap;
     private boolean useSprites = true;

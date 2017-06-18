@@ -1,11 +1,16 @@
 package codechicken.lib.render.state;
 
-import com.google.common.base.Objects;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.GlStateManager.*;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
+
+import com.google.common.base.MoreObjects;
+
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.GlStateManager.AlphaState;
+import net.minecraft.client.renderer.GlStateManager.BlendState;
+import net.minecraft.client.renderer.GlStateManager.BooleanState;
+import net.minecraft.client.renderer.GlStateManager.CullState;
+import net.minecraft.client.renderer.GlStateManager.DepthState;
 
 /**
  * Created by covers1624 on 10/10/2016.
@@ -22,7 +27,7 @@ public class GlStateTracker {
             @Override
             public String getState() {
                 AlphaState alphaState = GlStateManager.alphaState;
-                return Objects.toStringHelper(name()).add("Func", alphaState.func).add("Ref", alphaState.ref).add("Enabled", String.valueOf(alphaState.alphaTest.currentState).toUpperCase()).toString();
+                return MoreObjects.toStringHelper(name()).add("Func", alphaState.func).add("Ref", alphaState.ref).add("Enabled", String.valueOf(alphaState.alphaTest.currentState).toUpperCase()).toString();
             }
 
             @Override
@@ -45,7 +50,7 @@ public class GlStateTracker {
         GL_LIGHTING {
             @Override
             public String getState() {
-                return Objects.toStringHelper(name()).add("Enabled", parseBoolState(GlStateManager.lightingState)).toString();
+                return MoreObjects.toStringHelper(name()).add("Enabled", parseBoolState(GlStateManager.lightingState)).toString();
             }
 
             @Override
@@ -67,7 +72,7 @@ public class GlStateTracker {
             public String getState() {
                 BlendState blendState = GlStateManager.blendState;
                 //@formatter:off
-                return Objects.toStringHelper(name())
+                return MoreObjects.toStringHelper(name())
                         .add("SrcFactor", parseFactor(blendState.srcFactor))          .add("DstFactor", parseFactor(blendState.dstFactor))
                         .add("SrcFactorAlpha", parseFactor(blendState.srcFactorAlpha)).add("DstFactorAlpha", parseFactor(blendState.dstFactorAlpha))
                         .add("Enabled", parseBoolState(blendState.blend)).toString();
@@ -140,7 +145,7 @@ public class GlStateTracker {
             @Override
             public String getState() {
                 DepthState depthState = GlStateManager.depthState;
-                return Objects.toStringHelper(name()).add("Func", parseFunc(depthState.depthFunc)).add("Mask", String.valueOf(depthState.maskEnabled).toUpperCase()).add("Enabled", parseBoolState(depthState.depthTest)).toString();
+                return MoreObjects.toStringHelper(name()).add("Func", parseFunc(depthState.depthFunc)).add("Mask", String.valueOf(depthState.maskEnabled).toUpperCase()).add("Enabled", parseBoolState(depthState.depthTest)).toString();
             }
 
             @Override
@@ -189,7 +194,7 @@ public class GlStateTracker {
             @Override
             public String getState() {
                 CullState cullState = GlStateManager.cullState;
-                return Objects.toStringHelper(name()).add("Mode", parseMode(cullState.mode)).add("Enabled", parseBoolState(cullState.cullFace)).toString();
+                return MoreObjects.toStringHelper(name()).add("Mode", parseMode(cullState.mode)).add("Enabled", parseBoolState(cullState.cullFace)).toString();
             }
 
             @Override
@@ -227,7 +232,7 @@ public class GlStateTracker {
         GL_RESCALE_NORMAL {
             @Override
             public String getState() {
-                return Objects.toStringHelper(name()).add("Enabled", parseBoolState(GlStateManager.rescaleNormalState)).toString();
+                return MoreObjects.toStringHelper(name()).add("Enabled", parseBoolState(GlStateManager.rescaleNormalState)).toString();
             }
 
             @Override
