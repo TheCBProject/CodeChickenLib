@@ -24,7 +24,7 @@ public class CodeChickenLib {
     public static final String MOD_VERSION = "${mod_version}";
     public static final String MOD_VERSION_DEP = "required-after:codechickenlib@[" + MOD_VERSION + ",);";
     public static final String MC_VERSION = "1.11.2";
-    public static final String MC_VERSION_DEP = "[" + MC_VERSION +"]";
+    public static final String MC_VERSION_DEP = "[" + MC_VERSION + "]";
     static final String UPDATE_URL = "http://chickenbones.net/Files/notification/version.php?query=forge&version=" + MC_VERSION + "&file=CodeChickenLib";
 
     public static final File MINECRAFT_DIR = (File) FMLInjectionData.data()[6];

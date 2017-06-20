@@ -7,6 +7,7 @@ import codechicken.lib.model.bakery.ModelBakery;
 import codechicken.lib.model.loader.bakery.CCBakeryModelLoader;
 import codechicken.lib.model.loader.cube.CCCubeLoader;
 import codechicken.lib.render.CCRenderEventHandler;
+import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.block.BlockRenderingRegistry;
 import codechicken.lib.render.item.CCRenderItem;
 import codechicken.lib.render.item.map.MapRenderRegistry;
@@ -22,6 +23,7 @@ public class ProxyClient extends Proxy {
     @Override
     public void preInit() {
         super.preInit();
+        OpenGLUtils.loadCaps();
         ModelBakery.init();
         CCRenderEventHandler.init();
         MinecraftForge.EVENT_BUS.register(new MapRenderRegistry());

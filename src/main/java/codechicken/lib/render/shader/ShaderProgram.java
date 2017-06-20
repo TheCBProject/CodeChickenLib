@@ -1,173 +1,319 @@
 package codechicken.lib.render.shader;
 
-import codechicken.lib.render.shader.pipeline.CCShaderPipeline;
-import codechicken.lib.render.shader.pipeline.attribute.IShaderOperation;
-import org.lwjgl.opengl.ARBFragmentShader;
-import org.lwjgl.opengl.ARBShaderObjects;
-import org.lwjgl.opengl.ARBVertexShader;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.util.vector.Matrix4f;
+import codechicken.lib.render.OpenGLUtils;
+import codechicken.lib.render.shader.ShaderProgram.UniformEntry.BooleanUniformEntry;
+import codechicken.lib.render.shader.ShaderProgram.UniformEntry.FloatUniformEntry;
+import codechicken.lib.render.shader.ShaderProgram.UniformEntry.IntUniformEntry;
+import codechicken.lib.render.shader.ShaderProgram.UniformEntry.Matrix4UniformEntry;
+import codechicken.lib.vec.Matrix4;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import org.lwjgl.opengl.GL20;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.IntConsumer;
+import java.util.function.Predicate;
 
-import static org.lwjgl.opengl.ARBShaderObjects.*;
+import static org.lwjgl.opengl.GL11.GL_FALSE;
 
+//TODO Better error throwing, Use MC's CrashReportCategory.
 public class ShaderProgram {
 
-    private int programID;
-    public CCShaderPipeline pipeline = new CCShaderPipeline(this);
-    private ArrayList<IShaderOperation> ops = new ArrayList<>();
+	private Set<ShaderObject> shaderObjects = new LinkedHashSet<>();
+	private int programID;
 
-    public ShaderProgram() {
-        programID = glCreateProgramObjectARB();
-        if (programID == 0) {
-            throw new RuntimeException("Unable to allocate shader program object.");
-        }
-    }
+	private UniformCache uniformCache = new UniformCache();
+	private boolean isInvalid;
 
-    public void attachShaderOperation(IShaderOperation operation) {
-        ops.add(operation);
-    }
+	private IntConsumer onLink;
 
-    public void bindShader() {
-        glUseProgramObjectARB(programID);
-    }
+	public ShaderProgram() {
+		this((program) -> {
+		});
+	}
 
-    /**
-     * Allows you to bind the shader for use outside an IShaderOperation.
-     * You can still pass variables to the shader using an IShaderOperation.
-     *
-     * Call this before you do your rendering.
-     * Then call ShaderProgram.unbindShader() when you have finished rendering.
-     */
-    public void freeBindShader() {
-        pipeline.reset();
-        pipeline.setPipeline(ops);
+	/**
+	 * The definition of a ShaderProgram object.
+	 *
+	 * @param onLink Called on validation before the ShaderProgram Links.
+	 */
+	public ShaderProgram(IntConsumer onLink) {
+		this.onLink = onLink;
+		programID = GL20.glCreateProgram();
+		if (programID == 0) {
+			throw new RuntimeException("Unable to create new ShaderProgram! GL Allocation has failed.");
+		}
+	}
 
-        glUseProgramObjectARB(programID);
-        pipeline.operate();
-    }
+	/**
+	 * Attaches a ShaderObject to the program.
+	 * Multiple ShaderTypes are permissible.
+	 * The ShaderProgram is marked for validation and will be validated next bind.
+	 *
+	 * @param shaderObject The ShaderObject to attach.
+	 */
+	public void attachShader(ShaderObject shaderObject) {
+		if (shaderObjects.contains(shaderObject)) {
+			throw new IllegalStateException("Unable to attach ShaderObject. Object is already attached!");
+		}
+		shaderObjects.add(shaderObject);
+		GL20.glAttachShader(programID, shaderObject.shaderID);
+		isInvalid = true;
+	}
 
-    public static void unbindShader() {
-        glUseProgramObjectARB(0);
-    }
+	/**
+	 * If the shader has been marked as invalid, this will call for the shader to be validated.
+	 */
+	public void checkValidation() {
+		if (isInvalid) {
+			uniformCache.invalidateCache();
 
-    public void runShader() {
-        pipeline.reset();
-        pipeline.setPipeline(ops);
+			onLink.accept(programID);
+			shaderObjects.forEach(shaderObject -> shaderObject.onShaderLink(programID));
 
-        bindShader();
-        pipeline.operate();
-        unbindShader();
-    }
+			GL20.glLinkProgram(programID);
 
-    public ShaderProgram attachVert(String resource) {
-        return attach(ARBVertexShader.GL_VERTEX_SHADER_ARB, resource);
-    }
+			if (GL20.glGetProgrami(programID, GL20.GL_LINK_STATUS) == GL_FALSE) {
+				throw new RuntimeException(String.format("ShaderProgram validation has failed!\n%s", OpenGLUtils.glGetProgramInfoLog(programID)));
+			}
+			isInvalid = false;
+		}
+	}
 
-    public ShaderProgram attachFrag(String resource) {
-        return attach(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB, resource);
-    }
+	/**
+	 * Called to "use" or bind the shader.
+	 */
+	public void useShader() {
+		useShader(uniformCache1 -> {
+		});
+	}
 
-    public ShaderProgram attach(int shaderType, String resource) {
-        InputStream stream = ShaderProgram.class.getResourceAsStream(resource);
-        if (stream == null) {
-            throw new RuntimeException("Unable to locate resource: " + resource);
-        }
+	/**
+	 * Called to "use" or bind the shader.
+	 * You are provided a UniformCache to upload Uniforms to the GPU.
+	 * Uniforms are cached and will only be uploaded if their state changes, or the program is invalidated.
+	 *
+	 * @param uniformApplier The callback to apply Uniforms.
+	 */
+	public void useShader(Consumer<UniformCache> uniformApplier) {
+		checkValidation();
+		GL20.glUseProgram(programID);
+		shaderObjects.forEach(shaderObject -> shaderObject.onShaderUse(uniformCache));
+		uniformApplier.accept(uniformCache);
+	}
 
-        return attach(shaderType, stream);
-    }
+	/**
+	 * Called to release the shader.
+	 */
+	public void releaseShader() {
+		GL20.glUseProgram(0);
+	}
 
-    public ShaderProgram attach(int shaderType, InputStream stream) {
-        if (stream == null) {
-            throw new RuntimeException("Invalid shader inputstream");
-        }
+	/**
+	 * An object that stores the currently uploaded Uniforms for this specific ShaderProgram.
+	 */
+	public class UniformCache {
 
-        int shaderID = 0;
-        try {
-            shaderID = glCreateShaderObjectARB(shaderType);
-            if (shaderID == 0) {
-                throw new RuntimeException("Unable to allocate shader object.");
-            }
+		private TIntObjectHashMap<UniformEntry> uniformObjectCache = new TIntObjectHashMap<>();
+		private TObjectIntHashMap<String> uniformLocationCache = new TObjectIntHashMap<>();
 
-            try {
-                glShaderSourceARB(shaderID, asString(stream));
-            } catch (IOException e) {
-                throw new RuntimeException("Error reading inputstream.", e);
-            }
+		private void invalidateCache() {
+			uniformLocationCache.clear();
+			uniformObjectCache.clear();
+		}
 
-            glCompileShaderARB(shaderID);
-            if (glGetObjectParameteriARB(shaderID, GL_OBJECT_COMPILE_STATUS_ARB) == GL11.GL_FALSE) {
-                throw new RuntimeException("Error compiling shader: " + getInfoLog(shaderID));
-            }
+		/**
+		 * A cached call to get the location of a Uniform.
+		 *
+		 * @param name The name requested.
+		 * @return The location.
+		 */
+		public int getUniformLocation(String name) {
+			int uniformLocation;
+			if (uniformLocationCache.containsKey(name)) {
+				uniformLocation = uniformLocationCache.get(name);
+			} else {
+				uniformLocation = GL20.glGetUniformLocation(programID, name);
+				uniformLocationCache.put(name, uniformLocation);
+			}
+			return uniformLocation;
+		}
 
-            glAttachObjectARB(programID, shaderID);
-        } catch (RuntimeException e) {
-            glDeleteObjectARB(shaderID);
-            throw e;
-        }
-        return this;
-    }
+		public void glUniform1F(int location, float v0) {
+			glUniformF(location, () -> GL20.glUniform1f(location, v0), v0);
+		}
 
-    /**
-     * Call this once you have bound your frag and vert shader.
-     */
-    public ShaderProgram validate() {
-        glLinkProgramARB(programID);
-        if (glGetObjectParameteriARB(programID, GL_OBJECT_LINK_STATUS_ARB) == GL11.GL_FALSE) {
-            throw new RuntimeException("Error linking program: " + getInfoLog(programID));
-        }
+		public void glUniform2F(int location, float v0, float v1) {
+			glUniformF(location, () -> GL20.glUniform2f(location, v0, v1), v0, v1);
+		}
 
-        glValidateProgramARB(programID);
-        if (glGetObjectParameteriARB(programID, GL_OBJECT_VALIDATE_STATUS_ARB) == GL11.GL_FALSE) {
-            throw new RuntimeException("Error validating program: " + getInfoLog(programID));
-        }
-        return this;
-    }
+		public void glUniform3F(int location, float v0, float v1, float v2) {
+			glUniformF(location, () -> GL20.glUniform3f(location, v0, v1, v2), v0, v1, v2);
+		}
 
-    public static String asString(InputStream stream) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        BufferedReader bin = new BufferedReader(new InputStreamReader(stream));
-        String line;
-        while ((line = bin.readLine()) != null) {
-            sb.append(line).append('\n');
-        }
-        stream.close();
-        return sb.toString();
-    }
+		public void glUniform4F(int location, float v0, float v1, float v2, float v3) {
+			glUniformF(location, () -> GL20.glUniform4f(location, v0, v1, v2, v3), v0, v1, v2, v3);
+		}
 
-    private static String getInfoLog(int shaderID) {
-        return glGetInfoLogARB(shaderID, glGetObjectParameteriARB(shaderID, GL_OBJECT_INFO_LOG_LENGTH_ARB));
-    }
+		private void glUniformF(int location, IUniformCallback callback, float... values) {
+			glUniform(location, UniformEntry.IS_FLOAT, FloatUniformEntry::new, callback, values);
+		}
 
-    public int getUniformLoc(String name) {
-        return ARBShaderObjects.glGetUniformLocationARB(programID, name);
-    }
+		public void glUniform1I(int location, int v0) {
+			glUniformI(location, () -> GL20.glUniform1i(location, v0), v0);
+		}
 
-    public int getAttribLoc(String name) {
-        return ARBVertexShader.glGetAttribLocationARB(programID, name);
-    }
+		public void glUniform2I(int location, int v0, int v1) {
+			glUniformI(location, () -> GL20.glUniform2i(location, v0, v1), v0, v1);
+		}
 
-    public void uniformTexture(String name, int textureIndex) {
-        ARBShaderObjects.glUniform1iARB(getUniformLoc(name), textureIndex);
-    }
+		public void glUniform3I(int location, int v0, int v1, int v2) {
+			glUniformI(location, () -> GL20.glUniform3i(location, v0, v1, v2), v0, v1, v2);
+		}
 
-    public void glVertexAttributeMat4(int loc, Matrix4f matrix) {
-        ARBVertexShader.glVertexAttrib4fARB(loc, matrix.m00, matrix.m01, matrix.m02, matrix.m03);
-        ARBVertexShader.glVertexAttrib4fARB(loc + 1, matrix.m10, matrix.m11, matrix.m12, matrix.m13);
-        ARBVertexShader.glVertexAttrib4fARB(loc + 2, matrix.m20, matrix.m21, matrix.m22, matrix.m23);
-        ARBVertexShader.glVertexAttrib4fARB(loc + 3, matrix.m30, matrix.m31, matrix.m32, matrix.m33);
-    }
+		public void glUniform4I(int location, int v0, int v1, int v2, int v3) {
+			glUniformI(location, () -> GL20.glUniform4i(location, v0, v1, v2, v3), v0, v1, v2, v3);
+		}
 
-    /**
-     * This method will completely remove the shader.
-     */
-    public void cleanup() {
-        ops.clear();
-        ARBShaderObjects.glDeleteObjectARB(programID);
-    }
+		private void glUniformI(int location, IUniformCallback callback, int... values) {
+			glUniform(location, UniformEntry.IS_INT, IntUniformEntry::new, callback, values);
+		}
+
+		public void glUniformMatrix4(int location, boolean transpose, Matrix4 matrix) {
+			glUniform(location, UniformEntry.IS_MATRIX, Matrix4UniformEntry::new, () -> GL20.glUniformMatrix4(location, transpose, matrix.toFloatBuffer()), matrix);
+		}
+
+		public void glUniformBoolean(int location, boolean value) {
+			glUniform(location, UniformEntry.IS_BOOLEAN, BooleanUniformEntry::new, () -> GL20.glUniform1i(location, value ? 1 : 0), value);
+		}
+
+		private <T> void glUniform(int location, Predicate<UniformEntry> isType, Function<T, UniformEntry<T>> createUniform, IUniformCallback applyCallback, T value) {
+			boolean update = true;
+			if (uniformObjectCache.containsKey(location)) {
+				UniformEntry uniformEntry = uniformObjectCache.get(location);
+				if (isType.test(uniformEntry)) {
+					update = !uniformEntry.check(value);
+				}
+			}
+
+			if (update) {
+				UniformEntry<T> entry = createUniform.apply(value);
+				applyCallback.apply();
+				uniformObjectCache.put(location, entry);
+			}
+		}
+
+	}
+
+	public static abstract class UniformEntry<T> {
+
+		public static Predicate<UniformEntry> IS_INT = uniformEntry -> uniformEntry instanceof IntUniformEntry;
+		public static Predicate<UniformEntry> IS_FLOAT = uniformEntry -> uniformEntry instanceof FloatUniformEntry;
+		public static Predicate<UniformEntry> IS_MATRIX = uniformEntry -> uniformEntry instanceof Matrix4UniformEntry;
+		public static Predicate<UniformEntry> IS_BOOLEAN = uniformEntry -> uniformEntry instanceof BooleanUniformEntry;
+
+		public abstract boolean check(T other);
+
+		public abstract boolean isType(Object object);
+
+		public static class IntUniformEntry extends UniformEntry<int[]> {
+
+			private int[] cache;
+
+			public IntUniformEntry(int... cache) {
+				this.cache = cache;
+			}
+
+			@Override
+			public boolean check(int... other) {
+				if (cache.length != other.length) {
+					return false;
+				}
+				for (int i = 0; i < cache.length; i++) {
+					if (cache[i] != other[i]) {
+						return false;
+					}
+				}
+				return true;
+			}
+
+			@Override
+			public boolean isType(Object object) {
+				return object instanceof IntUniformEntry;
+			}
+		}
+
+		public static class FloatUniformEntry extends UniformEntry<float[]> {
+
+			private float[] cache;
+
+			public FloatUniformEntry(float... cache) {
+				this.cache = cache;
+			}
+
+			@Override
+			public boolean check(float... other) {
+				if (cache.length != other.length) {
+					return false;
+				}
+				for (int i = 0; i < cache.length; i++) {
+					if (cache[i] != other[i]) {
+						return false;
+					}
+				}
+				return true;
+			}
+
+			@Override
+			public boolean isType(Object object) {
+				return object instanceof FloatUniformEntry;
+			}
+		}
+
+		public static class Matrix4UniformEntry extends UniformEntry<Matrix4> {
+
+			private Matrix4 matrix;
+
+			public Matrix4UniformEntry(Matrix4 matrix) {
+				this.matrix = matrix;
+			}
+
+			@Override
+			public boolean check(Matrix4 other) {
+				return this.matrix.equals(other);
+			}
+
+			@Override
+			public boolean isType(Object object) {
+				return object instanceof Matrix4UniformEntry;
+			}
+		}
+
+		public static class BooleanUniformEntry extends UniformEntry<Boolean> {
+
+			private boolean bool;
+
+			public BooleanUniformEntry(boolean bool) {
+				this.bool = bool;
+			}
+
+			@Override
+			public boolean check(Boolean other) {
+				return bool == other;
+			}
+
+			@Override
+			public boolean isType(Object object) {
+				return false;
+			}
+		}
+	}
+
+
+	private interface IUniformCallback {
+		void apply();
+	}
 }
