@@ -183,7 +183,7 @@ public class CCRenderItem extends RenderItem {
 
     @Override
     public void renderItem(ItemStack stack, TransformType cameraTransformType) {
-        if (stack != null) {
+        if (!stack.isEmpty()) {
             IBakedModel bakedModel = this.getItemModelWithOverrides(stack, null, null);
             if (isValidModel(bakedModel)) {
                 this.renderItemModel(stack, bakedModel, cameraTransformType, false);
