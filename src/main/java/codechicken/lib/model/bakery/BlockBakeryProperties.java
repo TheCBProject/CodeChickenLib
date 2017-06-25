@@ -1,7 +1,6 @@
 package codechicken.lib.model.bakery;
 
 import codechicken.lib.block.property.unlisted.UnlistedMapProperty;
-import codechicken.lib.block.property.unlisted.UnlistedMapProperty.IMapStringGenerator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;

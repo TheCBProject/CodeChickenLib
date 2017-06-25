@@ -3,8 +3,11 @@ package codechicken.lib.config;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 public abstract class ConfigTagParent {
 

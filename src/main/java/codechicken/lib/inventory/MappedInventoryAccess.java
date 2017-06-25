@@ -13,6 +13,7 @@ import java.util.List;
 public class MappedInventoryAccess implements IInventory {
 
     public interface InventoryAccessor {
+
         boolean canAccessSlot(int slot);
     }
 

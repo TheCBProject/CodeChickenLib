@@ -1,7 +1,7 @@
 package codechicken.lib.model.modelbase;
 
-import codechicken.lib.render.CCQuad;
 import codechicken.lib.render.CCModel;
+import codechicken.lib.render.CCQuad;
 import codechicken.lib.vec.*;
 import codechicken.lib.vec.uv.UV;
 import com.google.common.collect.Lists;

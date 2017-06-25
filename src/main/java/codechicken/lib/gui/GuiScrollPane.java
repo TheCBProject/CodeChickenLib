@@ -6,6 +6,7 @@ import codechicken.lib.vec.Rectangle4i;
 import java.awt.*;
 
 public abstract class GuiScrollPane extends GuiWidget {
+
     protected int scrollclicky = -1;
     protected float scrollpercent;
     protected int scrollmousey;
@@ -99,10 +100,8 @@ public abstract class GuiScrollPane extends GuiWidget {
         Rectangle w = windowBounds();
         int barempty = height - sbar.height;
 
-        if (button == 0 &&
-                sbar.height < height && //the scroll bar can move (not full length)
-                mx >= sbar.x && mx <= sbar.x + sbar.width &&
-                my >= y && my <= y + height)//in the scroll pane
+        if (button == 0 && sbar.height < height && //the scroll bar can move (not full length)
+                mx >= sbar.x && mx <= sbar.x + sbar.width && my >= y && my <= y + height)//in the scroll pane
         {
             if (my < sbar.y) {
                 percentscrolled = (my - y) / (float) barempty;

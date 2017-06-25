@@ -40,7 +40,6 @@ public class CCRenderItem extends RenderItem {
     //Because forge has this private.
     private static final Matrix4f flipX;
 
-
     //State fields.
     private TransformType lastKnownTransformType;
 
@@ -99,7 +98,7 @@ public class CCRenderItem extends RenderItem {
             ((IMatrixTransform) model).getTransform(transformType, isLeftHand).glApply();
         } else if (model instanceof IGLTransform) {
             ((IGLTransform) model).applyTransforms(transformType, isLeftHand);
-        }  else if (model instanceof IStackPerspectiveAwareModel) {
+        } else if (model instanceof IStackPerspectiveAwareModel) {
             Pair<? extends IBakedModel, Matrix4f> pair = ((IStackPerspectiveAwareModel) model).handlePerspective(stack, transformType);
 
             if (pair.getRight() != null) {

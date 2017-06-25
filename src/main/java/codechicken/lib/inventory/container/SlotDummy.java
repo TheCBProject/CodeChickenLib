@@ -10,6 +10,7 @@ import net.minecraft.item.ItemStack;
 import javax.annotation.Nonnull;
 
 public class SlotDummy extends SlotHandleClicks {
+
     public final int stackLimit;
 
     public SlotDummy(IInventory inv, int slot, int x, int y) {

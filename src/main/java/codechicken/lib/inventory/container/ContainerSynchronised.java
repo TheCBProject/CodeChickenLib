@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class ContainerSynchronised extends ContainerExtended {
+
     private ArrayList<IContainerSyncVar> syncVars = new ArrayList<>();
 
     public abstract PacketCustom createSyncPacket();

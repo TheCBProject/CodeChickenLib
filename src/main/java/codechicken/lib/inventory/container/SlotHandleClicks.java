@@ -7,6 +7,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 public abstract class SlotHandleClicks extends Slot {
+
     public SlotHandleClicks(IInventory inv, int slot, int x, int y) {
         super(inv, slot, x, y);
     }

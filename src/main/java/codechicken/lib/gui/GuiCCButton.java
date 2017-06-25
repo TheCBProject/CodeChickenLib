@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
 
 public class GuiCCButton extends GuiWidget {
+
     public String text;
     public String actionCommand;
     private boolean isEnabled = true;

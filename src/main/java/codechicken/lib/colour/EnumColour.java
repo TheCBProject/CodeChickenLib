@@ -10,7 +10,7 @@ import org.apache.commons.lang3.tuple.Triple;
  * Created by covers1624 on 16/09/2016.
  */
 public enum EnumColour implements IStringSerializable {
-    
+
     //Formatted like this due to the cancerous nature of the constructors..
     //@formatter:off
     WHITE     ("white",      "dyeWhite",     "item.fireworksCharge.white",     0xFFFFFF),

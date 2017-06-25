@@ -32,7 +32,7 @@ public class LambdaUtils {
      *
      * @param elements What to loop.
      * @param consumer Lambda.
-     * @param <E> The thing!
+     * @param <E>      The thing!
      */
     public static <E> void forEach(E[] elements, Consumer<E> consumer) {
         for (E element : elements) {

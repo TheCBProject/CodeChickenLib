@@ -3,7 +3,10 @@ package codechicken.lib.model.bakery;
 import codechicken.lib.texture.TextureUtils;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.*;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
@@ -20,6 +23,10 @@ import java.util.List;
 public class CCBakeryModel implements IBakedModel {
 
     private final String particle;
+
+    public CCBakeryModel() {
+        this("");
+    }
 
     public CCBakeryModel(String particle) {
         this.particle = particle;

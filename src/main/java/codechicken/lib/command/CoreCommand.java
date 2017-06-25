@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class CoreCommand implements ICommand {
+
     public static void chatT(ICommandSender sender, String s, Object... params) {
         sender.sendMessage(new TextComponentTranslation(s, params));
     }

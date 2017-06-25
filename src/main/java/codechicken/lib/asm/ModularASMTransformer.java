@@ -422,10 +422,7 @@ public class ModularASMTransformer {
      * @param t Transformer to add.
      */
     public void add(@Nonnull ClassNodeTransformer t) {
-        ClassNodeTransformerList list = transformers.get(t.className());
-        if (list == null) {
-            transformers.put(t.className(), list = new ClassNodeTransformerList());
-        }
+        ClassNodeTransformerList list = transformers.computeIfAbsent(t.className(), k -> new ClassNodeTransformerList());
         list.add(t);
     }
 

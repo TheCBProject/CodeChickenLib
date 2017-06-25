@@ -157,11 +157,7 @@ public class ClassHierarchyManager implements IClassTransformer {
     }
 
     public static SuperCache getOrCreateCache(String name) {
-        SuperCache cache = superclasses.get(name);
-        if (cache == null) {
-            superclasses.put(name, cache = new SuperCache());
-        }
-        return cache;
+        return superclasses.computeIfAbsent(name, k -> new SuperCache());
     }
 
     public static String getSuperClass(String name, boolean runtime) {

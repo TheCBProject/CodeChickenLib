@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class ClickCounter<T> {
+
     public class ClickCount {
+
         public T clicked;
         public long time;
         public int count;
@@ -25,11 +27,7 @@ public class ClickCounter<T> {
     public Map<Integer, ClickCount> buttons = new TreeMap<>();
 
     public ClickCount getCount(int button) {
-        ClickCount c = buttons.get(button);
-        if (c == null) {
-            buttons.put(button, c = new ClickCount());
-        }
-        return c;
+        return buttons.computeIfAbsent(button, k -> new ClickCount());
     }
 
     public void mouseDown(T clicked, int button) {

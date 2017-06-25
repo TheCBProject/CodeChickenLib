@@ -7,17 +7,17 @@ import net.minecraft.tileentity.TileEntity;
  */
 public class UnlistedTileEntityProperty extends UnlistedPropertyBase<TileEntity> {
 
-	public UnlistedTileEntityProperty(String name) {
-		super(name);
-	}
+    public UnlistedTileEntityProperty(String name) {
+        super(name);
+    }
 
-	@Override
-	public Class<TileEntity> getType() {
-		return TileEntity.class;
-	}
+    @Override
+    public Class<TileEntity> getType() {
+        return TileEntity.class;
+    }
 
-	@Override
-	public String valueToString(TileEntity value) {
-		return value.toString();
-	}
+    @Override
+    public String valueToString(TileEntity value) {
+        return value.toString();
+    }
 }

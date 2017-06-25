@@ -16,9 +16,9 @@ import java.lang.annotation.Target;
 public @interface FunctionProxy {
 
     /**
-     *  Provides a callback to decide what class to inject to the annotated field.
-     *  Method must return a String, be static and have no parameters.
-     *  Defaults to: class.the.annotation.exists.in.proxyCallback
+     * Provides a callback to decide what class to inject to the annotated field.
+     * Method must return a String, be static and have no parameters.
+     * Defaults to: class.the.annotation.exists.in.proxyCallback
      *
      * @return Callback to decide what Class instance to inject.
      */

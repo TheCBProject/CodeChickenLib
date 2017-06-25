@@ -5,6 +5,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
+ * Internal logger for CCL.
+ *
  * Created by covers1624 on 20/06/2017.
  */
 public class CCLLog {

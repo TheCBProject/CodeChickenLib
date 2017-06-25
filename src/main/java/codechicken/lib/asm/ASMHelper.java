@@ -1,6 +1,5 @@
 package codechicken.lib.asm;
 
-import codechicken.lib.CodeChickenLib;
 import codechicken.lib.config.ConfigFile;
 import codechicken.lib.config.DefaultingConfigFile;
 import net.minecraft.launchwrapper.Launch;

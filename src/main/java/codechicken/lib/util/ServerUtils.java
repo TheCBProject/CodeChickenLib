@@ -1,6 +1,5 @@
 package codechicken.lib.util;
 
-import codechicken.lib.gui.IGuiPacketSender;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -14,6 +13,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.BiConsumer;
 
 /**
  * Created by covers1624 on 22/10/2016.
@@ -79,10 +79,10 @@ public class ServerUtils {
         }
     }
 
-    public static void openSMPContainer(EntityPlayerMP player, Container container, IGuiPacketSender packetSender) {
+    public static void openSMPContainer(EntityPlayerMP player, Container container, BiConsumer<EntityPlayerMP, Integer> packetSender) {
         player.getNextWindowId();
         player.closeContainer();
-        packetSender.sendPacket(player, player.currentWindowId);
+        packetSender.accept(player, player.currentWindowId);
         player.openContainer = container;
         player.openContainer.windowId = player.currentWindowId;
         player.openContainer.addListener(player);

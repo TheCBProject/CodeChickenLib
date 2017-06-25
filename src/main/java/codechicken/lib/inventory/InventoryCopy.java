@@ -60,7 +60,7 @@ public class InventoryCopy implements IInventory {
 
     @Override
     public boolean isEmpty() {
-        return ArrayUtils.count(items, (stack -> !stack.isEmpty()) ) <= 0;
+        return ArrayUtils.count(items, (stack -> !stack.isEmpty())) <= 0;
     }
 
     @Override

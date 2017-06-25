@@ -1,22 +1,19 @@
 package codechicken.lib.asm;
 
-import codechicken.lib.config.ConfigTag;
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
 import net.minecraft.launchwrapper.Launch;
-import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-import net.minecraftforge.fml.relauncher.FMLInjectionData;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.*;
 
 import javax.annotation.Nonnull;
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -199,7 +196,7 @@ public class ObfMapping {
 
     public ObfMapping(String owner, String name) {
 
-    	this(owner, name, "");
+        this(owner, name, "");
     }
 
     public ObfMapping(String owner, String name, String desc) {
@@ -261,7 +258,7 @@ public class ObfMapping {
         if (isClass()) {
             return new TypeInsnNode(opcode, s_owner);
         } else if (isMethod()) {
-            return new MethodInsnNode(opcode, s_owner, s_name, s_desc);
+            return new MethodInsnNode(opcode, s_owner, s_name, s_desc, opcode == Opcodes.INVOKEINTERFACE);
         } else {
             return new FieldInsnNode(opcode, s_owner, s_name, s_desc);
         }
@@ -274,7 +271,7 @@ public class ObfMapping {
 
     public void visitMethodInsn(MethodVisitor mv, int opcode) {
 
-        mv.visitMethodInsn(opcode, s_owner, s_name, s_desc);
+        mv.visitMethodInsn(opcode, s_owner, s_name, s_desc, opcode == Opcodes.INVOKEINTERFACE);
     }
 
     public void visitFieldInsn(MethodVisitor mv, int opcode) {

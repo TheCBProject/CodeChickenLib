@@ -6,6 +6,7 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidTank;
 
 public class ExtendedFluidTank implements IFluidTank {
+
     private FluidStack fluid;
     private boolean changeType;
     private int capacity;

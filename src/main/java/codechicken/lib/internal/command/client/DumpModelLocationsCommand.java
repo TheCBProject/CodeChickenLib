@@ -1,5 +1,6 @@
 package codechicken.lib.internal.command.client;
 
+import codechicken.lib.internal.CCLLog;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -12,8 +13,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.common.FMLLog;
+import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,8 +51,7 @@ public class DumpModelLocationsCommand implements ICommand {
             Block block = Block.getBlockFromItem(stack.getItem());
             BlockStateMapper stateMapper = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getBlockStateMapper();
             for (Entry<IBlockState, ModelResourceLocation> entry : stateMapper.getVariants(block).entrySet()) {
-                //sender.sendMessage(new TextComponentString(entry.getKey().toString() + " | " + entry.getValue().toString()));
-                FMLLog.info(entry.getKey().toString() + " | " + entry.getValue().toString());
+                CCLLog.log(Level.INFO, entry.getKey().toString() + " | " + entry.getValue().toString());
             }
         }
     }

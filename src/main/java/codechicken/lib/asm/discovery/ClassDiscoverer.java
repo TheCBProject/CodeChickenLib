@@ -1,6 +1,5 @@
 package codechicken.lib.asm.discovery;
 
-import codechicken.lib.asm.ASMHelper;
 import codechicken.lib.asm.CCLCorePlugin;
 import codechicken.lib.util.CommonUtils;
 import com.google.common.collect.Lists;
@@ -14,19 +13,22 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+@Deprecated//USE ANNOTATIONS!!
 public class ClassDiscoverer {
 
-    public IStringMatcher matcher;
+    public Predicate<String> matcher;
     public String[] superclasses;
     public ArrayList<Class<?>> classes;
     public ModClassLoader modClassLoader;
 
-    public ClassDiscoverer(IStringMatcher matcher, Class<?>... superclasses) {
+    public ClassDiscoverer(Predicate<String> matcher, Class<?>... superclasses) {
         this.matcher = matcher;
         this.superclasses = new String[superclasses.length];
         for (int i = 0; i < superclasses.length; i++) {
@@ -60,8 +62,7 @@ public class ClassDiscoverer {
 
             ClassReader reader = new ClassReader(bytes);
             List<String> interfaces = Lists.newArrayList(reader.getSuperName());
-            for (String itf : reader.getInterfaces())
-                interfaces.add(itf);
+            Collections.addAll(interfaces, reader.getInterfaces());
 
             for (String superclass : superclasses) {
                 if (!interfaces.contains(superclass)) {
@@ -119,7 +120,7 @@ public class ClassDiscoverer {
             String fullname = zipentry.getName().replace('\\', '/');
             int pos = fullname.lastIndexOf('/');
             String name = pos == -1 ? fullname : fullname.substring(pos + 1);
-            if (!zipentry.isDirectory() && matcher.matches(name)) {
+            if (!zipentry.isDirectory() && matcher.test(name)) {
                 checkAddClass(fullname);
             }
         } while (true);
@@ -130,7 +131,7 @@ public class ClassDiscoverer {
         for (File child : directory.listFiles()) {
             if (child.isDirectory()) {
                 readFromDirectory(child, basedirectory);
-            } else if (child.isFile() && matcher.matches(child.getName())) {
+            } else if (child.isFile() && matcher.test(child.getName())) {
                 String fullname = CommonUtils.getRelativePath(basedirectory, child);
                 checkAddClass(fullname);
             }

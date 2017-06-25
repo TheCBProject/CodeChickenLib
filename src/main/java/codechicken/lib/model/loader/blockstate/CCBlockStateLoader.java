@@ -139,11 +139,7 @@ public class CCBlockStateLoader {
         Map<String, Map<String, CCVariant>> variants = new LinkedHashMap<>();
         for (Entry<String, JsonElement> variantsEntry : variantElement.entrySet()) {
             String variantName = variantsEntry.getKey();
-            Map<String, CCVariant> variantValues = variants.get(variantName);
-            if (variantValues == null) {
-                variantValues = new LinkedHashMap<>();
-                variants.put(variantName, variantValues);
-            }
+            Map<String, CCVariant> variantValues = variants.computeIfAbsent(variantName, k -> new LinkedHashMap<>());
             for (Entry<String, JsonElement> variantEntry : variantsEntry.getValue().getAsJsonObject().entrySet()) {
                 String variantValue = variantEntry.getKey();
                 CCVariant variant = GSON.fromJson(variantEntry.getValue(), CCVariant.class);

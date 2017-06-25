@@ -17,7 +17,7 @@ public class ShaderHelper {
      * The literal contents of toAppend is added to the bottom of your shader.
      * So be sure not to have any conflicts or you will experience linkage errors.
      *
-     * @param parent The parent shader.
+     * @param parent   The parent shader.
      * @param toAppend The shader to append.
      * @return The new shader with the appendage.
      * @throws IOException if an I/O error occurs.
@@ -34,7 +34,7 @@ public class ShaderHelper {
      * @return The shader read from disk.
      * @throws IOException if an I/O error occurs.
      */
-    public static String readShader(InputStream stream) throws IOException{
+    public static String readShader(InputStream stream) throws IOException {
         StringBuilder sb = new StringBuilder();
         BufferedReader bin = new BufferedReader(new InputStreamReader(stream));
         String line;

@@ -34,7 +34,7 @@ public interface IItemRenderer extends IBakedModel, IStackPerspectiveAwareModel 
      * Note the use of IStackPerspectiveAwareModel, In {@link CCRenderItem} we ALWAYS have an IStackPerspectiveAwareModel handle transforms,
      * before IPerspectiveAwareModel, So you WILL need to override the handlePerspective method here.
      *
-     * @param stack          Stack to render.
+     * @param stack         Stack to render.
      * @param transformType The TransformType we are rendering with. Use this for TransformType dependant rendering!
      */
     void renderItem(ItemStack stack, TransformType transformType);

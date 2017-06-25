@@ -4,7 +4,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ModContainer;
 
-
 public class ModDescriptionEnhancer {
 
     public static void enhanceMod(Object mod) {

@@ -20,9 +20,7 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.util.EnumHelper;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,10 +87,7 @@ public class BlockRenderingRegistry {
 
     static boolean renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, VertexBuffer buffer) {
         ICCBlockRenderer renderer = blockRendererList.get(state.getRenderType());
-        if (renderer != null) {
-            return renderer.renderBlock(world, pos, state, buffer);
-        }
-        return false;
+        return renderer != null && renderer.renderBlock(world, pos, state, buffer);
     }
 
     static void renderBlockBrightness(IBlockState state, float brightness) {

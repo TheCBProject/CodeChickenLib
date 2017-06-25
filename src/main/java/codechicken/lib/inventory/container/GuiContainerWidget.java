@@ -1,8 +1,8 @@
 package codechicken.lib.inventory.container;
 
+import codechicken.lib.gui.GuiDraw;
 import codechicken.lib.gui.GuiWidget;
 import codechicken.lib.gui.IGuiActionListener;
-import codechicken.lib.gui.GuiDraw;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class GuiContainerWidget extends GuiContainer implements IGuiActionListener {
+
     public ArrayList<GuiWidget> widgets = new ArrayList<>();
 
     public GuiContainerWidget(Container inventorySlots) {

@@ -8,7 +8,6 @@ import com.google.common.base.Objects;
  */
 public class ThreadOperationTimer extends Thread {
 
-
     public static class TimeoutException extends RuntimeException {
 
         public final Object operation;

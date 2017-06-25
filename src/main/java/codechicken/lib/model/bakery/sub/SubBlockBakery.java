@@ -1,6 +1,6 @@
 package codechicken.lib.model.bakery.sub;
 
-import codechicken.lib.model.bakery.*;
+import codechicken.lib.model.bakery.ModelBakery;
 import codechicken.lib.model.bakery.generation.IBlockBakery;
 import codechicken.lib.model.bakery.generation.ILayeredBlockBakery;
 import codechicken.lib.model.bakery.generation.ISimpleBlockBakery;
@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;

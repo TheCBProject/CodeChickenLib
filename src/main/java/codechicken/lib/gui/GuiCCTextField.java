@@ -5,6 +5,7 @@ import net.minecraft.util.ChatAllowedCharacters;
 import org.lwjgl.input.Keyboard;
 
 public class GuiCCTextField extends GuiWidget {
+
     private String text;
     private boolean isFocused;
     private boolean isEnabled;
@@ -70,12 +71,7 @@ public class GuiCCTextField extends GuiWidget {
             return;
         }
 
-        /*if(c == '\t')//tab
-        {
-            parentGuiScreen.selectNextField();
-        }*/
-        if (c == '\026')//paste
-        {
+        if (c == '\026') {
             String s = GuiScreen.getClipboardString();
             if (s == null || s.equals("")) {
                 return;

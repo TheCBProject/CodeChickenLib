@@ -1,7 +1,6 @@
 package codechicken.lib.asm;
 
 import com.google.common.collect.Maps;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.*;
 
 import java.util.*;
@@ -90,16 +89,12 @@ public class InsnComparator {
                 case TABLESWITCH_INSN:
                     TableSwitchInsnNode tsinsn = (TableSwitchInsnNode) insn;
                     controlFlowLabels.add(tsinsn.dflt);
-                    for (LabelNode label : tsinsn.labels) {
-                        controlFlowLabels.add(label);
-                    }
+                    controlFlowLabels.addAll(tsinsn.labels);
                     break;
                 case LOOKUPSWITCH_INSN:
                     LookupSwitchInsnNode lsinsn = (LookupSwitchInsnNode) insn;
                     controlFlowLabels.add(lsinsn.dflt);
-                    for (LabelNode label : lsinsn.labels) {
-                        controlFlowLabels.add(label);
-                    }
+                    controlFlowLabels.addAll(lsinsn.labels);
                     break;
             }
         }
