@@ -82,12 +82,13 @@ public class ShaderObject {
     /**
      * Compiles the ShaderObject.
      */
-    public void compileShader() {
+    public ShaderObject compileShader() {
         GL20.glShaderSource(shaderID, getShaderSource());
         GL20.glCompileShader(shaderID);
         if (GL20.glGetShaderi(shaderID, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
             throw new IllegalStateException(String.format("Unable to compile %s shader object:\n%s", shaderType.name(), OpenGLUtils.glGetShaderInfoLog(shaderID)));
         }
+        return this;
     }
 
     /**
@@ -112,12 +113,13 @@ public class ShaderObject {
      *
      * @param onLink The callback.
      */
-    public void setLinkCallback(IntConsumer onLink) {
+    public ShaderObject setLinkCallback(IntConsumer onLink) {
         if (this.onLink == null) {
             this.onLink = onLink;
         } else {
             throw new RuntimeException("Link callback already set.");
         }
+        return this;
     }
 
     /**
@@ -125,12 +127,13 @@ public class ShaderObject {
      *
      * @param onUse The callback.
      */
-    public void setUseCallback(Consumer<UniformCache> onUse) {
+    public ShaderObject setUseCallback(Consumer<UniformCache> onUse) {
         if (this.useCallback == null) {
             this.useCallback = onUse;
         } else {
             throw new RuntimeException("Use callback already set.");
         }
+        return this;
     }
 
     /**
@@ -172,7 +175,7 @@ public class ShaderObject {
 
         //@formatter:off
 		VERTEX(GL20.GL_VERTEX_SHADER,               OpenGLUtils.openGL20),
-		FRAGMENT(GL20.GL_FRAGMENT_SHADER,           OpenGLUtils.openGL32),
+		FRAGMENT(GL20.GL_FRAGMENT_SHADER,           OpenGLUtils.openGL20),
 		GEOMETRY(GL32.GL_GEOMETRY_SHADER,           OpenGLUtils.openGL32),
 		TESS_CONTROL(GL40.GL_TESS_CONTROL_SHADER,   OpenGLUtils.openGL40),
 		TESS_EVAL(GL40.GL_TESS_EVALUATION_SHADER,   OpenGLUtils.openGL40);

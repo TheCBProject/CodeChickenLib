@@ -53,5 +53,13 @@ public class PropertyString extends PropertyHelper<String> {
     public String getName(@Nonnull String value) {
         return value;
     }
+
+    public int toMeta(String value) {
+        return valuesSet.indexOf(value);
+    }
+
+    public String fromMeta(int meta) {
+        return valuesSet.get(meta);
+    }
 }
 

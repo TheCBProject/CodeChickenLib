@@ -315,4 +315,24 @@ public class ArrayUtils {
         }
         return newArray;
     }
+
+    public static <T> boolean contains(T[] input, T element) {
+        for (T test : input) {
+            if (Objects.equals(test, element)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static <T> T[] inverse(T[] input, T[] allElements) {
+        List<T> list = new LinkedList<>();
+        for (T e : allElements) {
+            if (!contains(input, e)) {
+                list.add(e);
+            }
+        }
+
+        return list.toArray(createNewArray(input, list.size()));
+    }
 }

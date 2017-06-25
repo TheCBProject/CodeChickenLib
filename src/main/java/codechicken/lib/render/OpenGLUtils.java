@@ -19,15 +19,12 @@ public class OpenGLUtils {
     public static boolean openGL32;
     public static boolean openGL40;
 
-
     public static void loadCaps() {
         ContextCapabilities caps = GLContext.getCapabilities();
         openGL20 = caps.OpenGL20;
         openGL32 = caps.OpenGL32;
         openGL40 = caps.OpenGL40;
     }
-
-
 
     /**
      * <p><a href="http://www.opengl.org/sdk/docs/man/html/glGetProgramInfoLog.xhtml">OpenGL SDK Reference</a></p>

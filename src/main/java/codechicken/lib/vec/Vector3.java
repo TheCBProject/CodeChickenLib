@@ -229,7 +229,12 @@ public class Vector3 implements Copyable<Vector3> {
         return this;
     }
 
+    @Deprecated//Dumb spelling is dumb.
     public Vector3 celi() {
+        return ceil();
+    }
+
+    public Vector3 ceil() {
         x = MathHelper.ceil(x);
         y = MathHelper.ceil(y);
         z = MathHelper.ceil(z);
