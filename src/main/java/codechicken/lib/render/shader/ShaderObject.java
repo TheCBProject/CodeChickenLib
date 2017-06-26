@@ -1,9 +1,7 @@
 package codechicken.lib.render.shader;
 
-import codechicken.lib.internal.CCLLog;
 import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.shader.ShaderProgram.UniformCache;
-import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
@@ -18,23 +16,23 @@ import java.util.function.IntConsumer;
 public class ShaderObject {
 
     private ShaderType shaderType;
-    private String shaderSource;
+    protected String shaderSource;
     int shaderID;
-    private boolean isLocked;
-    private IntConsumer onLink;
-    private Consumer<UniformCache> useCallback;
+
+    //@formatter:off
+    private IntConsumer onLink = i -> {};
+    private Consumer<UniformCache> useCallback = cache ->{};
+    //@formatter:on
 
     /**
-     * A ShaderObject!
-     * Shader's have a type and a source. Simple.
-     * Dynamically created shader's are possible.
-     *
-     * @param shaderType   The type of shader we are creating.
-     * @param shaderSource The Source for this shader.
+     * Set to true only IF a successful compilation has occurred.
      */
-    public ShaderObject(ShaderType shaderType, String shaderSource) {
-        this(shaderType, shaderSource, false);
-    }
+    private boolean isCompiled;
+    /**
+     * If the shader is marked for recompilation.
+     * This is handled by ShaderProgram.
+     */
+    private boolean recompileRequested;
 
     /**
      * A ShaderObject!
@@ -43,10 +41,9 @@ public class ShaderObject {
      *
      * @param shaderType   The type of shader we are creating.
      * @param shaderSource The source for this shader.
-     * @param lockShader   If the shader is unable to be deleted.
      */
-    public ShaderObject(ShaderType shaderType, String shaderSource, boolean lockShader) {
-        this(shaderType, lockShader);
+    public ShaderObject(ShaderType shaderType, String shaderSource) {
+        this(shaderType);
         this.shaderSource = shaderSource;
     }
 
@@ -57,22 +54,10 @@ public class ShaderObject {
      * @param shaderType The type of shader we are creating.
      */
     protected ShaderObject(ShaderType shaderType) {
-        this(shaderType, false);
-    }
-
-    /**
-     * Used for dynamic shader's!
-     * Override {@link #getShaderSource}.
-     *
-     * @param shaderType The type of shader we are creating.
-     * @param lockShader If the shader is unable to be deleted.
-     */
-    protected ShaderObject(ShaderType shaderType, boolean lockShader) {
         this.shaderType = shaderType;
         if (!shaderType.isSupported()) {
             throw new RuntimeException(String.format("Unable to create ShaderObject with type %s, Type not supported in current OpenGL context!", shaderType));
         }
-        this.isLocked = lockShader;
         shaderID = GL20.glCreateShader(shaderType.glCode);
         if (shaderID == 0) {
             throw new RuntimeException("Unable to create new ShaderObject! GL Allocation has failed.");
@@ -83,56 +68,36 @@ public class ShaderObject {
      * Compiles the ShaderObject.
      */
     public ShaderObject compileShader() {
-        GL20.glShaderSource(shaderID, getShaderSource());
-        GL20.glCompileShader(shaderID);
-        if (GL20.glGetShaderi(shaderID, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
-            throw new IllegalStateException(String.format("Unable to compile %s shader object:\n%s", shaderType.name(), OpenGLUtils.glGetShaderInfoLog(shaderID)));
+        if (!isCompiled || recompileRequested) {
+            isCompiled = false;
+            GL20.glShaderSource(shaderID, getShaderSource());
+            GL20.glCompileShader(shaderID);
+            if (GL20.glGetShaderi(shaderID, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
+                throw new IllegalStateException(String.format("Unable to compile %s shader object:\n%s", shaderType.name(), OpenGLUtils.glGetShaderInfoLog(shaderID)));
+            }
+            isCompiled = true;
         }
         return this;
-    }
-
-    /**
-     * Called when the Shader Object is linked to a ShaderProgram.
-     *
-     * @param program The shader program we are linked to.
-     */
-    public void onShaderLink(int program) {
-        if (onLink != null) {
-            onLink.accept(program);
-        }
-    }
-
-    public void onShaderUse(UniformCache cache) {
-        if (useCallback != null) {
-            useCallback.accept(cache);
-        }
     }
 
     /**
      * Used to set the callback for when this Specific ShaderObject is linked to a ShaderProgram.
      *
-     * @param onLink The callback.
+     * @param callback The callback.
      */
-    public ShaderObject setLinkCallback(IntConsumer onLink) {
-        if (this.onLink == null) {
-            this.onLink = onLink;
-        } else {
-            throw new RuntimeException("Link callback already set.");
-        }
+    public ShaderObject addLinkCallback(IntConsumer callback) {
+        onLink = onLink.andThen(callback);
         return this;
     }
 
     /**
      * Used to set the callback for when this Specific ShaderObject in a ShaderProgram is bound for rendering.
+     * Subsequent calls to this will append Cosumers together,
      *
-     * @param onUse The callback.
+     * @param callback The callback.
      */
-    public ShaderObject setUseCallback(Consumer<UniformCache> onUse) {
-        if (this.useCallback == null) {
-            this.useCallback = onUse;
-        } else {
-            throw new RuntimeException("Use callback already set.");
-        }
+    public ShaderObject addUseCallback(Consumer<UniformCache> callback) {
+        useCallback = useCallback.andThen(callback);
         return this;
     }
 
@@ -141,21 +106,26 @@ public class ShaderObject {
      * Any ShaderPrograms this Object is linked to will be invalidated also.
      * Make sure you remove the object from the shader if you intend on keeping the Program.
      */
-    public void disposeObject() {
-        if (!isLocked) {
-            GL20.glDeleteShader(shaderID);
-        } else {
-            CCLLog.big(Level.WARN, "Deletion of locked ShaderObject was attempted.");
-        }
+    public ShaderObject disposeObject() {
+        GL20.glDeleteShader(shaderID);
+        return this;
     }
 
     /**
-     * Checks if the shader object is locked and cannot be deleted.
-     *
-     * @return If deletion is not allowed.
+     * Sets the shader to be recompiled next time the shader is used.
      */
-    public boolean isLocked() {
-        return isLocked;
+    public ShaderObject requestRecompile() {
+        recompileRequested = true;
+        return this;
+    }
+
+    /**
+     * If the shader is marked for recompilation.
+     *
+     * @return If the shader is marked for recompilation.
+     */
+    public boolean isRecompileRequested() {
+        return recompileRequested;
     }
 
     /**
@@ -167,6 +137,31 @@ public class ShaderObject {
     protected String getShaderSource() {
         return shaderSource;
     }
+
+    //region Internal
+
+    /**
+     * Called when the Shader Object is linked to a ShaderProgram.
+     *
+     * @param program The shader program we are linked to.
+     */
+    void onShaderLink(int program) {
+        if (onLink != null) {
+            onLink.accept(program);
+        }
+    }
+
+    /**
+     * Called from ShaderProgram when the ShaderObject is used.
+     *
+     * @param cache
+     */
+    void onShaderUse(UniformCache cache) {
+        if (useCallback != null) {
+            useCallback.accept(cache);
+        }
+    }
+    //endregion
 
     /**
      * Specifies the type of ShaderObject something is.

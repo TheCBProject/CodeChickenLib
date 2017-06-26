@@ -1,5 +1,6 @@
 package codechicken.lib.render.shader;
 
+import codechicken.lib.internal.CCLLog;
 import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.shader.ShaderProgram.UniformEntry.BooleanUniformEntry;
 import codechicken.lib.render.shader.ShaderProgram.UniformEntry.FloatUniformEntry;
@@ -8,7 +9,9 @@ import codechicken.lib.render.shader.ShaderProgram.UniformEntry.MatrixUniformEnt
 import codechicken.lib.vec.Matrix4;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
@@ -24,6 +27,11 @@ import static org.lwjgl.opengl.GL11.GL_FALSE;
 //TODO Better error throwing, Use MC's CrashReportCategory.
 public class ShaderProgram {
 
+    public static final Consumer<UniformCache> NULL_UNIFORM_CONSUMER = program -> {
+    };
+    public static final IntConsumer NULL_INT_CONSUMER = i -> {
+    };
+
     private Set<ShaderObject> shaderObjects = new LinkedHashSet<>();
     private int programID;
 
@@ -33,8 +41,7 @@ public class ShaderProgram {
     private IntConsumer onLink;
 
     public ShaderProgram() {
-        this((program) -> {
-        });
+        this(NULL_INT_CONSUMER);
     }
 
     /**
@@ -81,6 +88,7 @@ public class ShaderProgram {
             if (GL20.glGetProgrami(programID, GL20.GL_LINK_STATUS) == GL_FALSE) {
                 throw new RuntimeException(String.format("ShaderProgram validation has failed!\n%s", OpenGLUtils.glGetProgramInfoLog(programID)));
             }
+            CCLLog.log(Level.INFO, "Successful shader compiilation.");
             isInvalid = false;
         }
     }
@@ -89,8 +97,7 @@ public class ShaderProgram {
      * Called to "use" or bind the shader.
      */
     public void useShader() {
-        useShader(uniformCache1 -> {
-        });
+        useShader(NULL_UNIFORM_CONSUMER);
     }
 
     /**
@@ -101,6 +108,7 @@ public class ShaderProgram {
      * @param uniformApplier The callback to apply Uniforms.
      */
     public void useShader(Consumer<UniformCache> uniformApplier) {
+        shaderObjects.forEach(ShaderObject::compileShader);
         checkValidation();
         GL20.glUseProgram(programID);
         shaderObjects.forEach(shaderObject -> shaderObject.onShaderUse(uniformCache));
@@ -197,7 +205,7 @@ public class ShaderProgram {
         }
 
         public void glUniformMatrix(String location, IUniformCallback callback, boolean transpose, FloatBuffer matrix) {
-            glUniform(location, UniformEntry.IS_MATRIX, MatrixUniformEntry::new, callback, new Pair<>(matrix, transpose));
+            glUniform(location, UniformEntry.IS_MATRIX, MatrixUniformEntry::new, callback, ImmutablePair.of(matrix, transpose));
         }
 
         public void glUniformBoolean(String location, boolean value) {
