@@ -1,6 +1,7 @@
 package codechicken.lib.render.shader;
 
 import codechicken.lib.render.OpenGLUtils;
+import codechicken.lib.render.shader.ShaderProgram.IUniformCallback;
 import codechicken.lib.render.shader.ShaderProgram.UniformCache;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -21,7 +22,7 @@ public class ShaderObject {
 
     //@formatter:off
     private IntConsumer onLink = i -> {};
-    private Consumer<UniformCache> useCallback = cache ->{};
+    private IUniformCallback useCallback = cache ->{};
     //@formatter:on
 
     /**
@@ -82,6 +83,7 @@ public class ShaderObject {
 
     /**
      * Used to set the callback for when this Specific ShaderObject is linked to a ShaderProgram.
+     * Subsequent calls to this will append Callbacks together.
      *
      * @param callback The callback.
      */
@@ -92,12 +94,12 @@ public class ShaderObject {
 
     /**
      * Used to set the callback for when this Specific ShaderObject in a ShaderProgram is bound for rendering.
-     * Subsequent calls to this will append Cosumers together,
+     * Subsequent calls to this will append Callbacks together.
      *
      * @param callback The callback.
      */
-    public ShaderObject addUseCallback(Consumer<UniformCache> callback) {
-        useCallback = useCallback.andThen(callback);
+    public ShaderObject addUseCallback(IUniformCallback callback) {
+        useCallback = useCallback.with(callback);
         return this;
     }
 
@@ -158,7 +160,7 @@ public class ShaderObject {
      */
     void onShaderUse(UniformCache cache) {
         if (useCallback != null) {
-            useCallback.accept(cache);
+            useCallback.apply(cache);
         }
     }
     //endregion

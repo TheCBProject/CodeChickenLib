@@ -27,7 +27,7 @@ import static org.lwjgl.opengl.GL11.GL_FALSE;
 //TODO Better error throwing, Use MC's CrashReportCategory.
 public class ShaderProgram {
 
-    public static final Consumer<UniformCache> NULL_UNIFORM_CONSUMER = program -> {
+    public static final IUniformCallback NULL_UNIFORM_CONSUMER = cache -> {
     };
     public static final IntConsumer NULL_INT_CONSUMER = i -> {
     };
@@ -37,6 +37,8 @@ public class ShaderProgram {
 
     private UniformCache uniformCache = new UniformCache();
     private boolean isInvalid;
+
+    private IUniformCallback globalUniformCallback;
 
     private IntConsumer onLink;
 
@@ -88,9 +90,19 @@ public class ShaderProgram {
             if (GL20.glGetProgrami(programID, GL20.GL_LINK_STATUS) == GL_FALSE) {
                 throw new RuntimeException(String.format("ShaderProgram validation has failed!\n%s", OpenGLUtils.glGetProgramInfoLog(programID)));
             }
-            CCLLog.log(Level.INFO, "Successful shader compiilation.");
             isInvalid = false;
         }
+    }
+
+    /**
+     * Attaches a Global uniform callback.
+     * Subsequent calls to this will append Callbacks together.
+     * These are fired before any Use specific callbacks.
+     *
+     * @param callback The callback.
+     */
+    public void addGlobalUniformCallback(IUniformCallback callback) {
+        globalUniformCallback = globalUniformCallback.with(callback);
     }
 
     /**
@@ -105,14 +117,15 @@ public class ShaderProgram {
      * You are provided a UniformCache to upload Uniforms to the GPU.
      * Uniforms are cached and will only be uploaded if their state changes, or the program is invalidated.
      *
-     * @param uniformApplier The callback to apply Uniforms.
+     * @param callback The callback to apply Uniforms.
      */
-    public void useShader(Consumer<UniformCache> uniformApplier) {
+    public void useShader(IUniformCallback callback) {
         shaderObjects.forEach(ShaderObject::compileShader);
         checkValidation();
         GL20.glUseProgram(programID);
         shaderObjects.forEach(shaderObject -> shaderObject.onShaderUse(uniformCache));
-        uniformApplier.accept(uniformCache);
+        globalUniformCallback.apply(uniformCache);
+        callback.apply(uniformCache);
     }
 
     /**
@@ -168,8 +181,8 @@ public class ShaderProgram {
             glUniformF(location, (loc) -> GL20.glUniform4f(loc, v0, v1, v2, v3), v0, v1, v2, v3);
         }
 
-        private void glUniformF(String location, IUniformCallback callback, float... values) {
-            glUniform(location, UniformEntry.IS_FLOAT, FloatUniformEntry::new, callback, values);
+        private void glUniformF(String location, IGLUniformCallback callback, float... values) {
+            glUniform(location, UniformEntry.IS_FLOAT, FloatUniformEntry.NEW, callback, values);
         }
 
         public void glUniform1I(String location, int v0) {
@@ -188,8 +201,8 @@ public class ShaderProgram {
             glUniformI(location, (loc) -> GL20.glUniform4i(loc, v0, v1, v2, v3), v0, v1, v2, v3);
         }
 
-        private void glUniformI(String location, IUniformCallback callback, int... values) {
-            glUniform(location, UniformEntry.IS_INT, IntUniformEntry::new, callback, values);
+        private void glUniformI(String location, IGLUniformCallback callback, int... values) {
+            glUniform(location, UniformEntry.IS_INT, IntUniformEntry.NEW, callback, values);
         }
 
         public void glUniformMatrix2(String location, boolean transpose, FloatBuffer matrix) {
@@ -204,15 +217,15 @@ public class ShaderProgram {
             glUniformMatrix(location, (loc) -> GL20.glUniformMatrix4(loc, transpose, matrix), transpose, matrix);
         }
 
-        public void glUniformMatrix(String location, IUniformCallback callback, boolean transpose, FloatBuffer matrix) {
-            glUniform(location, UniformEntry.IS_MATRIX, MatrixUniformEntry::new, callback, ImmutablePair.of(matrix, transpose));
+        public void glUniformMatrix(String location, IGLUniformCallback callback, boolean transpose, FloatBuffer matrix) {
+            glUniform(location, UniformEntry.IS_MATRIX, MatrixUniformEntry.NEW, callback, ImmutablePair.of(matrix, transpose));
         }
 
         public void glUniformBoolean(String location, boolean value) {
-            glUniform(location, UniformEntry.IS_BOOLEAN, BooleanUniformEntry::new, (loc) -> GL20.glUniform1i(loc, value ? 1 : 0), value);
+            glUniform(location, UniformEntry.IS_BOOLEAN, BooleanUniformEntry.NEW, (loc) -> GL20.glUniform1i(loc, value ? 1 : 0), value);
         }
 
-        private <T> void glUniform(String location, Predicate<UniformEntry> isType, Function<T, UniformEntry<T>> createUniform, IUniformCallback applyCallback, T value) {
+        private <T> void glUniform(String location, Predicate<UniformEntry> isType, Function<T, UniformEntry<T>> createUniform, IGLUniformCallback applyCallback, T value) {
             int loc = getUniformLocation(location);
             boolean update = true;
             if (uniformObjectCache.containsKey(loc)) {
@@ -242,6 +255,8 @@ public class ShaderProgram {
 
         public static class IntUniformEntry extends UniformEntry<int[]> {
 
+            public static Function<int[], UniformEntry<int[]>> NEW = IntUniformEntry::new;
+
             private int[] cache;
 
             public IntUniformEntry(int... cache) {
@@ -263,6 +278,8 @@ public class ShaderProgram {
         }
 
         public static class FloatUniformEntry extends UniformEntry<float[]> {
+
+            public static Function<float[], UniformEntry<float[]>> NEW = FloatUniformEntry::new;
 
             private float[] cache;
 
@@ -286,6 +303,8 @@ public class ShaderProgram {
 
         public static class MatrixUniformEntry extends UniformEntry<Pair<FloatBuffer, Boolean>> {
 
+            public static Function<Pair<FloatBuffer, Boolean>, UniformEntry<Pair<FloatBuffer, Boolean>>> NEW = MatrixUniformEntry::new;
+
             FloatBuffer matrix;
             boolean transpose;
 
@@ -302,6 +321,8 @@ public class ShaderProgram {
 
         public static class BooleanUniformEntry extends UniformEntry<Boolean> {
 
+            public static Function<Boolean, UniformEntry<Boolean>> NEW = BooleanUniformEntry::new;
+
             private boolean bool;
 
             public BooleanUniformEntry(boolean bool) {
@@ -315,8 +336,23 @@ public class ShaderProgram {
         }
     }
 
-    private interface IUniformCallback {
+    private interface IGLUniformCallback {
 
         void apply(int loc);
     }
+
+    @FunctionalInterface
+    //Because i want cache to be the default name for the lambda field.
+    public interface IUniformCallback {
+
+        void apply(UniformCache cache);
+
+        default IUniformCallback with(IUniformCallback callback) {
+            return cache -> {
+                apply(cache);
+                callback.apply(cache);
+            };
+        }
+    }
+
 }
