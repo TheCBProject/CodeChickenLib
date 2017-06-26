@@ -230,7 +230,7 @@ public class CCRenderState {
     }
 
     public void setFluidColour(FluidStack fluidStack, int alpha) {
-        this.colour = fluidStack.getFluid().getColor(fluidStack) << 8 | alpha;
+        this.baseColour = fluidStack.getFluid().getColor(fluidStack) << 8 | alpha;
     }
 
     public void setColour(Colour colour) {
