@@ -129,7 +129,6 @@ public class CCBlockStateLoader {
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
             Throwables.propagate(e);
         }
         return null;
