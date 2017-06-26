@@ -38,7 +38,7 @@ public class ShaderProgram {
     private UniformCache uniformCache = new UniformCache();
     private boolean isInvalid;
 
-    private IUniformCallback globalUniformCallback;
+    private IUniformCallback globalUniformCallback = NULL_UNIFORM_CONSUMER;
 
     private IntConsumer onLink;
 
