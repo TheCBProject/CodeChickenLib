@@ -21,7 +21,6 @@ import net.minecraft.util.ReportedException;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
@@ -75,7 +74,7 @@ public class CCRenderItem extends RenderItem {
 
     @Override
     public void renderItem(ItemStack stack, IBakedModel model) {
-        if (stack != null && model instanceof IItemRenderer) {
+        if (!stack.isEmpty() && model instanceof IItemRenderer) {
             IItemRenderer renderer = (IItemRenderer) model;
             GlStateManager.pushMatrix();
             GlStateManager.translate(-0.5F, -0.5F, -0.5F);
@@ -98,18 +97,6 @@ public class CCRenderItem extends RenderItem {
             ((IMatrixTransform) model).getTransform(transformType, isLeftHand).glApply();
         } else if (model instanceof IGLTransform) {
             ((IGLTransform) model).applyTransforms(transformType, isLeftHand);
-        } else if (model instanceof IStackPerspectiveAwareModel) {
-            Pair<? extends IBakedModel, Matrix4f> pair = ((IStackPerspectiveAwareModel) model).handlePerspective(stack, transformType);
-
-            if (pair.getRight() != null) {
-                Matrix4f matrix = new Matrix4f(pair.getRight());
-                if (isLeftHand) {
-                    matrix.mul(flipX, matrix);
-                    matrix.mul(matrix, flipX);
-                }
-                ForgeHooksClient.multiplyCurrentGlMatrix(matrix);
-            }
-            return pair.getLeft();
         } else if (model instanceof IPerspectiveAwareModel) {
             model = ForgeHooksClient.handleCameraTransforms(model, transformType, isLeftHand);
         }
@@ -117,12 +104,12 @@ public class CCRenderItem extends RenderItem {
     }
 
     private boolean isValidModel(IBakedModel model) {
-        return model instanceof IItemRenderer || model instanceof IGLTransform || model instanceof IMatrixTransform || model instanceof IStackPerspectiveAwareModel;
+        return model instanceof IItemRenderer || model instanceof IGLTransform || model instanceof IMatrixTransform;
     }
 
     @Override
     public void renderItemModel(ItemStack stack, IBakedModel bakedModel, TransformType transform, boolean leftHanded) {
-        if (stack.getItem() != null) {
+        if (!stack.isEmpty()) {
             if (isValidModel(bakedModel)) {
                 this.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
                 this.textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
@@ -194,7 +181,7 @@ public class CCRenderItem extends RenderItem {
 
     @Override
     public void renderItem(ItemStack stack, EntityLivingBase livingBase, TransformType transform, boolean leftHanded) {
-        if (stack != null && livingBase != null && stack.getItem() != null) {
+        if (!stack.isEmpty() && livingBase != null) {
             IBakedModel bakedModel = this.getItemModelWithOverrides(stack, livingBase.world, livingBase);
             if (isValidModel(bakedModel)) {
                 this.renderItemModel(stack, bakedModel, transform, leftHanded);
@@ -223,7 +210,7 @@ public class CCRenderItem extends RenderItem {
 
     @Override
     public void renderItemAndEffectIntoGUI(@Nullable EntityLivingBase livingBase, final ItemStack stack, int x, int y) {
-        if (stack != null && stack.getItem() != null) {
+        if (!stack.isEmpty()) {
             try {
 
                 IBakedModel model = this.getItemModelWithOverrides(stack, null, livingBase);

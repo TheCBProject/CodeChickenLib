@@ -12,8 +12,10 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.IPerspectiveAwareModel.MapWrapper;
 import net.minecraftforge.common.model.IModelState;
+import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -25,14 +27,12 @@ import java.util.List;
  * GL ItemRendering!
  * See {@link CCRenderItem} for how this is fired.
  */
-public interface IItemRenderer extends IBakedModel, IStackPerspectiveAwareModel {
+public interface IItemRenderer extends IBakedModel, IPerspectiveAwareModel {
 
     /**
      * Used to render an item with GL access!
-     * Custom transforms can be applied by overriding handlePerspective and calling {@link MapWrapper#handlePerspective}.
-     * By default, ItemBlocks use {@link TransformUtils#DEFAULT_BLOCK} and standard items use {@link TransformUtils#DEFAULT_ITEM}
-     * Note the use of IStackPerspectiveAwareModel, In {@link CCRenderItem} we ALWAYS have an IStackPerspectiveAwareModel handle transforms,
-     * before IPerspectiveAwareModel, So you WILL need to override the handlePerspective method here.
+     * Custom transforms can be applied by implementing handlePerspective and calling {@link MapWrapper#handlePerspective}.
+     * All your use cases for transforms should be handled by implementing getTransforms, handlePerspective is defaulted to use that.
      *
      * @param stack         Stack to render.
      * @param transformType The TransformType we are rendering with. Use this for TransformType dependant rendering!
@@ -40,10 +40,16 @@ public interface IItemRenderer extends IBakedModel, IStackPerspectiveAwareModel 
     void renderItem(ItemStack stack, TransformType transformType);
 
     @Override
-    default Pair<? extends IBakedModel, Matrix4f> handlePerspective(ItemStack stack, TransformType cameraTransformType) {
-        IModelState state = stack.getItem() instanceof ItemBlock ? TransformUtils.DEFAULT_BLOCK : TransformUtils.DEFAULT_ITEM;
-        return MapWrapper.handlePerspective(this, state, cameraTransformType);
+    default Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
+        return MapWrapper.handlePerspective(this, getTransforms(), cameraTransformType);
     }
+
+    /**
+     * The default transforms to use. For custom more complicated things, override handlePerspective and ignore this.
+     *
+     * @return The IModelState for transforms.
+     */
+    IModelState getTransforms();
 
     @Override
     default List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {

@@ -40,7 +40,7 @@ public class FingerprintChecker {
         try {
             ModContainer activeContainer = Loader.instance().activeModContainer();
 
-            if (ObfMapping.obfuscated) {
+            if (!ObfMapping.obfuscated) {
                 FMLLog.log(activeContainer.getModId() + " Fingerprint Verification", Level.INFO, "Development environment detected, Suppressing Invalid fingerprints..");
             }
             for (Entry<String, ModContainer> modEntry : Loader.instance().getIndexedModList().entrySet()) {
@@ -69,7 +69,7 @@ public class FingerprintChecker {
 
                         if (expectedFingerprint != null && !expectedFingerprint.isEmpty()) {
                             if (!certList.contains(expectedFingerprint)) {
-                                Level level = ObfMapping.obfuscated ? Level.DEBUG : Level.FATAL;
+                                Level level = ObfMapping.obfuscated ? Level.FATAL : Level.DEBUG;
                                 FMLLog.log(activeContainer.getModId() + " Fingerprint Verification", level, "The fingerprint for mod %s is invalid! Expected: %s", modEntry.getKey(), expectedFingerprint);
                                 invalidMods.add(modEntry.getKey());
                                 break;

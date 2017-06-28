@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
  * Created by covers1624 on 25/10/2016.
  */
 @SideOnly (Side.CLIENT)
-public class ModelBakery implements IResourceManagerReloadListener {
+public class ModelBakery {
 
     private static boolean DEBUG = Boolean.parseBoolean(System.getProperty("ccl.debugBakeryLogging"));
 
@@ -76,7 +76,7 @@ public class ModelBakery implements IResourceManagerReloadListener {
     public static final IItemStackKeyGenerator defaultItemKeyGenerator = stack -> stack.getItem().getRegistryName().toString() + "|" + stack.getMetadata();
 
     public static void init() {
-        TextureUtils.registerReloadListener(new ModelBakery());
+        TextureUtils.registerReloadListener(resourceManager-> nukeModelCache());
         ModelRegistryHelper.registerCallback(modelRegistry -> missingModel = ModelLoaderRegistry.getMissingModel().bake(TransformUtils.DEFAULT_BLOCK, DefaultVertexFormats.ITEM, TextureUtils.bakedTextureGetter));
     }
 
@@ -206,13 +206,7 @@ public class ModelBakery implements IResourceManagerReloadListener {
                     faceQuads.put(face, quads);
                 }
 
-                PerspectiveAwareModelProperties bakeryProperties = PerspectiveAwareModelProperties.DEFAULT_ITEM;
-
-                try {
-                    bakeryProperties = bakery.getModelProperties(stack);
-                } catch (Exception ignored) {
-                }
-
+                PerspectiveAwareModelProperties bakeryProperties = bakery.getModelProperties(stack);
                 BakedModelProperties properties = bakeryProperties.getProperties();
                 return new PerspectiveAwareBakedModel(faceQuads, generalQuads, bakeryProperties.getModelState(), properties);
             }
@@ -308,11 +302,6 @@ public class ModelBakery implements IResourceManagerReloadListener {
             layerFaceQuadMap.put(layer, faceQuadMap);
         }
         return layerFaceQuadMap;
-    }
-
-    @Override
-    public void onResourceManagerReload(IResourceManager resourceManager) {
-        nukeModelCache();
     }
 
     public static void nukeModelCache() {
