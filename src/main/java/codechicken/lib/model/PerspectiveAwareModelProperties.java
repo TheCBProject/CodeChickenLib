@@ -20,8 +20,12 @@ public class PerspectiveAwareModelProperties {
     }
 
     public PerspectiveAwareModelProperties(IModelState state, boolean isAO, boolean isGui3D, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
+        this(state, new BakedModelProperties(isAO, isGui3D, isBuiltInRenderer, particle));
+    }
+
+    public PerspectiveAwareModelProperties(IModelState state, BakedModelProperties properties) {
         this.modelState = state;
-        properties = new BakedModelProperties(isAO, isGui3D, isBuiltInRenderer, particle);
+        this.properties = properties;
     }
 
     public IModelState getModelState() {

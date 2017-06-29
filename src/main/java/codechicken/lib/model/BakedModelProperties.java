@@ -9,6 +9,9 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
  */
 public class BakedModelProperties implements Copyable<BakedModelProperties> {
 
+    public static final BakedModelProperties DEFAULT_ITEM = new BakedModelProperties(true, false);
+    public static final BakedModelProperties DEFAULT_BLOCK = new BakedModelProperties(true, true);
+
     private final boolean isAO;
     private final boolean isGui3D;
     private final boolean isBuiltInRenderer;

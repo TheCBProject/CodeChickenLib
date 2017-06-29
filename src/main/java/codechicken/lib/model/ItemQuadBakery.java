@@ -2,6 +2,7 @@ package codechicken.lib.model;
 
 import codechicken.lib.util.TransformUtils;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -14,8 +15,12 @@ import java.util.List;
 
 /**
  * Created by covers1624 on 13/02/2017.
- */
+ *///TODO, May be cleaner to move the back end to TAS... instead of Lists.
 public class ItemQuadBakery {
+
+    public static List<BakedQuad> bakeItem(TextureAtlasSprite... sprites) {
+        return bakeItem(ImmutableList.copyOf(sprites));
+    }
 
     public static List<BakedQuad> bakeItem(List<TextureAtlasSprite> sprites) {
         return bakeItem(sprites, DefaultVertexFormats.ITEM, TransformUtils.DEFAULT_ITEM);

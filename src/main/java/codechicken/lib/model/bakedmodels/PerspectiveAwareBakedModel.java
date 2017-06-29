@@ -1,6 +1,7 @@
 package codechicken.lib.model.bakedmodels;
 
 import codechicken.lib.model.BakedModelProperties;
+import codechicken.lib.model.PerspectiveAwareModelProperties;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.state.IBlockState;
@@ -27,23 +28,37 @@ public class PerspectiveAwareBakedModel implements IPerspectiveAwareModel {
 
     private final ImmutableMap<EnumFacing, List<BakedQuad>> faceQuads;
     private final ImmutableList<BakedQuad> generalQuads;
-    private final IModelState state;
-    private final BakedModelProperties properties;
+    private final PerspectiveAwareModelProperties properties;
+
 
     public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, IModelState state, BakedModelProperties properties) {
         this(faceQuads, ImmutableList.of(), state, properties);
     }
 
+
     public PerspectiveAwareBakedModel(List<BakedQuad> generalQuads, IModelState state, BakedModelProperties properties) {
         this(ImmutableMap.of(), generalQuads, state, properties);
     }
 
+
     public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, IModelState state, BakedModelProperties properties) {
+        this(faceQuads, generalQuads, new PerspectiveAwareModelProperties(state, properties));
+    }
+
+    public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, PerspectiveAwareModelProperties properties) {
+        this(faceQuads, ImmutableList.of(), properties);
+    }
+
+    public PerspectiveAwareBakedModel(List<BakedQuad> generalQuads, PerspectiveAwareModelProperties properties) {
+        this(ImmutableMap.of(), generalQuads, properties);
+    }
+
+    public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, PerspectiveAwareModelProperties properties) {
         this.faceQuads = ImmutableMap.copyOf(faceQuads);
         this.generalQuads = ImmutableList.copyOf(generalQuads);
-        this.state = state;
-        this.properties = properties.copy();
+        this.properties = properties;
     }
+
 
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
@@ -59,27 +74,27 @@ public class PerspectiveAwareBakedModel implements IPerspectiveAwareModel {
 
     @Override
     public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
-        return MapWrapper.handlePerspective(this, state, cameraTransformType);
+        return MapWrapper.handlePerspective(this, properties.getModelState(), cameraTransformType);
     }
 
     @Override
     public boolean isAmbientOcclusion() {
-        return properties.isAmbientOcclusion();
+        return properties.getProperties().isAmbientOcclusion();
     }
 
     @Override
     public boolean isGui3d() {
-        return properties.isGui3d();
+        return properties.getProperties().isGui3d();
     }
 
     @Override
     public boolean isBuiltInRenderer() {
-        return properties.isBuiltInRenderer();
+        return properties.getProperties().isBuiltInRenderer();
     }
 
     @Override
     public TextureAtlasSprite getParticleTexture() {
-        return properties.getParticleTexture();
+        return properties.getProperties().getParticleTexture();
     }
 
     @Override
