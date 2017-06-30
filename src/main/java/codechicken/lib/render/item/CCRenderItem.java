@@ -20,7 +20,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ReportedException;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
@@ -97,10 +96,8 @@ public class CCRenderItem extends RenderItem {
             ((IMatrixTransform) model).getTransform(transformType, isLeftHand).glApply();
         } else if (model instanceof IGLTransform) {
             ((IGLTransform) model).applyTransforms(transformType, isLeftHand);
-        } else if (model instanceof IPerspectiveAwareModel) {
-            model = ForgeHooksClient.handleCameraTransforms(model, transformType, isLeftHand);
         }
-        return model;
+        return model = ForgeHooksClient.handleCameraTransforms(model, transformType, isLeftHand);
     }
 
     private boolean isValidModel(IBakedModel model) {
@@ -226,10 +223,10 @@ public class CCRenderItem extends RenderItem {
             } catch (Throwable throwable) {
                 CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Rendering item");
                 CrashReportCategory crashreportcategory = crashreport.makeCategory("Item being rendered");
-                crashreportcategory.setDetail("Item Type", () -> String.valueOf(stack.getItem()));
-                crashreportcategory.setDetail("Item Aux", () -> String.valueOf(stack.getMetadata()));
-                crashreportcategory.setDetail("Item NBT", () -> String.valueOf(stack.getTagCompound()));
-                crashreportcategory.setDetail("Item Foil", () -> String.valueOf(stack.hasEffect()));
+                crashreportcategory.addDetail("Item Type", () -> String.valueOf(stack.getItem()));
+                crashreportcategory.addDetail("Item Aux", () -> String.valueOf(stack.getMetadata()));
+                crashreportcategory.addDetail("Item NBT", () -> String.valueOf(stack.getTagCompound()));
+                crashreportcategory.addDetail("Item Foil", () -> String.valueOf(stack.hasEffect()));
                 throw new ReportedException(crashreport);
             }
         }
@@ -247,11 +244,6 @@ public class CCRenderItem extends RenderItem {
     public void registerItem(Item item, int subType, String identifier) {
         //Pass this through because why not.
         parent.registerItem(item, subType, identifier);
-    }
-
-    @Override
-    public void isNotRenderingEffectsInGUI(boolean isNot) {
-        parent.isNotRenderingEffectsInGUI(isNot);
     }
 
     @Override

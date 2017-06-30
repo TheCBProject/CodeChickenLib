@@ -2,7 +2,6 @@ package codechicken.lib.util;
 
 import codechicken.lib.render.CCModelState;
 import codechicken.lib.vec.Matrix4;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gson.*;
@@ -15,6 +14,7 @@ import net.minecraftforge.common.model.TRSRTransformation;
 
 import javax.vecmath.Vector3f;
 import java.util.EnumMap;
+import java.util.Optional;
 
 /**
  * Created by covers1624 on 5/16/2016.
@@ -100,7 +100,7 @@ public class TransformUtils {
      * @return A IModelState.
      */
     public static Optional<IModelState> parseFromJson(JsonObject json) {
-        Optional<IModelState> ret = Optional.absent();
+        Optional<IModelState> ret = Optional.empty();
         if (json.has("x") || json.has("y")) {
             int x = JsonUtils.getInt(json, "x", 0);
             int y = JsonUtils.getInt(json, "y", 0);

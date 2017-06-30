@@ -2,9 +2,8 @@ package codechicken.lib.model.loader.blockstate;
 
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.TransformUtils;
-import com.google.common.base.Objects;
-import com.google.common.base.Objects.ToStringHelper;
-import com.google.common.base.Optional;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.gson.*;
 import net.minecraft.util.JsonUtils;
 import net.minecraft.util.ResourceLocation;
@@ -20,11 +19,11 @@ import java.util.Map.Entry;
 public class CCVariant implements Copyable<CCVariant> {
 
     protected ResourceLocation model;
-    protected Optional<IModelState> state = Optional.absent();
-    protected Optional<Boolean> uvLock = Optional.absent();
-    protected Optional<Boolean> smooth = Optional.absent();
-    protected Optional<Boolean> gui3d = Optional.absent();
-    protected Optional<Integer> weight = Optional.absent();
+    protected Optional<IModelState> state = Optional.empty();
+    protected Optional<Boolean> uvLock = Optional.empty();
+    protected Optional<Boolean> smooth = Optional.empty();
+    protected Optional<Boolean> gui3d = Optional.empty();
+    protected Optional<Integer> weight = Optional.empty();
     protected Map<String, String> textures = new HashMap<>();
     protected Map<String, String> customData = new HashMap<>();
     protected Map<String, Map<String, CCVariant>> subVariants = new LinkedHashMap<>();
@@ -200,7 +199,7 @@ public class CCVariant implements Copyable<CCVariant> {
 
     @Override
     public String toString() {
-        ToStringHelper helper = Objects.toStringHelper("CCVariant");
+        ToStringHelper helper = MoreObjects.toStringHelper("CCVariant");
         helper.add("Model", model);
         helper.add("IModelState", state);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();

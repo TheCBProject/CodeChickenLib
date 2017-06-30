@@ -42,7 +42,7 @@ public abstract class ContainerExtended extends Container implements IContainerL
     }
 
     @Override
-    public void updateCraftingInventory(@Nonnull Container container, @Nonnull NonNullList<ItemStack> list) {
+    public void sendAllContents(@Nonnull Container container, @Nonnull NonNullList<ItemStack> list) {
         sendContainerAndContentsToPlayer(container, list, playerCrafters);
     }
 
@@ -63,7 +63,7 @@ public abstract class ContainerExtended extends Container implements IContainerL
         }
 
         for (EntityPlayerMP player : playerCrafters) {
-            player.updateCraftingInventory(container, list);
+            player.sendAllContents(container, list);
         }
 
         for (int i = 0; i < largeStacks.size(); i++) {
@@ -78,9 +78,9 @@ public abstract class ContainerExtended extends Container implements IContainerL
     }
 
     @Override
-    public void sendProgressBarUpdate(@Nonnull Container container, int i, int j) {
+    public void sendWindowProperty(@Nonnull Container container, int i, int j) {
         for (EntityPlayerMP player : playerCrafters) {
-            player.sendProgressBarUpdate(container, i, j);
+            player.sendWindowProperty(container, i, j);
         }
     }
 
@@ -244,7 +244,7 @@ public abstract class ContainerExtended extends Container implements IContainerL
 
     public void sendProgressBarUpdate(int barID, int value) {
         for (IContainerListener crafting : listeners) {
-            crafting.sendProgressBarUpdate(this, barID, value);
+            crafting.sendWindowProperty(this, barID, value);
         }
     }
 }

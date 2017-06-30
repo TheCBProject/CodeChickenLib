@@ -1,6 +1,5 @@
 package codechicken.lib.render.shader;
 
-import codechicken.lib.internal.CCLLog;
 import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.shader.ShaderProgram.UniformEntry.BooleanUniformEntry;
 import codechicken.lib.render.shader.ShaderProgram.UniformEntry.FloatUniformEntry;
@@ -11,13 +10,11 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL20;
 
 import java.nio.FloatBuffer;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.Predicate;

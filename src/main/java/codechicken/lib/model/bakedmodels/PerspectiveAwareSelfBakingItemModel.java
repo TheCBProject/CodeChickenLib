@@ -14,8 +14,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.ItemLayerModel;
+import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.IModelState;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 7/18/2016.
  */
-public class PerspectiveAwareSelfBakingItemModel implements IPerspectiveAwareModel {
+public class PerspectiveAwareSelfBakingItemModel implements IBakedModel {
 
     private List<BakedQuad> quads;
     private TextureAtlasSprite sprite;
@@ -86,7 +86,7 @@ public class PerspectiveAwareSelfBakingItemModel implements IPerspectiveAwareMod
 
     @Override
     public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
-        return MapWrapper.handlePerspective(this, modelState, cameraTransformType);
+        return PerspectiveMapWrapper.handlePerspective(this, modelState, cameraTransformType);
     }
 
     private void bake() {

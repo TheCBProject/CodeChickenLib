@@ -61,11 +61,11 @@ public abstract class ChunkExtension {
 
     @Override
     public int hashCode() {
-        return coord.chunkXPos ^ coord.chunkZPos;
+        return coord.x ^ coord.z;
     }
 
     @Override
     public boolean equals(Object o) {
-        return (o instanceof ChunkExtension && ((ChunkExtension) o).coord.equals(coord)) || (o instanceof ChunkPos && coord.equals(o)) || (o instanceof Long && (Long) o == (((long) coord.chunkXPos) << 32 | coord.chunkZPos));
+        return (o instanceof ChunkExtension && ((ChunkExtension) o).coord.equals(coord)) || (o instanceof ChunkPos && coord.equals(o)) || (o instanceof Long && (Long) o == (((long) coord.x) << 32 | coord.z));
     }
 }

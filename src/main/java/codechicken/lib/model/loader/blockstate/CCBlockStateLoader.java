@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.client.renderer.block.model.VariantList;
 import net.minecraft.util.JsonUtils;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.BlockStateLoader;
 import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.commons.io.IOUtils;
@@ -32,14 +33,14 @@ public class CCBlockStateLoader {
 
     public static final Gson GSON = new GsonBuilder().registerTypeAdapter(CCVariant.class, new CCVariant.Deserializer()).create();
 
-    public static ModelBlockDefinition handleLoad(Reader reader, Gson vanillaGSON) {
+    public static ModelBlockDefinition handleLoad(Reader reader, ResourceLocation blockstate, Gson vanillaGSON) {
         try {
             String json = IOUtils.toString(reader);
             ModelBlockDefinition cclDef = load(json);
             if (cclDef != null) {
                 return cclDef;
             }
-            return BlockStateLoader.load(new StringReader(json), vanillaGSON);
+            return BlockStateLoader.load(new StringReader(json), blockstate, vanillaGSON);
         } catch (Exception e) {
             Throwables.propagate(e);
         }
@@ -111,15 +112,15 @@ public class CCBlockStateLoader {
                     List<Variant> vars = new ArrayList<>();
                     CCVariant variant = entry.getValue();
 
-                    boolean uvLock = variant.uvLock.or(false);
-                    boolean smooth = variant.smooth.or(true);
-                    boolean gui3d = variant.gui3d.or(true);
-                    int weight = variant.weight.or(1);
+                    boolean uvLock = variant.uvLock.orElse(false);
+                    boolean smooth = variant.smooth.orElse(true);
+                    boolean gui3d = variant.gui3d.orElse(true);
+                    int weight = variant.weight.orElse(1);
 
-                    if (variant.model != null && subModelVariants.size() == 0 && variant.textures.size() == 0 && variant.customData.size() == 0 && variant.state.orNull() instanceof ModelRotation) {
+                    if (variant.model != null && subModelVariants.size() == 0 && variant.textures.size() == 0 && variant.customData.size() == 0 && variant.state.orElse(null) instanceof ModelRotation) {
                         vars.add(new Variant(variant.model, ((ModelRotation) variant.state.get()), uvLock, weight));
                     } else if (subModelVariants.size() == 0) {
-                        vars.add(new CCFinalVariant(variant.model, variant.state.or(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures, textureDomain, variant.customData));
+                        vars.add(new CCFinalVariant(variant.model, variant.state.orElse(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures, textureDomain, variant.customData));
                     } else {
                         vars.add(new CCFinalMultiVariant(variant, textureDomain, subModelVariants));
                     }

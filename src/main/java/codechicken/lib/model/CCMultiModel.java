@@ -2,7 +2,6 @@ package codechicken.lib.model;
 
 import codechicken.lib.model.bakedmodels.PerspectiveAwareMultiModel;
 import codechicken.lib.texture.TextureUtils;
-import com.google.common.base.Function;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -13,6 +12,7 @@ import net.minecraftforge.common.model.IModelState;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created by covers1624 on 16/12/2016.

@@ -26,10 +26,10 @@ public class CCFinalMultiVariant extends Variant {
     private IModelState state;
 
     public CCFinalMultiVariant(CCVariant baseVariant, String textureDomain, Map<String, CCVariant> subModels) {
-        super(baseVariant.model == null ? new ResourceLocation("builtin/missing") : baseVariant.model, baseVariant.state.get() instanceof ModelRotation ? ((ModelRotation) baseVariant.state.get()) : ModelRotation.X0_Y0, baseVariant.uvLock.or(false), baseVariant.weight.or(1));
+        super(baseVariant.model == null ? new ResourceLocation("builtin/missing") : baseVariant.model, baseVariant.state.get() instanceof ModelRotation ? ((ModelRotation) baseVariant.state.get()) : ModelRotation.X0_Y0, baseVariant.uvLock.orElse(false), baseVariant.weight.orElse(1));
         state = baseVariant.state.get();
         this.baseVariant = makeFinalVariant(baseVariant, textureDomain);
-        this.baseProperties = new BakedModelProperties(baseVariant.smooth.or(true), baseVariant.gui3d.or(true));
+        this.baseProperties = new BakedModelProperties(baseVariant.smooth.orElse(true), baseVariant.gui3d.orElse(true));
         for (CCVariant subModel : subModels.values()) {
             finalVariants.add(makeFinalVariant(baseVariant.copy().with(subModel), textureDomain));
         }
@@ -59,14 +59,14 @@ public class CCFinalMultiVariant extends Variant {
     }
 
     private static Variant makeFinalVariant(CCVariant variant, String textureDomain) {
-        boolean uvLock = variant.uvLock.or(false);
-        boolean smooth = variant.smooth.or(true);
-        boolean gui3d = variant.gui3d.or(true);
-        int weight = variant.weight.or(1);
-        if (variant.model != null && variant.textures.size() == 0 && variant.customData.size() == 0 && variant.state.orNull() instanceof ModelRotation) {
+        boolean uvLock = variant.uvLock.orElse(false);
+        boolean smooth = variant.smooth.orElse(true);
+        boolean gui3d = variant.gui3d.orElse(true);
+        int weight = variant.weight.orElse(1);
+        if (variant.model != null && variant.textures.size() == 0 && variant.customData.size() == 0 && variant.state.orElse(null) instanceof ModelRotation) {
             return new Variant(variant.model, ((ModelRotation) variant.state.get()), uvLock, weight);
         } else {
-            return new CCFinalVariant(variant.model, variant.state.or(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures, textureDomain, variant.customData);
+            return new CCFinalVariant(variant.model, variant.state.orElse(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures, textureDomain, variant.customData);
         }
     }
 }

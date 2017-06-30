@@ -1,21 +1,21 @@
 package codechicken.lib.model;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.*;
+import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.common.model.IModelState;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 /**
  * Created by covers1624 on 17/12/2016.
  * TODO Decide on a standard place for CCL's IModels.
  */
-public class StateOverrideIModel implements IModel, IRetexturableModel, IModelCustomData, IModelSimpleProperties, IModelUVLock {
+public class StateOverrideIModel implements IModel {
 
     private IModel wrapped;
     private final IModelState wrappedState;
@@ -47,31 +47,31 @@ public class StateOverrideIModel implements IModel, IRetexturableModel, IModelCu
 
     @Override
     public IModel retexture(ImmutableMap<String, String> textures) {
-        wrapped = ModelProcessingHelper.retexture(wrapped, textures);
+        wrapped = wrapped.retexture(textures);
         return this;
     }
 
     @Override
     public IModel uvlock(boolean value) {
-        wrapped = ModelProcessingHelper.uvlock(wrapped, value);
+        wrapped = wrapped.uvlock(value);
         return this;
     }
 
     @Override
     public IModel smoothLighting(boolean value) {
-        wrapped = ModelProcessingHelper.smoothLighting(wrapped, value);
+        wrapped = wrapped.smoothLighting(value);
         return this;
     }
 
     @Override
     public IModel gui3d(boolean value) {
-        wrapped = ModelProcessingHelper.gui3d(wrapped, value);
+        wrapped = wrapped.gui3d(value);
         return this;
     }
 
     @Override
     public IModel process(ImmutableMap<String, String> customData) {
-        wrapped = ModelProcessingHelper.customData(wrapped, customData);
+        wrapped = wrapped.process(customData);
         return this;
     }
 }

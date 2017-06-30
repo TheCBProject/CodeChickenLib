@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.ModelProcessingHelper;
 import net.minecraftforge.common.model.IModelState;
 
 import java.util.HashMap;
@@ -45,11 +44,11 @@ public class CCFinalVariant extends Variant {
     }
 
     public static IModel runModelHooks(IModel base, boolean smooth, boolean gui3d, boolean uvlock, ImmutableMap<String, String> textureMap, ImmutableMap<String, String> customData) {
-        base = ModelProcessingHelper.customData(base, customData);
-        base = ModelProcessingHelper.retexture(base, textureMap);
-        base = ModelProcessingHelper.smoothLighting(base, smooth);
-        base = ModelProcessingHelper.gui3d(base, gui3d);
-        base = ModelProcessingHelper.uvlock(base, uvlock);
+        base = base.process(customData);
+        base = base.retexture(textureMap);
+        base = base.smoothLighting(smooth);
+        base = base.gui3d(gui3d);
+        base = base.uvlock(uvlock);
         return base;
     }
 

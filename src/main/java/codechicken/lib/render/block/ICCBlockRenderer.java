@@ -1,7 +1,7 @@
 package codechicken.lib.render.block;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.math.BlockPos;
@@ -22,7 +22,7 @@ public interface ICCBlockRenderer {
      * @param sprite The overriden sprite.
      * @param buffer The buffer.
      */
-    void handleRenderBlockDamage(IBlockAccess world, BlockPos pos, IBlockState state, TextureAtlasSprite sprite, VertexBuffer buffer);
+    void handleRenderBlockDamage(IBlockAccess world, BlockPos pos, IBlockState state, TextureAtlasSprite sprite, BufferBuilder buffer);
 
     /**
      * Called to render your block in world.
@@ -36,7 +36,7 @@ public interface ICCBlockRenderer {
      * @param buffer The buffer.
      * @return If quads were added.
      */
-    boolean renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, VertexBuffer buffer);
+    boolean renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, BufferBuilder buffer);
 
     /**
      * Only ever called for Golems holding things, so don't really bother with it.

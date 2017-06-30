@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformT
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
+import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.IModelState;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -24,22 +24,19 @@ import java.util.Map;
 /**
  * Created by covers1624 on 25/11/2016.
  */
-public class PerspectiveAwareBakedModel implements IPerspectiveAwareModel {
+public class PerspectiveAwareBakedModel implements IBakedModel {
 
     private final ImmutableMap<EnumFacing, List<BakedQuad>> faceQuads;
     private final ImmutableList<BakedQuad> generalQuads;
     private final PerspectiveAwareModelProperties properties;
 
-
     public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, IModelState state, BakedModelProperties properties) {
         this(faceQuads, ImmutableList.of(), state, properties);
     }
 
-
     public PerspectiveAwareBakedModel(List<BakedQuad> generalQuads, IModelState state, BakedModelProperties properties) {
         this(ImmutableMap.of(), generalQuads, state, properties);
     }
-
 
     public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, IModelState state, BakedModelProperties properties) {
         this(faceQuads, generalQuads, new PerspectiveAwareModelProperties(state, properties));
@@ -59,7 +56,6 @@ public class PerspectiveAwareBakedModel implements IPerspectiveAwareModel {
         this.properties = properties;
     }
 
-
     @Override
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
         if (side == null) {
@@ -74,7 +70,7 @@ public class PerspectiveAwareBakedModel implements IPerspectiveAwareModel {
 
     @Override
     public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
-        return MapWrapper.handlePerspective(this, properties.getModelState(), cameraTransformType);
+        return PerspectiveMapWrapper.handlePerspective(this, properties.getModelState(), cameraTransformType);
     }
 
     @Override

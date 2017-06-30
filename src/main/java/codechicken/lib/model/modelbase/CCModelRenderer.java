@@ -5,7 +5,7 @@ import codechicken.lib.render.CCQuad;
 import codechicken.lib.vec.*;
 import codechicken.lib.vec.uv.UV;
 import com.google.common.collect.Lists;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import org.lwjgl.opengl.GL11;
 
 import java.util.Collections;
@@ -106,7 +106,7 @@ public class CCModelRenderer {
         this.rotationPointZ = rotationPointZIn;
     }
 
-    public void render(float scale, VertexBuffer buffer) {
+    public void render(float scale, BufferBuilder buffer) {
         //TODO
         //CCRenderState.bind(buffer);
         //boolean startDrawing = !CCRenderState.isDrawing();

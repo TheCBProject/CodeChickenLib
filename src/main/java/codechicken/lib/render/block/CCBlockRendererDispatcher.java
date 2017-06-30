@@ -5,7 +5,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -39,10 +39,10 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher implement
     }
 
     @Override
-    public boolean renderBlock(IBlockState state, BlockPos pos, IBlockAccess blockAccess, VertexBuffer worldRendererIn) {
+    public boolean renderBlock(IBlockState state, BlockPos pos, IBlockAccess blockAccess, BufferBuilder worldRendererIn) {
         try {
             if (BlockRenderingRegistry.canHandle(state.getRenderType())) {
-                if (blockAccess.getWorldType() != WorldType.DEBUG_WORLD) {
+                if (blockAccess.getWorldType() != WorldType.DEBUG_ALL_BLOCK_STATES) {
                     try {
                         state = state.getActualState(blockAccess, pos);
                     } catch (Exception ignored) {

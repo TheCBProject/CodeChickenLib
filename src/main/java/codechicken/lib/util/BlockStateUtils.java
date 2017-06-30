@@ -1,7 +1,6 @@
 package codechicken.lib.util;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
@@ -9,6 +8,7 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 /**
  * Created by covers1624 on 13/01/2017.

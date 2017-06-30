@@ -243,12 +243,12 @@ public class RayTracer {
         Vec3d headVec = getCorrectedHeadVec(player);
         Vec3d lookVec = player.getLook(1.0F);
         double reach = getBlockReachDistance(player);
-        return headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
+        return headVec.addVector(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
     }
 
     public static Vec3d getEndVec(EntityPlayer player, double reach) {
         Vec3d headVec = getCorrectedHeadVec(player);
         Vec3d lookVec = player.getLook(1.0F);
-        return headVec.addVector(lookVec.xCoord * reach, lookVec.yCoord * reach, lookVec.zCoord * reach);
+        return headVec.addVector(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
     }
 }

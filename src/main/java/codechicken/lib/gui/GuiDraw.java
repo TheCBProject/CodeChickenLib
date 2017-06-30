@@ -5,10 +5,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
@@ -47,7 +47,7 @@ public class GuiDraw {
     }
 
     public static final GuiHook gui = new GuiHook();
-    public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+    public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
     public static TextureManager renderEngine = Minecraft.getMinecraft().renderEngine;
 
     public static void drawRect(int x, int y, int w, int h, int colour) {
@@ -74,7 +74,7 @@ public class GuiDraw {
         Colour.glColourARGB(colour);
 
         Tessellator tess = Tessellator.getInstance();
-        VertexBuffer vb = tess.getBuffer();
+        BufferBuilder vb = tess.getBuffer();
         vb.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION);
         vb.pos(x1, y1, gui.getZLevel()).endVertex();
         vb.pos(x2, y2, gui.getZLevel()).endVertex();

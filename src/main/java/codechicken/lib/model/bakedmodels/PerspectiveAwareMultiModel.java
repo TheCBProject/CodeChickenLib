@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformT
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
+import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.IModelState;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 16/12/2016.
  */
-public class PerspectiveAwareMultiModel implements IPerspectiveAwareModel {
+public class PerspectiveAwareMultiModel implements IBakedModel {
 
     private final IBakedModel baseModel;
     private final List<IBakedModel> subModels;
@@ -79,6 +79,6 @@ public class PerspectiveAwareMultiModel implements IPerspectiveAwareModel {
 
     @Override
     public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
-        return MapWrapper.handlePerspective(this, baseState, cameraTransformType);
+        return PerspectiveMapWrapper.handlePerspective(this, baseState, cameraTransformType);
     }
 }

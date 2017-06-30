@@ -7,7 +7,7 @@ import codechicken.lib.util.VertexDataUtils;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.uv.UV;
 import com.google.common.collect.ImmutableList;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -26,7 +26,7 @@ import java.util.List;
  * Creates a List of BakedQuads from a VertexBuffer. That's it really..
  * //TODO, support triangles & quadulate.
  */
-public class BakingVertexBuffer extends VertexBuffer {
+public class BakingVertexBuffer extends BufferBuilder {
 
     private HashMap<Integer, TextureAtlasSprite> spriteMap;
     private boolean useSprites = true;

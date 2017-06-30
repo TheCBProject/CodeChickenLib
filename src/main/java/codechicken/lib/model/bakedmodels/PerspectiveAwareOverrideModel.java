@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
+import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.IModelState;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 1/02/2017.
  */
-public class PerspectiveAwareOverrideModel extends AbstractBakedPropertiesModel implements IPerspectiveAwareModel {
+public class PerspectiveAwareOverrideModel extends AbstractBakedPropertiesModel {
 
     private final ItemOverrideList overrideList;
     private final IModelState state;
@@ -54,6 +54,6 @@ public class PerspectiveAwareOverrideModel extends AbstractBakedPropertiesModel 
 
     @Override
     public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
-        return MapWrapper.handlePerspective(this, state, cameraTransformType);
+        return PerspectiveMapWrapper.handlePerspective(this, state, cameraTransformType);
     }
 }

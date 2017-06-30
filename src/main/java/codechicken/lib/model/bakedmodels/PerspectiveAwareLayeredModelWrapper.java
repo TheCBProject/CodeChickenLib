@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
+import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.IModelState;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Created by covers1624 on 19/11/2016.
  */
-public class PerspectiveAwareLayeredModelWrapper implements IPerspectiveAwareModel {
+public class PerspectiveAwareLayeredModelWrapper implements IBakedModel {
 
     private final ImmutableMap<BlockRenderLayer, IBakedModel> layerModelMap;
     private final IModelState state;
@@ -82,6 +82,6 @@ public class PerspectiveAwareLayeredModelWrapper implements IPerspectiveAwareMod
 
     @Override
     public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
-        return MapWrapper.handlePerspective(this, state, cameraTransformType);
+        return PerspectiveMapWrapper.handlePerspective(this, state, cameraTransformType);
     }
 }

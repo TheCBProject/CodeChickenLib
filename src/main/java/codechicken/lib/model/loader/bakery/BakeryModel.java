@@ -1,7 +1,6 @@
 package codechicken.lib.model.loader.bakery;
 
 import codechicken.lib.model.bakery.CCBakeryModel;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -12,6 +11,7 @@ import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 /**
  * Basically a wrapper to allow the use of the BlockBakery from a json file.

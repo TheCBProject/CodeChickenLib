@@ -7,7 +7,6 @@ import codechicken.lib.packet.ICustomPacketHandler.IServerPacketHandler;
 import com.google.common.collect.Maps;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.ByteBufProcessor;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,6 +14,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.AttributeKey;
+import io.netty.util.ByteProcessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -51,6 +51,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.ScatteringByteChannel;
 import java.nio.charset.Charset;
@@ -130,7 +131,7 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
                 if (!mc.isCallingFromMinecraftThread()) {
                     mc.addScheduledTask(() -> handle(netHandler, channel, packet));
                 } else {
-                    handler.handlePacket(packet, ((NetHandlerPlayServer) netHandler).playerEntity, (INetHandlerPlayServer) netHandler);
+                    handler.handlePacket(packet, ((NetHandlerPlayServer) netHandler).player, (INetHandlerPlayServer) netHandler);
                 }
             } else {
                 System.err.println("Invalid INetHandler for PacketCustom on channel: " + channel);
@@ -633,6 +634,8 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     @Override public ByteBuf order(ByteOrder endianness) {return buf.order(endianness);}
     @Override public ByteBuf unwrap() {return buf;}
     @Override public boolean isDirect() {return buf.isDirect();}
+    @Override public boolean isReadOnly() {return toPacketBuffer().isReadOnly();}
+    @Override public ByteBuf asReadOnly() {return buf.asReadOnly();}
     @Override public int readerIndex() {return buf.readerIndex();}
     @Override public ByteBuf readerIndex(int readerIndex) {buf.readerIndex(readerIndex);return this;}
     @Override public int writerIndex() {return buf.writerIndex();}
@@ -652,15 +655,23 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     @Override public PacketCustom discardSomeReadBytes() {buf.discardSomeReadBytes();return this;}
     @Override public PacketCustom ensureWritable(int minWritableBytes) {buf.ensureWritable(minWritableBytes);return this;}
     @Override public int ensureWritable(int minWritableBytes, boolean force) {return buf.ensureWritable(minWritableBytes, force);}
-    @Override public boolean getBoolean(int index) {return buf.getBoolean(index);}@Override public byte getByte(int index) {return buf.getByte(index);}
+    @Override public boolean getBoolean(int index) {return buf.getBoolean(index);}
+    @Override public byte getByte(int index) {return buf.getByte(index);}
     @Override public short getUnsignedByte(int index) {return buf.getUnsignedByte(index);}
     @Override public short getShort(int index) {return buf.getShort(index);}
+    @Override public short getShortLE(int index) {return buf.getShortLE(index);}
     @Override public int getUnsignedShort(int index) {return buf.getUnsignedShort(index);}
+    @Override public int getUnsignedShortLE(int index) {return buf.getUnsignedShortLE(index);}
     @Override public int getMedium(int index) {return buf.getMedium(index);}
+    @Override public int getMediumLE(int index) {return buf.getMediumLE(index);}
     @Override public int getUnsignedMedium(int index) {return buf.getUnsignedMedium(index);}
+    @Override public int getUnsignedMediumLE(int index) {return buf.getUnsignedShortLE(index);}
     @Override public int getInt(int index) {return buf.getInt(index);}
+    @Override public int getIntLE(int index) {return buf.getIntLE(index);}
     @Override public long getUnsignedInt(int index) {return buf.getUnsignedInt(index);}
+    @Override public long getUnsignedIntLE(int index) {return buf.getUnsignedIntLE(index);}
     @Override public long getLong(int index) {return buf.getLong(index);}
+    @Override public long getLongLE(int index) {return buf.getLongLE(index);}
     @Override public char getChar(int index) {return buf.getChar(index);}
     @Override public float getFloat(int index) {return buf.getFloat(index);}
     @Override public double getDouble(int index) {return buf.getDouble(index);}
@@ -672,12 +683,18 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     @Override public PacketCustom getBytes(int index, ByteBuffer dst) {buf.getBytes(index, dst);return this;}
     @Override public PacketCustom getBytes(int index, OutputStream out, int length) throws IOException {buf.getBytes(index, out, length);return this;}
     @Override public int getBytes(int index, GatheringByteChannel out, int length) throws IOException {return buf.getBytes(index, out, length);}
+    @Override public int getBytes(int index, FileChannel out, long position, int length) throws IOException {return buf.getBytes(index, out, position, length);}
+    @Override public CharSequence getCharSequence(int index, int length, Charset charset) {return buf.getCharSequence(index, length, charset);}
     @Override public PacketCustom setBoolean(int index, boolean value) {buf.setBoolean(index, value);return this;}
     @Override public PacketCustom setByte(int index, int value) {buf.setByte(index, value);return this;}
     @Override public PacketCustom setShort(int index, int value) {buf.setShort(index, value);return this;}
+    @Override public ByteBuf setShortLE(int index, int value) {return buf.setShortLE(index, value);}
     @Override public PacketCustom setMedium(int index, int value) {buf.setMedium(index, value);return this;}
+    @Override public ByteBuf setMediumLE(int index, int value) {return buf.setMediumLE(index, value);}
     @Override public PacketCustom setInt(int index, int value) {buf.setInt(index, value);return this;}
+    @Override public ByteBuf setIntLE(int index, int value) {return buf.setIntLE(index, value);}
     @Override public PacketCustom setLong(int index, long value) {buf.setLong(index, value);return this;}
+    @Override public ByteBuf setLongLE(int index, long value) {return buf.setLong(index, value);}
     @Override public PacketCustom setChar(int index, int value) {buf.setChar(index, value);return this;}
     @Override public PacketCustom setFloat(int index, float value) {buf.setFloat(index, value);return this;}
     @Override public PacketCustom setDouble(int index, double value) {buf.setDouble(index, value);return this;}
@@ -689,14 +706,21 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     @Override public PacketCustom setBytes(int index, ByteBuffer src) {buf.setBytes(index, src);return this;}
     @Override public int setBytes(int index, InputStream in, int length) throws IOException {return buf.setBytes(index, in, length);}
     @Override public int setBytes(int index, ScatteringByteChannel in, int length) throws IOException {return buf.setBytes(index, in, length);}
+    @Override public int setBytes(int index, FileChannel in, long position, int length) throws IOException {return buf.setBytes(index, in, position, length);}
     @Override public PacketCustom setZero(int index, int length) {buf.setZero(index, length);return this;}
+    @Override public int setCharSequence(int index, CharSequence sequence, Charset charset) {return buf.setCharSequence(index, sequence, charset);}
     @Override public short readUnsignedByte() {return buf.readUnsignedByte();}
     @Override public int readUnsignedShort() {return buf.readUnsignedShort();}
+    @Override public int readUnsignedShortLE() {return buf.readUnsignedShortLE();}
     @Override public int readMedium() {return buf.readMedium();}
+    @Override public int readMediumLE() {return buf.readMediumLE();}
     @Override public int readUnsignedMedium() {return buf.readUnsignedMedium();}
+    @Override public int readUnsignedMediumLE() {return buf.readUnsignedMediumLE();}
     @Override public long readUnsignedInt() {return buf.readUnsignedInt();}
+    @Override public long readUnsignedIntLE() {return buf.readUnsignedIntLE();}
     @Override public ByteBuf readBytes(int length) {return buf.readBytes(length);}
     @Override public ByteBuf readSlice(int length) {return buf.readSlice(length);}
+    @Override public ByteBuf readRetainedSlice(int length) {return buf.readRetainedSlice(length);}
     @Override public PacketCustom readBytes(ByteBuf dst) {buf.readBytes(dst);return this;}
     @Override public PacketCustom readBytes(ByteBuf dst, int length) {buf.readBytes(dst, length);return this;}
     @Override public PacketCustom readBytes(ByteBuf dst, int dstIndex, int length) {buf.readBytes(dst, dstIndex, length);return this;}
@@ -705,8 +729,11 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     @Override public PacketCustom readBytes(ByteBuffer dst) {buf.readBytes(dst);return this;}
     @Override public PacketCustom readBytes(OutputStream out, int length) throws IOException {buf.readBytes(out, length);return this;}
     @Override public int readBytes(GatheringByteChannel out, int length) throws IOException {return buf.readBytes(out, length);}
+    @Override public CharSequence readCharSequence(int length, Charset charset) {return buf.readCharSequence(length, charset);}
+    @Override public int readBytes(FileChannel out, long position, int length) throws IOException {return buf.readBytes(out, position, length);}
     @Override public PacketCustom skipBytes(int length) {buf.skipBytes(length);return this;}
     @Override public PacketCustom writeMedium(int value) {buf.writeMedium(value);return this;}
+    @Override public ByteBuf writeMediumLE(int value) {return buf.writeMediumLE(value);}
     @Override public PacketCustom writeChar(int value) {buf.writeChar(value);return this;}
     @Override public PacketCustom writeBytes(ByteBuf src) {buf.writeBytes(src);return this;}
     @Override public PacketCustom writeBytes(ByteBuf src, int length) {buf.writeBytes(src, length);return this;}
@@ -714,22 +741,33 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     @Override public PacketCustom writeBytes(byte[] src) {buf.writeBytes(src);return this;}
     @Override public PacketCustom writeBytes(byte[] src, int srcIndex, int length) {buf.writeBytes(src, srcIndex, length);return this;}
     @Override public PacketCustom writeBytes(ByteBuffer src) {buf.writeBytes(src);return this;}
+    @Override public ByteBuf writeShortLE(int value) {return buf.writeShortLE(value);}
+    @Override public ByteBuf writeLongLE(long value) {return buf.writeLongLE(value);}
+    @Override public ByteBuf writeIntLE(int value) {return buf.writeIntLE(value);}
+    @Override public short readShortLE() {return buf.readShortLE();}
+    @Override public int readIntLE() {return buf.readIntLE();}
+    @Override public long readLongLE() {return buf.readLong();}
     @Override public int writeBytes(InputStream in, int length) throws IOException {return buf.writeBytes(in, length);}
     @Override public int writeBytes(ScatteringByteChannel in, int length) throws IOException {return buf.writeBytes(in, length);}
+    @Override public int writeBytes(FileChannel in, long position, int length) throws IOException {return buf.writeBytes(in, position, length);}
     @Override public PacketCustom writeZero(int length) {buf.writeZero(length);return this;}
+    @Override public int writeCharSequence(CharSequence sequence, Charset charset) {return buf.writeCharSequence(sequence, charset);}
     @Override public int indexOf(int fromIndex, int toIndex, byte value) {return buf.indexOf(fromIndex, toIndex, value);}
     @Override public int bytesBefore(byte value) {return buf.bytesBefore(value);}
     @Override public int bytesBefore(int length, byte value) {return buf.bytesBefore(length, value);}
     @Override public int bytesBefore(int index, int length, byte value) {return buf.bytesBefore(index, length, value);}
-    @Override public int forEachByte(ByteBufProcessor processor) {return buf.forEachByte(processor);}
-    @Override public int forEachByte(int index, int length, ByteBufProcessor processor) {return buf.forEachByte(index, length, processor);}
-    @Override public int forEachByteDesc(ByteBufProcessor processor) {return buf.forEachByteDesc(processor);}
-    @Override public int forEachByteDesc(int index, int length, ByteBufProcessor processor) {return buf.forEachByteDesc(index, length, processor);}
+    @Override public int forEachByte(ByteProcessor processor) {return buf.forEachByte(processor);}
+    @Override public int forEachByte(int index, int length, ByteProcessor processor) {return buf.forEachByte(index, length, processor);}
+    @Override public int forEachByteDesc(ByteProcessor processor) {return buf.forEachByteDesc(processor);}
+    @Override public int forEachByteDesc(int index, int length, ByteProcessor processor) {return buf.forEachByteDesc(index, length, processor);}
     @Override public ByteBuf copy() {return buf.copy();}
     @Override public ByteBuf copy(int index, int length) {return buf.copy(index, length);}
     @Override public ByteBuf slice() {return buf.slice();}
+    @Override public ByteBuf retainedSlice() {return buf.retainedSlice();}
     @Override public ByteBuf slice(int index, int length) {return buf.slice(index, length);}
+    @Override public ByteBuf retainedSlice(int index, int length) {return buf.retainedSlice(index, length);}
     @Override public ByteBuf duplicate() {return buf.duplicate();}
+    @Override public ByteBuf retainedDuplicate() {return buf.retainedDuplicate();}
     @Override public int nioBufferCount() {return buf.nioBufferCount();}
     @Override public ByteBuffer nioBuffer() {return buf.nioBuffer();}
     @Override public ByteBuffer nioBuffer(int index, int length) {return buf.nioBuffer(index, length);}
@@ -747,6 +785,8 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     @Override public String toString() {return String.format("%s{ %s }", this.getClass().getName(), buf.toString());}
     @Override public PacketCustom retain(int increment) {buf.retain(increment);return this;}
     @Override public PacketCustom retain() {buf.retain();return this;}
+    @Override public ByteBuf touch() {return buf.touch();}
+    @Override public ByteBuf touch(Object hint) {return buf.touch();}
     @Override public boolean isReadable(int size) {return buf.isReadable(size);}
     @Override public boolean isWritable(int size) {return buf.isWritable(size);}
     @Override public int refCnt() {return buf.refCnt();}

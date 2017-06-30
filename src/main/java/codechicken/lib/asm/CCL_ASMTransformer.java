@@ -17,11 +17,12 @@ public class CCL_ASMTransformer implements IClassTransformer {
     public CCL_ASMTransformer() {
         Map<String, ASMBlock> blocks = ASMReader.loadResource("/assets/ccl/asm/hooks.asm");
 
-        ObfMapping mapping = new ObfMapping("net/minecraft/client/renderer/block/model/ModelBlockDefinition", "func_178331_a", "(Ljava/io/Reader;)Lnet/minecraft/client/renderer/block/model/ModelBlockDefinition;");
-        transformer.add(new MethodInjector(mapping, blocks.get("i_BlockStateLoader"), true));
+        ObfMapping mapping;
+        //mapping = new ObfMapping("net/minecraft/client/renderer/block/model/ModelBlockDefinition", "func_178331_a", "(Ljava/io/Reader;)Lnet/minecraft/client/renderer/block/model/ModelBlockDefinition;");
+        //transformer.add(new MethodInjector(mapping, blocks.get("i_BlockStateLoader"), true));
 
-        mapping = new ObfMapping("net/minecraft/client/renderer/ItemRenderer", "func_187461_a", "(Lnet/minecraft/item/ItemStack;)V");
-        transformer.add(new MethodInjector(mapping, blocks.get("i_renderMapFirstPerson"), true));
+        //mapping = new ObfMapping("net/minecraft/client/renderer/ItemRenderer", "func_187461_a", "(Lnet/minecraft/item/ItemStack;)V");
+        //transformer.add(new MethodInjector(mapping, blocks.get("i_renderMapFirstPerson"), true));
     }
 
     @Override

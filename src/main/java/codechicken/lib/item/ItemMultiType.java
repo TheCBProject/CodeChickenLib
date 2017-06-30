@@ -95,9 +95,10 @@ public class ItemMultiType extends Item {
     }
 
     @Override
-    public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems) {
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems) {
+        //TODO
         for (Map.Entry<Integer, String> entry : names.entrySet()) {
-            subItems.add(new ItemStack(itemIn, 1, entry.getKey()));
+            subItems.add(new ItemStack(this, 1, entry.getKey()));
         }
     }
 

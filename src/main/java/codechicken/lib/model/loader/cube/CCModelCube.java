@@ -3,7 +3,6 @@ package codechicken.lib.model.loader.cube;
 import codechicken.lib.model.BakedModelProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareLayeredModelWrapper;
 import codechicken.lib.texture.TextureUtils;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -12,18 +11,20 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.*;
+import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 /**
  * Created by covers1624 on 19/11/2016.
  * TODO Document that this exists and what it does to jsons.
  */
-public class CCModelCube implements IModel, IRetexturableModel, IModelSimpleProperties {
+public class CCModelCube implements IModel {
 
     public static String[] layerNames = { "solid", "cutout_mipped", "cutout", "translucent" };
     public static Map<String, BlockRenderLayer> nameToLayer = new HashMap<String, BlockRenderLayer>() {
@@ -80,7 +81,7 @@ public class CCModelCube implements IModel, IRetexturableModel, IModelSimpleProp
                 }
             }
             IModel vanillaModel = ModelLoaderRegistry.getModelOrLogError(new ResourceLocation("minecraft:block/cube"), "Unable to get vanilla model wrapper..");
-            vanillaModel = ModelProcessingHelper.retexture(vanillaModel, ImmutableMap.copyOf(addMissing(kvTextures)));
+            vanillaModel = vanillaModel.retexture(ImmutableMap.copyOf(addMissing(kvTextures)));
             IBakedModel model = vanillaModel.bake(state, format, bakedTextureGetter);
 
             if (layerEntry.getKey() == BlockRenderLayer.SOLID) {
@@ -115,11 +116,7 @@ public class CCModelCube implements IModel, IRetexturableModel, IModelSimpleProp
         for (Entry<String, String> entry : textures.entrySet()) {
             EnumFacing face = getFaceForKey(entry.getKey());
             BlockRenderLayer layer = getLayerForTexKey(entry.getKey());
-            Map<EnumFacing, String> faceMap = layerFaceSpriteMap.get(layer);
-            if (faceMap == null) {
-                faceMap = new HashMap<>();
-                layerFaceSpriteMap.put(layer, faceMap);
-            }
+            Map<EnumFacing, String> faceMap = layerFaceSpriteMap.computeIfAbsent(layer, k -> new HashMap<>());
             faceMap.put(face, entry.getValue());
         }
 

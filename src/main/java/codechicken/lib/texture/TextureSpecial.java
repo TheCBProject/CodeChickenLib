@@ -16,6 +16,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.function.Function;
 
 @SideOnly (Side.CLIENT)
 public class TextureSpecial extends TextureAtlasSprite implements IIconRegister {
@@ -108,7 +109,6 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
         images[0] = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         images[0].setRGB(0, 0, width, height, data, 0, width);
 
-        //Workaround for mojang's change to TextureAtlasSprite loading.
         resetSprite();
         this.width = images[0].getWidth();
         this.height = images[0].getHeight();
@@ -119,7 +119,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
     }
 
     @Override
-    public boolean load(IResourceManager manager, ResourceLocation location) {
+    public boolean load(IResourceManager manager, ResourceLocation location, Function<ResourceLocation, TextureAtlasSprite> textureGetter) {
         if (baseTextures != null) {
             for (TextureDataHolder tex : baseTextures) {
                 addFrame(tex.data, tex.width, tex.height);

@@ -8,7 +8,6 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL40;
 
-import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 
 /**

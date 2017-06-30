@@ -12,10 +12,10 @@ import codechicken.lib.render.pipeline.VertexAttribute;
 import codechicken.lib.render.pipeline.attribute.*;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -64,7 +64,7 @@ public class CCRenderState {
     public int vertexIndex;
     public CCRenderPipeline pipeline;
     @SideOnly (Side.CLIENT)
-    public VertexBuffer r;
+    public BufferBuilder r;
     @SideOnly (Side.CLIENT)
     public VertexFormat fmt;
 
@@ -146,7 +146,7 @@ public class CCRenderState {
     }
 
     public void renderQuads(List<BakedQuad> quads) {
-        VertexBuffer buffer = startDrawing(GL11.GL_QUADS, quads.get(0).getFormat());
+        BufferBuilder buffer = startDrawing(GL11.GL_QUADS, quads.get(0).getFormat());
         for (BakedQuad quad : quads) {
             buffer.addVertexData(quad.getVertexData());
         }
@@ -242,28 +242,28 @@ public class CCRenderState {
     }
 
     @SideOnly (Side.CLIENT)
-    public VertexBuffer startDrawing(int mode, VertexFormat format) {
-        VertexBuffer r = Tessellator.getInstance().getBuffer();
+    public BufferBuilder startDrawing(int mode, VertexFormat format) {
+        BufferBuilder r = Tessellator.getInstance().getBuffer();
         r.begin(mode, format);
         bind(r);
         return r;
     }
 
     @SideOnly (Side.CLIENT)
-    public VertexBuffer startDrawing(int mode, VertexFormat format, VertexBuffer buffer) {
+    public BufferBuilder startDrawing(int mode, VertexFormat format, BufferBuilder buffer) {
         buffer.begin(mode, format);
         bind(buffer);
         return buffer;
     }
 
     @SideOnly (Side.CLIENT)
-    public void bind(VertexBuffer r) {
+    public void bind(BufferBuilder r) {
         this.r = r;
         fmt = r.getVertexFormat();
     }
 
     @SideOnly (Side.CLIENT)
-    public VertexBuffer getBuffer() {
+    public BufferBuilder getBuffer() {
         return r;
     }
 

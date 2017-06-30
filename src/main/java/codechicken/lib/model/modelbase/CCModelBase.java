@@ -4,7 +4,7 @@ import codechicken.lib.render.CCModel;
 import codechicken.lib.vec.uv.UV;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 import java.util.LinkedList;
@@ -53,7 +53,7 @@ public abstract class CCModelBase {
         this.isChild = model.isChild;
     }
 
-    public static void renderModels(float scale, VertexBuffer buffer, TextureAtlasSprite sprite, CCModelRenderer... modelRenders) {
+    public static void renderModels(float scale, BufferBuilder buffer, TextureAtlasSprite sprite, CCModelRenderer... modelRenders) {
         LinkedList<CCModel> models = new LinkedList<>();
         for (CCModelRenderer modelRenderer : modelRenders) {
             models.add(modelRenderer.bake(scale));

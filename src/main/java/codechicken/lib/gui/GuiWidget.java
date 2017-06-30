@@ -70,6 +70,6 @@ public class GuiWidget extends Gui {
         Minecraft mc = Minecraft.getMinecraft();
         parentScreen = s;
         renderEngine = mc.renderEngine;
-        fontRenderer = mc.fontRendererObj;
+        fontRenderer = mc.fontRenderer;
     }
 }

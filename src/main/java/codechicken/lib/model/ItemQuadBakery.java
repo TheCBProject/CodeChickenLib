@@ -1,7 +1,6 @@
 package codechicken.lib.model;
 
 import codechicken.lib.util.TransformUtils;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -12,6 +11,7 @@ import net.minecraftforge.common.model.IModelState;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by covers1624 on 13/02/2017.
@@ -38,7 +38,7 @@ public class ItemQuadBakery {
         List<BakedQuad> quads = new LinkedList<>();
         for (int i = 0; i < sprites.size(); i++) {
             TextureAtlasSprite sprite = sprites.get(i);
-            quads.addAll(ItemLayerModel.getQuadsForSprite(i, sprite, format, state.apply(Optional.absent())));
+            quads.addAll(ItemLayerModel.getQuadsForSprite(i, sprite, format, state.apply(Optional.empty())));
         }
         return quads;
     }
