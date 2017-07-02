@@ -1,11 +1,11 @@
 package codechicken.lib.render.block;
 
-import codechicken.lib.asm.ObfMapping;
+import codechicken.lib.reflect.ObfMapping;
 import codechicken.lib.model.BakedModelProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.render.buffer.BakingVertexBuffer;
 import codechicken.lib.texture.TextureUtils;
-import codechicken.lib.util.ReflectionManager;
+import codechicken.lib.reflect.ReflectionManager;
 import codechicken.lib.util.TransformUtils;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;

@@ -1,6 +1,6 @@
-package codechicken.lib.asm.proxy;
+package codechicken.lib.annotation;
 
-import codechicken.lib.util.ReflectionManager;
+import codechicken.lib.reflect.ReflectionManager;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 import net.minecraftforge.fml.common.Loader;

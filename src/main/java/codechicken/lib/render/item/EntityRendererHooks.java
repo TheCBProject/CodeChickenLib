@@ -11,9 +11,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -25,20 +22,21 @@ import java.lang.reflect.Field;
  * Created by covers1624 on 31/10/2016.
  */
 //Used to make sure all references to RenderItem are of CCL's overridden renderer.
-@Mod (modid = "ccl-entityhook", dependencies = "before:*")
+//@Mod (modid = "ccl-entityhook", dependencies = "before:*")
+@Deprecated
 public class EntityRendererHooks {
 
     private static boolean hasSanitized;
 
-    @SidedProxy
+    //@SidedProxy
     public static ServerProxy proxy;
 
-    @EventHandler
+    //@EventHandler
     public void preInt(FMLPreInitializationEvent event) {
         proxy.preInit(event);
     }
 
-    @EventHandler
+    //@EventHandler
     public void postInit(FMLPostInitializationEvent event) {
         proxy.postInit(event);
     }
@@ -49,6 +47,11 @@ public class EntityRendererHooks {
         @Override
         @SideOnly (Side.CLIENT)
         public void preInit(FMLPreInitializationEvent event) {
+            registerEntitySanitizer();
+        }
+
+        @SideOnly (Side.CLIENT)
+        public static void registerEntitySanitizer() {
             RenderingRegistry.registerEntityRenderingHandler(DummyEntity.class, manager -> {
                 sanitizeEntityRenderers(manager);
                 return new Render<DummyEntity>(manager) {

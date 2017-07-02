@@ -2,6 +2,7 @@ package codechicken.lib.texture;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourARGB;
+import codechicken.lib.internal.CCLLog;
 import com.google.common.base.Function;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -18,9 +19,11 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -31,6 +34,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+@EventBusSubscriber
 public class TextureUtils {
 
     //TODO, Move this somewhere else.
@@ -38,10 +42,6 @@ public class TextureUtils {
 
         @SideOnly (Side.CLIENT)
         void registerIcons(TextureMap textureMap);
-    }
-
-    static {
-        MinecraftForge.EVENT_BUS.register(new TextureUtils());
     }
 
     private static ArrayList<IIconRegister> iconRegisters = new ArrayList<>();
@@ -59,7 +59,14 @@ public class TextureUtils {
     }
 
     @SubscribeEvent
-    public void textureLoad(TextureStitchEvent.Pre event) {
+    public static void textureLoad(TextureStitchEvent.Pre event) {
+        if (!event.getMap().getBasePath().equals("textures")) {
+            CCLLog.log(Level.WARN, "Someone is calling the TextureStitchEvent.Pre for a texture map that is NOT vanillas.");
+            CCLLog.log(Level.WARN, "This is a bug. There is no sense of different atlas's in vanilla so this event is NOT generic and is specific to the vanilla atlas.");
+            CCLLog.log(Level.WARN, "Im catching this so things don't explode. Fix your shit!");
+            CCLLog.big(Level.WARN, 100, "");
+            return;
+        }
         for (IIconRegister reg : iconRegisters) {
             reg.registerIcons(event.getMap());
         }

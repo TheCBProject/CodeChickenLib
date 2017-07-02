@@ -1,4 +1,4 @@
-package codechicken.lib.asm.proxy;
+package codechicken.lib.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

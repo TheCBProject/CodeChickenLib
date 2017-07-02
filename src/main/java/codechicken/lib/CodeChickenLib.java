@@ -1,6 +1,6 @@
 package codechicken.lib;
 
-import codechicken.lib.asm.proxy.ProxyInjector;
+import codechicken.lib.annotation.ProxyInjector;
 import codechicken.lib.fingerprint.FingerprintChecker;
 import codechicken.lib.internal.proxy.Proxy;
 import net.minecraftforge.fml.common.Mod;

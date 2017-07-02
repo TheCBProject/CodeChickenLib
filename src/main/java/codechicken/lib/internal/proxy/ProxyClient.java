@@ -5,11 +5,14 @@ import codechicken.lib.internal.command.client.NukeCCModelCacheCommand;
 import codechicken.lib.model.ModelRegistryHelper;
 import codechicken.lib.model.bakery.ModelBakery;
 import codechicken.lib.model.loader.bakery.CCBakeryModelLoader;
+import codechicken.lib.model.loader.blockstate.CCBlockStateLoader;
 import codechicken.lib.model.loader.cube.CCCubeLoader;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.block.BlockRenderingRegistry;
+import codechicken.lib.render.item.CCItemRenderer;
 import codechicken.lib.render.item.CCRenderItem;
+import codechicken.lib.render.item.EntityRendererHooks;
 import codechicken.lib.render.item.map.MapRenderRegistry;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
@@ -24,6 +27,7 @@ public class ProxyClient extends Proxy {
     public void preInit() {
         super.preInit();
         OpenGLUtils.loadCaps();
+        CCBlockStateLoader.initialize();
         ModelBakery.init();
         CCRenderEventHandler.init();
         MinecraftForge.EVENT_BUS.register(new MapRenderRegistry());
@@ -32,11 +36,15 @@ public class ProxyClient extends Proxy {
         ModelLoaderRegistry.registerLoader(CCBakeryModelLoader.INSTANCE);
         ClientCommandHandler.instance.registerCommand(new DumpModelLocationsCommand());
         ClientCommandHandler.instance.registerCommand(new NukeCCModelCacheCommand());
+        //TODO, assess if this is enough for a properly modded environment.
+        //TODO, Concerns are that this will be registered wayy too late and some mod will fuck it up.
+	    EntityRendererHooks.ClientProxy.registerEntitySanitizer();
     }
 
     @Override
     public void init() {
         BlockRenderingRegistry.init();
+        CCItemRenderer.initialize();
         CCRenderItem.init();
     }
 }

@@ -1,4 +1,4 @@
-package codechicken.lib.asm;
+package codechicken.lib.reflect;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
@@ -6,12 +6,7 @@ import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.Remapper;
-import org.objectweb.asm.tree.*;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -243,52 +238,6 @@ public class ObfMapping {
         return new ObfMapping(this, subclass);
     }
 
-    public boolean matches(MethodNode node) {
-
-        return s_name.equals(node.name) && s_desc.equals(node.desc);
-    }
-
-    public boolean matches(MethodInsnNode node) {
-
-        return s_owner.equals(node.owner) && s_name.equals(node.name) && s_desc.equals(node.desc);
-    }
-
-    public AbstractInsnNode toInsn(int opcode) {
-
-        if (isClass()) {
-            return new TypeInsnNode(opcode, s_owner);
-        } else if (isMethod()) {
-            return new MethodInsnNode(opcode, s_owner, s_name, s_desc, opcode == Opcodes.INVOKEINTERFACE);
-        } else {
-            return new FieldInsnNode(opcode, s_owner, s_name, s_desc);
-        }
-    }
-
-    public void visitTypeInsn(MethodVisitor mv, int opcode) {
-
-        mv.visitTypeInsn(opcode, s_owner);
-    }
-
-    public void visitMethodInsn(MethodVisitor mv, int opcode) {
-
-        mv.visitMethodInsn(opcode, s_owner, s_name, s_desc, opcode == Opcodes.INVOKEINTERFACE);
-    }
-
-    public void visitFieldInsn(MethodVisitor mv, int opcode) {
-
-        mv.visitFieldInsn(opcode, s_owner, s_name, s_desc);
-    }
-
-    public MethodVisitor visitMethod(ClassVisitor visitor, int access, String[] exceptions) {
-
-        return visitor.visitMethod(access, s_name, s_desc, null, exceptions);
-    }
-
-    public FieldVisitor visitField(ClassVisitor visitor, int access, Object value) {
-
-        return visitor.visitField(access, s_name, s_desc, null, value);
-    }
-
     public boolean isClass(String name) {
 
         return name.replace('.', '/').equals(s_owner);
@@ -297,16 +246,6 @@ public class ObfMapping {
     public boolean matches(String name, String desc) {
 
         return s_name.equals(name) && s_desc.equals(desc);
-    }
-
-    public boolean matches(FieldNode node) {
-
-        return s_name.equals(node.name) && s_desc.equals(node.desc);
-    }
-
-    public boolean matches(FieldInsnNode node) {
-
-        return s_owner.equals(node.owner) && s_name.equals(node.name) && s_desc.equals(node.desc);
     }
 
     public String javaClass() {

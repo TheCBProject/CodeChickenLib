@@ -1,6 +1,6 @@
 package codechicken.lib.thread;
 
-import codechicken.lib.asm.ObfMapping;
+import codechicken.lib.reflect.ObfMapping;
 import com.google.common.base.Objects;
 
 /**

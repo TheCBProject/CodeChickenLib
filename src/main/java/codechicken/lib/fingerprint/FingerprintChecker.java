@@ -1,6 +1,6 @@
 package codechicken.lib.fingerprint;
 
-import codechicken.lib.asm.ObfMapping;
+import codechicken.lib.reflect.ObfMapping;
 import com.google.common.collect.ImmutableList;
 import net.minecraftforge.fml.common.*;
 import org.apache.logging.log4j.Level;

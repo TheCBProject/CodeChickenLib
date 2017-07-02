@@ -1,6 +1,5 @@
-package codechicken.lib.util;
+package codechicken.lib.reflect;
 
-import codechicken.lib.asm.ObfMapping;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.*;
