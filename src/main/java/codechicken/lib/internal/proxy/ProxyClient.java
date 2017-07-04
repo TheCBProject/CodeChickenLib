@@ -14,6 +14,7 @@ import codechicken.lib.render.item.CCItemRenderer;
 import codechicken.lib.render.item.CCRenderItem;
 import codechicken.lib.render.item.EntityRendererHooks;
 import codechicken.lib.render.item.map.MapRenderRegistry;
+import codechicken.lib.texture.TextureUtils;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
@@ -30,6 +31,7 @@ public class ProxyClient extends Proxy {
         CCBlockStateLoader.initialize();
         ModelBakery.init();
         CCRenderEventHandler.init();
+        MinecraftForge.EVENT_BUS.register(new TextureUtils());
         MinecraftForge.EVENT_BUS.register(new MapRenderRegistry());
         MinecraftForge.EVENT_BUS.register(new ModelRegistryHelper());
         ModelLoaderRegistry.registerLoader(CCCubeLoader.INSTANCE);

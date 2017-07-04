@@ -18,8 +18,6 @@ import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -34,7 +32,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-@EventBusSubscriber
 public class TextureUtils {
 
     //TODO, Move this somewhere else.
@@ -59,7 +56,7 @@ public class TextureUtils {
     }
 
     @SubscribeEvent
-    public static void textureLoad(TextureStitchEvent.Pre event) {
+    public void textureLoad(TextureStitchEvent.Pre event) {
         if (!event.getMap().getBasePath().equals("textures")) {
             CCLLog.log(Level.WARN, "Someone is calling the TextureStitchEvent.Pre for a texture map that is NOT vanillas.");
             CCLLog.log(Level.WARN, "This is a bug. There is no sense of different atlas's in vanilla so this event is NOT generic and is specific to the vanilla atlas.");
