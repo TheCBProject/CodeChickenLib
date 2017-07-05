@@ -35,9 +35,4 @@ public abstract class AbstractBakedPropertiesModel implements IBakedModel {
     public TextureAtlasSprite getParticleTexture() {
         return properties.getParticleTexture();
     }
-
-    @Override
-    public ItemCameraTransforms getItemCameraTransforms() {
-        return ItemCameraTransforms.DEFAULT;
-    }
 }

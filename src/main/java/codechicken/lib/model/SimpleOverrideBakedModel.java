@@ -50,11 +50,6 @@ public class SimpleOverrideBakedModel implements IBakedModel {
     }
 
     @Override
-    public ItemCameraTransforms getItemCameraTransforms() {
-        return ItemCameraTransforms.DEFAULT;
-    }
-
-    @Override
     public ItemOverrideList getOverrides() {
         return overrideList;
     }

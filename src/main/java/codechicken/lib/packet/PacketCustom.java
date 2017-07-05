@@ -617,7 +617,9 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     }
 
     public byte[] readArray(int length) {
-        return buf.readBytes(length).array();
+        byte[] bytes = new byte[length];
+        readBytes(bytes);
+        return bytes;
     }
 
     //endregion

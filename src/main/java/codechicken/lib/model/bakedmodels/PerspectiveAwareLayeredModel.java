@@ -84,11 +84,6 @@ public class PerspectiveAwareLayeredModel implements IBakedModel {
     }
 
     @Override
-    public ItemCameraTransforms getItemCameraTransforms() {
-        return ItemCameraTransforms.DEFAULT;
-    }
-
-    @Override
     public ItemOverrideList getOverrides() {
         return ItemOverrideList.NONE;
     }

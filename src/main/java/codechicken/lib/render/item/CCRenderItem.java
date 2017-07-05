@@ -26,8 +26,6 @@ import javax.vecmath.Matrix4f;
 
 /**
  * Created by covers1624 on 17/10/2016.
- * TODO, Generify how this works. might be different from vanilla in the end but we should probably try and sniff off if the model is ours at an earlier date.
- * TODO, Some sort of registry over IMC for mods to add their own hooks to this.
  */
 public class CCRenderItem extends RenderItem {
 
@@ -71,6 +69,10 @@ public class CCRenderItem extends RenderItem {
         return Minecraft.getMinecraft().getRenderItem();
     }
 
+    public static void notifyTransform(TransformType transformType) {
+        instance.lastKnownTransformType = transformType;
+    }
+
     @Override
     public void renderItem(ItemStack stack, IBakedModel model) {
         if (!stack.isEmpty() && model instanceof IItemRenderer) {
@@ -92,16 +94,11 @@ public class CCRenderItem extends RenderItem {
 
     private IBakedModel handleTransforms(ItemStack stack, IBakedModel model, TransformType transformType, boolean isLeftHand) {
         lastKnownTransformType = transformType;
-        if (model instanceof IMatrixTransform) {
-            ((IMatrixTransform) model).getTransform(transformType, isLeftHand).glApply();
-        } else if (model instanceof IGLTransform) {
-            ((IGLTransform) model).applyTransforms(transformType, isLeftHand);
-        }
-        return model = ForgeHooksClient.handleCameraTransforms(model, transformType, isLeftHand);
+        return ForgeHooksClient.handleCameraTransforms(model, transformType, isLeftHand);
     }
 
     private boolean isValidModel(IBakedModel model) {
-        return model instanceof IItemRenderer || model instanceof IGLTransform || model instanceof IMatrixTransform;
+        return model instanceof IItemRenderer;
     }
 
     @Override

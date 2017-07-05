@@ -26,7 +26,7 @@ public class ItemUtils {
     public static boolean isPlayerHolding(EntityLivingBase entity, Predicate<Item> predicate) {
         for (EnumHand hand : EnumHand.values()) {
             ItemStack stack = entity.getHeldItem(hand);
-            if (stack != null) {
+            if (!stack.isEmpty()) {
                 if (predicate.test(stack.getItem())) {
                     return true;
                 }
@@ -42,7 +42,7 @@ public class ItemUtils {
     @Nonnull
     public static ItemStack getHeldStack(EntityPlayer player) {
         ItemStack stack = player.getHeldItemMainhand();
-        if (stack == null) {
+        if (stack.isEmpty()) {
             stack = player.getHeldItemOffhand();
         }
         return stack;

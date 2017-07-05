@@ -58,11 +58,6 @@ public class CCBakeryModel implements IBakedModel {
     }
 
     @Override
-    public ItemCameraTransforms getItemCameraTransforms() {
-        return ItemCameraTransforms.DEFAULT;
-    }
-
-    @Override
     public ItemOverrideList getOverrides() {
         return new ItemOverrideList(ImmutableList.of()) {
             @Override
