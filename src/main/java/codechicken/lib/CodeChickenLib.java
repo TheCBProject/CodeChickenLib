@@ -1,7 +1,6 @@
 package codechicken.lib;
 
 import codechicken.lib.annotation.ProxyInjector;
-import codechicken.lib.fingerprint.FingerprintChecker;
 import codechicken.lib.internal.proxy.Proxy;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -34,7 +33,6 @@ public class CodeChickenLib {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        FingerprintChecker.runFingerprintChecks();
         ProxyInjector.runInjector(event.getAsmData());
         proxy.preInit();
     }

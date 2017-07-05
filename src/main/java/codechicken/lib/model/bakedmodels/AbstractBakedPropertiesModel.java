@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
  */
 public abstract class AbstractBakedPropertiesModel implements IBakedModel {
 
-    private final BakedModelProperties properties;
+    protected final BakedModelProperties properties;
 
     public AbstractBakedPropertiesModel(BakedModelProperties properties) {
         this.properties = properties;
