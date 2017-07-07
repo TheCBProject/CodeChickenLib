@@ -1,5 +1,6 @@
 package codechicken.lib.model.blockbakery;
 
+import codechicken.lib.internal.CCLLog;
 import codechicken.lib.model.BakedModelProperties;
 import codechicken.lib.model.ModelRegistryHelper;
 import codechicken.lib.model.ModelRegistryHelper.IModelBakeCallback;
@@ -7,6 +8,7 @@ import codechicken.lib.model.PerspectiveAwareModelProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareLayeredModel;
 import codechicken.lib.model.bakery.PlanarFaceBakery;
+import codechicken.lib.render.buffer.BakingVertexBuffer;
 import codechicken.lib.texture.IItemBlockTextureProvider;
 import codechicken.lib.texture.IWorldBlockTextureProvider;
 import codechicken.lib.texture.TextureUtils;
@@ -157,7 +159,16 @@ public class BlockBakery implements IResourceManagerReloadListener {
         String key = generator.generateKey(stack);
         model = keyModelCache.getIfPresent(key);
         if (model == null) {
-            model = generateItemModel(stack);
+            try {
+                model = generateItemModel(stack);
+            } catch (Throwable t) {
+                CCLLog.errorOnce(t, "ItemBaking", "Fatal exception thrown whilst baking item model for: " + stack);
+                BakingVertexBuffer buffer = BakingVertexBuffer.create();
+                if (buffer.isDrawing) {
+                    buffer.finishDrawing();
+                    buffer.reset();
+                }
+            }
             if (DEBUG) {
                 FMLLog.info("Baking item model: " + key);
             }
@@ -241,7 +252,16 @@ public class BlockBakery implements IResourceManagerReloadListener {
         String key = keyGenerator.generateKey(state);
         model = keyModelCache.getIfPresent(key);
         if (model == null) {
-            model = generateModel(state);
+            try {
+                model = generateModel(state);
+            } catch (Throwable t) {
+                CCLLog.errorOnce(t, "BlockBaking", "Fatal exception thrown whilst baking block model for: " + state);
+                BakingVertexBuffer buffer = BakingVertexBuffer.create();
+                if (buffer.isDrawing) {
+                    buffer.finishDrawing();
+                    buffer.reset();
+                }
+            }
             if (DEBUG) {
                 FMLLog.info("Baking block model: " + key);
             }
