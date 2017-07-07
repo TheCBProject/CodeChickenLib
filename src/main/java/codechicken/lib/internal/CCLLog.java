@@ -17,7 +17,7 @@ import java.util.Set;
 public class CCLLog {
 
     public static Logger logger = LogManager.getLogger("CodeChickenLib");
-    private static final Set<String> stackTraces = new HashSet<>();
+    private static final Set<String> stackTraces = new HashSet<String>();
 
     public static void log(Level logLevel, Object object) {
         logger.log(logLevel, String.valueOf(object));
