@@ -13,6 +13,6 @@ public class SlotDummyOutput extends SlotHandleClicks {
 
     @Override
     public ItemStack slotClick(ContainerExtended container, EntityPlayer player, int button, ClickType clickType) {
-        return null;
+        return ItemStack.EMPTY;
     }
 }
