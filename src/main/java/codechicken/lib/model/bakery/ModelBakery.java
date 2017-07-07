@@ -24,8 +24,6 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -78,7 +76,7 @@ public class ModelBakery {
     public static final IItemStackKeyGenerator defaultItemKeyGenerator = stack -> stack.getItem().getRegistryName().toString() + "|" + stack.getMetadata();
 
     public static void init() {
-        TextureUtils.registerReloadListener(resourceManager-> nukeModelCache());
+        TextureUtils.registerReloadListener(resourceManager -> nukeModelCache());
         ModelRegistryHelper.registerCallback(modelRegistry -> missingModel = ModelLoaderRegistry.getMissingModel().bake(TransformUtils.DEFAULT_BLOCK, DefaultVertexFormats.ITEM, TextureUtils.bakedTextureGetter));
     }
 
