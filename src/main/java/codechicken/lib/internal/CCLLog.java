@@ -4,6 +4,11 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Internal logger for CCL.
  *
@@ -12,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 public class CCLLog {
 
     public static Logger logger = LogManager.getLogger("CodeChickenLib");
+    private static final Set<String> stackTraces = new HashSet<>();
 
     public static void log(Level logLevel, Object object) {
         logger.log(logLevel, String.valueOf(object));
@@ -39,4 +45,15 @@ public class CCLLog {
         log(level, "****************************************");
     }
 
+    public static synchronized void errorOnce(Throwable t, String identifier, String format, Object... data) {
+        StringWriter sw = new StringWriter();
+        t.printStackTrace(new PrintWriter(sw));
+        String stackTrace = identifier + sw.toString();
+        synchronized (stackTraces) {
+            if (!stackTraces.contains(stackTrace)) {
+                log(Level.ERROR, t, format, data);
+                stackTraces.add(stackTrace);
+            }
+        }
+    }
 }
