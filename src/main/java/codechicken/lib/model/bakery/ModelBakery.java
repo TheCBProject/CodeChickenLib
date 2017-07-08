@@ -1,5 +1,6 @@
 package codechicken.lib.model.bakery;
 
+import codechicken.lib.internal.CCLLog;
 import codechicken.lib.model.BakedModelProperties;
 import codechicken.lib.model.ModelRegistryHelper;
 import codechicken.lib.model.PerspectiveAwareModelProperties;
@@ -9,6 +10,7 @@ import codechicken.lib.model.bakedmodels.PerspectiveAwareLayeredModel;
 import codechicken.lib.model.bakery.generation.*;
 import codechicken.lib.model.bakery.key.IBlockStateKeyGenerator;
 import codechicken.lib.model.bakery.key.IItemStackKeyGenerator;
+import codechicken.lib.render.buffer.BakingVertexBuffer;
 import codechicken.lib.texture.IItemBlockTextureProvider;
 import codechicken.lib.texture.IWorldBlockTextureProvider;
 import codechicken.lib.texture.TextureUtils;
@@ -31,9 +33,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.apache.logging.log4j.Level;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -141,9 +143,18 @@ public class ModelBakery {
         String key = generator.generateKey(stack);
         model = keyModelCache.getIfPresent(key);
         if (model == null) {
-            model = generateItemModel(stack);
+            try {
+                model = generateItemModel(stack);
+            } catch (Throwable t) {
+                CCLLog.errorOnce(t, "ItemBaking", "Fatal exception thrown whilst baking item model for: " + stack);
+                BakingVertexBuffer buffer = BakingVertexBuffer.create();
+                if (buffer.isDrawing) {
+                    buffer.finishDrawing();
+                    buffer.reset();
+                }
+            }
             if (DEBUG) {
-                FMLLog.info("Baking item model: " + key);
+                CCLLog.log(Level.INFO, "Baking item model: " + key);
             }
             if (model != missingModel) {
                 keyModelCache.put(key, model);
@@ -221,9 +232,18 @@ public class ModelBakery {
         String key = keyGenerator.generateKey(state);
         model = keyModelCache.getIfPresent(key);
         if (model == null) {
-            model = generateModel(state);
+            try {
+                model = generateModel(state);
+            } catch (Throwable t) {
+                CCLLog.errorOnce(t, "BlockBaking", "Fatal exception thrown whilst baking block model for: " + state);
+                BakingVertexBuffer buffer = BakingVertexBuffer.create();
+                if (buffer.isDrawing) {
+                    buffer.finishDrawing();
+                    buffer.reset();
+                }
+            }
             if (DEBUG) {
-                FMLLog.info("Baking block model: " + key);
+                CCLLog.log(Level.INFO, "Baking block model: " + key);
             }
             if (model != missingModel) {
                 keyModelCache.put(key, model);

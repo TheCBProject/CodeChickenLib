@@ -335,4 +335,16 @@ public class ArrayUtils {
 
         return list.toArray(createNewArray(input, list.size()));
     }
+
+    public static <T> boolean isNullOrContainsNull(T[] input) {
+        if (input != null) {
+            for (T t : input) {
+                if (t == null) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
 }

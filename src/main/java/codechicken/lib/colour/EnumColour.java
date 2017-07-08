@@ -3,6 +3,7 @@ package codechicken.lib.colour;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.oredict.OreDictionary;
 import org.apache.commons.lang3.tuple.Triple;
 
@@ -13,60 +14,66 @@ public enum EnumColour implements IStringSerializable {
 
     //Formatted like this due to the cancerous nature of the constructors..
     //@formatter:off
-    WHITE     ("white",      "dyeWhite",     "item.fireworksCharge.white",     0xFFFFFF),
-    ORANGE    ("orange",     "dyeOrange",    "item.fireworksCharge.orange",    0xC06300),
-    MAGENTA   ("magenta",    "dyeMagenta",   "item.fireworksCharge.magenta",   0xB51AB5),
-    LIGHT_BLUE("light_blue", "dyeLightBlue", "item.fireworksCharge.lightBlue", 0x6F84F1),
-    YELLOW    ("yellow",     "dyeYellow",    "item.fireworksCharge.yellow",    0xBFBF00),
-    LIME      ("lime",       "dyeLime",      "item.fireworksCharge.lime",      0x6BF100),
-    PINK      ("pink",       "dyePink",      "item.fireworksCharge.pink",      0xF14675),
-    GRAY      ("gray",       "dyeGray",      "item.fireworksCharge.gray",      0x535353),
-    LIGHT_GRAY("light_gray", "dyeLightGray", "item.fireworksCharge.silver",    0x939393),
-    CYAN      ("cyan",       "dyeCyan",      "item.fireworksCharge.cyan",      0x008787),
-    PURPLE    ("purple",     "dyePurple",    "item.fireworksCharge.purple",    0x5E00C0),
-    BLUE      ("blue",       "dyeBlue",      "item.fireworksCharge.blue",      0x1313C0),
-    BROWN     ("brown",      "dyeBrown",     "item.fireworksCharge.brown",     0x4F2700),
-    GREEN     ("green",      "dyeGreen",     "item.fireworksCharge.green",     0x088700),
-    RED       ("red",        "dyeRed",       "item.fireworksCharge.red",       0xA20F06),
-    BLACK     ("black",      "dyeBlack",     "item.fireworksCharge.black",     0x1F1F1F);
+    WHITE     ("white",      "dyeWhite",     "blockWoolWhite",     "item.fireworksCharge.white",     0xFFFFFF),
+    ORANGE    ("orange",     "dyeOrange",    "blockWoolOrange",    "item.fireworksCharge.orange",    0xC06300),
+    MAGENTA   ("magenta",    "dyeMagenta",   "blockWoolMagenta",   "item.fireworksCharge.magenta",   0xB51AB5),
+    LIGHT_BLUE("light_blue", "dyeLightBlue", "blockWoolLightBlue", "item.fireworksCharge.lightBlue", 0x6F84F1),
+    YELLOW    ("yellow",     "dyeYellow",    "blockWoolYellow",    "item.fireworksCharge.yellow",    0xBFBF00),
+    LIME      ("lime",       "dyeLime",      "blockWoolLime",      "item.fireworksCharge.lime",      0x6BF100),
+    PINK      ("pink",       "dyePink",      "blockWoolPink",      "item.fireworksCharge.pink",      0xF14675),
+    GRAY      ("gray",       "dyeGray",      "blockWoolGray",      "item.fireworksCharge.gray",      0x535353),
+    LIGHT_GRAY("light_gray", "dyeLightGray", "blockWoolLightGray", "item.fireworksCharge.silver",    0x939393),
+    CYAN      ("cyan",       "dyeCyan",      "blockWoolCyan",      "item.fireworksCharge.cyan",      0x008787),
+    PURPLE    ("purple",     "dyePurple",    "blockWoolPurple",    "item.fireworksCharge.purple",    0x5E00C0),
+    BLUE      ("blue",       "dyeBlue",      "blockWoolBlue",      "item.fireworksCharge.blue",      0x1313C0),
+    BROWN     ("brown",      "dyeBrown",     "blockWoolBrown",     "item.fireworksCharge.brown",     0x4F2700),
+    GREEN     ("green",      "dyeGreen",     "blockWoolGreen",     "item.fireworksCharge.green",     0x088700),
+    RED       ("red",        "dyeRed",       "blockWoolRed",       "item.fireworksCharge.red",       0xA20F06),
+    BLACK     ("black",      "dyeBlack",     "blockWoolBlack",     "item.fireworksCharge.black",     0x1F1F1F);
     //@formatter:on
 
-    private String minecraftName;
-    private String oreDictionaryName;
-    private String unlocalizedName;
-    private int rgb;
+    private final String name;
+    private final String dyeOreName;
+    private final String woolOreName;
+    private final String unlocalizedName;
+    private final int rgb;
 
     private static final ImmutableList<Triple<EnumColour, EnumColour, EnumColour>> mixMap;
 
-    EnumColour(String minecraftName, String oreDictionaryName, String unlocalizedName, int rgb) {
-        this.minecraftName = minecraftName;
-        this.oreDictionaryName = oreDictionaryName;
+    EnumColour(String name, String dyeOreName, String woolOreName, String unlocalizedName, int rgb) {
+        this.name = name;
+        this.dyeOreName = dyeOreName;
+        this.woolOreName = woolOreName;
         this.unlocalizedName = unlocalizedName;
         this.rgb = rgb;
     }
 
     @Override
     public String getName() {
-        return minecraftName;
+        return name;
     }
 
-    public String getMinecraftName() {
-        return minecraftName;
+    public String getDyeOreName() {
+        return dyeOreName;
     }
 
-    public String getOreDictionaryName() {
-        return oreDictionaryName;
+    public String getWoolOreName() {
+        return woolOreName;
     }
 
     public String getUnlocalizedName() {
         return unlocalizedName;
     }
 
-    public int getWoolDamage() {
+    public String getLocalizedName() {
+        return I18n.translateToLocal(getUnlocalizedName());
+    }
+
+    public int getWoolMeta() {
         return ordinal();
     }
 
-    public int getDyeDamage() {
+    public int getDyeMeta() {
         return 15 - ordinal();
     }
 
@@ -128,26 +135,45 @@ public enum EnumColour implements IStringSerializable {
         return null;
     }
 
-    public static EnumColour fromWoolID(int id) {
+    public static EnumColour fromWoolMeta(int id) {
         return values()[id];
     }
 
-    public static EnumColour fromDyeID(int id) {
+    public static EnumColour fromDyeMeta(int id) {
         return values()[15 - id];
     }
 
-    public static EnumColour fromOreDictID(String id) {
+    public static EnumColour fromDyeOre(String id) {
         for (EnumColour c : values()) {
-            if (c.getOreDictionaryName().equals(id)) {
+            if (c.getDyeOreName().equals(id)) {
                 return c;
             }
         }
         return null;
     }
 
-    public static EnumColour fromStack(ItemStack stack) {
+    public static EnumColour fromWoolOre(String id) {
+        for (EnumColour c : values()) {
+            if (c.getWoolOreName().equals(id)) {
+                return c;
+            }
+        }
+        return null;
+     }
+
+    public static EnumColour fromDyeStack(ItemStack stack) {
         for (int id : OreDictionary.getOreIDs(stack)) {
-            EnumColour c = fromOreDictID(OreDictionary.getOreName(id));
+            EnumColour c = fromDyeOre(OreDictionary.getOreName(id));
+            if (c != null) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    public static EnumColour fromWoolStack(ItemStack stack) {
+        for (int id : OreDictionary.getOreIDs(stack)) {
+            EnumColour c = fromWoolOre(OreDictionary.getOreName(id));
             if (c != null) {
                 return c;
             }
@@ -189,5 +215,4 @@ public enum EnumColour implements IStringSerializable {
     private static Triple<EnumColour, EnumColour, EnumColour> getTriple(EnumColour a, EnumColour b, EnumColour result) {
         return Triple.of(a, b, result);
     }
-
 }

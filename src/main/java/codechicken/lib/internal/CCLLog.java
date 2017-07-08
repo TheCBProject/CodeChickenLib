@@ -4,6 +4,11 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Internal logger for CCL.
  *
@@ -12,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 public class CCLLog {
 
     public static Logger logger = LogManager.getLogger("CodeChickenLib");
+    private static final Set<String> stackTraces = new HashSet<>();
 
     public static void log(Level logLevel, Object object) {
         logger.log(logLevel, String.valueOf(object));
@@ -30,7 +36,7 @@ public class CCLLog {
     }
 
     public static void big(Level level, String format, Object... data) {
-        big(level, 7, format, data);
+        big(level, 8, format, data);
     }
 
     public static void big(Level level, int lines, String format, Object... data) {
@@ -41,6 +47,18 @@ public class CCLLog {
             log(level, "*  at %s%s", trace[i].toString(), i == lines - 1 ? "..." : "");
         }
         log(level, "****************************************");
+    }
+
+    public static synchronized void errorOnce(Throwable t, String identifier, String format, Object... data) {
+        StringWriter sw = new StringWriter();
+        t.printStackTrace(new PrintWriter(sw));
+        String stackTrace = identifier + sw.toString();
+        synchronized (stackTraces) {
+            if (!stackTraces.contains(stackTrace)) {
+                log(Level.ERROR, t, format, data);
+                stackTraces.add(stackTrace);
+            }
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package codechicken.lib.render.buffer;
 
+import codechicken.lib.internal.CCLLog;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.VectorUtils;
@@ -13,7 +14,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.LightUtil;
-import net.minecraftforge.fml.common.FMLLog;
 import org.apache.logging.log4j.Level;
 
 import java.util.Arrays;
@@ -115,7 +115,7 @@ public class BakingVertexBuffer extends BufferBuilder {
      */
     public List<BakedQuad> bake() {
         if (isDrawing) {
-            FMLLog.log("CodeChickenLib", Level.WARN, new IllegalStateException("Bake called before finishDrawing!"), "Someone is calling bake before finishDrawing!");
+            CCLLog.log(Level.WARN, new IllegalStateException("Bake called before finishDrawing!"), "Someone is calling bake before finishDrawing!");
             finishDrawing();
         }
         State state = getVertexState();

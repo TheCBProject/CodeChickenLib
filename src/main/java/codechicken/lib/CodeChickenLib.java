@@ -1,7 +1,10 @@
 package codechicken.lib;
 
 import codechicken.lib.annotation.ProxyInjector;
+import codechicken.lib.colour.EnumColour;
 import codechicken.lib.internal.proxy.Proxy;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -9,6 +12,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.FMLInjectionData;
+import net.minecraftforge.oredict.OreDictionary;
 
 import java.io.File;
 
@@ -35,6 +39,7 @@ public class CodeChickenLib {
     public void preInit(FMLPreInitializationEvent event) {
         ProxyInjector.runInjector(event.getAsmData());
         proxy.preInit();
+        initOreDict();
     }
 
     @EventHandler
@@ -45,5 +50,11 @@ public class CodeChickenLib {
     @EventHandler
     public void onServerStartingEvent(FMLServerStartingEvent event) {
         proxy.serverStarting(event);
+    }
+
+    private static void initOreDict() {
+        for (EnumColour c : EnumColour.values()) {
+            OreDictionary.registerOre(c.getWoolOreName(), new ItemStack(Blocks.WOOL, 1, c.getWoolMeta()));
+        }
     }
 }

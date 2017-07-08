@@ -40,4 +40,18 @@ public class LambdaUtils {
         }
     }
 
+    /**
+     * Provides a predicate callback for checking a condition.
+     *
+     * @param argument  The thing we are checking.
+     * @param log       What the reason for the predicate failing is.
+     * @param predicate The predicate callback.
+     * @param <E>       The thing.
+     */
+    public static <E> void checkArgument(E argument, String log, Predicate<E> predicate) {
+        if (predicate.test(argument)) {
+            throw new RuntimeException("Argument check failed! Reason: " + log);
+        }
+    }
+
 }
