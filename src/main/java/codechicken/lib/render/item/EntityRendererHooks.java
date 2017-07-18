@@ -25,7 +25,8 @@ import java.lang.reflect.Field;
  * Created by covers1624 on 31/10/2016.
  */
 //Used to make sure all references to RenderItem are of CCL's overridden renderer.
-@Mod (modid = "ccl-entityhook", dependencies = "before:*")
+//@Mod (modid = "ccl-entityhook", dependencies = "before:*")
+@Deprecated
 public class EntityRendererHooks {
 
     private static boolean hasSanitized;
@@ -49,6 +50,11 @@ public class EntityRendererHooks {
         @Override
         @SideOnly (Side.CLIENT)
         public void preInit(FMLPreInitializationEvent event) {
+            registerEntitySanitizer();
+        }
+
+        @SideOnly (Side.CLIENT)
+        public static void registerEntitySanitizer() {
             RenderingRegistry.registerEntityRenderingHandler(DummyEntity.class, manager -> {
                 sanitizeEntityRenderers(manager);
                 return new Render<DummyEntity>(manager) {

@@ -10,6 +10,7 @@ import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.block.BlockRenderingRegistry;
 import codechicken.lib.render.item.CCRenderItem;
+import codechicken.lib.render.item.EntityRendererHooks;
 import codechicken.lib.render.item.map.MapRenderRegistry;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
@@ -32,6 +33,8 @@ public class ProxyClient extends Proxy {
         ModelLoaderRegistry.registerLoader(CCBakeryModelLoader.INSTANCE);
         ClientCommandHandler.instance.registerCommand(new DumpModelLocationsCommand());
         ClientCommandHandler.instance.registerCommand(new NukeCCModelCacheCommand());
+        //TODO, This has been pulled back from 1.12, Lets hope things don't explode!
+        EntityRendererHooks.ClientProxy.registerEntitySanitizer();
     }
 
     @Override
