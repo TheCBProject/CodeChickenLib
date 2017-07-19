@@ -1,6 +1,5 @@
 package codechicken.lib.internal.proxy;
 
-import codechicken.lib.internal.command.DevEnvCommand;
 import codechicken.lib.internal.command.client.DumpModelLocationsCommand;
 import codechicken.lib.internal.command.client.NukeCCModelCacheCommand;
 import codechicken.lib.internal.network.ClientPacketHandler;
