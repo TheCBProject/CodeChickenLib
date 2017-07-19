@@ -297,11 +297,34 @@ public class ArrayUtils {
         if (newType.equals(Object[].class)) {
             copy = (T[]) new Object[length];
         } else {
-            copy = (T[]) Array.newInstance(newType.getComponentType(), length);
+            copy = (T[]) newArray(newType.getComponentType(), length);
         }
         return copy;
     }
 
+    /**
+     * Creates a new array form its component class.
+     *
+     * @param arrayClass The component class.
+     * @param length     The length.
+     * @param <T>        The thing.
+     * @return The new array.
+     */
+    @SuppressWarnings ("unchecked")
+    public static <T> T[] newArray(Class<T> arrayClass, int length) {
+        return (T[]) Array.newInstance(arrayClass, length);
+    }
+
+    /**
+     * Rolls the array based on the shift.
+     * Positive shift means the array will roll to the right.
+     * Negative shift means the array will roll to the left.
+     *
+     * @param input The input array.
+     * @param shift The shift amount.
+     * @param <T>   The thing.
+     * @return The new array.
+     */
     public static <T> T[] rollArray(T[] input, int shift) {
         T[] newArray = createNewArray(input);
 
@@ -316,6 +339,14 @@ public class ArrayUtils {
         return newArray;
     }
 
+    /**
+     * Checks if an array contains any of the specified element.
+     *
+     * @param input   The input
+     * @param element The thing to test against.
+     * @param <T>     The thing.
+     * @return If the element exists at all.
+     */
     public static <T> boolean contains(T[] input, T element) {
         for (T test : input) {
             if (Objects.equals(test, element)) {
@@ -325,6 +356,16 @@ public class ArrayUtils {
         return false;
     }
 
+    /**
+     * Creates the inverse of an array.
+     * If the input array does not contain an element from the allElements array,
+     * then it is added to the output.
+     *
+     * @param input       The input.
+     * @param allElements All possible values.
+     * @param <T>         The thing.
+     * @return The inverse array.
+     */
     public static <T> T[] inverse(T[] input, T[] allElements) {
         List<T> list = new LinkedList<>();
         for (T e : allElements) {
@@ -336,6 +377,13 @@ public class ArrayUtils {
         return list.toArray(createNewArray(input, list.size()));
     }
 
+    /**
+     * Checks if the specified array is empty or contains a null entry.
+     *
+     * @param input The input.
+     * @param <T>   The thing.
+     * @return If the array is null or contains null.
+     */
     public static <T> boolean isNullOrContainsNull(T[] input) {
         if (input != null) {
             for (T t : input) {

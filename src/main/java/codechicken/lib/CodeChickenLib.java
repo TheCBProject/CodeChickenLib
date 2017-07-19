@@ -3,6 +3,7 @@ package codechicken.lib;
 import codechicken.lib.annotation.ProxyInjector;
 import codechicken.lib.colour.EnumColour;
 import codechicken.lib.internal.proxy.Proxy;
+import codechicken.lib.reflect.ObfMapping;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
@@ -34,6 +35,10 @@ public class CodeChickenLib {
 
     @SidedProxy (clientSide = "codechicken.lib.internal.proxy.ProxyClient", serverSide = "codechicken.lib.internal.proxy.Proxy")
     public static Proxy proxy;
+
+    public CodeChickenLib() {
+        ObfMapping.init();
+    }
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {

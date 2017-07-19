@@ -4,19 +4,30 @@ import codechicken.lib.raytracer.RayTracer;
 import codechicken.lib.thread.TaskProfiler;
 import codechicken.lib.thread.TaskProfiler.ProfilerResult;
 import codechicken.lib.util.BlockStateUtils;
+import codechicken.lib.util.DirectoryWalker;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextComponentString;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -46,21 +57,8 @@ public class DevEnvCommand implements ICommand {
     public void execute(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args) throws CommandException {
         if (sender instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) sender;
-            RayTraceResult trace = RayTracer.retrace(player);
-            if (trace == null) {
-                addMessage(sender, "Null trace.");
-                return;
-            }
-            IBlockState state = player.world.getBlockState(trace.getBlockPos());
-            addMessage(sender, state);
-            TaskProfiler timer = new TaskProfiler();
-            timer.startOnce("task");
-            int hash = BlockStateUtils.hashBlockState(state.getBlock().getExtendedState(state, player.world, trace.getBlockPos()));
-            ProfilerResult result = timer.endOnce();
 
-            addMessage(sender, "Hash: " + hash);
-
-            addMessage(sender, "Time: " + result.time / 1000);
+            doBlueprintStuffs();
 
         } else {
             addMessage(sender, "You are not an EntityPlayer..");
@@ -92,4 +90,20 @@ public class DevEnvCommand implements ICommand {
     public int compareTo(@Nonnull ICommand o) {
         return 0;
     }
+
+
+    public static void doBlueprintStuffs() {
+        File inputFolder = new File("bp_convert/");
+        if (inputFolder.exists()) {
+            try {
+                DirectoryWalker walker = new DirectoryWalker(DirectoryWalker.TRUE, file -> file.getAbsolutePath().endsWith(".bpt"));
+                for (File file : walker.walk(inputFolder)) {
+                    NBTTagCompound compound = CompressedStreamTools.readCompressed(new FileInputStream(file));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

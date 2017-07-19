@@ -1,15 +1,14 @@
 package codechicken.lib.model.loader.blockstate;
 
-import codechicken.lib.model.BakedModelProperties;
-import codechicken.lib.model.CCMultiModel;
-import codechicken.lib.model.StateOverrideIModel;
+import codechicken.lib.model.bakedmodels.ModelProperties;
+import codechicken.lib.model.forgemodel.CCMultiModel;
+import codechicken.lib.model.forgemodel.StateOverrideIModel;
 import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.block.model.Variant;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
-import net.minecraftforge.common.model.TRSRTransformation;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +20,7 @@ import java.util.Map;
 public class CCFinalMultiVariant extends Variant {
 
     private Variant baseVariant;
-    private BakedModelProperties baseProperties;
+    private ModelProperties baseProperties;
     private List<Variant> finalVariants = new LinkedList<>();
     private IModelState state;
 
@@ -29,7 +28,7 @@ public class CCFinalMultiVariant extends Variant {
         super(baseVariant.model == null ? new ResourceLocation("builtin/missing") : baseVariant.model, baseVariant.state.get() instanceof ModelRotation ? ((ModelRotation) baseVariant.state.get()) : ModelRotation.X0_Y0, baseVariant.uvLock.orElse(false), baseVariant.weight.orElse(1));
         state = baseVariant.state.get();
         this.baseVariant = makeFinalVariant(baseVariant, textureDomain);
-        this.baseProperties = new BakedModelProperties(baseVariant.smooth.orElse(true), baseVariant.gui3d.orElse(true));
+        this.baseProperties = new ModelProperties(baseVariant.smooth.orElse(true), baseVariant.gui3d.orElse(true));
         for (CCVariant subModel : subModels.values()) {
             finalVariants.add(makeFinalVariant(baseVariant.copy().with(subModel), textureDomain));
         }
@@ -63,10 +62,10 @@ public class CCFinalMultiVariant extends Variant {
         boolean smooth = variant.smooth.orElse(true);
         boolean gui3d = variant.gui3d.orElse(true);
         int weight = variant.weight.orElse(1);
-        if (variant.model != null && variant.textures.size() == 0 && variant.customData.size() == 0 && variant.state.orElse(null) instanceof ModelRotation) {
+        if (variant.hasModel() && !variant.hasTextures() && !variant.hasCustomData() && variant.state.get() instanceof ModelRotation) {
             return new Variant(variant.model, ((ModelRotation) variant.state.get()), uvLock, weight);
         } else {
-            return new CCFinalVariant(variant.model, variant.state.orElse(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures, textureDomain, variant.customData);
+            return new CCFinalVariant(variant.model, variant.state, uvLock, smooth, gui3d, weight, variant.textures, textureDomain, variant.customData);
         }
     }
 }

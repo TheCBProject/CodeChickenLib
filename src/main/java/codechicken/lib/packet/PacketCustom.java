@@ -4,6 +4,7 @@ import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.packet.ICustomPacketHandler.IClientPacketHandler;
 import codechicken.lib.packet.ICustomPacketHandler.IServerPacketHandler;
+import codechicken.lib.vec.Vector3;
 import com.google.common.collect.Maps;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -211,8 +212,9 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     private int type;
 
     public PacketCustom(ByteBuf payload) {
-
-        buf = payload;
+        byte[] bytes = new byte[payload.readableBytes()];
+        payload.readBytes(bytes);
+        buf = Unpooled.wrappedBuffer(bytes);
 
         type = readUnsignedByte();
         if (type > 0x80) {
@@ -545,6 +547,12 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     public PacketCustom writePos(BlockPos pos) {
         MCDataOutput.super.writePos(pos);
         return this;
+    }
+
+    @Override
+    public PacketCustom writeVector(Vector3 vec) {
+        MCDataOutput.super.writeVector(vec);
+        return null;
     }
 
     @Override

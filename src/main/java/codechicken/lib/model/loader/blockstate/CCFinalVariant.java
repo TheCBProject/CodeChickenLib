@@ -7,10 +7,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.model.IModelState;
+import net.minecraftforge.common.model.TRSRTransformation;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 /**
  * Created by covers1624 on 19/11/2016.
@@ -25,9 +27,9 @@ public class CCFinalVariant extends Variant {
     private final ImmutableMap<String, String> customData;
     private final ImmutableMap<String, String> textures;
 
-    public CCFinalVariant(ResourceLocation model, IModelState state, boolean uvLock, boolean smooth, boolean gui3d, int weight, Map<String, String> textures, String textureDomain, Map<String, String> customData) {
-        super(model == null ? new ResourceLocation("builtin/missing") : model, state instanceof ModelRotation ? ((ModelRotation) state) : ModelRotation.X0_Y0, uvLock, weight);
-        this.state = state;
+    public CCFinalVariant(ResourceLocation model, Optional<IModelState> state, boolean uvLock, boolean smooth, boolean gui3d, int weight, Map<String, String> textures, String textureDomain, Map<String, String> customData) {
+        super(model == null ? new ResourceLocation("builtin/missing") : model, state.get() instanceof ModelRotation ? ((ModelRotation) state.get()) : ModelRotation.X0_Y0, uvLock, weight);
+        this.state = state.orElse(TRSRTransformation.identity());
         this.smooth = smooth;
         this.gui3d = gui3d;
 
@@ -43,22 +45,13 @@ public class CCFinalVariant extends Variant {
         this.customData = ImmutableMap.copyOf(customData);
     }
 
-    public static IModel runModelHooks(IModel base, boolean smooth, boolean gui3d, boolean uvlock, ImmutableMap<String, String> textureMap, ImmutableMap<String, String> customData) {
-        base = base.process(customData);
-        base = base.retexture(textureMap);
-        base = base.smoothLighting(smooth);
-        base = base.gui3d(gui3d);
-        base = base.uvlock(uvlock);
-        return base;
-    }
-
     @Override
     public IModel process(IModel base) {
 
         boolean hasBase = base != ModelLoaderRegistry.getMissingModel();
 
         if (hasBase) {
-            base = runModelHooks(base, smooth, gui3d, isUvLock(), textures, customData);
+            base = base.retexture(textures).smoothLighting(smooth).gui3d(gui3d).uvlock(isUvLock()).process(customData);
         }
 
         return base;

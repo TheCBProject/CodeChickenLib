@@ -1,4 +1,4 @@
-package codechicken.lib.model;
+package codechicken.lib.model.forgemodel;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -7,22 +7,21 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.common.model.IModelState;
+import net.minecraftforge.common.model.animation.IClip;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * Created by covers1624 on 17/12/2016.
- * TODO Decide on a standard place for CCL's IModels.
+ * Created by covers1624 on 12/07/2017.
  */
-public class StateOverrideIModel implements IModel {
+public class WrappedIModel implements IModel {
 
     private IModel wrapped;
-    private final IModelState wrappedState;
 
-    public StateOverrideIModel(IModel wrapped, IModelState wrappedState) {
+    public WrappedIModel(IModel wrapped) {
         this.wrapped = wrapped;
-        this.wrappedState = wrappedState;
     }
 
     @Override
@@ -42,18 +41,17 @@ public class StateOverrideIModel implements IModel {
 
     @Override
     public IModelState getDefaultState() {
-        return wrappedState;
+        return wrapped.getDefaultState();
     }
 
     @Override
-    public IModel retexture(ImmutableMap<String, String> textures) {
-        wrapped = wrapped.retexture(textures);
-        return this;
+    public Optional<? extends IClip> getClip(String name) {
+        return wrapped.getClip(name);
     }
 
     @Override
-    public IModel uvlock(boolean value) {
-        wrapped = wrapped.uvlock(value);
+    public IModel process(ImmutableMap<String, String> customData) {
+        wrapped = wrapped.process(customData);
         return this;
     }
 
@@ -70,8 +68,14 @@ public class StateOverrideIModel implements IModel {
     }
 
     @Override
-    public IModel process(ImmutableMap<String, String> customData) {
-        wrapped = wrapped.process(customData);
+    public IModel uvlock(boolean value) {
+        wrapped = wrapped.uvlock(value);
+        return this;
+    }
+
+    @Override
+    public IModel retexture(ImmutableMap<String, String> textures) {
+        wrapped = wrapped.retexture(textures);
         return this;
     }
 }

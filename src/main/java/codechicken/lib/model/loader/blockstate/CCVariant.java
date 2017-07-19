@@ -67,11 +67,24 @@ public class CCVariant implements Copyable<CCVariant> {
         newTextures.putAll(textures);
         newTextures.putAll(other.textures);
         this.textures = new LinkedHashMap<>(newTextures);
+
         HashMap<String, String> newCustomData = new HashMap<>();
         newCustomData.putAll(customData);
         newCustomData.putAll(other.customData);
         this.customData = new LinkedHashMap<>(newCustomData);
         return this;
+    }
+
+    public boolean hasModel() {
+        return model != null;
+    }
+
+    public boolean hasTextures() {
+        return textures.size() != 0;
+    }
+
+    public boolean hasCustomData() {
+        return customData.size() != 0;
     }
 
     public List<String> getPossibleVariantNames() {
@@ -180,7 +193,7 @@ public class CCVariant implements Copyable<CCVariant> {
             }
 
             if (json.has("variants")) {
-                variant.subVariants.putAll(CCBlockStateLoader.parseVariants(json.getAsJsonObject("variants")));
+                variant.subVariants.putAll(CCBlockStateLoader.parseVariants(new LinkedHashMap<>(), json.getAsJsonObject("variants")));
             }
 
             if (json.has("custom")) {

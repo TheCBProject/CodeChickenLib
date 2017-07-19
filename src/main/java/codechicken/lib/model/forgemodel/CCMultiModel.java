@@ -1,7 +1,8 @@
-package codechicken.lib.model;
+package codechicken.lib.model.forgemodel;
 
+import codechicken.lib.model.bakedmodels.ModelProperties;
+import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareMultiModel;
-import codechicken.lib.texture.TextureUtils;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -20,10 +21,10 @@ import java.util.function.Function;
 public class CCMultiModel implements IModel {
 
     private final IModel base;
-    private final BakedModelProperties baseProperties;
+    private final ModelProperties baseProperties;
     private final List<IModel> subModels;
 
-    public CCMultiModel(IModel base, BakedModelProperties baseProperties, List<IModel> subModels) {
+    public CCMultiModel(IModel base, ModelProperties baseProperties, List<IModel> subModels) {
         this.base = base;
         this.baseProperties = baseProperties;
         this.subModels = subModels;
@@ -60,28 +61,12 @@ public class CCMultiModel implements IModel {
             baseBakedModel = base.bake(state, format, bakedTextureGetter);
         }
         List<IBakedModel> subBakedModels = new ArrayList<>();
-        TextureAtlasSprite particle = null;
-        if (baseBakedModel != null) {
-            particle = baseBakedModel.getParticleTexture();
-        }
         for (IModel subModel : subModels) {
-            TextureAtlasSprite particleCandidate = null;
             IBakedModel bakedSubModel = subModel.bake(subModel.getDefaultState(), format, bakedTextureGetter);
             subBakedModels.add(bakedSubModel);
-            if (particle == null || particle == TextureUtils.getMissingSprite()) {
-                if (particleCandidate == null || particleCandidate == TextureUtils.getMissingSprite()) {
-                    particleCandidate = bakedSubModel.getParticleTexture();
-                }
-                if (particleCandidate != null || particleCandidate != TextureUtils.getMissingSprite()) {
-                    particle = particleCandidate;
-                }
-            }
-        }
-        if (particle == null) {
-            particle = TextureUtils.getMissingSprite();
         }
 
-        return new PerspectiveAwareMultiModel(baseBakedModel, subBakedModels, state, new BakedModelProperties(baseProperties, particle));
+        return new PerspectiveAwareMultiModel(baseBakedModel, subBakedModels, new PerspectiveProperties(state, baseProperties));
     }
 
     @Override

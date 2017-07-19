@@ -2,6 +2,7 @@ package codechicken.lib.config;
 
 import java.io.File;
 
+@Deprecated
 public class DefaultingConfigFile extends ConfigFile {
 
     public DefaultingConfigFile(File file) {

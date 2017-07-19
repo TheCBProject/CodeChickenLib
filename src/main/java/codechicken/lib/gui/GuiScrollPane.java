@@ -63,7 +63,7 @@ public abstract class GuiScrollPane extends GuiWidget {
             int scrolldiff = scrollmousey - scrollclicky;
             percentscrolled = scrolldiff / (float) barempty + scrollpercent;
         }
-        percentscrolled = (float) MathHelper.clip(percentscrolled, 0, 1);
+        percentscrolled = MathHelper.clip(percentscrolled, 0, 1);
     }
 
     public boolean isScrolling() {

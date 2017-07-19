@@ -76,6 +76,7 @@ public class TextureSpecial extends TextureAtlasSprite implements IIconRegister 
                 int[][] mipmaps = new int[mipmapLevels + 1][];
                 mipmaps[0] = textureFX.imageData;
                 mipmaps = TextureUtil.generateMipmapData(mipmapLevels, width, mipmaps);
+                framesTextureData.set(0, mipmaps);
                 TextureUtil.uploadTextureMipmap(mipmaps, width, height, originX, originY, false, false);
             }
         }

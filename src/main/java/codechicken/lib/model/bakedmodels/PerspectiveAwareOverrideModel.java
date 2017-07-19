@@ -1,6 +1,6 @@
 package codechicken.lib.model.bakedmodels;
 
-import codechicken.lib.model.BakedModelProperties;
+import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -14,6 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,19 +23,14 @@ import java.util.List;
 public class PerspectiveAwareOverrideModel extends AbstractBakedPropertiesModel {
 
     private final ItemOverrideList overrideList;
-    private final IModelState state;
     private final List<BakedQuad> quads;
 
-    public PerspectiveAwareOverrideModel(ItemOverrideList overrideList, IModelState state, BakedModelProperties properties) {
-        super(properties);
-        this.state = state;
-        this.overrideList = overrideList;
-        this.quads = ImmutableList.of();
+    public PerspectiveAwareOverrideModel(ItemOverrideList overrideList, PerspectiveProperties properties) {
+        this(overrideList, properties, new ArrayList<>());
     }
 
-    public PerspectiveAwareOverrideModel(ItemOverrideList overrideList, IModelState state, BakedModelProperties properties, List<BakedQuad> quads) {
+    public PerspectiveAwareOverrideModel(ItemOverrideList overrideList, PerspectiveProperties properties, List<BakedQuad> quads) {
         super(properties);
-        this.state = state;
         this.overrideList = overrideList;
         this.quads = quads;
     }
@@ -50,10 +46,5 @@ public class PerspectiveAwareOverrideModel extends AbstractBakedPropertiesModel 
     @Override
     public ItemOverrideList getOverrides() {
         return overrideList;
-    }
-
-    @Override
-    public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
-        return PerspectiveMapWrapper.handlePerspective(this, state, cameraTransformType);
     }
 }

@@ -3,6 +3,7 @@ package codechicken.lib.texture;
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourARGB;
 import codechicken.lib.internal.CCLLog;
+import codechicken.lib.util.ResourceUtils;
 import com.google.common.base.Function;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -12,9 +13,6 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.IReloadableResourceManager;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -50,11 +48,6 @@ public class TextureUtils {
         iconRegisters.add(registrar);
     }
 
-    public static void registerReloadListener(IResourceManagerReloadListener reloadListener) {
-        //If this crashes people need to stop using reflection..
-        getResourceManager().registerReloadListener(reloadListener);
-    }
-
     @SubscribeEvent
     public void textureLoad(TextureStitchEvent.Pre event) {
         if (!event.getMap().getBasePath().equals("textures")) {
@@ -85,14 +78,9 @@ public class TextureUtils {
         return data;
     }
 
-    //TODO Move to some sort of IO Utils.
-    public static InputStream getTextureResource(ResourceLocation textureFile) throws IOException {
-        return Minecraft.getMinecraft().getResourceManager().getResource(textureFile).getInputStream();
-    }
-
     public static BufferedImage loadBufferedImage(ResourceLocation textureFile) {
         try {
-            return loadBufferedImage(getTextureResource(textureFile));
+            return loadBufferedImage(ResourceUtils.getResourceAsStream(textureFile));
         } catch (Exception e) {
             System.err.println("Failed to load texture file: " + textureFile);
             e.printStackTrace();
@@ -184,10 +172,6 @@ public class TextureUtils {
         return Minecraft.getMinecraft().getTextureMapBlocks();
     }
 
-    public static IReloadableResourceManager getResourceManager() {
-        return (IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager();
-    }
-
     public static TextureAtlasSprite getMissingSprite() {
         return getTextureMap().getMissingSprite();
     }
@@ -214,14 +198,6 @@ public class TextureUtils {
 
     public static TextureAtlasSprite getItemTexture(ResourceLocation location) {
         return getTexture(new ResourceLocation(location.getResourceDomain(), "items/" + location.getResourcePath()));
-    }
-
-    public static IResource getResource(String location) throws IOException {
-        return getResource(new ResourceLocation(location));
-    }
-
-    public static IResource getResource(ResourceLocation location) throws IOException {
-        return getResourceManager().getResource(location);
     }
 
     public static void changeTexture(String texture) {

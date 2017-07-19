@@ -1,5 +1,6 @@
 package codechicken.lib.data;
 
+import codechicken.lib.vec.Vector3;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -68,6 +69,13 @@ public interface MCDataOutput {
         writeInt(pos.getX());
         writeInt(pos.getY());
         writeInt(pos.getZ());
+        return this;
+    }
+
+    default MCDataOutput writeVector(Vector3 vec) {
+        writeDouble(vec.x);
+        writeDouble(vec.y);
+        writeDouble(vec.z);
         return this;
     }
 

@@ -64,19 +64,19 @@ public class ModelRegistryHelper {
         }
     }
 
-    /**
-     * Creates a dummy model at blockRegistry.getNameForObject(block)#particle for all states of the block overriding getParticleTexture
-     */
-    public static void setParticleTexture(Block block, final ResourceLocation tex) {
-        final ModelResourceLocation modelLoc = new ModelResourceLocation(block.getRegistryName(), "particle");
-        register(modelLoc, new BuiltInModel(TransformUtils.DEFAULT_BLOCK.toVanillaTransform(), ItemOverrideList.NONE) {
-            @Override
-            public TextureAtlasSprite getParticleTexture() {
-                return TextureUtils.getTexture(tex);
-            }
-        });
-        ModelLoader.setCustomStateMapper(block, blockIn -> Maps.toMap(blockIn.getBlockState().getValidStates(), input -> modelLoc));
-    }
+//    /**
+//     * Creates a dummy model at blockRegistry.getNameForObject(block)#particle for all states of the block overriding getParticleTexture
+//     */TODO, Pretty sure this doesn't work this way anymore..
+//    public static void setParticleTexture(Block block, final ResourceLocation tex) {
+//        final ModelResourceLocation modelLoc = new ModelResourceLocation(block.getRegistryName(), "particle");
+//        register(modelLoc, new BuiltInModel(TransformUtils.DEFAULT_BLOCK.toVanillaTransform(), ItemOverrideList.NONE) {
+//            @Override
+//            public TextureAtlasSprite getParticleTexture() {
+//                return TextureUtils.getTexture(tex);
+//            }
+//        });
+//        ModelLoader.setCustomStateMapper(block, blockIn -> Maps.toMap(blockIn.getBlockState().getValidStates(), input -> modelLoc));
+//    }
 
     public interface IModelBakeCallbackPre {
 

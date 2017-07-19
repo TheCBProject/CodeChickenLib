@@ -166,6 +166,14 @@ public abstract class Colour implements Copyable<Colour> {
         return this;
     }
 
+    public static int[] unpack(int colour) {
+        return new int[] { (colour >> 24) & 0xFF, (colour >> 16) & 0xFF, (colour >> 8) & 0xFF, colour & 0xFF };
+    }
+
+    public static int pack(int[] data) {
+        return (data[0] & 0xFF) << 24 | (data[1] & 0xFF) << 16 | (data[2] & 0xFF) << 8 | (data[3] & 0xFF);
+    }
+
     public float[] getRGBA() {
         return new float[] { r / 255F, g / 255F, b / 255F, a / 255F };
     }

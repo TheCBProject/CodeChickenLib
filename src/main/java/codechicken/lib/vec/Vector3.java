@@ -10,9 +10,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.util.vector.Vector3f;
-import org.lwjgl.util.vector.Vector4f;
 
+import javax.vecmath.Vector3f;
+import javax.vecmath.Vector4f;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -21,6 +21,7 @@ public class Vector3 implements Copyable<Vector3> {
 
     public static Vector3 zero = new Vector3();
     public static Vector3 one = new Vector3(1, 1, 1);
+    public static Vector3 down = new Vector3(0, -1, 0);
     public static Vector3 center = new Vector3(0.5, 0.5, 0.5);
 
     public double x;
@@ -227,11 +228,6 @@ public class Vector3 implements Copyable<Vector3> {
         y = MathHelper.floor(y);
         z = MathHelper.floor(z);
         return this;
-    }
-
-    @Deprecated//Dumb spelling is dumb.
-    public Vector3 celi() {
-        return ceil();
     }
 
     public Vector3 ceil() {

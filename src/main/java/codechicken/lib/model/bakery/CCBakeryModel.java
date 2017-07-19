@@ -1,6 +1,8 @@
 package codechicken.lib.model.bakery;
 
+import codechicken.lib.render.particle.IModelParticleProvider;
 import codechicken.lib.texture.TextureUtils;
+import codechicken.lib.util.TransformUtils;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -11,25 +13,27 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by covers1624 on 26/10/2016.
  */
-public class CCBakeryModel implements IBakedModel {
+public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
 
-    private final String particle;
 
     public CCBakeryModel() {
-        this("");
     }
 
-    public CCBakeryModel(String particle) {
-        this.particle = particle;
+    @Deprecated
+    public CCBakeryModel(String nope) {
     }
 
     @Override
@@ -54,7 +58,25 @@ public class CCBakeryModel implements IBakedModel {
 
     @Override
     public TextureAtlasSprite getParticleTexture() {
-        return TextureUtils.getTexture(particle);
+        return TextureUtils.getMissingSprite();
+    }
+
+    @Override
+    public Set<TextureAtlasSprite> getHitEffects(@Nonnull RayTraceResult traceResult, IBlockState state, IBlockAccess world, BlockPos pos) {
+        IBakedModel model = ModelBakery.getCachedModel((IExtendedBlockState) state);
+        if (model instanceof IModelParticleProvider) {
+            return ((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos);
+        }
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<TextureAtlasSprite> getDestroyEffects(IBlockState state, IBlockAccess world, BlockPos pos) {
+        IBakedModel model = ModelBakery.getCachedModel((IExtendedBlockState) state);
+        if (model instanceof IModelParticleProvider) {
+            return ((IModelParticleProvider) model).getDestroyEffects(state, world, pos);
+        }
+        return Collections.emptySet();
     }
 
     @Override

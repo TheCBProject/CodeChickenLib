@@ -1,6 +1,6 @@
 package codechicken.lib.model.bakery.generation;
 
-import codechicken.lib.model.PerspectiveAwareModelProperties;
+import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -40,7 +40,7 @@ public interface IItemBakery extends IBakery {
      * @return The properties to use for the model.
      */
     @SideOnly (Side.CLIENT)
-    default PerspectiveAwareModelProperties getModelProperties(ItemStack stack) {
-        return stack.getItem() instanceof ItemBlock ? PerspectiveAwareModelProperties.DEFAULT_BLOCK : PerspectiveAwareModelProperties.DEFAULT_ITEM;
+    default PerspectiveProperties getModelProperties(ItemStack stack) {
+        return stack.getItem() instanceof ItemBlock ? PerspectiveProperties.DEFAULT_BLOCK : PerspectiveProperties.DEFAULT_ITEM;
     }
 }

@@ -1,19 +1,29 @@
 package codechicken.lib.util;
 
+import codechicken.lib.internal.CCLLog;
+import codechicken.lib.math.MathHelper;
+import codechicken.lib.model.loader.blockstate.ITransformFactory;
+import codechicken.lib.model.loader.blockstate.ITransformFactory.IStandardTransformFactory;
 import codechicken.lib.render.CCModelState;
 import codechicken.lib.vec.Matrix4;
-import com.google.common.collect.ImmutableMap;
+import codechicken.lib.vec.Vector3;
 import com.google.common.collect.Maps;
 import com.google.gson.*;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.util.JsonUtils;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ForgeBlockStateV1.TRSRDeserializer;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraftforge.fml.common.ModContainer;
+import org.apache.logging.log4j.Level;
 
 import javax.vecmath.Vector3f;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 /**
@@ -29,6 +39,8 @@ public class TransformUtils {
 
     public static final Gson GSON = new GsonBuilder().registerTypeAdapter(TRSRTransformation.class, TRSRDeserializer.INSTANCE).create();
 
+    private static Map<ResourceLocation, ITransformFactory> transformFactories = new HashMap<>();
+
     public static final CCModelState DEFAULT_BLOCK;
     public static final CCModelState DEFAULT_ITEM;
     public static final CCModelState DEFAULT_TOOL;
@@ -36,61 +48,198 @@ public class TransformUtils {
     public static final CCModelState DEFAULT_HANDHELD_ROD;
 
     static {
-        TRSRTransformation thirdPerson = get(0, 2.5f, 0, 75, 45, 0, 0.375f);
+        Map<TransformType, TRSRTransformation> map;
+        TRSRTransformation thirdPerson;
         TRSRTransformation firstPerson;
 
-        ImmutableMap.Builder<TransformType, TRSRTransformation> defaultBlockBuilder = ImmutableMap.builder();
-        defaultBlockBuilder.put(TransformType.GUI, get(0, 0, 0, 30, 225, 0, 0.625f));
-        defaultBlockBuilder.put(TransformType.GROUND, get(0, 3, 0, 0, 0, 0, 0.25f));
-        defaultBlockBuilder.put(TransformType.FIXED, get(0, 0, 0, 0, 0, 0, 0.5f));
-        defaultBlockBuilder.put(TransformType.THIRD_PERSON_RIGHT_HAND, thirdPerson);
-        defaultBlockBuilder.put(TransformType.THIRD_PERSON_LEFT_HAND, leftify(thirdPerson));
-        defaultBlockBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, get(0, 0, 0, 0, 45, 0, 0.4f));
-        defaultBlockBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, get(0, 0, 0, 0, 225, 0, 0.4f));
-        DEFAULT_BLOCK = new CCModelState(defaultBlockBuilder.build());
+        //@formatter:off
+        map = new HashMap<>();
+        thirdPerson =                                   create(0F,2.5F, 0F,75F, 45F, 0F,0.375F );
+        map.put(TransformType.GUI,                      create(0F,  0F, 0F,30F,225F, 0F,0.625F));
+        map.put(TransformType.GROUND,                   create(0F,  3F, 0F, 0F,  0F, 0F, 0.25F));
+        map.put(TransformType.FIXED,                    create(0F,  0F, 0F, 0F,  0F, 0F,  0.5F));
+        map.put(TransformType.THIRD_PERSON_RIGHT_HAND,  thirdPerson);
+        map.put(TransformType.THIRD_PERSON_LEFT_HAND,   flipLeft(thirdPerson));
+        map.put(TransformType.FIRST_PERSON_RIGHT_HAND,  create(0F, 0F, 0F, 0F, 45F, 0F, 0.4F));
+        map.put(TransformType.FIRST_PERSON_LEFT_HAND,   create(0F, 0F, 0F, 0F, 225F, 0F, 0.4F));
+        DEFAULT_BLOCK = new CCModelState(map);
 
-        thirdPerson = get(0, 3, 1, 0, 0, 0, 0.55f);
-        firstPerson = get(1.13f, 3.2f, 1.13f, 0, -90, 25, 0.68f);
-        ImmutableMap.Builder<TransformType, TRSRTransformation> defaultItemBuilder = ImmutableMap.builder();
-        defaultItemBuilder.put(TransformType.GROUND, get(0, 2, 0, 0, 0, 0, 0.5f));
-        defaultItemBuilder.put(TransformType.HEAD, get(0, 13, 7, 0, 180, 0, 1));
-        defaultItemBuilder.put(TransformType.THIRD_PERSON_RIGHT_HAND, thirdPerson);
-        defaultItemBuilder.put(TransformType.THIRD_PERSON_LEFT_HAND, leftify(thirdPerson));
-        defaultItemBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, firstPerson);
-        defaultItemBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, leftify(firstPerson));
-        DEFAULT_ITEM = new CCModelState(defaultItemBuilder.build());
+        map = new HashMap<>();
+        thirdPerson =                                    create(   0F,  3F,   1F, 0F,  0F, 0F, 0.55F);
+        firstPerson =                                    create(1.13F,3.2F,1.13F, 0F,-90F,25F, 0.68F);
+        map.put(TransformType.GROUND,                    create(   0F,  2F,   0F, 0F,  0F, 0F, 0.5F));
+        map.put(TransformType.HEAD,                      create(   0F, 13F,   7F, 0F,180F, 0F,   1F));
+        map.put(TransformType.THIRD_PERSON_RIGHT_HAND,   thirdPerson);
+        map.put(TransformType.THIRD_PERSON_LEFT_HAND,    flipLeft(thirdPerson));
+        map.put(TransformType.FIRST_PERSON_RIGHT_HAND,   firstPerson);
+        map.put(TransformType.FIRST_PERSON_LEFT_HAND,    flipLeft(firstPerson));
+        DEFAULT_ITEM = new CCModelState(map);
 
-        ImmutableMap.Builder<TransformType, TRSRTransformation> defaultToolBuilder = ImmutableMap.builder();
-        defaultToolBuilder.put(TransformType.GROUND, get(0, 2, 0, 0, 0, 0, 0.5f));
-        defaultToolBuilder.put(TransformType.THIRD_PERSON_RIGHT_HAND, get(0, 4, 0.5F, 0, -90, 55, 0.85F));
-        defaultToolBuilder.put(TransformType.THIRD_PERSON_LEFT_HAND, get(0, 4, 0.5f, 0, 90, -55, 0.85f));
-        defaultToolBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, get(1.13f, 3.2f, 1.13f, 0, -90, 25, 0.68f));
-        defaultToolBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, get(1.13f, 3.2f, 1.13f, 0, 90, -25, 0.68f));
-        DEFAULT_TOOL = new CCModelState(defaultToolBuilder.build());
+        map = new HashMap<>();
+        map.put(TransformType.GROUND,                   create(   0F,  2F,   0F, 0F,  0F, 0F, 0.5F));
+        map.put(TransformType.THIRD_PERSON_RIGHT_HAND,  create(   0F,  4F, 0.5F, 0F,-90F, 55,0.85F));
+        map.put(TransformType.THIRD_PERSON_LEFT_HAND,   create(   0F,  4F, 0.5F, 0F, 90F,-55,0.85F));
+        map.put(TransformType.FIRST_PERSON_RIGHT_HAND,  create(1.13F,3.2F,1.13F, 0F,-90F, 25,0.68F));
+        map.put(TransformType.FIRST_PERSON_LEFT_HAND,   create(1.13F,3.2F,1.13F, 0F, 90F,-25,0.68F));
+        DEFAULT_TOOL = new CCModelState(map);
 
-        ImmutableMap.Builder<TransformType, TRSRTransformation> defaultBowBuilder = ImmutableMap.builder();
-        defaultBowBuilder.put(TransformType.GROUND, get(0, 2, 0, 0, 0, 0, 0.5f));
-        defaultBowBuilder.put(TransformType.THIRD_PERSON_RIGHT_HAND, get(-1F, -2F, 2.5F, -80, 260, -40, 0.9F));
-        defaultBowBuilder.put(TransformType.THIRD_PERSON_LEFT_HAND, get(-1F, -2F, 2.5F, -80, -280, 40, 0.9f));
-        defaultBowBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, get(1.13F, 3.2F, 1.13F, 0, -90, 25, 0.68f));
-        defaultBowBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, get(1.13f, 3.2f, 1.13f, 0, 90, -25, 0.68f));
-        DEFAULT_BOW = new CCModelState(defaultBowBuilder.build());
+        map = new HashMap<>();
+        map.put(TransformType.GROUND,                   create(   0F,  2F,   0F,  0F,   0F,  0F, 0.5F));
+        map.put(TransformType.THIRD_PERSON_RIGHT_HAND,  create(  -1F, -2F, 2.5F,-80F, 260F,-40F, 0.9F));
+        map.put(TransformType.THIRD_PERSON_LEFT_HAND,   create(  -1F, -2F, 2.5F,-80F,-280F, 40F, 0.9F));
+        map.put(TransformType.FIRST_PERSON_RIGHT_HAND,  create(1.13F,3.2F,1.13F,  0F, -90F, 25F,0.68F));
+        map.put(TransformType.FIRST_PERSON_LEFT_HAND,   create(1.13F,3.2F,1.13F,  0F,  90F,-25F,0.68F));
+        DEFAULT_BOW = new CCModelState(map);
 
-        ImmutableMap.Builder<TransformType, TRSRTransformation> defaultRodBuilder = ImmutableMap.builder();
-        defaultRodBuilder.put(TransformType.GROUND, get(0, 2, 0, 0, 0, 0, 0.5f));
-        defaultRodBuilder.put(TransformType.THIRD_PERSON_RIGHT_HAND, get(0F, 4F, 2.5F, 0, 90, 55, 0.85F));
-        defaultRodBuilder.put(TransformType.THIRD_PERSON_LEFT_HAND, get(0F, 4F, 2.5F, 0, -90, -55, 0.85f));
-        defaultRodBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, get(0F, 1.6F, 0.8F, 0, 90, 25, 0.68f));
-        defaultRodBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, get(0F, 1.6F, 0.8F, 0, -90, -25, 0.68f));
-        DEFAULT_HANDHELD_ROD = new CCModelState(defaultRodBuilder.build());
+        map = new HashMap<>();
+        map.put(TransformType.GROUND,                   create(0F, 2F,   0F, 0F,  0F,  0F, 0.5F));
+        map.put(TransformType.THIRD_PERSON_RIGHT_HAND,  create(0F,  4F,2.5F, 0F, 90F, 55F,0.85F));
+        map.put(TransformType.THIRD_PERSON_LEFT_HAND,   create(0F,  4F,2.5F, 0F,-90F,-55F,0.85F));
+        map.put(TransformType.FIRST_PERSON_RIGHT_HAND,  create(0F,1.6F,0.8F, 0F, 90F, 25F,0.68F));
+        map.put(TransformType.FIRST_PERSON_LEFT_HAND,   create(0F,1.6F,0.8F, 0F,-90F,-25F,0.68F));
+        DEFAULT_HANDHELD_ROD = new CCModelState(map);
+        //@formatter:on
+        registerDefaultFactories();
     }
 
-    public static TRSRTransformation get(float tx, float ty, float tz, float rx, float ry, float rz, float s) {
-        return TRSRTransformation.blockCenterToCorner(new TRSRTransformation(new Vector3f(tx / 16, ty / 16, tz / 16), TRSRTransformation.quatFromXYZDegrees(new Vector3f(rx, ry, rz)), new Vector3f(s, s, s), null));
+    /**
+     * Creates a new TRSRTransformation.
+     *
+     * @param tx The x transform.
+     * @param ty The y transform.
+     * @param tz The z transform.
+     * @param rx The x Axis rotation.
+     * @param ry The y Axis rotation.
+     * @param rz The z Axis rotation.
+     * @param s  The scale.
+     * @return The new TRSRTransformation.
+     */
+    public static TRSRTransformation create(float tx, float ty, float tz, float rx, float ry, float rz, float s) {
+        return create(new Vector3f(tx / 16, ty / 16, tz / 16), new Vector3f(rx, ry, rz), new Vector3f(s, s, s));
     }
 
-    public static TRSRTransformation leftify(TRSRTransformation transform) {
+    /**
+     * Creates a new TRSRTransformation.
+     *
+     * @param transform The transform.
+     * @param rotation  The rotation.
+     * @param scale     The scale.
+     * @return The new TRSRTransformation.
+     */
+    public static TRSRTransformation create(Vector3 transform, Vector3 rotation, Vector3 scale) {
+        return create(transform.vector3f(), rotation.vector3f(), scale.vector3f());
+    }
+
+    /**
+     * Creates a new TRSRTransformation.
+     *
+     * @param transform The transform.
+     * @param rotation  The rotation.
+     * @param scale     The scale.
+     * @return The new TRSRTransformation.
+     */
+    public static TRSRTransformation create(Vector3f transform, Vector3f rotation, Vector3f scale) {
+        return TRSRTransformation.blockCenterToCorner(new TRSRTransformation(transform, TRSRTransformation.quatFromXYZDegrees(rotation), scale, null));
+    }
+
+    /**
+     * Flips the transform for the left hand.
+     *
+     * @param transform The right hand transform.
+     * @return The new left hand transform.
+     */
+    public static TRSRTransformation flipLeft(TRSRTransformation transform) {
         return TRSRTransformation.blockCenterToCorner(flipX.compose(TRSRTransformation.blockCornerToCenter(transform)).compose(flipX));
+    }
+
+    /**
+     * Called from CCBlockStateLoader to load the transform factories for a specific mod container.
+     *
+     * @param mod        The mod.
+     * @param transforms The JsonObject holding the transform factory data.
+     */
+    public static void loadTransformFactory(ModContainer mod, JsonObject transforms) {
+        for (Entry<String, JsonElement> entry : transforms.entrySet()) {
+            if (entry.getValue().isJsonPrimitive() && entry.getValue().getAsJsonPrimitive().isString()) {
+                String key = entry.getKey();
+                String value = entry.getValue().getAsString();
+                try {
+                    Class<?> clazz = Class.forName(value);
+                    if (ITransformFactory.class.isAssignableFrom(clazz)) {
+                        registerTransformFactory(new ResourceLocation(mod.getModId(), key), (ITransformFactory) clazz.newInstance());
+                    } else {
+                        throw new JsonSyntaxException("Class '" + value + "' is not an instance of ITransformFactory");
+                    }
+                } catch (ClassNotFoundException e) {
+                    throw new JsonSyntaxException("Could not find class: '" + value + "'!", e);
+                } catch (InstantiationException | IllegalAccessException e) {
+                    throw new JsonSyntaxException("Could not instantiate '" + value + "'!", e);
+                }
+            } else {
+                throw new JsonParseException("transforms: Entry is expected to be a string and is not.. " + entry.getValue());
+            }
+        }
+    }
+
+    /**
+     * Registers a transformation factory.
+     *
+     * @param type    The factory identifier.
+     * @param factory The Factory instance.
+     */
+    public static void registerTransformFactory(ResourceLocation type, ITransformFactory factory) {
+        if (transformFactories.containsKey(type)) {
+            CCLLog.big(Level.WARN, "Overriding already registered transform factory for type '%s', this may cause issues...", type);
+        }
+        transformFactories.put(type, factory);
+    }
+
+    /**
+     * Retrieves a registered transformation factory.
+     *
+     * @param type The factory identifier.
+     * @return The factory.
+     */
+    public static ITransformFactory getTransformFactory(ResourceLocation type) {
+        if (!transformFactories.containsKey(type)) {
+            throw new IllegalArgumentException(String.format("Unable to get TransformFactory for unregistered type{%s}!", type));
+        }
+        return transformFactories.get(type);
+    }
+
+    public static void registerDefaultFactories() {
+        registerTransformFactory(new ResourceLocation("minecraft:default"), new IStandardTransformFactory() {
+
+            @Override
+            public TRSRTransformation getTransform(TransformType type, JsonObject object) {
+                Vector3 rot = parseVec3(object, "rotation", Vector3.zero.copy());
+                Vector3 trans = parseVec3(object, "translation", Vector3.zero.copy());
+                trans.multiply(1D / 16D);
+                trans.x = MathHelper.clip(trans.x, -5.0D, 5.0D);
+                trans.y = MathHelper.clip(trans.y, -5.0D, 5.0D);
+                trans.z = MathHelper.clip(trans.z, -5.0D, 5.0D);
+                Vector3 scale = parseVec3(object, "scale", Vector3.one);
+                scale.x = MathHelper.clip(scale.x, -4.0D, 4.0D);
+                scale.y = MathHelper.clip(scale.y, -4.0D, 4.0D);
+                scale.z = MathHelper.clip(scale.z, -4.0D, 4.0D);
+                return create(trans, rot, scale);
+            }
+
+            private Vector3 parseVec3(JsonObject object, String key, Vector3 defaultValue) {
+                if (object.has(key)) {
+                    JsonArray array = JsonUtils.getJsonArray(object, key);
+                    if (array.size() == 3) {
+                        float[] floats = new float[3];
+                        for (int i = 0; i < 3; i++) {
+                            floats[i] = JsonUtils.getFloat(array.get(i), key + "[ " + i + " ]");
+                        }
+                        return new Vector3(floats);
+                    }
+                    throw new JsonParseException("Expected 3 " + key + " values, found: " + array.size());
+                }
+                return defaultValue;
+            }
+        });
     }
 
     /**
@@ -143,88 +292,104 @@ public class TransformUtils {
                 }
             } else {
                 JsonObject transform = transformElement.getAsJsonObject();
-                EnumMap<TransformType, TRSRTransformation> transforms = Maps.newEnumMap(TransformType.class);
-                if (transform.has("thirdperson")) {
-                    TRSRTransformation t = GSON.fromJson(transform.get("thirdperson"), TRSRTransformation.class);
-                    transform.remove("thirdperson");
-                    transforms.put(TransformType.THIRD_PERSON_RIGHT_HAND, TRSRTransformation.blockCenterToCorner(t));
-                }
-                if (transform.has("thirdperson_righthand")) {
-                    TRSRTransformation t = GSON.fromJson(transform.get("thirdperson_righthand"), TRSRTransformation.class);
-                    transform.remove("thirdperson_righthand");
-                    transforms.put(TransformType.THIRD_PERSON_RIGHT_HAND, TRSRTransformation.blockCenterToCorner(t));
-                }
-                if (transform.has("thirdperson_lefthand")) {
-                    TRSRTransformation t = GSON.fromJson(transform.get("thirdperson_lefthand"), TRSRTransformation.class);
-                    transform.remove("thirdperson_lefthand");
-                    transforms.put(TransformType.THIRD_PERSON_LEFT_HAND, TRSRTransformation.blockCenterToCorner(t));
-                }
-                if (transform.has("firstperson")) {
-                    TRSRTransformation t = GSON.fromJson(transform.get("firstperson"), TRSRTransformation.class);
-                    transform.remove("firstperson");
-                    transforms.put(TransformType.FIRST_PERSON_RIGHT_HAND, TRSRTransformation.blockCenterToCorner(t));
-                }
-                if (transform.has("firstperson_righthand")) {
-                    TRSRTransformation t = GSON.fromJson(transform.get("firstperson_righthand"), TRSRTransformation.class);
-                    transform.remove("firstperson_righthand");
-                    transforms.put(TransformType.FIRST_PERSON_RIGHT_HAND, TRSRTransformation.blockCenterToCorner(t));
-                }
-                if (transform.has("firstperson_lefthand")) {
-                    TRSRTransformation t = GSON.fromJson(transform.get("firstperson_lefthand"), TRSRTransformation.class);
-                    transform.remove("firstperson_lefthand");
-                    transforms.put(TransformType.FIRST_PERSON_LEFT_HAND, TRSRTransformation.blockCenterToCorner(t));
-                }
-                if (transform.has("head")) {
-                    TRSRTransformation t = GSON.fromJson(transform.get("head"), TRSRTransformation.class);
-                    transform.remove("head");
-                    transforms.put(TransformType.HEAD, TRSRTransformation.blockCenterToCorner(t));
-                }
-                if (transform.has("gui")) {
-                    TRSRTransformation t = GSON.fromJson(transform.get("gui"), TRSRTransformation.class);
-                    transform.remove("gui");
-                    transforms.put(TransformType.GUI, TRSRTransformation.blockCenterToCorner(t));
-                }
-                if (transform.has("ground")) {
-                    TRSRTransformation t = GSON.fromJson(transform.get("ground"), TRSRTransformation.class);
-                    transform.remove("ground");
-                    transforms.put(TransformType.GROUND, TRSRTransformation.blockCenterToCorner(t));
-                }
-                if (transform.has("fixed")) {
-                    TRSRTransformation t = GSON.fromJson(transform.get("fixed"), TRSRTransformation.class);
-                    transform.remove("fixed");
-                    transforms.put(TransformType.FIXED, TRSRTransformation.blockCenterToCorner(t));
-                }
-                int k = transform.entrySet().size();
-                if (transform.has("matrix")) {
-                    k--;
-                }
-                if (transform.has("translation")) {
-                    k--;
-                }
-                if (transform.has("rotation")) {
-                    k--;
-                }
-                if (transform.has("scale")) {
-                    k--;
-                }
-                if (transform.has("post-rotation")) {
-                    k--;
-                }
-                if (k > 0) {
-                    throw new JsonParseException("transform: allowed keys: 'thirdperson', 'firstperson', 'gui', 'head', 'matrix', 'translation', 'rotation', 'scale', 'post-rotation'");
-                }
-                TRSRTransformation base = TRSRTransformation.identity();
-                if (!transform.entrySet().isEmpty()) {
-                    base = GSON.fromJson(transform, TRSRTransformation.class);
-                    base = TRSRTransformation.blockCenterToCorner(base);
-                }
-                IModelState state;
-                if (transforms.isEmpty()) {
-                    state = base;
+                if (transform.has("type")) {
+                    JsonElement typeElement = transform.get("type");
+                    if (typeElement.isJsonPrimitive() && typeElement.getAsJsonPrimitive().isString()) {
+                        ResourceLocation type = new ResourceLocation(typeElement.getAsString());
+                        try {
+                            ITransformFactory factory = getTransformFactory(type);
+                            ret = Optional.of(factory.getModelState(transform));
+                        } catch (IllegalArgumentException e) {
+                            throw new JsonParseException("Unregistered type!" + type, e);
+                        }
+                    } else {
+                        throw new JsonParseException("type: expected as string but was not a string. got: " + typeElement);
+                    }
                 } else {
-                    state = new CCModelState(Maps.immutableEnumMap(transforms), Optional.of(base));
+                    //TODO, move this to a factory.
+                    EnumMap<TransformType, TRSRTransformation> transforms = Maps.newEnumMap(TransformType.class);
+                    if (transform.has("thirdperson")) {
+                        TRSRTransformation t = GSON.fromJson(transform.get("thirdperson"), TRSRTransformation.class);
+                        transform.remove("thirdperson");
+                        transforms.put(TransformType.THIRD_PERSON_RIGHT_HAND, TRSRTransformation.blockCenterToCorner(t));
+                    }
+                    if (transform.has("thirdperson_righthand")) {
+                        TRSRTransformation t = GSON.fromJson(transform.get("thirdperson_righthand"), TRSRTransformation.class);
+                        transform.remove("thirdperson_righthand");
+                        transforms.put(TransformType.THIRD_PERSON_RIGHT_HAND, TRSRTransformation.blockCenterToCorner(t));
+                    }
+                    if (transform.has("thirdperson_lefthand")) {
+                        TRSRTransformation t = GSON.fromJson(transform.get("thirdperson_lefthand"), TRSRTransformation.class);
+                        transform.remove("thirdperson_lefthand");
+                        transforms.put(TransformType.THIRD_PERSON_LEFT_HAND, TRSRTransformation.blockCenterToCorner(t));
+                    }
+                    if (transform.has("firstperson")) {
+                        TRSRTransformation t = GSON.fromJson(transform.get("firstperson"), TRSRTransformation.class);
+                        transform.remove("firstperson");
+                        transforms.put(TransformType.FIRST_PERSON_RIGHT_HAND, TRSRTransformation.blockCenterToCorner(t));
+                    }
+                    if (transform.has("firstperson_righthand")) {
+                        TRSRTransformation t = GSON.fromJson(transform.get("firstperson_righthand"), TRSRTransformation.class);
+                        transform.remove("firstperson_righthand");
+                        transforms.put(TransformType.FIRST_PERSON_RIGHT_HAND, TRSRTransformation.blockCenterToCorner(t));
+                    }
+                    if (transform.has("firstperson_lefthand")) {
+                        TRSRTransformation t = GSON.fromJson(transform.get("firstperson_lefthand"), TRSRTransformation.class);
+                        transform.remove("firstperson_lefthand");
+                        transforms.put(TransformType.FIRST_PERSON_LEFT_HAND, TRSRTransformation.blockCenterToCorner(t));
+                    }
+                    if (transform.has("head")) {
+                        TRSRTransformation t = GSON.fromJson(transform.get("head"), TRSRTransformation.class);
+                        transform.remove("head");
+                        transforms.put(TransformType.HEAD, TRSRTransformation.blockCenterToCorner(t));
+                    }
+                    if (transform.has("gui")) {
+                        TRSRTransformation t = GSON.fromJson(transform.get("gui"), TRSRTransformation.class);
+                        transform.remove("gui");
+                        transforms.put(TransformType.GUI, TRSRTransformation.blockCenterToCorner(t));
+                    }
+                    if (transform.has("ground")) {
+                        TRSRTransformation t = GSON.fromJson(transform.get("ground"), TRSRTransformation.class);
+                        transform.remove("ground");
+                        transforms.put(TransformType.GROUND, TRSRTransformation.blockCenterToCorner(t));
+                    }
+                    if (transform.has("fixed")) {
+                        TRSRTransformation t = GSON.fromJson(transform.get("fixed"), TRSRTransformation.class);
+                        transform.remove("fixed");
+                        transforms.put(TransformType.FIXED, TRSRTransformation.blockCenterToCorner(t));
+                    }
+                    int k = transform.entrySet().size();
+                    if (transform.has("matrix")) {
+                        k--;
+                    }
+                    if (transform.has("translation")) {
+                        k--;
+                    }
+                    if (transform.has("rotation")) {
+                        k--;
+                    }
+                    if (transform.has("scale")) {
+                        k--;
+                    }
+                    if (transform.has("post-rotation")) {
+                        k--;
+                    }
+                    if (k > 0) {
+                        throw new JsonParseException("transform: allowed keys: 'thirdperson', 'firstperson', 'gui', 'head', 'matrix', 'translation', 'rotation', 'scale', 'post-rotation'");
+                    }
+                    TRSRTransformation base = TRSRTransformation.identity();
+                    if (!transform.entrySet().isEmpty()) {
+                        base = GSON.fromJson(transform, TRSRTransformation.class);
+                        base = TRSRTransformation.blockCenterToCorner(base);
+                    }
+                    IModelState state;
+                    if (transforms.isEmpty()) {
+                        state = base;
+                    } else {
+                        state = new CCModelState(Maps.immutableEnumMap(transforms), Optional.of(base));
+                    }
+                    ret = Optional.of(state);
                 }
-                ret = Optional.of(state);
             }
         }
         return ret;

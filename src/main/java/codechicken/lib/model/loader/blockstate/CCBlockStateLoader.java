@@ -1,10 +1,11 @@
 package codechicken.lib.model.loader.blockstate;
 
-import codechicken.lib.reflect.ObfMapping;
 import codechicken.lib.internal.CCLLog;
+import codechicken.lib.reflect.ObfMapping;
 import codechicken.lib.reflect.ReflectionManager;
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.ArrayUtils;
+import codechicken.lib.util.TransformUtils;
 import com.google.common.base.Joiner;
 import com.google.common.collect.*;
 import com.google.gson.*;
@@ -27,18 +28,22 @@ import net.minecraftforge.client.model.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.ProgressManager.ProgressBar;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.Level;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
@@ -53,21 +58,56 @@ import java.util.stream.StreamSupport;
  */
 public class CCBlockStateLoader {
 
+    public static final Gson VARIANT_GSON = new GsonBuilder().registerTypeAdapter(CCVariant.class, new CCVariant.Deserializer()).create();
+    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().setLenient().create();
     public static CCBlockStateLoader INSTANCE = new CCBlockStateLoader();
-
-    public VariantLoader VARIANT_LOADER = new VariantLoader();
-
-    public static final Gson GSON = new GsonBuilder().registerTypeAdapter(CCVariant.class, new CCVariant.Deserializer()).create();
 
     public Map<ResourceLocation, ModelBlockDefinition> blockDefinitions = new HashMap<>();
     public Map<ModelResourceLocation, IModel> toBake = new LinkedHashMap<>();
+    public VariantLoader VARIANT_LOADER = new VariantLoader();
 
     private Map<ResourceLocation, Exception> exceptions;
     private ModelLoader modelLoader;
 
-
     public static void initialize() {
         MinecraftForge.EVENT_BUS.register(INSTANCE);
+        Loader.instance().getActiveModList().forEach(CCBlockStateLoader::loadFactories);
+    }
+
+    private static void loadFactories(ModContainer mod) {
+        FileSystem fs = null;
+        BufferedReader reader = null;
+        try {
+            Path filePath = null;
+            String toResolve = "/assets/" + mod.getModId() + "/cc_blockstates/_factories.json";
+            if (mod.getSource().isFile()) {
+                fs = FileSystems.newFileSystem(mod.getSource().toPath(), null);
+                filePath = fs.getPath(toResolve);
+            } else if (mod.getSource().isDirectory()) {
+                filePath = mod.getSource().toPath().resolve(toResolve);
+            }
+            if (filePath != null && Files.exists(filePath)) {
+                reader = Files.newBufferedReader(filePath);
+                try {
+                    JsonReader jsonReader = new JsonReader(reader);
+                    jsonReader.setLenient(true);
+                    JsonObject object = GSON.getAdapter(JsonObject.class).read(jsonReader);
+                    parseFactory(mod, object);
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to read Factories Json!", e);
+                }
+            }
+        } catch (IOException e) {
+            CCLLog.log(Level.ERROR, e, "Failed to load Factories Json for mod %s!", mod.getModId());
+        } finally {
+            IOUtils.closeQuietly(fs, reader);
+        }
+    }
+
+    private static void parseFactory(ModContainer mod, JsonObject object) {
+        if (object.has("transforms")) {
+            TransformUtils.loadTransformFactory(mod, object.getAsJsonObject("transforms"));
+        }
     }
 
     @SubscribeEvent (priority = EventPriority.HIGHEST)
@@ -83,9 +123,7 @@ public class CCBlockStateLoader {
 
         loadBakery(modelLoader.blockModelShapes.getBlockStateMapper(), modelLoader.resourceManager);
 
-        for (IModel model : toBake.values()) {
-            model.getTextures().forEach(event.getMap()::registerSprite);
-        }
+        toBake.values().forEach(model -> model.getTextures().forEach(event.getMap()::registerSprite));
     }
 
     //This is bullshit..
@@ -103,7 +141,7 @@ public class CCBlockStateLoader {
 
             for (ResourceLocation location : mapper.getBlockstateLocations(block)) {
                 if (canLoad(manager, location)) {
-                    ModelBlockDefinition definition = blockDefinitions.computeIfAbsent(getBlockStateLocation(location), file -> loadMBD(manager, file));
+                    ModelBlockDefinition definition = getMBD(location);
                     if (definition != null) {
                         if (definition.hasMultipartData()) {
                             throw new RuntimeException("BlockState file parsed by CCL appears to have Multipart data.. " + location.toString());
@@ -156,8 +194,6 @@ public class CCBlockStateLoader {
         ProgressManager.pop(bar);
     }
 
-
-
     @SubscribeEvent (priority = EventPriority.HIGHEST)
     public void onModelBake(ModelBakeEvent event) {
 
@@ -195,7 +231,7 @@ public class CCBlockStateLoader {
         ObfMapping mapping = new ObfMapping("net/minecraftforge/client/model/ModelLoader$VanillaLoader", "INSTANCE");
         Object object = ReflectionManager.getField(mapping, null, Object.class);
         mapping = new ObfMapping("net/minecraftforge/client/model/ModelLoader$VanillaLoader", "getLoader", "()Lnet/minecraftforge/client/model/ModelLoader;");
-        modelLoader =  ReflectionManager.callMethod(mapping, ModelLoader.class, object);
+        modelLoader = ReflectionManager.callMethod(mapping, ModelLoader.class, object);
         mapping = new ObfMapping("net/minecraftforge/client/model/ModelLoader", "loadingExceptions");
         exceptions = ReflectionManager.getField(mapping, modelLoader, Map.class);
     }
@@ -206,19 +242,25 @@ public class CCBlockStateLoader {
 
     private static boolean canLoad(IResourceManager resourceManager, ResourceLocation location) {
         ResourceLocation fileLocation = getBlockStateLocation(location);
-        try {
-            resourceManager.getAllResources(fileLocation);
-        } catch (Exception e) {
-            return false;
+        if (!fileLocation.toString().endsWith("_factories.json")) {
+            try {
+                resourceManager.getAllResources(fileLocation);
+            } catch (Exception e) {
+                return false;
+            }
         }
         return true;
     }
 
-    public static ModelBlockDefinition loadMBD(IResourceManager manager, ResourceLocation file) {
+    public ModelBlockDefinition getMBD(ResourceLocation location) {
+        return blockDefinitions.computeIfAbsent(getBlockStateLocation(location), this::loadMBD);
+    }
+
+    public ModelBlockDefinition loadMBD(ResourceLocation file) {
         List<ModelBlockDefinition> list = new ArrayList<>();
 
         try {
-            for (IResource resource : manager.getAllResources(file)) {
+            for (IResource resource : modelLoader.resourceManager.getAllResources(file)) {
                 list.add(load(resource.getInputStream()));
             }
         } catch (FileNotFoundException ignore) {
@@ -237,37 +279,63 @@ public class CCBlockStateLoader {
             JsonReader reader = new JsonReader(new InputStreamReader(stream));
             reader.setLenient(true);
             JsonObject object = parser.parse(reader).getAsJsonObject();
-            if (JsonUtils.hasField(object, "ccl_marker")) {
-                int marker = JsonUtils.getInt(object, "ccl_marker");
-                if (marker == 1) {
-                    List<String> variantSets = new ArrayList<>();
+
+            if (JsonUtils.hasField(object, "ccl_marker")) {//Do we have a marker?
+                int marker = JsonUtils.getInt(object, "ccl_marker");//We do, what version?
+
+                if (marker == 1) {//Version 1? kk i got dis.
+
+                    Set<String> variantSets = new HashSet<>();//Our variants to compile.
+                    Set<String> missingVariants = new HashSet<>();//Any known missing variants.
+                    Map<String, Map<String, CCVariant>> variants = new LinkedHashMap<>();//Map of VariantName > VariantValue > CCVariant.
+                    Map<String, Map<String, Map<String, CCVariant>>> subModels = new LinkedHashMap<>();//Map of SubModelName > VariantName > VariantValue > CCVariant.
+                    Map<String, CCVariant> compiledVariants = new LinkedHashMap<>();//Our compiled variants.
+                    Map<String, Map<String, CCVariant>> compiledSubModelVariants = new LinkedHashMap<>();
+                    Set<String> possibleCombos = new HashSet<>();
+
+                    //Grab the variant sets.
                     for (JsonElement element : object.getAsJsonArray("variant_sets")) {
                         variantSets.add(element.getAsString());
                     }
+                    //Grab any known missing variants.
+                    if (object.has("missing_variants")) {
+                        for (JsonElement element : object.getAsJsonArray("missing_variants")) {
+                            missingVariants.add(element.getAsString());
+                        }
+                    }
 
+                    //Grab the default texture domain.
                     String textureDomain = "";
                     if (object.has("texture_domain")) {
                         textureDomain = object.get("texture_domain").getAsString();
                     }
 
+                    //Deserialize the default variant if one exists.
                     CCVariant defaultVariant = null;
                     if (object.has("defaults")) {
-                        defaultVariant = GSON.fromJson(object.get("defaults"), CCVariant.class);
+                        defaultVariant = VARIANT_GSON.fromJson(object.get("defaults"), CCVariant.class);
                     }
-                    Map<String, Map<String, CCVariant>> variants = parseVariants(object.getAsJsonObject("variants"));
 
-                    Map<String, Map<String, Map<String, CCVariant>>> subModels = parseSubModels(object.getAsJsonObject("sub_model"));
+                    //Initialize any known missing variant values with the default variant or a blank one if there is no default.
+                    for (String variant : missingVariants) {
+                        String[] split = variant.split("=");
+                        Map<String, CCVariant> valueMap = variants.computeIfAbsent(split[0], s -> new LinkedHashMap<>());
+                        valueMap.put(split[1], new CCVariant());
+                    }
 
-                    Map<String, CCVariant> compiledVariants = new LinkedHashMap<>();
-                    Map<String, Map<String, CCVariant>> compiledSubModelVariants = new LinkedHashMap<>();
+                    //Load our actual variants.
+                    parseVariants(variants, object.getAsJsonObject("variants"));
 
-                    List<String> possibleCombos = new ArrayList<>();
+                    //Load any sub models.
+                    subModels.putAll(parseSubModels(object.getAsJsonObject("sub_model")));
 
+                    //Generate all possible variant combinations with the supplied variant sets.
                     for (String variantSet : variantSets) {
                         Map<String, List<String>> variantValueMap = generateVariantValueMap(Arrays.asList(variantSet.split(",")), variants, subModels);
                         possibleCombos.addAll(generatePossibleCombos(variantValueMap));
                     }
 
+                    //From the possible combos, compile our variants.
                     for (String var : possibleCombos) {
                         Map<String, String> kvArray = ArrayUtils.convertKeyValueArrayToMap(var.split(","));
                         CCVariant finalVariant = new CCVariant();
@@ -275,8 +343,8 @@ public class CCBlockStateLoader {
                             finalVariant = defaultVariant.copy();
                         }
                         compiledVariants.put(var, compileVariant(finalVariant.copy(), kvArray, variants));
-
                     }
+                    //Compile out sub model variants.
                     for (Entry<String, Map<String, Map<String, CCVariant>>> subModelVariantEntry : subModels.entrySet()) {
                         Map<String, CCVariant> compiledVariants2 = new LinkedHashMap<>();
                         for (String var : possibleCombos) {
@@ -290,21 +358,23 @@ public class CCBlockStateLoader {
                         compiledSubModelVariants.put(subModelVariantEntry.getKey(), compiledVariants2);
                     }
 
+                    //Compile the final variant lists.
                     Map<String, VariantList> variantList = new HashMap<>();
                     for (Entry<String, CCVariant> entry : compiledVariants.entrySet()) {
                         Map<String, CCVariant> subModelVariants = getSubModelsForKey(entry.getKey(), compiledSubModelVariants);
                         List<Variant> vars = new ArrayList<>();
                         CCVariant variant = entry.getValue();
 
+                        boolean hasSubModels = subModelVariants.size() != 0;
                         boolean uvLock = variant.uvLock.orElse(false);
                         boolean smooth = variant.smooth.orElse(true);
                         boolean gui3d = variant.gui3d.orElse(true);
                         int weight = variant.weight.orElse(1);
 
-                        if (variant.model != null && subModelVariants.size() == 0 && variant.textures.size() == 0 && variant.customData.size() == 0 && variant.state.orElse(null) instanceof ModelRotation) {
+                        if (variant.hasModel() && !hasSubModels && !variant.hasTextures() && !variant.hasCustomData() && variant.state.get() instanceof ModelRotation) {
                             vars.add(new Variant(variant.model, ((ModelRotation) variant.state.get()), uvLock, weight));
-                        } else if (subModelVariants.size() == 0) {
-                            vars.add(new CCFinalVariant(variant.model, variant.state.orElse(TRSRTransformation.identity()), uvLock, smooth, gui3d, weight, variant.textures, textureDomain, variant.customData));
+                        } else if (!hasSubModels) {
+                            vars.add(new CCFinalVariant(variant.model, variant.state, uvLock, smooth, gui3d, weight, variant.textures, textureDomain, variant.customData));
                         } else {
                             vars.add(new CCFinalMultiVariant(variant, textureDomain, subModelVariants));
                         }
@@ -312,7 +382,6 @@ public class CCBlockStateLoader {
                     }
                     return new ModelBlockDefinition(variantList, null);
                 }
-
             }
         } catch (RuntimeException e) {
             throw e;
@@ -322,14 +391,19 @@ public class CCBlockStateLoader {
         return null;
     }
 
-    public static Map<String, Map<String, CCVariant>> parseVariants(JsonObject variantElement) {
-        Map<String, Map<String, CCVariant>> variants = new LinkedHashMap<>();
+    /**
+     * Parses variants from json.
+     *
+     * @param variantElement The object to grab variants from.
+     * @return Map of VariantName > VariantValue > CCVariant.
+     */
+    public static Map<String, Map<String, CCVariant>> parseVariants(Map<String, Map<String, CCVariant>> variants, JsonObject variantElement) {
         for (Entry<String, JsonElement> variantsEntry : variantElement.entrySet()) {
             String variantName = variantsEntry.getKey();
             Map<String, CCVariant> variantValues = variants.computeIfAbsent(variantName, k -> new LinkedHashMap<>());
             for (Entry<String, JsonElement> variantEntry : variantsEntry.getValue().getAsJsonObject().entrySet()) {
                 String variantValue = variantEntry.getKey();
-                CCVariant variant = GSON.fromJson(variantEntry.getValue(), CCVariant.class);
+                CCVariant variant = VARIANT_GSON.fromJson(variantEntry.getValue(), CCVariant.class);
                 variantValues.put(variantValue, variant);
             }
         }
@@ -341,7 +415,9 @@ public class CCBlockStateLoader {
 
         if (object != null) {
             for (Entry<String, JsonElement> subModelEntry : object.entrySet()) {
-                subModels.put(subModelEntry.getKey(), parseVariants(subModelEntry.getValue().getAsJsonObject().getAsJsonObject("variants")));
+                JsonObject variantObject = subModelEntry.getValue().getAsJsonObject();
+                Map<String, Map<String, CCVariant>> variants = subModels.computeIfAbsent(subModelEntry.getKey(), s -> new LinkedHashMap<>());
+                subModels.put(subModelEntry.getKey(), parseVariants(variants, variantObject.getAsJsonObject("variants")));
             }
         }
 
@@ -393,8 +469,8 @@ public class CCBlockStateLoader {
      * @param variantValueMap A map of all possible Keys to all possible values per key.
      * @return A compiled list of all possible combos.
      */
-    public static List<String> generatePossibleCombos(Map<String, List<String>> variantValueMap) {
-        List<String> possibleCombos = new ArrayList<>();
+    public static Set<String> generatePossibleCombos(Map<String, List<String>> variantValueMap) {
+        Set<String> possibleCombos = new HashSet<>();
 
         List<String> keys = Lists.newArrayList(variantValueMap.keySet());
 
@@ -414,9 +490,9 @@ public class CCBlockStateLoader {
                 }
             }
 
-            String combo = "";
+            StringBuilder combo = new StringBuilder();
             for (int i = 0; i < indexes.length; i++) {
-                combo += keys.get(i) + "=" + variantValueMap.get(keys.get(i)).get(indexes[i]) + ",";
+                combo.append(keys.get(i)).append("=").append(variantValueMap.get(keys.get(i)).get(indexes[i])).append(",");
             }
             possibleCombos.add(combo.substring(0, combo.length() - 1));
         }
@@ -504,6 +580,7 @@ public class CCBlockStateLoader {
         }
     }
 
+    //CCL's custom Variant loader for WrappedMRL.
     private class VariantLoader implements ICustomModelLoader {
 
         @Override
@@ -518,8 +595,7 @@ public class CCBlockStateLoader {
         @Override
         public IModel loadModel(ResourceLocation modelLocation) throws Exception {
             ModelResourceLocation location = ((WrappedMRL) modelLocation).to();
-            ResourceLocation file = getBlockStateLocation(location);
-            ModelBlockDefinition definition = blockDefinitions.get(file);
+            ModelBlockDefinition definition = getMBD(location);
             VariantList variants = definition.getVariant(location.getVariant());
             return new WeightedRandomModel(variants);
         }

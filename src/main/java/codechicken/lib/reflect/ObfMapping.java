@@ -175,7 +175,10 @@ public class ObfMapping {
         } catch (IOException ignored) {
         }
         obfuscated = obf;
-        if (!obf) {
+    }
+
+    public static void init(){
+        if (!obfuscated) {
             loadMCPRemapper();
         }
     }

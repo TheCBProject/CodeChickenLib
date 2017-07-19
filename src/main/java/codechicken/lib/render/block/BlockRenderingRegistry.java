@@ -1,7 +1,7 @@
 package codechicken.lib.render.block;
 
 import codechicken.lib.reflect.ObfMapping;
-import codechicken.lib.model.BakedModelProperties;
+import codechicken.lib.model.bakedmodels.ModelProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.render.buffer.BakingVertexBuffer;
 import codechicken.lib.texture.TextureUtils;
@@ -81,7 +81,7 @@ public class BlockRenderingRegistry {
             buffer.finishDrawing();
             buffer.setTranslation(0, 0, 0);
             BlockModelRenderer modelRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelRenderer();
-            modelRenderer.renderModel(world, new PerspectiveAwareBakedModel(buffer.bake(), TransformUtils.DEFAULT_BLOCK, new BakedModelProperties(true, true, null)), state, pos, parent, true);
+            modelRenderer.renderModel(world, new PerspectiveAwareBakedModel(buffer.bake(), TransformUtils.DEFAULT_BLOCK, new ModelProperties(true, true, null)), state, pos, parent, true);
         }
     }
 

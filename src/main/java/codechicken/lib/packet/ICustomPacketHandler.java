@@ -12,11 +12,11 @@ public interface ICustomPacketHandler {
 
     interface IClientPacketHandler extends ICustomPacketHandler {
 
-        void handlePacket(PacketCustom packetCustom, Minecraft mc, INetHandlerPlayClient handler);
+        void handlePacket(PacketCustom packet, Minecraft mc, INetHandlerPlayClient handler);
     }
 
     interface IServerPacketHandler extends ICustomPacketHandler {
 
-        void handlePacket(PacketCustom packetCustom, EntityPlayerMP sender, INetHandlerPlayServer handler);
+        void handlePacket(PacketCustom packet, EntityPlayerMP sender, INetHandlerPlayServer handler);
     }
 }

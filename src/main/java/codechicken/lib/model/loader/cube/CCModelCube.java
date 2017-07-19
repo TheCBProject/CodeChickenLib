@@ -1,6 +1,6 @@
 package codechicken.lib.model.loader.cube;
 
-import codechicken.lib.model.BakedModelProperties;
+import codechicken.lib.model.bakedmodels.ModelProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareLayeredModelWrapper;
 import codechicken.lib.texture.TextureUtils;
 import com.google.common.collect.ImmutableList;
@@ -91,7 +91,11 @@ public class CCModelCube implements IModel {
             layerModelMap.put(layerEntry.getKey(), model);
         }
 
-        return new PerspectiveAwareLayeredModelWrapper(layerModelMap, state, new BakedModelProperties(isAO, gui3d, particle));
+        ModelProperties.Builder builder = ModelProperties.builder();
+        builder.withAO(isAO).withGui3D(gui3d);
+        builder.withParticle(particle);
+
+        return new PerspectiveAwareLayeredModelWrapper(layerModelMap, builder.withState(state).build());
     }
 
     private static Map<String, String> addMissing(Map<String, String> textures) {

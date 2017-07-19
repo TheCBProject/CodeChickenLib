@@ -1,9 +1,9 @@
 package codechicken.lib.model.bakery;
 
 import codechicken.lib.internal.CCLLog;
-import codechicken.lib.model.BakedModelProperties;
+import codechicken.lib.model.bakedmodels.ModelProperties;
 import codechicken.lib.model.ModelRegistryHelper;
-import codechicken.lib.model.PerspectiveAwareModelProperties;
+import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import codechicken.lib.model.PlanarFaceBakery;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareLayeredModel;
@@ -14,6 +14,7 @@ import codechicken.lib.render.buffer.BakingVertexBuffer;
 import codechicken.lib.texture.IItemBlockTextureProvider;
 import codechicken.lib.texture.IWorldBlockTextureProvider;
 import codechicken.lib.texture.TextureUtils;
+import codechicken.lib.util.ResourceUtils;
 import codechicken.lib.util.TransformUtils;
 import codechicken.lib.util.VertexDataUtils;
 import com.google.common.cache.Cache;
@@ -76,7 +77,7 @@ public class ModelBakery {
     public static final IItemStackKeyGenerator defaultItemKeyGenerator = stack -> stack.getItem().getRegistryName().toString() + "|" + stack.getMetadata();
 
     public static void init() {
-        TextureUtils.registerReloadListener(resourceManager -> nukeModelCache());
+        ResourceUtils.registerReloadListener(resourceManager -> nukeModelCache());
         ModelRegistryHelper.registerCallback(modelRegistry -> missingModel = ModelLoaderRegistry.getMissingModel().bake(TransformUtils.DEFAULT_BLOCK, DefaultVertexFormats.ITEM, TextureUtils.bakedTextureGetter));
     }
 
@@ -182,8 +183,8 @@ public class ModelBakery {
 
                     faceQuads.put(face, quads);
                 }
-                PerspectiveAwareModelProperties properties = ((IItemBakery) bakery).getModelProperties(stack);
-                return new PerspectiveAwareBakedModel(faceQuads, generalQuads, properties.getModelState(), properties.getProperties());
+                PerspectiveProperties properties = ((IItemBakery) bakery).getModelProperties(stack);
+                return new PerspectiveAwareBakedModel(faceQuads, generalQuads, properties);
 
             } else if (block instanceof IItemBlockTextureProvider) {
                 IItemBlockTextureProvider provider = ((IItemBlockTextureProvider) block);
@@ -195,7 +196,7 @@ public class ModelBakery {
 
                     faceQuadMap.put(face, faceQuads);
                 }
-                BakedModelProperties properties = new BakedModelProperties(true, true, null);
+                ModelProperties properties = new ModelProperties(true, true, null);
                 return new PerspectiveAwareBakedModel(faceQuadMap, TransformUtils.DEFAULT_BLOCK, properties);
             }
         } else {
@@ -215,9 +216,8 @@ public class ModelBakery {
                     faceQuads.put(face, quads);
                 }
 
-                PerspectiveAwareModelProperties bakeryProperties = bakery.getModelProperties(stack);
-                BakedModelProperties properties = bakeryProperties.getProperties();
-                return new PerspectiveAwareBakedModel(faceQuads, generalQuads, bakeryProperties.getModelState(), properties);
+                PerspectiveProperties properties = bakery.getModelProperties(stack);
+                return new PerspectiveAwareBakedModel(faceQuads, generalQuads, properties);
             }
         }
         return missingModel;
@@ -268,7 +268,7 @@ public class ModelBakery {
 
                     faceQuads.put(face, quads);
                 }
-                BakedModelProperties properties = new BakedModelProperties(true, true, null);
+                ModelProperties properties = new ModelProperties(true, true, null);
                 return new PerspectiveAwareBakedModel(faceQuads, generalQuads, TransformUtils.DEFAULT_BLOCK, properties);
             }
             if (bakery instanceof ILayeredBlockBakery) {
@@ -294,14 +294,14 @@ public class ModelBakery {
                         layerFaceQuadMap.put(layer, faceQuadMap);
                     }
                 }
-                BakedModelProperties properties = new BakedModelProperties(true, true, null);
-                return new PerspectiveAwareLayeredModel(layerFaceQuadMap, layerGeneralQuads, TransformUtils.DEFAULT_BLOCK, properties);
+                ModelProperties properties = new ModelProperties(true, true, null);
+                return new PerspectiveAwareLayeredModel(layerFaceQuadMap, layerGeneralQuads, new PerspectiveProperties(TransformUtils.DEFAULT_BLOCK, properties), BlockRenderLayer.SOLID);
             }
         }
         if (state.getBlock() instanceof IWorldBlockTextureProvider) {
             Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap = generateLayerFaceQuadMap(state);
-            BakedModelProperties properties = new BakedModelProperties(true, true, null);
-            return new PerspectiveAwareLayeredModel(layerFaceQuadMap, TransformUtils.DEFAULT_BLOCK, properties);
+            ModelProperties properties = new ModelProperties(true, true, null);
+            return new PerspectiveAwareLayeredModel(layerFaceQuadMap, new PerspectiveProperties(TransformUtils.DEFAULT_BLOCK, properties));
         }
         return missingModel;
     }

@@ -1,5 +1,6 @@
 package codechicken.lib.data;
 
+import codechicken.lib.vec.Vector3;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -67,6 +68,10 @@ public interface MCDataInput {
 
     default BlockPos readPos() {
         return new BlockPos(readInt(), readInt(), readInt());
+    }
+
+    default Vector3 readVector() {
+        return new Vector3(readDouble(), readDouble(), readDouble());
     }
 
     default NBTTagCompound readNBTTagCompound() {

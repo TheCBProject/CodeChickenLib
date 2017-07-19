@@ -33,7 +33,7 @@ public class BakeryModel implements IModel {
 
     @Override
     public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
-        return new CCBakeryModel("");
+        return new CCBakeryModel();
     }
 
     @Override
