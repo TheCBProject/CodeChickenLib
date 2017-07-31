@@ -5,6 +5,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 18/07/2017.
  */
+@Deprecated
 public interface IConfigValue {
 
     boolean getBoolean(boolean defaultValue);

@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Created by covers1624 on 18/07/2017.
  */
+@Deprecated
 public class ConfigTag implements IConfigTag {
 
     private static Pattern QUOTE_PATTERN = Pattern.compile("(?<=\")(.*)(?=\")");

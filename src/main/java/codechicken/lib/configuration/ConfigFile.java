@@ -5,6 +5,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 
+@Deprecated
 public class ConfigFile extends ConfigTag {
 
     protected File file;

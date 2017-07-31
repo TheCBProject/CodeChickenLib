@@ -2,7 +2,6 @@ package codechicken.lib.config;
 
 import java.io.*;
 
-@Deprecated
 public class ConfigFile extends ConfigTagParent {
 
     public static final byte[] crlf = new byte[] { 0xD, 0xA };

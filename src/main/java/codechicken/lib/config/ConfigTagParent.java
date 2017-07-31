@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-@Deprecated
+
 public abstract class ConfigTagParent {
 
     public static class TagOrderComparator implements Comparator<ConfigTag> {

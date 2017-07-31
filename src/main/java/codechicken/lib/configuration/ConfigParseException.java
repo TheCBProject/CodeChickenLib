@@ -5,6 +5,7 @@ import java.io.IOException;
 /**
  * Created by covers1624 on 18/07/2017.
  */
+@Deprecated
 public class ConfigParseException extends IOException {
 
 

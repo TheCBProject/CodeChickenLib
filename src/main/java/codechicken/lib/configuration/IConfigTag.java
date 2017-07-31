@@ -3,6 +3,7 @@ package codechicken.lib.configuration;
 import javax.annotation.Nullable;
 import java.util.List;
 
+@Deprecated
 public interface IConfigTag extends IConfigValue {
 
     /**
