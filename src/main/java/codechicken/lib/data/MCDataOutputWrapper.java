@@ -134,6 +134,7 @@ public class MCDataOutputWrapper implements MCDataOutput {
         if (nbt == null) {
             this.writeByte(0);
         } else {
+            this.writeByte(1);
             try {
                 CompressedStreamTools.write(nbt, dataout);
             } catch (IOException ioexception) {
