@@ -154,10 +154,10 @@ public class GuiDraw {
     }
 
     public static void drawMultiLineTip(int x, int y, List<String> list) {
-        drawMultiLineTip(null, x, y, list);
+        drawMultiLineTip(ItemStack.EMPTY, x, y, list);
     }
 
-    public static void drawMultiLineTip(@Nullable ItemStack stack, int x, int y, List<String> lines) {
+    public static void drawMultiLineTip(ItemStack stack, int x, int y, List<String> lines) {
         //TODO pr forge to clip the box in the top bound of the screen + TOOLTIP_LINESPACE
 
         if (lines.isEmpty()) {
