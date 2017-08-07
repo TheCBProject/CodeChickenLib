@@ -112,15 +112,6 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     public Cuboid6 expand(Vector3 vec) {
         return expand(vec.x, vec.y, vec.z);
     }
-
-    public Cuboid6 expandSide(int side, int amount) {
-        if (side % 2 == 0) {
-            min = min.offset(side, amount);
-        } else {
-            max = max.offset(side, amount);
-        }
-        return this;
-    }
     
     public Cuboid6 offset(Cuboid6 o) {
         min.add(o.min);
