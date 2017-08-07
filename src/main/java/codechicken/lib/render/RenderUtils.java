@@ -195,7 +195,7 @@ public class RenderUtils {
     public static void renderBlockOverlaySide(int x, int y, int z, int side, double tx1, double tx2, double ty1, double ty2) {
         double[] points = new double[] { x - 0.009, x + 1.009, y - 0.009, y + 1.009, z - 0.009, z + 1.009 };
 
-        BufferBuilder r = Tessellator.getInstance().getBuffer();
+        BufferBuilder r = CCRenderState.instance().getBuffer();
         switch (side) {
             case 0:
                 r.pos(points[0], points[2], points[4]).tex(tx1, ty1).endVertex();
