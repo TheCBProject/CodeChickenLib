@@ -62,7 +62,7 @@ public interface MCDataInput {
         return EnumFacing.VALUES[readByte()];
     }
 
-    default ResourceLocation readLocation() {
+    default ResourceLocation readResourceLocation() {
         return new ResourceLocation(readString());
     }
 
