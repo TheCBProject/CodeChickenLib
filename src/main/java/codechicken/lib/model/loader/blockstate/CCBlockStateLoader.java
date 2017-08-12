@@ -59,7 +59,6 @@ import java.util.stream.StreamSupport;
 public class CCBlockStateLoader {
 
     public static final Gson VARIANT_GSON = new GsonBuilder().registerTypeAdapter(CCVariant.class, new CCVariant.Deserializer()).create();
-    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().setLenient().create();
     public static CCBlockStateLoader INSTANCE = new CCBlockStateLoader();
 
     public Map<ResourceLocation, ModelBlockDefinition> blockDefinitions = new HashMap<>();
@@ -89,11 +88,14 @@ public class CCBlockStateLoader {
             if (filePath != null && Files.exists(filePath)) {
                 reader = Files.newBufferedReader(filePath);
                 try {
+                    JsonParser parser = new JsonParser();
                     JsonReader jsonReader = new JsonReader(reader);
                     jsonReader.setLenient(true);
-                    JsonObject object = GSON.getAdapter(JsonObject.class).read(jsonReader);
+
+                    jsonReader.setLenient(true);
+                    JsonObject object = parser.parse(jsonReader).getAsJsonObject();
                     parseFactory(mod, object);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     throw new RuntimeException("Failed to read Factories Json!", e);
                 }
             }

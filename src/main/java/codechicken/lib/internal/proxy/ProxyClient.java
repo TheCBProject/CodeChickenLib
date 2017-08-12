@@ -1,5 +1,6 @@
 package codechicken.lib.internal.proxy;
 
+import codechicken.lib.internal.ModDescriptionEnhancer;
 import codechicken.lib.internal.command.client.DumpModelLocationsCommand;
 import codechicken.lib.internal.command.client.NukeCCModelCacheCommand;
 import codechicken.lib.internal.network.ClientPacketHandler;
@@ -59,5 +60,6 @@ public class ProxyClient extends Proxy {
         BlockRenderingRegistry.init();
         CCItemRenderer.initialize();
         CCRenderItem.init();
+        ModDescriptionEnhancer.init();
     }
 }
