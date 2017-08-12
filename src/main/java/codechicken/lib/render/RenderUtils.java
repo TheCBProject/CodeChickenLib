@@ -352,11 +352,7 @@ public class RenderUtils {
             rect.y += rect.h - height;
             rect.h = height;
         }
-        CCRenderState state = CCRenderState.instance();
-        state.startDrawing(7, DefaultVertexFormats.POSITION_TEX);
         renderFluidQuad(new Vector3(rect.x, rect.y + rect.h, 0), new Vector3(rect.w, 0, 0), new Vector3(0, -rect.h, 0), prepareFluidRender(stack, alpha), res);
-        state.draw();
-        postFluidRender();
     }
 
     public static void renderFluidGaugeGL(FluidStack stack, Rectangle4i rect, double density, double res) {
@@ -370,6 +366,7 @@ public class RenderUtils {
         renderFluidGauge(stack, rect, density, res);
         state.pushColour();
         state.draw();
+        postFluidRender();
     }
 
     public static Matrix4 getMatrix(Vector3 position, Rotation rotation, double scale) {
