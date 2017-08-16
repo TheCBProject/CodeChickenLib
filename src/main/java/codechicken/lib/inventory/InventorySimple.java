@@ -137,7 +137,7 @@ public class InventorySimple implements IInventory, ICapabilityProvider {
     @Override
     public void clear() {
         for (int i = 0; i < items.length; i++) {
-            items[i] = null;
+            items[i] = ItemStack.EMPTY;
         }
     }
 
