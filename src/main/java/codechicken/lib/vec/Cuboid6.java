@@ -141,14 +141,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     }
     
     public Cuboid6 shrinkSide(EnumFacing side, int amount) {
-        switch (side.getAxisDirection()) {
-            case NEGATIVE:
-                min.subtract(side.getDirectionVec().getX() * amount, side.getDirectionVec().getY() * amount, side.getDirectionVec().getZ() * amount);
-                break;
-            case POSITIVE:
-                max.subtract(side.getDirectionVec().getX() * amount, side.getDirectionVec().getY() * amount, side.getDirectionVec().getZ() * amount);
-                break;
-        }
+        expandSide(side, -amount);
         return this;
     }
     
