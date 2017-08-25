@@ -1,5 +1,6 @@
 package codechicken.lib.render.block;
 
+import codechicken.lib.internal.CCLLog;
 import codechicken.lib.texture.TextureUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.BlockModelRenderer;
@@ -16,6 +17,7 @@ import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.WorldType;
+import org.apache.logging.log4j.Level;
 
 /**
  * Created by covers1624 on 8/09/2016.
@@ -40,6 +42,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher implement
 
     @Override
     public boolean renderBlock(IBlockState state, BlockPos pos, IBlockAccess blockAccess, BufferBuilder worldRendererIn) {
+        IBlockState inState = state;
         try {
             if (BlockRenderingRegistry.canHandle(state.getRenderType())) {
                 if (blockAccess.getWorldType() != WorldType.DEBUG_ALL_BLOCK_STATES) {
@@ -57,7 +60,16 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher implement
             CrashReportCategory.addBlockInfo(crashreportcategory, pos, state.getBlock(), state.getBlock().getMetaFromState(state));
             throw new ReportedException(crashreport);
         }
-        return parentDispatcher.renderBlock(state, pos, blockAccess, worldRendererIn);
+        try {
+            return parentDispatcher.renderBlock(state, pos, blockAccess, worldRendererIn);
+        } catch (Exception e) {
+            if (!(e instanceof ReportedException)) {
+                String clazzName = inState != null ? inState.getBlock().getClass().toString() : "UNKNOWN";
+                CCLLog.log(Level.ERROR, e, "CCL has caught an exception whilst another mod's block is being rendered. Original crash may have been discarded, possible null client side tile. Pos: '%s', State: '%s', block class: '%s'", pos, inState, clazzName);
+                return false;
+            }
+            throw e;
+        }
     }
 
     @Override
