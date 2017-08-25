@@ -4,6 +4,7 @@ import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -101,12 +102,23 @@ public class Vector3 implements Copyable<Vector3> {
         return new Vector3(fa[0], fa[1], fa[2]);
     }
 
+    public static Vector3 fromNBT(NBTTagCompound tag) {
+        return new Vector3(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
+    }
+
     public Vec3d vec3() {
         return new Vec3d(x, y, z);
     }
 
     public BlockPos pos() {
         return new BlockPos(x, y, z);
+    }
+
+    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
+        tag.setDouble("x", x);
+        tag.setDouble("y", x);
+        tag.setDouble("z", x);
+        return tag;
     }
 
     @SideOnly (Side.CLIENT)
