@@ -123,7 +123,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     public Cuboid6 expand(Vector3 vec) {
         return expand(vec.x, vec.y, vec.z);
     }
-
+    
     public Cuboid6 offset(Cuboid6 o) {
         min.add(o.min);
         max.add(o.max);
@@ -176,10 +176,30 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return max.x - 1E-5 > b.min.x && max.y - 1E-5 > b.min.y && max.z - 1E-5 > b.min.z && b.max.x - 1E-5 > min.x && b.max.y - 1E-5 > min.y && b.max.z - 1E-5 > min.z;
     }
 
+    public double volume() {
+        return (max.x - min.x + 1) * (max.y - min.y + 1) * (max.z - min.z + 1);
+    }
+    
     public Vector3 center() {
         return min.copy().add(max).multiply(0.5);
     }
-
+    
+    public double getSizeOfSide(int s) {
+        switch (s) {
+            case 0:
+            case 1:
+                return max.y - min.y + 1;
+            case 2:
+            case 3:
+                return max.z - min.z + 1;
+            case 4:
+            case 5:
+                return max.x - min.x + 1;
+            default:
+                return 0;
+        }
+    }
+    
     public double getSide(int s) {
         switch (s) {
             case 0:
