@@ -1,6 +1,7 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.util.Copyable;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
@@ -35,6 +36,10 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         max = new Vector3(aabb.maxX, aabb.maxY, aabb.maxZ);
     }
 
+    public Cuboid6(NBTTagCompound tag) {
+        this(Vector3.fromNBT(tag.getCompoundTag("min")), Vector3.fromNBT(tag.getCompoundTag("max")));
+    }
+
     public Cuboid6(Cuboid6 cuboid) {
         min = cuboid.min.copy();
         max = cuboid.max.copy();
@@ -47,6 +52,12 @@ public class Cuboid6 implements Copyable<Cuboid6> {
 
     public AxisAlignedBB aabb() {
         return new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
+    }
+
+    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
+        tag.setTag("min", min.writeToNBT(new NBTTagCompound()));
+        tag.setTag("max", max.writeToNBT(new NBTTagCompound()));
+        return tag;
     }
 
     public Cuboid6 set(double minx, double miny, double minz, double maxx, double maxy, double maxz) {
