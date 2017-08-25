@@ -239,7 +239,6 @@ public class Cuboid6 implements Copyable<Cuboid6> {
             case EAST:
                 return max.x;
         }
-
         return 0;
     }
 
