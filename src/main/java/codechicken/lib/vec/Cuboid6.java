@@ -2,6 +2,7 @@ package codechicken.lib.vec;
 
 import codechicken.lib.util.Copyable;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
