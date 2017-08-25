@@ -116,8 +116,8 @@ public class Vector3 implements Copyable<Vector3> {
 
     public NBTTagCompound writeToNBT(NBTTagCompound tag) {
         tag.setDouble("x", x);
-        tag.setDouble("y", x);
-        tag.setDouble("z", x);
+        tag.setDouble("y", y);
+        tag.setDouble("z", z);
         return tag;
     }
 
