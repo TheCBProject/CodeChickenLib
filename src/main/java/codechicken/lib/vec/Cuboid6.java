@@ -70,6 +70,10 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return set(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
+    public Cuboid6 set(Vec3i min, Vec3i max) {
+        return set(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ());
+    }
+
     public Cuboid6 set(Cuboid6 c) {
         return set(c.min.x, c.min.y, c.min.z, c.max.x, c.max.y, c.max.z);
     }
@@ -86,6 +90,10 @@ public class Cuboid6 implements Copyable<Cuboid6> {
 
     public Cuboid6 add(Vector3 vec) {
         return add(vec.x, vec.y, vec.z);
+    }
+
+    public Cuboid6 add(Vec3i vec) {
+        return add(vec.getX(), vec.getY(), vec.getZ());
     }
 
     public Cuboid6 add(BlockPos pos) {
@@ -106,6 +114,10 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return subtract(vec.x, vec.y, vec.z);
     }
 
+    public Cuboid6 subtract(Vec3i vec) {
+        return subtract(vec.getX(), vec.getY(), vec.getZ());
+    }
+
     public Cuboid6 subtract(BlockPos pos) {
         return subtract(pos.getX(), pos.getY(), pos.getZ());
     }
@@ -122,6 +134,23 @@ public class Cuboid6 implements Copyable<Cuboid6> {
 
     public Cuboid6 expand(Vector3 vec) {
         return expand(vec.x, vec.y, vec.z);
+    }
+
+    public Cuboid6 expandSide(EnumFacing side, int amount) {
+        switch (side.getAxisDirection()) {
+            case NEGATIVE:
+                min.add(Vector3.fromVec3i(side.getDirectionVec()).multiply(amount));
+                break;
+            case POSITIVE:
+                max.add(Vector3.fromVec3i(side.getDirectionVec()).multiply(amount));
+                break;
+        }
+        return this;
+    }
+
+    public Cuboid6 shrinkSide(EnumFacing side, int amount) {
+        expandSide(side, -amount);
+        return this;
     }
 
     public Cuboid6 offset(Cuboid6 o) {
@@ -176,52 +205,76 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return max.x - 1E-5 > b.min.x && max.y - 1E-5 > b.min.y && max.z - 1E-5 > b.min.z && b.max.x - 1E-5 > min.x && b.max.y - 1E-5 > min.y && b.max.z - 1E-5 > min.z;
     }
 
+    public double volume() {
+        return (max.x - min.x + 1) * (max.y - min.y + 1) * (max.z - min.z + 1);
+    }
+
     public Vector3 center() {
         return min.copy().add(max).multiply(0.5);
     }
 
-    public double getSide(int s) {
-        switch (s) {
-            case 0:
-                return min.y;
-            case 1:
-                return max.y;
-            case 2:
-                return min.z;
-            case 3:
-                return max.z;
-            case 4:
-                return min.x;
-            case 5:
-                return max.x;
+    public double getSideSize(EnumFacing side) {
+        switch (side.getAxis()) {
+            case X:
+                return (max.x - min.x) + 1;
+            case Y:
+                return (max.y - min.y) + 1;
+            case Z:
+                return (max.z - min.z) + 1;
         }
-        throw new IndexOutOfBoundsException("Switch Falloff");
+        return 0;
     }
 
-    public Cuboid6 setSide(int s, double d) {
-        switch (s) {
-            case 0:
+    public double getSide(EnumFacing side) {
+        switch (side) {
+            case DOWN:
+                return min.y;
+            case UP:
+                return max.y;
+            case NORTH:
+                return min.z;
+            case SOUTH:
+                return max.z;
+            case WEST:
+                return min.x;
+            case EAST:
+                return max.x;
+        }
+        return 0;
+    }
+
+    @Deprecated
+    public double getSide(int s) {
+        return getSide(EnumFacing.values()[s]);
+    }
+
+    public Cuboid6 setSide(EnumFacing side, double d) {
+        switch (side) {
+            case DOWN:
                 min.y = d;
                 break;
-            case 1:
+            case UP:
                 max.y = d;
                 break;
-            case 2:
+            case NORTH:
                 min.z = d;
                 break;
-            case 3:
+            case SOUTH:
                 max.z = d;
                 break;
-            case 4:
+            case WEST:
                 min.x = d;
                 break;
-            case 5:
+            case EAST:
                 max.x = d;
                 break;
-            default:
-                throw new IndexOutOfBoundsException("Switch Falloff");
         }
         return this;
+    }
+
+    @Deprecated
+    public Cuboid6 setSide(int s, double d) {
+        return setSide(EnumFacing.values()[s], d);
     }
 
     @Override
