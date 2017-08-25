@@ -23,20 +23,20 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkDataLoad(ChunkDataEvent.Load event) {
-            if (!worldMap.containsKey(event.getWorld().provider.getDimension())) {
+            if (!hasExtensions(event.getWorld())) {
                 WorldExtensionManager.onWorldLoad(event.getWorld());
             }
 
             createChunkExtension(event.getWorld(), event.getChunk());
 
-            for (WorldExtension extension : worldMap.get(event.getWorld().provider.getDimension())) {
+            for (WorldExtension extension : getExtensions(event.getWorld())) {
                 extension.loadChunkData(event.getChunk(), event.getData());
             }
         }
 
         @SubscribeEvent
         public void onChunkDataSave(ChunkDataEvent.Save event) {
-            for (WorldExtension extension : worldMap.get(event.getWorld().provider.getDimension())) {
+            for (WorldExtension extension : getExtensions(event.getWorld())) {
                 extension.saveChunkData(event.getChunk(), event.getData());
             }
 
@@ -47,13 +47,13 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkLoad(ChunkEvent.Load event) {
-            if (!worldMap.containsKey(event.getWorld().provider.getDimension())) {
+            if (!hasExtensions(event.getWorld())) {
                 WorldExtensionManager.onWorldLoad(event.getWorld());
             }
 
             createChunkExtension(event.getWorld(), event.getChunk());
 
-            for (WorldExtension extension : worldMap.get(event.getWorld().provider.getDimension())) {
+            for (WorldExtension extension : getExtensions(event.getWorld())) {
                 extension.loadChunk(event.getChunk());
             }
         }
@@ -63,8 +63,7 @@ public class WorldExtensionManager {
             if (event.getChunk().isEmpty()) {
                 return;
             }
-            //TODO Maybe gate against worldMap.get returning null. Some dimension may be doing stupid things.
-            for (WorldExtension extension : worldMap.get(event.getWorld().provider.getDimension())) {
+            for (WorldExtension extension : getExtensions(event.getWorld())) {
                 extension.unloadChunk(event.getChunk());
             }
 
@@ -75,8 +74,8 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onWorldSave(WorldEvent.Save event) {
-            if (worldMap.containsKey(event.getWorld().provider.getDimension())) {
-                for (WorldExtension extension : worldMap.get(event.getWorld().provider.getDimension())) {
+            if (hasExtensions(event.getWorld())) {
+                for (WorldExtension extension : getExtensions(event.getWorld())) {
                     extension.save();
                 }
             }
@@ -84,14 +83,14 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onWorldLoad(WorldEvent.Load event) {
-            if (!worldMap.containsKey(event.getWorld().provider.getDimension())) {
+            if (!hasExtensions(event.getWorld())) {
                 WorldExtensionManager.onWorldLoad(event.getWorld());
             }
         }
 
         @SubscribeEvent
         public void onWorldUnLoad(WorldEvent.Unload event) {
-            if (worldMap.containsKey(event.getWorld().provider.getDimension()))//because force closing unloads a world twice
+            if (hasExtensions(event.getWorld()))//because force closing unloads a world twice
             {
                 for (WorldExtension extension : worldMap.remove(event.getWorld().provider.getDimension())) {
                     extension.unload();
@@ -102,7 +101,7 @@ public class WorldExtensionManager {
         @SubscribeEvent
         public void onChunkWatch(Watch event) {
             Chunk chunk = event.getPlayer().world.getChunkFromChunkCoords(event.getChunk().chunkXPos, event.getChunk().chunkZPos);
-            for (WorldExtension extension : worldMap.get(event.getPlayer().world.provider.getDimension())) {
+            for (WorldExtension extension : getExtensions(event.getPlayer().world)) {
                 extension.watchChunk(chunk, event.getPlayer());
             }
         }
@@ -111,7 +110,7 @@ public class WorldExtensionManager {
         @SideOnly (Side.CLIENT)
         public void onChunkUnWatch(UnWatch event) {
             Chunk chunk = event.getPlayer().world.getChunkFromChunkCoords(event.getChunk().chunkXPos, event.getChunk().chunkZPos);
-            for (WorldExtension extension : worldMap.get(event.getPlayer().world.provider.getDimension())) {
+            for (WorldExtension extension : getExtensions(event.getPlayer().world)) {
                 extension.unwatchChunk(chunk, event.getPlayer());
             }
         }
@@ -120,7 +119,7 @@ public class WorldExtensionManager {
         @SideOnly (Side.CLIENT)
         public void clientTick(TickEvent.ClientTickEvent event) {
             World world = Minecraft.getMinecraft().world;
-            if (worldMap.containsKey(world.provider.getDimension())) {
+            if (hasExtensions(world)) {
                 if (event.phase == TickEvent.Phase.START) {
                     preTick(world);
                 } else {
@@ -131,7 +130,7 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void serverTick(TickEvent.WorldTickEvent event) {
-            if (!worldMap.containsKey(event.world.provider.getDimension())) {
+            if (!hasExtensions(event.world)) {
                 WorldExtensionManager.onWorldLoad(event.world);
             }
 
@@ -161,6 +160,24 @@ public class WorldExtensionManager {
     }
 
     private static HashMap<Integer, WorldExtension[]> worldMap = new HashMap<>();
+    private static final WorldExtension[] empty = new WorldExtension[0];
+
+    private static WorldExtension[] getExtensions(World world) {
+        if (world != null) {
+            if (hasExtensions(world)) {
+                return worldMap.get(world.provider.getDimension());
+            }
+        }
+        return empty;
+    }
+
+    public static WorldExtension getWorldExtension(World world, int instantiatorID) {
+        return getExtensions(world)[instantiatorID];
+    }
+
+    private static boolean hasExtensions(World world) {
+        return world == null || worldMap.containsKey(world.provider.getDimension());
+    }
 
     private static void onWorldLoad(World world) {
         WorldExtension[] extensions = new WorldExtension[extensionIntialisers.size()];
@@ -176,7 +193,7 @@ public class WorldExtensionManager {
     }
 
     private static void createChunkExtension(World world, Chunk chunk) {
-        WorldExtension[] extensions = worldMap.get(world.provider.getDimension());
+        WorldExtension[] extensions = getExtensions(world);
         for (int i = 0; i < extensionIntialisers.size(); i++) {
             if (!extensions[i].containsChunk(chunk)) {
                 extensions[i].addChunk(extensionIntialisers.get(i).createChunkExtension(chunk, extensions[i]));
@@ -185,24 +202,20 @@ public class WorldExtensionManager {
     }
 
     private static void removeChunk(World world, Chunk chunk) {
-        for (WorldExtension extension : worldMap.get(world.provider.getDimension())) {
+        for (WorldExtension extension : getExtensions(world)) {
             extension.remChunk(chunk);
         }
     }
 
     private static void preTick(World world) {
-        for (WorldExtension extension : worldMap.get(world.provider.getDimension())) {
+        for (WorldExtension extension : getExtensions(world)) {
             extension.preTick();
         }
     }
 
     private static void postTick(World world) {
-        for (WorldExtension extension : worldMap.get(world.provider.getDimension())) {
+        for (WorldExtension extension : getExtensions(world)) {
             extension.postTick();
         }
-    }
-
-    public static WorldExtension getWorldExtension(World world, int instantiatorID) {
-        return worldMap.get(world.provider.getDimension())[instantiatorID];
     }
 }
