@@ -73,11 +73,11 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     public Cuboid6 set(Vec3i min, Vec3i max) {
         return set(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ());
     }
-    
+
     public Cuboid6 set(Cuboid6 c) {
         return set(c.min.x, c.min.y, c.min.z, c.max.x, c.max.y, c.max.z);
     }
-    
+
     public Cuboid6 add(double dx, double dy, double dz) {
         min.add(dx, dy, dz);
         max.add(dx, dy, dz);
@@ -94,6 +94,10 @@ public class Cuboid6 implements Copyable<Cuboid6> {
 
     public Cuboid6 add(Vec3i vec) {
         return add(vec.getX(), vec.getY(), vec.getZ());
+    }
+
+    public Cuboid6 add(BlockPos pos) {
+        return add(pos.getX(), pos.getY(), pos.getZ());
     }
 
     public Cuboid6 subtract(double dx, double dy, double dz) {
@@ -114,6 +118,10 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return subtract(vec.getX(), vec.getY(), vec.getZ());
     }
 
+    public Cuboid6 subtract(BlockPos pos) {
+        return subtract(pos.getX(), pos.getY(), pos.getZ());
+    }
+
     public Cuboid6 expand(double dx, double dy, double dz) {
         min.subtract(dx, dy, dz);
         max.add(dx, dy, dz);
@@ -131,20 +139,20 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     public Cuboid6 expandSide(EnumFacing side, int amount) {
         switch (side.getAxisDirection()) {
             case NEGATIVE:
-                min.add(side.getDirectionVec().getX() * amount, side.getDirectionVec().getY() * amount, side.getDirectionVec().getZ() * amount);
+                min.add(Vector3.fromVec3i(side.getDirectionVec()).multiply(amount));
                 break;
             case POSITIVE:
-                max.add(side.getDirectionVec().getX() * amount, side.getDirectionVec().getY() * amount, side.getDirectionVec().getZ() * amount);
+                max.add(Vector3.fromVec3i(side.getDirectionVec()).multiply(amount));
                 break;
         }
         return this;
     }
-    
+
     public Cuboid6 shrinkSide(EnumFacing side, int amount) {
         expandSide(side, -amount);
         return this;
     }
-    
+
     public Cuboid6 offset(Cuboid6 o) {
         min.add(o.min);
         max.add(o.max);
@@ -200,7 +208,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     public double volume() {
         return (max.x - min.x + 1) * (max.y - min.y + 1) * (max.z - min.z + 1);
     }
-    
+
     public Vector3 center() {
         return min.copy().add(max).multiply(0.5);
     }
@@ -216,7 +224,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         }
         return 0;
     }
-    
+
     public double getSide(EnumFacing side) {
         switch (side) {
             case DOWN:
@@ -236,8 +244,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     }
 
     @Deprecated
-    public double getSide(int s)
-    {
+    public double getSide(int s) {
         return getSide(EnumFacing.values()[s]);
     }
 
@@ -266,8 +273,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     }
 
     @Deprecated
-    public Cuboid6 setSide(int s, double d)
-    {
+    public Cuboid6 setSide(int s, double d) {
         return setSide(EnumFacing.values()[s], d);
     }
 
