@@ -5,19 +5,30 @@ import java.util.List;
 /**
  * Created by covers1624 on 18/07/2017.
  */
-@Deprecated
 public interface IConfigValue {
 
-    boolean getBoolean(boolean defaultValue);
+    boolean getBoolean();
 
-    String getString(String defaultValue);
+    String getString();
 
-    int getInt(int defaultValue);
+    int getInt();
 
-    int getHex(int defaultValue);
+    int getHex();
 
-    double getDouble(double defaultValue);
+    double getDouble();
 
+    //
+    IConfigValue setDefaultBoolean(boolean value);
+
+    IConfigValue setDefaultString(String value);
+
+    IConfigValue setDefaultInt(int value);
+
+    IConfigValue setDefaultHex(int value);
+
+    IConfigValue setDefaultDouble(double value);
+
+    //
     IConfigValue setBoolean(boolean value);
 
     IConfigValue setString(String value);
@@ -28,16 +39,29 @@ public interface IConfigValue {
 
     IConfigValue setDouble(double value);
 
-    List<Boolean> getBooleanList(List<Boolean> defaultValues);
+    //
+    List<Boolean> getBooleanList();
 
-    List<String> getStringList(List<String> defaultValues);
+    List<String> getStringList();
 
-    List<Integer> getIntList(List<Integer> defaultValues);
+    List<Integer> getIntList();
 
-    List<Integer> getHexList(List<Integer> defaultValues);
+    List<Integer> getHexList();
 
-    List<Double> getDoubleList(List<Double> defaultValues);
+    List<Double> getDoubleList();
 
+    //
+    IConfigValue setDefaultBooleanList(List<Boolean> value);
+
+    IConfigValue setDefaultStringList(List<String> value);
+
+    IConfigValue setDefaultIntList(List<Integer> value);
+
+    IConfigValue setDefaultHexList(List<Integer> value);
+
+    IConfigValue setDefaultDoubleList(List<Double> value);
+
+    //
     IConfigValue setBooleanList(List<Boolean> value);
 
     IConfigValue setStringList(List<String> value);
