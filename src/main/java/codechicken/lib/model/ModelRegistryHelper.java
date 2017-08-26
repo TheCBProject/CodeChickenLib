@@ -1,17 +1,9 @@
 package codechicken.lib.model;
 
 import codechicken.lib.render.item.IItemRenderer;
-import codechicken.lib.texture.TextureUtils;
-import codechicken.lib.util.TransformUtils;
-import com.google.common.collect.Maps;
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.block.model.BuiltInModel;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -63,20 +55,6 @@ public class ModelRegistryHelper {
             callback.onModelBake(event.getModelRegistry());
         }
     }
-
-//    /**
-//     * Creates a dummy model at blockRegistry.getNameForObject(block)#particle for all states of the block overriding getParticleTexture
-//     */TODO, Pretty sure this doesn't work this way anymore..
-//    public static void setParticleTexture(Block block, final ResourceLocation tex) {
-//        final ModelResourceLocation modelLoc = new ModelResourceLocation(block.getRegistryName(), "particle");
-//        register(modelLoc, new BuiltInModel(TransformUtils.DEFAULT_BLOCK.toVanillaTransform(), ItemOverrideList.NONE) {
-//            @Override
-//            public TextureAtlasSprite getParticleTexture() {
-//                return TextureUtils.getTexture(tex);
-//            }
-//        });
-//        ModelLoader.setCustomStateMapper(block, blockIn -> Maps.toMap(blockIn.getBlockState().getValidStates(), input -> modelLoc));
-//    }
 
     public interface IModelBakeCallbackPre {
 

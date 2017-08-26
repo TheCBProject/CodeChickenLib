@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-
 public abstract class ConfigTagParent {
 
     public static class TagOrderComparator implements Comparator<ConfigTag> {

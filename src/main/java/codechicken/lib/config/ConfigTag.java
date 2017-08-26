@@ -2,7 +2,6 @@ package codechicken.lib.config;
 
 import java.io.PrintWriter;
 
-
 public class ConfigTag extends ConfigTagParent {
 
     public ConfigTagParent parent;

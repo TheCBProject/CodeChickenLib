@@ -1,10 +1,10 @@
 package codechicken.lib.model.bakery;
 
 import codechicken.lib.internal.CCLLog;
-import codechicken.lib.model.bakedmodels.ModelProperties;
 import codechicken.lib.model.ModelRegistryHelper;
-import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import codechicken.lib.model.PlanarFaceBakery;
+import codechicken.lib.model.bakedmodels.ModelProperties;
+import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareLayeredModel;
 import codechicken.lib.model.bakery.generation.*;

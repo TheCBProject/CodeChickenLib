@@ -8,7 +8,6 @@ import java.io.IOException;
 @Deprecated
 public class ConfigParseException extends IOException {
 
-
     public ConfigParseException(String message) {
         super(message);
     }

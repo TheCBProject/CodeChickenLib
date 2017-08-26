@@ -21,5 +21,4 @@ public class PacketDispatcher {
         packet.sendToChunk(world, pos.getX() >> 4, pos.getZ() >> 4);
     }
 
-
 }

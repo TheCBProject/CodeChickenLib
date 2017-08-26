@@ -32,7 +32,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
         this(isAO, isGui3D, false, sprite);
     }
 
-    public ModelProperties(ModelProperties properties){
+    public ModelProperties(ModelProperties properties) {
         this(properties.isAO, properties.isGui3D, properties.isBuiltInRenderer, properties.particle);
     }
 
@@ -109,6 +109,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
         }
 
         public static class PerspectiveBuilder extends Builder {
+
             private IModelState state;
 
             protected PerspectiveBuilder(Builder builder) {

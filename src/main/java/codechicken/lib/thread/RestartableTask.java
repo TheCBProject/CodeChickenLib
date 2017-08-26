@@ -31,7 +31,8 @@ public abstract class RestartableTask {
                     if (!restart) {
                         execute();
                     }
-                } while (!finish());
+                }
+                while (!finish());
             }
         };
         thread.start();

@@ -23,7 +23,7 @@ public class DirectoryWalker {
         this.file_filter = file_filter;
     }
 
-    public List<File> walk (File folder) {
+    public List<File> walk(File folder) {
         List<File> files = new LinkedList<>();
         if (folder.isDirectory()) {
             File[] list = folder.listFiles();

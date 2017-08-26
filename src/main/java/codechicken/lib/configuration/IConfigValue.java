@@ -19,9 +19,13 @@ public interface IConfigValue {
     double getDouble(double defaultValue);
 
     IConfigValue setBoolean(boolean value);
+
     IConfigValue setString(String value);
+
     IConfigValue setInt(int value);
+
     IConfigValue setHex(int value);
+
     IConfigValue setDouble(double value);
 
     List<Boolean> getBooleanList(List<Boolean> defaultValues);
@@ -35,9 +39,13 @@ public interface IConfigValue {
     List<Double> getDoubleList(List<Double> defaultValues);
 
     IConfigValue setBooleanList(List<Boolean> value);
+
     IConfigValue setStringList(List<String> value);
+
     IConfigValue setIntList(List<Integer> value);
+
     IConfigValue setHexList(List<Integer> value);
+
     IConfigValue setDoubleList(List<Double> value);
 
 }
