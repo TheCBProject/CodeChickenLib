@@ -59,6 +59,7 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
         face = quad.getFace();
         tintIndex = quad.getTintIndex();
         sprite = quad.getSprite();
+        applyDifuseLighting = quad.shouldApplyDiffuseLighting();
         ArrayUtils.fillArray(vertices, new Vertex5());
         UnpackingVertexConsumer consumer = new UnpackingVertexConsumer(quad.getFormat());
         quad.pipe(consumer);
