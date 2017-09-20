@@ -62,4 +62,9 @@ public class ProxyClient extends Proxy {
         CCRenderItem.init();
         ModDescriptionEnhancer.init();
     }
+
+    @Override
+    public boolean isClient() {
+        return true;
+    }
 }
