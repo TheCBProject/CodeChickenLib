@@ -7,6 +7,7 @@ import codechicken.lib.model.bakedmodels.ModelProperties;
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareLayeredModel;
+import codechicken.lib.model.bakery.ModelErrorStateProperty.ErrorState;
 import codechicken.lib.model.bakery.generation.*;
 import codechicken.lib.model.bakery.key.IBlockStateKeyGenerator;
 import codechicken.lib.model.bakery.key.IItemStackKeyGenerator;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * Created by covers1624 on 25/10/2016.
@@ -59,6 +61,7 @@ public class ModelBakery {
     private static Map<Block, IBlockStateKeyGenerator> blockKeyGeneratorMap = new HashMap<>();
     private static IBakedModel missingModel;
 
+    @SuppressWarnings ({ "unchecked", "deprecation" })
     public static final IBlockStateKeyGenerator defaultBlockKeyGenerator = state -> {
         if (state.getBlock() instanceof IWorldBlockTextureProvider) {
             Map<BlockRenderLayer, Map<EnumFacing, TextureAtlasSprite>> layerFaceSpriteMap = state.getValue(BlockBakeryProperties.LAYER_FACE_SPRITE_MAP);
@@ -109,6 +112,7 @@ public class ModelBakery {
         itemKeyGeneratorMap.put(item, generator);
     }
 
+    @SuppressWarnings ("deprecation")
     public static IBlockState handleExtendedState(IExtendedBlockState state, IBlockAccess world, BlockPos pos) {
         Block block = state.getBlock();
 
@@ -119,7 +123,7 @@ public class ModelBakery {
             }
             throw new IllegalStateException("ModelBakery.handleExtendedState called for block that implements IBakeryProvider but does not return a IBlockBakery in IBakeryProvider.getBakery()!");
         } else if (block instanceof IWorldBlockTextureProvider) {
-            IWorldBlockTextureProvider provider = ((IWorldBlockTextureProvider) block);
+            IWorldBlockTextureProvider provider = (IWorldBlockTextureProvider) block;
             Map<BlockRenderLayer, Map<EnumFacing, TextureAtlasSprite>> layerFaceSpriteMap = new HashMap<>();
             for (BlockRenderLayer layer : BlockRenderLayer.values()) {
                 if (block.canRenderInLayer(state, layer)) {
@@ -145,7 +149,7 @@ public class ModelBakery {
         model = keyModelCache.getIfPresent(key);
         if (model == null) {
             try {
-                model = generateItemModel(stack);
+                model = timeModelGeneration(ModelBakery::generateItemModel, stack, "ITEM: " + key);
             } catch (Throwable t) {
                 CCLLog.errorOnce(t, "ItemBaking", "Fatal exception thrown whilst baking item model for: " + stack);
                 BakingVertexBuffer buffer = BakingVertexBuffer.create();
@@ -153,9 +157,6 @@ public class ModelBakery {
                     buffer.finishDrawing();
                     buffer.reset();
                 }
-            }
-            if (DEBUG) {
-                CCLLog.log(Level.INFO, "Baking item model: " + key);
             }
             if (model != missingModel) {
                 keyModelCache.put(key, model);
@@ -187,7 +188,7 @@ public class ModelBakery {
                 return new PerspectiveAwareBakedModel(faceQuads, generalQuads, properties);
 
             } else if (block instanceof IItemBlockTextureProvider) {
-                IItemBlockTextureProvider provider = ((IItemBlockTextureProvider) block);
+                IItemBlockTextureProvider provider = (IItemBlockTextureProvider) block;
                 Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<>();
                 for (EnumFacing face : EnumFacing.VALUES) {
                     List<BakedQuad> faceQuads = new LinkedList<>();
@@ -202,7 +203,7 @@ public class ModelBakery {
         } else {
             if (item instanceof IBakeryProvider) {
 
-                IItemBakery bakery = ((IItemBakery) ((IBakeryProvider) item).getBakery());
+                IItemBakery bakery = (IItemBakery) ((IBakeryProvider) item).getBakery();
 
                 List<BakedQuad> generalQuads = new LinkedList<>();
                 Map<EnumFacing, List<BakedQuad>> faceQuads = new HashMap<>();
@@ -227,13 +228,20 @@ public class ModelBakery {
         if (state == null) {
             return missingModel;
         }
+        if (state.getUnlistedProperties().containsKey(ModelErrorStateProperty.ERROR_STATE)) {
+            ErrorState errorState = state.getValue(ModelErrorStateProperty.ERROR_STATE);
+            if (errorState.hasErrored()) {
+                CCLLog.logOncePerTick(Level.ERROR, "A CCL controlled model has reported an error and will NOT be rendered: \n" + errorState.getReason());
+                return missingModel;
+            }
+        }
         IBakedModel model;
         IBlockStateKeyGenerator keyGenerator = getKeyGenerator(state.getBlock());
         String key = keyGenerator.generateKey(state);
         model = keyModelCache.getIfPresent(key);
         if (model == null) {
             try {
-                model = generateModel(state);
+                model = timeModelGeneration(ModelBakery::generateModel, state, "BLOCK: " + key);
             } catch (Throwable t) {
                 CCLLog.errorOnce(t, "BlockBaking", "Fatal exception thrown whilst baking block model for: " + state);
                 BakingVertexBuffer buffer = BakingVertexBuffer.create();
@@ -241,9 +249,6 @@ public class ModelBakery {
                     buffer.finishDrawing();
                     buffer.reset();
                 }
-            }
-            if (DEBUG) {
-                CCLLog.log(Level.INFO, "Baking block model: " + key);
             }
             if (model != missingModel) {
                 keyModelCache.put(key, model);
@@ -254,9 +259,9 @@ public class ModelBakery {
 
     public static IBakedModel generateModel(IExtendedBlockState state) {
         if (state.getBlock() instanceof IBakeryProvider) {
-            IBlockBakery bakery = ((IBlockBakery) ((IBakeryProvider) state.getBlock()).getBakery());
+            IBlockBakery bakery = (IBlockBakery) ((IBakeryProvider) state.getBlock()).getBakery();
             if (bakery instanceof ISimpleBlockBakery) {
-                ISimpleBlockBakery simpleBakery = ((ISimpleBlockBakery) bakery);
+                ISimpleBlockBakery simpleBakery = (ISimpleBlockBakery) bakery;
                 List<BakedQuad> generalQuads = new LinkedList<>();
                 Map<EnumFacing, List<BakedQuad>> faceQuads = new HashMap<>();
                 generalQuads.addAll(simpleBakery.bakeQuads(null, state));
@@ -272,7 +277,7 @@ public class ModelBakery {
                 return new PerspectiveAwareBakedModel(faceQuads, generalQuads, TransformUtils.DEFAULT_BLOCK, properties);
             }
             if (bakery instanceof ILayeredBlockBakery) {
-                ILayeredBlockBakery layeredBakery = ((ILayeredBlockBakery) bakery);
+                ILayeredBlockBakery layeredBakery = (ILayeredBlockBakery) bakery;
                 Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap = new HashMap<>();
                 Map<BlockRenderLayer, List<BakedQuad>> layerGeneralQuads = new HashMap<>();
                 for (BlockRenderLayer layer : BlockRenderLayer.values()) {
@@ -306,6 +311,7 @@ public class ModelBakery {
         return missingModel;
     }
 
+    @SuppressWarnings ({ "unchecked", "deprecation" })
     public static Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> generateLayerFaceQuadMap(IExtendedBlockState state) {
         Map<BlockRenderLayer, Map<EnumFacing, TextureAtlasSprite>> layerFaceSpriteMap = state.getValue(BlockBakeryProperties.LAYER_FACE_SPRITE_MAP);
         Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap = new HashMap<>();
@@ -320,6 +326,28 @@ public class ModelBakery {
             layerFaceQuadMap.put(layer, faceQuadMap);
         }
         return layerFaceQuadMap;
+    }
+
+    private static <T, R> R timeModelGeneration(Function<T, R> func, T thing, String logPostfix) {
+        if (DEBUG) {
+            CCLLog.log(Level.INFO, "Baking Model.. Key: %s", logPostfix);
+        }
+        long start = System.nanoTime();
+        R ret = func.apply(thing);
+        long end = System.nanoTime();
+        if (DEBUG) {
+            long delta = end - start;
+            long millis = TimeUnit.NANOSECONDS.toMillis(delta);
+            String s;
+            if (millis >= 5) {
+                s = millis + "ms";
+            } else {
+                s = delta + "ns";
+            }
+
+            CCLLog.log(Level.INFO, "Baking finished in %s.", s);
+        }
+        return ret;
     }
 
     public static void nukeModelCache() {
