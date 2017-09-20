@@ -80,7 +80,7 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
                         if (format.getElement(e).getIndex() == 0) {
                             vertices[v].uv.set(data[0], data[1]);
                         } else {
-                            lightMaps[v] = (int) (data[1] * 65535 / 32) << 20 | (int) (data[0] * 65535 / 32) << 4;
+                            lightMaps[v] = (int) (data[1] * 0xFFFF / 2) << 16 | (int) (data[0] * 0xFFFF / 2);
                         }
                         break;
                     default:
@@ -214,42 +214,7 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
         quadulate();
         computeNormals();
         UnpackedBakedQuad.Builder quadBuilder = new UnpackedBakedQuad.Builder(format);
-        quadBuilder.setApplyDiffuseLighting(applyDifuseLighting);
-        quadBuilder.setTexture(sprite);
-        quadBuilder.setQuadOrientation(getQuadFace());
-        quadBuilder.setQuadTint(tintIndex);
-        for (int v = 0; v < 4; v++) {
-            for (int e = 0; e < format.getElementCount(); e++) {
-                VertexFormatElement element = format.getElement(e);
-                switch (element.getUsage()) {
-                    case POSITION:
-                        Vector3 pos = vertices[v].vec;
-                        quadBuilder.put(e, (float) pos.x, (float) pos.y, (float) pos.z, 1);
-                        break;
-                    case NORMAL:
-                        Vector3 normal = normals[v];
-                        quadBuilder.put(e, (float) normal.x, (float) normal.y, (float) normal.z, 0);
-                        break;
-                    case COLOR:
-                        Colour colour = colours[v];
-                        quadBuilder.put(e, (colour.r & 0xFF) / 255, (colour.g & 0xFF) / 255, (colour.b & 0xFF) / 255, (colour.a & 0xFF) / 255);
-                        break;
-                    case UV:
-                        if (element.getIndex() == 0) {
-                            UV uv = vertices[v].uv;
-                            quadBuilder.put(e, (float) uv.u, (float) uv.v, 0, 1);
-                        } else {
-                            int brightness = lightMaps[v];
-                            quadBuilder.put(e, (float) ((brightness >> 4) & 15 * 32) / 65535, (float) ((brightness >> 20) & 15 * 32) / 65535, 0, 1);
-                        }
-                        break;
-                    case PADDING:
-                    case GENERIC:
-                    default:
-                        quadBuilder.put(e);
-                }
-            }
-        }
+        pipe(quadBuilder);
         return quadBuilder.build();
     }
 
@@ -283,7 +248,7 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
                             consumer.put(e, (float) uv.u, (float) uv.v, 0, 1);
                         } else {
                             int brightness = lightMaps[v];
-                            consumer.put(e, (float) ((brightness >> 4) & 15 * 32) / 65535, (float) ((brightness >> 20) & 15 * 32) / 65535, 0, 1);
+                            consumer.put(e, (float) ((brightness & 0xFFFF) / 0xFFFF) * 2, (float) ((brightness >> 16 & 0xFFFF) / 0xFFFF) * 2, 0, 1);
                         }
                         break;
                     case PADDING:

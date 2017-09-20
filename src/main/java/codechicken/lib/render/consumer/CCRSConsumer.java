@@ -46,7 +46,7 @@ public class CCRSConsumer implements IVertexConsumer {
                 if (fmte.getIndex() == 0) {
                     ccrs.vert.uv.set(data[0], data[1]);
                 } else {
-                    ccrs.brightness = (int) (data[1] * 65535 / 32) << 20 | (int) (data[0] * 65535 / 32) << 4;
+                    ccrs.brightness = (int) (data[1] * 0xFFFF / 2) << 16 | (int) (data[0] * 0xFFFF / 2);
                 }
                 break;
             case COLOR:
