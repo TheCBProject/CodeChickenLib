@@ -52,7 +52,7 @@ public class ProxyClient extends Proxy {
         ClientCommandHandler.instance.registerCommand(new NukeCCModelCacheCommand());
         //TODO, assess if this is enough for a properly modded environment.
         //TODO, Concerns are that this will be registered wayy too late and some mod will fuck it up.
-	    EntityRendererHooks.ClientProxy.registerEntitySanitizer();
+        EntityRendererHooks.ClientProxy.registerEntitySanitizer();
     }
 
     @Override
@@ -61,5 +61,10 @@ public class ProxyClient extends Proxy {
         CCItemRenderer.initialize();
         CCRenderItem.init();
         ModDescriptionEnhancer.init();
+    }
+
+    @Override
+    public boolean isClient() {
+        return true;
     }
 }

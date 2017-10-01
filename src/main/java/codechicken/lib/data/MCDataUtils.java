@@ -34,7 +34,8 @@ public class MCDataUtils {
             if (j > 5) {
                 throw new RuntimeException("VarInt too big");
             }
-        } while ((b0 & 128) == 128);
+        }
+        while ((b0 & 128) == 128);
 
         return i;
     }

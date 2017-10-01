@@ -55,6 +55,7 @@ public class CCRenderState {
     public final VertexAttribute<LC[]> lightCoordAttrib = new LightCoordAttribute();
 
     private static final ThreadLocal<CCRenderState> instances = ThreadLocal.withInitial(CCRenderState::new);
+    @Deprecated
     private static final CCRenderState bakingRenderState = new CCRenderState();
 
     //pipeline state
@@ -88,13 +89,13 @@ public class CCRenderState {
 
     private CCRenderState() {
         pipeline = new CCRenderPipeline(this);
-
     }
 
     public static CCRenderState instance() {
         return instances.get();
     }
 
+    @Deprecated
     public static CCRenderState getBakingRenderState() {
         return bakingRenderState;
     }

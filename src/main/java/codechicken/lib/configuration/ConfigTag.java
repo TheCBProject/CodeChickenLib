@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 /**
  * Created by covers1624 on 18/07/2017.
  */
-@Deprecated
 public class ConfigTag implements IConfigTag {
 
     private static Pattern QUOTE_PATTERN = Pattern.compile("(?<=\")(.*)(?=\")");
@@ -39,6 +38,7 @@ public class ConfigTag implements IConfigTag {
     protected TagType listType;
 
     protected Object value;
+    protected Object defaultValue;
 
     protected ConfigTag(String name, ConfigTag parent) {
         this.name = name;
@@ -204,17 +204,18 @@ public class ConfigTag implements IConfigTag {
     }
 
     protected void writeTag(PrintWriter writer, int depth) {
-        for (String comment : comment) {
-            writeLine(writer, depth, "#" + comment);
-        }
-
         if (isCategory()) {
             if (version != null) {
                 writeLine(writer, depth, "~%s", version);
+                writer.println();
             }
-            for (Entry<String, ConfigTag> entry : children.entrySet()) {
+            for (Iterator<Entry<String, ConfigTag>> iterator = children.entrySet().iterator(); iterator.hasNext(); ) {
+                Entry<String, ConfigTag> entry = iterator.next();
                 int inc = 0;
                 if (entry.getValue().isCategory()) {
+                    for (String comment : entry.getValue().comment) {
+                        writeLine(writer, depth, "#" + comment);
+                    }
                     writeLine(writer, depth, "\"%s\" {", entry.getKey());
                     inc++;
                 }
@@ -222,7 +223,9 @@ public class ConfigTag implements IConfigTag {
                 if (entry.getValue().isCategory()) {
                     writeLine(writer, depth, "}");
                 }
-                writer.println();
+                if (iterator.hasNext()) {
+                    writer.println();
+                }
             }
         } else if (isValue()) {
             switch (type) {
@@ -283,6 +286,21 @@ public class ConfigTag implements IConfigTag {
     }
 
     @Override
+    public String getUnlocalizedName() {
+        List<String> list = new ArrayList<>();
+        ConfigTag parent = this;
+        while ((parent = parent.getParent()) != null) {
+            list.add(parent.getName());
+        }
+        StringBuilder s = new StringBuilder();
+        for (int i = list.size() - 1; i >= 0; i--) {
+            s.append(list.get(i)).append(".");
+        }
+        s.append(getName());
+        return s.toString();
+    }
+
+    @Override
     public boolean isDirty() {
         return dirty || (hasParent() && parent.isDirty());
     }
@@ -336,6 +354,11 @@ public class ConfigTag implements IConfigTag {
     }
 
     @Override
+    public List<String> getChildNames() {
+        return new LinkedList<>(children.keySet());
+    }
+
+    @Override
     public String getTagVersion() {
         return version;
     }
@@ -371,11 +394,10 @@ public class ConfigTag implements IConfigTag {
 
     //region Getters.
     @Override
-    public boolean getBoolean(boolean defaultValue) {
-        setValueCheck();
+    public boolean getBoolean() {
 
         if (value == null) {
-            setBoolean(defaultValue);
+            throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.BOOLEAN) {
             throw new UnsupportedOperationException("ConfigTag is not of a Boolean type, Actual: " + type);
         } else if (!(value instanceof Boolean)) {
@@ -386,11 +408,10 @@ public class ConfigTag implements IConfigTag {
     }
 
     @Override
-    public String getString(String defaultValue) {
-        setValueCheck();
+    public String getString() {
 
         if (value == null) {
-            setString(defaultValue);
+            throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.STRING) {
             throw new UnsupportedOperationException("ConfigTag is not of a String type, Actual: " + type);
         } else if (!(value instanceof String)) {
@@ -401,11 +422,10 @@ public class ConfigTag implements IConfigTag {
     }
 
     @Override
-    public int getInt(int defaultValue) {
-        setValueCheck();
+    public int getInt() {
 
         if (value == null) {
-            setInt(defaultValue);
+            throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.INT) {
             throw new UnsupportedOperationException("ConfigTag is not of a Integer type, Actual: " + type);
         } else if (!(value instanceof Integer)) {
@@ -416,11 +436,10 @@ public class ConfigTag implements IConfigTag {
     }
 
     @Override
-    public int getHex(int defaultValue) {
-        setValueCheck();
+    public int getHex() {
 
         if (value == null) {
-            setHex(defaultValue);
+            throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.HEX) {
             throw new UnsupportedOperationException("ConfigTag is not of a Hex type, Actual: " + type);
         } else if (!(value instanceof String)) {
@@ -431,11 +450,10 @@ public class ConfigTag implements IConfigTag {
     }
 
     @Override
-    public double getDouble(double defaultValue) {
-        setValueCheck();
+    public double getDouble() {
 
         if (value == null) {
-            setDouble(defaultValue);
+            throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.DOUBLE) {
             throw new UnsupportedOperationException("ConfigTag is not of a Double type, Actual: " + type);
         } else if (!(value instanceof Double)) {
@@ -443,6 +461,66 @@ public class ConfigTag implements IConfigTag {
         }
 
         return (Integer) value;
+    }
+
+    @Override
+    public ConfigTag setDefaultBoolean(boolean value) {
+        setDefaultCheck();
+
+        defaultValue = value;
+        if (this.value == null) {
+            setBoolean(value);
+        }
+
+        return this;
+    }
+
+    @Override
+    public ConfigTag setDefaultString(String value) {
+        setDefaultCheck();
+
+        defaultValue = value;
+        if (this.value == null) {
+            setString(value);
+        }
+
+        return this;
+    }
+
+    @Override
+    public ConfigTag setDefaultInt(int value) {
+        setDefaultCheck();
+
+        defaultValue = value;
+        if (this.value == null) {
+            setInt(value);
+        }
+
+        return this;
+    }
+
+    @Override
+    public ConfigTag setDefaultHex(int value) {
+        setDefaultCheck();
+
+        defaultValue = value;
+        if (this.value == null) {
+            setHex(value);
+        }
+
+        return this;
+    }
+
+    @Override
+    public ConfigTag setDefaultDouble(double value) {
+        setDefaultCheck();
+
+        defaultValue = value;
+        if (this.value == null) {
+            setDouble(value);
+        }
+
+        return this;
     }
 
     @Override
@@ -494,11 +572,10 @@ public class ConfigTag implements IConfigTag {
     //region Lists
     @Override
     @SuppressWarnings ("unchecked")
-    public List<Boolean> getBooleanList(List<Boolean> defaultValues) {
-        setValueCheck();
+    public List<Boolean> getBooleanList() {
 
         if (value == null) {
-            setBooleanList(defaultValues);
+            throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.BOOLEAN) {
@@ -512,11 +589,10 @@ public class ConfigTag implements IConfigTag {
 
     @Override
     @SuppressWarnings ("unchecked")
-    public List<String> getStringList(List<String> defaultValues) {
-        setValueCheck();
+    public List<String> getStringList() {
 
         if (value == null) {
-            setStringList(defaultValues);
+            throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.STRING) {
@@ -530,11 +606,10 @@ public class ConfigTag implements IConfigTag {
 
     @Override
     @SuppressWarnings ("unchecked")
-    public List<Integer> getIntList(List<Integer> defaultValues) {
-        setValueCheck();
+    public List<Integer> getIntList() {
 
         if (value == null) {
-            setIntList(defaultValues);
+            throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.INT) {
@@ -548,11 +623,10 @@ public class ConfigTag implements IConfigTag {
 
     @Override
     @SuppressWarnings ("unchecked")
-    public List<Integer> getHexList(List<Integer> defaultValues) {
-        setValueCheck();
+    public List<Integer> getHexList() {
 
         if (value == null) {
-            setHexList(defaultValues);
+            throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.HEX) {
@@ -566,11 +640,10 @@ public class ConfigTag implements IConfigTag {
 
     @Override
     @SuppressWarnings ("unchecked")
-    public List<Double> getDoubleList(List<Double> defaultValues) {
-        setValueCheck();
+    public List<Double> getDoubleList() {
 
         if (value == null) {
-            setDoubleList(defaultValues);
+            throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.DOUBLE) {
@@ -580,6 +653,66 @@ public class ConfigTag implements IConfigTag {
         }
 
         return (List) value;
+    }
+
+    @Override
+    public ConfigTag setDefaultBooleanList(List<Boolean> value) {
+        setDefaultCheck();
+
+        defaultValue = value;
+        if (this.value == null) {
+            setBooleanList(value);
+        }
+
+        return this;
+    }
+
+    @Override
+    public ConfigTag setDefaultStringList(List<String> value) {
+        setDefaultCheck();
+
+        defaultValue = value;
+        if (this.value == null) {
+            setStringList(value);
+        }
+
+        return this;
+    }
+
+    @Override
+    public ConfigTag setDefaultIntList(List<Integer> value) {
+        setDefaultCheck();
+
+        defaultValue = value;
+        if (this.value == null) {
+            setIntList(value);
+        }
+
+        return this;
+    }
+
+    @Override
+    public ConfigTag setDefaultHexList(List<Integer> value) {
+        setDefaultCheck();
+
+        defaultValue = value;
+        if (this.value == null) {
+            setHexList(value);
+        }
+
+        return this;
+    }
+
+    @Override
+    public ConfigTag setDefaultDoubleList(List<Double> value) {
+        setDefaultCheck();
+
+        defaultValue = value;
+        if (this.value == null) {
+            setDoubleList(value);
+        }
+
+        return this;
     }
 
     protected void setList(List<?> value) {
@@ -627,7 +760,7 @@ public class ConfigTag implements IConfigTag {
 
     protected void addTagCheck() {
         if (value != null) {
-            throw new UnsupportedOperationException("Unable to get a sub tag for a tag that has a value");
+            throw new UnsupportedOperationException("Unable to get a child tag for a tag that has a value.");
         }
     }
 
@@ -635,6 +768,20 @@ public class ConfigTag implements IConfigTag {
         if (!children.isEmpty()) {
             throw new UnsupportedOperationException("Unable to set the value for a tag that has children.");
         }
+    }
+
+    protected void setDefaultCheck() {
+        if (defaultValue != null) {
+            throw new IllegalStateException("Unable to set the default value of a tag that already has a default value.");
+        }
+    }
+
+    public TagType getType() {
+        return type;
+    }
+
+    public TagType getListType() {
+        return listType;
     }
 
 }

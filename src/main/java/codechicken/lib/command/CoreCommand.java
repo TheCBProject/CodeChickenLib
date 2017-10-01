@@ -77,7 +77,7 @@ public abstract class CoreCommand implements ICommand {
     @Override
     @Nonnull
     public List<String> getAliases() {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override

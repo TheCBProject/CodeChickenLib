@@ -1,8 +1,8 @@
 package codechicken.lib.render.item;
 
 import codechicken.lib.reflect.ObfMapping;
-import codechicken.lib.render.state.GlStateTracker;
 import codechicken.lib.reflect.ReflectionManager;
+import codechicken.lib.render.state.GlStateTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemModelMesher;

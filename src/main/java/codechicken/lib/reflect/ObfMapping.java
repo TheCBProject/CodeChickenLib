@@ -177,7 +177,7 @@ public class ObfMapping {
         obfuscated = obf;
     }
 
-    public static void init(){
+    public static void init() {
         if (!obfuscated) {
             loadMCPRemapper();
         }

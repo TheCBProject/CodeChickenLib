@@ -2,12 +2,10 @@ package codechicken.lib.model.bakery;
 
 import codechicken.lib.render.particle.IModelParticleProvider;
 import codechicken.lib.texture.TextureUtils;
-import codechicken.lib.util.TransformUtils;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.EntityLivingBase;
@@ -21,13 +19,14 @@ import net.minecraftforge.common.property.IExtendedBlockState;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by covers1624 on 26/10/2016.
  */
 public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
-
 
     public CCBakeryModel() {
     }

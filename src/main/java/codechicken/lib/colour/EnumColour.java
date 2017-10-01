@@ -159,7 +159,7 @@ public enum EnumColour implements IStringSerializable {
             }
         }
         return null;
-     }
+    }
 
     public static EnumColour fromDyeStack(ItemStack stack) {
         for (int id : OreDictionary.getOreIDs(stack)) {

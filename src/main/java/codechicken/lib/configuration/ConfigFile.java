@@ -5,7 +5,6 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 
-@Deprecated
 public class ConfigFile extends ConfigTag {
 
     protected File file;
@@ -27,7 +26,18 @@ public class ConfigFile extends ConfigTag {
      * @param load If load should be called immediately.
      */
     public ConfigFile(File file, boolean load) {
-        super("", null);
+        this(file.getName(), file, load);
+    }
+
+    /**
+     * A special config file.
+     *
+     * @param prefix The prefix used for unlocalized names.
+     * @param file   The file.
+     * @param load   If load should be called immediately.
+     */
+    public ConfigFile(String prefix, File file, boolean load) {
+        super(prefix, null);
         this.file = file;
         if (load) {
             load();
@@ -66,6 +76,9 @@ public class ConfigFile extends ConfigTag {
         PrintWriter writer = null;
         try {
             writer = new PrintWriter(new FileOutputStream(file));
+            for (String comment : comment) {
+                writeLine(writer, 0, "#" + comment);
+            }
             writeTag(writer, 0);
         } catch (IOException e) {
             throw new RuntimeException(e);

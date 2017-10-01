@@ -13,7 +13,7 @@ import java.util.Map.Entry;
  */
 public class BlockBakeryProperties {
 
-    @Deprecated//As of 1.12 this will be going away.
+    @Deprecated//As of 1.13 this will be going away.
     public static final UnlistedMapProperty LAYER_FACE_SPRITE_MAP;
 
     static {

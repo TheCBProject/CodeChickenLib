@@ -3,7 +3,6 @@ package codechicken.lib.configuration;
 import javax.annotation.Nullable;
 import java.util.List;
 
-@Deprecated
 public interface IConfigTag extends IConfigValue {
 
     /**
@@ -45,6 +44,14 @@ public interface IConfigTag extends IConfigValue {
      * @return The name.
      */
     String getName();
+
+    /**
+     * Returns a name fit for localization based on the tree.
+     * //TODO Explain how name is generated.
+     *
+     * @return The name for localization.
+     */
+    String getUnlocalizedName();
 
     /**
      * If this tag is dirty.
@@ -102,6 +109,13 @@ public interface IConfigTag extends IConfigValue {
      * @return This tag.
      */
     IConfigTag deleteTag(String name);
+
+    /**
+     * Returns a list of all child elements for this tag.
+     *
+     * @return All child elements.
+     */
+    List<String> getChildNames();
 
     /**
      * Completely arbitrary string settable by the implementor,

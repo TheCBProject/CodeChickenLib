@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformT
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 
-import javax.vecmath.Vector3f;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,7 +55,6 @@ public interface ITransformFactory {
             TRSRTransformation ground = load(this, object, GROUND, "firstperson_lefthand");
             TRSRTransformation fixed = load(this, object, FIXED, "firstperson_lefthand");
 
-
             map.put(HEAD, head);
             map.put(GUI, gui);
             map.put(GROUND, ground);
@@ -66,13 +64,14 @@ public interface ITransformFactory {
 
         /**
          * Called to deserialize the transform for a specific type.
-         * @param type The type.
+         *
+         * @param type   The type.
          * @param object The json object.
          * @return The TRSRTransformation.
          */
         TRSRTransformation getTransform(TransformType type, JsonObject object);
 
-        static TRSRTransformation load(IStandardTransformFactory me,  JsonObject object, TransformType type, String name) {
+        static TRSRTransformation load(IStandardTransformFactory me, JsonObject object, TransformType type, String name) {
             if (object.has(name)) {
                 return me.getTransform(type, object.getAsJsonObject(name));
             }
