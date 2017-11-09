@@ -1,6 +1,7 @@
 package codechicken.lib.internal.proxy;
 
 import codechicken.lib.internal.ModDescriptionEnhancer;
+import codechicken.lib.internal.command.client.DumpItemInfoCommand;
 import codechicken.lib.internal.command.client.DumpModelLocationsCommand;
 import codechicken.lib.internal.command.client.NukeCCModelCacheCommand;
 import codechicken.lib.internal.network.ClientPacketHandler;
@@ -50,6 +51,7 @@ public class ProxyClient extends Proxy {
 
         ClientCommandHandler.instance.registerCommand(new DumpModelLocationsCommand());
         ClientCommandHandler.instance.registerCommand(new NukeCCModelCacheCommand());
+        ClientCommandHandler.instance.registerCommand(new DumpItemInfoCommand());
         //TODO, assess if this is enough for a properly modded environment.
         //TODO, Concerns are that this will be registered wayy too late and some mod will fuck it up.
         EntityRendererHooks.ClientProxy.registerEntitySanitizer();
