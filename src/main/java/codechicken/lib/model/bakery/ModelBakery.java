@@ -54,6 +54,8 @@ import java.util.function.Function;
 public class ModelBakery {
 
     private static boolean DEBUG = Boolean.parseBoolean(System.getProperty("ccl.debugBakeryLogging"));
+    private static boolean FORCE_BLOCK_REBAKE = Boolean.parseBoolean(System.getProperty("ccl.debugForceBlockModelRebake"));
+    private static boolean FORCE_ITEM_REBAKE = Boolean.parseBoolean(System.getProperty("ccl.debugForceItemModelRebake"));
 
     private static Cache<String, IBakedModel> keyModelCache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
 
@@ -147,7 +149,7 @@ public class ModelBakery {
         IItemStackKeyGenerator generator = getKeyGenerator(stack.getItem());
         String key = generator.generateKey(stack);
         model = keyModelCache.getIfPresent(key);
-        if (model == null) {
+        if (model == null || FORCE_ITEM_REBAKE) {
             try {
                 model = timeModelGeneration(ModelBakery::generateItemModel, stack, "ITEM: " + key);
             } catch (Throwable t) {
@@ -239,7 +241,7 @@ public class ModelBakery {
         IBlockStateKeyGenerator keyGenerator = getKeyGenerator(state.getBlock());
         String key = keyGenerator.generateKey(state);
         model = keyModelCache.getIfPresent(key);
-        if (model == null) {
+        if (model == null || FORCE_BLOCK_REBAKE) {
             try {
                 model = timeModelGeneration(ModelBakery::generateModel, state, "BLOCK: " + key);
             } catch (Throwable t) {
