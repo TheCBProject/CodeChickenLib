@@ -1,0 +1,8 @@
+{
+	"ingredients": {
+		"conditional": "codechicken.lib.recipe.ConditionalIngredientFactory"
+	},
+	"conditions": {
+		"ore_exists": "codechicken.lib.recipe.OreExistsConditionalFactory"
+	}
+}
