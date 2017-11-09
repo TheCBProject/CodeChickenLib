@@ -14,6 +14,7 @@ public class ReflectionManager {
      * @param modifiers The Method or Fields modifier bits.
      * @return If modifiers contains a bit a Modifier.STATIC
      */
+    @Deprecated
     public static boolean isStatic(int modifiers) {
         return (modifiers & Modifier.STATIC) != 0;
     }
@@ -25,7 +26,7 @@ public class ReflectionManager {
      * @return If the method is static.
      */
     public static boolean isStatic(Method method) {
-        return isStatic(method.getModifiers());
+        return Modifier.isStatic(method.getModifiers());
     }
 
     /**
@@ -35,7 +36,7 @@ public class ReflectionManager {
      * @return If the field is static.
      */
     public static boolean isStatic(Field field) {
-        return isStatic(field.getModifiers());
+        return Modifier.isStatic(field.getModifiers());
     }
 
     /**
@@ -184,6 +185,7 @@ public class ReflectionManager {
      * @return The new instance.
      */
     @SuppressWarnings ("unchecked")
+    //TODO, if !returnType.isAssignableFrom(clazz) throw exception
     public static <R> R newInstance_Unsafe(ObfMapping mapping, Class<R> returnType, Object... params) throws IllegalAccessException, InvocationTargetException, InstantiationException {
 
         Class<?> clazz = findClass(mapping);
