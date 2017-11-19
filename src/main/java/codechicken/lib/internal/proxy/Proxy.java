@@ -14,6 +14,10 @@ public class Proxy {
 
     }
 
+    public void postInit() {
+
+    }
+
     public void serverStarting(FMLServerStartingEvent event) {
         //if (!ObfMapping.obfuscated) {
         //    event.registerServerCommand(new DevEnvCommand());
