@@ -214,16 +214,16 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return min.copy().add(max).multiply(0.5);
     }
 
-    public double getSideSize(EnumFacing side) {
-        switch (side.getAxis()) {
-            case X:
-                return (max.x - min.x) + 1;
-            case Y:
-                return (max.y - min.y) + 1;
-            case Z:
-                return (max.z - min.z) + 1;
-        }
-        return 0;
+    public double getWidth() {
+        return (max.x - min.x) + 1;
+    }
+
+    public double getHeight() {
+        return (max.y - min.y) + 1;
+    }
+
+    public double getDepth() {
+        return (max.z - min.z) + 1;
     }
 
     public double getSide(EnumFacing side) {
