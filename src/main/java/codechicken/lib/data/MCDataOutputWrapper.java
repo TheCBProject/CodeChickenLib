@@ -131,15 +131,7 @@ public class MCDataOutputWrapper implements MCDataOutput {
     }
 
     public MCDataOutputWrapper writeNBTTagCompound(NBTTagCompound nbt) {
-        if (nbt == null) {
-            this.writeByte(0);
-        } else {
-            try {
-                CompressedStreamTools.write(nbt, dataout);
-            } catch (IOException ioexception) {
-                throw new EncoderException(ioexception);
-            }
-        }
+        MCDataUtils.writeNBTTagCompount(this, nbt);
         return this;
     }
 
