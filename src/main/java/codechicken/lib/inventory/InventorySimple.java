@@ -144,7 +144,7 @@ public class InventorySimple implements IInventory, ICapabilityProvider {
     @Override
     @Nonnull
     public String getName() {
-        return "name";
+        return name;
     }
 
     @Override
