@@ -39,8 +39,13 @@ public class PropertyInteger extends PropertyHelper<Integer> {
     @Override
     @Nonnull
     public Optional<Integer> parseValue(@Nonnull String value) {
-        if (valueSet.contains(Integer.valueOf(value))) {
-            return Optional.of(Integer.valueOf(value));
+        try {
+            Integer intValue = Integer.valueOf(value);
+            if (valueSet.contains(intValue) {
+                return Optional.of(intValue);
+            }
+        } catch (NumberFormatException ignored) {
+            // Invalid value, let it fall through
         }
         return Optional.absent();
     }
