@@ -1,6 +1,4 @@
-#Stolen form AE2 Repo. :D
 # exclude all
-
 /*
 
 # Include important folders
@@ -17,6 +15,7 @@
 !LICENSE
 !README.md
 !curse_upload.json
+!.travis.yml
 
 # Include git important files
 !.gitmodules
