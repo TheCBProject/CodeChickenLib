@@ -18,6 +18,7 @@ cache:
     - $HOME/.gradle/wrapper/
 
 before_install: chmod +x gradlew
+install: true
 script:
   - ./gradlew setupCIWorkspace build -si --refresh-dependencies
 
