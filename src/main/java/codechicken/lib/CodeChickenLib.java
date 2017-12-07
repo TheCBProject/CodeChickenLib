@@ -68,4 +68,4 @@ public class CodeChickenLib {
             OreDictionary.registerOre(c.getWoolOreName(), new ItemStack(Blocks.WOOL, 1, c.getWoolMeta()));
         }
     }
-}
+bork bork!
