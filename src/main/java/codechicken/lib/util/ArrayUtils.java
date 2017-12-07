@@ -410,4 +410,18 @@ public class ArrayUtils {
         }
         return true;
     }
+
+    /**
+     * Convert an int array to a list of Integers.
+     *
+     * @param arr in.
+     * @return out.
+     */
+    public static List<Integer> toList(int[] arr) {
+        List<Integer> list = new ArrayList<>();
+        for (int i : arr) {
+            list.add(i);
+        }
+        return list;
+    }
 }

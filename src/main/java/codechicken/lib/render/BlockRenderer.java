@@ -159,10 +159,12 @@ public class BlockRenderer {
         }
     }
 
+    public static ThreadLocal<FullBlock> fullBlocks = ThreadLocal.withInitial(FullBlock::new);
+    @Deprecated//Replaced with thread save version.
     public static FullBlock fullBlock = new FullBlock();
 
     public static void renderFullBlock(CCRenderState state, int sideMask) {
-        state.setModel(fullBlock);
+        state.setModel(fullBlocks.get());
         renderFaces(state, sideMask);
     }
 
@@ -183,7 +185,7 @@ public class BlockRenderer {
         }
     }
 
-    private static BlockFace face = new BlockFace();
+    private static ThreadLocal<BlockFace> blockFaces = ThreadLocal.withInitial(BlockFace::new);
 
     /**
      * Renders faces of a cuboid with texture coordinates mapped to match a standard minecraft block
@@ -195,7 +197,7 @@ public class BlockRenderer {
         if (sideMask == 0x3F) {
             return;
         }
-
+        BlockFace face = blockFaces.get();
         state.setModel(face);
         for (int s = 0; s < 6; s++) {
             if ((sideMask & 1 << s) == 0) {

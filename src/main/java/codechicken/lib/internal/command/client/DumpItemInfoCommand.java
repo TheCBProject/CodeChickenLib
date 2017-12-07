@@ -1,5 +1,8 @@
 package codechicken.lib.internal.command.client;
 
+import codechicken.lib.util.ArrayUtils;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
@@ -8,12 +11,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.oredict.OreDictionary;
+import scala.collection.mutable.HashSet;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by covers1624 on 18/10/2017.
@@ -42,6 +49,9 @@ public class DumpItemInfoCommand implements ICommand {
         String nbt = stack.hasTagCompound() ? stack.getTagCompound().toString() : "null";
         sender.sendMessage(new TextComponentString("RegistryName: " + stack.getItem().getRegistryName()));
         sender.sendMessage(new TextComponentString("Metadata: " + stack.getMetadata()));
+
+        List<String> s = ArrayUtils.toList(OreDictionary.getOreIDs(stack)).stream().map(OreDictionary::getOreName).collect(Collectors.toList());
+        sender.sendMessage(new TextComponentString("OreDictionary: " + Joiner.on(", ").join(s)));
         sender.sendMessage(new TextComponentString("NBT: " + nbt));
         if (nbtToClipboard && stack.hasTagCompound()) {
             StringSelection sel = new StringSelection(nbt);

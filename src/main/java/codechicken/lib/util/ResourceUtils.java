@@ -72,6 +72,7 @@ public class ResourceUtils {
      *
      * @param file The file to create.
      */
+    @Deprecated//ensureExists.
     public static void tryCreateFile(File file) {
         if (!file.getParentFile().exists()) {
             tryCreateDirectory(file.getParentFile());
@@ -89,10 +90,32 @@ public class ResourceUtils {
     }
 
     /**
+     * Attempts to create a file.
+     *
+     * @param file The file to create.
+     * @return The same file you passed in.
+     */
+    public static File ensureExists(File file) {
+        if (!file.exists()) {
+            try {
+                if (!file.getParentFile().exists()) {
+                    file.getParentFile().mkdirs();
+                }
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException("Error whilst creating file!", e);
+            }
+        }
+
+        return file;
+    }
+
+    /**
      * Attempts to create a directory.
      *
      * @param dir The dir to create.
      */
+    @Deprecated//ensureExists.
     public static void tryCreateDirectory(File dir) {
         if (!dir.exists()) {
             try {
