@@ -36,11 +36,15 @@ public class CCLLog {
     }
 
     public static void big(Level level, String format, Object... data) {
+        big(level, 8, format, data);
+    }
+
+    public static void big(Level level, int lines, String format, Object... data) {
         StackTraceElement[] trace = Thread.currentThread().getStackTrace();
         log(level, "****************************************");
         log(level, "* " + format, data);
-        for (int i = 2; i < 8 && i < trace.length; i++) {
-            log(level, "*  at %s%s", trace[i].toString(), i == 7 ? "..." : "");
+        for (int i = 2; i < lines && i < trace.length; i++) {
+            log(level, "*  at %s%s", trace[i].toString(), i == lines - 1 ? "..." : "");
         }
         log(level, "****************************************");
     }
