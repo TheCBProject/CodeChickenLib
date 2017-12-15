@@ -241,7 +241,7 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
                         break;
                     case COLOR:
                         Colour colour = colours[v];
-                        consumer.put(e, (colour.r & 0xFF) / 255, (colour.g & 0xFF) / 255, (colour.b & 0xFF) / 255, (colour.a & 0xFF) / 255);
+                        consumer.put(e, (colour.r & 0xFF) / 255F, (colour.g & 0xFF) / 255F, (colour.b & 0xFF) / 255F, (colour.a & 0xFF) / 255F);
                         break;
                     case UV:
                         if (element.getIndex() == 0) {
