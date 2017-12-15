@@ -5,9 +5,10 @@ import codechicken.lib.render.CCRenderState;
 
 public class ColourMultiplier implements IVertexOperation {
 
-    private static ColourMultiplier instance = new ColourMultiplier(-1);
+    private static ThreadLocal<ColourMultiplier> instances = ThreadLocal.withInitial(() -> new ColourMultiplier(-1));
 
     public static ColourMultiplier instance(int colour) {
+        ColourMultiplier instance = instances.get();
         instance.colour = colour;
         return instance;
     }
