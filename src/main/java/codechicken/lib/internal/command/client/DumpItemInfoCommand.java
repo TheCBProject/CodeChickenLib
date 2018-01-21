@@ -2,7 +2,6 @@ package codechicken.lib.internal.command.client;
 
 import codechicken.lib.util.ArrayUtils;
 import com.google.common.base.Joiner;
-import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
@@ -12,13 +11,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.oredict.OreDictionary;
-import scala.collection.mutable.HashSet;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
