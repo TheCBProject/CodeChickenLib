@@ -139,6 +139,15 @@ public class VertexDataUtils {
         }
     }
 
+    public static float[][] unpackElements(int[] packed, VertexFormat format, VertexFormatElement element) {
+        float[][] data = new float[4][4];
+        int e = getElement(format, element);
+        for (int v = 0; v < 4; v++) {
+            LightUtil.unpack(packed, data[v], format, v, e);
+        }
+        return data;
+    }
+
     public static BakedQuad buildQuad(VertexFormat format, TextureAtlasSprite sprite, EnumFacing face, Colour colour, UVTransformation t, Vertex5 v1, Vertex5 v2, Vertex5 v3, Vertex5 v4) {
         UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(format);
         builder.setQuadTint(-1);
