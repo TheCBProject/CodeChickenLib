@@ -21,7 +21,7 @@ public class ConditionalIngredientFactory implements IIngredientFactory {
     public Ingredient parse(JsonContext context, JsonObject json) {
         if (!CraftingHelper.processConditions(JsonUtils.getJsonArray(json, "conditions"), context)) {
             if (json.has("fail")) {
-                CraftingHelper.getIngredient(JsonUtils.getJsonObject(json, "fail"), context);
+                return CraftingHelper.getIngredient(JsonUtils.getJsonObject(json, "fail"), context);
             }
             return Ingredient.EMPTY;
         }
