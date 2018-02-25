@@ -221,6 +221,10 @@ public class CCBlockStateLoader {
             event.getModelRegistry().putObject(entry.getKey(), bakedModels.get(entry.getValue()));
         }
 
+        //Cleanup.
+        modelLoader = null;
+        exceptions = null;
+        toBake.clear();
     }
 
     private void storeException(ResourceLocation location, Exception exception) {

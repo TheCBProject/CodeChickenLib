@@ -159,6 +159,7 @@ public class ModelBakery {
                     buffer.finishDrawing();
                     buffer.reset();
                 }
+	            return missingModel;
             }
             if (model != missingModel) {
                 keyModelCache.put(key, model);
@@ -251,6 +252,7 @@ public class ModelBakery {
                     buffer.finishDrawing();
                     buffer.reset();
                 }
+                return missingModel;
             }
             if (model != missingModel) {
                 keyModelCache.put(key, model);

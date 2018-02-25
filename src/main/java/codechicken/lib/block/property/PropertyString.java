@@ -1,41 +1,45 @@
 package codechicken.lib.block.property;
 
+import codechicken.lib.math.MathHelper;
+import codechicken.lib.util.ArrayUtils;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.minecraft.block.properties.PropertyHelper;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by covers1624 on 2/6/2016.
  */
 public class PropertyString extends PropertyHelper<String> {
 
-    private final List<String> valuesSet;
+    private final Set<String> valuesSet;
+    private final String[] metaLookup;
 
     public PropertyString(String name, Collection<String> values) {
         super(name, String.class);
-        valuesSet = new LinkedList<>(values);
+        metaLookup = values.stream().map(String::intern).toArray(String[]::new);
+        valuesSet = new HashSet<>();
+        Collections.addAll(valuesSet, metaLookup);
     }
 
     public PropertyString(String name, String... values) {
         super(name, String.class);
-        valuesSet = new LinkedList<>();
-        Collections.addAll(valuesSet, values);
+        metaLookup = Arrays.stream(values).map(String::intern).toArray(String[]::new);
+        valuesSet = new HashSet<>();
+        Collections.addAll(valuesSet, metaLookup);
     }
 
     public List<String> values() {
-        return ImmutableList.copyOf(valuesSet);
+        return Lists.newArrayList(metaLookup);
     }
 
     @Nonnull
     @Override
     public Collection<String> getAllowedValues() {
-        return ImmutableList.copyOf(valuesSet);
+        return Collections.unmodifiableSet(valuesSet);
     }
 
     @SuppressWarnings ("Guava")
@@ -55,11 +59,14 @@ public class PropertyString extends PropertyHelper<String> {
     }
 
     public int toMeta(String value) {
-        return valuesSet.indexOf(value);
+        return ArrayUtils.indexOf(metaLookup, value.intern());
     }
 
     public String fromMeta(int meta) {
-        return valuesSet.get(meta);
+        if (!MathHelper.between(0, meta, metaLookup.length)) {
+            throw new IllegalArgumentException(String.format("Meta data out of bounds. Meta: %s, Lookup: %s.", meta, Joiner.on(",").join(metaLookup)));
+        }
+        return metaLookup[meta];
     }
 }
 
