@@ -33,12 +33,14 @@ import java.util.Optional;
  * <p>
  * If you have an idea for another transform just make a pull request.
  */
+//TODO, Pull updated values from the model jsons, These are good, but are slightly off from vanilla in some aspects.
 public class TransformUtils {
 
     private static final TRSRTransformation flipX = new TRSRTransformation(null, null, new Vector3f(-1, 1, 1), null);
 
     public static final Gson GSON = new GsonBuilder().registerTypeAdapter(TRSRTransformation.class, TRSRDeserializer.INSTANCE).create();
 
+    @Deprecated//This really doesnt need to exist, just adds complexity.
     private static Map<ResourceLocation, ITransformFactory> transformFactories = new HashMap<>();
 
     public static final CCModelState DEFAULT_BLOCK;
@@ -187,6 +189,7 @@ public class TransformUtils {
      * @param type    The factory identifier.
      * @param factory The Factory instance.
      */
+    @Deprecated//This really doesnt need to exist, just adds complexity.
     public static void registerTransformFactory(ResourceLocation type, ITransformFactory factory) {
         if (transformFactories.containsKey(type)) {
             CCLLog.big(Level.WARN, "Overriding already registered transform factory for type '%s', this may cause issues...", type);
@@ -200,6 +203,7 @@ public class TransformUtils {
      * @param type The factory identifier.
      * @return The factory.
      */
+    @Deprecated//This really doesnt need to exist, just adds complexity.
     public static ITransformFactory getTransformFactory(ResourceLocation type) {
         if (!transformFactories.containsKey(type)) {
             throw new IllegalArgumentException(String.format("Unable to get TransformFactory for unregistered type{%s}!", type));
@@ -207,6 +211,8 @@ public class TransformUtils {
         return transformFactories.get(type);
     }
 
+    //TODO, Support vanilla transforms in main Transform parser bellow.
+    @Deprecated//This really doesnt need to exist, just adds complexity.
     public static void registerDefaultFactories() {
         registerTransformFactory(new ResourceLocation("minecraft:default"), new IStandardTransformFactory() {
 
@@ -248,6 +254,7 @@ public class TransformUtils {
      * @param json The Json that contains either ModelRotation x,y,TRSRTransforms or CCL defaults.
      * @return A IModelState.
      */
+    //TODO, Implement above vanilla transform parsing.
     public static Optional<IModelState> parseFromJson(JsonObject json) {
         Optional<IModelState> ret = Optional.empty();
         if (json.has("x") || json.has("y")) {

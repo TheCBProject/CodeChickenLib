@@ -39,8 +39,10 @@ public class TextureUtils {
         void registerIcons(TextureMap textureMap);
     }
 
+    //TODO, change field to List not ArrayList
     private static ArrayList<IIconRegister> iconRegisters = new ArrayList<>();
 
+    @Deprecated//Use TextureUtils::getTexture
     public static Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter = TextureUtils::getTexture;
 
     //TODO Rename this.

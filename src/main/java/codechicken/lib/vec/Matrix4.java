@@ -82,27 +82,35 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
 
     //region Translate, Scale, Transpose.
     public Matrix4 translate(Vector3 vec) {
-        m03 += m00 * vec.x + m01 * vec.y + m02 * vec.z;
-        m13 += m10 * vec.x + m11 * vec.y + m12 * vec.z;
-        m23 += m20 * vec.x + m21 * vec.y + m22 * vec.z;
-        m33 += m30 * vec.x + m31 * vec.y + m32 * vec.z;
+        return translate(vec.x, vec.y, vec.z);
+    }
+
+    public Matrix4 translate(double x, double y, double z) {
+        m03 += m00 * x + m01 * y + m02 * z;
+        m13 += m10 * x + m11 * y + m12 * z;
+        m23 += m20 * x + m21 * y + m22 * z;
+        m33 += m30 * x + m31 * y + m32 * z;
 
         return this;
     }
 
     public Matrix4 scale(Vector3 vec) {
-        m00 *= vec.x;
-        m10 *= vec.x;
-        m20 *= vec.x;
-        m30 *= vec.x;
-        m01 *= vec.y;
-        m11 *= vec.y;
-        m21 *= vec.y;
-        m31 *= vec.y;
-        m02 *= vec.z;
-        m12 *= vec.z;
-        m22 *= vec.z;
-        m32 *= vec.z;
+        return scale(vec.x, vec.y, vec.z);
+    }
+
+    public Matrix4 scale(double x, double y, double z) {
+        m00 *= x;
+        m10 *= x;
+        m20 *= x;
+        m30 *= x;
+        m01 *= y;
+        m11 *= y;
+        m21 *= y;
+        m31 *= y;
+        m02 *= z;
+        m12 *= z;
+        m22 *= z;
+        m32 *= z;
 
         return this;
     }

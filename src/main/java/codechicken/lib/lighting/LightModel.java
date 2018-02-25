@@ -33,7 +33,14 @@ public class LightModel implements IVertexOperation {
     public static LightModel standardLightModel;
 
     static {
-        standardLightModel = new LightModel().setAmbient(new Vector3(0.4, 0.4, 0.4)).addLight(new Light(new Vector3(0.2, 1, -0.7)).setDiffuse(new Vector3(0.6, 0.6, 0.6))).addLight(new Light(new Vector3(-0.2, 1, 0.7)).setDiffuse(new Vector3(0.6, 0.6, 0.6)));
+        //@formatter:off
+        standardLightModel = new LightModel()
+		        .setAmbient(new Vector3(0.4, 0.4, 0.4))
+		        .addLight(new Light(new Vector3(0.2, 1, -0.7))
+				        .setDiffuse(new Vector3(0.6, 0.6, 0.6)))
+		        .addLight(new Light(new Vector3(-0.2, 1, 0.7))
+				        .setDiffuse(new Vector3(0.6, 0.6, 0.6)));
+        //@formatter:on
     }
 
     private Vector3 ambient = new Vector3();

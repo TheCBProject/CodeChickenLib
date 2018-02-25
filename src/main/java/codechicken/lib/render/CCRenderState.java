@@ -215,7 +215,7 @@ public class CCRenderState {
     }
 
     public void setBrightness(IBlockAccess world, BlockPos pos) {
-        brightness = world.getBlockState(pos).getBlock().getPackedLightmapCoords(world.getBlockState(pos), world, pos);
+        brightness = world.getBlockState(pos).getPackedLightmapCoords(world, pos);
     }
 
     public void pullLightmap() {
