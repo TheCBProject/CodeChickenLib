@@ -74,16 +74,16 @@ public class MapRenderRegistry {
         EnumHandSide handSide = flag ? player.getPrimaryHand() : player.getPrimaryHand().opposite();
 
         GlStateManager.pushMatrix();
-        if(flag && minecraft.getItemRenderer().itemStackOffHand.isEmpty()) {
+        if (flag && minecraft.getItemRenderer().itemStackOffHand.isEmpty()) {
             float f = MathHelper.sqrt(swingProgress);
-            float f1 = -0.2F * MathHelper.sin(swingProgress * (float)Math.PI);
-            float f2 = -0.4F * MathHelper.sin(f * (float)Math.PI);
+            float f1 = -0.2F * MathHelper.sin(swingProgress * (float) Math.PI);
+            float f2 = -0.4F * MathHelper.sin(f * (float) Math.PI);
             GlStateManager.translate(0.0F, -f1 / 2.0F, f2);
             float f3 = itemRenderer.getMapAngleFromPitch(interpPitch);
             GlStateManager.translate(0.0F, 0.04F + equipProgress * -1.2F + f3 * -0.5F, -0.72F);
             GlStateManager.rotate(f3 * -85.0F, 1.0F, 0.0F, 0.0F);
             itemRenderer.renderArms();
-            float f4 = MathHelper.sin(f * (float)Math.PI);
+            float f4 = MathHelper.sin(f * (float) Math.PI);
             GlStateManager.rotate(f4 * 20.0F, 1.0F, 0.0F, 0.0F);
             GlStateManager.scale(2.0F, 2.0F, 2.0F);
             handleRender(stack, false);
@@ -91,8 +91,7 @@ public class MapRenderRegistry {
             float f = handSide == EnumHandSide.RIGHT ? 1.0F : -1.0F;
             GlStateManager.translate(f * 0.125F, -0.125F, 0.0F);
 
-            if (!player.isInvisible())
-            {
+            if (!player.isInvisible()) {
                 GlStateManager.pushMatrix();
                 GlStateManager.rotate(f * 10.0F, 0.0F, 0.0F, 1.0F);
                 itemRenderer.renderArmFirstPerson(equipProgress, swingProgress, handSide);
@@ -102,10 +101,10 @@ public class MapRenderRegistry {
             GlStateManager.pushMatrix();
             GlStateManager.translate(f * 0.51F, -0.08F + equipProgress * -1.2F, -0.75F);
             float f1 = MathHelper.sqrt(swingProgress);
-            float f2 = MathHelper.sin(f1 * (float)Math.PI);
+            float f2 = MathHelper.sin(f1 * (float) Math.PI);
             float f3 = -0.5F * f2;
-            float f4 = 0.4F * MathHelper.sin(f1 * ((float)Math.PI * 2F));
-            float f5 = -0.3F * MathHelper.sin(swingProgress * (float)Math.PI);
+            float f4 = 0.4F * MathHelper.sin(f1 * ((float) Math.PI * 2F));
+            float f5 = -0.3F * MathHelper.sin(swingProgress * (float) Math.PI);
             GlStateManager.translate(f * f3, f4 - 0.3F * f2, f5);
             GlStateManager.rotate(f2 * -45.0F, 1.0F, 0.0F, 0.0F);
             GlStateManager.rotate(f * f2 * -30.0F, 0.0F, 1.0F, 0.0F);

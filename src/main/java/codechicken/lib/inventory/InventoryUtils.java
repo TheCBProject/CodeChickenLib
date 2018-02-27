@@ -27,7 +27,6 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.EmptyHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 
@@ -391,8 +390,8 @@ public class InventoryUtils {
      * Checks for insertion or extraction.
      *
      * @param handler The inventory.
-     * @param filter What we are checking for.
-     * @param insert If we are checking for insertion or extraction.
+     * @param filter  What we are checking for.
+     * @param insert  If we are checking for insertion or extraction.
      * @return The total number of items of the specified filter type.
      */
     public static int countMatchingStacks(IItemHandler handler, ItemStack filter, boolean insert) {

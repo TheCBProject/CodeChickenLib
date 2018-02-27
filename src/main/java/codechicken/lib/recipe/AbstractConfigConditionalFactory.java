@@ -3,7 +3,6 @@ package codechicken.lib.recipe;
 import codechicken.lib.configuration.ConfigFile;
 import codechicken.lib.configuration.ConfigTag;
 import codechicken.lib.configuration.IConfigTag.TagType;
-import codechicken.lib.internal.CCLLog;
 import com.google.gson.JsonObject;
 import net.minecraft.util.JsonUtils;
 import net.minecraftforge.common.crafting.IConditionFactory;

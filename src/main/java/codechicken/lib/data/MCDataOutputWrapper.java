@@ -2,7 +2,6 @@ package codechicken.lib.data;
 
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;

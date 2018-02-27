@@ -11,7 +11,7 @@ import java.math.RoundingMode;
 
 public class Translation extends Transformation {
 
-	public static final Translation CENTER = new Translation(Vector3.center);
+    public static final Translation CENTER = new Translation(Vector3.center);
 
     public Vector3 vec;
 

@@ -99,7 +99,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public Matrix4 scale(double scale) {
-    	return scale(scale, scale, scale);
+        return scale(scale, scale, scale);
     }
 
     public Matrix4 scale(double x, double y, double z) {
