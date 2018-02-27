@@ -4,13 +4,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.storage.MapData;
 import net.minecraftforge.client.event.RenderItemInFrameEvent;
 import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -27,8 +25,7 @@ public class MapRenderRegistry {
     public static boolean shouldHandle(ItemStack stack, boolean inFrame) {
         IMapRenderer mapRenderer = mapRenderers.get(stack.getItem());
         if (mapRenderer != null) {
-            MapData data = Items.FILLED_MAP.getMapData(stack, Minecraft.getMinecraft().world);
-            return mapRenderer.shouldHandle(stack, data, inFrame);
+            return mapRenderer.shouldHandle(stack, inFrame);
         }
         return false;
     }
@@ -36,8 +33,7 @@ public class MapRenderRegistry {
     public static void handleRender(ItemStack stack, boolean inFrame) {
         IMapRenderer mapRenderer = mapRenderers.get(stack.getItem());
         if (mapRenderer != null) {
-            MapData data = Items.FILLED_MAP.getMapData(stack, Minecraft.getMinecraft().world);
-            mapRenderer.renderMap(stack, data, inFrame);
+            mapRenderer.renderMap(stack, inFrame);
         }
     }
 
