@@ -98,6 +98,10 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         return scale(vec.x, vec.y, vec.z);
     }
 
+    public Matrix4 scale(double scale) {
+    	return scale(scale, scale, scale);
+    }
+
     public Matrix4 scale(double x, double y, double z) {
         m00 *= x;
         m10 *= x;

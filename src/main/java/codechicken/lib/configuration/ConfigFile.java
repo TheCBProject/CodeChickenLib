@@ -58,11 +58,11 @@ public class ConfigFile extends ConfigTag {
             reader = new ConfigReader(new FileReader(file));
             parseTag(reader);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ConfigException(e);
         } finally {
             IOUtils.closeQuietly(reader);
+            isLoading = false;
         }
-        isLoading = false;
     }
 
     /**
@@ -81,7 +81,7 @@ public class ConfigFile extends ConfigTag {
             }
             writeTag(writer, 0);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ConfigException(e);
         } finally {
             IOUtils.closeQuietly(writer);
         }
@@ -116,6 +116,25 @@ public class ConfigFile extends ConfigTag {
 
         public int getCurrLine() {
             return line;
+        }
+    }
+
+    public class ConfigException extends RuntimeException {
+
+        public ConfigException() {
+            super();
+        }
+
+        public ConfigException(String message) {
+            super(message);
+        }
+
+        public ConfigException(Throwable throwable) {
+            super(throwable);
+        }
+
+        public ConfigException(String message, Throwable throwable) {
+            super(message, throwable);
         }
     }
 }
