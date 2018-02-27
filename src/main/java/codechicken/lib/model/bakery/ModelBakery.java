@@ -233,6 +233,10 @@ public class ModelBakery {
         }
         if (state.getUnlistedProperties().containsKey(ModelErrorStateProperty.ERROR_STATE)) {
             ErrorState errorState = state.getValue(ModelErrorStateProperty.ERROR_STATE);
+            if(errorState == null) {
+                CCLLog.logOncePerTick(Level.FATAL, "A CCL controlled model has been improperly handled by someone and will NOT be rendered. No more information available.");
+                return missingModel;
+            }
             if (errorState.hasErrored()) {
                 CCLLog.logOncePerTick(Level.ERROR, "A CCL controlled model has reported an error and will NOT be rendered: \n" + errorState.getReason());
                 return missingModel;
