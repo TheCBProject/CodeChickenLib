@@ -15,7 +15,6 @@ import codechicken.lib.packet.PacketCustom;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.block.BlockRenderingRegistry;
-import codechicken.lib.render.item.CCItemRenderer;
 import codechicken.lib.render.item.CCRenderItem;
 import codechicken.lib.render.item.entity.WrappedEntityItemRenderer;
 import codechicken.lib.render.item.map.MapRenderRegistry;
@@ -83,7 +82,6 @@ public class ProxyClient extends Proxy {
     @Override
     public void init() {
         BlockRenderingRegistry.init();
-        CCItemRenderer.initialize();
         CCRenderItem.init();
         ModDescriptionEnhancer.init();
     }
