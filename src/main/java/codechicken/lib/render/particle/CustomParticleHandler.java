@@ -14,6 +14,7 @@ import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -72,6 +73,37 @@ public class CustomParticleHandler {
     public static boolean handleLandingEffects(WorldServer world, BlockPos pos, EntityLivingBase entity, int numParticles) {
         PacketDispatcher.dispatchLandingEffects(world, pos, entity, numParticles);
         return true;
+    }
+
+    @SideOnly (Side.CLIENT)
+    public static boolean handleRunningEffects(World world, BlockPos pos, IBlockState state, Entity entity) {
+        //Speshal raytrace, from feet to, down.
+        Vector3 start = Vector3.fromEntityCenter(entity);
+        Vector3 end = start.copy().add(Vector3.down.copy().multiply(4));
+        RayTraceResult traceResult = world.rayTraceBlocks(start.vec3(), end.vec3(), true, false, true);
+
+        if (traceResult != null && traceResult.typeOfHit == Type.BLOCK) {
+            BlockModelShapes modelProvider = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes();
+            try {
+                state = state.getActualState(world, pos);
+            } catch (Throwable ignored) {
+            }
+            IBakedModel model = modelProvider.getModelForState(state);
+            state = state.getBlock().getExtendedState(state, world, pos);
+            if (model instanceof IModelParticleProvider) {
+                ParticleManager particleManager = Minecraft.getMinecraft().effectRenderer;
+                Set<TextureAtlasSprite> hitSprites = ((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos);
+                List<TextureAtlasSprite> sprites = hitSprites.stream().filter(sprite -> !ignoredParticleSprites.contains(sprite)).collect(Collectors.toList());
+                TextureAtlasSprite rolledSprite = sprites.get(world.rand.nextInt(sprites.size()));
+                double x = entity.posX + (world.rand.nextFloat() - 0.5D) * entity.width;
+                double y = entity.getEntityBoundingBox().minY + 0.1D;
+                double z = entity.posZ + (world.rand.nextFloat() - 0.5D) * entity.width;
+                particleManager.addEffect(new DigIconParticle(world, x, y, z, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, rolledSprite));
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
