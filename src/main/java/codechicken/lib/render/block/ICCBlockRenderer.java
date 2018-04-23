@@ -51,5 +51,6 @@ public interface ICCBlockRenderer {
      *
      * @param map The map!
      */
+    @Deprecated //Implement IIconRegister
     void registerTextures(TextureMap map);
 }

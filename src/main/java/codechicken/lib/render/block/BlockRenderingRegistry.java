@@ -6,6 +6,7 @@ import codechicken.lib.reflect.ObfMapping;
 import codechicken.lib.reflect.ReflectionManager;
 import codechicken.lib.render.buffer.BakingVertexBuffer;
 import codechicken.lib.texture.TextureUtils;
+import codechicken.lib.texture.TextureUtils.IIconRegister;
 import codechicken.lib.util.TransformUtils;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
@@ -25,8 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * TODO, Individual ICCBlockRenderer's should implement IIconRegister and register it themselves.
  * Created by covers1624 on 8/09/2016.
- * TODO Start phase out of this system.
  */
 public class BlockRenderingRegistry {
 
@@ -66,6 +67,9 @@ public class BlockRenderingRegistry {
             throw new IllegalArgumentException("Unable to register duplicate render type!" + type.name());
         }
         blockRendererList.put(type, renderer);
+        if (renderer instanceof IIconRegister) {
+            TextureUtils.addIconRegister((IIconRegister) renderer);
+        }
     }
 
     static void renderBlockDamage(IBlockAccess world, BlockPos pos, IBlockState state, TextureAtlasSprite sprite) {
@@ -97,6 +101,7 @@ public class BlockRenderingRegistry {
         }
     }
 
+    @Deprecated
     static void registerTextures(TextureMap map) {
         for (ICCBlockRenderer renderer : blockRendererList.values()) {
             renderer.registerTextures(map);
