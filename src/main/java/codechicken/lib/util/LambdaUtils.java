@@ -54,4 +54,18 @@ public class LambdaUtils {
         }
     }
 
+    /**
+     * Try's the operation quietly, disposing of any exception thrown.
+     * Useful for things where you literally don't care what the result is.
+     *
+     * @param runnable The thing to run.
+     */
+    public static void tryQuietly(ThrowingRunnable<Throwable> runnable) {
+        try {
+            runnable.run();
+        } catch (Throwable ignored) {
+            //pokemon
+        }
+    }
+
 }

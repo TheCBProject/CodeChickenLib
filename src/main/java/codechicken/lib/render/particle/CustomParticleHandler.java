@@ -21,6 +21,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -77,30 +78,25 @@ public class CustomParticleHandler {
 
     @SideOnly (Side.CLIENT)
     public static boolean handleRunningEffects(World world, BlockPos pos, IBlockState state, Entity entity) {
-        //Speshal raytrace, from feet to, down.
-        Vector3 start = Vector3.fromEntityCenter(entity);
-        Vector3 end = start.copy().add(Vector3.down.copy().multiply(4));
-        RayTraceResult traceResult = world.rayTraceBlocks(start.vec3(), end.vec3(), true, false, true);
-
-        if (traceResult != null && traceResult.typeOfHit == Type.BLOCK) {
-            BlockModelShapes modelProvider = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes();
-            try {
-                state = state.getActualState(world, pos);
-            } catch (Throwable ignored) {
-            }
-            IBakedModel model = modelProvider.getModelForState(state);
-            state = state.getBlock().getExtendedState(state, world, pos);
-            if (model instanceof IModelParticleProvider) {
-                ParticleManager particleManager = Minecraft.getMinecraft().effectRenderer;
-                Set<TextureAtlasSprite> hitSprites = ((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos);
-                List<TextureAtlasSprite> sprites = hitSprites.stream().filter(sprite -> !ignoredParticleSprites.contains(sprite)).collect(Collectors.toList());
-                TextureAtlasSprite rolledSprite = sprites.get(world.rand.nextInt(sprites.size()));
-                double x = entity.posX + (world.rand.nextFloat() - 0.5D) * entity.width;
-                double y = entity.getEntityBoundingBox().minY + 0.1D;
-                double z = entity.posZ + (world.rand.nextFloat() - 0.5D) * entity.width;
-                particleManager.addEffect(new DigIconParticle(world, x, y, z, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, rolledSprite));
-                return true;
-            }
+        //Spoof a raytrace from the feet.
+        RayTraceResult traceResult = new RayTraceResult(new Vec3d(entity.posX, pos.getY() + 1, entity.posZ), EnumFacing.UP, pos);
+        BlockModelShapes modelProvider = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes();
+        try {
+            state = state.getActualState(world, pos);
+        } catch (Throwable ignored) {
+        }
+        IBakedModel model = modelProvider.getModelForState(state);
+        state = state.getBlock().getExtendedState(state, world, pos);
+        if (model instanceof IModelParticleProvider) {
+            ParticleManager particleManager = Minecraft.getMinecraft().effectRenderer;
+            Set<TextureAtlasSprite> hitSprites = ((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos);
+            List<TextureAtlasSprite> sprites = hitSprites.stream().filter(sprite -> !ignoredParticleSprites.contains(sprite)).collect(Collectors.toList());
+            TextureAtlasSprite rolledSprite = sprites.get(world.rand.nextInt(sprites.size()));
+            double x = entity.posX + (world.rand.nextFloat() - 0.5D) * entity.width;
+            double y = entity.getEntityBoundingBox().minY + 0.1D;
+            double z = entity.posZ + (world.rand.nextFloat() - 0.5D) * entity.width;
+            particleManager.addEffect(new DigIconParticle(world, x, y, z, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, rolledSprite));
+            return true;
         }
 
         return false;
@@ -177,37 +173,31 @@ public class CustomParticleHandler {
 
     @SideOnly (Side.CLIENT)
     public static void addLandingEffects(World world, BlockPos pos, IBlockState state, Vector3 entityPos, int numParticles) {
-        //Speshal raytrace, from feet to, down.
-        Vector3 start = entityPos.copy();
-        Vector3 end = start.copy().add(Vector3.down.copy().multiply(4));
-        RayTraceResult traceResult = world.rayTraceBlocks(start.vec3(), end.vec3(), true, false, true);
+        //Spoof a raytrace from the feet.
+        RayTraceResult traceResult = new RayTraceResult(new Vec3d(entityPos.x, pos.getY() + 1, entityPos.z), EnumFacing.UP, pos);
+        ParticleManager manager = Minecraft.getMinecraft().effectRenderer;
+        Random randy = new Random();
+        BlockModelShapes modelProvider = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes();
+        try {
+            state = state.getActualState(world, pos);
+        } catch (Throwable ignored) {
+        }
+        IBakedModel model = modelProvider.getModelForState(state);
+        state = state.getBlock().getExtendedState(state, world, pos);
+        if (model instanceof IModelParticleProvider) {
+            Set<TextureAtlasSprite> hitSprites = ((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos);
+            List<TextureAtlasSprite> sprites = hitSprites.stream().filter(sprite -> !ignoredParticleSprites.contains(sprite)).collect(Collectors.toList());
 
-        if (traceResult != null && traceResult.typeOfHit == Type.BLOCK) {
-            ParticleManager manager = Minecraft.getMinecraft().effectRenderer;
-            Random randy = new Random();
-            BlockModelShapes modelProvider = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes();
-            try {
-                state = state.getActualState(world, pos);
-            } catch (Throwable ignored) {
-            }
-            IBakedModel model = modelProvider.getModelForState(state);
-            state = state.getBlock().getExtendedState(state, world, pos);
-            if (model instanceof IModelParticleProvider) {
-                Set<TextureAtlasSprite> hitSprites = ((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos);
-                List<TextureAtlasSprite> sprites = hitSprites.stream().filter(sprite -> !ignoredParticleSprites.contains(sprite)).collect(Collectors.toList());
-
-                double speed = 0.15000000596046448D;
-                if (numParticles != 0) {
-                    for (int i = 0; i < numParticles; i++) {
-                        double mX = randy.nextGaussian() * speed;
-                        double mY = randy.nextGaussian() * speed;
-                        double mZ = randy.nextGaussian() * speed;
-                        manager.addEffect(DigIconParticle.newLandingParticle(world, entityPos.x, entityPos.y, entityPos.z, mX, mY, mZ, sprites.get(randy.nextInt(sprites.size()))));
-                    }
+            double speed = 0.15000000596046448D;
+            if (numParticles != 0) {
+                for (int i = 0; i < numParticles; i++) {
+                    double mX = randy.nextGaussian() * speed;
+                    double mY = randy.nextGaussian() * speed;
+                    double mZ = randy.nextGaussian() * speed;
+                    manager.addEffect(DigIconParticle.newLandingParticle(world, entityPos.x, entityPos.y, entityPos.z, mX, mY, mZ, sprites.get(randy.nextInt(sprites.size()))));
                 }
             }
         }
-
     }
 
     @SideOnly (Side.CLIENT)
