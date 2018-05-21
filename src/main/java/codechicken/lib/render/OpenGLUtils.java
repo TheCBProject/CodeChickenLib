@@ -18,12 +18,18 @@ public class OpenGLUtils {
     public static boolean openGL20;
     public static boolean openGL32;
     public static boolean openGL40;
+    public static boolean openGL43;
+    public static boolean openGL44;
+    public static boolean openGL45;
 
     public static void loadCaps() {
         ContextCapabilities caps = GLContext.getCapabilities();
         openGL20 = caps.OpenGL20;
         openGL32 = caps.OpenGL32;
         openGL40 = caps.OpenGL40;
+        openGL43 = caps.OpenGL43;
+        openGL44 = caps.OpenGL44;
+        openGL45 = caps.OpenGL45;
     }
 
     /**

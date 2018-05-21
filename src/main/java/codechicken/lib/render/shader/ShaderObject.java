@@ -3,10 +3,7 @@ package codechicken.lib.render.shader;
 import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.shader.ShaderProgram.IUniformCallback;
 import codechicken.lib.render.shader.ShaderProgram.UniformCache;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL32;
-import org.lwjgl.opengl.GL40;
+import org.lwjgl.opengl.*;
 
 import java.util.function.IntConsumer;
 
@@ -174,7 +171,8 @@ public class ShaderObject {
 		FRAGMENT(GL20.GL_FRAGMENT_SHADER,           OpenGLUtils.openGL20),
 		GEOMETRY(GL32.GL_GEOMETRY_SHADER,           OpenGLUtils.openGL32),
 		TESS_CONTROL(GL40.GL_TESS_CONTROL_SHADER,   OpenGLUtils.openGL40),
-		TESS_EVAL(GL40.GL_TESS_EVALUATION_SHADER,   OpenGLUtils.openGL40);
+		TESS_EVAL(GL40.GL_TESS_EVALUATION_SHADER,   OpenGLUtils.openGL40),
+		COMPUTE(GL43.GL_COMPUTE_SHADER,             OpenGLUtils.openGL43);
 		//@formatter:on
 
         private int glCode;
