@@ -110,6 +110,7 @@ public class ProxyClient extends Proxy {
         CCBlockRendererDispatcher.catchAllCrashes = tag.setDefaultBoolean(false).getBoolean();
         tag = brdMisc.getTag("message_player_on_catch").setComment("With this enabled, the player will be messaged when an exception is caught providing some immediate debug info, the entire exception is printed to console. (This even catches ReportedExceptions!)");
         CCBlockRendererDispatcher.messagePlayerOnCatch = tag.setDefaultBoolean(false).getBoolean();
+        clientTag.save();
     }
 
     @Override
