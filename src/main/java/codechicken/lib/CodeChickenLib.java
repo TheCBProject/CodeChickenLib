@@ -49,6 +49,7 @@ public class CodeChickenLib {
     public void preInit(FMLPreInitializationEvent event) {
         ProxyInjector.runInjector(event.getAsmData());
         config = new ConfigFile(event.getSuggestedConfigurationFile());
+        proxy.loadConfig();
         proxy.preInit();
         initOreDict();
     }
