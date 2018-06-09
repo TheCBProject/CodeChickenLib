@@ -3,9 +3,7 @@ package codechicken.lib.internal.proxy;
 import codechicken.lib.CodeChickenLib;
 import codechicken.lib.configuration.ConfigTag;
 import codechicken.lib.internal.ModDescriptionEnhancer;
-import codechicken.lib.internal.command.client.DumpItemInfoCommand;
-import codechicken.lib.internal.command.client.DumpModelLocationsCommand;
-import codechicken.lib.internal.command.client.NukeCCModelCacheCommand;
+import codechicken.lib.internal.command.client.CCLClientCommand;
 import codechicken.lib.internal.network.ClientPacketHandler;
 import codechicken.lib.internal.network.PacketDispatcher;
 import codechicken.lib.model.ModelRegistryHelper;
@@ -67,9 +65,7 @@ public class ProxyClient extends Proxy {
 
         PacketCustom.assignHandler(PacketDispatcher.NET_CHANNEL, new ClientPacketHandler());
 
-        ClientCommandHandler.instance.registerCommand(new DumpModelLocationsCommand());
-        ClientCommandHandler.instance.registerCommand(new NukeCCModelCacheCommand());
-        ClientCommandHandler.instance.registerCommand(new DumpItemInfoCommand());
+        ClientCommandHandler.instance.registerCommand(new CCLClientCommand());
 
         RenderingRegistry.registerEntityRenderingHandler(DummyEntity.class, manager -> {
             sanitizeEntityRenderers(manager);
