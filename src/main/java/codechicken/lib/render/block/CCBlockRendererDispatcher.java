@@ -3,6 +3,8 @@ package codechicken.lib.render.block;
 import codechicken.lib.internal.CCLLog;
 import codechicken.lib.texture.TextureUtils;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
@@ -15,6 +17,7 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.WorldType;
 import org.apache.logging.log4j.Level;
@@ -25,6 +28,8 @@ import org.apache.logging.log4j.Level;
 public class CCBlockRendererDispatcher extends BlockRendererDispatcher implements TextureUtils.IIconRegister {
 
     public final BlockRendererDispatcher parentDispatcher;
+    public static boolean catchAllCrashes = false;
+    public static boolean messagePlayerOnCatch = false;
 
     public CCBlockRendererDispatcher(BlockRendererDispatcher dispatcher, BlockColors blockColours) {
         super(dispatcher.getBlockModelShapes(), blockColours);
@@ -63,9 +68,25 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher implement
         try {
             return parentDispatcher.renderBlock(state, pos, blockAccess, worldRendererIn);
         } catch (Exception e) {
-            if (!(e instanceof ReportedException)) {
+            if (!(e instanceof ReportedException) || catchAllCrashes) {
                 String clazzName = inState != null ? inState.getBlock().getClass().toString() : "UNKNOWN";
                 CCLLog.log(Level.ERROR, e, "CCL has caught an exception whilst another mod's block is being rendered. Original crash may have been discarded, possible null client side tile. Pos: '%s', State: '%s', block class: '%s'", pos, inState, clazzName);
+                if(catchAllCrashes) {
+                    //Probably don't need this to be a task, but better to throw it to the main thread for saftey.
+                    Minecraft.getMinecraft().addScheduledTask(() -> {
+                        EntityPlayerSP player = Minecraft.getMinecraft().player;
+                        if(player != null) {
+                            player.sendMessage(new TextComponentString("CCL has stopped your client crashing whilst rendering a block!"));
+                            player.sendMessage(new TextComponentString("  Pos: " + pos));
+                            player.sendMessage(new TextComponentString("  State: " + inState));
+                            player.sendMessage(new TextComponentString("  Class: " + clazzName));
+                            player.sendMessage(new TextComponentString("  RegName: " + inState != null ? inState.getBlock().getRegistryName().toString() : "unknown, state is null!"));
+                            player.sendMessage(new TextComponentString("  Meta: " + inState != null ? Integer.toString(inState.getBlock().getMetaFromState(inState)) : "unknown, state is null!"));
+                            player.sendMessage(new TextComponentString(String.format("Pos: '%s', State: '%s', block class: '%s'", pos, inState, clazzName)));
+                            player.sendMessage(new TextComponentString("Please see the log for more details."));
+                        }
+                    });
+                }
                 return false;
             }
             throw e;
@@ -77,7 +98,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher implement
         if (BlockRenderingRegistry.canHandle(state.getRenderType())) {
             BlockRenderingRegistry.renderBlockBrightness(state, brightness);
         }
-        super.renderBlockBrightness(state, brightness);
+        parentDispatcher.renderBlockBrightness(state, brightness);
     }
 
     @Override

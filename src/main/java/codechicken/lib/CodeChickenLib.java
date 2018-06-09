@@ -2,6 +2,8 @@ package codechicken.lib;
 
 import codechicken.lib.annotation.ProxyInjector;
 import codechicken.lib.colour.EnumColour;
+import codechicken.lib.configuration.ConfigFile;
+import codechicken.lib.configuration.ConfigTag;
 import codechicken.lib.internal.proxy.Proxy;
 import codechicken.lib.reflect.ObfMapping;
 import net.minecraft.init.Blocks;
@@ -34,6 +36,8 @@ public class CodeChickenLib {
 
     public static final File MINECRAFT_DIR = (File) FMLInjectionData.data()[6];
 
+    public static ConfigFile config;
+
     @SidedProxy (clientSide = "codechicken.lib.internal.proxy.ProxyClient", serverSide = "codechicken.lib.internal.proxy.Proxy")
     public static Proxy proxy;
 
@@ -44,6 +48,7 @@ public class CodeChickenLib {
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         ProxyInjector.runInjector(event.getAsmData());
+        config = new ConfigFile(event.getSuggestedConfigurationFile());
         proxy.preInit();
         initOreDict();
     }

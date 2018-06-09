@@ -11,11 +11,12 @@ public class Proxy {
     }
 
     public void init() {
-
     }
 
     public void postInit() {
+    }
 
+    public void loadConfig() {
     }
 
     public void serverStarting(FMLServerStartingEvent event) {

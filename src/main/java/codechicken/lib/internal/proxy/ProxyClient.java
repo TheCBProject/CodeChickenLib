@@ -1,5 +1,7 @@
 package codechicken.lib.internal.proxy;
 
+import codechicken.lib.CodeChickenLib;
+import codechicken.lib.configuration.ConfigTag;
 import codechicken.lib.internal.ModDescriptionEnhancer;
 import codechicken.lib.internal.command.client.DumpItemInfoCommand;
 import codechicken.lib.internal.command.client.DumpModelLocationsCommand;
@@ -15,6 +17,7 @@ import codechicken.lib.packet.PacketCustom;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.block.BlockRenderingRegistry;
+import codechicken.lib.render.block.CCBlockRendererDispatcher;
 import codechicken.lib.render.item.CCRenderItem;
 import codechicken.lib.render.item.entity.WrappedEntityItemRenderer;
 import codechicken.lib.render.item.map.MapRenderRegistry;
@@ -81,6 +84,7 @@ public class ProxyClient extends Proxy {
 
     @Override
     public void init() {
+        super.init();
         BlockRenderingRegistry.init();
         CCRenderItem.init();
         ModDescriptionEnhancer.init();
@@ -89,6 +93,7 @@ public class ProxyClient extends Proxy {
     @Override
     @SuppressWarnings ("unchecked")
     public void postInit() {
+        super.postInit();
         RenderManager manager = Minecraft.getMinecraft().getRenderManager();
 
         Render<EntityItem> render = (Render<EntityItem>) manager.entityRenderMap.get(EntityItem.class);
@@ -97,6 +102,18 @@ public class ProxyClient extends Proxy {
         }
         manager.entityRenderMap.put(EntityItem.class, new WrappedEntityItemRenderer(manager, render));
         manager.entityRenderMap.remove(DummyEntity.class);
+    }
+
+    @Override
+    public void loadConfig() {
+        super.loadConfig();
+        ConfigTag tag;
+        ConfigTag clientTag = CodeChickenLib.config.getTag("client");
+        ConfigTag brdMisc = clientTag.getTag("block_renderer_dispatcher_misc");
+        tag = brdMisc.getTag("catch_all_crashes").setComment("With this enabled, CCL will attempt to catch all crashes from blocks failing to render somehow.");
+        CCBlockRendererDispatcher.catchAllCrashes = tag.setDefaultBoolean(false).getBoolean();
+        tag = brdMisc.getTag("message_player_on_catch").setComment("With this enabled, the player will be messaged when an exception is caught providing some immediate debug info, the entire exception is printed to console. (This even catches ReportedExceptions!)");
+        CCBlockRendererDispatcher.messagePlayerOnCatch = tag.setDefaultBoolean(false).getBoolean();
     }
 
     @Override
