@@ -212,10 +212,10 @@ public class ConfigTag implements IConfigTag {
             for (Iterator<Entry<String, ConfigTag>> iterator = children.entrySet().iterator(); iterator.hasNext(); ) {
                 Entry<String, ConfigTag> entry = iterator.next();
                 int inc = 0;
+                for (String comment : entry.getValue().comment) {
+                    writeLine(writer, depth, "#" + comment);
+                }
                 if (entry.getValue().isCategory()) {
-                    for (String comment : entry.getValue().comment) {
-                        writeLine(writer, depth, "#" + comment);
-                    }
                     writeLine(writer, depth, "\"%s\" {", entry.getKey());
                     inc++;
                 }
@@ -383,12 +383,14 @@ public class ConfigTag implements IConfigTag {
     public ConfigTag setComment(String comment) {
         this.comment = new LinkedList<>();
         this.comment.add(comment);
+        markDirty();
         return this;
     }
 
     @Override
     public ConfigTag setComment(List<String> lines) {
         this.comment = new LinkedList<>(lines);
+        markDirty();
         return null;
     }
 
