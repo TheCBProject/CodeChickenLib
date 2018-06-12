@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 
 /**
@@ -62,6 +63,11 @@ public class ServerUtils {
 
         //load it from the cache
         return mc().getPlayerProfileCache().getGameProfileForUsername(username);
+    }
+
+    public static boolean isPlayerOP(UUID uuid) {
+        GameProfile profile = mc().getPlayerProfileCache().getProfileByUUID(uuid);
+        return profile != null && mc().getPlayerList().canSendCommands(profile);
     }
 
     public static boolean isPlayerOP(String username) {
