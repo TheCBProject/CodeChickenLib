@@ -391,7 +391,7 @@ public class ConfigTag implements IConfigTag {
     public ConfigTag setComment(List<String> lines) {
         this.comment = new LinkedList<>(lines);
         markDirty();
-        return null;
+        return this;
     }
 
     //region Getters.
