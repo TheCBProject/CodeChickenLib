@@ -1,6 +1,7 @@
 package codechicken.lib.math;
 
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 
 public class MathHelper {
 
@@ -273,6 +274,14 @@ public class MathHelper {
 
     public static int compare(double a, double b) {
         return a == b ? 0 : a < b ? -1 : 1;
+    }
+
+    public static BlockPos min(Vec3i pos1, Vec3i pos2) {
+        return new BlockPos(Math.min(pos1.getX(), pos2.getX()), Math.min(pos1.getY(), pos2.getY()), Math.min(pos1.getZ(), pos2.getZ()));
+    }
+
+    public static BlockPos max(Vec3i pos1, Vec3i pos2) {
+        return new BlockPos(Math.max(pos1.getX(), pos2.getX()), Math.max(pos1.getY(), pos2.getY()), Math.max(pos1.getZ(), pos2.getZ()));
     }
 
     public static int absSum(BlockPos pos) {
