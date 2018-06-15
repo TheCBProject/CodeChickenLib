@@ -96,7 +96,7 @@ public class ConfigFile extends ConfigTag {
         }
     }
 
-    protected class ConfigReader extends BufferedReader {
+    protected static class ConfigReader extends BufferedReader {
 
         private int line;
 
@@ -119,7 +119,7 @@ public class ConfigFile extends ConfigTag {
         }
     }
 
-    public class ConfigException extends RuntimeException {
+    public static class ConfigException extends RuntimeException {
 
         public ConfigException() {
             super();
