@@ -46,8 +46,8 @@ public class PropertyString extends PropertyHelper<String> {
     @Nonnull
     @Override
     public Optional<String> parseValue(@Nonnull String value) {
-        if (valuesSet.contains(value)) {
-            return Optional.of(value);
+        if (valuesSet.contains(value.intern())) {
+            return Optional.of(value.intern());
         }
         return Optional.absent();
     }
@@ -55,7 +55,7 @@ public class PropertyString extends PropertyHelper<String> {
     @Nonnull
     @Override
     public String getName(@Nonnull String value) {
-        return value;
+        return value.intern();
     }
 
     public int toMeta(String value) {
