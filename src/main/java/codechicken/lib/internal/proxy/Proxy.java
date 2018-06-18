@@ -1,5 +1,8 @@
 package codechicken.lib.internal.proxy;
 
+import codechicken.lib.internal.network.PacketDispatcher;
+import codechicken.lib.internal.network.ServerHandshakeHandler;
+import codechicken.lib.packet.PacketCustom;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 /**
@@ -8,6 +11,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 public class Proxy {
 
     public void preInit() {
+        PacketCustom.assignHandshakeHandler(PacketDispatcher.NET_CHANNEL, new ServerHandshakeHandler());
     }
 
     public void init() {
@@ -20,9 +24,6 @@ public class Proxy {
     }
 
     public void serverStarting(FMLServerStartingEvent event) {
-        //if (!ObfMapping.obfuscated) {
-        //    event.registerServerCommand(new DevEnvCommand());
-        //}
     }
 
     public boolean isClient() {

@@ -1,5 +1,6 @@
 package codechicken.lib.internal.network;
 
+import codechicken.lib.configuration.ConfigSyncManager;
 import codechicken.lib.packet.ICustomPacketHandler.IClientPacketHandler;
 import codechicken.lib.packet.PacketCustom;
 import codechicken.lib.render.particle.CustomParticleHandler;
@@ -23,6 +24,9 @@ public class ClientPacketHandler implements IClientPacketHandler {
                 int numParticles = packet.readInt();
                 IBlockState state = mc.world.getBlockState(pos);
                 CustomParticleHandler.addLandingEffects(mc.world, pos, state, vec, numParticles);
+                break;
+            case 20:
+                ConfigSyncManager.readSyncPacket(packet);
                 break;
         }
     }

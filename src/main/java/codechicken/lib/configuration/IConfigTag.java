@@ -1,9 +1,15 @@
 package codechicken.lib.configuration;
 
-import javax.annotation.Nullable;
-import java.util.List;
+import codechicken.lib.data.MCDataInput;
+import codechicken.lib.data.MCDataOutput;
+import codechicken.lib.util.ThrowingBiConsumer;
 
-public interface IConfigTag extends IConfigValue {
+import javax.annotation.Nullable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Consumer;
+
+public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISerializableConfigTag<E> {
 
     /**
      * If the tag has a parent tag.
@@ -19,7 +25,7 @@ public interface IConfigTag extends IConfigValue {
      * @return The parent tag, null if the tag has no parent.
      */
     @Nullable
-    IConfigTag getParent();
+    E getParent();
 
     /**
      * A category is defined as a tag that has children.
@@ -69,7 +75,7 @@ public interface IConfigTag extends IConfigValue {
      *
      * @return The tag.
      */
-    IConfigTag markDirty();
+    E markDirty();
 
     /**
      * Clears all children from this tag.
@@ -91,7 +97,7 @@ public interface IConfigTag extends IConfigValue {
      * @param name The name of the tag.
      * @return The tag.
      */
-    IConfigTag getTag(String name);
+    E getTag(String name);
 
     /**
      * Gets a tag if one is present.
@@ -100,7 +106,7 @@ public interface IConfigTag extends IConfigValue {
      * @return The tag.
      */
     @Nullable
-    IConfigTag getTagIfPresent(String name);
+    E getTagIfPresent(String name);
 
     /**
      * Deletes a child tag if the specified tag exists.
@@ -108,7 +114,7 @@ public interface IConfigTag extends IConfigValue {
      * @param name The name of the tag to delete.
      * @return This tag.
      */
-    IConfigTag deleteTag(String name);
+    E deleteTag(String name);
 
     /**
      * Returns a list of all child elements for this tag.
@@ -116,6 +122,22 @@ public interface IConfigTag extends IConfigValue {
      * @return All child elements.
      */
     List<String> getChildNames();
+
+    /**
+     * Walks down the tree of tags, the callback will be called
+     * for each child category and value.
+     *
+     * @param consumer The callback.
+     */
+    void walkTags(Consumer<E> consumer);
+
+    /**
+     * Resets the tag to the stored default value.
+     * If called on a category, it will reset all children to default.
+     *
+     * @return This tag.
+     */
+    E resetToDefault();
 
     /**
      * Completely arbitrary string settable by the implementor,
@@ -135,7 +157,7 @@ public interface IConfigTag extends IConfigValue {
      * @param version The new version.
      * @return This tag.
      */
-    IConfigTag setTagVersion(String version);
+    E setTagVersion(String version);
 
     /**
      * Returns the type of the tag.
@@ -149,14 +171,14 @@ public interface IConfigTag extends IConfigValue {
      *
      * @param comment The comment.
      */
-    IConfigTag setComment(String comment);
+    E setComment(String comment);
 
     /**
      * Sets a MultiLine comment above the given tag.
      *
      * @param lines The lines.
      */
-    IConfigTag setComment(List<String> lines);
+    E setComment(List<String> lines);
 
     /**
      * Tells the config to save to disk.
@@ -168,6 +190,59 @@ public interface IConfigTag extends IConfigValue {
         }
     }
 
+    /**
+     * Specifies that this config should sync to the client.
+     * If you set this, you MUST supply a syncCallback.
+     */
+    E setSyncToClient();
+
+    /**
+     * Sets the callback for a sync event.
+     * SyncType should be checked to see if its a manual sync,
+     * if so, do all your error checking, otherwise throw SyncExceptions
+     * if you encounter an issue syncing.
+     *
+     * @param consumer The consumer.
+     * @return This tag.
+     */
+    E setSyncCallback(ThrowingBiConsumer<E, SyncType, SyncException> consumer);
+
+    /**
+     * This can be used to check if this tag or any of its children
+     * require syncing. Its behavior is specific to its type:
+     * If its a category, it will ask its child tree if any require syncing
+     * and return true if ANY of them want to sync.
+     * If its a value, it will return true if marked as requiring syncing.
+     *
+     * NOTE:
+     * Categories will return true even if none of their direct children require syncing,
+     * any child in the tree requiring sync will propagate up the tag hierarchy,
+     * be sure to ask all children if they need syncing in order to flesh out the sync tree.
+     *
+     * @return If sync is required.
+     */
+    boolean requiresSync();
+
+    /**
+     * Runs all sync callbacks, in self and children.
+     * Use this to run a manual sync on initial load.
+     */
+    default void runSync() {
+        try {
+            runSync(SyncType.MANUAL);
+        } catch (SyncException e) {
+            throw new RuntimeException("Sync exception caught on manual sync.", e);
+        }
+    }
+
+    /**
+     * Called internally to run a sync of a specific type.
+     *
+     * @param type The sync type.
+     * @throws SyncException Can be thrown by a sync callback to specify an unrecoverable issue.
+     */
+    void runSync(SyncType type) throws SyncException;
+
     //INTERNAL!!!!!!
     Object getRawValue();
 
@@ -177,17 +252,62 @@ public interface IConfigTag extends IConfigValue {
             public char getChar() {
                 return 'B';
             }
+
+            @Override
+            public Object copy(Object value) {
+                return value;
+            }
+
+            @Override
+            public Object read(MCDataInput in, TagType listType) {
+                return in.readBoolean();
+            }
+
+            @Override
+            public void write(MCDataOutput out, TagType listType, Object value) {
+                out.writeBoolean((Boolean) value);
+            }
         },
         STRING {
             @Override
             public char getChar() {
                 return 'S';
             }
+
+            @Override
+            public Object copy(Object value) {
+                return value;
+            }
+
+            @Override
+            public Object read(MCDataInput in, TagType listType) {
+                return in.readString();
+            }
+
+            @Override
+            public void write(MCDataOutput out, TagType listType, Object value) {
+                out.writeString((String) value);
+            }
         },
         INT {
             @Override
             public char getChar() {
                 return 'I';
+            }
+
+            @Override
+            public Object copy(Object value) {
+                return value;
+            }
+
+            @Override
+            public Object read(MCDataInput in, TagType listType) {
+                return in.readVarInt();
+            }
+
+            @Override
+            public void write(MCDataOutput out, TagType listType, Object value) {
+                out.writeVarInt((Integer) value);
             }
         },
         HEX {
@@ -198,12 +318,23 @@ public interface IConfigTag extends IConfigValue {
 
             @Override
             protected String processLine(Object obj) {
-                if (obj instanceof String) {
-                    String line = (String) obj;
-                    return "0x" + (line.substring(2).toUpperCase());
-                }
                 Integer hex = (Integer) obj;
                 return "0x" + (Long.toString(((long) hex) << 32 >>> 32, 16)).toUpperCase();
+            }
+
+            @Override
+            public Object read(MCDataInput in, TagType listType) {
+                return INT.read(in, listType);
+            }
+
+            @Override
+            public void write(MCDataOutput out, TagType listType, Object value) {
+                INT.write(out, listType, value);
+            }
+
+            @Override
+            public Object copy(Object value) {
+                return value;
             }
         },
         DOUBLE {
@@ -211,15 +342,57 @@ public interface IConfigTag extends IConfigValue {
             public char getChar() {
                 return 'D';
             }
+
+            @Override
+            public Object copy(Object value) {
+                return value;
+            }
+
+            @Override
+            public Object read(MCDataInput in, TagType listType) {
+                return in.readDouble();
+            }
+
+            @Override
+            public void write(MCDataOutput out, TagType listType, Object value) {
+                out.writeDouble((Double) value);
+            }
         },
         LIST {
             @Override
             public char getChar() {
                 return '#';//Invalid, this should never be written. So make it a comment.
             }
+
+            @Override
+            @SuppressWarnings ("unchecked")
+            public Object copy(Object value) {
+                return new LinkedList((List) value);
+            }
+
+            @Override
+            public Object read(MCDataInput in, TagType listType) {
+                List list = new LinkedList();
+                int num = in.readVarInt();
+                for (int i = 0; i < num; i++) {
+                    list.add(listType.read(in, listType));
+                }
+                return list;
+            }
+
+            @Override
+            public void write(MCDataOutput out, TagType listType, Object value) {
+                List list = (List) value;
+                out.writeVarInt(list.size());
+                for (Object o: list) {
+                    listType.write(out, listType, o);
+                }
+            }
         };
 
         public abstract char getChar();
+
+        public abstract Object copy(Object value);
 
         protected String processLine(Object obj) {
             return obj.toString();
@@ -246,6 +419,35 @@ public interface IConfigTag extends IConfigValue {
                     return null;
                 }
             }
+        }
+
+        public abstract Object read(MCDataInput in, TagType listType);
+
+        public abstract void write(MCDataOutput out, TagType listType, Object value);
+    }
+
+    /**
+     * Used to identify why your sync callback is being called,
+     * Manual is only ever fired if you call {@link IConfigTag#runSync}
+     * Connect and Disconnect can be used to identify runtime sync and reload,
+     * Special actions may need to be taken to rebuild internal data structures.
+     * It is recommended to do any initial error checking and resetting to defaults on Manual
+     * then just trust the data synced with Connect / Disconnect, if that isn't possible
+     * throw a {@link SyncException}
+     */
+    public static enum SyncType {
+        MANUAL,
+        CONNECT,
+        DISCONNECT
+    }
+
+    /**
+     * Throw this from a Sync callback to notify the sync pipeline of an unrecoverable issue.
+     */
+    public static class SyncException extends Exception {
+
+        public SyncException(String reason) {
+            super(reason);
         }
     }
 

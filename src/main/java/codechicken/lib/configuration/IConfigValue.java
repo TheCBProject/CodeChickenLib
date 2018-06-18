@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by covers1624 on 18/07/2017.
  */
-public interface IConfigValue {
+public interface IConfigValue<E extends IConfigValue> {
 
     boolean getBoolean();
 
@@ -18,26 +18,26 @@ public interface IConfigValue {
     double getDouble();
 
     //
-    IConfigValue setDefaultBoolean(boolean value);
+    E setDefaultBoolean(boolean value);
 
-    IConfigValue setDefaultString(String value);
+    E setDefaultString(String value);
 
-    IConfigValue setDefaultInt(int value);
+    E setDefaultInt(int value);
 
-    IConfigValue setDefaultHex(int value);
+    E setDefaultHex(int value);
 
-    IConfigValue setDefaultDouble(double value);
+    E setDefaultDouble(double value);
 
     //
-    IConfigValue setBoolean(boolean value);
+    E setBoolean(boolean value);
 
-    IConfigValue setString(String value);
+    E setString(String value);
 
-    IConfigValue setInt(int value);
+    E setInt(int value);
 
-    IConfigValue setHex(int value);
+    E setHex(int value);
 
-    IConfigValue setDouble(double value);
+    E setDouble(double value);
 
     //
     List<Boolean> getBooleanList();
@@ -51,25 +51,53 @@ public interface IConfigValue {
     List<Double> getDoubleList();
 
     //
-    IConfigValue setDefaultBooleanList(List<Boolean> value);
+    E setDefaultBooleanList(List<Boolean> value);
 
-    IConfigValue setDefaultStringList(List<String> value);
+    E setDefaultStringList(List<String> value);
 
-    IConfigValue setDefaultIntList(List<Integer> value);
+    E setDefaultIntList(List<Integer> value);
 
-    IConfigValue setDefaultHexList(List<Integer> value);
+    E setDefaultHexList(List<Integer> value);
 
-    IConfigValue setDefaultDoubleList(List<Double> value);
+    E setDefaultDoubleList(List<Double> value);
 
     //
-    IConfigValue setBooleanList(List<Boolean> value);
+    E setBooleanList(List<Boolean> value);
 
-    IConfigValue setStringList(List<String> value);
+    E setStringList(List<String> value);
 
-    IConfigValue setIntList(List<Integer> value);
+    E setIntList(List<Integer> value);
 
-    IConfigValue setHexList(List<Integer> value);
+    E setHexList(List<Integer> value);
 
-    IConfigValue setDoubleList(List<Double> value);
+    E setDoubleList(List<Double> value);
+
+    /**
+     * Copies the tag.
+     * If called on a child tag, it is split from its parent.
+     *
+     * @return The copy.
+     */
+    E copy();
+
+    /**
+     * Copies the tag, not really meant for public use.
+     * Internally, called with the already copied parent.
+     *
+     * @param parent The already copied parent.
+     * @return The copy.
+     */
+    E copy(E parent);
+
+    /**
+     * Copies the tags value from the provided tag.
+     * If called on a Category, all children of the category
+     * are called to copy from their pair.
+     * If their pair doesnt exist, an exception is thrown.
+     *
+     * @param other The tag to copy values from.
+     * @return This tag.
+     */
+    E copyFrom(E other);
 
 }

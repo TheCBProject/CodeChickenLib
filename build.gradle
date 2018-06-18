@@ -42,6 +42,9 @@ minecraft {
     makeObfSourceJar = false
 }
 
+dependencies {
+    testCompile 'junit:junit:4.12'
+}
 
 processResources {
     inputs.property "version", project.version

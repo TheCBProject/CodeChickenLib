@@ -1,6 +1,9 @@
 package codechicken.lib.configuration;
 
 import codechicken.lib.configuration.ConfigFile.ConfigReader;
+import codechicken.lib.data.MCDataInput;
+import codechicken.lib.data.MCDataOutput;
+import codechicken.lib.util.ThrowingBiConsumer;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -12,13 +15,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Created by covers1624 on 18/07/2017.
  */
-public class ConfigTag implements IConfigTag {
+public class ConfigTag implements IConfigTag<ConfigTag> {
 
     private static Pattern QUOTE_PATTERN = Pattern.compile("(?<=\")(.*)(?=\")");
     private static Pattern STRING_MATCHER = Pattern.compile("(?<=.:\")(.*)(\"=\")(.*)(?=\")");
@@ -40,6 +44,9 @@ public class ConfigTag implements IConfigTag {
     protected Object value;
     protected Object defaultValue;
 
+    protected boolean syncToClient;
+    protected ThrowingBiConsumer<ConfigTag, SyncType, SyncException> syncCallback;
+
     protected ConfigTag(String name, ConfigTag parent) {
         this.name = name;
         this.parent = parent;
@@ -47,6 +54,7 @@ public class ConfigTag implements IConfigTag {
         comment = new LinkedList<>();
     }
 
+    @SuppressWarnings ("unchecked")
     protected void parseTag(ConfigReader reader) throws IOException {
         while (true) {
             String line = readLine(reader);
@@ -212,7 +220,7 @@ public class ConfigTag implements IConfigTag {
             for (Iterator<Entry<String, ConfigTag>> iterator = children.entrySet().iterator(); iterator.hasNext(); ) {
                 Entry<String, ConfigTag> entry = iterator.next();
                 int inc = 0;
-                for (String comment : entry.getValue().comment) {
+                for (String comment: entry.getValue().comment) {
                     writeLine(writer, depth, "#" + comment);
                 }
                 if (entry.getValue().isCategory()) {
@@ -240,7 +248,7 @@ public class ConfigTag implements IConfigTag {
                     break;
                 case LIST: {
                     writeLine(writer, depth, "%s:\"%s\" <", listType.getChar(), name);
-                    for (Object object : ((List) value)) {
+                    for (Object object: ((List) value)) {
                         writeLine(writer, depth + 1, "%s", listType.processLine(object));
                     }
                     writeLine(writer, depth, ">");
@@ -359,6 +367,29 @@ public class ConfigTag implements IConfigTag {
     }
 
     @Override
+    public void walkTags(Consumer<ConfigTag> consumer) {
+        if (!isCategory()) {
+            throw new UnsupportedOperationException("Unable to walk a value.");
+        }
+        for (ConfigTag tag: children.values()) {
+            consumer.accept(tag);
+            if (tag.isCategory()) {
+                tag.walkTags(consumer);
+            }
+        }
+    }
+
+    @Override
+    public ConfigTag resetToDefault() {
+        if (isCategory()) {
+            children.values().forEach(ConfigTag::resetToDefault);
+        } else {
+            value = defaultValue;
+        }
+        return this;
+    }
+
+    @Override
     public String getTagVersion() {
         return version;
     }
@@ -444,11 +475,11 @@ public class ConfigTag implements IConfigTag {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.HEX) {
             throw new UnsupportedOperationException("ConfigTag is not of a Hex type, Actual: " + type);
-        } else if (!(value instanceof String)) {
+        } else if (!(value instanceof Integer)) {
             throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
         }
 
-        return (int) Long.parseLong(((String) value).replace("0x", ""), 16);
+        return (Integer) value;
     }
 
     @Override
@@ -555,7 +586,7 @@ public class ConfigTag implements IConfigTag {
     @Override
     public ConfigTag setHex(int value) {
         setValueCheck();
-        setString("0x" + Long.toString(((long) value) << 32 >>> 32, 16));
+        this.value = value;
         type = TagType.HEX;
         markDirty();
         return this;
@@ -759,6 +790,113 @@ public class ConfigTag implements IConfigTag {
         return this;
     }
     //endregion
+
+    @Override
+    public ConfigTag copy() {
+        return copy(null);
+    }
+
+    @Override
+    public ConfigTag copy(ConfigTag parent) {
+        ConfigTag copy = new ConfigTag(name, parent);
+        copy.version = version;
+        copy.comment = new LinkedList<>(comment);
+        if (isCategory()) {
+            for (Entry<String, ConfigTag> entry: children.entrySet()) {
+                copy.children.put(entry.getKey(), entry.getValue().copy(copy));
+            }
+        } else {
+            copy.type = type;
+            copy.listType = listType;
+
+            copy.value = type.copy(value);
+            if (defaultValue != null) {
+                copy.defaultValue = type.copy(defaultValue);
+            }
+        }
+        copy.syncToClient = syncToClient;
+        copy.syncCallback = syncCallback;
+        return copy;
+    }
+
+    @Override
+    public ConfigTag copyFrom(ConfigTag other) {
+        if (isCategory()) {
+            for (Entry<String, ConfigTag> entry: children.entrySet()) {
+                ConfigTag otherTag = other.getTagIfPresent(entry.getKey());
+                if (otherTag == null) {
+                    throw new IllegalArgumentException("copyFrom called with a tag that does not have the same children. Missing: " + entry.getKey());
+                }
+                entry.getValue().copyFrom(otherTag);
+            }
+        } else {
+            value = type.copy(other.value);
+        }
+        return this;
+    }
+
+    @Override
+    public ConfigTag setSyncToClient() {
+        children.values().forEach(IConfigTag::setSyncToClient);
+        syncToClient = true;
+        return this;
+    }
+
+    @Override
+    public ConfigTag setSyncCallback(ThrowingBiConsumer<ConfigTag, SyncType, SyncException> consumer) {
+        syncCallback = consumer;
+        return this;
+    }
+
+    @Override
+    public boolean requiresSync() {
+        for (ConfigTag tag: children.values()) {
+            if (tag.requiresSync()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void runSync(SyncType type) throws SyncException {
+        if (syncCallback != null) {
+            syncCallback.accept(this, type);
+        }
+        for (ConfigTag tag: children.values()) {
+            tag.runSync(type);
+        }
+    }
+
+    @Override
+    public void read(MCDataInput in) {
+        if (isCategory()) {
+            int numChildren = in.readVarInt();
+            for (int i = 0; i < numChildren; i++) {
+                String name = in.readString();
+                ConfigTag found = children.get(name);
+                if (found == null) {
+                    throw new IllegalArgumentException("read called with data that does not align to this tag, Missing: " + name);
+                }
+                found.read(in);
+            }
+        } else {
+            value = type.read(in, listType);
+        }
+    }
+
+    @Override
+    public void write(MCDataOutput out) {
+        if (isCategory()) {
+            out.writeVarInt(children.size());
+            for (Entry<String, ConfigTag> entry: children.entrySet()) {
+                out.writeString(entry.getKey());
+                entry.getValue().write(out);
+            }
+        } else {
+            type.write(out, listType, value);
+        }
+    }
 
     protected void addTagCheck() {
         if (value != null) {
