@@ -11,7 +11,7 @@ public class MCByteStream extends MCDataOutputWrapper {
     private ByteArrayOutputStream out;
 
     public MCByteStream(ByteArrayOutputStream out) {
-        super(new DataOutputStream(out));
+        super(out);
         this.out = out;
     }
 

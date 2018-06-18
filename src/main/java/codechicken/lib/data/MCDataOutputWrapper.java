@@ -7,7 +7,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class MCDataOutputWrapper implements MCDataOutput {
 
@@ -15,6 +17,10 @@ public class MCDataOutputWrapper implements MCDataOutput {
 
     public MCDataOutputWrapper(DataOutput out) {
         dataout = out;
+    }
+
+    public MCDataOutputWrapper(OutputStream out) {
+        dataout = new DataOutputStream(out);
     }
 
     public MCDataOutputWrapper writeBoolean(boolean b) {
