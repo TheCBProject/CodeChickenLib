@@ -22,6 +22,7 @@ public class HighlightHandler {
 
     public static final Cuboid6 BOX = Cuboid6.full.copy().expand(0.02);
     public static final Colour RED = EnumColour.RED.getColour(128);
+    public static final Colour BLACK = EnumColour.BLACK.getColour(128);
 
     public static BlockPos highlight;
     public static boolean useDepth = true;
@@ -33,7 +34,6 @@ public class HighlightHandler {
             RenderUtils.translateToWorldCoords(Minecraft.getMinecraft().getRenderViewEntity(), event.getPartialTicks());
             GlStateManager.translate(highlight.getX(), highlight.getY(), highlight.getZ());
 
-            GL11.glPushAttrib(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
             GlStateManager.disableTexture2D();
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -43,9 +43,16 @@ public class HighlightHandler {
             }
             RED.glColour();
             RenderUtils.drawCuboidSolid(BOX);
+            BLACK.glColour();
+            RenderUtils.drawCuboidOutline(BOX);
 
+            if (!useDepth) {
+                GlStateManager.enableDepth();
+            }
+            GlStateManager.depthMask(true);
+            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            GlStateManager.disableBlend();
             GlStateManager.enableTexture2D();
-            GL11.glPopAttrib();
 
             GlStateManager.popMatrix();
         }
