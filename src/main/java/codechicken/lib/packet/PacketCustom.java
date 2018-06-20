@@ -85,7 +85,7 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
         }
     }
 
-    private interface CustomHandler {
+    public interface CustomHandler {
 
         void handle(INetHandler handler, String channel, PacketCustom packet);
     }
