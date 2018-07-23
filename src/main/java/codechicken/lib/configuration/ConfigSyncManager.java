@@ -7,6 +7,7 @@ import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.internal.network.PacketDispatcher;
 import codechicken.lib.packet.PacketCustom;
+import com.google.common.base.Joiner;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -51,13 +52,18 @@ public class ConfigSyncManager {
 
     //Internal
     public static void handshakeReceived(NetHandlerPlayServer netHandler) {
+        if(syncMap.isEmpty()) {
+            logger.info("Skipping config sync, No mods have registered a syncable config.");
+            return;
+        }
         PacketCustom packet = new PacketCustom(PacketDispatcher.NET_CHANNEL, 20);
         packet.writeVarInt(syncMap.size());
         for (Entry<String, IConfigTag<IConfigTag>> entry: syncMap.entrySet()) {
             packet.writeString(entry.getKey());
             SyncState.create(entry.getValue()).write(packet);
         }
-        logger.info("Sending config sync packet to player.");
+        String mods = Joiner.on(", ").join(syncMap.keySet());
+        logger.info("Sending config sync packet to player. Mods: " + mods);
         netHandler.sendPacket(packet.toPacket());
     }
 
@@ -80,6 +86,7 @@ public class ConfigSyncManager {
             logger.log(Level.INFO, "Client disconnect, rolling back config for {}.", entry.getKey());
             entry.getValue().revert(syncMap.get(entry.getKey()));
         }
+        clientRollbackMap.clear();
     }
 
     public static class SyncState {
