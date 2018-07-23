@@ -1,3 +1,4 @@
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -38,7 +39,7 @@ public class GradleStartLogin extends GradleStart {
             }
         }
         // launch
-        new GradleStartLogin().launch(args);
+        new GradleStartLogin().launch(shiftArgs(args));
     }
 
     @Override
@@ -48,5 +49,16 @@ public class GradleStartLogin extends GradleStart {
         argMap.put("password", pass);
         user = null;
         pass = null;
+    }
+
+    //Thanks CommandTreeBase :D
+    private static String[] shiftArgs(@Nullable String[] s) {
+        if (s == null || s.length == 0) {
+            return new String[0];
+        }
+
+        String[] s1 = new String[s.length - 1];
+        System.arraycopy(s, 1, s1, 0, s1.length);
+        return s1;
     }
 }
