@@ -55,6 +55,15 @@ public class FluidUtils {
     }
 
     //region hasFluidHandler
+
+    /**
+     * Checks if the Fluid capability exists on the tile for the specified face.
+     * Overloaded methods delegate to this in the end.
+     *
+     * @param tile The tile.
+     * @param face THe face.
+     * @return If the tile has the Fluid capability.
+     */
     public static boolean hasFluidHandler(TileEntity tile, EnumFacing face) {
         return tile != null && tile.hasCapability(FLUID_HANDLER, face);
     }
@@ -73,6 +82,15 @@ public class FluidUtils {
     //endregion
 
     //region getFluidHandler_Raw
+
+    /**
+     * Grabs the Fluid capability from the tile.
+     * Overloaded methods delegate to this in the end.
+     *
+     * @param tile The tile.
+     * @param face The face.
+     * @return The Fluid handler capability.
+     */
     public static IFluidHandler getFluidHandler_Raw(TileEntity tile, EnumFacing face) {
         return tile.getCapability(FLUID_HANDLER, face);
     }
@@ -91,8 +109,21 @@ public class FluidUtils {
     //endregion
 
     //region getFluidHandlerOr
+
+    /**
+     * Gets the Fluid capability for the tile or the default if none.
+     * This method guards against tiles specify a cap exists and returning null,
+     * in that case the default is returned.
+     * Overloaded methods delegate to this in the end.
+     *
+     * @param tile     The tile.
+     * @param face     The face.
+     * @param _default The default.
+     * @return The Fluid handler or default.
+     */
     public static IFluidHandler getFluidHandlerOr(TileEntity tile, EnumFacing face, IFluidHandler _default) {
-        return hasFluidHandler(tile, face) ? getFluidHandler_Raw(tile, face) : _default;
+        IFluidHandler handler = hasFluidHandler(tile, face) ? getFluidHandler_Raw(tile, face) : null;
+        return handler != null ? handler : _default;
     }
 
     public static IFluidHandler getFluidHandlerOr(TileEntity tile, int face, IFluidHandler _default) {
@@ -109,6 +140,16 @@ public class FluidUtils {
     //endregion
 
     //region getFluidHandler
+
+    /**
+     * Gets the Fluid capability for the tile.
+     * Returns null if the cap doesn't exist.
+     * Overloaded methods delegate to this in the end.
+     *
+     * @param tile The tile.
+     * @param face The face.
+     * @return The Fluid capability or null.
+     */
     public static IFluidHandler getFluidHandler(TileEntity tile, EnumFacing face) {
         return getFluidHandlerOr(tile, face, null);
     }
@@ -127,6 +168,17 @@ public class FluidUtils {
     //endregion
 
     //region getFluidHandlerOrEmpty
+
+    /**
+     * Gets the Fluid capability for the tile or an Empty handler.
+     * This method guards against tiles specify a cap exists and returning null,
+     * in that case the empty handler is returned.
+     * Overloaded methods delegate to this in the end.
+     *
+     * @param tile The tile.
+     * @param face The face.
+     * @return The Fluid capability or null.
+     */
     public static IFluidHandler getFluidHandlerOrEmpty(TileEntity tile, EnumFacing face) {
         return getFluidHandlerOr(tile, face, EmptyFluidHandler.INSTANCE);
     }

@@ -519,7 +519,9 @@ public class InventoryUtils {
     //region getItemHandlerOr
 
     /**
-     * Grabs the IITemHandler capability for the tile or the default if none.
+     * Grabs the IItemHandler capability for the tile or the default if none.
+     * This method guards against tiles specifying a cap exists and returning null,
+     * in that case the default is returned.
      *
      * @param tile     The tile.
      * @param face     The face.
@@ -527,7 +529,8 @@ public class InventoryUtils {
      * @return The handler or default.
      */
     public static IItemHandler getItemHandlerOr(TileEntity tile, EnumFacing face, IItemHandler _default) {
-        return hasItemHandler(tile, face) ? getItemHandler_Raw(tile, face) : _default;
+        IItemHandler handler = hasItemHandler(tile, face) ? getItemHandler_Raw(tile, face) : null;
+        return handler != null ? handler : _default;
     }
 
     public static IItemHandler getItemHandlerOr(TileEntity tile, int face, IItemHandler _default) {
@@ -547,6 +550,7 @@ public class InventoryUtils {
 
     /**
      * Grabs the IITemHandler capability for the tile or null if none.
+     * Overloaded methods delegate to this in the end.
      *
      * @param tile The tile.
      * @param face The face.
@@ -573,6 +577,9 @@ public class InventoryUtils {
 
     /**
      * Grabs the IITemHandler capability for the tile or EmptyHandler.INSTANCE if none.
+     * This method guards against tiles specify a cap exists and returning null,
+     * in that case the empty handler is returned.
+     * Overloaded methods delegate to this in the end.
      *
      * @param tile The tile.
      * @param face The face.
