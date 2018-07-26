@@ -1,10 +1,12 @@
 package codechicken.lib.render.block;
 
 import codechicken.lib.internal.CCLLog;
+import codechicken.lib.internal.ExceptionMessageEventHandler;
+import codechicken.lib.internal.proxy.ProxyClient;
 import codechicken.lib.texture.TextureUtils;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
@@ -15,12 +17,20 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.WorldType;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.Level;
+
+import java.util.concurrent.TimeUnit;
+
+import static codechicken.lib.util.LambdaUtils.tryOrNull;
 
 /**
  * Created by covers1624 on 8/09/2016.
@@ -28,8 +38,7 @@ import org.apache.logging.log4j.Level;
 public class CCBlockRendererDispatcher extends BlockRendererDispatcher implements TextureUtils.IIconRegister {
 
     public final BlockRendererDispatcher parentDispatcher;
-    public static boolean catchAllCrashes = false;
-    public static boolean messagePlayerOnCatch = false;
+    private static long lastTime;
 
     public CCBlockRendererDispatcher(BlockRendererDispatcher dispatcher, BlockColors blockColours) {
         super(dispatcher.getBlockModelShapes(), blockColours);
@@ -59,36 +68,57 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher implement
                 }
                 return BlockRenderingRegistry.renderBlock(blockAccess, pos, state, worldRendererIn);
             }
-        } catch (Throwable throwable) {
-            CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Tessellating CCL block in world");
+        } catch (Throwable t) {
+            if (ProxyClient.catchBlockRenderExceptions) {
+                handleCaughtException(t, inState, pos, blockAccess);
+                return false;
+            }
+            CrashReport crashreport = CrashReport.makeCrashReport(t, "Tessellating CCL block in world");
             CrashReportCategory crashreportcategory = crashreport.makeCategory("Block being tessellated");
             CrashReportCategory.addBlockInfo(crashreportcategory, pos, state.getBlock(), state.getBlock().getMetaFromState(state));
             throw new ReportedException(crashreport);
         }
         try {
             return parentDispatcher.renderBlock(state, pos, blockAccess, worldRendererIn);
-        } catch (Exception e) {
-            if (!(e instanceof ReportedException) || catchAllCrashes) {
-                String clazzName = inState != null ? inState.getBlock().getClass().toString() : "UNKNOWN";
-                CCLLog.log(Level.ERROR, e, "CCL has caught an exception whilst another mod's block is being rendered. Original crash may have been discarded, possible null client side tile. Pos: '%s', State: '%s', block class: '%s'", pos, inState, clazzName);
-                if(messagePlayerOnCatch) {
-                    //Probably don't need this to be a task, but better to throw it to the main thread for saftey.
-                    Minecraft.getMinecraft().addScheduledTask(() -> {
-                        EntityPlayerSP player = Minecraft.getMinecraft().player;
-                        if(player != null) {
-                            player.sendMessage(new TextComponentString("CCL has stopped your client crashing whilst rendering a block!"));
-                            player.sendMessage(new TextComponentString("  Pos: " + pos));
-                            player.sendMessage(new TextComponentString("  State: " + inState));
-                            player.sendMessage(new TextComponentString("  Class: " + clazzName));
-                            player.sendMessage(new TextComponentString("  RegName: " + inState != null ? inState.getBlock().getRegistryName().toString() : "unknown, state is null!"));
-                            player.sendMessage(new TextComponentString("  Meta: " + inState != null ? Integer.toString(inState.getBlock().getMetaFromState(inState)) : "unknown, state is null!"));
-                            player.sendMessage(new TextComponentString("Please see the log for more details."));
-                        }
-                    });
-                }
+        } catch (Throwable t) {
+            if (ProxyClient.catchBlockRenderExceptions) {
+                handleCaughtException(t, inState, pos, blockAccess);
                 return false;
             }
-            throw e;
+            throw t;
+        }
+    }
+
+    private static void handleCaughtException(Throwable t, IBlockState inState, BlockPos pos, IBlockAccess world) {
+        Block inBlock = inState.getBlock();
+        TileEntity tile = world.getTileEntity(pos);
+
+        StringBuilder builder = new StringBuilder("\n CCL has caught an exception whilst rendering a block\n");
+        builder.append("  BlockPos:      ").append(String.format("x:%s, y:%s, z:%s", pos.getX(), pos.getY(), pos.getZ())).append("\n");
+        builder.append("  Block Class:   ").append(tryOrNull(inBlock::getClass)).append("\n");
+        builder.append("  Registry Name: ").append(tryOrNull(inBlock::getRegistryName)).append("\n");
+        builder.append("  Metadata:      ").append(tryOrNull(() -> inBlock.getMetaFromState(inState))).append("\n");
+        builder.append("  State:         ").append(tryOrNull(inState::toString)).append("\n");
+        builder.append(" Tile at position\n");
+        builder.append("  Tile Class:    ").append(tryOrNull(tile::getClass)).append("\n");
+        builder.append("  Tile Id:       ").append(tryOrNull(() -> TileEntity.getKey(tile.getClass()))).append("\n");
+        builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.writeToNBT(new NBTTagCompound()))).append("\n");
+        if (ProxyClient.messagePlayerOnRenderExceptionCaught) {
+            builder.append("You can turn off player messages in the CCL config file.\n");
+        }
+        String logMessage = builder.toString();
+        String key = ExceptionUtils.getStackTrace(t) + logMessage;
+        if (!ExceptionMessageEventHandler.exceptionMessageCache.contains(key)) {
+            ExceptionMessageEventHandler.exceptionMessageCache.add(key);
+            CCLLog.log(Level.ERROR, t, logMessage);
+        }
+        EntityPlayer player = Minecraft.getMinecraft().player;
+        if (ProxyClient.messagePlayerOnRenderExceptionCaught && player != null) {
+            long time = System.nanoTime();
+            if (TimeUnit.NANOSECONDS.toSeconds(time - lastTime) > 5) {
+                lastTime = time;
+                player.sendMessage(new TextComponentString("CCL Caught an exception rendering a block. See the log for info."));
+            }
         }
     }
 

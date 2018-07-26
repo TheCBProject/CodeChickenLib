@@ -1,28 +1,42 @@
 package codechicken.lib.render.item;
 
+import codechicken.lib.internal.CCLLog;
+import codechicken.lib.internal.ExceptionMessageEventHandler;
+import codechicken.lib.internal.proxy.ProxyClient;
 import codechicken.lib.reflect.ObfMapping;
 import codechicken.lib.reflect.ReflectionManager;
 import codechicken.lib.render.state.GlStateTracker;
+import codechicken.lib.util.LambdaUtils;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.ItemModelMesher;
-import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.block.model.ModelBakery;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ReportedException;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.ItemModelMesherForge;
+import net.minecraftforge.registries.IRegistryDelegate;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.logging.log4j.Level;
+import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by covers1624 on 17/10/2016.
@@ -30,6 +44,7 @@ import javax.vecmath.Matrix4f;
 public class CCRenderItem extends RenderItem {
 
     private final RenderItem parent;
+
     private static CCRenderItem instance;
     private static boolean hasInit;
 
@@ -38,6 +53,13 @@ public class CCRenderItem extends RenderItem {
 
     //State fields.
     private TransformType lastKnownTransformType;
+
+    //Model lookup cache.
+    private static Map<IRegistryDelegate<Item>, Int2ObjectMap<ModelResourceLocation>> immf_locationsCache;
+    private static Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> immf_modelsCache;
+    private static Map<Item, ItemMeshDefinition> imm_shapersCache;
+
+    public static long lastTime = 0L;
 
     static {
         flipX = new Matrix4f();
@@ -71,6 +93,108 @@ public class CCRenderItem extends RenderItem {
 
     public static void notifyTransform(TransformType transformType) {
         instance.lastKnownTransformType = transformType;
+    }
+
+    //TODO 1.13
+    //Until https://github.com/MinecraftForge/MinecraftForge/pull/5017 is merged.
+    public static ModelResourceLocation getModelForStack(ItemStack stack) {
+        pullCache();
+        Item item = stack.getItem();
+        if (stack.isEmpty() || item == null) {
+            return ModelBakery.MODEL_MISSING;
+        }
+        ModelResourceLocation loc = null;
+        if (immf_modelsCache.containsKey(item.delegate)) {
+            loc = immf_locationsCache.get(item.delegate).get(stack.getMaxDamage() > 0 ? 0 : stack.getMetadata());
+        } else {
+            ItemMeshDefinition mesher = imm_shapersCache.get(item);
+            if (mesher != null) {
+                loc = mesher.getModelLocation(stack);
+            }
+        }
+        if (loc == null) {
+            loc = ModelBakery.MODEL_MISSING;
+        }
+        return loc;
+    }
+
+    @SuppressWarnings ("unchecked")
+    private static void pullCache() {
+        try {
+            if (immf_locationsCache == null || immf_modelsCache == null || imm_shapersCache == null) {
+                RenderItem renderItem = getOverridenRenderItem();
+                ItemModelMesher mesher = renderItem.getItemModelMesher();
+                String cls = ItemModelMesherForge.class.getName().replace(".", "/");
+                String cls2 = ItemModelMesher.class.getName().replace(".", "/");
+                ObfMapping locationsMapping = new ObfMapping(cls, "locations", "Ljava/util/Map;");
+                ObfMapping modelsMapping = new ObfMapping(cls, "locations", "Ljava/util/Map;");
+                ObfMapping shapersField = new ObfMapping(cls2, "field_178092_c", "Ljava/util/Map;");
+                immf_locationsCache = ReflectionManager.getField(locationsMapping, mesher, Map.class);
+                immf_modelsCache = ReflectionManager.getField(modelsMapping, mesher, Map.class);
+                imm_shapersCache = ReflectionManager.getField(shapersField, mesher, Map.class);
+            }
+        } catch (Exception e) {
+            CCLLog.log(Level.ERROR, e, "Unable to pull cache.");
+            throw new RuntimeException("Unable to update cache, see log.");
+        }
+    }
+
+    private void handleCaughtException(int startMatrixDepth, Throwable t, ItemStack stack) {
+        Item item = stack.getItem();
+        String itemClass = String.valueOf(LambdaUtils.tryOrNull(() -> item.getClass().getName()));
+        String regName = String.valueOf(LambdaUtils.tryOrNull(item::getRegistryName));
+        String meta = String.valueOf(stack.getMetadata());
+        String nbt = LambdaUtils.tryOrNull(() -> stack.getTagCompound().toString());
+        String modelClass = String.valueOf(LambdaUtils.tryOrNull(() -> itemModelMesher.getItemModel(stack).getClass()));
+        String modelLoc = String.valueOf(getModelForStack(stack));
+
+        StringBuilder builder = new StringBuilder("\nCCL Has caught an exception whilst rendering an item.\n");
+        builder.append("  Item Class:     ").append(itemClass).append("\n");
+        builder.append("  Registry Name:  ").append(regName).append("\n");
+        builder.append("  Metadata:       ").append(meta).append("\n");
+        builder.append("  NBT:            ").append(nbt).append("\n");
+        builder.append("  Model Class:    ").append(modelClass).append("\n");
+        builder.append("  Model Location: ").append(modelLoc).append("\n");
+        if (ProxyClient.messagePlayerOnRenderExceptionCaught) {
+            builder.append("You can turn off player messages in the CCL config file.\n");
+        }
+        if (ProxyClient.attemptRecoveryOnItemRenderException) {
+            builder.append("WARNING: Exception recovery enabled! This may cause issues down the line!\n");
+            BufferBuilder vanillaBuffer = Tessellator.getInstance().getBuffer();
+            if (vanillaBuffer.isDrawing) {
+                vanillaBuffer.finishDrawing();
+            }
+            String logMessage = builder.toString();
+            String key = ExceptionUtils.getStackTrace(t) + logMessage;
+            if (!ExceptionMessageEventHandler.exceptionMessageCache.contains(key)) {
+                ExceptionMessageEventHandler.exceptionMessageCache.add(key);
+                CCLLog.log(Level.ERROR, t, logMessage);
+            }
+            EntityPlayer player = Minecraft.getMinecraft().player;
+            if (ProxyClient.messagePlayerOnRenderExceptionCaught && player != null) {
+                long time = System.nanoTime();
+                if (TimeUnit.NANOSECONDS.toSeconds(time - lastTime) > 5) {
+                    lastTime = time;
+                    player.sendMessage(new TextComponentString("CCL Caught an exception rendering an item. See the log for info."));
+                }
+            }
+            int matrixDepth = GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH);
+            if (matrixDepth != startMatrixDepth) {
+                for (int i = matrixDepth; i > startMatrixDepth; i--) {
+                    GlStateManager.popMatrix();
+                }
+            }
+        } else {
+            builder.append("If you want CCL to attempt to recover the game next time, enable it in the CCL config.\n");
+            String logMessage = builder.toString();
+            CrashReport crashReport = CrashReport.makeCrashReport(t, logMessage);
+            CrashReportCategory category = crashReport.makeCategory("Item being rendered");
+            category.addDetail("Item Type", () -> String.valueOf(stack.getItem()));
+            category.addDetail("Item Aux", () -> String.valueOf(stack.getMetadata()));
+            category.addDetail("Item NBT", () -> String.valueOf(stack.getTagCompound()));
+            category.addDetail("Item Foil", () -> String.valueOf(stack.hasEffect()));
+            throw new ReportedException(crashReport);
+        }
     }
 
     @Override
@@ -205,26 +329,40 @@ public class CCRenderItem extends RenderItem {
     @Override
     public void renderItemAndEffectIntoGUI(@Nullable EntityLivingBase livingBase, final ItemStack stack, int x, int y) {
         if (!stack.isEmpty()) {
+            int matrixDepth = -1;
+            if (ProxyClient.attemptRecoveryOnItemRenderException) {
+                matrixDepth = GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH);
+            }
             try {
-
-                IBakedModel model = this.getItemModelWithOverrides(stack, null, livingBase);
+                IBakedModel model = getItemModelWithOverrides(stack, null, livingBase);
                 if (isValidModel(model)) {
                     this.zLevel += 50.0F;
                     this.renderItemModelIntoGUI(stack, x, y, model);
                     this.zLevel -= 50.0F;
-                } else {
-                    parent.zLevel = this.zLevel;
-                    parent.renderItemAndEffectIntoGUI(livingBase, stack, x, y);
+                    return;
                 }
-
             } catch (Throwable throwable) {
-                CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Rendering item");
+                if (ProxyClient.catchItemRenderExceptions) {
+                    handleCaughtException(matrixDepth, throwable, stack);
+                    return;
+                }
+                CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Rendering IItemRenderer item");
                 CrashReportCategory crashreportcategory = crashreport.makeCategory("Item being rendered");
                 crashreportcategory.addDetail("Item Type", () -> String.valueOf(stack.getItem()));
                 crashreportcategory.addDetail("Item Aux", () -> String.valueOf(stack.getMetadata()));
                 crashreportcategory.addDetail("Item NBT", () -> String.valueOf(stack.getTagCompound()));
                 crashreportcategory.addDetail("Item Foil", () -> String.valueOf(stack.hasEffect()));
                 throw new ReportedException(crashreport);
+            }
+            try {
+                parent.zLevel = zLevel;
+                parent.renderItemAndEffectIntoGUI(livingBase, stack, x, y);
+            } catch (Throwable t) {
+                if (ProxyClient.catchItemRenderExceptions) {
+                    handleCaughtException(matrixDepth, t, stack);
+                    return;
+                }
+                throw t;
             }
         }
     }

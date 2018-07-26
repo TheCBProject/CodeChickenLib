@@ -2,6 +2,7 @@ package codechicken.lib.util;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Basically a bunch of lambda helpers.
@@ -18,6 +19,7 @@ public class LambdaUtils {
      * @param <T>       What we are dealing with.
      * @return True if the predicate holds for all elements in the iterable.
      */
+    //TODO Rename. forAll
     public static <T> boolean forEach(Iterable<T> iterable, Predicate<T> predicate) {
         for (T e : iterable) {
             if (!predicate.test(e)) {
@@ -68,4 +70,18 @@ public class LambdaUtils {
         }
     }
 
+    /**
+     * Attempts to run the supplier, returns null on an exception.
+     *
+     * @param supplier The supplier to run.
+     * @param <T>      The Generic type.
+     * @return The thing from the supplier.
+     */
+    public static <T> T tryOrNull(Supplier<T> supplier) {
+        try {
+            return supplier.get();
+        } catch (Throwable t) {
+            return null;
+        }
+    }
 }

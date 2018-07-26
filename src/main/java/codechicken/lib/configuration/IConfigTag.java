@@ -178,6 +178,13 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      *
      * @param lines The lines.
      */
+    E setComment(String... lines);
+
+    /**
+     * Sets a MultiLine comment above the given tag.
+     *
+     * @param lines The lines.
+     */
     E setComment(List<String> lines);
 
     /**
@@ -384,7 +391,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
             public void write(MCDataOutput out, TagType listType, Object value) {
                 List list = (List) value;
                 out.writeVarInt(list.size());
-                for (Object o: list) {
+                for (Object o : list) {
                     listType.write(out, listType, o);
                 }
             }

@@ -15,7 +15,6 @@ import codechicken.lib.packet.PacketCustom;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.block.BlockRenderingRegistry;
-import codechicken.lib.render.block.CCBlockRendererDispatcher;
 import codechicken.lib.render.item.CCRenderItem;
 import codechicken.lib.render.item.entity.WrappedEntityItemRenderer;
 import codechicken.lib.render.item.map.MapRenderRegistry;
@@ -45,6 +44,11 @@ import java.lang.reflect.Field;
 public class ProxyClient extends Proxy {
 
     private static boolean hasSanitized;
+
+    public static boolean catchBlockRenderExceptions;
+    public static boolean catchItemRenderExceptions;
+    public static boolean attemptRecoveryOnItemRenderException;
+    public static boolean messagePlayerOnRenderExceptionCaught;
 
     @Override
     public void preInit() {
@@ -105,11 +109,39 @@ public class ProxyClient extends Proxy {
         super.loadConfig();
         ConfigTag tag;
         ConfigTag clientTag = CodeChickenLib.config.getTag("client");
-        ConfigTag brdMisc = clientTag.getTag("block_renderer_dispatcher_misc");
-        tag = brdMisc.getTag("catch_all_crashes").setComment("With this enabled, CCL will attempt to catch all crashes from blocks failing to render somehow.");
-        CCBlockRendererDispatcher.catchAllCrashes = tag.setDefaultBoolean(false).getBoolean();
-        tag = brdMisc.getTag("message_player_on_catch").setComment("With this enabled, the player will be messaged when an exception is caught providing some immediate debug info, the entire exception is printed to console. (This even catches ReportedExceptions!)");
-        CCBlockRendererDispatcher.messagePlayerOnCatch = tag.setDefaultBoolean(false).getBoolean();
+        clientTag.deleteTag("block_renderer_dispatcher_misc");
+
+        tag = clientTag.getTag("catchBlockRenderExceptions")//
+                .setComment(//
+                        "With this enabled, CCL will catch all exceptions thrown whilst rendering blocks.",//
+                        "If an exception is caught, the block will not be rendered."//
+                );
+        catchBlockRenderExceptions = tag.setDefaultBoolean(true).getBoolean();
+        tag = clientTag.getTag("catchItemRenderExceptions")//
+                .setComment(//
+                        "With this enabled, CCL will catch all exceptions thrown whilst rendering items.",//
+                        "By default CCL will only enhance the crash report, but with 'attemptRecoveryOnItemRenderException' enabled",//
+                        " CCL will attempt to recover after the exception."//
+                );
+        catchItemRenderExceptions = tag.setDefaultBoolean(true).getBoolean();
+        tag = clientTag.getTag("attemptRecoveryOnItemRenderException")//
+                .setComment(//
+                        "With this enabled, CCL will attempt to recover item rendering after an exception is thrown.",//
+                        "It is recommended to only enable this when a mod has a known bug and a fix has not been released yet.",//
+                        "WARNING: This might cause issues with some mods, Some mods modify the GL state rendering items,",//
+                        "  CCL does not recover the GL state, as a result a GL leak /may/ occur. However, CCL will remember",//
+                        "  and pop the GL ModelView matrix stack depth, this might incur a bit of a performance hit.",//
+                        "  Some mods might also have custom BufferBuilders, CCL has no way of recovering the state of those.",//
+                        "  this /can/ result in 'Already Building' exceptions being thrown. CCL will however recover the vanilla BufferBuilder."//
+                );
+        attemptRecoveryOnItemRenderException = tag.setDefaultBoolean(false).getBoolean();
+        tag = clientTag.getTag("messagePlayerOnRenderCrashCaught")//
+                .setComment(//
+                        "With this enabled, CCL will message the player upon an exception from rendering blocks or items.",//
+                        "Messages are Rate-Limited to one per 5 seconds in the event that the exception continues."//
+                );
+        messagePlayerOnRenderExceptionCaught = tag.setDefaultBoolean(true).getBoolean();
+
         clientTag.save();
     }
 

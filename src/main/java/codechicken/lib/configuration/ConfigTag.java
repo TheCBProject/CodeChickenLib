@@ -220,7 +220,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
             for (Iterator<Entry<String, ConfigTag>> iterator = children.entrySet().iterator(); iterator.hasNext(); ) {
                 Entry<String, ConfigTag> entry = iterator.next();
                 int inc = 0;
-                for (String comment: entry.getValue().comment) {
+                for (String comment : entry.getValue().comment) {
                     writeLine(writer, depth, "#" + comment);
                 }
                 if (entry.getValue().isCategory()) {
@@ -248,7 +248,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
                     break;
                 case LIST: {
                     writeLine(writer, depth, "%s:\"%s\" <", listType.getChar(), name);
-                    for (Object object: ((List) value)) {
+                    for (Object object : ((List) value)) {
                         writeLine(writer, depth + 1, "%s", listType.processLine(object));
                     }
                     writeLine(writer, depth, ">");
@@ -371,7 +371,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
         if (!isCategory()) {
             throw new UnsupportedOperationException("Unable to walk a value.");
         }
-        for (ConfigTag tag: children.values()) {
+        for (ConfigTag tag : children.values()) {
             consumer.accept(tag);
             if (tag.isCategory()) {
                 tag.walkTags(consumer);
@@ -416,6 +416,11 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
         this.comment.add(comment);
         markDirty();
         return this;
+    }
+
+    @Override
+    public ConfigTag setComment(String... lines) {
+        return setComment(Arrays.asList(lines));
     }
 
     @Override
@@ -802,7 +807,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
         copy.version = version;
         copy.comment = new LinkedList<>(comment);
         if (isCategory()) {
-            for (Entry<String, ConfigTag> entry: children.entrySet()) {
+            for (Entry<String, ConfigTag> entry : children.entrySet()) {
                 copy.children.put(entry.getKey(), entry.getValue().copy(copy));
             }
         } else {
@@ -822,7 +827,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     @Override
     public ConfigTag copyFrom(ConfigTag other) {
         if (isCategory()) {
-            for (Entry<String, ConfigTag> entry: children.entrySet()) {
+            for (Entry<String, ConfigTag> entry : children.entrySet()) {
                 ConfigTag otherTag = other.getTagIfPresent(entry.getKey());
                 if (otherTag == null) {
                     throw new IllegalArgumentException("copyFrom called with a tag that does not have the same children. Missing: " + entry.getKey());
@@ -850,7 +855,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
 
     @Override
     public boolean requiresSync() {
-        for (ConfigTag tag: children.values()) {
+        for (ConfigTag tag : children.values()) {
             if (tag.requiresSync()) {
                 return true;
             }
@@ -863,7 +868,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
         if (syncCallback != null) {
             syncCallback.accept(this, type);
         }
-        for (ConfigTag tag: children.values()) {
+        for (ConfigTag tag : children.values()) {
             tag.runSync(type);
         }
     }
@@ -889,7 +894,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     public void write(MCDataOutput out) {
         if (isCategory()) {
             out.writeVarInt(children.size());
-            for (Entry<String, ConfigTag> entry: children.entrySet()) {
+            for (Entry<String, ConfigTag> entry : children.entrySet()) {
                 out.writeString(entry.getKey());
                 entry.getValue().write(out);
             }
