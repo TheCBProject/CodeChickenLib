@@ -14,7 +14,6 @@
 # Other Files.
 !LICENSE
 !README.md
-!curse_upload.json
 !.travis.yml
 
 # Include git important files
