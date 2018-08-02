@@ -1,8 +1,12 @@
 package codechicken.lib.render;
 
+import codechicken.lib.internal.CCLLog;
+import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLContext;
+
+import java.util.function.BooleanSupplier;
 
 import static org.lwjgl.opengl.GL20.GL_INFO_LOG_LENGTH;
 
@@ -26,10 +30,10 @@ public class OpenGLUtils {
         ContextCapabilities caps = GLContext.getCapabilities();
         openGL20 = caps.OpenGL20;
         openGL32 = caps.OpenGL32;
-        openGL40 = caps.OpenGL40;
-        openGL43 = caps.OpenGL43;
-        openGL44 = caps.OpenGL44;
-        openGL45 = caps.OpenGL45;
+        openGL40 = tryGet(() -> caps.OpenGL40, "LWJGL Outdated, OpenGL 4.0 is not supported.");
+        openGL43 = tryGet(() -> caps.OpenGL43, "LWJGL Outdated, OpenGL 4.3 is not supported.");
+        openGL44 = tryGet(() -> caps.OpenGL44, "LWJGL Outdated, OpenGL 4.4 is not supported.");
+        openGL45 = tryGet(() -> caps.OpenGL45, "LWJGL Outdated, OpenGL 4.5 is not supported.");
     }
 
     /**
@@ -54,5 +58,14 @@ public class OpenGLUtils {
     public static String glGetShaderInfoLog(int shader) {
         int maxLength = GL20.glGetShaderi(shader, GL_INFO_LOG_LENGTH);
         return GL20.glGetShaderInfoLog(shader, maxLength);
+    }
+
+    private static boolean tryGet(BooleanSupplier sup, String log) {
+        try {
+            return sup.getAsBoolean();
+        } catch (Throwable ignored) {
+            CCLLog.log(Level.INFO, log);
+            return false;
+        }
     }
 }
