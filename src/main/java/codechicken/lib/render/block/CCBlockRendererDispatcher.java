@@ -89,18 +89,19 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher implement
         }
     }
 
+    @SuppressWarnings ("Convert2MethodRef")//Suppress these, the lambdas need to be synthetic functions instead of a method reference.
     private static void handleCaughtException(Throwable t, IBlockState inState, BlockPos pos, IBlockAccess world) {
         Block inBlock = inState.getBlock();
         TileEntity tile = world.getTileEntity(pos);
 
         StringBuilder builder = new StringBuilder("\n CCL has caught an exception whilst rendering a block\n");
         builder.append("  BlockPos:      ").append(String.format("x:%s, y:%s, z:%s", pos.getX(), pos.getY(), pos.getZ())).append("\n");
-        builder.append("  Block Class:   ").append(tryOrNull(inBlock::getClass)).append("\n");
-        builder.append("  Registry Name: ").append(tryOrNull(inBlock::getRegistryName)).append("\n");
+        builder.append("  Block Class:   ").append(tryOrNull(() -> inBlock.getClass())).append("\n");
+        builder.append("  Registry Name: ").append(tryOrNull(() -> inBlock.getRegistryName())).append("\n");
         builder.append("  Metadata:      ").append(tryOrNull(() -> inBlock.getMetaFromState(inState))).append("\n");
-        builder.append("  State:         ").append(tryOrNull(inState::toString)).append("\n");
+        builder.append("  State:         ").append(inState).append("\n");
         builder.append(" Tile at position\n");
-        builder.append("  Tile Class:    ").append(tryOrNull(tile::getClass)).append("\n");
+        builder.append("  Tile Class:    ").append(tryOrNull(() -> tile.getClass())).append("\n");
         builder.append("  Tile Id:       ").append(tryOrNull(() -> TileEntity.getKey(tile.getClass()))).append("\n");
         builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.writeToNBT(new NBTTagCompound()))).append("\n");
         if (ProxyClient.messagePlayerOnRenderExceptionCaught) {

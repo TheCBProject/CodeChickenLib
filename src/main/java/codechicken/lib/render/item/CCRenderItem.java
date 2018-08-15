@@ -38,6 +38,8 @@ import javax.vecmath.Matrix4f;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static codechicken.lib.util.LambdaUtils.*;
+
 /**
  * Created by covers1624 on 17/10/2016.
  */
@@ -139,22 +141,17 @@ public class CCRenderItem extends RenderItem {
         }
     }
 
+    @SuppressWarnings ("Convert2MethodRef")//Suppress these, the lambdas need to be synthetic functions instead of a method reference.
     private void handleCaughtException(int startMatrixDepth, Throwable t, ItemStack stack) {
         Item item = stack.getItem();
-        String itemClass = String.valueOf(LambdaUtils.tryOrNull(() -> item.getClass().getName()));
-        String regName = String.valueOf(LambdaUtils.tryOrNull(item::getRegistryName));
-        String meta = String.valueOf(stack.getMetadata());
-        String nbt = LambdaUtils.tryOrNull(() -> stack.getTagCompound().toString());
-        String modelClass = String.valueOf(LambdaUtils.tryOrNull(() -> itemModelMesher.getItemModel(stack).getClass()));
-        String modelLoc = String.valueOf(getModelForStack(stack));
 
         StringBuilder builder = new StringBuilder("\nCCL Has caught an exception whilst rendering an item.\n");
-        builder.append("  Item Class:     ").append(itemClass).append("\n");
-        builder.append("  Registry Name:  ").append(regName).append("\n");
-        builder.append("  Metadata:       ").append(meta).append("\n");
-        builder.append("  NBT:            ").append(nbt).append("\n");
-        builder.append("  Model Class:    ").append(modelClass).append("\n");
-        builder.append("  Model Location: ").append(modelLoc).append("\n");
+        builder.append("  Item Class:     ").append(tryOrNull(() -> item.getClass())).append("\n");
+        builder.append("  Registry Name:  ").append(tryOrNull(() -> item.getRegistryName())).append("\n");
+        builder.append("  Metadata:       ").append(stack.getMetadata()).append("\n");
+        builder.append("  NBT:            ").append(tryOrNull(() -> stack.getTagCompound())).append("\n");
+        builder.append("  Model Class:    ").append(tryOrNull(() -> itemModelMesher.getItemModel(stack).getClass())).append("\n");
+        builder.append("  Model Location: ").append(getModelForStack(stack)).append("\n");
         if (ProxyClient.messagePlayerOnRenderExceptionCaught) {
             builder.append("You can turn off player messages in the CCL config file.\n");
         }
