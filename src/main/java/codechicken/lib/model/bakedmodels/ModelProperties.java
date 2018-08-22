@@ -1,6 +1,7 @@
 package codechicken.lib.model.bakedmodels;
 
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties.PerspectiveBuilder;
+import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.TransformUtils;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -21,7 +22,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
     private final TextureAtlasSprite particle;
 
     public ModelProperties(boolean isAO, boolean isGui3D) {
-        this(isAO, isGui3D, false, null);
+        this(isAO, isGui3D, false, TextureUtils.getMissingSprite());
     }
 
     public ModelProperties(ModelProperties properties, TextureAtlasSprite sprite) {
