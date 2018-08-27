@@ -19,10 +19,10 @@ public class ModelProperties implements Copyable<ModelProperties> {
     private final boolean isAO;
     private final boolean isGui3D;
     private final boolean isBuiltInRenderer;
-    private final TextureAtlasSprite particle;
+    private TextureAtlasSprite particle;
 
     public ModelProperties(boolean isAO, boolean isGui3D) {
-        this(isAO, isGui3D, false, TextureUtils.getMissingSprite());
+        this(isAO, isGui3D, false, null);
     }
 
     public ModelProperties(ModelProperties properties, TextureAtlasSprite sprite) {
@@ -61,6 +61,10 @@ public class ModelProperties implements Copyable<ModelProperties> {
     }
 
     public TextureAtlasSprite getParticleTexture() {
+        //TODO, 1.13, Force ModelProperties to be constructed after texture stitching.
+        if(particle == null) {
+            particle = TextureUtils.getMissingSprite();
+        }
         return particle;
     }
 
