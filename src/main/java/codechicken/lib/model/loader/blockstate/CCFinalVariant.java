@@ -28,7 +28,7 @@ public class CCFinalVariant extends Variant {
     private final ImmutableMap<String, String> textures;
 
     public CCFinalVariant(ResourceLocation model, Optional<IModelState> state, boolean uvLock, boolean smooth, boolean gui3d, int weight, Map<String, String> textures, String textureDomain, Map<String, String> customData) {
-        super(model == null ? new ResourceLocation("builtin/missing") : model, state.get() instanceof ModelRotation ? ((ModelRotation) state.get()) : ModelRotation.X0_Y0, uvLock, weight);
+        super(model == null ? new ResourceLocation("builtin/missing") : model, (state.isPresent() && state.get() instanceof ModelRotation) ? (ModelRotation) state.get() : ModelRotation.X0_Y0, uvLock, weight);
         this.state = state.orElse(TRSRTransformation.identity());
         this.smooth = smooth;
         this.gui3d = gui3d;

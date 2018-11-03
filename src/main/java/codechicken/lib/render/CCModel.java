@@ -240,7 +240,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
             verts[i++] = new Vertex5(x1, y2, z2, u1, v2, 1);
         }
 
-        if ((mask & 4) == 0) {//east face
+        if ((mask & 4) == 0) {//north face
             u1 = 1 - x1;
             v1 = 1 - y2;
             u2 = 1 - x2;
@@ -251,7 +251,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
             verts[i++] = new Vertex5(x2, y1, z1, u2, v2, 2);
         }
 
-        if ((mask & 8) == 0) {//west face
+        if ((mask & 8) == 0) {//south face
             u1 = x1;
             v1 = 1 - y2;
             u2 = x2;
@@ -262,7 +262,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
             verts[i++] = new Vertex5(x1, y1, z2, u1, v2, 3);
         }
 
-        if ((mask & 0x10) == 0) {//north face
+        if ((mask & 0x10) == 0) {//west face
             u1 = z1;
             v1 = 1 - y2;
             u2 = z2;
@@ -273,7 +273,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
             verts[i++] = new Vertex5(x1, y1, z1, u1, v2, 4);
         }
 
-        if ((mask & 0x20) == 0) {//south face
+        if ((mask & 0x20) == 0) {//east face
             u1 = 1 - z1;
             v1 = 1 - y2;
             u2 = 1 - z2;

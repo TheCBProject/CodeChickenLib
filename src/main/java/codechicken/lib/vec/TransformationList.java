@@ -4,7 +4,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class TransformationList extends Transformation {
 
@@ -12,6 +14,10 @@ public class TransformationList extends Transformation {
     private Matrix4 mat;
 
     public TransformationList(Transformation... transforms) {
+        this(Arrays.asList(transforms));
+    }
+
+    public TransformationList(List<Transformation> transforms) {
         for (Transformation t : transforms) {
             if (t instanceof TransformationList) {
                 transformations.addAll(((TransformationList) t).transformations);

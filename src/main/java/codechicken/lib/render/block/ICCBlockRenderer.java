@@ -6,6 +6,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Created by covers1624 on 8/09/2016.
@@ -22,6 +24,7 @@ public interface ICCBlockRenderer {
      * @param sprite The overriden sprite.
      * @param buffer The buffer.
      */
+    @SideOnly (Side.CLIENT)
     void handleRenderBlockDamage(IBlockAccess world, BlockPos pos, IBlockState state, TextureAtlasSprite sprite, BufferBuilder buffer);
 
     /**
@@ -36,6 +39,7 @@ public interface ICCBlockRenderer {
      * @param buffer The buffer.
      * @return If quads were added.
      */
+    @SideOnly(Side.CLIENT)
     boolean renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, BufferBuilder buffer);
 
     /**
@@ -44,6 +48,7 @@ public interface ICCBlockRenderer {
      * @param state      State.
      * @param brightness Brightness.
      */
+    @SideOnly(Side.CLIENT)
     void renderBrightness(IBlockState state, float brightness);
 
     /**
@@ -51,7 +56,7 @@ public interface ICCBlockRenderer {
      *
      * @param map The map!
      */
-    @Deprecated
-    //Implement IIconRegister
+    @SideOnly(Side.CLIENT)
+    @Deprecated //Implement IIconRegister
     void registerTextures(TextureMap map);
 }

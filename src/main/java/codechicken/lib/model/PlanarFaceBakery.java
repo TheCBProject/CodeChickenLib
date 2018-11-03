@@ -111,7 +111,6 @@ public class PlanarFaceBakery {
                 vert4 = new Vertex5(x2, y1, z2, u2, v2);
                 return VertexDataUtils.buildQuad(format, sprite, face, colour, t, vert1, vert2, vert3, vert4);
         }
-        //This case will never happen. only here due to INTELLIJ NOT SHUTTING UP ABOUT POTENTIAL NULLPOINTERS!
-        return new BakedQuad(null, 1, null, null, true, null);
+        return null;
     }
 }

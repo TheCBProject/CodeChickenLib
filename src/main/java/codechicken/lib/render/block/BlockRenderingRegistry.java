@@ -21,6 +21,8 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.util.EnumHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +38,7 @@ public class BlockRenderingRegistry {
 
     private static boolean initialized = false;
 
+    @SideOnly (Side.CLIENT)
     public static void init() {
         if (!initialized) {
             Minecraft mc = Minecraft.getMinecraft();
@@ -51,14 +54,22 @@ public class BlockRenderingRegistry {
         }
     }
 
+    /**
+     * Used to create a new EnumBlockRenderType, make sure you return this on both client and server.
+     *
+     * @param name The name for the enum.
+     * @return The new enum.
+     */
     public static EnumBlockRenderType createRenderType(String name) {
         return EnumHelper.addEnum(EnumBlockRenderType.class, name, new Class[0]);
     }
 
+    @SideOnly (Side.CLIENT)
     public static boolean canHandle(EnumBlockRenderType type) {
         return blockRendererList.containsKey(type);
     }
 
+    @SideOnly (Side.CLIENT)
     public static void registerRenderer(EnumBlockRenderType type, ICCBlockRenderer renderer) {
         if (vanillaRenderTypes.contains(type)) {
             throw new IllegalArgumentException("Invalid EnumBlockRenderType! " + type.name());
@@ -72,6 +83,7 @@ public class BlockRenderingRegistry {
         }
     }
 
+    @SideOnly (Side.CLIENT)
     static void renderBlockDamage(IBlockAccess world, BlockPos pos, IBlockState state, TextureAtlasSprite sprite) {
         ICCBlockRenderer renderer = blockRendererList.get(state.getRenderType());
         if (renderer != null) {
@@ -89,11 +101,13 @@ public class BlockRenderingRegistry {
         }
     }
 
+    @SideOnly (Side.CLIENT)
     static boolean renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, BufferBuilder buffer) {
         ICCBlockRenderer renderer = blockRendererList.get(state.getRenderType());
         return renderer != null && renderer.renderBlock(world, pos, state, buffer);
     }
 
+    @SideOnly (Side.CLIENT)
     static void renderBlockBrightness(IBlockState state, float brightness) {
         ICCBlockRenderer renderer = blockRendererList.get(state.getRenderType());
         if (renderer != null) {
@@ -102,6 +116,7 @@ public class BlockRenderingRegistry {
     }
 
     @Deprecated
+    @SideOnly (Side.CLIENT)
     static void registerTextures(TextureMap map) {
         for (ICCBlockRenderer renderer : blockRendererList.values()) {
             renderer.registerTextures(map);
