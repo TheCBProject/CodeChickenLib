@@ -38,9 +38,9 @@ public class ModDescriptionEnhancer {
         if (marker.exists()) {
             try {
                 FileReader reader = new FileReader(marker);
-                lastDownload = Long.valueOf(IOUtils.toString(reader));
+                lastDownload = Long.valueOf(IOUtils.toString(reader).trim());
                 IOUtils.closeQuietly(reader);
-            } catch (IOException e) {
+            } catch (IOException | NumberFormatException e) {
                 CCLLog.log(Level.WARN, "Error reading supporters marker file. Deleting..");
                 marker.delete();
                 lastDownload = 0;
