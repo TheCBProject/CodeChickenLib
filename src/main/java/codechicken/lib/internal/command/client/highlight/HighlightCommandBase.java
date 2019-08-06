@@ -29,6 +29,7 @@ public class HighlightCommandBase extends CommandTreeBase implements IBetterHelp
         addSubcommand(new HighlightSetCommand());
         addSubcommand(new HighlightClearCommand());
         addSubcommand(new HighlightToggleDepthCommand());
+        addSubcommand(new HighlightInfoCommand());
     }
 
     @Override
