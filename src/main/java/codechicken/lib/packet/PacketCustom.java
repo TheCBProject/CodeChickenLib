@@ -214,7 +214,6 @@ public final class PacketCustom extends ByteBuf implements MCDataInput, MCDataOu
     public PacketCustom(ByteBuf payload) {
         byte[] bytes = new byte[payload.readableBytes()];
         payload.readBytes(bytes);
-        payload.release();
         buf = Unpooled.wrappedBuffer(bytes);
 
         type = readUnsignedByte();
