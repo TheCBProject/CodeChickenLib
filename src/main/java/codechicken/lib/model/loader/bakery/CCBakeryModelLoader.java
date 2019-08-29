@@ -19,8 +19,8 @@ public class CCBakeryModelLoader implements ICustomModelLoader {
 
     @Override
     public boolean accepts(ResourceLocation modelLocation) {
-        String path = modelLocation.getResourcePath();
-        return modelLocation.getResourceDomain().equals("ccl") && (path.equals("bakery") || path.equals("models/block/bakery") || path.equals("models/item/bakery"));
+        String path = modelLocation.getPath();
+        return modelLocation.getNamespace().equals("ccl") && (path.equals("bakery") || path.equals("models/block/bakery") || path.equals("models/item/bakery"));
     }
 
     @Override

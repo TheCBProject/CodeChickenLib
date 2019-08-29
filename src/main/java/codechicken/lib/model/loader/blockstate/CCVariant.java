@@ -147,7 +147,7 @@ public class CCVariant implements Copyable<CCVariant> {
 
         public static ResourceLocation getBlockLocation(String location) {
             ResourceLocation tmp = new ResourceLocation(location);
-            return new ResourceLocation(tmp.getResourceDomain(), "block/" + tmp.getResourcePath());
+            return new ResourceLocation(tmp.getNamespace(), "block/" + tmp.getPath());
         }
 
         @Override

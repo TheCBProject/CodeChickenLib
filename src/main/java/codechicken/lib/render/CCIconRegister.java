@@ -38,7 +38,7 @@ public class CCIconRegister implements IIconRegister {
     }
 
     public static void registerBlockTexture(ResourceLocation location) {
-        registerTexture(new ResourceLocation(location.getResourceDomain(), "blocks/" + location.getResourcePath()));
+        registerTexture(new ResourceLocation(location.getNamespace(), "blocks/" + location.getPath()));
     }
 
     public static void registerItemTexture(String string) {
@@ -46,7 +46,7 @@ public class CCIconRegister implements IIconRegister {
     }
 
     public static void registerItemTexture(ResourceLocation location) {
-        registerTexture(new ResourceLocation(location.getResourceDomain(), "items/" + location.getResourcePath()));
+        registerTexture(new ResourceLocation(location.getNamespace(), "items/" + location.getPath()));
     }
 
 }

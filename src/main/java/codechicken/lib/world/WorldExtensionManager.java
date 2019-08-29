@@ -100,7 +100,7 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkWatch(Watch event) {
-            Chunk chunk = event.getPlayer().world.getChunkFromChunkCoords(event.getChunk().x, event.getChunk().z);
+            Chunk chunk = event.getPlayer().world.getChunk(event.getChunk().x, event.getChunk().z);
             for (WorldExtension extension : getExtensions(event.getPlayer().world)) {
                 extension.watchChunk(chunk, event.getPlayer());
             }
@@ -109,7 +109,7 @@ public class WorldExtensionManager {
         @SubscribeEvent
         @SideOnly (Side.CLIENT)
         public void onChunkUnWatch(UnWatch event) {
-            Chunk chunk = event.getPlayer().world.getChunkFromChunkCoords(event.getChunk().x, event.getChunk().z);
+            Chunk chunk = event.getPlayer().world.getChunk(event.getChunk().x, event.getChunk().z);
             for (WorldExtension extension : getExtensions(event.getPlayer().world)) {
                 extension.unwatchChunk(chunk, event.getPlayer());
             }

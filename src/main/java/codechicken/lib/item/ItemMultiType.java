@@ -33,13 +33,13 @@ public class ItemMultiType extends Item {
         setMaxDamage(0);
         setHasSubtypes(true);
         setCreativeTab(tab);
-        setUnlocalizedName(new ResourceLocation(registryName).getResourcePath());
+        setTranslationKey(new ResourceLocation(registryName).getNamespace());
         setMaxStackSize(64);
     }
 
     @Override
-    public ItemMultiType setUnlocalizedName(String unlocalizedName) {
-        super.setUnlocalizedName(unlocalizedName);
+    public ItemMultiType setTranslationKey(String translationKey) {
+        super.setTranslationKey(translationKey);
         return this;
     }
 
@@ -104,9 +104,9 @@ public class ItemMultiType extends Item {
     }
 
     @Override
-    public String getUnlocalizedName(ItemStack stack) {
+    public String getTranslationKey(ItemStack stack) {
         int meta = stack.getItemDamage();
-        return getUnlocalizedName() + "." + names.get(meta);
+        return getTranslationKey() + "." + names.get(meta);
     }
 
 }

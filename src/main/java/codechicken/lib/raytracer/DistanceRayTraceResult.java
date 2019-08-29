@@ -40,7 +40,7 @@ public class DistanceRayTraceResult extends RayTraceResult implements Comparable
     }
 
     public void offsetHit(BlockPos pos) {
-        hitVec = hitVec.addVector(pos.getX(), pos.getY(), pos.getZ());
+        hitVec = hitVec.add(pos.getX(), pos.getY(), pos.getZ());
     }
 
     @Override

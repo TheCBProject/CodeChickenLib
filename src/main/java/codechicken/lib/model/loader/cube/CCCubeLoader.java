@@ -18,8 +18,8 @@ public class CCCubeLoader implements ICustomModelLoader {
 
     @Override
     public boolean accepts(ResourceLocation modelLocation) {
-        String path = modelLocation.getResourcePath();
-        return modelLocation.getResourceDomain().equals("ccl") && (path.equals("cube") || path.equals("models/block/cube") || path.equals("models/item/cube"));
+        String path = modelLocation.getPath();
+        return modelLocation.getNamespace().equals("ccl") && (path.equals("cube") || path.equals("models/block/cube") || path.equals("models/item/cube"));
     }
 
     @Override

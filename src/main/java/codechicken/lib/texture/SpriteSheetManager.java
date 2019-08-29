@@ -41,7 +41,7 @@ public class SpriteSheetManager {
 
         @Override
         public void registerIcons(TextureMap textureMap) {
-            if (TextureUtils.refreshTexture(textureMap, resource.getResourcePath())) {
+            if (TextureUtils.refreshTexture(textureMap, resource.getPath())) {
                 reloadTexture();
                 for (TextureSpecial sprite : sprites) {
                     if (sprite != null) {

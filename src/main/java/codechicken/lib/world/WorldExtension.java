@@ -98,6 +98,6 @@ public abstract class WorldExtension {
             return null;
         }
 
-        return chunkMap.get(world.getChunkFromChunkCoords(chunkXPos, chunkZPos));
+        return chunkMap.get(world.getChunk(chunkXPos, chunkZPos));
     }
 }

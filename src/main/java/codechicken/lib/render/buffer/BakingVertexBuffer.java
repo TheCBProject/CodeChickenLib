@@ -129,7 +129,7 @@ public class BakingVertexBuffer extends BufferBuilder {
         TextureAtlasSprite sprite = TextureUtils.getMissingSprite();
 
         int curr = 0;
-        int next = format.getNextOffset();
+        int next = format.getOffset(curr+1);
         int i = 0;
         while (rawBuffer.length >= next) {
             int[] quadData = Arrays.copyOfRange(rawBuffer, curr, next);
@@ -168,7 +168,7 @@ public class BakingVertexBuffer extends BufferBuilder {
             BakedQuad quad = new BakedQuad(quadData, -1, facing, sprite, useDiffuseLighting, format);
             quads.add(quad);
             curr = next;
-            next += format.getNextOffset();
+            next += format.getOffset(curr+1);
             i++;
         }
         return ImmutableList.copyOf(quads);

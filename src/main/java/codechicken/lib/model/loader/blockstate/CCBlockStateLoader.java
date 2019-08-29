@@ -243,7 +243,7 @@ public class CCBlockStateLoader {
     }
 
     private static ResourceLocation getBlockStateLocation(ResourceLocation location) {
-        return new ResourceLocation(location.getResourceDomain(), "cc_blockstates/" + location.getResourcePath() + ".json");
+        return new ResourceLocation(location.getNamespace(), "cc_blockstates/" + location.getPath() + ".json");
     }
 
     private static boolean canLoad(IResourceManager resourceManager, ResourceLocation location) {
@@ -547,12 +547,12 @@ public class CCBlockStateLoader {
         private final String variant;
 
         public WrappedMRL(ModelResourceLocation modelResourceLocation) {
-            super(modelResourceLocation.getResourceDomain(), modelResourceLocation.getResourcePath());
+            super(modelResourceLocation.getNamespace(), modelResourceLocation.getPath());
             variant = modelResourceLocation.getVariant();
         }
 
         public ModelResourceLocation to() {
-            return new ModelResourceLocation(getResourceDomain() + ":" + getResourcePath(), variant);
+            return new ModelResourceLocation(getNamespace() + ":" + getPath(), variant);
         }
 
         public static WrappedMRL from(ModelResourceLocation loc) {
