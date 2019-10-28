@@ -2,17 +2,18 @@ package codechicken.lib.model.bakedmodels;
 
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
+import net.minecraftforge.client.model.data.IModelData;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by covers1624 on 19/11/2016.
@@ -27,7 +28,7 @@ public class PerspectiveAwareLayeredModelWrapper extends AbstractPerspectiveLaye
     }
 
     @Override
-    public List<BakedQuad> getLayerQuads(@Nullable IBlockState state, @Nullable EnumFacing side, BlockRenderLayer layer, long rand) {
+    public List<BakedQuad> getLayerQuads(BlockState state, Direction side, BlockRenderLayer layer, Random rand, IModelData data) {
         if (layerModelMap.containsKey(layer)) {
             return layerModelMap.get(layer).getQuads(state, side, rand);
         }
@@ -36,6 +37,6 @@ public class PerspectiveAwareLayeredModelWrapper extends AbstractPerspectiveLaye
 
     @Override
     public ItemOverrideList getOverrides() {
-        return ItemOverrideList.NONE;
+        return ItemOverrideList.EMPTY;
     }
 }

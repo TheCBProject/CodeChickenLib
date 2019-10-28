@@ -52,10 +52,6 @@ public class ThreadOperationTimer extends Thread {
     @SuppressWarnings ("deprecation")
     @Override
     public void run() {
-        if (ObfMapping.obfuscated) {
-            return;//don't run this thread in a source environment
-        }
-
         while (thread.isAlive()) {
             synchronized (this) {
                 if (operation != null && System.currentTimeMillis() - opTime > limit) {

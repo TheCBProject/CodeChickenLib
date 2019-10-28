@@ -1,13 +1,9 @@
 package codechicken.lib.model;
 
-import codechicken.lib.render.item.IItemRenderer;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.item.Item;
-import net.minecraft.util.registry.IRegistry;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -32,27 +28,27 @@ public class ModelRegistryHelper {
         registerModels.add(new ImmutablePair<>(location, model));
     }
 
-    /**
-     * Inserts the item renderer at itemRegistry.getNameForObject(block)#inventory and binds it to the item with a custom mesh definition
-     */
-    public static void registerItemRenderer(Item item, IItemRenderer renderer) {
-        final ModelResourceLocation modelLoc = new ModelResourceLocation(item.getRegistryName(), "inventory");
-        register(modelLoc, renderer);
-        ModelLoader.setCustomMeshDefinition(item, stack -> modelLoc);
-    }
+    //    /**
+    //     * Inserts the item renderer at itemRegistry.getNameForObject(block)#inventory and binds it to the item with a custom mesh definition
+    //     */
+    //    public static void registerItemRenderer(Item item, IItemRenderer renderer) {
+    //        final ModelResourceLocation modelLoc = new ModelResourceLocation(item.getRegistryName(), "inventory");
+    //        register(modelLoc, renderer);
+    //        ModelLoader.setCustomMeshDefinition(item, stack -> modelLoc);
+    //    }
 
     @SubscribeEvent
     public void onModelBake(ModelBakeEvent event) {
         for (IModelBakeCallbackPre callback : modelBakePreCallbacks) {
-            callback.onModelBakePre(event.getModelRegistry());
+            callback.onModelBakePre(event);
         }
 
         for (Pair<ModelResourceLocation, IBakedModel> pair : registerModels) {
-            event.getModelRegistry().putObject(pair.getKey(), pair.getValue());
+            event.getModelRegistry().put(pair.getKey(), pair.getValue());
         }
 
         for (IModelBakeCallback callback : modelBakeCallbacks) {
-            callback.onModelBake(event.getModelRegistry());
+            callback.onModelBake(event);
         }
     }
 
@@ -64,7 +60,7 @@ public class ModelRegistryHelper {
          *
          * @param modelRegistry The Model registry.
          */
-        void onModelBakePre(IRegistry<ModelResourceLocation, IBakedModel> modelRegistry);
+        void onModelBakePre(ModelBakeEvent event);
     }
 
     public interface IModelBakeCallback {
@@ -74,6 +70,6 @@ public class ModelRegistryHelper {
          *
          * @param modelRegistry The Model registry.
          */
-        void onModelBake(IRegistry<ModelResourceLocation, IBakedModel> modelRegistry);
+        void onModelBake(ModelBakeEvent event);
     }
 }

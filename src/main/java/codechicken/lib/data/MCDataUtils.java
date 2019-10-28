@@ -4,10 +4,10 @@ import com.google.common.base.Charsets;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraft.util.registry.Registry;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
@@ -80,13 +80,12 @@ public class MCDataUtils {
     public static ItemStack readItemStack(MCDataInput in) {
 
         ItemStack item = ItemStack.EMPTY;
-        short itemID = in.readShort();
+        int itemID = in.readVarInt();
 
         if (itemID >= 0) {
             int stackSize = in.readVarInt();
-            short damage = in.readShort();
-            item = new ItemStack(Item.getItemById(itemID), stackSize, damage);
-            item.setTagCompound(in.readNBTTagCompound());
+            item = new ItemStack(Item.getItemById(itemID), stackSize);
+            item.readShareTag(in.readCompoundNBT());
         }
 
         return item;
@@ -94,18 +93,19 @@ public class MCDataUtils {
 
     public static FluidStack readFluidStack(MCDataInput in) {
 
-        FluidStack fluid = null;
-        String fluidName = in.readString();
+        FluidStack fluid = FluidStack.EMPTY;
+        int fluidID = in.readVarInt();
 
-        if (fluidName.length() > 0) {
-            fluid = new FluidStack(FluidRegistry.getFluid(fluidName), in.readVarInt(), in.readNBTTagCompound());
+        if(fluidID > 0) {
+            int stackSize = in.readVarInt();
+            fluid = new FluidStack(Registry.FLUID.getByValue(fluidID), stackSize);
+            fluid.setTag(in.readCompoundNBT());
         }
-
         return fluid;
     }
 
     @Nullable
-    public static NBTTagCompound readNBTTagCompound(MCDataInput input) {
+    public static CompoundNBT readCompoundNBT(MCDataInput input) {
 
         byte flag = input.readByte();
         if (flag == 0) {
@@ -117,7 +117,7 @@ public class MCDataUtils {
                 throw new EncoderException(e);
             }
         } else {
-            throw new EncoderException("Invalid flag for readNBTTagCompound. Expected 0 || 1 Got: " + flag + " Possible incorrect read order?");
+            throw new EncoderException("Invalid flag for readCompoundNBT. Expected 0 || 1 Got: " + flag + " Possible incorrect read order?");
         }
     }
 
@@ -181,25 +181,24 @@ public class MCDataUtils {
         if (stack.isEmpty()) {
             out.writeShort(-1);
         } else {
-            out.writeShort(Item.getIdFromItem(stack.getItem()));
+            out.writeVarInt(Item.getIdFromItem(stack.getItem()));
             out.writeVarInt(stack.getCount());
-            out.writeShort(stack.getItemDamage());
-            out.writeNBTTagCompound(stack.getItem().getShareTag() ? stack.getTagCompound() : null);
+            out.writeCompoundNBT(stack.getShareTag());
         }
     }
 
-    public static void writeFluidStack(MCDataOutput out, FluidStack fluid) {
-
-        if (fluid == null || FluidRegistry.getFluidName(fluid) == null) {
-            out.writeString("");
+    public static void writeFluidStack(MCDataOutput out, FluidStack stack) {
+        if (stack.isEmpty()) {
+            out.writeVarInt(-1);
         } else {
-            out.writeString(FluidRegistry.getFluidName(fluid));
-            out.writeVarInt(fluid.amount);
-            out.writeNBTTagCompound(fluid.tag);
+            out.writeVarInt(Registry.FLUID.getId(stack.getFluid()));
+            out.writeVarInt(stack.getAmount());
+            out.writeCompoundNBT(stack.getTag());
+
         }
     }
 
-    public static void writeNBTTagCompount(@Nonnull MCDataOutput out, @Nullable NBTTagCompound tag) {
+    public static void writeCompoundNBT(@Nonnull MCDataOutput out, @Nullable CompoundNBT tag) {
 
         if (tag == null) {
             out.writeByte(0);

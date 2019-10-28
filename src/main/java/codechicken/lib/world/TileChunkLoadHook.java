@@ -1,12 +1,8 @@
 package codechicken.lib.world;
 
-import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
-import java.util.ArrayList;
-import java.util.List;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class TileChunkLoadHook {
 
@@ -23,11 +19,10 @@ public class TileChunkLoadHook {
 
     @SubscribeEvent
     public void onChunkLoad(ChunkEvent.Load event) {
-        List<TileEntity> list = new ArrayList<>(event.getChunk().getTileEntityMap().values());
-        for (TileEntity t : list) {
-            if (t instanceof IChunkLoadTile) {
-                ((IChunkLoadTile) t).onChunkLoad();
-            }
-        }
+        event.getChunk().getTileEntitiesPos().stream()//
+                .map(event.getWorld()::getTileEntity)//
+                .filter(e -> e instanceof IChunkLoadTile)//
+                .map(e -> (IChunkLoadTile) e)//
+                .forEach(IChunkLoadTile::onChunkLoad);
     }
 }

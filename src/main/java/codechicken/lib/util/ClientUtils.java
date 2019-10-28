@@ -2,32 +2,17 @@ package codechicken.lib.util;
 
 import codechicken.lib.render.CCRenderEventHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ClientUtils extends CommonUtils {
 
-    private static Minecraft mc() {
-        return Minecraft.getMinecraft();
-    }
-
     public static World getWorld() {
-        return mc().world;
+        return Minecraft.getInstance().world;
     }
 
     public static boolean inWorld() {
-        return mc().getConnection() != null;
-    }
-
-    public static void openSMPGui(int windowId, GuiScreen gui) {
-        mc().displayGuiScreen(gui);
-        if (windowId != 0) {
-            mc().player.openContainer.windowId = windowId;
-        }
+        return Minecraft.getInstance().getConnection() != null;
     }
 
     public static float getRenderFrame() {
@@ -40,7 +25,7 @@ public class ClientUtils extends CommonUtils {
 
     public static String getServerIP() {
         try {
-            NetworkManager networkManager = mc().getConnection().getNetworkManager();
+            NetworkManager networkManager = Minecraft.getInstance().getConnection().getNetworkManager();
             String s = networkManager.getRemoteAddress().toString();
             s = s.substring(s.indexOf("/") + 1);
             return s;
@@ -51,8 +36,7 @@ public class ClientUtils extends CommonUtils {
         }
     }
 
-    @SideOnly (Side.CLIENT)
     public static String getWorldSaveName() {
-        return mc().isSingleplayer() ? FMLCommonHandler.instance().getMinecraftServerInstance().getFolderName() : null;
+        return Minecraft.getInstance().isSingleplayer() ? Minecraft.getInstance().getIntegratedServer().getFolderName() : null;
     }
 }

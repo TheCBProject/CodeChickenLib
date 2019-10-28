@@ -1,15 +1,16 @@
 package codechicken.lib.model.bakedmodels;
 
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
-import com.google.common.collect.ImmutableList;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by covers1624 on 1/02/2017.
@@ -30,11 +31,11 @@ public class PerspectiveAwareOverrideModel extends AbstractBakedPropertiesModel 
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand) {
         if (state == null && side == null) {
             return quads;
         }
-        return ImmutableList.of();
+        return Collections.emptyList();
     }
 
     @Override

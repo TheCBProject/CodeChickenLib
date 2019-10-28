@@ -1,16 +1,18 @@
 package codechicken.lib.render.shader;
 
-import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.shader.ShaderProgram.UniformEntry.BooleanUniformEntry;
 import codechicken.lib.render.shader.ShaderProgram.UniformEntry.FloatUniformEntry;
 import codechicken.lib.render.shader.ShaderProgram.UniformEntry.IntUniformEntry;
 import codechicken.lib.render.shader.ShaderProgram.UniformEntry.MatrixUniformEntry;
 import codechicken.lib.vec.Matrix4;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 
 import java.nio.FloatBuffer;
 import java.util.LinkedHashSet;
@@ -85,7 +87,7 @@ public class ShaderProgram {
             shaderObjects.forEach(shaderObject -> shaderObject.onShaderLink(programID));
 
             if (GL20.glGetProgrami(programID, GL20.GL_LINK_STATUS) == GL_FALSE) {
-                throw new RuntimeException(String.format("ShaderProgram validation has failed!\n%s", OpenGLUtils.glGetProgramInfoLog(programID)));
+                throw new RuntimeException(String.format("ShaderProgram validation has failed!\n%s", GL30.glGetProgramInfoLog(programID)));
             }
             isInvalid = false;
         }
@@ -137,8 +139,8 @@ public class ShaderProgram {
      */
     public class UniformCache {
 
-        private TIntObjectHashMap<UniformEntry> uniformObjectCache = new TIntObjectHashMap<>();
-        private TObjectIntHashMap<String> uniformLocationCache = new TObjectIntHashMap<>();
+        private Int2ObjectMap<UniformEntry> uniformObjectCache = new Int2ObjectArrayMap<>();
+        private Object2IntMap<String> uniformLocationCache = new Object2IntOpenHashMap<>();
 
         private void invalidateCache() {
             uniformLocationCache.clear();
@@ -203,15 +205,15 @@ public class ShaderProgram {
         }
 
         public void glUniformMatrix2(String location, boolean transpose, FloatBuffer matrix) {
-            glUniformMatrix(location, (loc) -> GL20.glUniformMatrix2(loc, transpose, matrix), transpose, matrix);
+            glUniformMatrix(location, (loc) -> GL20.glUniformMatrix4fv(loc, transpose, matrix), transpose, matrix);
         }
 
         public void glUniformMatrix4(String location, boolean transpose, Matrix4 matrix) {
-            glUniformMatrix(location, (loc) -> GL20.glUniformMatrix4(loc, transpose, matrix.toFloatBuffer()), transpose, matrix.toFloatBuffer());
+            glUniformMatrix(location, (loc) -> GL20.glUniformMatrix4fv(loc, transpose, matrix.toFloatBuffer()), transpose, matrix.toFloatBuffer());
         }
 
         public void glUniformMatrix4(String location, boolean transpose, FloatBuffer matrix) {
-            glUniformMatrix(location, (loc) -> GL20.glUniformMatrix4(loc, transpose, matrix), transpose, matrix);
+            glUniformMatrix(location, (loc) -> GL30.glUniformMatrix4fv(loc, transpose, matrix), transpose, matrix);
         }
 
         public void glUniformMatrix(String location, IGLUniformCallback callback, boolean transpose, FloatBuffer matrix) {

@@ -2,8 +2,8 @@ package codechicken.lib.data;
 
 import codechicken.lib.vec.Vector3;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
@@ -58,8 +58,8 @@ public interface MCDataInput {
         return enumClass.getEnumConstants()[readVarInt()];
     }
 
-    default EnumFacing readEnumFacing() {
-        return EnumFacing.VALUES[readByte()];
+    default Direction readDirection() {
+        return Direction.BY_INDEX[readByte()];
     }
 
     default ResourceLocation readResourceLocation() {
@@ -74,8 +74,8 @@ public interface MCDataInput {
         return new Vector3(readDouble(), readDouble(), readDouble());
     }
 
-    default NBTTagCompound readNBTTagCompound() {
-        return MCDataUtils.readNBTTagCompound(this);
+    default CompoundNBT readCompoundNBT() {
+        return MCDataUtils.readCompoundNBT(this);
     }
 
     default ItemStack readItemStack() {

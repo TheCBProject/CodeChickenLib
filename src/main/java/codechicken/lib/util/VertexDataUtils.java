@@ -6,13 +6,13 @@ import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
 import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.uv.UVTransformation;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.client.renderer.vertex.VertexFormatElement.Usage;
+import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
@@ -47,7 +47,7 @@ public class VertexDataUtils {
      */
     public static int getNormalElement(VertexFormat format) {
         for (int e = 0; e < format.getElementCount(); e++) {
-            if (format.getElement(e).getUsage() == EnumUsage.NORMAL) {
+            if (format.getElement(e).getUsage() == Usage.NORMAL) {
                 return e;
             }
         }
@@ -62,7 +62,7 @@ public class VertexDataUtils {
      */
     public static int getUVElement(VertexFormat format) {
         for (int e = 0; e < format.getElementCount(); e++) {
-            if (format.getElement(e).getUsage() == EnumUsage.UV && format.getElement(e).getIndex() == 0) {
+            if (format.getElement(e).getUsage() == Usage.UV && format.getElement(e).getIndex() == 0) {
                 return e;
             }
         }
@@ -95,13 +95,13 @@ public class VertexDataUtils {
      * @param uv         The UV mapping to find.
      * @return The TextureAtlasSprite found, returns missing icon if it hasn't been found.
      */
-    public static TextureAtlasSprite getSpriteForUV(TextureMap textureMap, UV uv) {
+    public static TextureAtlasSprite getSpriteForUV(AtlasTexture textureMap, UV uv) {
         for (TextureAtlasSprite sprite : textureMap.mapUploadedSprites.values()) {
             if (MathHelper.between(sprite.getMinU(), uv.u, sprite.getMaxU()) && MathHelper.between(sprite.getMinV(), uv.v, sprite.getMaxV())) {
                 return sprite;
             }
         }
-        return textureMap.getMissingSprite();
+        return textureMap.missingImage;
     }
 
     /**
@@ -114,8 +114,8 @@ public class VertexDataUtils {
         return new BakedQuad(quad.getVertexData(), quad.getTintIndex(), quad.getFace(), quad.getSprite(), quad.shouldApplyDiffuseLighting(), quad.getFormat());
     }
 
-    public static Map<EnumFacing, List<BakedQuad>> sortFaceData(List<BakedQuad> quads) {
-        Map<EnumFacing, List<BakedQuad>> faceQuadMap = new HashMap<>();
+    public static Map<Direction, List<BakedQuad>> sortFaceData(List<BakedQuad> quads) {
+        Map<Direction, List<BakedQuad>> faceQuadMap = new HashMap<>();
         for (BakedQuad quad : quads) {
             List<BakedQuad> faceQuads = faceQuadMap.computeIfAbsent(quad.getFace(), k -> new ArrayList<>());
             faceQuads.add(quad);
@@ -148,7 +148,7 @@ public class VertexDataUtils {
         return data;
     }
 
-    public static BakedQuad buildQuad(VertexFormat format, TextureAtlasSprite sprite, EnumFacing face, Colour colour, UVTransformation t, Vertex5 v1, Vertex5 v2, Vertex5 v3, Vertex5 v4) {
+    public static BakedQuad buildQuad(VertexFormat format, TextureAtlasSprite sprite, Direction face, Colour colour, UVTransformation t, Vertex5 v1, Vertex5 v2, Vertex5 v3, Vertex5 v4) {
         UnpackedBakedQuad.Builder builder = new UnpackedBakedQuad.Builder(format);
         builder.setQuadTint(-1);
         builder.setQuadOrientation(face);
@@ -166,7 +166,7 @@ public class VertexDataUtils {
         return copyQuad(builder.build());
     }
 
-    private static void putVertex(UnpackedBakedQuad.Builder builder, VertexFormat format, EnumFacing face, Vertex5 vert, Colour colour) {
+    private static void putVertex(UnpackedBakedQuad.Builder builder, VertexFormat format, Direction face, Vertex5 vert, Colour colour) {
         for (int e = 0; e < format.getElementCount(); e++) {
             VertexFormatElement element = format.getElement(e);
             switch (element.getUsage()) {
@@ -176,7 +176,7 @@ public class VertexDataUtils {
                     builder.put(e, (float) vec.x, (float) vec.y, (float) vec.z, 1);
                     break;
                 case NORMAL:
-                    builder.put(e, face.getFrontOffsetX(), face.getFrontOffsetY(), face.getFrontOffsetZ(), 0);
+                    builder.put(e, face.getXOffset(), face.getYOffset(), face.getZOffset(), 0);
                     break;
                 case COLOR:
                     builder.put(e, (colour.r & 0xFF) / 255F, (colour.g & 0xFF) / 255F, (colour.b & 0xFF) / 255F, (colour.a & 0xFF) / 255F);
@@ -203,7 +203,7 @@ public class VertexDataUtils {
             for (int v = 0; v < 4; v++) {
                 for (int e = 0; e < quad.getFormat().getElementCount(); e++) {
                     VertexFormatElement element = quad.getFormat().getElement(e);
-                    if (element.getUsage() == EnumUsage.COLOR) {
+                    if (element.getUsage() == Usage.COLOR) {
                         float[] data = new float[4];
                         LightUtil.unpack(rawData, data, quad.getFormat(), v, e);
 
@@ -219,7 +219,7 @@ public class VertexDataUtils {
         return shadedQuads;
     }
 
-    private static float[] diffuseFaceLight(EnumFacing face, float[] colour) {
+    private static float[] diffuseFaceLight(Direction face, float[] colour) {
         double diffuse;
         switch (face) {
             case DOWN:

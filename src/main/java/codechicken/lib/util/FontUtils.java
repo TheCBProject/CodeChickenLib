@@ -1,15 +1,15 @@
 package codechicken.lib.util;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
 public class FontUtils {
 
-    public static FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
+    public static FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
 
     public static void drawCenteredString(String s, int xCenter, int y, int colour) {
         fontRenderer.drawString(s, xCenter - fontRenderer.getStringWidth(s) / 2, y, colour);
@@ -57,13 +57,13 @@ public class FontUtils {
         double swidth = fontRenderer.getStringWidth(quantity) * scale;
 
         GlStateManager.disableLighting();
-        GlStateManager.disableDepth();
+        GlStateManager.disableDepthTest();
         GlStateManager.pushMatrix();
-        GlStateManager.translate(x + 16 - swidth, y + 16 - sheight, 0);
-        GlStateManager.scale(scale, scale, 1);
+        GlStateManager.translated(x + 16 - swidth, y + 16 - sheight, 0);
+        GlStateManager.scaled(scale, scale, 1);
         fontRenderer.drawStringWithShadow(quantity, 0, 0, 0xFFFFFF);
         GlStateManager.popMatrix();
         GlStateManager.enableLighting();
-        GlStateManager.enableDepth();
+        GlStateManager.enableDepthTest();
     }
 }

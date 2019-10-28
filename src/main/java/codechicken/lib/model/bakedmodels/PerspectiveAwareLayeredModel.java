@@ -2,43 +2,44 @@ package codechicken.lib.model.bakedmodels;
 
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
+import net.minecraftforge.client.model.data.IModelData;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by covers1624 on 19/11/2016.
  */
 public class PerspectiveAwareLayeredModel extends AbstractPerspectiveLayeredModel {
 
-    private final ImmutableMap<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap;
+    private final ImmutableMap<BlockRenderLayer, Map<Direction, List<BakedQuad>>> layerFaceQuadMap;
     private final ImmutableMap<BlockRenderLayer, List<BakedQuad>> layerGeneralQuads;
 
-    public PerspectiveAwareLayeredModel(Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap, PerspectiveProperties properties) {
+    public PerspectiveAwareLayeredModel(Map<BlockRenderLayer, Map<Direction, List<BakedQuad>>> layerFaceQuadMap, PerspectiveProperties properties) {
         this(layerFaceQuadMap, ImmutableMap.of(), properties, BlockRenderLayer.SOLID);
     }
 
-    public PerspectiveAwareLayeredModel(Map<BlockRenderLayer, Map<EnumFacing, List<BakedQuad>>> layerFaceQuadMap, Map<BlockRenderLayer, List<BakedQuad>> layerGeneralQuads, PerspectiveProperties properties, BlockRenderLayer generallayer) {
+    public PerspectiveAwareLayeredModel(Map<BlockRenderLayer, Map<Direction, List<BakedQuad>>> layerFaceQuadMap, Map<BlockRenderLayer, List<BakedQuad>> layerGeneralQuads, PerspectiveProperties properties, BlockRenderLayer generallayer) {
         super(properties, generallayer);
         this.layerFaceQuadMap = ImmutableMap.copyOf(layerFaceQuadMap);
         this.layerGeneralQuads = ImmutableMap.copyOf(layerGeneralQuads);
     }
 
     @Override
-    public List<BakedQuad> getLayerQuads(@Nullable IBlockState state, @Nullable EnumFacing side, BlockRenderLayer layer, long rand) {
+    public List<BakedQuad> getLayerQuads(BlockState state, Direction side, BlockRenderLayer layer, Random rand, IModelData data) {
         if (side == null) {
             if (layerGeneralQuads.containsKey(layer)) {
                 return layerGeneralQuads.get(layer);
             }
         } else if (layerFaceQuadMap.containsKey(layer)) {
-            Map<EnumFacing, List<BakedQuad>> faceQuadMap = layerFaceQuadMap.get(layer);
+            Map<Direction, List<BakedQuad>> faceQuadMap = layerFaceQuadMap.get(layer);
             if (faceQuadMap.containsKey(side)) {
                 return faceQuadMap.get(side);
             }
@@ -48,6 +49,6 @@ public class PerspectiveAwareLayeredModel extends AbstractPerspectiveLayeredMode
 
     @Override
     public ItemOverrideList getOverrides() {
-        return ItemOverrideList.NONE;
+        return ItemOverrideList.EMPTY;
     }
 }

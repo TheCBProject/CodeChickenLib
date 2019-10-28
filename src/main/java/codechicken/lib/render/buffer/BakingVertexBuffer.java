@@ -9,10 +9,10 @@ import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.uv.UV;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import org.apache.logging.log4j.Level;
 
@@ -120,7 +120,7 @@ public class BakingVertexBuffer extends BufferBuilder {
         }
         State state = getVertexState();
         VertexFormat format = state.getVertexFormat();
-        if (!format.hasUvOffset(0)) {
+        if (!format.hasUv(0)) {
             throw new IllegalStateException("Unable to bake format that does not have UV mappings!");
         }
         int[] rawBuffer = Arrays.copyOf(state.getRawBuffer(), state.getRawBuffer().length);
@@ -129,7 +129,7 @@ public class BakingVertexBuffer extends BufferBuilder {
         TextureAtlasSprite sprite = TextureUtils.getMissingSprite();
 
         int curr = 0;
-        int next = format.getNextOffset();
+        int next = format.getSize();
         int i = 0;
         while (rawBuffer.length >= next) {
             int[] quadData = Arrays.copyOfRange(rawBuffer, curr, next);
@@ -161,14 +161,14 @@ public class BakingVertexBuffer extends BufferBuilder {
                 }
             }
             //Use normal to calculate facing.
-            EnumFacing facing = VectorUtils.calcNormalSide(normal);
+            Direction facing = VectorUtils.calcNormalSide(normal);
             if (facing == null) {
-                facing = EnumFacing.UP;
+                facing = Direction.UP;
             }
             BakedQuad quad = new BakedQuad(quadData, -1, facing, sprite, useDiffuseLighting, format);
             quads.add(quad);
             curr = next;
-            next += format.getNextOffset();
+            next += format.getSize();
             i++;
         }
         return ImmutableList.copyOf(quads);

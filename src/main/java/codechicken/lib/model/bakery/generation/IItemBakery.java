@@ -1,12 +1,12 @@
 package codechicken.lib.model.bakery.generation;
 
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.util.Direction;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,9 +29,9 @@ public interface IItemBakery extends IBakery {
      * @param stack The stack!
      * @return The quads for the layer, May be an empty list. Never null.
      */
-    @SideOnly (Side.CLIENT)
     @Nonnull
-    List<BakedQuad> bakeItemQuads(@Nullable EnumFacing face, ItemStack stack);
+    @OnlyIn (Dist.CLIENT)
+    List<BakedQuad> bakeItemQuads(@Nullable Direction face, ItemStack stack);
 
     /**
      * Using this allows you to change the way your model appears. You are able to override Gui3d and such.
@@ -39,8 +39,8 @@ public interface IItemBakery extends IBakery {
      *
      * @return The properties to use for the model.
      */
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     default PerspectiveProperties getModelProperties(ItemStack stack) {
-        return stack.getItem() instanceof ItemBlock ? PerspectiveProperties.DEFAULT_BLOCK : PerspectiveProperties.DEFAULT_ITEM;
+        return stack.getItem() instanceof BlockItem ? PerspectiveProperties.DEFAULT_BLOCK : PerspectiveProperties.DEFAULT_ITEM;
     }
 }

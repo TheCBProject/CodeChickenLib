@@ -1,76 +1,176 @@
 package codechicken.lib;
 
-import codechicken.lib.annotation.ProxyInjector;
-import codechicken.lib.colour.EnumColour;
 import codechicken.lib.configuration.ConfigFile;
-import codechicken.lib.internal.proxy.Proxy;
-import codechicken.lib.reflect.ObfMapping;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
+import codechicken.lib.configuration.ConfigTag;
+import codechicken.lib.model.ModelRegistryHelper;
+import codechicken.lib.model.bakery.ModelBakery;
+import codechicken.lib.render.CCRenderEventHandler;
+import codechicken.lib.render.block.BlockRenderingRegistry;
+import codechicken.lib.render.item.CCRenderItem;
+import codechicken.lib.render.item.map.MapRenderRegistry;
+import codechicken.lib.texture.SpriteUtils;
+import codechicken.lib.texture.TextureUtils;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.IPacket;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.relauncher.FMLInjectionData;
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.io.File;
+import java.lang.reflect.Field;
 
 /**
  * Created by covers1624 on 12/10/2016.
  */
-@Mod (modid = CodeChickenLib.MOD_ID, name = CodeChickenLib.MOD_NAME, dependencies = "required-after:forge@[14.23.4.2718,)", acceptedMinecraftVersions = CodeChickenLib.MC_VERSION_DEP, certificateFingerprint = "f1850c39b2516232a2108a7bd84d1cb5df93b261", updateJSON = CodeChickenLib.UPDATE_URL)
+@Mod (CodeChickenLib.MOD_ID)
 public class CodeChickenLib {
 
     public static final String MOD_ID = "codechickenlib";
-    public static final String MOD_NAME = "CodeChicken Lib";
-    public static final String MOD_VERSION = "${mod_version}";
-    public static final String MOD_VERSION_DEP = "required-after:codechickenlib@[" + MOD_VERSION + ",);";
-    public static final String MC_VERSION = "1.12";
-    public static final String MC_VERSION_DEP = "[" + MC_VERSION + "]";
-    static final String UPDATE_URL = "http://chickenbones.net/Files/notification/version.php?query=forge&version=" + MC_VERSION + "&file=CodeChickenLib";
 
-    public static final File MINECRAFT_DIR = (File) FMLInjectionData.data()[6];
+    public static boolean catchBlockRenderExceptions;
+    public static boolean catchItemRenderExceptions;
+    public static boolean attemptRecoveryOnItemRenderException;
+    public static boolean messagePlayerOnRenderExceptionCaught;
+    private static boolean hasSanitized;
 
     public static ConfigFile config;
 
-    @SidedProxy (clientSide = "codechicken.lib.internal.proxy.ProxyClient", serverSide = "codechicken.lib.internal.proxy.Proxy")
-    public static Proxy proxy;
-
     public CodeChickenLib() {
-        ObfMapping.init();
+        FMLJavaModLoadingContext.get().getModEventBus().register(this);
     }
 
-    @EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-        ProxyInjector.runInjector(event.getAsmData());
-        config = new ConfigFile(event.getSuggestedConfigurationFile());
-        proxy.loadConfig();
-        proxy.preInit();
-        initOreDict();
+    @SubscribeEvent
+    public void onCommonSetup(FMLCommonSetupEvent event) {
+        config = new ConfigFile(new File("config/ccl.cfg"));//TODO, Investigate forge config.
     }
 
-    @EventHandler
-    public void init(FMLInitializationEvent event) {
-        proxy.init();
+    @SubscribeEvent
+    public void onClientSetup(FMLClientSetupEvent event) {
+        loadClientConfig();
+        //OpenGLUtils.loadCaps();
+        //        CustomParticleHandler.init();
+        //        CCBlockStateLoader.initialize();
+        BlockRenderingRegistry.init();
+        CCRenderItem.init();
+        ModelBakery.init();
+        CCRenderEventHandler.init();
+
+        MinecraftForge.EVENT_BUS.register(new TextureUtils());
+        MinecraftForge.EVENT_BUS.register(SpriteUtils.class);
+        MinecraftForge.EVENT_BUS.register(new MapRenderRegistry());
+        MinecraftForge.EVENT_BUS.register(new ModelRegistryHelper());
+        //        ModelLoaderRegistry.registerLoader(CCCubeLoader.INSTANCE);
+        //        ModelLoaderRegistry.registerLoader(CCBakeryModelLoader.INSTANCE);
+
+        //        PacketCustom.assignHandler(PacketDispatcher.NET_CHANNEL, new ClientPacketHandler());
+        //
+        //        ClientCommandHandler.instance.registerCommand(new CCLClientCommand());
+
+        RenderingRegistry.registerEntityRenderingHandler(DummyEntity.class, manager -> {
+            sanitizeEntityRenderers(manager);
+            return new EntityRenderer<DummyEntity>(manager) {
+                protected ResourceLocation getEntityTexture(DummyEntity entity) {
+                    return null;
+                }
+            };
+        });
     }
 
-    @EventHandler
-    public void postInit(FMLPostInitializationEvent event) {
-        proxy.postInit();
+    @SubscribeEvent
+    public void onServerSetup(FMLDedicatedServerSetupEvent event) {
+
     }
 
-    @EventHandler
-    public void onServerStartingEvent(FMLServerStartingEvent event) {
-        proxy.serverStarting(event);
+    @SubscribeEvent
+    public void onServerStarting(FMLServerStartingEvent event) {
+
     }
 
-    private static void initOreDict() {
-        for (EnumColour c : EnumColour.values()) {
-            OreDictionary.registerOre(c.getWoolOreName(), new ItemStack(Blocks.WOOL, 1, c.getWoolMeta()));
+    @OnlyIn (Dist.CLIENT)
+    public static void sanitizeEntityRenderers(EntityRendererManager renderManager) {
+        if (!hasSanitized) {
+            try {
+                for (EntityRenderer<? extends Entity> render : renderManager.renderers.values()) {
+                    if (render != null) {
+                        for (Field field : render.getClass().getDeclaredFields()) {
+                            if (field.getType().equals(ItemRenderer.class)) {
+                                field.setAccessible(true);
+                                field.set(render, CCRenderItem.getOverridenItemRender());
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Unable to reflect an EntityRenderer!", e);
+            }
+            renderManager.renderers.remove(DummyEntity.class);
+            hasSanitized = true;
         }
     }
+
+    private void loadClientConfig() {
+        ConfigTag tag;
+        ConfigTag clientTag = config.getTag("client");
+        clientTag.deleteTag("block_renderer_dispatcher_misc");
+
+        tag = clientTag.getTag("catchBlockRenderExceptions")//
+                .setComment(//
+                        "With this enabled, CCL will catch all exceptions thrown whilst rendering blocks.",//
+                        "If an exception is caught, the block will not be rendered."//
+                );
+        catchBlockRenderExceptions = tag.setDefaultBoolean(true).getBoolean();
+        tag = clientTag.getTag("catchItemRenderExceptions")//
+                .setComment(//
+                        "With this enabled, CCL will catch all exceptions thrown whilst rendering items.",//
+                        "By default CCL will only enhance the crash report, but with 'attemptRecoveryOnItemRenderException' enabled",//
+                        " CCL will attempt to recover after the exception."//
+                );
+        catchItemRenderExceptions = tag.setDefaultBoolean(true).getBoolean();
+        tag = clientTag.getTag("attemptRecoveryOnItemRenderException")//
+                .setComment(//
+                        "With this enabled, CCL will attempt to recover item rendering after an exception is thrown.",//
+                        "It is recommended to only enable this when a mod has a known bug and a fix has not been released yet.",//
+                        "WARNING: This might cause issues with some mods, Some mods modify the GL state rendering items,",//
+                        "  CCL does not recover the GL state, as a result a GL leak /may/ occur. However, CCL will remember",//
+                        "  and pop the GL ModelView matrix stack depth, this might incur a bit of a performance hit.",//
+                        "  Some mods might also have custom BufferBuilders, CCL has no way of recovering the state of those.",//
+                        "  this /can/ result in 'Already Building' exceptions being thrown. CCL will however recover the vanilla BufferBuilder."//
+                );
+        attemptRecoveryOnItemRenderException = tag.setDefaultBoolean(false).getBoolean();
+        tag = clientTag.getTag("messagePlayerOnRenderCrashCaught")//
+                .setComment(//
+                        "With this enabled, CCL will message the player upon an exception from rendering blocks or items.",//
+                        "Messages are Rate-Limited to one per 5 seconds in the event that the exception continues."//
+                );
+        messagePlayerOnRenderExceptionCaught = tag.setDefaultBoolean(true).getBoolean();
+
+        clientTag.save();
+    }
+
+    //@formatter:off
+    @OnlyIn (Dist.CLIENT)
+    public class DummyEntity extends Entity {
+        public DummyEntity(EntityType<?> entityTypeIn, World worldIn) { super(entityTypeIn, worldIn); }
+        @Override protected void registerData() { }
+        @Override protected void readAdditional(CompoundNBT compound) { }
+        @Override protected void writeAdditional(CompoundNBT compound) { }
+        @Override public IPacket<?> createSpawnPacket() { return null; }
+    }
+    //@formatter:on
+
 }

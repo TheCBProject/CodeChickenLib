@@ -3,7 +3,7 @@ package codechicken.lib.inventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 import javax.annotation.Nonnull;
 
@@ -13,16 +13,16 @@ import javax.annotation.Nonnull;
 public class InventoryRange {
 
     public IInventory inv;
-    public EnumFacing face;
+    public Direction face;
     public ISidedInventory sidedInv;
     public int[] slots;
 
     @Deprecated// Use EnumFacing version.
     public InventoryRange(IInventory inv, int side) {
-        this(inv, EnumFacing.values()[side]);
+        this(inv, Direction.BY_INDEX[side]);
     }
 
-    public InventoryRange(IInventory inv, EnumFacing side) {
+    public InventoryRange(IInventory inv, Direction side) {
         this.inv = inv;
         this.face = side;
         if (inv instanceof ISidedInventory) {
@@ -37,7 +37,7 @@ public class InventoryRange {
     }
 
     public InventoryRange(IInventory inv) {
-        this(inv, EnumFacing.DOWN);
+        this(inv, Direction.DOWN);
     }
 
     public InventoryRange(IInventory inv, int fslot, int lslot) {

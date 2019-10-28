@@ -1,10 +1,10 @@
 package codechicken.lib.util;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.IReloadableResourceManager;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManagerReloadListener;
+import net.minecraft.resources.IReloadableResourceManager;
+import net.minecraft.resources.IResource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class ResourceUtils {
      * @return The resource manager.
      */
     public static IReloadableResourceManager getResourceManager() {
-        return (IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager();
+        return (IReloadableResourceManager) Minecraft.getInstance().getResourceManager();
     }
 
     /**
@@ -62,9 +62,8 @@ public class ResourceUtils {
      *
      * @param reloadListener The listener.
      */
-    public static void registerReloadListener(IResourceManagerReloadListener reloadListener) {
-        //If this crashes people need to stop using reflection..
-        getResourceManager().registerReloadListener(reloadListener);
+    public static void registerReloadListener(ISelectiveResourceReloadListener reloadListener) {
+        getResourceManager().addReloadListener(reloadListener);
     }
 
     /**

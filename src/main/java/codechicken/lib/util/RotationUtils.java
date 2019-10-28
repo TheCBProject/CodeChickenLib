@@ -1,8 +1,8 @@
 package codechicken.lib.util;
 
 import codechicken.lib.math.MathHelper;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 
 /**
@@ -17,7 +17,7 @@ public class RotationUtils {
      * @param entity Entity placing block.
      * @return Direction placed.
      */
-    public static EnumFacing getPlacedRotationHorizontal(EntityLivingBase entity) {
+    public static Direction getPlacedRotationHorizontal(LivingEntity entity) {
         int facing = MathHelper.floor((entity.rotationYaw * 4F) / 360F + 0.5D) & 3;
         return entityRotationToSide(facing).getOpposite();
     }
@@ -29,18 +29,18 @@ public class RotationUtils {
      * @param entity Entity placing block.
      * @return Direction placed.
      */
-    public static EnumFacing getPlacedRotation(BlockPos pos, EntityLivingBase entity) {
+    public static Direction getPlacedRotation(BlockPos pos, LivingEntity entity) {
         int entityRotation = (int) Math.floor(entity.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
         if (Math.abs(entity.posX - pos.getX()) < 2.0D && Math.abs(entity.posZ - pos.getZ()) < 2.0D) {
 
             double eyeDistance = entity.posY + 1.82D - pos.getY();
 
             if (eyeDistance > 2.0D) {
-                return EnumFacing.DOWN;
+                return Direction.DOWN;
             }
 
             if (eyeDistance < 0.0D) {
-                return EnumFacing.UP;
+                return Direction.UP;
             }
         }
 
@@ -55,7 +55,7 @@ public class RotationUtils {
      * @param onlyHorizon True if should only obey the horizon.
      * @return Direction placed.
      */
-    public static EnumFacing getPlacedRotation(BlockPos pos, EntityLivingBase entity, boolean onlyHorizon) {
+    public static Direction getPlacedRotation(BlockPos pos, LivingEntity entity, boolean onlyHorizon) {
         if (onlyHorizon) {
             return getPlacedRotationHorizontal(entity);
         }
@@ -68,16 +68,16 @@ public class RotationUtils {
      * @param facing Current facing.
      * @return Next facing.
      */
-    public static EnumFacing rotateCounterClockwise(EnumFacing facing) {
+    public static Direction rotateCounterClockwise(Direction facing) {
         switch (facing) {
             case NORTH:
-                return EnumFacing.WEST;
+                return Direction.WEST;
             case EAST:
-                return EnumFacing.NORTH;
+                return Direction.NORTH;
             case SOUTH:
-                return EnumFacing.EAST;
+                return Direction.EAST;
             case WEST:
-                return EnumFacing.SOUTH;
+                return Direction.SOUTH;
             default:
                 throw new IllegalStateException("Unable to get CCW facing of " + facing);
         }
@@ -89,16 +89,16 @@ public class RotationUtils {
      * @param facing Current facing.
      * @return Next facing.
      */
-    public static EnumFacing rotateClockwise(EnumFacing facing) {
+    public static Direction rotateClockwise(Direction facing) {
         switch (facing) {
             case NORTH:
-                return EnumFacing.EAST;
+                return Direction.EAST;
             case EAST:
-                return EnumFacing.SOUTH;
+                return Direction.SOUTH;
             case SOUTH:
-                return EnumFacing.WEST;
+                return Direction.WEST;
             case WEST:
-                return EnumFacing.NORTH;
+                return Direction.NORTH;
             default:
                 throw new IllegalStateException("Unable to get CW facing of " + facing);
         }
@@ -110,22 +110,22 @@ public class RotationUtils {
      * @param facing Current facing.
      * @return Next facing.
      */
-    public static EnumFacing rotateForward(EnumFacing facing) {
+    public static Direction rotateForward(Direction facing) {
         switch (facing) {
             case NORTH:
-                return EnumFacing.DOWN;
+                return Direction.DOWN;
             case DOWN:
-                return EnumFacing.UP;
+                return Direction.UP;
             case UP:
-                return EnumFacing.WEST;
+                return Direction.WEST;
             case WEST:
-                return EnumFacing.EAST;
+                return Direction.EAST;
             case EAST:
-                return EnumFacing.SOUTH;
+                return Direction.SOUTH;
             case SOUTH:
-                return EnumFacing.NORTH;
+                return Direction.NORTH;
         }
-        return EnumFacing.NORTH;
+        return Direction.NORTH;
     }
 
     /**
@@ -134,40 +134,40 @@ public class RotationUtils {
      * @param facing Current facing.
      * @return Next facing.
      */
-    public static EnumFacing rotateBackwards(EnumFacing facing) {
+    public static Direction rotateBackwards(Direction facing) {
         switch (facing) {
             case NORTH:
-                return EnumFacing.SOUTH;
+                return Direction.SOUTH;
             case SOUTH:
-                return EnumFacing.EAST;
+                return Direction.EAST;
             case EAST:
-                return EnumFacing.WEST;
+                return Direction.WEST;
             case WEST:
-                return EnumFacing.UP;
+                return Direction.UP;
             case UP:
-                return EnumFacing.DOWN;
+                return Direction.DOWN;
             case DOWN:
-                return EnumFacing.NORTH;
+                return Direction.NORTH;
         }
-        return EnumFacing.NORTH;
+        return Direction.NORTH;
     }
 
     /**
-     * Turns Entity rotation in to EnumFacing.
+     * Turns Entity rotation in to Direction.
      *
      * @param rotation The entity rotation, Generally MathHelper.floor_double((entity.rotationYaw * 4F) / 360F + 0.5D) & 3;
-     * @return The rotation in EnumFacing.
+     * @return The rotation in Direction.
      */
-    public static EnumFacing entityRotationToSide(int rotation) {
+    public static Direction entityRotationToSide(int rotation) {
         switch (rotation) {
             case 0:
-                return EnumFacing.SOUTH;
+                return Direction.SOUTH;
             case 1:
-                return EnumFacing.WEST;
+                return Direction.WEST;
             case 2:
-                return EnumFacing.NORTH;
+                return Direction.NORTH;
             default:
-                return EnumFacing.EAST;
+                return Direction.EAST;
         }
     }
 

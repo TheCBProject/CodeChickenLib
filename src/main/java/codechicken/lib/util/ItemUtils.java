@@ -1,18 +1,18 @@
 package codechicken.lib.util;
 
 import codechicken.lib.vec.Vector3;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntityFurnace;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.common.ForgeHooks;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -23,8 +23,8 @@ import java.util.function.Predicate;
  */
 public class ItemUtils {
 
-    public static boolean isPlayerHolding(EntityLivingBase entity, Predicate<Item> predicate) {
-        for (EnumHand hand : EnumHand.values()) {
+    public static boolean isPlayerHolding(LivingEntity entity, Predicate<Item> predicate) {
+        for (Hand hand : Hand.values()) {
             ItemStack stack = entity.getHeldItem(hand);
             if (!stack.isEmpty()) {
                 if (predicate.test(stack.getItem())) {
@@ -35,12 +35,12 @@ public class ItemUtils {
         return false;
     }
 
-    public static boolean isPlayerHoldingSomething(EntityPlayer player) {
+    public static boolean isPlayerHoldingSomething(PlayerEntity player) {
         return !player.getHeldItemMainhand().isEmpty() || !player.getHeldItemOffhand().isEmpty();
     }
 
     @Nonnull
-    public static ItemStack getHeldStack(EntityPlayer player) {
+    public static ItemStack getHeldStack(PlayerEntity player) {
         ItemStack stack = player.getHeldItemMainhand();
         if (stack.isEmpty()) {
             stack = player.getHeldItemOffhand();
@@ -52,11 +52,9 @@ public class ItemUtils {
      * Drops an item with basic default random velocity.
      */
     public static void dropItem(ItemStack stack, World world, Vector3 dropLocation) {
-        EntityItem item = new EntityItem(world, dropLocation.x, dropLocation.y, dropLocation.z, stack);
-        item.motionX = world.rand.nextGaussian() * 0.05;
-        item.motionY = world.rand.nextGaussian() * 0.05 + 0.2F;
-        item.motionZ = world.rand.nextGaussian() * 0.05;
-        world.spawnEntity(item);
+        ItemEntity item = new ItemEntity(world, dropLocation.x, dropLocation.y, dropLocation.z, stack);
+        item.setMotion(world.rand.nextGaussian() * 0.05, world.rand.nextGaussian() * 0.05 + 0.2F, world.rand.nextGaussian() * 0.05);
+        world.addEntity(item);
     }
 
     /**
@@ -71,9 +69,9 @@ public class ItemUtils {
         double xVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
         double yVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
         double zVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
-        EntityItem entityItem = new EntityItem(world, pos.getX() + xVelocity, pos.getY() + yVelocity, pos.getZ() + zVelocity, stack);
+        ItemEntity entityItem = new ItemEntity(world, pos.getX() + xVelocity, pos.getY() + yVelocity, pos.getZ() + zVelocity, stack);
         entityItem.setPickupDelay(10);
-        world.spawnEntity(entityItem);
+        world.addEntity(entityItem);
     }
 
     /**
@@ -128,37 +126,12 @@ public class ItemUtils {
      * @param stack Stack to spawn.
      * @param dir   Direction to shoot.
      */
-    public static void ejectItem(World world, BlockPos pos, @Nonnull ItemStack stack, EnumFacing dir) {
+    public static void ejectItem(World world, BlockPos pos, @Nonnull ItemStack stack, Direction dir) {
         pos.offset(dir);
-        EntityItem entity = new EntityItem(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-        entity.motionX = 0.0;
-        entity.motionY = 0.0;
-        entity.motionZ = 0.0;
-
-        switch (dir) {
-            case DOWN:
-                entity.motionY = -0.3;
-                break;
-            case UP:
-                entity.motionY = 0.3;
-                break;
-            case NORTH:
-                entity.motionZ = -0.3;
-                break;
-            case SOUTH:
-                entity.motionZ = 0.3;
-                break;
-            case WEST:
-                entity.motionX = -0.3;
-                break;
-            case EAST:
-                entity.motionX = 0.3;
-                break;
-            default:
-        }
-
+        ItemEntity entity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
+        entity.setMotion(new Vec3d(dir.getDirectionVec()).scale(0.3));
         entity.setPickupDelay(10);
-        world.spawnEntity(entity);
+        world.addEntity(entity);
     }
 
     /**
@@ -169,7 +142,7 @@ public class ItemUtils {
      * @param stacks Stack to spawn.
      * @param dir    Direction to shoot.
      */
-    public static void ejectItems(World world, BlockPos pos, List<ItemStack> stacks, EnumFacing dir) {
+    public static void ejectItems(World world, BlockPos pos, List<ItemStack> stacks, Direction dir) {
         for (ItemStack stack : stacks) {
             ejectItem(world, pos, stack, dir);
         }
@@ -182,8 +155,9 @@ public class ItemUtils {
      * @param itemStack Stack to get Burn time on.
      * @return Burn time for the Stack.
      */
+    @Deprecated
     public static int getBurnTime(@Nonnull ItemStack itemStack) {
-        return TileEntityFurnace.getItemBurnTime(itemStack);
+        return ForgeHooks.getBurnTime(itemStack);
     }
 
     /**
@@ -196,7 +170,7 @@ public class ItemUtils {
     public static int compareItemStack(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
         int itemStack1ID = Item.getIdFromItem(stack1.getItem());
         int itemStack2ID = Item.getIdFromItem(stack1.getItem());
-        return itemStack1ID != itemStack2ID ? itemStack1ID - itemStack2ID : (stack1.getItemDamage() == stack2.getItemDamage() ? 0 : (stack1.getItem().getHasSubtypes() ? stack1.getItemDamage() - stack2.getItemDamage() : 0));
+        return itemStack1ID != itemStack2ID ? itemStack1ID - itemStack2ID : (stack1.getDamage() == stack2.getDamage() ? 0 : stack1.getDamage() - stack2.getDamage());
     }
 
     /**
@@ -205,17 +179,17 @@ public class ItemUtils {
      * @return whether the two items are the same in terms of damage and itemID.
      */
     public static boolean areStacksSameType(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
-        return !stack1.isEmpty() && !stack2.isEmpty() && (stack1.getItem() == stack2.getItem() && (!stack2.getHasSubtypes() || stack2.getItemDamage() == stack1.getItemDamage()) && ItemStack.areItemStackTagsEqual(stack2, stack1));
+        return !stack1.isEmpty() && !stack2.isEmpty() && (stack1.getItem() == stack2.getItem() && (stack2.getDamage() == stack1.getDamage()) && ItemStack.areItemStackTagsEqual(stack2, stack1));
     }
 
-    /**
-     * {@link ItemStack}s with damage 32767 are wildcards allowing all damages. Eg all colours of wool are allowed to create Beds.
-     *
-     * @param stack1 The {@link ItemStack} being compared.
-     * @param stack2 The {@link ItemStack} to compare to.
-     * @return whether the two items are the same from the perspective of a crafting inventory.
-     */
-    public static boolean areStacksSameTypeCrafting(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
-        return !stack1.isEmpty() && !stack2.isEmpty() && stack1.getItem() == stack2.getItem() && (stack1.getItemDamage() == stack2.getItemDamage() || stack1.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack2.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack1.getItem().isDamageable());
-    }
+    //    /**
+    //     * {@link ItemStack}s with damage 32767 are wildcards allowing all damages. Eg all colours of wool are allowed to create Beds.
+    //     *
+    //     * @param stack1 The {@link ItemStack} being compared.
+    //     * @param stack2 The {@link ItemStack} to compare to.
+    //     * @return whether the two items are the same from the perspective of a crafting inventory.
+    //     */
+    //    public static boolean areStacksSameTypeCrafting(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
+    //        return !stack1.isEmpty() && !stack2.isEmpty() && stack1.getItem() == stack2.getItem() && (stack1.getItemDamage() == stack2.getItemDamage() || stack1.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack2.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack1.getItem().isDamageable());
+    //    }
 }

@@ -1,10 +1,11 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.util.Copyable;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
 import java.math.BigDecimal;
@@ -37,8 +38,8 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         max = new Vector3(aabb.maxX, aabb.maxY, aabb.maxZ);
     }
 
-    public Cuboid6(NBTTagCompound tag) {
-        this(Vector3.fromNBT(tag.getCompoundTag("min")), Vector3.fromNBT(tag.getCompoundTag("max")));
+    public Cuboid6(CompoundNBT tag) {
+        this(Vector3.fromNBT(tag.getCompound("min")), Vector3.fromNBT(tag.getCompound("max")));
     }
 
     public Cuboid6(Cuboid6 cuboid) {
@@ -55,9 +56,9 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
-        tag.setTag("min", min.writeToNBT(new NBTTagCompound()));
-        tag.setTag("max", max.writeToNBT(new NBTTagCompound()));
+    public CompoundNBT writeToNBT(CompoundNBT tag) {
+        tag.put("min", min.writeToNBT(new CompoundNBT()));
+        tag.put("max", max.writeToNBT(new CompoundNBT()));
         return tag;
     }
 
@@ -119,6 +120,10 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return subtract(vec.getX(), vec.getY(), vec.getZ());
     }
 
+    public Cuboid6 subtract(Vec3d vec) {
+        return subtract(vec.x, vec.y, vec.z);
+    }
+
     public Cuboid6 subtract(BlockPos pos) {
         return subtract(pos.getX(), pos.getY(), pos.getZ());
     }
@@ -137,7 +142,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return expand(vec.x, vec.y, vec.z);
     }
 
-    public Cuboid6 expandSide(EnumFacing side, int amount) {
+    public Cuboid6 expandSide(Direction side, int amount) {
         switch (side.getAxisDirection()) {
             case NEGATIVE:
                 min.add(Vector3.fromVec3i(side.getDirectionVec()).multiply(amount));
@@ -149,7 +154,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return this;
     }
 
-    public Cuboid6 shrinkSide(EnumFacing side, int amount) {
+    public Cuboid6 shrinkSide(Direction side, int amount) {
         expandSide(side, -amount);
         return this;
     }
@@ -214,7 +219,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return min.copy().add(max).multiply(0.5);
     }
 
-    public double getSideSize(EnumFacing side) {
+    public double getSideSize(Direction side) {
         switch (side.getAxis()) {
             case X:
                 return (max.x - min.x) + 1;
@@ -226,7 +231,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return 0;
     }
 
-    public double getSide(EnumFacing side) {
+    public double getSide(Direction side) {
         switch (side) {
             case DOWN:
                 return min.y;
@@ -246,10 +251,10 @@ public class Cuboid6 implements Copyable<Cuboid6> {
 
     @Deprecated
     public double getSide(int s) {
-        return getSide(EnumFacing.values()[s]);
+        return getSide(Direction.BY_INDEX[s]);
     }
 
-    public Cuboid6 setSide(EnumFacing side, double d) {
+    public Cuboid6 setSide(Direction side, double d) {
         switch (side) {
             case DOWN:
                 min.y = d;
@@ -275,7 +280,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
 
     @Deprecated
     public Cuboid6 setSide(int s, double d) {
-        return setSide(EnumFacing.values()[s], d);
+        return setSide(Direction.BY_INDEX[s], d);
     }
 
     @Override

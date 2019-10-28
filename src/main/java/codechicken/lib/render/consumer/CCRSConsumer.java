@@ -6,7 +6,7 @@ import codechicken.lib.vec.Vector3;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 
@@ -78,7 +78,7 @@ public class CCRSConsumer implements IVertexConsumer {
     }
 
     @Override
-    public void setQuadOrientation(EnumFacing orientation) {
+    public void setQuadOrientation(Direction orientation) {
     }
 
     @Override

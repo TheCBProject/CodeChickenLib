@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[28,)"
+issueTrackerURL="https://github.com/TheCBProject/CodeChickenLib"
+
+[[mods]]
+	modId="codechickenlib"
+	displayName="CodeChicken Lib"
+	version="${file.jarVersion}"
+
+	updateJSONURL="http://chickenbones.net/Files/notification/version.php?query=forge&file=CodeChickenLib&version=1.14"#TODO, Gradle replace?
+	displayURL="http://chickenbones.net/Pages/links.html"
+	authors="ChickenBones, covers1624"
+	description='''
+CodeChickenLib is a library of systems to help make various aspects of minecraft modding easier.
+It contains libraries for 3D math and transformations, model rendering, packets, config, colours, asm and a few other things..
+	'''
+[[dependencies.codechickenlib]]
+	modId="forge"
+	mandatory=true
+	versionRange="[28,)"
+	ordering="NONE"
+	side="BOTH"
+[[dependencies.codechickenlib]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.14.4]"
+    ordering="NONE"
+    side="BOTH"
+

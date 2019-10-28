@@ -1,9 +1,9 @@
 package codechicken.lib.util;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -27,15 +27,15 @@ public class BlockUtils {
         return entity.getDistanceSq(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D) <= range;
     }
 
-    /**
-     * Simply fires a lighting update for a block.
-     *
-     * @param world    World for the update.
-     * @param position Pos to update.
-     */
-    public static void fireLightUpdate(World world, BlockPos position) {
-        world.notifyLightSet(position);
-    }
+    //    /**
+    //     * Simply fires a lighting update for a block.
+    //     *
+    //     * @param world    World for the update.
+    //     * @param position Pos to update.
+    //     */
+    //    public static void fireLightUpdate(World world, BlockPos position) {
+    //        world.notifyLightSet(position);
+    //    }
 
     /**
      * Fires a block update.
@@ -45,7 +45,7 @@ public class BlockUtils {
      * @param pos   The position.
      */
     public static void fireBlockUpdate(World world, BlockPos pos) {
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         world.notifyBlockUpdate(pos, state, state, 3);
     }
 
@@ -68,7 +68,7 @@ public class BlockUtils {
      */
     public static List<BlockPos> getAdjacent(BlockPos pos, boolean includeVertical) {
         LinkedList<BlockPos> adjacentPositions = new LinkedList<>();
-        for (EnumFacing step : (includeVertical ? EnumFacing.VALUES : EnumFacing.HORIZONTALS)) {
+        for (Direction step : (includeVertical ? Direction.BY_INDEX : Direction.BY_HORIZONTAL_INDEX)) {
             adjacentPositions.add(pos.offset(step));
         }
 

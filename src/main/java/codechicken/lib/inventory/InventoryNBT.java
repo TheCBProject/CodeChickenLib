@@ -1,12 +1,10 @@
 package codechicken.lib.inventory;
 
 import codechicken.lib.util.ArrayUtils;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.nbt.CompoundNBT;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -17,9 +15,9 @@ import java.util.Objects;
 public class InventoryNBT implements IInventory {
 
     protected ItemStack[] items;
-    protected NBTTagCompound tag;
+    protected CompoundNBT tag;
 
-    public InventoryNBT(int size, NBTTagCompound tag) {
+    public InventoryNBT(int size, CompoundNBT tag) {
         this.tag = tag;
         items = new ItemStack[size];
         ArrayUtils.fillArray(items, ItemStack.EMPTY, (Objects::isNull));
@@ -27,12 +25,12 @@ public class InventoryNBT implements IInventory {
     }
 
     private void writeNBT() {
-        tag.setTag("items", InventoryUtils.writeItemStacksToTag(items, getInventoryStackLimit()));
+        tag.put("items", InventoryUtils.writeItemStacksToTag(items, getInventoryStackLimit()));
     }
 
     private void readNBT() {
-        if (tag.hasKey("items")) {
-            InventoryUtils.readItemStacksFromTag(items, tag.getTagList("items", 10));
+        if (tag.contains("items")) {
+            InventoryUtils.readItemStacksFromTag(items, tag.getList("items", 10));
         }
     }
 
@@ -65,7 +63,7 @@ public class InventoryNBT implements IInventory {
     }
 
     @Override
-    public void setInventorySlotContents(int slot, @Nonnull ItemStack stack) {
+    public void setInventorySlotContents(int slot, ItemStack stack) {
         items[slot] = stack;
         markDirty();
     }
@@ -88,52 +86,52 @@ public class InventoryNBT implements IInventory {
         markDirty();
     }
 
-    @Override
-    public int getField(int id) {
-        return 0;
-    }
+    //    @Override
+    //    public int getField(int id) {
+    //        return 0;
+    //    }
+    //
+    //    @Override
+    //    public void setField(int id, int value) {
+    //    }
+    //
+    //    @Override
+    //    public int getFieldCount() {
+    //        return 0;
+    //    }
 
     @Override
-    public void setField(int id, int value) {
-    }
-
-    @Override
-    public int getFieldCount() {
-        return 0;
-    }
-
-    @Override
-    public boolean isUsableByPlayer(@Nonnull EntityPlayer player) {
+    public boolean isUsableByPlayer(PlayerEntity player) {
         return true;
     }
 
     @Override
-    public void openInventory(@Nonnull EntityPlayer player) {
+    public void openInventory(PlayerEntity player) {
     }
 
     @Override
-    public void closeInventory(@Nonnull EntityPlayer player) {
+    public void closeInventory(PlayerEntity player) {
     }
 
     @Override
-    public boolean isItemValidForSlot(int i, @Nonnull ItemStack itemstack) {
+    public boolean isItemValidForSlot(int i, ItemStack itemstack) {
         return true;
     }
 
-    @Override
-    @Nonnull
-    public String getName() {
-        return "NBT";
-    }
-
-    @Override
-    public boolean hasCustomName() {
-        return true;
-    }
-
-    @Override
-    @Nonnull
-    public ITextComponent getDisplayName() {
-        return new TextComponentString(getName());
-    }
+    //    @Override
+    //    @Nonnull
+    //    public String getName() {
+    //        return "NBT";
+    //    }
+    //
+    //    @Override
+    //    public boolean hasCustomName() {
+    //        return true;
+    //    }
+    //
+    //    @Override
+    //    @Nonnull
+    //    public ITextComponent getDisplayName() {
+    //        return new TextComponentString(getName());
+    //    }
 }

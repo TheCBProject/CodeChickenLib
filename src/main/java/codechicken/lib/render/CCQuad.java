@@ -11,12 +11,12 @@ import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
 import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.uv.UVTransformation;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.IVertexProducer;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
@@ -35,7 +35,7 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
     public Colour[] colours = new Colour[4];
     public Integer[] lightMaps = new Integer[4];
 
-    public EnumFacing face = null;
+    public Direction face = null;
     public int tintIndex = -1;
     public boolean applyDifuseLighting = true;
     public TextureAtlasSprite sprite;
@@ -92,7 +92,7 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
         if (!format.hasColor()) {
             ArrayUtils.fillArray(colours, new ColourRGBA(0xFFFFFFFF));
         }
-        if (!format.hasUvOffset(1)) {
+        if (!format.hasUv(1)) {
             ArrayUtils.fillArray(lightMaps, 0);
         }
         if (!format.hasNormal()) {
@@ -197,7 +197,7 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
         }
     }
 
-    public EnumFacing getQuadFace() {
+    public Direction getQuadFace() {
         if (face == null) {
             if (ArrayUtils.countNoNull(normals) != 4) {
                 computeNormals();

@@ -1,17 +1,14 @@
 package codechicken.lib.render;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.RayTraceResult.Type;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class CCRenderEventHandler {
 
@@ -29,28 +26,28 @@ public class CCRenderEventHandler {
 
     @SubscribeEvent
     public void clientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == Phase.END) {
+        if (event.phase == TickEvent.Phase.END) {
             renderTime++;
         }
     }
 
     @SubscribeEvent
     public void renderTick(TickEvent.RenderTickEvent event) {
-        if (event.phase == Phase.START) {
+        if (event.phase == TickEvent.Phase.START) {
             renderFrame = event.renderTickTime;
         }
     }
 
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     @SubscribeEvent (priority = EventPriority.LOW)
     public void onBlockHighlight(DrawBlockHighlightEvent event) {
-        BlockPos pos = event.getTarget().getBlockPos();
 
         //We have found a CuboidRayTraceResult, Lets render it properly..
         RayTraceResult hit = event.getTarget();
-        if (hit.typeOfHit == Type.BLOCK && hit instanceof CuboidRayTraceResult) {
+        if (hit instanceof CuboidRayTraceResult) {
+            CuboidRayTraceResult cuboidHit = (CuboidRayTraceResult) hit;
             event.setCanceled(true);
-            RenderUtils.renderHitBox(event.getPlayer(), ((CuboidRayTraceResult) event.getTarget()).cuboid6.copy().add(pos), event.getPartialTicks());
+            RenderUtils.renderHitBox(event.getInfo(), cuboidHit.cuboid6.copy().add(cuboidHit.getPos()));
         }
     }
 }

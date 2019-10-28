@@ -2,7 +2,7 @@ package codechicken.lib.data;
 
 import codechicken.lib.vec.Vector3;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fluids.FluidStack;
@@ -79,8 +79,8 @@ public interface MCDataOutput {
         return this;
     }
 
-    default MCDataOutput writeNBTTagCompound(NBTTagCompound tag) {
-        MCDataUtils.writeNBTTagCompount(this, tag);
+    default MCDataOutput writeCompoundNBT(CompoundNBT tag) {
+        MCDataUtils.writeCompoundNBT(this, tag);
         return this;
     }
 

@@ -4,24 +4,27 @@ import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import codechicken.lib.render.particle.IModelParticleProvider;
 import codechicken.lib.util.VertexDataUtils;
 import codechicken.lib.vec.Vector3;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
+import net.minecraftforge.client.model.data.EmptyModelData;
+import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -56,26 +59,26 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
         return properties.getParticleTexture();
     }
 
-    protected List<BakedQuad> getAllQuads(IBlockState state) {
-        List<BakedQuad> allQuads = new LinkedList<>();
-        allQuads.addAll(getQuads(state, null, 0L));
-        for (EnumFacing face : EnumFacing.VALUES) {
-            allQuads.addAll(getQuads(state, face, 0L));
+    protected List<BakedQuad> getAllQuads(BlockState state, IModelData modelData) {
+        List<BakedQuad> allQuads = new ArrayList<>();
+        allQuads.addAll(getQuads(state, null, new Random(0), modelData));
+        for (Direction face : Direction.BY_INDEX) {
+            allQuads.addAll(getQuads(state, face, new Random(0), modelData));
         }
         return allQuads;
     }
 
     @Override
-    public Set<TextureAtlasSprite> getHitEffects(@Nonnull RayTraceResult traceResult, IBlockState state, IBlockAccess world, BlockPos pos) {
-        Vector3 vec = new Vector3(traceResult.hitVec).subtract(traceResult.getBlockPos());
-        return getAllQuads(state).stream()//
-                .filter(quad -> quad.getFace() == traceResult.sideHit)//
-                .filter(quad -> checkDepth(quad, vec, traceResult.sideHit))//
+    public Set<TextureAtlasSprite> getHitEffects(@Nonnull BlockRayTraceResult traceResult, BlockState state, IEnviromentBlockReader world, BlockPos pos, IModelData modelData) {
+        Vector3 vec = new Vector3(traceResult.getHitVec()).subtract(traceResult.getPos());
+        return getAllQuads(state, modelData).stream()//
+                .filter(quad -> quad.getFace() == traceResult.getFace())//
+                .filter(quad -> checkDepth(quad, vec, traceResult.getFace()))//
                 .map(BakedQuad::getSprite)//
                 .collect(Collectors.toSet());//
     }
 
-    protected boolean checkDepth(BakedQuad quad, Vector3 hit, EnumFacing hitFace) {
+    protected boolean checkDepth(BakedQuad quad, Vector3 hit, Direction hitFace) {
         int[] quadData = quad.getVertexData();
         VertexFormat format = quad.getFormat();
         int e = VertexDataUtils.getPositionElement(format);
@@ -104,8 +107,8 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
     }
 
     @Override
-    public Set<TextureAtlasSprite> getDestroyEffects(IBlockState state, IBlockAccess world, BlockPos pos) {
-        return getAllQuads(state).stream().map(BakedQuad::getSprite).collect(Collectors.toSet());
+    public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IEnviromentBlockReader world, BlockPos pos) {
+        return getAllQuads(state, EmptyModelData.INSTANCE).stream().map(BakedQuad::getSprite).collect(Collectors.toSet());
     }
 
     @Override

@@ -137,7 +137,7 @@ public class ReflectionManager {
      */
     @SuppressWarnings ("unchecked")
     public static <R> R callMethod_Unsafe(ObfMapping mapping, Class<R> returnType, Object instance, Object... params) throws InvocationTargetException, IllegalAccessException {
-        mapping.toRuntime();
+        mapping.remap();
         Class<?> clazz = findClass(mapping);
         Method method = null;
         for (Method m : clazz.getDeclaredMethods()) {
@@ -245,7 +245,7 @@ public class ReflectionManager {
      * @return The field.
      */
     public static Field getField(ObfMapping mapping) {
-        mapping.toRuntime();
+        mapping.remap();
 
         try {
             return getField_Unsafe(mapping);
@@ -263,7 +263,7 @@ public class ReflectionManager {
      * @throws NoSuchFieldException If the field does not exist.
      */
     public static Field getField_Unsafe(ObfMapping mapping) throws NoSuchFieldException {
-        mapping.toRuntime();
+        mapping.remap();
 
         Class<?> clazz = findClass(mapping);
         Field field = clazz.getDeclaredField(mapping.s_name);

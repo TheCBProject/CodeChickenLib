@@ -5,13 +5,8 @@ import codechicken.lib.configuration.IConfigTag.SyncException;
 import codechicken.lib.configuration.IConfigTag.SyncType;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
-import codechicken.lib.internal.network.PacketDispatcher;
 import codechicken.lib.packet.PacketCustom;
-import com.google.common.base.Joiner;
-import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientDisconnectionFromServerEvent;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * Master registry in charge of config syncing.
@@ -51,21 +45,21 @@ public class ConfigSyncManager {
     }
 
     //Internal
-    public static void handshakeReceived(NetHandlerPlayServer netHandler) {
-        if(syncMap.isEmpty()) {
-            logger.info("Skipping config sync, No mods have registered a syncable config.");
-            return;
-        }
-        PacketCustom packet = new PacketCustom(PacketDispatcher.NET_CHANNEL, 20);
-        packet.writeVarInt(syncMap.size());
-        for (Entry<String, IConfigTag<IConfigTag>> entry: syncMap.entrySet()) {
-            packet.writeString(entry.getKey());
-            SyncState.create(entry.getValue()).write(packet);
-        }
-        String mods = Joiner.on(", ").join(syncMap.keySet());
-        logger.info("Sending config sync packet to player. Mods: " + mods);
-        netHandler.sendPacket(packet.toPacket());
-    }
+    //    public static void handshakeReceived(NetHandlerPlayServer netHandler) {
+    //        if(syncMap.isEmpty()) {
+    //            logger.info("Skipping config sync, No mods have registered a syncable config.");
+    //            return;
+    //        }
+    //        PacketCustom packet = new PacketCustom(PacketDispatcher.NET_CHANNEL, 20);
+    //        packet.writeVarInt(syncMap.size());
+    //        for (Entry<String, IConfigTag<IConfigTag>> entry: syncMap.entrySet()) {
+    //            packet.writeString(entry.getKey());
+    //            SyncState.create(entry.getValue()).write(packet);
+    //        }
+    //        String mods = Joiner.on(", ").join(syncMap.keySet());
+    //        logger.info("Sending config sync packet to player. Mods: " + mods);
+    //        netHandler.sendPacket(packet.toPacket());
+    //    }
 
     //Internal
     public static void readSyncPacket(PacketCustom packet) {
@@ -80,14 +74,14 @@ public class ConfigSyncManager {
         }
     }
 
-    @SubscribeEvent
-    public static void onClientDisconnected(ClientDisconnectionFromServerEvent event) {
-        for (Entry<String, SyncState> entry: clientRollbackMap.entrySet()) {
-            logger.log(Level.INFO, "Client disconnect, rolling back config for {}.", entry.getKey());
-            entry.getValue().revert(syncMap.get(entry.getKey()));
-        }
-        clientRollbackMap.clear();
-    }
+    //    @SubscribeEvent
+    //    public static void onClientDisconnected(ClientDisconnectionFromServerEvent event) {
+    //        for (Entry<String, SyncState> entry: clientRollbackMap.entrySet()) {
+    //            logger.log(Level.INFO, "Client disconnect, rolling back config for {}.", entry.getKey());
+    //            entry.getValue().revert(syncMap.get(entry.getKey()));
+    //        }
+    //        clientRollbackMap.clear();
+    //    }
 
     public static class SyncState {
 
@@ -107,7 +101,7 @@ public class ConfigSyncManager {
         public static void applyTo(MCDataInput in, IConfigTag<IConfigTag> parent) {
             SyncState master = SyncState.create(parent);
             Map<String, IConfigTag<IConfigTag>> lookup = new HashMap<>();
-            for (IConfigTag<IConfigTag> tag: master.syncTags) {
+            for (IConfigTag<IConfigTag> tag : master.syncTags) {
                 lookup.put(tag.getUnlocalizedName(), tag);
             }
             int numTags = in.readVarInt();
@@ -130,10 +124,10 @@ public class ConfigSyncManager {
         public void revert(IConfigTag<IConfigTag> parent) {
             SyncState master = SyncState.create(parent);
             Map<String, IConfigTag<IConfigTag>> lookup = new HashMap<>();
-            for (IConfigTag<IConfigTag> tag: master.syncTags) {
+            for (IConfigTag<IConfigTag> tag : master.syncTags) {
                 lookup.put(tag.getUnlocalizedName(), tag);
             }
-            for (IConfigTag<IConfigTag> tag: syncTags) {
+            for (IConfigTag<IConfigTag> tag : syncTags) {
                 IConfigTag<IConfigTag> found = lookup.get(tag.getUnlocalizedName());
                 if (found == null) {
                     throw new RuntimeException("Unable to revert config state, tag no longer exists.. " + tag.getUnlocalizedName());
@@ -149,7 +143,7 @@ public class ConfigSyncManager {
 
         public void write(MCDataOutput out) {
             out.writeVarInt(syncTags.size());
-            for (IConfigTag<?> tag: syncTags) {
+            for (IConfigTag<?> tag : syncTags) {
                 out.writeString(tag.getUnlocalizedName());
                 tag.write(out);
             }

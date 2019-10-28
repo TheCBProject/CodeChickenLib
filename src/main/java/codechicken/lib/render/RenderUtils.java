@@ -3,19 +3,21 @@ package codechicken.lib.render;
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.vec.*;
 import codechicken.lib.vec.uv.IconTransformation;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.entity.RenderEntityItem;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
 
@@ -23,26 +25,26 @@ import org.lwjgl.opengl.GL11;
 public class RenderUtils {
 
     private static Vector3[] vectors = new Vector3[8];
-    private static RenderEntityItem uniformRenderItem;
+    private static net.minecraft.client.renderer.entity.ItemRenderer uniformRenderItem;
     private static boolean hasInitRenderItem;
 
     private static ThreadLocal<IconTransformation> iconTransformCache = ThreadLocal.withInitial(() -> new IconTransformation(TextureUtils.getBlockTexture("stone")));
 
-    private static EntityItem entityItem;
+    private static ItemEntity entityItem;
 
     static {
         for (int i = 0; i < vectors.length; i++) {
             vectors[i] = new Vector3();
         }
 
-        entityItem = new EntityItem(null);
+        entityItem = new ItemEntity(EntityType.ITEM, null);
         entityItem.hoverStart = 0;
     }
 
     private static void loadItemRenderer() {
         if (!hasInitRenderItem) {
-            Minecraft minecraft = Minecraft.getMinecraft();
-            uniformRenderItem = new RenderEntityItem(minecraft.getRenderManager(), minecraft.getRenderItem());
+            Minecraft minecraft = Minecraft.getInstance();
+            uniformRenderItem = new net.minecraft.client.renderer.entity.ItemRenderer(minecraft.getRenderManager(), minecraft.getItemRenderer());
             hasInitRenderItem = true;
         }
     }
@@ -105,7 +107,7 @@ public class RenderUtils {
         double interpPosY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * frame;
         double interpPosZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * frame;
 
-        GlStateManager.translate(-interpPosX, -interpPosY, -interpPosZ);
+        GlStateManager.translated(-interpPosX, -interpPosY, -interpPosZ);
     }
 
     /**
@@ -235,19 +237,16 @@ public class RenderUtils {
         }
     }
 
-    public static void renderHitBox(EntityPlayer player, Cuboid6 cuboid, float partialTicks) {
+    public static void renderHitBox(ActiveRenderInfo renderInfo, Cuboid6 cuboid) {
         GlStateManager.enableBlend();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.glLineWidth(2.0F);
-        GlStateManager.disableTexture2D();
+        GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        GlStateManager.lineWidth(2.0F);
+        GlStateManager.disableTexture();
         GlStateManager.depthMask(false);
-        double xPos = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) partialTicks;
-        double yPos = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) partialTicks;
-        double zPos = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) partialTicks;
-        GlStateManager.color(0.0F, 0.0F, 0.0F, 0.4F);
-        drawCuboidOutline(cuboid.copy().expand(0.0020000000949949026D).subtract(xPos, yPos, zPos));
+        GlStateManager.color4f(0.0F, 0.0F, 0.0F, 0.4F);
+        drawCuboidOutline(cuboid.copy().expand(0.0020000000949949026D).subtract(renderInfo.getProjectedView()));
         GlStateManager.depthMask(true);
-        GlStateManager.enableTexture2D();
+        GlStateManager.enableTexture();
         GlStateManager.disableBlend();
     }
 
@@ -258,7 +257,7 @@ public class RenderUtils {
      * @return Weather to render or not.
      */
     public static boolean shouldRenderFluid(FluidStack stack) {
-        return stack.amount > 0 && stack.getFluid() != null;
+        return stack.getAmount() > 0 && stack.getFluid() != null;
     }
 
     /**
@@ -269,8 +268,9 @@ public class RenderUtils {
      */
     public static TextureAtlasSprite prepareFluidRender(FluidStack stack, int alpha) {
         Fluid fluid = stack.getFluid();
-        CCRenderState.instance().colour = fluid.getColor(stack) << 8 | alpha;
-        return TextureUtils.getTexture(fluid.getStill());
+        FluidAttributes attributes = fluid.getAttributes();
+        CCRenderState.instance().colour = attributes.getColor(stack) << 8 | alpha;
+        return TextureUtils.getTexture(attributes.getStill(stack));
     }
 
     /**
@@ -313,7 +313,7 @@ public class RenderUtils {
         }
 
         int alpha = 255;
-        if (stack.getFluid().isGaseous()) {
+        if (stack.getFluid().getAttributes().isGaseous()) {
             alpha = (int) (fluidDensityToAlpha(density) * 255);
         } else {
             bound.max.y = bound.min.y + (bound.max.y - bound.min.y) * density;
@@ -345,7 +345,7 @@ public class RenderUtils {
         }
 
         int alpha = 255;
-        if (stack.getFluid().isGaseous()) {
+        if (stack.getFluid().getAttributes().isGaseous()) {
             alpha = (int) (fluidDensityToAlpha(density) * 255);
         } else {
             int height = (int) (rect.h * density);
@@ -388,18 +388,10 @@ public class RenderUtils {
     public static void renderItemUniform(ItemStack item, double spin) {
         loadItemRenderer();
 
-        GlStateManager.color(1, 1, 1, 1);
+        GlStateManager.color4f(1, 1, 1, 1);
 
         entityItem.setItem(item);
         uniformRenderItem.doRender(entityItem, 0, 0.06, 0, 0, (float) (spin * 9 / Math.PI));
-    }
-
-    /**
-     * Checks if stencil buffer is supported and attempts to enable it if so.
-     */
-    public static boolean checkEnableStencil() {
-        Framebuffer fb = Minecraft.getMinecraft().getFramebuffer();
-        return fb.isStencilEnabled() || fb.enableStencil();
     }
 
     public static float getPearlBob(double time) {

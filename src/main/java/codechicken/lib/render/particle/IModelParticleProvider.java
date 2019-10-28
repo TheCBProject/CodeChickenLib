@@ -1,12 +1,14 @@
 package codechicken.lib.render.particle;
 
 import codechicken.lib.texture.TextureUtils;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IEnviromentBlockReader;
+import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
@@ -30,7 +32,7 @@ public interface IModelParticleProvider extends IBakedModel {
      * @param pos         The pos.
      * @return A Set of Textures to use.
      */
-    Set<TextureAtlasSprite> getHitEffects(@Nonnull RayTraceResult traceResult, IBlockState state, IBlockAccess world, BlockPos pos);
+    Set<TextureAtlasSprite> getHitEffects(@Nonnull BlockRayTraceResult traceResult, BlockState state, IEnviromentBlockReader world, BlockPos pos, IModelData modelData);
 
     /**
      * Used to retrieve the destroy particles for the block.
@@ -40,6 +42,6 @@ public interface IModelParticleProvider extends IBakedModel {
      * @param pos   The pos.
      * @return A Set of Textures to use.
      */
-    Set<TextureAtlasSprite> getDestroyEffects(IBlockState state, IBlockAccess world, BlockPos pos);
+    Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IEnviromentBlockReader world, BlockPos pos);
 
 }

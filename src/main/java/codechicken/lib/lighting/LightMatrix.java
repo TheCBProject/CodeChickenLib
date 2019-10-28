@@ -3,10 +3,10 @@ package codechicken.lib.lighting;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IEnviromentBlockReader;
 
 /**
  * Note that when using the class as a vertex transformer, the vertices are assumed to be within the BB (x, y, z) -> (x+1, y+1, z+1)
@@ -19,8 +19,8 @@ public class LightMatrix implements IVertexOperation {
     public float[][] ao = new float[13][4];
     public int[][] brightness = new int[13][4];
 
-    public IBlockAccess access;
-    public BlockPos pos = BlockPos.ORIGIN;
+    public IEnviromentBlockReader access;
+    public BlockPos pos = BlockPos.ZERO;
 
     private int sampled = 0;
     private float[] aSamples = new float[27];
@@ -77,7 +77,7 @@ public class LightMatrix implements IVertexOperation {
         System.out.println(Arrays.deepToString(ssamplem));
     }*/
 
-    public void locate(IBlockAccess a, BlockPos bPos) {
+    public void locate(IEnviromentBlockReader a, BlockPos bPos) {
         access = a;
         pos = bPos;
         computed = 0;
@@ -87,9 +87,9 @@ public class LightMatrix implements IVertexOperation {
     public void sample(int i) {
         if ((sampled & 1 << i) == 0) {
             BlockPos bp = new BlockPos(pos.getX() + (i % 3) - 1, pos.getY() + (i / 9) - 1, pos.getZ() + (i / 3 % 3) - 1);
-            IBlockState b = access.getBlockState(bp);
+            BlockState b = access.getBlockState(bp);
             bSamples[i] = access.getCombinedLight(bp, b.getLightValue(access, bp));
-            aSamples[i] = b.getBlock().getAmbientOcclusionLightValue(b);
+            aSamples[i] = b.func_215703_d(access, bp);
             sampled |= 1 << i;
         }
     }

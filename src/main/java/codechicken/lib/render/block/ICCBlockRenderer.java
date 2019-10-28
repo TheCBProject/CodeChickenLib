@@ -1,19 +1,54 @@
 package codechicken.lib.render.block;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.fluid.IFluidState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.IEnviromentBlockReader;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.model.data.IModelData;
+
+import java.util.Random;
 
 /**
  * Created by covers1624 on 8/09/2016.
- * TODO, Some sort of automatic block breaking texture stuff.
  */
 public interface ICCBlockRenderer {
+
+    /**
+     * Called to evaluate weather this ICCBlockRenderer will be called for the specified BlockState.
+     *
+     * @param world      The world.
+     * @param pos        The pos.
+     * @param blockState The BlockState.
+     * @return If you wish to render the BlockState.
+     */
+    boolean canHandle(IEnviromentBlockReader world, BlockPos pos, BlockState blockState);
+
+    /**
+     * Called to evaluate weather this ICCBlockRenderer will be called to handle
+     * {@link #renderBrightness(BlockState, float)} for the given BlockState.
+     *
+     * @param state The state.
+     * @return If you wish to render this block.
+     */
+    default boolean canHandleBrightness(BlockState state) {
+        return false;
+    }
+
+    /**
+     * Called to evaluate weather this ICCBlockRenderer will be called for the specified IFluidState.
+     *
+     * @param world      The world.
+     * @param pos        The pos.
+     * @param fluidState The IFluidState.
+     * @return If you wish to render the IFluidState.
+     */
+    default boolean canHandle(IEnviromentBlockReader world, BlockPos pos, IFluidState fluidState) {
+        return false;
+    }
 
     /**
      * Exactly the same as {@link #renderBlock} Except you MUST use the provided sprite.
@@ -24,12 +59,13 @@ public interface ICCBlockRenderer {
      * @param sprite The overriden sprite.
      * @param buffer The buffer.
      */
-    @SideOnly (Side.CLIENT)
-    void handleRenderBlockDamage(IBlockAccess world, BlockPos pos, IBlockState state, TextureAtlasSprite sprite, BufferBuilder buffer);
+    @OnlyIn (Dist.CLIENT)
+    default void handleRenderBlockDamage(IEnviromentBlockReader world, BlockPos pos, BlockState state, TextureAtlasSprite sprite, BufferBuilder buffer) {
+    }
 
     /**
      * Called to render your block in world.
-     * You MUST use the provided VertexBuffer.
+     * You MUST use the provided BufferBuilder.
      * THE BUFFER IS ALREADY DRAWING!
      * YOU MAY BE FIRED ON THE CHUNK BATCHING THREAD!
      *
@@ -39,24 +75,34 @@ public interface ICCBlockRenderer {
      * @param buffer The buffer.
      * @return If quads were added.
      */
-    @SideOnly(Side.CLIENT)
-    boolean renderBlock(IBlockAccess world, BlockPos pos, IBlockState state, BufferBuilder buffer);
+    @OnlyIn (Dist.CLIENT)
+    boolean renderBlock(IEnviromentBlockReader world, BlockPos pos, BlockState state, BufferBuilder buffer, Random random, IModelData modelData);
 
     /**
-     * Only ever called for Golems holding things, so don't really bother with it.
+     * Called to render your fluid in world.
+     * You MUST use the provided BufferBuilder.
+     * THE BUFFER IS ALREADY DRAWING!
+     * YOU MAY BE FIRED ON THE CHUNK BATCHING THREAD!
+     *
+     * @param world      The world.
+     * @param pos        The pos.
+     * @param fluidState Your state.
+     * @param buffer     The Buffer.
+     * @return If quads were added.
+     */
+    @OnlyIn (Dist.CLIENT)
+    default boolean renderFluid(IEnviromentBlockReader world, BlockPos pos, IFluidState fluidState, BufferBuilder buffer) {
+        return false;
+    }
+
+    /**
+     * Called for misc entities holding or have blocks as part of their model.
+     * IronGolems, Enderman, Mooshroom, Minecarts, TNT.
      *
      * @param state      State.
      * @param brightness Brightness.
      */
-    @SideOnly(Side.CLIENT)
-    void renderBrightness(IBlockState state, float brightness);
-
-    /**
-     * Register your textures.
-     *
-     * @param map The map!
-     */
-    @SideOnly(Side.CLIENT)
-    @Deprecated //Implement IIconRegister
-    void registerTextures(TextureMap map);
+    @OnlyIn (Dist.CLIENT)
+    default void renderBrightness(BlockState state, float brightness) {
+    }
 }

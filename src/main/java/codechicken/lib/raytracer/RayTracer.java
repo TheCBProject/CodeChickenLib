@@ -3,16 +3,12 @@ package codechicken.lib.raytracer;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.*;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -180,75 +176,74 @@ public class RayTracer {
     public static CuboidRayTraceResult rayTrace(BlockPos pos, Vector3 start, Vector3 end, IndexedCuboid6 cuboid) {
         Vector3 startRay = start.copy().subtract(pos);
         Vector3 endRay = end.copy().subtract(pos);
-        RayTraceResult bbResult = cuboid.aabb().calculateIntercept(startRay.vec3(), endRay.vec3());
+        BlockRayTraceResult bbResult = AxisAlignedBB.rayTrace(Collections.singleton(cuboid.aabb()), startRay.vec3(), endRay.vec3(), pos);
 
         if (bbResult != null) {
-            Vector3 hitVec = new Vector3(bbResult.hitVec).add(pos);
-            EnumFacing sideHit = bbResult.sideHit;
+            Vector3 hitVec = new Vector3(bbResult.getHitVec()).add(pos);
+            Direction sideHit = bbResult.getFace();
             double dist = hitVec.copy().subtract(start).magSquared();
-            return new CuboidRayTraceResult(hitVec, pos, sideHit, cuboid, dist);
+            return new CuboidRayTraceResult(hitVec, sideHit, pos, bbResult.isInside(), cuboid, dist);
         }
         return null;
     }
 
-    public static RayTraceResult retraceBlock(World world, EntityPlayer player, BlockPos pos) {
-        Vec3d startVec = getStartVec(player);
-        Vec3d endVec = getEndVec(player);
-        return world.getBlockState(pos).collisionRayTrace(world, pos, startVec, endVec);
+    //    public static RayTraceResult retraceBlock(World world, PlayerEntity player, BlockPos pos) {
+    //        Vec3d startVec = getStartVec(player);
+    //        Vec3d endVec = getEndVec(player);
+    //        return world.getBlockState(pos).collisionRayTrace(world, pos, startVec, endVec);
+    //    }
+
+    private static double getBlockReachDistance_server(ServerPlayerEntity player) {
+        return player.getAttribute(PlayerEntity.REACH_DISTANCE).getValue();
     }
 
-    private static double getBlockReachDistance_server(EntityPlayerMP player) {
-        return player.interactionManager.getBlockReachDistance();
-    }
-
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     private static double getBlockReachDistance_client() {
-        return Minecraft.getMinecraft().playerController.getBlockReachDistance();
+        return Minecraft.getInstance().playerController.getBlockReachDistance();
     }
 
-    public static RayTraceResult retrace(EntityPlayer player) {
-        return retrace(player, getBlockReachDistance(player));
+    public static RayTraceResult rayTraceBlocks(PlayerEntity player, RayTraceContext.BlockMode blockMode) {
+        return rayTraceBlocks(player, getBlockReachDistance(player), blockMode, RayTraceContext.FluidMode.NONE);
     }
 
-    public static RayTraceResult retrace(EntityPlayer player, boolean stopOnFluid) {
-        Vec3d startVec = getStartVec(player);
-        Vec3d endVec = getEndVec(player);
-        return player.world.rayTraceBlocks(startVec, endVec, stopOnFluid, false, true);
+    public static RayTraceResult rayTraceBlocks(PlayerEntity player, RayTraceContext.BlockMode blockMode, RayTraceContext.FluidMode fluidMode) {
+        return rayTraceBlocks(player, getBlockReachDistance(player), blockMode, fluidMode);
     }
 
-    public static RayTraceResult retrace(EntityPlayer player, double reach, boolean stopOnFluids) {
+    public static RayTraceResult rayTraceBlocks(PlayerEntity player, double reach, RayTraceContext.BlockMode blockMode) {
+        return rayTraceBlocks(player, reach, blockMode, RayTraceContext.FluidMode.NONE);
+    }
+
+    public static RayTraceResult rayTraceBlocks(PlayerEntity player, double reach, RayTraceContext.BlockMode blockMode, RayTraceContext.FluidMode fluidMode) {
         Vec3d startVec = getStartVec(player);
         Vec3d endVec = getEndVec(player, reach);
-        return player.world.rayTraceBlocks(startVec, endVec, stopOnFluids, false, true);
+        return player.world.rayTraceBlocks(new RayTraceContext(startVec, endVec, blockMode, fluidMode, player));
     }
 
-    public static RayTraceResult retrace(EntityPlayer player, double reach) {
-        return retrace(player, reach, true);
-    }
-
-    public static Vec3d getCorrectedHeadVec(EntityPlayer player) {
+    public static Vec3d getCorrectedHeadVec(PlayerEntity player) {
         Vector3 v = Vector3.fromEntity(player).add(0, player.getEyeHeight(), 0);
         return v.vec3();
     }
 
-    public static Vec3d getStartVec(EntityPlayer player) {
+    public static Vec3d getStartVec(PlayerEntity player) {
         return getCorrectedHeadVec(player);
     }
 
-    public static double getBlockReachDistance(EntityPlayer player) {
-        return player.world.isRemote ? getBlockReachDistance_client() : player instanceof EntityPlayerMP ? getBlockReachDistance_server((EntityPlayerMP) player) : 5D;
+    @Deprecated // Use attribute directly? avoid all this nonsense.
+    public static double getBlockReachDistance(PlayerEntity player) {
+        return player.world.isRemote ? getBlockReachDistance_client() : player instanceof ServerPlayerEntity ? getBlockReachDistance_server((ServerPlayerEntity) player) : 5D;
     }
 
-    public static Vec3d getEndVec(EntityPlayer player) {
+    public static Vec3d getEndVec(PlayerEntity player) {
         Vec3d headVec = getCorrectedHeadVec(player);
         Vec3d lookVec = player.getLook(1.0F);
         double reach = getBlockReachDistance(player);
-        return headVec.addVector(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
+        return headVec.add(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
     }
 
-    public static Vec3d getEndVec(EntityPlayer player, double reach) {
+    public static Vec3d getEndVec(PlayerEntity player, double reach) {
         Vec3d headVec = getCorrectedHeadVec(player);
         Vec3d lookVec = player.getLook(1.0F);
-        return headVec.addVector(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
+        return headVec.add(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
     }
 }

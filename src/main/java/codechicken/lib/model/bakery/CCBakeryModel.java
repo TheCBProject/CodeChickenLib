@@ -2,25 +2,25 @@ package codechicken.lib.model.bakery;
 
 import codechicken.lib.render.particle.IModelParticleProvider;
 import codechicken.lib.texture.TextureUtils;
-import com.google.common.collect.ImmutableList;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.client.model.data.EmptyModelData;
+import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -31,13 +31,15 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
     public CCBakeryModel() {
     }
 
-    @Deprecated
-    public CCBakeryModel(String nope) {
+    @Override
+    public List<BakedQuad> getQuads(BlockState state, Direction side, Random rand) {
+        return getQuads(state, side, rand, EmptyModelData.INSTANCE);
     }
 
+    @Nonnull
     @Override
-    public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
-        return ModelBakery.getCachedModel((IExtendedBlockState) state).getQuads(state, side, rand);
+    public List<BakedQuad> getQuads(BlockState state, Direction side, Random rand, IModelData extraData) {
+        return ModelBakery.getCachedModel(state, extraData).getQuads(state, side, rand, extraData);
     }
 
     @Override
@@ -61,17 +63,18 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
     }
 
     @Override
-    public Set<TextureAtlasSprite> getHitEffects(@Nonnull RayTraceResult traceResult, IBlockState state, IBlockAccess world, BlockPos pos) {
-        IBakedModel model = ModelBakery.getCachedModel((IExtendedBlockState) state);
+    public Set<TextureAtlasSprite> getHitEffects(BlockRayTraceResult traceResult, BlockState state, IEnviromentBlockReader world, BlockPos pos, IModelData data) {
+        IBakedModel model = ModelBakery.getCachedModel(state, data);
         if (model instanceof IModelParticleProvider) {
-            return ((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos);
+            return ((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos, data);
         }
         return Collections.emptySet();
     }
 
     @Override
-    public Set<TextureAtlasSprite> getDestroyEffects(IBlockState state, IBlockAccess world, BlockPos pos) {
-        IBakedModel model = ModelBakery.getCachedModel((IExtendedBlockState) state);
+    public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IEnviromentBlockReader world, BlockPos pos) {
+        //TODO, Destroy may need IModelData
+        IBakedModel model = ModelBakery.getCachedModel(state, EmptyModelData.INSTANCE);
         if (model instanceof IModelParticleProvider) {
             return ((IModelParticleProvider) model).getDestroyEffects(state, world, pos);
         }
@@ -80,9 +83,9 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
 
     @Override
     public ItemOverrideList getOverrides() {
-        return new ItemOverrideList(ImmutableList.of()) {
+        return new ItemOverrideList() {
             @Override
-            public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, World world, EntityLivingBase entity) {
+            public IBakedModel getModelWithOverrides(IBakedModel originalModel, ItemStack stack, World world, LivingEntity entity) {
                 IBakedModel model = ModelBakery.getCachedItemModel(stack);
                 if (model == null) {
                     return originalModel;

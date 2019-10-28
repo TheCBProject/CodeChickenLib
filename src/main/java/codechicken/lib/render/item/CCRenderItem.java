@@ -1,51 +1,44 @@
 package codechicken.lib.render.item;
 
+import codechicken.lib.CodeChickenLib;
 import codechicken.lib.internal.CCLLog;
 import codechicken.lib.internal.ExceptionMessageEventHandler;
-import codechicken.lib.internal.proxy.ProxyClient;
 import codechicken.lib.reflect.ObfMapping;
 import codechicken.lib.reflect.ReflectionManager;
-import codechicken.lib.render.state.GlStateTracker;
-import codechicken.lib.util.LambdaUtils;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.block.model.ModelBakery;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.crash.ReportedException;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ReportedException;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.World;
-import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.client.ItemModelMesherForge;
-import net.minecraftforge.registries.IRegistryDelegate;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static codechicken.lib.util.LambdaUtils.*;
+import static codechicken.lib.util.LambdaUtils.tryOrNull;
 
 /**
  * Created by covers1624 on 17/10/2016.
  */
-public class CCRenderItem extends RenderItem {
+public class CCRenderItem extends ItemRenderer {
 
-    private final RenderItem parent;
+    private final ItemRenderer parent;
 
     private static CCRenderItem instance;
     private static boolean hasInit;
@@ -56,11 +49,6 @@ public class CCRenderItem extends RenderItem {
     //State fields.
     private TransformType lastKnownTransformType;
 
-    //Model lookup cache.
-    private static Map<IRegistryDelegate<Item>, Int2ObjectMap<ModelResourceLocation>> immf_locationsCache;
-    private static Map<IRegistryDelegate<Item>, Int2ObjectMap<IBakedModel>> immf_modelsCache;
-    private static Map<Item, ItemMeshDefinition> imm_shapersCache;
-
     public static long lastTime = 0L;
 
     static {
@@ -69,16 +57,19 @@ public class CCRenderItem extends RenderItem {
         flipX.m00 = -1;
     }
 
-    public CCRenderItem(RenderItem renderItem) {
+    public CCRenderItem(ItemRenderer renderItem) {
         super(renderItem.textureManager, renderItem.itemModelMesher.getModelManager(), renderItem.itemColors);
         this.parent = renderItem;
+        //Force set these to what our parent had.
+        this.itemModelMesher = renderItem.itemModelMesher;
+        this.textureManager = renderItem.textureManager;
+        this.itemColors = renderItem.itemColors;
     }
 
     public static void init() {
         if (!hasInit) {
-            instance = new CCRenderItem(Minecraft.getMinecraft().getRenderItem());
-            ObfMapping mapping = new ObfMapping("net/minecraft/client/Minecraft", "field_175621_X", "");
-            ReflectionManager.setField(mapping, Minecraft.getMinecraft(), instance);
+            instance = new CCRenderItem(Minecraft.getInstance().getItemRenderer());
+            Minecraft.getInstance().itemRenderer = instance;
             hasInit = true;
         }
     }
@@ -88,57 +79,13 @@ public class CCRenderItem extends RenderItem {
      *
      * @return The current RenderItem.
      */
-    public static RenderItem getOverridenRenderItem() {
+    public static ItemRenderer getOverridenItemRender() {
         init();
-        return Minecraft.getMinecraft().getRenderItem();
+        return Minecraft.getInstance().getItemRenderer();
     }
 
     public static void notifyTransform(TransformType transformType) {
         instance.lastKnownTransformType = transformType;
-    }
-
-    //TODO 1.13
-    //Until https://github.com/MinecraftForge/MinecraftForge/pull/5017 is merged.
-    public static ModelResourceLocation getModelForStack(ItemStack stack) {
-        pullCache();
-        Item item = stack.getItem();
-        if (stack.isEmpty() || item == null) {
-            return ModelBakery.MODEL_MISSING;
-        }
-        ModelResourceLocation loc = null;
-        if (immf_modelsCache.containsKey(item.delegate)) {
-            loc = immf_locationsCache.get(item.delegate).get(stack.getMaxDamage() > 0 ? 0 : stack.getMetadata());
-        } else {
-            ItemMeshDefinition mesher = imm_shapersCache.get(item);
-            if (mesher != null) {
-                loc = mesher.getModelLocation(stack);
-            }
-        }
-        if (loc == null) {
-            loc = ModelBakery.MODEL_MISSING;
-        }
-        return loc;
-    }
-
-    @SuppressWarnings ("unchecked")
-    private static void pullCache() {
-        try {
-            if (immf_locationsCache == null || immf_modelsCache == null || imm_shapersCache == null) {
-                RenderItem renderItem = getOverridenRenderItem();
-                ItemModelMesher mesher = renderItem.getItemModelMesher();
-                String cls = ItemModelMesherForge.class.getName().replace(".", "/");
-                String cls2 = ItemModelMesher.class.getName().replace(".", "/");
-                ObfMapping locationsMapping = new ObfMapping(cls, "locations", "Ljava/util/Map;");
-                ObfMapping modelsMapping = new ObfMapping(cls, "locations", "Ljava/util/Map;");
-                ObfMapping shapersField = new ObfMapping(cls2, "field_178092_c", "Ljava/util/Map;");
-                immf_locationsCache = ReflectionManager.getField(locationsMapping, mesher, Map.class);
-                immf_modelsCache = ReflectionManager.getField(modelsMapping, mesher, Map.class);
-                imm_shapersCache = ReflectionManager.getField(shapersField, mesher, Map.class);
-            }
-        } catch (Exception e) {
-            CCLLog.log(Level.ERROR, e, "Unable to pull cache.");
-            throw new RuntimeException("Unable to update cache, see log.");
-        }
     }
 
     @SuppressWarnings ("Convert2MethodRef")//Suppress these, the lambdas need to be synthetic functions instead of a method reference.
@@ -148,14 +95,14 @@ public class CCRenderItem extends RenderItem {
         StringBuilder builder = new StringBuilder("\nCCL Has caught an exception whilst rendering an item.\n");
         builder.append("  Item Class:     ").append(tryOrNull(() -> item.getClass())).append("\n");
         builder.append("  Registry Name:  ").append(tryOrNull(() -> item.getRegistryName())).append("\n");
-        builder.append("  Metadata:       ").append(stack.getMetadata()).append("\n");
-        builder.append("  NBT:            ").append(tryOrNull(() -> stack.getTagCompound())).append("\n");
+        builder.append("  Damage:         ").append(stack.getDamage()).append("\n");
+        builder.append("  NBT:            ").append(tryOrNull(() -> stack.getTag())).append("\n");
         builder.append("  Model Class:    ").append(tryOrNull(() -> itemModelMesher.getItemModel(stack).getClass())).append("\n");
-        builder.append("  Model Location: ").append(getModelForStack(stack)).append("\n");
-        if (ProxyClient.messagePlayerOnRenderExceptionCaught) {
+        builder.append("  Model Location: ").append(((ItemModelMesherForge) itemModelMesher).getLocation(stack)).append("\n");
+        if (CodeChickenLib.messagePlayerOnRenderExceptionCaught) {
             builder.append("You can turn off player messages in the CCL config file.\n");
         }
-        if (ProxyClient.attemptRecoveryOnItemRenderException) {
+        if (CodeChickenLib.attemptRecoveryOnItemRenderException) {
             builder.append("WARNING: Exception recovery enabled! This may cause issues down the line!\n");
             BufferBuilder vanillaBuffer = Tessellator.getInstance().getBuffer();
             if (vanillaBuffer.isDrawing) {
@@ -167,12 +114,12 @@ public class CCRenderItem extends RenderItem {
                 ExceptionMessageEventHandler.exceptionMessageCache.add(key);
                 CCLLog.log(Level.ERROR, t, logMessage);
             }
-            EntityPlayer player = Minecraft.getMinecraft().player;
-            if (ProxyClient.messagePlayerOnRenderExceptionCaught && player != null) {
+            PlayerEntity player = Minecraft.getInstance().player;
+            if (CodeChickenLib.messagePlayerOnRenderExceptionCaught && player != null) {
                 long time = System.nanoTime();
                 if (TimeUnit.NANOSECONDS.toSeconds(time - lastTime) > 5) {
                     lastTime = time;
-                    player.sendMessage(new TextComponentString("CCL Caught an exception rendering an item. See the log for info."));
+                    player.sendMessage(new StringTextComponent("CCL Caught an exception rendering an item. See the log for info."));
                 }
             }
             int matrixDepth = GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH);
@@ -182,13 +129,15 @@ public class CCRenderItem extends RenderItem {
                 }
             }
         } else {
+            //TODO, Rework this exception throwing to make it a little less cancer when we catch a ReportedException.
             builder.append("If you want CCL to attempt to recover the game next time, enable it in the CCL config.\n");
             String logMessage = builder.toString();
             CrashReport crashReport = CrashReport.makeCrashReport(t, logMessage);
             CrashReportCategory category = crashReport.makeCategory("Item being rendered");
-            category.addDetail("Item Type", () -> String.valueOf(stack.getItem()));
-            category.addDetail("Item Aux", () -> String.valueOf(stack.getMetadata()));
-            category.addDetail("Item NBT", () -> String.valueOf(stack.getTagCompound()));
+            category.addDetail("Item Type", () -> String.valueOf(item.getItem()));
+            category.addDetail("Registry Name", () -> String.valueOf(item.getItem().getRegistryName()));
+            category.addDetail("Item Damage", () -> String.valueOf(stack.getDamage()));
+            category.addDetail("Item NBT", () -> String.valueOf(stack.getTag()));
             category.addDetail("Item Foil", () -> String.valueOf(stack.hasEffect()));
             throw new ReportedException(crashReport);
         }
@@ -199,13 +148,11 @@ public class CCRenderItem extends RenderItem {
         if (!stack.isEmpty() && model instanceof IItemRenderer) {
             IItemRenderer renderer = (IItemRenderer) model;
             GlStateManager.pushMatrix();
-            GlStateManager.translate(-0.5F, -0.5F, -0.5F);
+            GlStateManager.translatef(-0.5F, -0.5F, -0.5F);
 
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
             GlStateManager.enableRescaleNormal();
-            GlStateTracker.pushState();
             renderer.renderItem(stack, lastKnownTransformType);
-            GlStateTracker.popState();
             GlStateManager.popMatrix();
             return;
 
@@ -213,103 +160,74 @@ public class CCRenderItem extends RenderItem {
         parent.renderItem(stack, model);
     }
 
-    private IBakedModel handleTransforms(ItemStack stack, IBakedModel model, TransformType transformType, boolean isLeftHand) {
-        lastKnownTransformType = transformType;
-        return ForgeHooksClient.handleCameraTransforms(model, transformType, isLeftHand);
-    }
-
     private boolean isValidModel(IBakedModel model) {
         return model instanceof IItemRenderer;
     }
 
     @Override
-    public void renderItemModel(ItemStack stack, IBakedModel bakedModel, TransformType transform, boolean leftHanded) {
-        if (!stack.isEmpty()) {
-            if (isValidModel(bakedModel)) {
-                this.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-                this.textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                GlStateManager.enableRescaleNormal();
-                GlStateManager.alphaFunc(516, 0.1F);
-                GlStateManager.enableBlend();
-                GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                GlStateManager.pushMatrix();
-
-                bakedModel = handleTransforms(stack, bakedModel, transform, leftHanded);
-
-                this.renderItem(stack, bakedModel);
-                GlStateManager.cullFace(GlStateManager.CullFace.BACK);
-                GlStateManager.popMatrix();
-                GlStateManager.disableRescaleNormal();
-                GlStateManager.disableBlend();
-                this.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-                this.textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
-            } else {
-                parent.zLevel = this.zLevel;
-                parent.renderItemModel(stack, bakedModel, transform, leftHanded);
-            }
-        }
+    public boolean shouldRenderItemIn3D(ItemStack stack) {
+        return parent.shouldRenderItemIn3D(stack);
     }
-
-    @Override
-    public void renderItemModelIntoGUI(ItemStack stack, int x, int y, IBakedModel bakedModel) {
-        if (isValidModel(bakedModel)) {
-            GlStateManager.pushMatrix();
-            this.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-            this.textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-            GlStateManager.enableRescaleNormal();
-            GlStateManager.enableAlpha();
-            GlStateManager.alphaFunc(516, 0.1F);
-            GlStateManager.enableBlend();
-            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-            this.setupGuiTransform(x, y, bakedModel.isGui3d());
-
-            bakedModel = handleTransforms(stack, bakedModel, ItemCameraTransforms.TransformType.GUI, false);
-
-            this.renderItem(stack, bakedModel);
-            GlStateManager.disableAlpha();
-            GlStateManager.disableRescaleNormal();
-            GlStateManager.disableLighting();
-            GlStateManager.popMatrix();
-            this.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-            this.textureManager.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
-        } else {
-            parent.zLevel = this.zLevel;
-            parent.renderItemModelIntoGUI(stack, x, y, bakedModel);
-        }
-    }
-
-    // region Other Overrides
 
     @Override
     public void renderItem(ItemStack stack, TransformType cameraTransformType) {
         if (!stack.isEmpty()) {
-            IBakedModel bakedModel = this.getItemModelWithOverrides(stack, null, null);
+            IBakedModel bakedModel = this.getModelWithOverrides(stack);
             if (isValidModel(bakedModel)) {
                 this.renderItemModel(stack, bakedModel, cameraTransformType, false);
+            } else {
+                parent.zLevel = this.zLevel;
+                parent.renderItem(stack, cameraTransformType);
             }
-            parent.zLevel = this.zLevel;
-            parent.renderItem(stack, cameraTransformType);
         }
     }
 
     @Override
-    public void renderItem(ItemStack stack, EntityLivingBase livingBase, TransformType transform, boolean leftHanded) {
-        if (!stack.isEmpty() && livingBase != null) {
-            IBakedModel bakedModel = this.getItemModelWithOverrides(stack, livingBase.world, livingBase);
-            if (isValidModel(bakedModel)) {
-                this.renderItemModel(stack, bakedModel, transform, leftHanded);
+    public void renderItem(ItemStack stack, LivingEntity entitylivingbaseIn, TransformType transform, boolean leftHanded) {
+        if (!stack.isEmpty() && entitylivingbaseIn != null) {
+            IBakedModel ibakedmodel = this.getModelWithOverrides(stack, entitylivingbaseIn.world, entitylivingbaseIn);
+            if (isValidModel(ibakedmodel)) {
+                this.renderItemModel(stack, ibakedmodel, transform, leftHanded);
+            } else {
+                parent.zLevel = zLevel;
+                parent.renderItem(stack, entitylivingbaseIn, transform, leftHanded);
+            }
+        }
+    }
+
+    @Override
+    public void renderItemModel(ItemStack stack, IBakedModel bakedmodel, TransformType transform, boolean leftHanded) {
+        if (!stack.isEmpty()) {
+            if (isValidModel(bakedmodel)) {
+                this.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+                this.textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+                GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+                GlStateManager.enableRescaleNormal();
+                GlStateManager.alphaFunc(516, 0.1F);
+                GlStateManager.enableBlend();
+                GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+                GlStateManager.pushMatrix();
+
+                notifyTransform(transform);//CCL: Add notify.
+                bakedmodel = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(bakedmodel, transform, leftHanded);
+
+                this.renderItem(stack, bakedmodel);
+                GlStateManager.cullFace(GlStateManager.CullFace.BACK);
+                GlStateManager.popMatrix();
+                GlStateManager.disableRescaleNormal();
+                GlStateManager.disableBlend();
+                this.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+                this.textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
             } else {
                 parent.zLevel = this.zLevel;
-                parent.renderItem(stack, livingBase, transform, leftHanded);
+                parent.renderItemModel(stack, bakedmodel, transform, leftHanded);
             }
         }
     }
 
     @Override
     public void renderItemIntoGUI(ItemStack stack, int x, int y) {
-        IBakedModel bakedModel = this.getItemModelWithOverrides(stack, null, null);
+        IBakedModel bakedModel = this.getModelWithOverrides(stack);
         if (isValidModel(bakedModel)) {
             this.renderItemModelIntoGUI(stack, x, y, bakedModel);
         } else {
@@ -319,19 +237,47 @@ public class CCRenderItem extends RenderItem {
     }
 
     @Override
-    public void renderItemAndEffectIntoGUI(ItemStack stack, int xPosition, int yPosition) {
-        this.renderItemAndEffectIntoGUI(Minecraft.getMinecraft().player, stack, xPosition, yPosition);
+    public void renderItemModelIntoGUI(ItemStack stack, int x, int y, IBakedModel bakedmodel) {
+        if (isValidModel(bakedmodel)) {
+            GlStateManager.pushMatrix();
+            this.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+            this.textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+            GlStateManager.enableRescaleNormal();
+            GlStateManager.enableAlphaTest();
+            GlStateManager.alphaFunc(516, 0.1F);
+            GlStateManager.enableBlend();
+            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+            GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            this.setupGuiTransform(x, y, bakedmodel.isGui3d());
+            notifyTransform(lastKnownTransformType);
+            bakedmodel = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(bakedmodel, ItemCameraTransforms.TransformType.GUI, false);
+            this.renderItem(stack, bakedmodel);
+            GlStateManager.disableAlphaTest();
+            GlStateManager.disableRescaleNormal();
+            GlStateManager.disableLighting();
+            GlStateManager.popMatrix();
+            this.textureManager.bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+            this.textureManager.getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+        } else {
+            parent.zLevel = this.zLevel;
+            parent.renderItemModelIntoGUI(stack, x, y, bakedmodel);
+        }
     }
 
     @Override
-    public void renderItemAndEffectIntoGUI(@Nullable EntityLivingBase livingBase, final ItemStack stack, int x, int y) {
+    public void renderItemAndEffectIntoGUI(ItemStack stack, int xPosition, int yPosition) {
+        this.renderItemAndEffectIntoGUI(Minecraft.getInstance().player, stack, xPosition, yPosition);
+    }
+
+    @Override
+    public void renderItemAndEffectIntoGUI(@Nullable LivingEntity entityIn, final ItemStack stack, int x, int y) {
         if (!stack.isEmpty()) {
             int matrixDepth = -1;
-            if (ProxyClient.attemptRecoveryOnItemRenderException) {
+            if (CodeChickenLib.attemptRecoveryOnItemRenderException) {
                 matrixDepth = GL11.glGetInteger(GL11.GL_MODELVIEW_STACK_DEPTH);
             }
             try {
-                IBakedModel model = getItemModelWithOverrides(stack, null, livingBase);
+                IBakedModel model = getItemModelWithOverrides(stack, null, entityIn);
                 if (isValidModel(model)) {
                     this.zLevel += 50.0F;
                     this.renderItemModelIntoGUI(stack, x, y, model);
@@ -339,23 +285,24 @@ public class CCRenderItem extends RenderItem {
                     return;
                 }
             } catch (Throwable throwable) {
-                if (ProxyClient.catchItemRenderExceptions) {
+                if (CodeChickenLib.catchItemRenderExceptions) {
                     handleCaughtException(matrixDepth, throwable, stack);
                     return;
                 }
                 CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Rendering IItemRenderer item");
                 CrashReportCategory crashreportcategory = crashreport.makeCategory("Item being rendered");
                 crashreportcategory.addDetail("Item Type", () -> String.valueOf(stack.getItem()));
-                crashreportcategory.addDetail("Item Aux", () -> String.valueOf(stack.getMetadata()));
-                crashreportcategory.addDetail("Item NBT", () -> String.valueOf(stack.getTagCompound()));
+                crashreportcategory.addDetail("Item Damage", () -> String.valueOf(stack.getDamage()));
+                crashreportcategory.addDetail("Item NBT", () -> String.valueOf(stack.getTag()));
                 crashreportcategory.addDetail("Item Foil", () -> String.valueOf(stack.hasEffect()));
                 throw new ReportedException(crashreport);
             }
             try {
                 parent.zLevel = zLevel;
-                parent.renderItemAndEffectIntoGUI(livingBase, stack, x, y);
+                parent.renderItemAndEffectIntoGUI(entityIn, stack, x, y);
+                zLevel = parent.zLevel;
             } catch (Throwable t) {
-                if (ProxyClient.catchItemRenderExceptions) {
+                if (CodeChickenLib.catchItemRenderExceptions) {
                     handleCaughtException(matrixDepth, t, stack);
                     return;
                 }
@@ -363,40 +310,4 @@ public class CCRenderItem extends RenderItem {
             }
         }
     }
-
-    // endregion
-
-    // region parentOverrides
-    @Override
-    public void registerItems() {
-        //We don't want to register any more items as we are just a wrapper.
-    }
-
-    @Override
-    public void registerItem(Item item, int subType, String identifier) {
-        //Pass this through because why not.
-        parent.registerItem(item, subType, identifier);
-    }
-
-    @Override
-    public ItemModelMesher getItemModelMesher() {
-        return parent.getItemModelMesher();
-    }
-
-    @Override
-    public boolean shouldRenderItemIn3D(ItemStack stack) {
-        return parent.shouldRenderItemIn3D(stack);
-    }
-
-    @Override
-    public IBakedModel getItemModelWithOverrides(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entitylivingbaseIn) {
-        return parent.getItemModelWithOverrides(stack, worldIn, entitylivingbaseIn);
-    }
-
-    @Override
-    public void onResourceManagerReload(IResourceManager resourceManager) {
-        parent.onResourceManagerReload(resourceManager);
-    }
-
-    //endregion
 }

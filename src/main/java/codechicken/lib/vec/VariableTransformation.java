@@ -1,7 +1,7 @@
 package codechicken.lib.vec;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class VariableTransformation extends Transformation {
 
@@ -22,7 +22,7 @@ public abstract class VariableTransformation extends Transformation {
     }
 
     @Override
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public void glApply() {
         mat.glApply();
     }

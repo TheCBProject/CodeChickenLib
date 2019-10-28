@@ -1,33 +1,25 @@
 package codechicken.lib.raytracer;
 
 import codechicken.lib.vec.Vector3;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.Vec3d;
 
 //TODO Copyable.
-public class DistanceRayTraceResult extends RayTraceResult implements Comparable<DistanceRayTraceResult> {
+public class DistanceRayTraceResult extends BlockRayTraceResult implements Comparable<DistanceRayTraceResult> {
 
     /**
      * The square distance from the start of the raytrace.
      */
     public double dist;
 
-    public DistanceRayTraceResult(Entity entity, Vector3 hit, Object data, double dist) {
-        super(entity, hit.vec3());
-        setData(data);
-        this.dist = dist;
+    public DistanceRayTraceResult(Vector3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, Object data, double dist) {
+        this(false, hitVec.vec3(), faceIn, posIn, isInside, data, dist);
     }
 
-    public DistanceRayTraceResult(Vector3 hit, EnumFacing side, Object data, double dist) {
-        super(hit.vec3(), side);
-        this.dist = dist;
-        setData(data);
-    }
-
-    public DistanceRayTraceResult(Vector3 hit, BlockPos pos, EnumFacing side, Object data, double dist) {
-        super(hit.vec3(), side, pos);
+    protected DistanceRayTraceResult(boolean isMissIn, Vec3d hitVec, Direction faceIn, BlockPos posIn, boolean isInside, Object data, double dist) {
+        super(isMissIn, hitVec, faceIn, posIn, isInside);
         setData(data);
         this.dist = dist;
     }
@@ -39,13 +31,18 @@ public class DistanceRayTraceResult extends RayTraceResult implements Comparable
         hitInfo = data;
     }
 
+    @Override
+    public DistanceRayTraceResult withFace(Direction newFace) {
+        return new DistanceRayTraceResult(getType() == Type.MISS, getHitVec(), getFace(), getPos(), isInside(), hitInfo, dist);
+    }
+
     public void offsetHit(BlockPos pos) {
-        hitVec = hitVec.addVector(pos.getX(), pos.getY(), pos.getZ());
+        hitResult = hitResult.add(pos.getX(), pos.getY(), pos.getZ());
     }
 
     @Override
     public int compareTo(DistanceRayTraceResult o) {
-        return dist == o.dist ? 0 : dist < o.dist ? -1 : 1;
+        return Double.compare(dist, o.dist);
     }
 
     @Override

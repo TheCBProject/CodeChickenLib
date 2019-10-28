@@ -1,7 +1,7 @@
 package codechicken.lib.util;
 
 import codechicken.lib.vec.Vector3;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 /**
  * Created by covers1624 on 4/10/2016.
@@ -54,24 +54,24 @@ public class VectorUtils {
      * @param normal The normal to calculate from.
      * @return The direction the normal is facing.
      */
-    public static EnumFacing calcNormalSide(Vector3 normal) {
+    public static Direction calcNormalSide(Vector3 normal) {
         if (normal.y <= -0.99) {
-            return EnumFacing.DOWN;
+            return Direction.DOWN;
         }
         if (normal.y >= 0.99) {
-            return EnumFacing.UP;
+            return Direction.UP;
         }
         if (normal.z <= -0.99) {
-            return EnumFacing.NORTH;
+            return Direction.NORTH;
         }
         if (normal.z >= 0.99) {
-            return EnumFacing.SOUTH;
+            return Direction.SOUTH;
         }
         if (normal.x <= -0.99) {
-            return EnumFacing.WEST;
+            return Direction.WEST;
         }
         if (normal.x >= 0.99) {
-            return EnumFacing.EAST;
+            return Direction.EAST;
         }
         return null;
     }

@@ -1,22 +1,22 @@
 package codechicken.lib.render.item;
 
 import codechicken.lib.texture.TextureUtils;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.common.model.IModelState;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * GL ItemRendering!
@@ -57,7 +57,7 @@ public interface IItemRenderer extends IBakedModel {
     IModelState getTransforms();
 
     @Override
-    default List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
+    default List<BakedQuad> getQuads(BlockState state, Direction side, Random rand) {
         return Collections.emptyList();
     }
 
@@ -73,6 +73,6 @@ public interface IItemRenderer extends IBakedModel {
 
     @Override
     default ItemOverrideList getOverrides() {
-        return ItemOverrideList.NONE;
+        return ItemOverrideList.EMPTY;
     }
 }

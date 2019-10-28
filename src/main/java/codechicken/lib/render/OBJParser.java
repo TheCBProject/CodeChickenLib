@@ -5,7 +5,7 @@ import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.uv.UV;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.IResource;
+import net.minecraft.resources.IResource;
 import net.minecraft.util.ResourceLocation;
 
 import java.io.*;
@@ -61,7 +61,7 @@ public class OBJParser {
      * @return A map of group names to models
      */
     public static Map<String, CCModel> parseModels(ResourceLocation res, int vertexMode, Transformation coordSystem) {
-        try (IResource resource = Minecraft.getMinecraft().getResourceManager().getResource(res)) {
+        try (IResource resource = Minecraft.getInstance().getResourceManager().getResource(res)) {
             return parseModels(resource.getInputStream(), vertexMode, coordSystem);
         } catch (Exception e) {
             throw new RuntimeException("failed to load model: " + res, e);

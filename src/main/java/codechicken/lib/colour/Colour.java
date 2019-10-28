@@ -3,9 +3,9 @@ package codechicken.lib.colour;
 import codechicken.lib.config.ConfigTag.IConfigType;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,14 +55,14 @@ public abstract class Colour implements Copyable<Colour> {
         a = colour.a;
     }
 
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public void glColour() {
-        GlStateManager.color((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, (a & 0xFF) / 255F);
+        GlStateManager.color4f((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, (a & 0xFF) / 255F);
     }
 
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public void glColour(int a) {
-        GlStateManager.color((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, a / 255F);
+        GlStateManager.color4f((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, a / 255F);
     }
 
     public abstract int pack();
@@ -219,7 +219,7 @@ public abstract class Colour implements Copyable<Colour> {
         float g = ((colour >> 16) & 0xFF) / 255F;
         float b = ((colour >> 8) & 0xFF) / 255F;
         float a = (colour & 0xFF) / 255F;
-        GlStateManager.color(r, g, b, a);
+        GlStateManager.color4f(r, g, b, a);
     }
 
     public static void glColourARGB(int colour) {
@@ -227,7 +227,7 @@ public abstract class Colour implements Copyable<Colour> {
         float g = ((colour >> 8) & 0xFF) / 255F;
         float b = (colour & 0xFF) / 255F;
         float a = ((colour >> 24 & 0xFF)) / 255F;
-        GlStateManager.color(r, g, b, a);
+        GlStateManager.color4f(r, g, b, a);
     }
 
     public boolean equals(Colour colour) {

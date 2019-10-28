@@ -1,9 +1,9 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.util.Copyable;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Matrix4f;
@@ -556,7 +556,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     @Override
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public void glApply() {
         glBuf.put((float) m00).put((float) m10).put((float) m20).put((float) m30).put((float) m01).put((float) m11).put((float) m21).put((float) m31).put((float) m02).put((float) m12).put((float) m22).put((float) m32).put((float) m03).put((float) m13).put((float) m23).put((float) m33);
         glBuf.flip();

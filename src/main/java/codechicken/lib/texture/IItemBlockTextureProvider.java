@@ -2,7 +2,7 @@ package codechicken.lib.texture;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 /**
  * Created by covers1624 on 30/10/2016.
@@ -10,6 +10,6 @@ import net.minecraft.util.EnumFacing;
  */
 public interface IItemBlockTextureProvider {
 
-    TextureAtlasSprite getTexture(EnumFacing side, ItemStack stack);
+    TextureAtlasSprite getTexture(Direction side, ItemStack stack);
 
 }

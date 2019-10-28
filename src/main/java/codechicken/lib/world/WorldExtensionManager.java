@@ -1,21 +1,27 @@
 package codechicken.lib.world;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.dimension.Dimension;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent.UnWatch;
 import net.minecraftforge.event.world.ChunkWatchEvent.Watch;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class WorldExtensionManager {
 
@@ -40,7 +46,8 @@ public class WorldExtensionManager {
                 extension.saveChunkData(event.getChunk(), event.getData());
             }
 
-            if (!event.getChunk().isLoaded()) {
+            ChunkPos pos = event.getChunk().getPos();
+            if (!event.getWorld().chunkExists(pos.x, pos.z)) {
                 removeChunk(event.getWorld(), event.getChunk());
             }
         }
@@ -60,14 +67,11 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkUnLoad(ChunkEvent.Unload event) {
-            if (event.getChunk().isEmpty()) {
-                return;
-            }
             for (WorldExtension extension : getExtensions(event.getWorld())) {
                 extension.unloadChunk(event.getChunk());
             }
 
-            if (event.getWorld().isRemote) {
+            if (event.getWorld().isRemote()) {
                 removeChunk(event.getWorld(), event.getChunk());
             }
         }
@@ -92,7 +96,7 @@ public class WorldExtensionManager {
         public void onWorldUnLoad(WorldEvent.Unload event) {
             if (hasExtensions(event.getWorld()))//because force closing unloads a world twice
             {
-                for (WorldExtension extension : worldMap.remove(event.getWorld().provider.getDimension())) {
+                for (WorldExtension extension : worldMap.remove(event.getWorld().getDimension().getType())) {
                     extension.unload();
                 }
             }
@@ -100,25 +104,25 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkWatch(Watch event) {
-            Chunk chunk = event.getPlayer().world.getChunkFromChunkCoords(event.getChunk().x, event.getChunk().z);
+            Chunk chunk = event.getPlayer().world.getChunk(event.getPos().x, event.getPos().z);
             for (WorldExtension extension : getExtensions(event.getPlayer().world)) {
                 extension.watchChunk(chunk, event.getPlayer());
             }
         }
 
         @SubscribeEvent
-        @SideOnly (Side.CLIENT)
+        @OnlyIn (Dist.CLIENT)
         public void onChunkUnWatch(UnWatch event) {
-            Chunk chunk = event.getPlayer().world.getChunkFromChunkCoords(event.getChunk().x, event.getChunk().z);
+            Chunk chunk = event.getPlayer().world.getChunk(event.getPos().x, event.getPos().z);
             for (WorldExtension extension : getExtensions(event.getPlayer().world)) {
                 extension.unwatchChunk(chunk, event.getPlayer());
             }
         }
 
         @SubscribeEvent
-        @SideOnly (Side.CLIENT)
+        @OnlyIn (Dist.CLIENT)
         public void clientTick(TickEvent.ClientTickEvent event) {
-            World world = Minecraft.getMinecraft().world;
+            World world = Minecraft.getInstance().world;
             if (hasExtensions(world)) {
                 if (event.phase == TickEvent.Phase.START) {
                     preTick(world);
@@ -159,13 +163,13 @@ public class WorldExtensionManager {
         MinecraftForge.EVENT_BUS.register(new WorldExtensionEventHandler());
     }
 
-    private static HashMap<Integer, WorldExtension[]> worldMap = new HashMap<>();
+    private static Map<DimensionType, WorldExtension[]> worldMap = new HashMap<>();
     private static final WorldExtension[] empty = new WorldExtension[0];
 
-    private static WorldExtension[] getExtensions(World world) {
+    private static WorldExtension[] getExtensions(IWorld world) {
         if (world != null) {
             if (hasExtensions(world)) {
-                return worldMap.get(world.provider.getDimension());
+                return worldMap.get(world.getDimension().getType());
             }
         }
         return empty;
@@ -175,24 +179,24 @@ public class WorldExtensionManager {
         return getExtensions(world)[instantiatorID];
     }
 
-    private static boolean hasExtensions(World world) {
-        return world == null || worldMap.containsKey(world.provider.getDimension());
+    private static boolean hasExtensions(IWorld world) {
+        return world == null || worldMap.containsKey(world.getDimension().getType());
     }
 
-    private static void onWorldLoad(World world) {
+    private static void onWorldLoad(IWorld world) {
         WorldExtension[] extensions = new WorldExtension[extensionIntialisers.size()];
         for (int i = 0; i < extensions.length; i++) {
             extensions[i] = extensionIntialisers.get(i).createWorldExtension(world);
         }
 
-        worldMap.put(world.provider.getDimension(), extensions);
+        worldMap.put(world.getDimension().getType(), extensions);
 
         for (WorldExtension extension : extensions) {
             extension.load();
         }
     }
 
-    private static void createChunkExtension(World world, Chunk chunk) {
+    private static void createChunkExtension(IWorld world, IChunk chunk) {
         WorldExtension[] extensions = getExtensions(world);
         for (int i = 0; i < extensionIntialisers.size(); i++) {
             if (!extensions[i].containsChunk(chunk)) {
@@ -201,19 +205,19 @@ public class WorldExtensionManager {
         }
     }
 
-    private static void removeChunk(World world, Chunk chunk) {
+    private static void removeChunk(IWorld world, IChunk chunk) {
         for (WorldExtension extension : getExtensions(world)) {
             extension.remChunk(chunk);
         }
     }
 
-    private static void preTick(World world) {
+    private static void preTick(IWorld world) {
         for (WorldExtension extension : getExtensions(world)) {
             extension.preTick();
         }
     }
 
-    private static void postTick(World world) {
+    private static void postTick(IWorld world) {
         for (WorldExtension extension : getExtensions(world)) {
             extension.postTick();
         }

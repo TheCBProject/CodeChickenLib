@@ -1,10 +1,8 @@
 package codechicken.lib.colour;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.text.translation.I18n;
-import net.minecraftforge.oredict.OreDictionary;
 import org.apache.commons.lang3.tuple.Triple;
 
 /**
@@ -66,7 +64,7 @@ public enum EnumColour implements IStringSerializable {
     }
 
     public String getLocalizedName() {
-        return I18n.translateToLocal(getUnlocalizedName());
+        return I18n.format(getUnlocalizedName());
     }
 
     public int getWoolMeta() {
@@ -161,25 +159,25 @@ public enum EnumColour implements IStringSerializable {
         return null;
     }
 
-    public static EnumColour fromDyeStack(ItemStack stack) {
-        for (int id : OreDictionary.getOreIDs(stack)) {
-            EnumColour c = fromDyeOre(OreDictionary.getOreName(id));
-            if (c != null) {
-                return c;
-            }
-        }
-        return null;
-    }
-
-    public static EnumColour fromWoolStack(ItemStack stack) {
-        for (int id : OreDictionary.getOreIDs(stack)) {
-            EnumColour c = fromWoolOre(OreDictionary.getOreName(id));
-            if (c != null) {
-                return c;
-            }
-        }
-        return null;
-    }
+    //    public static EnumColour fromDyeStack(ItemStack stack) {
+    //        for (int id : OreDictionary.getOreIDs(stack)) {
+    //            EnumColour c = fromDyeOre(OreDictionary.getOreName(id));
+    //            if (c != null) {
+    //                return c;
+    //            }
+    //        }
+    //        return null;
+    //    }
+    //
+    //    public static EnumColour fromWoolStack(ItemStack stack) {
+    //        for (int id : OreDictionary.getOreIDs(stack)) {
+    //            EnumColour c = fromWoolOre(OreDictionary.getOreName(id));
+    //            if (c != null) {
+    //                return c;
+    //            }
+    //        }
+    //        return null;
+    //    }
 
     public static EnumColour fromName(String name) {
         for (EnumColour colour : values()) {

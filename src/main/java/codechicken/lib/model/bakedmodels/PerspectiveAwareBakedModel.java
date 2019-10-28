@@ -3,25 +3,25 @@ package codechicken.lib.model.bakedmodels;
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.model.IModelState;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by covers1624 on 25/11/2016.
  */
 public class PerspectiveAwareBakedModel extends AbstractBakedPropertiesModel {
 
-    private final ImmutableMap<EnumFacing, List<BakedQuad>> faceQuads;
+    private final ImmutableMap<Direction, List<BakedQuad>> faceQuads;
     private final ImmutableList<BakedQuad> generalQuads;
 
-    public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, IModelState state, ModelProperties properties) {
+    public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, IModelState state, ModelProperties properties) {
         this(faceQuads, ImmutableList.of(), state, properties);
     }
 
@@ -29,11 +29,11 @@ public class PerspectiveAwareBakedModel extends AbstractBakedPropertiesModel {
         this(ImmutableMap.of(), generalQuads, state, properties);
     }
 
-    public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, IModelState state, ModelProperties properties) {
+    public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, IModelState state, ModelProperties properties) {
         this(faceQuads, generalQuads, new PerspectiveProperties(state, properties));
     }
 
-    public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, PerspectiveProperties properties) {
+    public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, PerspectiveProperties properties) {
         this(faceQuads, ImmutableList.of(), properties);
     }
 
@@ -41,14 +41,14 @@ public class PerspectiveAwareBakedModel extends AbstractBakedPropertiesModel {
         this(ImmutableMap.of(), generalQuads, properties);
     }
 
-    public PerspectiveAwareBakedModel(Map<EnumFacing, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, PerspectiveProperties properties) {
+    public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, PerspectiveProperties properties) {
         super(properties);
         this.faceQuads = ImmutableMap.copyOf(faceQuads);
         this.generalQuads = ImmutableList.copyOf(generalQuads);
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand) {
+    public List<BakedQuad> getQuads(BlockState state, Direction side, Random rand) {
         if (side == null) {
             return generalQuads;
         } else {
@@ -61,6 +61,6 @@ public class PerspectiveAwareBakedModel extends AbstractBakedPropertiesModel {
 
     @Override
     public ItemOverrideList getOverrides() {
-        return ItemOverrideList.NONE;
+        return ItemOverrideList.EMPTY;
     }
 }

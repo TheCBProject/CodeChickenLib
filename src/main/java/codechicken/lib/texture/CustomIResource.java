@@ -1,7 +1,7 @@
 package codechicken.lib.texture;
 
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.data.IMetadataSection;
+import net.minecraft.resources.IResource;
+import net.minecraft.resources.data.IMetadataSectionSerializer;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -36,7 +36,7 @@ public class CustomIResource implements IResource {
     }
 
     @Override
-    public ResourceLocation getResourceLocation() {
+    public ResourceLocation getLocation() {
         return location;
     }
 
@@ -45,20 +45,15 @@ public class CustomIResource implements IResource {
         return stream;
     }
 
-    @Override
-    public boolean hasMetadata() {
-        return wrapped.hasMetadata();
-    }
-
     @Nullable
     @Override
-    public <T extends IMetadataSection> T getMetadata(String sectionName) {
-        return wrapped.getMetadata(sectionName);
+    public <T> T getMetadata(IMetadataSectionSerializer<T> serializer) {
+        return wrapped.getMetadata(serializer);
     }
 
     @Override
-    public String getResourcePackName() {
-        return wrapped.getResourcePackName();
+    public String getPackName() {
+        return wrapped.getPackName();
     }
 
     @Override

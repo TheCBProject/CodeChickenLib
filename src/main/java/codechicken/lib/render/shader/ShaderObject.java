@@ -70,7 +70,7 @@ public class ShaderObject {
             GL20.glShaderSource(shaderID, getShaderSource());
             GL20.glCompileShader(shaderID);
             if (GL20.glGetShaderi(shaderID, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
-                throw new IllegalStateException(String.format("Unable to compile %s shader object:\n%s", shaderType.name(), OpenGLUtils.glGetShaderInfoLog(shaderID)));
+                throw new IllegalStateException(String.format("Unable to compile %s shader object:\n%s", shaderType.name(), GL30.glGetShaderInfoLog(shaderID)));
             }
             isCompiled = true;
         }

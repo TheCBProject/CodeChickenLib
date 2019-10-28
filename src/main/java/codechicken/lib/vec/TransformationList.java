@@ -1,7 +1,7 @@
 package codechicken.lib.vec;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -154,7 +154,7 @@ public class TransformationList extends Transformation {
     }
 
     @Override
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public void glApply() {
         for (int i = transformations.size() - 1; i >= 0; i--) {
             transformations.get(i).glApply();

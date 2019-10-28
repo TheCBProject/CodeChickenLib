@@ -1,7 +1,8 @@
 package codechicken.lib.util;
 
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.client.resources.I18n;
 
+@Deprecated
 public class LangProxy {
 
     public final String namespace;
@@ -11,10 +12,10 @@ public class LangProxy {
     }
 
     public String translate(String key) {
-        return I18n.translateToLocal(namespace + key);
+        return I18n.format(namespace + key);
     }
 
     public String format(String key, Object... params) {
-        return I18n.translateToLocalFormatted(namespace + key, params);
+        return I18n.format(namespace + key, params);
     }
 }

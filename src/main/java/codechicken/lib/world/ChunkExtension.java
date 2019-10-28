@@ -1,8 +1,8 @@
 package codechicken.lib.world;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.Packet;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.IPacket;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 
@@ -13,7 +13,7 @@ public abstract class ChunkExtension {
     public final Chunk chunk;
     public final ChunkPos coord;
     public final WorldExtension world;
-    public HashSet<EntityPlayerMP> watchedPlayers;
+    public HashSet<ServerPlayerEntity> watchedPlayers;
 
     public ChunkExtension(Chunk chunk, WorldExtension world) {
         this.chunk = chunk;
@@ -22,10 +22,10 @@ public abstract class ChunkExtension {
         watchedPlayers = new HashSet<>();
     }
 
-    public void loadData(NBTTagCompound tag) {
+    public void loadData(CompoundNBT tag) {
     }
 
-    public void saveData(NBTTagCompound tag) {
+    public void saveData(CompoundNBT tag) {
     }
 
     public void load() {
@@ -34,26 +34,26 @@ public abstract class ChunkExtension {
     public void unload() {
     }
 
-    public final void sendPacketToPlayers(Packet packet) {
-        for (EntityPlayerMP player : watchedPlayers) {
+    public final void sendPacketToPlayers(IPacket<?> packet) {
+        for (ServerPlayerEntity player : watchedPlayers) {
             player.connection.sendPacket(packet);
         }
     }
 
-    public final void watchPlayer(EntityPlayerMP player) {
+    public final void watchPlayer(ServerPlayerEntity player) {
         watchedPlayers.add(player);
         onWatchPlayer(player);
     }
 
-    public void onWatchPlayer(EntityPlayerMP player) {
+    public void onWatchPlayer(ServerPlayerEntity player) {
     }
 
-    public final void unwatchPlayer(EntityPlayerMP player) {
+    public final void unwatchPlayer(ServerPlayerEntity player) {
         watchedPlayers.remove(player);
         onUnWatchPlayer(player);
     }
 
-    public void onUnWatchPlayer(EntityPlayerMP player) {
+    public void onUnWatchPlayer(ServerPlayerEntity player) {
     }
 
     public void sendUpdatePackets() {

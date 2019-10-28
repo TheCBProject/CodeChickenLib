@@ -1,8 +1,8 @@
 package codechicken.lib.model.bakery;
 
 import codechicken.lib.model.bakery.generation.IBakery;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
  * Created by covers1624 on 28/10/2016.
@@ -18,7 +18,7 @@ public interface IBakeryProvider {
      *
      * @return The Bakery!
      */
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     IBakery getBakery();
 
 }

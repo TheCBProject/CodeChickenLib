@@ -1,8 +1,9 @@
 package codechicken.lib.vec;
 
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -39,9 +40,9 @@ public class Scale extends Transformation {
     }
 
     @Override
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public void glApply() {
-        GlStateManager.scale(factor.x, factor.y, factor.z);
+        GlStateManager.scaled(factor.x, factor.y, factor.z);
     }
 
     @Override

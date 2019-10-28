@@ -7,30 +7,30 @@ import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vertex5;
 import codechicken.lib.vec.uv.IconTransformation;
 import codechicken.lib.vec.uv.UVTransformation;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 /**
  * Created by covers1624 on 26/10/2016.
  */
 public class PlanarFaceBakery {
 
-    public static BakedQuad bakeFace(EnumFacing face, TextureAtlasSprite sprite) {
+    public static BakedQuad bakeFace(Direction face, TextureAtlasSprite sprite) {
         return bakeFace(face, sprite, DefaultVertexFormats.ITEM);
     }
 
-    public static BakedQuad bakeFace(EnumFacing face, TextureAtlasSprite sprite, VertexFormat format) {
+    public static BakedQuad bakeFace(Direction face, TextureAtlasSprite sprite, VertexFormat format) {
         return bakeFace(face, sprite, format, 0xFFFFFFFF);
     }
 
-    public static BakedQuad bakeFace(EnumFacing face, TextureAtlasSprite sprite, VertexFormat format, int colour) {
+    public static BakedQuad bakeFace(Direction face, TextureAtlasSprite sprite, VertexFormat format, int colour) {
         return bakeFace(face, sprite, format, new ColourRGBA(colour));
     }
 
-    public static BakedQuad bakeFace(EnumFacing face, TextureAtlasSprite sprite, VertexFormat format, Colour colour) {
+    public static BakedQuad bakeFace(Direction face, TextureAtlasSprite sprite, VertexFormat format, Colour colour) {
         UVTransformation t = new IconTransformation(sprite);
 
         double x1 = Cuboid6.full.min.x;

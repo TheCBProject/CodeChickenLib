@@ -1,12 +1,12 @@
 package codechicken.lib.model.bakery.generation;
 
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,7 +30,7 @@ public interface ISimpleBlockBakery extends IBlockBakery {
      * @param state The IExtendedBlockState of your block. {@link IBlockBakery#handleState(IExtendedBlockState, IBlockAccess, BlockPos)} has already been called.
      * @return The quads for the face, May be an empty list. Never null.
      */
-    @SideOnly (Side.CLIENT)
     @Nonnull
-    List<BakedQuad> bakeQuads(@Nullable EnumFacing face, IExtendedBlockState state);
+    @OnlyIn (Dist.CLIENT)
+    List<BakedQuad> bakeQuads(@Nullable Direction face, BlockState state, IModelData data);
 }

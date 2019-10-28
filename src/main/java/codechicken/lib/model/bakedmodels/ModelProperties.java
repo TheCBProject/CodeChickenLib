@@ -4,7 +4,7 @@ import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties.P
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.TransformUtils;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraftforge.common.model.IModelState;
 

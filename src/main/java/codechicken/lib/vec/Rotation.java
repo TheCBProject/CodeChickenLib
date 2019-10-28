@@ -1,11 +1,11 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -186,7 +186,7 @@ public class Rotation extends Transformation {
      * @param side   The side of the block being placed on
      * @return The rotation for the face == side^1
      */
-    public static int getSidedRotation(EntityPlayer player, int side) {
+    public static int getSidedRotation(PlayerEntity player, int side) {
         Vector3 look = new Vector3(player.getLook(1));
         double max = 0;
         int maxr = 0;
@@ -212,7 +212,7 @@ public class Rotation extends Transformation {
      * @param entity The placing entity, used for obtaining the look vector
      * @return The side towards which the entity is most directly looking.
      */
-    public static int getSideFromLookAngle(EntityLivingBase entity) {
+    public static int getSideFromLookAngle(LivingEntity entity) {
         Vector3 look = new Vector3(entity.getLook(1));
         double max = 0;
         int maxs = 0;
@@ -279,9 +279,9 @@ public class Rotation extends Transformation {
     }
 
     @Override
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public void glApply() {
-        GlStateManager.rotate((float) (angle * MathHelper.todeg), (float) axis.x, (float) axis.y, (float) axis.z);
+        GlStateManager.rotated((angle * MathHelper.todeg), axis.x, axis.y, axis.z);
     }
 
     @Override

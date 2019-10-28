@@ -2,15 +2,15 @@ package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
-import net.minecraft.client.renderer.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.vecmath.Vector3f;
 import javax.vecmath.Vector4f;
@@ -75,7 +75,7 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public static Vector3 fromEntityCenter(Entity e) {
-        return new Vector3(e.posX, e.posY - e.getYOffset() + e.height / 2, e.posZ);
+        return new Vector3(e.posX, e.posY - e.getYOffset() + e.getHeight() / 2, e.posZ);
     }
 
     public static Vector3 fromTile(TileEntity tile) {
@@ -102,7 +102,7 @@ public class Vector3 implements Copyable<Vector3> {
         return new Vector3(fa[0], fa[1], fa[2]);
     }
 
-    public static Vector3 fromNBT(NBTTagCompound tag) {
+    public static Vector3 fromNBT(CompoundNBT tag) {
         return new Vector3(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
     }
 
@@ -114,26 +114,26 @@ public class Vector3 implements Copyable<Vector3> {
         return new BlockPos(x, y, z);
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound tag) {
-        tag.setDouble("x", x);
-        tag.setDouble("y", y);
-        tag.setDouble("z", z);
+    public CompoundNBT writeToNBT(CompoundNBT tag) {
+        tag.putDouble("x", x);
+        tag.putDouble("y", y);
+        tag.putDouble("z", z);
         return tag;
     }
 
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public Vector3f vector3f() {
         return new Vector3f((float) x, (float) y, (float) z);
     }
 
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public Vector4f vector4f() {
         return new Vector4f((float) x, (float) y, (float) z, 1);
     }
 
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public void glVertex() {
-        GlStateManager.glVertex3f((float) x, (float) y, (float) z);
+        GlStateManager.vertex3f((float) x, (float) y, (float) z);
     }
 
     public double[] toArrayD() {

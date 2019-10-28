@@ -3,7 +3,7 @@ package codechicken.lib.raytracer;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 
 public class IndexedCuboid6 extends Cuboid6 {
@@ -22,10 +22,10 @@ public class IndexedCuboid6 extends Cuboid6 {
 
     public CuboidRayTraceResult calculateIntercept(Vector3 start, Vector3 end) {
         Vector3 hit = null;
-        EnumFacing sideHit = null;
+        Direction sideHit = null;
         double dist = Double.MAX_VALUE;
 
-        for (EnumFacing face : EnumFacing.values()) {
+        for (Direction face : Direction.BY_INDEX) {
             Vector3 suspectHit = null;
             switch (face) {
                 case DOWN:
@@ -82,7 +82,7 @@ public class IndexedCuboid6 extends Cuboid6 {
         }
 
         if (sideHit != null && hit != null) {
-            return new CuboidRayTraceResult(hit, sideHit, this, dist);
+            return new CuboidRayTraceResult(hit, sideHit, false, this, dist);
         }
         return null;
     }

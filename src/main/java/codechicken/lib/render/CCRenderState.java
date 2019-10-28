@@ -12,22 +12,18 @@ import codechicken.lib.render.pipeline.VertexAttribute;
 import codechicken.lib.render.pipeline.attribute.*;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
+import com.mojang.blaze3d.platform.GLX;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IEnviromentBlockReader;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
-
-import java.util.List;
 
 /**
  * The core of the CodeChickenLib render system.
@@ -55,8 +51,6 @@ public class CCRenderState {
     public final VertexAttribute<LC[]> lightCoordAttrib = new LightCoordAttribute();
 
     private static final ThreadLocal<CCRenderState> instances = ThreadLocal.withInitial(CCRenderState::new);
-    @Deprecated
-    private static final CCRenderState bakingRenderState = new CCRenderState();
 
     //pipeline state
     public IVertexSource model;
@@ -64,9 +58,9 @@ public class CCRenderState {
     public int lastVertexIndex;
     public int vertexIndex;
     public CCRenderPipeline pipeline;
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public BufferBuilder r;
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public VertexFormat fmt;
 
     //context
@@ -84,7 +78,7 @@ public class CCRenderState {
     //attribute storage
     public int side;
     public LC lc = new LC();
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public TextureAtlasSprite sprite;
 
     private CCRenderState() {
@@ -95,11 +89,6 @@ public class CCRenderState {
         return instances.get();
     }
 
-    @Deprecated
-    public static CCRenderState getBakingRenderState() {
-        return bakingRenderState;
-    }
-
     public void reset() {
         model = null;
         pipeline.reset();
@@ -107,7 +96,7 @@ public class CCRenderState {
         baseColour = alphaOverride = -1;
     }
 
-    public void preRenderWorld(IBlockAccess world, BlockPos pos) {
+    public void preRenderWorld(IEnviromentBlockReader world, BlockPos pos) {
         this.reset();
         this.colour = 0xFFFFFFFF;
         this.setBrightness(world, pos);
@@ -144,14 +133,6 @@ public class CCRenderState {
     public void setVertexRange(int start, int end) {
         firstVertexIndex = start;
         lastVertexIndex = end;
-    }
-
-    public void renderQuads(List<BakedQuad> quads) {
-        BufferBuilder buffer = startDrawing(GL11.GL_QUADS, quads.get(0).getFormat());
-        for (BakedQuad quad : quads) {
-            buffer.addVertexData(quad.getVertexData());
-        }
-        draw();
     }
 
     public void render(IVertexOperation... ops) {
@@ -211,19 +192,19 @@ public class CCRenderState {
     }
 
     public void pushColour() {
-        GlStateManager.color((colour >>> 24) / 255F, (colour >> 16 & 0xFF) / 255F, (colour >> 8 & 0xFF) / 255F, (alphaOverride >= 0 ? alphaOverride : colour & 0xFF) / 255F);
+        GlStateManager.color4f((colour >>> 24) / 255F, (colour >> 16 & 0xFF) / 255F, (colour >> 8 & 0xFF) / 255F, (alphaOverride >= 0 ? alphaOverride : colour & 0xFF) / 255F);
     }
 
-    public void setBrightness(IBlockAccess world, BlockPos pos) {
+    public void setBrightness(IEnviromentBlockReader world, BlockPos pos) {
         brightness = world.getBlockState(pos).getPackedLightmapCoords(world, pos);
     }
 
     public void pullLightmap() {
-        brightness = (int) OpenGlHelper.lastBrightnessY << 16 | (int) OpenGlHelper.lastBrightnessX;
+        brightness = (int) GLX.lastBrightnessY << 16 | (int) GLX.lastBrightnessX;
     }
 
     public void pushLightmap() {
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, brightness & 0xFFFF, brightness >>> 16);
+        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, brightness & 0xFFFF, brightness >>> 16);
     }
 
     public void setFluidColour(FluidStack fluidStack) {
@@ -231,7 +212,7 @@ public class CCRenderState {
     }
 
     public void setFluidColour(FluidStack fluidStack, int alpha) {
-        this.baseColour = fluidStack.getFluid().getColor(fluidStack) << 8 | alpha;
+        this.baseColour = fluidStack.getFluid().getAttributes().getColor(fluidStack) << 8 | alpha;
     }
 
     public void setColour(Colour colour) {
@@ -242,7 +223,7 @@ public class CCRenderState {
         return new ColourRGBA(colour);
     }
 
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public BufferBuilder startDrawing(int mode, VertexFormat format) {
         BufferBuilder r = Tessellator.getInstance().getBuffer();
         r.begin(mode, format);
@@ -250,25 +231,25 @@ public class CCRenderState {
         return r;
     }
 
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public BufferBuilder startDrawing(int mode, VertexFormat format, BufferBuilder buffer) {
         buffer.begin(mode, format);
         bind(buffer);
         return buffer;
     }
 
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public void bind(BufferBuilder r) {
         this.r = r;
         fmt = r.getVertexFormat();
     }
 
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public BufferBuilder getBuffer() {
         return r;
     }
 
-    @SideOnly (Side.CLIENT)
+    @OnlyIn (Dist.CLIENT)
     public VertexFormat getVertexFormat() {
         return fmt;
     }

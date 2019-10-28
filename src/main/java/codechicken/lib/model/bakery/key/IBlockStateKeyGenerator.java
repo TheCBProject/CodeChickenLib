@@ -1,6 +1,7 @@
 package codechicken.lib.model.bakery.key;
 
-import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraftforge.client.model.data.IModelData;
 
 /**
  * Created by covers1624 on 26/11/2016.
@@ -18,6 +19,6 @@ public interface IBlockStateKeyGenerator {
      * @param state
      * @return
      */
-    String generateKey(IExtendedBlockState state);
+    String generateKey(BlockState state, IModelData modelData);
 
 }

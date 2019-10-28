@@ -1,11 +1,9 @@
 package codechicken.lib.inventory;
 
 import codechicken.lib.util.ArrayUtils;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -81,13 +79,13 @@ public class InventoryCopy implements IInventory {
     }
 
     @Override
-    public void setInventorySlotContents(int slot, @Nonnull ItemStack stack) {
+    public void setInventorySlotContents(int slot, ItemStack stack) {
         items[slot] = stack;
         markDirty();
     }
 
     @Override
-    public boolean isUsableByPlayer(@Nonnull EntityPlayer player) {
+    public boolean isUsableByPlayer(PlayerEntity player) {
         return true;
     }
 
@@ -101,50 +99,50 @@ public class InventoryCopy implements IInventory {
     }
 
     @Override
-    public boolean isItemValidForSlot(int i, @Nonnull ItemStack itemstack) {
+    public boolean isItemValidForSlot(int i, ItemStack itemstack) {
         return inv.isItemValidForSlot(i, itemstack);
     }
 
     @Override
-    public void openInventory(@Nonnull EntityPlayer player) {
+    public void openInventory(PlayerEntity player) {
     }
 
     @Override
-    public void closeInventory(@Nonnull EntityPlayer player) {
+    public void closeInventory(PlayerEntity player) {
     }
 
-    @Override
-    public int getField(int id) {
-        return 0;
-    }
-
-    @Override
-    public void setField(int id, int value) {
-    }
-
-    @Override
-    public int getFieldCount() {
-        return 0;
-    }
+    //    @Override
+    //    public int getField(int id) {
+    //        return 0;
+    //    }
+    //
+    //    @Override
+    //    public void setField(int id, int value) {
+    //    }
+    //
+    //    @Override
+    //    public int getFieldCount() {
+    //        return 0;
+    //    }
 
     @Override
     public void clear() {
     }
 
-    @Override
-    @Nonnull
-    public String getName() {
-        return "copy";
-    }
-
-    @Override
-    public boolean hasCustomName() {
-        return true;
-    }
-
-    @Override
-    @Nonnull
-    public ITextComponent getDisplayName() {
-        return new TextComponentString(getName());
-    }
+    //    @Override
+    //    @Nonnull
+    //    public String getName() {
+    //        return "copy";
+    //    }
+    //
+    //    @Override
+    //    public boolean hasCustomName() {
+    //        return true;
+    //    }
+    //
+    //    @Override
+    //    @Nonnull
+    //    public ITextComponent getDisplayName() {
+    //        return new TextComponentString(getName());
+    //    }
 }

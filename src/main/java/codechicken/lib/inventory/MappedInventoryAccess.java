@@ -1,9 +1,8 @@
 package codechicken.lib.inventory;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -72,7 +71,7 @@ public class MappedInventoryAccess implements IInventory {
     }
 
     @Override
-    public void setInventorySlotContents(int slot, @Nonnull ItemStack stack) {
+    public void setInventorySlotContents(int slot, ItemStack stack) {
         inv.setInventorySlotContents(slotMap.get(slot), stack);
     }
 
@@ -87,7 +86,7 @@ public class MappedInventoryAccess implements IInventory {
     }
 
     @Override
-    public boolean isUsableByPlayer(@Nonnull EntityPlayer player) {
+    public boolean isUsableByPlayer(PlayerEntity player) {
         return inv.isUsableByPlayer(player);
     }
 
@@ -97,56 +96,56 @@ public class MappedInventoryAccess implements IInventory {
     }
 
     @Override
-    public boolean isItemValidForSlot(int slot, @Nonnull ItemStack stack) {
+    public boolean isItemValidForSlot(int slot, ItemStack stack) {
         return inv.isItemValidForSlot(slotMap.get(slot), stack);
     }
 
     @Override
-    public void openInventory(@Nonnull EntityPlayer player) {
+    public void openInventory(PlayerEntity player) {
         inv.openInventory(player);
     }
 
     @Override
-    public void closeInventory(@Nonnull EntityPlayer player) {
+    public void closeInventory(PlayerEntity player) {
         inv.closeInventory(player);
     }
 
-    @Override
-    public int getField(int id) {
-        return inv.getField(id);
-    }
-
-    @Override
-    public void setField(int id, int value) {
-        inv.setField(id, value);
-    }
-
-    @Override
-    public int getFieldCount() {
-        return inv.getFieldCount();
-    }
+    //    @Override
+    //    public int getField(int id) {
+    //        return inv.getField(id);
+    //    }
+    //
+    //    @Override
+    //    public void setField(int id, int value) {
+    //        inv.setField(id, value);
+    //    }
+    //
+    //    @Override
+    //    public int getFieldCount() {
+    //        return inv.getFieldCount();
+    //    }
 
     @Override
     public void clear() {
         inv.clear();
     }
 
-    @Override
-    @Nonnull
-    public String getName() {
-        return inv.getName();
-    }
-
-    @Override
-    public boolean hasCustomName() {
-        return inv.hasCustomName();
-    }
-
-    @Override
-    @Nonnull
-    public ITextComponent getDisplayName() {
-        return inv.getDisplayName();
-    }
+    //    @Override
+    //    @Nonnull
+    //    public String getName() {
+    //        return inv.getName();
+    //    }
+    //
+    //    @Override
+    //    public boolean hasCustomName() {
+    //        return inv.hasCustomName();
+    //    }
+    //
+    //    @Override
+    //    @Nonnull
+    //    public ITextComponent getDisplayName() {
+    //        return inv.getDisplayName();
+    //    }
 
     public List<InventoryAccessor> accessors() {
         return accessors;

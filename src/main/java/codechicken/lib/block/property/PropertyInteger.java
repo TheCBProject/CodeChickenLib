@@ -1,16 +1,16 @@
 package codechicken.lib.block.property;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
-import net.minecraft.block.properties.PropertyHelper;
+import net.minecraft.state.Property;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Created by covers1624 on 5/23/2016.
  */
-public class PropertyInteger extends PropertyHelper<Integer> {
+public class PropertyInteger extends Property<Integer> {
 
     private final ImmutableSet<Integer> valueSet;
 
@@ -35,7 +35,6 @@ public class PropertyInteger extends PropertyHelper<Integer> {
         return valueSet;
     }
 
-    @SuppressWarnings ("Guava")
     @Override
     @Nonnull
     public Optional<Integer> parseValue(@Nonnull String value) {
@@ -47,7 +46,7 @@ public class PropertyInteger extends PropertyHelper<Integer> {
         } catch (NumberFormatException ignored) {
             // Invalid value, let it fall through
         }
-        return Optional.absent();
+        return Optional.empty();
     }
 
     @Nonnull

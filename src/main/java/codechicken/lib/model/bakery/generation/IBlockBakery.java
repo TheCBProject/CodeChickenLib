@@ -2,12 +2,7 @@ package codechicken.lib.model.bakery.generation;
 
 import codechicken.lib.model.bakery.ModelBakery;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * Created by covers1624 on 28/10/2016.
@@ -23,6 +18,6 @@ public interface IBlockBakery extends IItemBakery {
      * @param pos    The position in that world.
      * @return Modified state.
      */
-    @SideOnly (Side.CLIENT)
-    IExtendedBlockState handleState(IExtendedBlockState state, IBlockAccess access, BlockPos pos);
+    //@SideOnly (Side.CLIENT)
+    //IExtendedBlockState handleState(IExtendedBlockState state, IBlockAccess access, BlockPos pos);
 }
