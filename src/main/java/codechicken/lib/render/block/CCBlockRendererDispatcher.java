@@ -1,8 +1,8 @@
 package codechicken.lib.render.block;
 
-import codechicken.lib.CodeChickenLib;
 import codechicken.lib.internal.CCLLog;
 import codechicken.lib.internal.ExceptionMessageEventHandler;
+import codechicken.lib.internal.proxy.ProxyClient;
 import codechicken.lib.model.bakedmodels.ModelProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.render.buffer.BakingVertexBuffer;
@@ -84,7 +84,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
                 return renderOpt.get().renderBlock(world, pos, state, buffer, random, modelData);
             }
         } catch (Throwable t) {
-            if (CodeChickenLib.catchBlockRenderExceptions) {
+            if (ProxyClient.catchBlockRenderExceptions) {
                 handleCaughtException(t, inState, pos, world);
                 return false;
             }
@@ -96,7 +96,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
         try {
             return parentDispatcher.renderBlock(state, pos, world, buffer, random, modelData);
         } catch (Throwable t) {
-            if (CodeChickenLib.catchBlockRenderExceptions) {
+            if (ProxyClient.catchBlockRenderExceptions) {
                 handleCaughtException(t, inState, pos, world);
                 return false;
             }
@@ -139,7 +139,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
         builder.append("  Tile Class:    ").append(tryOrNull(() -> tile.getClass())).append("\n");
         builder.append("  Tile Id:       ").append(tryOrNull(() -> TileEntityType.getId(tile.getType()))).append("\n");
         builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.write(new CompoundNBT()))).append("\n");
-        if (CodeChickenLib.messagePlayerOnRenderExceptionCaught) {
+        if (ProxyClient.messagePlayerOnRenderExceptionCaught) {
             builder.append("You can turn off player messages in the CCL config file.\n");
         }
         String logMessage = builder.toString();
@@ -149,7 +149,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
             CCLLog.log(Level.ERROR, t, logMessage);
         }
         PlayerEntity player = Minecraft.getInstance().player;
-        if (CodeChickenLib.messagePlayerOnRenderExceptionCaught && player != null) {
+        if (ProxyClient.messagePlayerOnRenderExceptionCaught && player != null) {
             long time = System.nanoTime();
             if (TimeUnit.NANOSECONDS.toSeconds(time - lastTime) > 5) {
                 lastTime = time;

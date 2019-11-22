@@ -1,23 +1,21 @@
 package codechicken.lib.render.item;
 
-import codechicken.lib.CodeChickenLib;
 import codechicken.lib.internal.CCLLog;
 import codechicken.lib.internal.ExceptionMessageEventHandler;
-import codechicken.lib.reflect.ObfMapping;
-import codechicken.lib.reflect.ReflectionManager;
+import codechicken.lib.internal.proxy.ProxyClient;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.model.ModelManager;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -27,7 +25,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.GL11;
 
-import javax.annotation.Nullable;
 import javax.vecmath.Matrix4f;
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +35,7 @@ import static codechicken.lib.util.LambdaUtils.tryOrNull;
  */
 public class CCRenderItem extends ItemRenderer {
 
-    private final ItemRenderer parent;
+    //private final ItemRenderer parent;
 
     private static CCRenderItem instance;
     private static boolean hasInit;
@@ -57,32 +54,37 @@ public class CCRenderItem extends ItemRenderer {
         flipX.m00 = -1;
     }
 
-    public CCRenderItem(ItemRenderer renderItem) {
-        super(renderItem.textureManager, renderItem.itemModelMesher.getModelManager(), renderItem.itemColors);
-        this.parent = renderItem;
-        //Force set these to what our parent had.
-        this.itemModelMesher = renderItem.itemModelMesher;
-        this.textureManager = renderItem.textureManager;
-        this.itemColors = renderItem.itemColors;
+    public CCRenderItem(TextureManager textureManagerIn, ModelManager modelManagerIn, ItemColors itemColorsIn) {
+        super(textureManagerIn, modelManagerIn, itemColorsIn);
+        instance = this;
     }
 
-    public static void init() {
-        if (!hasInit) {
-            instance = new CCRenderItem(Minecraft.getInstance().getItemRenderer());
-            Minecraft.getInstance().itemRenderer = instance;
-            hasInit = true;
-        }
-    }
+//    public CCRenderItem(ItemRenderer renderItem) {
+//        super(renderItem.textureManager, renderItem.itemModelMesher.getModelManager(), renderItem.itemColors);
+//        this.parent = renderItem;
+//        //Force set these to what our parent had.
+//        this.itemModelMesher = renderItem.itemModelMesher;
+//        this.textureManager = renderItem.textureManager;
+//        this.itemColors = renderItem.itemColors;
+//    }
+//
+//    public static void init() {
+//        if (!hasInit) {
+//            instance = new CCRenderItem(Minecraft.getInstance().getItemRenderer());
+//            Minecraft.getInstance().itemRenderer = instance;
+//            hasInit = true;
+//        }
+//    }
 
-    /**
-     * Gets the current RenderItem instance, attempts to initialize CCL's if needed.
-     *
-     * @return The current RenderItem.
-     */
-    public static ItemRenderer getOverridenItemRender() {
-        init();
-        return Minecraft.getInstance().getItemRenderer();
-    }
+//    /**
+//     * Gets the current RenderItem instance, attempts to initialize CCL's if needed.
+//     *
+//     * @return The current RenderItem.
+//     */
+//    public static ItemRenderer getOverridenItemRender() {
+//        init();
+//        return Minecraft.getInstance().getItemRenderer();
+//    }
 
     public static void notifyTransform(TransformType transformType) {
         instance.lastKnownTransformType = transformType;
@@ -99,10 +101,10 @@ public class CCRenderItem extends ItemRenderer {
         builder.append("  NBT:            ").append(tryOrNull(() -> stack.getTag())).append("\n");
         builder.append("  Model Class:    ").append(tryOrNull(() -> itemModelMesher.getItemModel(stack).getClass())).append("\n");
         builder.append("  Model Location: ").append(((ItemModelMesherForge) itemModelMesher).getLocation(stack)).append("\n");
-        if (CodeChickenLib.messagePlayerOnRenderExceptionCaught) {
+        if (ProxyClient.messagePlayerOnRenderExceptionCaught) {
             builder.append("You can turn off player messages in the CCL config file.\n");
         }
-        if (CodeChickenLib.attemptRecoveryOnItemRenderException) {
+        if (ProxyClient.attemptRecoveryOnItemRenderException) {
             builder.append("WARNING: Exception recovery enabled! This may cause issues down the line!\n");
             BufferBuilder vanillaBuffer = Tessellator.getInstance().getBuffer();
             if (vanillaBuffer.isDrawing) {
@@ -115,7 +117,7 @@ public class CCRenderItem extends ItemRenderer {
                 CCLLog.log(Level.ERROR, t, logMessage);
             }
             PlayerEntity player = Minecraft.getInstance().player;
-            if (CodeChickenLib.messagePlayerOnRenderExceptionCaught && player != null) {
+            if (ProxyClient.messagePlayerOnRenderExceptionCaught && player != null) {
                 long time = System.nanoTime();
                 if (TimeUnit.NANOSECONDS.toSeconds(time - lastTime) > 5) {
                     lastTime = time;
@@ -157,10 +159,10 @@ public class CCRenderItem extends ItemRenderer {
             return;
 
         }
-        parent.renderItem(stack, model);
+        super.renderItem(stack, model);
     }
 
-    private boolean isValidModel(IBakedModel model) {
+/*    private boolean isValidModel(IBakedModel model) {
         return model instanceof IItemRenderer;
     }
 
@@ -309,5 +311,5 @@ public class CCRenderItem extends ItemRenderer {
                 throw t;
             }
         }
-    }
+    }*/
 }

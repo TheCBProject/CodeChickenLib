@@ -169,20 +169,6 @@ public class ArrayUtils {
      * @param <T>   What we are dealing with.
      */
     @SuppressWarnings ("unchecked")
-    @Deprecated
-    public static <T> void fillArray(T[] array, T value) {
-        fill(array, value);
-    }
-
-    /**
-     * Fills the array with the specified value.
-     * If the value is an instance of Copyable it will call copy.
-     *
-     * @param array Array to fill.
-     * @param value Value to fill with.
-     * @param <T>   What we are dealing with.
-     */
-    @SuppressWarnings ("unchecked")
     public static <T> T[] fill(T[] array, T value) {
         for (int i = 0; i < array.length; i++) {
             T newValue = value;

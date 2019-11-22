@@ -42,6 +42,6 @@ public interface IModelParticleProvider extends IBakedModel {
      * @param pos   The pos.
      * @return A Set of Textures to use.
      */
-    Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IEnviromentBlockReader world, BlockPos pos);
+    Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IEnviromentBlockReader world, BlockPos pos, IModelData data);
 
 }

@@ -107,8 +107,8 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
     }
 
     @Override
-    public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IEnviromentBlockReader world, BlockPos pos) {
-        return getAllQuads(state, EmptyModelData.INSTANCE).stream().map(BakedQuad::getSprite).collect(Collectors.toSet());
+    public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IEnviromentBlockReader world, BlockPos pos, IModelData data) {
+        return getAllQuads(state, data).stream().map(BakedQuad::getSprite).collect(Collectors.toSet());
     }
 
     @Override

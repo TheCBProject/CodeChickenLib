@@ -4,6 +4,7 @@ import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -12,30 +13,25 @@ import java.util.List;
 
 public class ModelRegistryHelper {
 
-    private static List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<>();
-    private static List<IModelBakeCallbackPre> modelBakePreCallbacks = new LinkedList<>();
-    private static List<IModelBakeCallback> modelBakeCallbacks = new LinkedList<>();
+    private List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<>();
+    private List<IModelBakeCallbackPre> modelBakePreCallbacks = new LinkedList<>();
+    private List<IModelBakeCallback> modelBakeCallbacks = new LinkedList<>();
 
-    public static void registerPreBakeCallback(IModelBakeCallbackPre callback) {
+    public ModelRegistryHelper() {
+        FMLJavaModLoadingContext.get().getModEventBus().register(this);
+    }
+
+    public void registerPreBakeCallback(IModelBakeCallbackPre callback) {
         modelBakePreCallbacks.add(callback);
     }
 
-    public static void registerCallback(IModelBakeCallback callback) {
+    public void registerCallback(IModelBakeCallback callback) {
         modelBakeCallbacks.add(callback);
     }
 
-    public static void register(ModelResourceLocation location, IBakedModel model) {
+    public void register(ModelResourceLocation location, IBakedModel model) {
         registerModels.add(new ImmutablePair<>(location, model));
     }
-
-    //    /**
-    //     * Inserts the item renderer at itemRegistry.getNameForObject(block)#inventory and binds it to the item with a custom mesh definition
-    //     */
-    //    public static void registerItemRenderer(Item item, IItemRenderer renderer) {
-    //        final ModelResourceLocation modelLoc = new ModelResourceLocation(item.getRegistryName(), "inventory");
-    //        register(modelLoc, renderer);
-    //        ModelLoader.setCustomMeshDefinition(item, stack -> modelLoc);
-    //    }
 
     @SubscribeEvent
     public void onModelBake(ModelBakeEvent event) {

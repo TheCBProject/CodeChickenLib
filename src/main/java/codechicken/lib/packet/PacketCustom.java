@@ -2,6 +2,8 @@ package codechicken.lib.packet;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import codechicken.lib.math.MathHelper;
+import codechicken.lib.util.ServerUtils;
 import codechicken.lib.vec.Vector3;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -12,20 +14,18 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.OpList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.LogicalSidedProvider;
 import net.minecraftforge.fml.network.NetworkDirection;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -43,7 +43,10 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
         type = readUByte();
     }
 
-    public PacketCustom(ResourceLocation channel, byte type) {
+    public PacketCustom(ResourceLocation channel, int type) {
+        if (!MathHelper.between(0, type, 255)) {
+            throw new RuntimeException("Invalid packet type, Must be between 0 and 255. Got: " + type);
+        }
         buf = new PacketBuffer(Unpooled.buffer());
         this.channel = channel;
         this.type = type;
@@ -55,7 +58,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
     }
 
     public int getType() {
-        return type & 0x7F;
+        return type;
     }
 
     public IPacket<?> toPacket(NetworkDirection direction) {
@@ -115,7 +118,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
     }
 
     public static void sendToClients(IPacket<?> packet) {
-        getServer().getPlayerList().sendPacketToAllPlayers(packet);
+        ServerUtils.getServer().getPlayerList().sendPacketToAllPlayers(packet);
     }
 
     public void sendPacketToAllAround(BlockPos pos, double range, DimensionType dim) {
@@ -127,7 +130,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
     }
 
     public static void sendToAllAround(IPacket<?> packet, double x, double y, double z, double range, DimensionType dim) {
-        getServer().getPlayerList().sendToAllNearExcept(null, x, y, z, range, dim, packet);
+        ServerUtils.getServer().getPlayerList().sendToAllNearExcept(null, x, y, z, range, dim, packet);
     }
 
     public void sendToDimension(DimensionType dim) {
@@ -135,7 +138,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
     }
 
     public static void sendToDimension(IPacket<?> packet, DimensionType dim) {
-        getServer().getPlayerList().sendPacketToAllPlayersInDimension(packet, dim);
+        ServerUtils.getServer().getPlayerList().sendPacketToAllPlayersInDimension(packet, dim);
     }
 
     public void sendToChunk(TileEntity tile) {
@@ -164,8 +167,8 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
     }
 
     public static void sendToOps(IPacket<?> packet) {
-        OpList opList = getServer().getPlayerList().getOppedPlayers();
-        for (ServerPlayerEntity player : getServer().getPlayerList().getPlayers()) {
+        OpList opList = ServerUtils.getServer().getPlayerList().getOppedPlayers();
+        for (ServerPlayerEntity player : ServerUtils.getServer().getPlayerList().getPlayers()) {
             if (opList.hasEntry(player.getGameProfile())) {
                 sendToPlayer(packet, player);
             }
@@ -180,10 +183,6 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
     @OnlyIn (Dist.CLIENT)
     public static void sendToServer(IPacket<?> packet) {
         Minecraft.getInstance().getConnection().sendPacket(packet);
-    }
-
-    private static MinecraftServer getServer() {
-        return LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
     }
 
     //endregion
@@ -310,6 +309,12 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
     @Override
     public PacketCustom writeFluidStack(FluidStack liquid) {
         MCDataOutput.super.writeFluidStack(liquid);
+        return this;
+    }
+
+    @Override
+    public PacketCustom writeTextComponent(ITextComponent component) {
+        MCDataOutput.super.writeTextComponent(component);
         return this;
     }
 

@@ -159,7 +159,7 @@ public class TextureUtils {
     }
 
     public static TextureAtlasSprite getBlockTexture(ResourceLocation location) {
-        return getTexture(new ResourceLocation(location.getNamespace(), "blocks/" + location.getPath()));
+        return getTexture(new ResourceLocation(location.getNamespace(), "block/" + location.getPath()));
     }
 
     public static TextureAtlasSprite getItemTexture(String string) {

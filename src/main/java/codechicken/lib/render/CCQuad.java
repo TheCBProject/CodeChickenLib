@@ -60,7 +60,7 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
         tintIndex = quad.getTintIndex();
         sprite = quad.getSprite();
         applyDifuseLighting = quad.shouldApplyDiffuseLighting();
-        ArrayUtils.fillArray(vertices, new Vertex5());
+        ArrayUtils.fill(vertices, new Vertex5());
         UnpackingVertexConsumer consumer = new UnpackingVertexConsumer(quad.getFormat());
         quad.pipe(consumer);
         float[][][] unpackedData = consumer.getUnpackedData();
@@ -90,10 +90,10 @@ public class CCQuad implements Copyable<CCQuad>, IVertexProducer {
             }
         }
         if (!format.hasColor()) {
-            ArrayUtils.fillArray(colours, new ColourRGBA(0xFFFFFFFF));
+            ArrayUtils.fill(colours, new ColourRGBA(0xFFFFFFFF));
         }
         if (!format.hasUv(1)) {
-            ArrayUtils.fillArray(lightMaps, 0);
+            ArrayUtils.fill(lightMaps, 0);
         }
         if (!format.hasNormal()) {
             computeNormals();

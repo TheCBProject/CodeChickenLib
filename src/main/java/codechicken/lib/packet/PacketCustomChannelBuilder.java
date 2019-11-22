@@ -7,7 +7,10 @@ import net.minecraft.client.network.play.ClientPlayNetHandler;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.play.ServerPlayNetHandler;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.network.NetworkEvent;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.event.EventNetworkChannel;
@@ -21,7 +24,8 @@ import java.util.function.Supplier;
 public class PacketCustomChannelBuilder {
 
     private final NetworkRegistry.ChannelBuilder parent;
-    private ICustomPacketHandler packetHandler;
+    private IClientPacketHandler clientHandler;
+    private IServerPacketHandler serverHandler;
 
     private PacketCustomChannelBuilder(ResourceLocation channelName) {
         parent = NetworkRegistry.ChannelBuilder.named(channelName);
@@ -46,46 +50,70 @@ public class PacketCustomChannelBuilder {
         return this;
     }
 
-    public PacketCustomChannelBuilder assignHandler(ICustomPacketHandler packetHandler) {
-        this.packetHandler = packetHandler;
+    public PacketCustomChannelBuilder assignClientHandler(Supplier<Supplier<IClientPacketHandler>> clientHandler) {
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            this.clientHandler = clientHandler.get().get();
+        }
+        return this;
+    }
+
+    public PacketCustomChannelBuilder assignServerHandler(Supplier<Supplier<IServerPacketHandler>> serverHandler) {
+        this.serverHandler = serverHandler.get().get();
         return this;
     }
 
     public EventNetworkChannel build() {
         EventNetworkChannel channel = parent.eventNetworkChannel();
-        channel.registerObject(new EventHandler());
+
+        if (clientHandler != null) {
+            channel.registerObject(new ClientHandler(clientHandler));
+        }
+
+        if (serverHandler != null) {
+            channel.registerObject(new ServerHandler(serverHandler));
+        }
         return channel;
     }
 
-    public class EventHandler {
+    public static class ClientHandler {
 
-        @SubscribeEvent
-        public void onServerPayload(NetworkEvent.ServerCustomPayloadEvent event) {
-            if (packetHandler instanceof IServerPacketHandler) {
-                IServerPacketHandler ph = (IServerPacketHandler) packetHandler;
-                PacketCustom packet = new PacketCustom(event.getPayload());
-                NetworkEvent.Context ctx = event.getSource().get();
-                INetHandler netHandler = ctx.getNetworkManager().getNetHandler();
-                if (netHandler instanceof ServerPlayNetHandler) {
-                    ServerPlayNetHandler nh = (ServerPlayNetHandler) netHandler;
-                    ctx.enqueueWork(() -> ph.handlePacket(packet, nh.player, nh));
-                }
-            }
+        private final IClientPacketHandler packetHandler;
+
+        public ClientHandler(IClientPacketHandler packetHandler) {
+            this.packetHandler = packetHandler;
         }
 
         @SubscribeEvent
         public void onClientPayload(NetworkEvent.ServerCustomPayloadEvent event) {
-            if (packetHandler instanceof IClientPacketHandler) {
-                IClientPacketHandler ph = (IClientPacketHandler) packetHandler;
-                PacketCustom packet = new PacketCustom(event.getPayload());
-                NetworkEvent.Context ctx = event.getSource().get();
-                INetHandler netHandler = ctx.getNetworkManager().getNetHandler();
-                if (netHandler instanceof ClientPlayNetHandler) {
-                    ClientPlayNetHandler nh = (ClientPlayNetHandler) netHandler;
-                    ctx.enqueueWork(() -> ph.handlePacket(packet, Minecraft.getInstance(), nh));
-                }
+            PacketCustom packet = new PacketCustom(event.getPayload());
+            NetworkEvent.Context ctx = event.getSource().get();
+            INetHandler netHandler = ctx.getNetworkManager().getNetHandler();
+            ctx.setPacketHandled(true);
+            if (netHandler instanceof ClientPlayNetHandler) {
+                ClientPlayNetHandler nh = (ClientPlayNetHandler) netHandler;
+                ctx.enqueueWork(() -> packetHandler.handlePacket(packet, Minecraft.getInstance(), nh));
             }
         }
     }
 
+    public static class ServerHandler {
+
+        private final IServerPacketHandler packetHandler;
+
+        public ServerHandler(IServerPacketHandler packetHandler) {
+            this.packetHandler = packetHandler;
+        }
+
+        @SubscribeEvent
+        public void onServerPayload(NetworkEvent.ClientCustomPayloadEvent event) {
+            PacketCustom packet = new PacketCustom(event.getPayload());
+            NetworkEvent.Context ctx = event.getSource().get();
+            INetHandler netHandler = ctx.getNetworkManager().getNetHandler();
+            ctx.setPacketHandled(true);
+            if (netHandler instanceof ServerPlayNetHandler) {
+                ServerPlayNetHandler nh = (ServerPlayNetHandler) netHandler;
+                ctx.enqueueWork(() -> packetHandler.handlePacket(packet, nh.player, nh));
+            }
+        }
+    }
 }

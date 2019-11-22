@@ -2,14 +2,16 @@ package codechicken.lib;
 
 import codechicken.lib.configuration.ConfigFile;
 import codechicken.lib.configuration.ConfigTag;
-import codechicken.lib.model.ModelRegistryHelper;
+import codechicken.lib.internal.network.CCLNetwork;
+import codechicken.lib.internal.proxy.Proxy;
+import codechicken.lib.internal.proxy.ProxyClient;
 import codechicken.lib.model.bakery.ModelBakery;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.BlockRenderingRegistry;
 import codechicken.lib.render.item.CCRenderItem;
 import codechicken.lib.render.item.map.MapRenderRegistry;
-import codechicken.lib.texture.SpriteUtils;
 import codechicken.lib.texture.TextureUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
@@ -23,6 +25,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -42,57 +45,30 @@ public class CodeChickenLib {
 
     public static final String MOD_ID = "codechickenlib";
 
-    public static boolean catchBlockRenderExceptions;
-    public static boolean catchItemRenderExceptions;
-    public static boolean attemptRecoveryOnItemRenderException;
-    public static boolean messagePlayerOnRenderExceptionCaught;
-    private static boolean hasSanitized;
-
     public static ConfigFile config;
 
+    public static Proxy proxy;
+
     public CodeChickenLib() {
+        proxy = DistExecutor.runForDist(() -> ProxyClient::new, () -> Proxy::new);
         FMLJavaModLoadingContext.get().getModEventBus().register(this);
     }
 
     @SubscribeEvent
     public void onCommonSetup(FMLCommonSetupEvent event) {
+        proxy.commonSetup(event);
         config = new ConfigFile(new File("config/ccl.cfg"));//TODO, Investigate forge config.
+        CCLNetwork.init();
     }
 
     @SubscribeEvent
     public void onClientSetup(FMLClientSetupEvent event) {
-        loadClientConfig();
-        //OpenGLUtils.loadCaps();
-        //        CustomParticleHandler.init();
-        //        CCBlockStateLoader.initialize();
-        BlockRenderingRegistry.init();
-        CCRenderItem.init();
-        ModelBakery.init();
-        CCRenderEventHandler.init();
-
-        MinecraftForge.EVENT_BUS.register(new TextureUtils());
-        MinecraftForge.EVENT_BUS.register(SpriteUtils.class);
-        MinecraftForge.EVENT_BUS.register(new MapRenderRegistry());
-        MinecraftForge.EVENT_BUS.register(new ModelRegistryHelper());
-        //        ModelLoaderRegistry.registerLoader(CCCubeLoader.INSTANCE);
-        //        ModelLoaderRegistry.registerLoader(CCBakeryModelLoader.INSTANCE);
-
-        //        PacketCustom.assignHandler(PacketDispatcher.NET_CHANNEL, new ClientPacketHandler());
-        //
-        //        ClientCommandHandler.instance.registerCommand(new CCLClientCommand());
-
-        RenderingRegistry.registerEntityRenderingHandler(DummyEntity.class, manager -> {
-            sanitizeEntityRenderers(manager);
-            return new EntityRenderer<DummyEntity>(manager) {
-                protected ResourceLocation getEntityTexture(DummyEntity entity) {
-                    return null;
-                }
-            };
-        });
+        proxy.clientSetup(event);
     }
 
     @SubscribeEvent
     public void onServerSetup(FMLDedicatedServerSetupEvent event) {
+        proxy.serverSetup(event);
 
     }
 
@@ -100,77 +76,5 @@ public class CodeChickenLib {
     public void onServerStarting(FMLServerStartingEvent event) {
 
     }
-
-    @OnlyIn (Dist.CLIENT)
-    public static void sanitizeEntityRenderers(EntityRendererManager renderManager) {
-        if (!hasSanitized) {
-            try {
-                for (EntityRenderer<? extends Entity> render : renderManager.renderers.values()) {
-                    if (render != null) {
-                        for (Field field : render.getClass().getDeclaredFields()) {
-                            if (field.getType().equals(ItemRenderer.class)) {
-                                field.setAccessible(true);
-                                field.set(render, CCRenderItem.getOverridenItemRender());
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Unable to reflect an EntityRenderer!", e);
-            }
-            renderManager.renderers.remove(DummyEntity.class);
-            hasSanitized = true;
-        }
-    }
-
-    private void loadClientConfig() {
-        ConfigTag tag;
-        ConfigTag clientTag = config.getTag("client");
-        clientTag.deleteTag("block_renderer_dispatcher_misc");
-
-        tag = clientTag.getTag("catchBlockRenderExceptions")//
-                .setComment(//
-                        "With this enabled, CCL will catch all exceptions thrown whilst rendering blocks.",//
-                        "If an exception is caught, the block will not be rendered."//
-                );
-        catchBlockRenderExceptions = tag.setDefaultBoolean(true).getBoolean();
-        tag = clientTag.getTag("catchItemRenderExceptions")//
-                .setComment(//
-                        "With this enabled, CCL will catch all exceptions thrown whilst rendering items.",//
-                        "By default CCL will only enhance the crash report, but with 'attemptRecoveryOnItemRenderException' enabled",//
-                        " CCL will attempt to recover after the exception."//
-                );
-        catchItemRenderExceptions = tag.setDefaultBoolean(true).getBoolean();
-        tag = clientTag.getTag("attemptRecoveryOnItemRenderException")//
-                .setComment(//
-                        "With this enabled, CCL will attempt to recover item rendering after an exception is thrown.",//
-                        "It is recommended to only enable this when a mod has a known bug and a fix has not been released yet.",//
-                        "WARNING: This might cause issues with some mods, Some mods modify the GL state rendering items,",//
-                        "  CCL does not recover the GL state, as a result a GL leak /may/ occur. However, CCL will remember",//
-                        "  and pop the GL ModelView matrix stack depth, this might incur a bit of a performance hit.",//
-                        "  Some mods might also have custom BufferBuilders, CCL has no way of recovering the state of those.",//
-                        "  this /can/ result in 'Already Building' exceptions being thrown. CCL will however recover the vanilla BufferBuilder."//
-                );
-        attemptRecoveryOnItemRenderException = tag.setDefaultBoolean(false).getBoolean();
-        tag = clientTag.getTag("messagePlayerOnRenderCrashCaught")//
-                .setComment(//
-                        "With this enabled, CCL will message the player upon an exception from rendering blocks or items.",//
-                        "Messages are Rate-Limited to one per 5 seconds in the event that the exception continues."//
-                );
-        messagePlayerOnRenderExceptionCaught = tag.setDefaultBoolean(true).getBoolean();
-
-        clientTag.save();
-    }
-
-    //@formatter:off
-    @OnlyIn (Dist.CLIENT)
-    public class DummyEntity extends Entity {
-        public DummyEntity(EntityType<?> entityTypeIn, World worldIn) { super(entityTypeIn, worldIn); }
-        @Override protected void registerData() { }
-        @Override protected void readAdditional(CompoundNBT compound) { }
-        @Override protected void writeAdditional(CompoundNBT compound) { }
-        @Override public IPacket<?> createSpawnPacket() { return null; }
-    }
-    //@formatter:on
 
 }

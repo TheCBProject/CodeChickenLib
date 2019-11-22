@@ -32,8 +32,8 @@ public abstract class WrappedItemModel implements IBakedModel {
     @Nullable
     protected World world;
 
-    public WrappedItemModel(Supplier<ModelResourceLocation> wrappedModel) {
-        ModelRegistryHelper.registerPreBakeCallback(event -> wrapped = event.getModelRegistry().get(wrappedModel.get()));
+    public WrappedItemModel(IBakedModel wrapped) {
+        this.wrapped = wrapped;
     }
 
     @Override

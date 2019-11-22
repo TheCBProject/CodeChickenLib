@@ -19,6 +19,16 @@ public interface AtlasRegistrar {
     void registerSprite(ResourceLocation loc, Consumer<TextureAtlasSprite> onReady);
 
     /**
+     * Same as above, just takes a String for the ResourceLocation instead.
+     *
+     * @param loc     The sprite's ResourceLocation.
+     * @param onReady The callback for the sprite being ready.
+     */
+    default void registerSprite(String loc, Consumer<TextureAtlasSprite> onReady) {
+        registerSprite(new ResourceLocation(loc), onReady);
+    }
+
+    /**
      * Same as above, ignores callback.
      * May be useful in _some_ cases.
      *

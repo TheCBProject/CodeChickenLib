@@ -38,6 +38,8 @@ public class CCRenderEventHandler {
         }
     }
 
+
+    @Deprecated//TODO, Might not be needed anymore.
     @OnlyIn (Dist.CLIENT)
     @SubscribeEvent (priority = EventPriority.LOW)
     public void onBlockHighlight(DrawBlockHighlightEvent event) {

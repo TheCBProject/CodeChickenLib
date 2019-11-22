@@ -7,6 +7,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.*;
+import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -174,12 +177,10 @@ public class RayTracer {
      * @return A new CuboidRayTraceResult if successful, null if fail.
      */
     public static CuboidRayTraceResult rayTrace(BlockPos pos, Vector3 start, Vector3 end, IndexedCuboid6 cuboid) {
-        Vector3 startRay = start.copy().subtract(pos);
-        Vector3 endRay = end.copy().subtract(pos);
-        BlockRayTraceResult bbResult = AxisAlignedBB.rayTrace(Collections.singleton(cuboid.aabb()), startRay.vec3(), endRay.vec3(), pos);
+        BlockRayTraceResult bbResult = VoxelShapes.create(cuboid.aabb()).rayTrace(start.vec3(), end.vec3(), pos);
 
         if (bbResult != null) {
-            Vector3 hitVec = new Vector3(bbResult.getHitVec()).add(pos);
+            Vector3 hitVec = new Vector3(bbResult.getHitVec());
             Direction sideHit = bbResult.getFace();
             double dist = hitVec.copy().subtract(start).magSquared();
             return new CuboidRayTraceResult(hitVec, sideHit, pos, bbResult.isInside(), cuboid, dist);
@@ -187,11 +188,11 @@ public class RayTracer {
         return null;
     }
 
-    //    public static RayTraceResult retraceBlock(World world, PlayerEntity player, BlockPos pos) {
-    //        Vec3d startVec = getStartVec(player);
-    //        Vec3d endVec = getEndVec(player);
-    //        return world.getBlockState(pos).collisionRayTrace(world, pos, startVec, endVec);
-    //    }
+    public static RayTraceResult retraceBlock(IBlockReader world, PlayerEntity player, BlockPos pos) {
+        Vec3d startVec = getStartVec(player);
+        Vec3d endVec = getEndVec(player);
+        return world.getBlockState(pos).getRaytraceShape(world, pos).rayTrace(startVec, endVec, pos);
+    }
 
     private static double getBlockReachDistance_server(ServerPlayerEntity player) {
         return player.getAttribute(PlayerEntity.REACH_DISTANCE).getValue();
@@ -202,19 +203,23 @@ public class RayTracer {
         return Minecraft.getInstance().playerController.getBlockReachDistance();
     }
 
-    public static RayTraceResult rayTraceBlocks(PlayerEntity player, RayTraceContext.BlockMode blockMode) {
-        return rayTraceBlocks(player, getBlockReachDistance(player), blockMode, RayTraceContext.FluidMode.NONE);
+    public static BlockRayTraceResult retrace(PlayerEntity player) {
+        return retrace(player, RayTraceContext.BlockMode.OUTLINE);
     }
 
-    public static RayTraceResult rayTraceBlocks(PlayerEntity player, RayTraceContext.BlockMode blockMode, RayTraceContext.FluidMode fluidMode) {
-        return rayTraceBlocks(player, getBlockReachDistance(player), blockMode, fluidMode);
+    public static BlockRayTraceResult retrace(PlayerEntity player, RayTraceContext.BlockMode blockMode) {
+        return retrace(player, getBlockReachDistance(player), blockMode, RayTraceContext.FluidMode.NONE);
     }
 
-    public static RayTraceResult rayTraceBlocks(PlayerEntity player, double reach, RayTraceContext.BlockMode blockMode) {
-        return rayTraceBlocks(player, reach, blockMode, RayTraceContext.FluidMode.NONE);
+    public static BlockRayTraceResult retrace(PlayerEntity player, RayTraceContext.BlockMode blockMode, RayTraceContext.FluidMode fluidMode) {
+        return retrace(player, getBlockReachDistance(player), blockMode, fluidMode);
     }
 
-    public static RayTraceResult rayTraceBlocks(PlayerEntity player, double reach, RayTraceContext.BlockMode blockMode, RayTraceContext.FluidMode fluidMode) {
+    public static BlockRayTraceResult retrace(PlayerEntity player, double reach, RayTraceContext.BlockMode blockMode) {
+        return retrace(player, reach, blockMode, RayTraceContext.FluidMode.NONE);
+    }
+
+    public static BlockRayTraceResult retrace(PlayerEntity player, double reach, RayTraceContext.BlockMode blockMode, RayTraceContext.FluidMode fluidMode) {
         Vec3d startVec = getStartVec(player);
         Vec3d endVec = getEndVec(player, reach);
         return player.world.rayTraceBlocks(new RayTraceContext(startVec, endVec, blockMode, fluidMode, player));

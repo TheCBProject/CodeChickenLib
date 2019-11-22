@@ -3,7 +3,7 @@ package codechicken.lib.texture;
 /**
  * Used for easy persistent TextureAtlasSprite registration.
  *
- * See {@link SpriteUtils}
+ * See {@link SpriteRegistryHelper}
  * Created by covers1624 on 27/10/19.
  */
 public interface IIconRegister {

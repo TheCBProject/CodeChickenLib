@@ -205,6 +205,10 @@ public class Vector3 implements Copyable<Vector3> {
         return subtract(vec.x, vec.y, vec.z);
     }
 
+    public Vector3 subtract(Vec3d vec) {
+        return subtract(vec.x, vec.y, vec.z);
+    }
+
     public Vector3 subtract(BlockPos pos) {
         return subtract(pos.getX(), pos.getY(), pos.getZ());
     }

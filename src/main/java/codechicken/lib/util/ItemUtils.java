@@ -9,6 +9,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -16,6 +17,7 @@ import net.minecraftforge.common.ForgeHooks;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 /**
@@ -180,6 +182,16 @@ public class ItemUtils {
      */
     public static boolean areStacksSameType(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
         return !stack1.isEmpty() && !stack2.isEmpty() && (stack1.getItem() == stack2.getItem() && (stack2.getDamage() == stack1.getDamage()) && ItemStack.areItemStackTagsEqual(stack2, stack1));
+    }
+
+    public static boolean tagsMatch(Item item1, Item item2) {
+        Set<ResourceLocation> tag1 = item1.getTags();
+        Set<ResourceLocation> tag2 = item2.getTags();
+        return tag1.stream().anyMatch(tag2::contains);
+    }
+
+    public static boolean areStacksSameOrTagged(ItemStack stack1, ItemStack stack2) {
+        return areStacksSameType(stack1, stack2) || tagsMatch(stack1.getItem(), stack2.getItem());
     }
 
     //    /**

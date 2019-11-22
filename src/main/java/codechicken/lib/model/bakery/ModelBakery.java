@@ -1,6 +1,7 @@
 package codechicken.lib.model.bakery;
 
 import codechicken.lib.internal.CCLLog;
+import codechicken.lib.internal.proxy.ProxyClient;
 import codechicken.lib.model.ModelRegistryHelper;
 import codechicken.lib.model.bakedmodels.ModelProperties;
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
@@ -34,10 +35,7 @@ import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.resource.VanillaResourceType;
 import org.apache.logging.log4j.Level;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -54,8 +52,8 @@ public class ModelBakery {
 
     private static Cache<String, IBakedModel> keyModelCache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
 
-    private static Map<Item, IItemStackKeyGenerator> itemKeyGeneratorMap = new HashMap<>();
-    private static Map<Block, IBlockStateKeyGenerator> blockKeyGeneratorMap = new HashMap<>();
+    private static Map<Item, IItemStackKeyGenerator> itemKeyGeneratorMap = Collections.synchronizedMap(new HashMap<>());
+    private static Map<Block, IBlockStateKeyGenerator> blockKeyGeneratorMap = Collections.synchronizedMap(new HashMap<>());
     private static IBakedModel missingModel;
 
     public static final IBlockStateKeyGenerator defaultBlockKeyGenerator = (state, data) -> state.toString();
@@ -68,7 +66,7 @@ public class ModelBakery {
                 nukeModelCache();
             }
         });
-        ModelRegistryHelper.registerCallback(event -> missingModel = ModelLoaderRegistry.getMissingModel().bake(event.getModelLoader(), TextureUtils::getTexture, TransformUtils.DEFAULT_BLOCK, DefaultVertexFormats.ITEM));
+        ProxyClient.modelHelper.registerCallback(event -> missingModel = ModelLoaderRegistry.getMissingModel().bake(event.getModelLoader(), TextureUtils::getTexture, TransformUtils.DEFAULT_BLOCK, DefaultVertexFormats.ITEM));
     }
 
     public static IBlockStateKeyGenerator getKeyGenerator(Block block) {

@@ -72,11 +72,11 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
     }
 
     @Override
-    public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IEnviromentBlockReader world, BlockPos pos) {
+    public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IEnviromentBlockReader world, BlockPos pos, IModelData data) {
         //TODO, Destroy may need IModelData
         IBakedModel model = ModelBakery.getCachedModel(state, EmptyModelData.INSTANCE);
         if (model instanceof IModelParticleProvider) {
-            return ((IModelParticleProvider) model).getDestroyEffects(state, world, pos);
+            return ((IModelParticleProvider) model).getDestroyEffects(state, world, pos, data);
         }
         return Collections.emptySet();
     }

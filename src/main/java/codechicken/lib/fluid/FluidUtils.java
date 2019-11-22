@@ -17,12 +17,6 @@ public class FluidUtils {
     public static FluidStack water = new FluidStack(Fluids.WATER, 1000);
     public static FluidStack lava = new FluidStack(Fluids.LAVA, 1000);
 
-    public static FluidStack copy(FluidStack liquid, int quantity) {
-        liquid = liquid.copy();
-        liquid.setAmount(quantity);
-        return liquid;
-    }
-
     public static int getLuminosity(FluidStack stack, double density) {
         if (stack.isEmpty()) {
             return 0;

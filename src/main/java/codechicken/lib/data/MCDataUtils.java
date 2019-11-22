@@ -8,14 +8,17 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fluids.FluidStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+//TODO, Why does this exist?
+//TODO, Improve MCDataInput / MCDataOutput implementations, and just make all these default methods.
+@Deprecated
 public class MCDataUtils {
 
     /**
@@ -96,7 +99,7 @@ public class MCDataUtils {
         FluidStack fluid = FluidStack.EMPTY;
         int fluidID = in.readVarInt();
 
-        if(fluidID > 0) {
+        if (fluidID > 0) {
             int stackSize = in.readVarInt();
             fluid = new FluidStack(Registry.FLUID.getByValue(fluidID), stackSize);
             fluid.setTag(in.readCompoundNBT());
@@ -119,6 +122,10 @@ public class MCDataUtils {
         } else {
             throw new EncoderException("Invalid flag for readCompoundNBT. Expected 0 || 1 Got: " + flag + " Possible incorrect read order?");
         }
+    }
+
+    public static ITextComponent readTextComponent(MCDataInput input) {
+        return ITextComponent.Serializer.fromJson(input.readString());
     }
 
     /**
@@ -163,10 +170,13 @@ public class MCDataUtils {
      * PacketBuffer.writeString
      */
     public static void writeString(MCDataOutput out, String string) {
+        writeString(out, string, 32767);
+    }
 
+    public static void writeString(MCDataOutput out, String string, int maxLen) {
         byte[] abyte = string.getBytes(Charsets.UTF_8);
-        if (abyte.length > 32767) {
-            throw new EncoderException("String too big (was " + string.length() + " bytes encoded, max " + 32767 + ")");
+        if (abyte.length > maxLen) {
+            throw new EncoderException("String too big (was " + string.length() + " bytes encoded, max " + maxLen + ")");
         }
 
         out.writeVarInt(abyte.length);
@@ -198,7 +208,7 @@ public class MCDataUtils {
         }
     }
 
-    public static void writeCompoundNBT(@Nonnull MCDataOutput out, @Nullable CompoundNBT tag) {
+    public static void writeCompoundNBT(MCDataOutput out, CompoundNBT tag) {
 
         if (tag == null) {
             out.writeByte(0);
@@ -210,5 +220,9 @@ public class MCDataUtils {
         } catch (IOException e) {
             throw new EncoderException(e);
         }
+    }
+
+    public static void writeTextComponent(MCDataOutput out, ITextComponent component) {
+        out.writeString(ITextComponent.Serializer.toJson(component), 262144);
     }
 }

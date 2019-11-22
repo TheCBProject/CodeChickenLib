@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.UUID;
@@ -85,4 +86,9 @@ public interface MCDataInput {
     default FluidStack readFluidStack() {
         return MCDataUtils.readFluidStack(this);
     }
+
+    default ITextComponent readTextComponent() {
+        return MCDataUtils.readTextComponent(this);
+    }
+
 }

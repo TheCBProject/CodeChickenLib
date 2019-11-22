@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fluids.FluidStack;
 
 import java.util.UUID;
@@ -46,6 +47,11 @@ public interface MCDataOutput {
 
     default MCDataOutput writeString(String s) {
         MCDataUtils.writeString(this, s);
+        return this;
+    }
+
+    default MCDataOutput writeString(String s, int maxLen) {
+        MCDataUtils.writeString(this, s, maxLen);
         return this;
     }
 
@@ -94,6 +100,11 @@ public interface MCDataOutput {
 
     default MCDataOutput writeFluidStack(FluidStack liquid) {
         MCDataUtils.writeFluidStack(this, liquid);
+        return this;
+    }
+
+    default MCDataOutput writeTextComponent(ITextComponent component) {
+        MCDataUtils.writeTextComponent(this, component);
         return this;
     }
 }
