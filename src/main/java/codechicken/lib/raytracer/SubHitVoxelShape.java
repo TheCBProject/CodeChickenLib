@@ -32,7 +32,7 @@ public class SubHitVoxelShape extends VoxelShape {
         super(shape.part);
         this.shape = shape;
         cuboidShapes = cuboids.stream()//
-                .map(e -> Pair.of(e, VoxelShapes.create(e.aabb())))//
+                .map(e -> Pair.of(e, VoxelShapeCache.getShape(e)))//
                 .collect(Collectors.toList());
     }
 

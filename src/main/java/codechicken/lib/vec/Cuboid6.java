@@ -283,8 +283,27 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return setSide(Direction.BY_INDEX[s], d);
     }
 
+    public int hashCode() {
+        long i = Double.doubleToLongBits(min.x);
+        int j = (int) (i ^ i >>> 32);
+        i = Double.doubleToLongBits(min.y);
+        j = 31 * j + (int) (i ^ i >>> 32);
+        i = Double.doubleToLongBits(min.z);
+        j = 31 * j + (int) (i ^ i >>> 32);
+        i = Double.doubleToLongBits(max.x);
+        j = 31 * j + (int) (i ^ i >>> 32);
+        i = Double.doubleToLongBits(max.y);
+        j = 31 * j + (int) (i ^ i >>> 32);
+        i = Double.doubleToLongBits(max.z);
+        j = 31 * j + (int) (i ^ i >>> 32);
+        return j;
+    }
+
     @Override
     public boolean equals(Object obj) {
+        if (super.equals(obj)) {
+            return true;
+        }
         if (!(obj instanceof Cuboid6)) {
             return false;
         }

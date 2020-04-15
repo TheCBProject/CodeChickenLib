@@ -489,7 +489,21 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     @Override
+    public int hashCode() {
+        long j = Double.doubleToLongBits(x);
+        int i = (int) (j ^ j >>> 32);
+        j = Double.doubleToLongBits(y);
+        i = 31 * i + (int) (j ^ j >>> 32);
+        j = Double.doubleToLongBits(z);
+        i = 31 * i + (int) (j ^ j >>> 32);
+        return i;
+    }
+
+    @Override
     public boolean equals(Object o) {
+        if (super.equals(o)) {
+            return true;
+        }
         if (!(o instanceof Vector3)) {
             return false;
         }
