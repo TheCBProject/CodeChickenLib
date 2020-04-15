@@ -1,6 +1,7 @@
 package codechicken.lib.render;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -42,10 +43,9 @@ public class CCRenderEventHandler {
     @Deprecated//TODO, Might not be needed anymore.
     @OnlyIn (Dist.CLIENT)
     @SubscribeEvent (priority = EventPriority.LOW)
-    public void onBlockHighlight(DrawBlockHighlightEvent event) {
-
+    public void onBlockHighlight(DrawBlockHighlightEvent.HighlightBlock event) {
         //We have found a CuboidRayTraceResult, Lets render it properly..
-        RayTraceResult hit = event.getTarget();
+        BlockRayTraceResult hit = event.getTarget();
         if (hit instanceof CuboidRayTraceResult) {
             CuboidRayTraceResult cuboidHit = (CuboidRayTraceResult) hit;
             event.setCanceled(true);

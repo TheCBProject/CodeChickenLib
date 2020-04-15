@@ -2,14 +2,15 @@ package codechicken.lib.raytracer;
 
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.*;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -188,10 +189,19 @@ public class RayTracer {
         return null;
     }
 
-    public static RayTraceResult retraceBlock(IBlockReader world, PlayerEntity player, BlockPos pos) {
+    public static BlockRayTraceResult retraceBlock(IBlockReader world, PlayerEntity player, BlockPos pos) {
         Vec3d startVec = getStartVec(player);
         Vec3d endVec = getEndVec(player);
-        return world.getBlockState(pos).getRaytraceShape(world, pos).rayTrace(startVec, endVec, pos);
+        BlockState state = world.getBlockState(pos);
+        VoxelShape baseShape = state.getShape(world, pos);
+        BlockRayTraceResult baseTraceResult = baseShape.rayTrace(startVec, endVec, pos);
+        if (baseTraceResult != null) {
+            BlockRayTraceResult raytraceTraceShape = state.getRaytraceShape(world, pos).rayTrace(startVec, endVec, pos);
+            if (raytraceTraceShape != null) {
+                return raytraceTraceShape;
+            }
+        }
+        return baseTraceResult;
     }
 
     private static double getBlockReachDistance_server(ServerPlayerEntity player) {

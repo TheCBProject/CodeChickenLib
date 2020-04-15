@@ -17,6 +17,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
@@ -102,12 +103,10 @@ public class RenderUtils {
         }
     }
 
-    public static void translateToWorldCoords(Entity entity, float frame) {
-        double interpPosX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * frame;
-        double interpPosY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * frame;
-        double interpPosZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * frame;
+    public static void translateToWorldCoords(ActiveRenderInfo info) {
+        Vec3d projectedView = info.getProjectedView();
 
-        GlStateManager.translated(-interpPosX, -interpPosY, -interpPosZ);
+        GlStateManager.translated(-projectedView.x, -projectedView.y, -projectedView.z);
     }
 
     /**

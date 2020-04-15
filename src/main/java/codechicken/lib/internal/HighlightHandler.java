@@ -31,7 +31,7 @@ public class HighlightHandler {
     public static void renderWorldLast(RenderWorldLastEvent event) {
         if (highlight != null) {
             GlStateManager.pushMatrix();
-            RenderUtils.translateToWorldCoords(Minecraft.getInstance().getRenderViewEntity(), event.getPartialTicks());
+            RenderUtils.translateToWorldCoords(Minecraft.getInstance().gameRenderer.getActiveRenderInfo());
             GlStateManager.translated(highlight.getX(), highlight.getY(), highlight.getZ());
 
             GlStateManager.disableTexture();

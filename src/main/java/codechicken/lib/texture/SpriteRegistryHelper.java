@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -30,7 +31,11 @@ public class SpriteRegistryHelper {
     private final Map<String, AtlasRegistrarImpl> atlasRegistrars = new HashMap<>();
 
     public SpriteRegistryHelper() {
-        FMLJavaModLoadingContext.get().getModEventBus().register(this);
+        this(FMLJavaModLoadingContext.get().getModEventBus());
+    }
+
+    public SpriteRegistryHelper(IEventBus eventBus) {
+        eventBus.register(this);
     }
 
     /**

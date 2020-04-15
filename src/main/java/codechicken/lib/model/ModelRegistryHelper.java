@@ -3,6 +3,7 @@ package codechicken.lib.model;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -16,6 +17,10 @@ public class ModelRegistryHelper {
     private List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<>();
     private List<IModelBakeCallbackPre> modelBakePreCallbacks = new LinkedList<>();
     private List<IModelBakeCallback> modelBakeCallbacks = new LinkedList<>();
+
+    public ModelRegistryHelper(IEventBus eventBus) {
+        eventBus.register(this);
+    }
 
     public ModelRegistryHelper() {
         FMLJavaModLoadingContext.get().getModEventBus().register(this);

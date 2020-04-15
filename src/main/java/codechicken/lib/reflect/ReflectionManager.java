@@ -224,12 +224,11 @@ public class ReflectionManager {
      *
      * @param mapping  The mapping.
      * @param instance The Class instance holding the field, May be null for static classes.
-     * @param clazz    The fields type.
      * @param <R>      The return type.
      * @return The fields value.
      */
     @SuppressWarnings ("unchecked")
-    public static <R> R getField(ObfMapping mapping, Object instance, Class<R> clazz) {
+    public static <R> R getField(ObfMapping mapping, Object instance) {
         try {
             Field field = getField(mapping);
             return (R) field.get(instance);
