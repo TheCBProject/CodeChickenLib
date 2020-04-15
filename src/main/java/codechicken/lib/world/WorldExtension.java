@@ -3,6 +3,7 @@ package codechicken.lib.world;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunk;
@@ -11,10 +12,10 @@ import java.util.HashMap;
 
 public abstract class WorldExtension {
 
-    public final World world;
+    public final IWorld world;
     public HashMap<IChunk, ChunkExtension> chunkMap = new HashMap<>();
 
-    public WorldExtension(World world) {
+    public WorldExtension(IWorld world) {
         this.world = world;
     }
 

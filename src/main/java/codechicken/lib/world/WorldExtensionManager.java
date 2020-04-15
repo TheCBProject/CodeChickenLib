@@ -5,8 +5,8 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.ChunkPrimerWrapper;
 import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -54,14 +54,19 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkLoad(ChunkEvent.Load event) {
-            if (!hasExtensions(event.getWorld())) {
-                WorldExtensionManager.onWorldLoad(event.getWorld());
+            IWorld world = event.getWorld();
+            IChunk chunk = event.getChunk();
+            if (world == null && chunk instanceof ChunkPrimerWrapper) {
+                world = ((ChunkPrimerWrapper) chunk).func_217336_u().getWorld();
             }
+            if (hasExtensions(world)) {
+                WorldExtensionManager.onWorldLoad(world);
 
-            createChunkExtension(event.getWorld(), event.getChunk());
+                createChunkExtension(world,chunk);
 
-            for (WorldExtension extension : getExtensions(event.getWorld())) {
-                extension.loadChunk(event.getChunk());
+                for (WorldExtension extension : getExtensions(world)) {
+                    extension.loadChunk(chunk);
+                }
             }
         }
 

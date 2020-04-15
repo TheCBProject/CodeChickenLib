@@ -5,17 +5,18 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.IChunk;
 
 import java.util.HashSet;
 
 public abstract class ChunkExtension {
 
-    public final Chunk chunk;
+    public final IChunk chunk;
     public final ChunkPos coord;
     public final WorldExtension world;
     public HashSet<ServerPlayerEntity> watchedPlayers;
 
-    public ChunkExtension(Chunk chunk, WorldExtension world) {
+    public ChunkExtension(IChunk chunk, WorldExtension world) {
         this.chunk = chunk;
         coord = chunk.getPos();
         this.world = world;
