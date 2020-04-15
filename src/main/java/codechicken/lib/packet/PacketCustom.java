@@ -1,9 +1,9 @@
 package codechicken.lib.packet;
 
-import codechicken.lib.data.MCDataInput;
-import codechicken.lib.data.MCDataOutput;
+import codechicken.lib.data.MCDataByteBuf;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.ServerUtils;
+import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -12,13 +12,14 @@ import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.server.management.OpList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
@@ -27,27 +28,31 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.network.NetworkDirection;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.nio.*;
 import java.util.UUID;
 
+//TODO, Evaluate explicit packet compression again.
 //Tasty Cheese!
-public final class PacketCustom implements MCDataInput, MCDataOutput {
+public final class PacketCustom extends MCDataByteBuf {
 
-    private final PacketBuffer buf;
-    private ResourceLocation channel;
-    private int type;
+    private final ResourceLocation channel;
+    private final int type;
 
     public PacketCustom(ByteBuf payload) {
-        buf = payload instanceof PacketBuffer ? (PacketBuffer) payload : new PacketBuffer(payload);
-        type = readUByte();
+        super(payload);
+        this.channel = null;
+        this.type = readUByte();
     }
 
     public PacketCustom(ResourceLocation channel, int type) {
+        super(Unpooled.buffer());
         if (!MathHelper.between(0, type, 255)) {
             throw new RuntimeException("Invalid packet type, Must be between 0 and 255. Got: " + type);
         }
-        buf = new PacketBuffer(Unpooled.buffer());
         this.channel = channel;
         this.type = type;
         writeByte(type);
@@ -61,6 +66,10 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
         return type;
     }
 
+    public ResourceLocation getChannel() {
+        return channel;
+    }
+
     public IPacket<?> toPacket(NetworkDirection direction) {
         return toPacket(direction, 0);
     }
@@ -69,11 +78,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
         if (incoming()) {
             throw new IllegalStateException("Tried to write an incoming packet");
         }
-        return direction.buildPacket(Pair.of(buf, index), channel).getThis();
-    }
-
-    public PacketBuffer getPacketBuffer() {
-        return buf;
+        return direction.buildPacket(Pair.of(toPacketBuffer(), index), channel).getThis();
     }
 
     //region To and from NBT / TilePacket.
@@ -98,8 +103,8 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
     public static PacketCustom fromTilePacket(SUpdateTileEntityPacket tilePacket) {
         return fromNBTTag(tilePacket.getNbtCompound());
     }
-    //endregion
 
+    //endregion
     //region Server -> Client.
     public void sendToPlayer(ServerPlayerEntity player) {
         sendToPlayer(toPacket(NetworkDirection.PLAY_TO_CLIENT), player);
@@ -142,7 +147,11 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
     }
 
     public void sendToChunk(TileEntity tile) {
-        sendToChunk(tile.getWorld(), tile.getPos().getX() >> 4, tile.getPos().getZ() >> 4);
+        sendToChunk(tile.getWorld(), tile.getPos());
+    }
+
+    public void sendToChunk(World world, BlockPos blockPos) {
+        sendToChunk(toPacket(NetworkDirection.PLAY_TO_CLIENT), world, blockPos);
     }
 
     public void sendToChunk(World world, int chunkX, int chunkZ) {
@@ -151,6 +160,10 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
 
     public void sendToChunk(World world, ChunkPos pos) {
         sendToChunk(toPacket(NetworkDirection.PLAY_TO_CLIENT), world, pos);
+    }
+
+    public static void sendToChunk(IPacket<?> packet, World world, BlockPos blockPos) {
+        sendToChunk(packet, world, blockPos.getX() >> 4, blockPos.getZ() >> 4);
     }
 
     public static void sendToChunk(IPacket<?> packet, World world, int chunkX, int chunkZ) {
@@ -186,193 +199,68 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
     }
 
     //endregion
-
-    //region MCDataOutput. Write.
-    @Override
-    public PacketCustom writeBoolean(boolean b) {
-        buf.writeBoolean(b);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeByte(int b) {
-        buf.writeByte(b);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeShort(int s) {
-        buf.writeShort(s);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeInt(int i) {
-        buf.writeInt(i);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeFloat(float f) {
-        buf.writeFloat(f);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeDouble(double d) {
-        buf.writeDouble(d);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeLong(long l) {
-        buf.writeLong(l);
-        return this;
-    }
-
-    public PacketCustom writeChar(char c) {
-        buf.writeChar(c);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeVarInt(int i) {
-        MCDataOutput.super.writeVarInt(i);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeVarShort(int s) {
-        MCDataOutput.super.writeVarShort(s);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeVarLong(long l) {
-        MCDataOutput.super.writeVarLong(l);
-        return this;
-    }
-
-    public PacketCustom writeArray(byte[] barray) {
-        buf.writeBytes(barray);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeString(String s) {
-        MCDataOutput.super.writeString(s);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeUUID(UUID uuid) {
-        MCDataOutput.super.writeUUID(uuid);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeEnum(Enum<?> value) {
-        MCDataOutput.super.writeEnum(value);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeResourceLocation(ResourceLocation location) {
-        MCDataOutput.super.writeResourceLocation(location);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writePos(BlockPos pos) {
-        MCDataOutput.super.writePos(pos);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeVector(Vector3 vec) {
-        MCDataOutput.super.writeVector(vec);
-        return null;
-    }
-
-    @Override
-    public PacketCustom writeCompoundNBT(CompoundNBT tag) {
-        MCDataOutput.super.writeCompoundNBT(tag);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeItemStack(ItemStack stack) {
-        MCDataOutput.super.writeItemStack(stack);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeFluidStack(FluidStack liquid) {
-        MCDataOutput.super.writeFluidStack(liquid);
-        return this;
-    }
-
-    @Override
-    public PacketCustom writeTextComponent(ITextComponent component) {
-        MCDataOutput.super.writeTextComponent(component);
-        return this;
-    }
-
-    //endregion
-
-    //region MCDataInput. Read.
-    public short readUByte() {
-        return buf.readUnsignedByte();
-    }
-
-    @Override
-    public double readDouble() {
-        return buf.readDouble();
-    }
-
-    @Override
-    public float readFloat() {
-        return buf.readFloat();
-    }
-
-    @Override
-    public boolean readBoolean() {
-        return buf.readBoolean();
-    }
-
-    @Override
-    public char readChar() {
-        return buf.readChar();
-    }
-
-    @Override
-    public long readLong() {
-        return buf.readLong();
-    }
-
-    @Override
-    public int readInt() {
-        return buf.readInt();
-    }
-
-    @Override
-    public short readShort() {
-        return buf.readShort();
-    }
-
-    public int readUShort() {
-        return buf.readUnsignedShort();
-    }
-
-    @Override
-    public byte readByte() {
-        return buf.readByte();
-    }
-
-    public byte[] readArray(int length) {
-        byte[] bytes = new byte[length];
-        buf.readBytes(bytes);
-        return bytes;
-    }
+    //region Machine Generated overrides.
+    //@formatter:off
+    @Override public PacketCustom writeByte(int p0) { super.writeByte(p0); return this; }
+    @Override public PacketCustom writeChar(int c) { super.writeChar(c); return this; }
+    @Override public PacketCustom writeShort(int p0) { super.writeShort(p0); return this; }
+    @Override public PacketCustom writeInt(int p0) { super.writeInt(p0); return this; }
+    @Override public PacketCustom writeLong(long l) { super.writeLong(l); return this; }
+    @Override public PacketCustom writeFloat(float f) { super.writeFloat(f); return this; }
+    @Override public PacketCustom writeDouble(double p0) { super.writeDouble(p0); return this; }
+    @Override public PacketCustom writeBoolean(boolean b) { super.writeBoolean(b); return this; }
+    @Override public PacketCustom writeBytes(byte[] b) { super.writeBytes(b); return this; }
+    @Override public PacketCustom writeBytes(byte[] b, int off, int len) { super.writeBytes(b, off, len); return this; }
+    @Override public PacketCustom writeChars(char[] c) { super.writeChars(c); return this; }
+    @Override public PacketCustom writeChars(char[] c, int off, int len) { super.writeChars(c, off, len); return this; }
+    @Override public PacketCustom writeShorts(short[] s) { super.writeShorts(s); return this; }
+    @Override public PacketCustom writeShorts(short[] s, int off, int len) { super.writeShorts(s, off, len); return this; }
+    @Override public PacketCustom writeInts(int[] i) { super.writeInts(i); return this; }
+    @Override public PacketCustom writeInts(int[] i, int off, int len) { super.writeInts(i, off, len); return this; }
+    @Override public PacketCustom writeLongs(long[] l) { super.writeLongs(l); return this; }
+    @Override public PacketCustom writeLongs(long[] l, int off, int len) { super.writeLongs(l, off, len); return this; }
+    @Override public PacketCustom writeFloats(float[] f) { super.writeFloats(f); return this; }
+    @Override public PacketCustom writeFloats(float[] f, int off, int len) { super.writeFloats(f, off, len); return this; }
+    @Override public PacketCustom writeDoubles(double[] d) { super.writeDoubles(d); return this; }
+    @Override public PacketCustom writeDoubles(double[] d, int off, int len) { super.writeDoubles(d, off, len); return this; }
+    @Override public PacketCustom writeBooleans(boolean[] b) { super.writeBooleans(b); return this; }
+    @Override public PacketCustom writeBooleans(boolean[] b, int off, int len) { super.writeBooleans(b, off, len); return this; }
+    @Override public PacketCustom append(byte[] bytes) { super.append(bytes); return this; }
+    @Override public PacketCustom writeVarShort(int s) { super.writeVarShort(s); return this; }
+    @Override public PacketCustom writeVarInt(int i) { super.writeVarInt(i); return this; }
+    @Override public PacketCustom writeVarLong(long l) { super.writeVarLong(l); return this; }
+    @Override public PacketCustom writeVarShorts(short[] s) { super.writeVarShorts(s); return this; }
+    @Override public PacketCustom writeVarShorts(short[] s, int off, int len) { super.writeVarShorts(s, off, len); return this; }
+    @Override public PacketCustom writeVarInts(int[] i) { super.writeVarInts(i); return this; }
+    @Override public PacketCustom writeVarInts(int[] i, int off, int len) { super.writeVarInts(i, off, len); return this; }
+    @Override public PacketCustom writeVarLongs(long[] l) { super.writeVarLongs(l); return this; }
+    @Override public PacketCustom writeVarLongs(long[] l, int off, int len) { super.writeVarLongs(l, off, len); return this; }
+    @Override public PacketCustom writeString(String s) { super.writeString(s); return this; }
+    @Override public PacketCustom writeString(String s, int maxLen) { super.writeString(s, maxLen); return this; }
+    @Override public PacketCustom writeUUID(UUID uuid) { super.writeUUID(uuid); return this; }
+    @Override public PacketCustom writeEnum(Enum<?> value) { super.writeEnum(value); return this; }
+    @Override public PacketCustom writeByteBuffer(ByteBuffer buffer) { super.writeByteBuffer(buffer); return this; }
+    @Override public PacketCustom writeCharBuffer(CharBuffer buffer) { super.writeCharBuffer(buffer); return this; }
+    @Override public PacketCustom writeShortBuffer(ShortBuffer buffer) { super.writeShortBuffer(buffer); return this; }
+    @Override public PacketCustom writeIntBuffer(IntBuffer buffer) { super.writeIntBuffer(buffer); return this; }
+    @Override public PacketCustom writeLongBuffer(LongBuffer buffer) { super.writeLongBuffer(buffer); return this; }
+    @Override public PacketCustom writeFloatBuffer(FloatBuffer buffer) { super.writeFloatBuffer(buffer); return this; }
+    @Override public PacketCustom writeDoubleBuffer(DoubleBuffer buffer) { super.writeDoubleBuffer(buffer); return this; }
+    @Override public PacketCustom writeVector(Vector3 vec) { super.writeVector(vec); return this; }
+    @Override public PacketCustom writeCuboid(Cuboid6 cuboid) { super.writeCuboid(cuboid); return this; }
+    @Override public PacketCustom writeResourceLocation(ResourceLocation loc) { super.writeResourceLocation(loc); return this; }
+    @Override public PacketCustom writePos(BlockPos pos) { super.writePos(pos); return this; }
+    @Override public PacketCustom writeVec3i(Vec3i vec) { super.writeVec3i(vec); return this; }
+    @Override public PacketCustom writeVec3d(Vec3d vec) { super.writeVec3d(vec); return this; }
+    @Override public PacketCustom writeCompoundNBT(CompoundNBT tag) { super.writeCompoundNBT(tag); return this; }
+    @Override public PacketCustom writeFluidStack(FluidStack stack) { super.writeFluidStack(stack); return this; }
+    @Override public PacketCustom writeItemStack(ItemStack stack) { super.writeItemStack(stack); return this; }
+    @Override public PacketCustom writeItemStack(ItemStack stack, boolean limitedTag) { super.writeItemStack(stack, limitedTag); return this; }
+    @Override public PacketCustom writeTextComponent(ITextComponent component) { super.writeTextComponent(component); return this; }
+    @Override public <T extends IForgeRegistryEntry<T>> PacketCustom writeRegistryIdUnsafe(IForgeRegistry<T> registry, T entry) { super.writeRegistryIdUnsafe(registry, entry); return this; }
+    @Override public <T extends IForgeRegistryEntry<T>> PacketCustom writeRegistryIdUnsafe(IForgeRegistry<T> registry, ResourceLocation entry) { super.writeRegistryIdUnsafe(registry, entry); return this; }
+    @Override public <T extends IForgeRegistryEntry<T>> PacketCustom writeRegistryId(T entry) { super.writeRegistryId(entry); return this; }
+    @Override public PacketCustom writeByteBuf(ByteBuf buf) { super.writeByteBuf(buf); return this; }
+    //@formatter:off
     //endregion
 }

@@ -1,21 +1,20 @@
 package codechicken.lib.data;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 
 /**
- * Created by covers1624 on 11/06/18.
+ * Created by covers1624 on 4/16/20.
  */
-public class MCByteStream extends MCDataOutputWrapper {
+public class MCByteStream extends MCDataOutputStream {
 
-    private ByteArrayOutputStream out;
+    private final ByteArrayOutputStream bos;
 
-    public MCByteStream(ByteArrayOutputStream out) {
-        super(out);
-        this.out = out;
+    public MCByteStream(ByteArrayOutputStream bos) {
+        super(bos);
+        this.bos = bos;
     }
 
     public byte[] getBytes() {
-        return out.toByteArray();
+        return bos.toByteArray();
     }
 }
