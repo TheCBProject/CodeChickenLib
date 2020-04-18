@@ -2,6 +2,8 @@ package codechicken.lib.data;
 
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
@@ -10,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -18,6 +21,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.*;
 
+import javax.annotation.Nullable;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -29,33 +33,97 @@ import java.util.UUID;
 import static codechicken.lib.util.SneakyUtils.unsafeCast;
 
 /**
+ * Provides the ability to read various datas from some sort of data stream.
+ * See {@link MCDataInputStream} to wrap an {@link InputStream} to this.
+ * See {@link MCByteStream} to wrap an {@link ByteBuf} to this.
+ *
  * Created by covers1624 on 4/15/20.
  */
 public interface MCDataInput {
 
     //region Primitives
+
+    /**
+     * Reads a byte from the stream.
+     *
+     * @return The byte.
+     */
     byte readByte();
 
+    /**
+     * Reads an Unsigned byte from the stream.
+     *
+     * @return The Unsigned byte.
+     */
     short readUByte();
 
+    /**
+     * Reads a char from the stream.
+     *
+     * @return The char.
+     */
     char readChar();
 
+    /**
+     * Reads a Short from the stream.
+     *
+     * @return The short.
+     */
     short readShort();
 
+    /**
+     * Reads an Unsigned short from the stream.
+     *
+     * @return The Unsigned short.
+     */
     int readUShort();
 
+    /**
+     * Reads an int from the stream.
+     *
+     * @return The int.
+     */
     int readInt();
 
+    /**
+     * Reads a long from the stream.
+     *
+     * @return The long.
+     */
     long readLong();
 
+    /**
+     * Reads a float from the stream.
+     *
+     * @return The float.
+     */
     float readFloat();
 
+    /**
+     * Reads a double from the stream.
+     *
+     * @return The double.
+     */
     double readDouble();
 
+    /**
+     * Reads a boolean from the stream.
+     *
+     * @return The boolean.
+     */
     boolean readBoolean();
     //endregion
 
     //region Arrays.
+
+    /**
+     * Reads a block of bytes written with,
+     * {@link MCDataOutput#writeBytes(byte[])},
+     * {@link MCDataOutput#writeBytes(byte[], int, int)}, or
+     * {@link MCDataOutput#writeByteBuffer(ByteBuffer)}
+     *
+     * @return The bytes.
+     */
     default byte[] readBytes() {
         int len = readVarInt();
         byte[] arr = new byte[len];
@@ -65,6 +133,14 @@ public interface MCDataInput {
         return arr;
     }
 
+    /**
+     * Reads a block of chars written with,
+     * {@link MCDataOutput#writeChars(char[])},
+     * {@link MCDataOutput#writeChars(char[], int, int)}, or
+     * {@link MCDataOutput#writeCharBuffer(CharBuffer)}
+     *
+     * @return The chars.
+     */
     default char[] readChars() {
         int len = readVarInt();
         char[] arr = new char[len];
@@ -74,6 +150,14 @@ public interface MCDataInput {
         return arr;
     }
 
+    /**
+     * Reads a block of shorts written with,
+     * {@link MCDataOutput#writeShorts(short[])},
+     * {@link MCDataOutput#writeShorts(short[], int, int)}, or
+     * {@link MCDataOutput#writeShortBuffer(ShortBuffer)}.
+     *
+     * @return The shorts.
+     */
     default short[] readShorts() {
         int len = readVarInt();
         short[] arr = new short[len];
@@ -83,6 +167,14 @@ public interface MCDataInput {
         return arr;
     }
 
+    /**
+     * Reads a block of ints written with,
+     * {@link MCDataOutput#writeInts(int[])},
+     * {@link MCDataOutput#writeInts(int[], int, int)}, or
+     * {@link MCDataOutput#writeIntBuffer(IntBuffer)}.
+     *
+     * @return The ints.
+     */
     default int[] readInts() {
         int len = readVarInt();
         int[] arr = new int[len];
@@ -92,6 +184,14 @@ public interface MCDataInput {
         return arr;
     }
 
+    /**
+     * Reads a block of longs written with,
+     * {@link MCDataOutput#writeLongs(long[])},
+     * {@link MCDataOutput#writeLongs(long[], int, int)}, or
+     * {@link MCDataOutput#writeLongBuffer(LongBuffer)}.
+     *
+     * @return The longs.
+     */
     default long[] readLongs() {
         int len = readVarInt();
         long[] arr = new long[len];
@@ -101,6 +201,14 @@ public interface MCDataInput {
         return arr;
     }
 
+    /**
+     * Reads a block of floats written with,
+     * {@link MCDataOutput#writeFloats(float[])},
+     * {@link MCDataOutput#writeFloats(float[], int, int)}, or
+     * {@link MCDataOutput#writeFloatBuffer(FloatBuffer)}.
+     *
+     * @return The floats.
+     */
     default float[] readFloats() {
         int len = readVarInt();
         float[] arr = new float[len];
@@ -110,6 +218,14 @@ public interface MCDataInput {
         return arr;
     }
 
+    /**
+     * Reads a block of doubles written with,
+     * {@link MCDataOutput#writeDoubles(double[])},
+     * {@link MCDataOutput#writeDoubles(double[], int, int)}, or
+     * {@link MCDataOutput#writeDoubleBuffer(DoubleBuffer)}.
+     *
+     * @return The doubles.
+     */
     default double[] readDoubles() {
         int len = readVarInt();
         double[] arr = new double[len];
@@ -119,6 +235,13 @@ public interface MCDataInput {
         return arr;
     }
 
+    /**
+     * Reads a block of booleans written with,
+     * {@link MCDataOutput#writeBooleans(boolean[])}, or
+     * {@link MCDataOutput#writeBooleans(boolean[], int, int)}
+     *
+     * @return The booleans.
+     */
     default boolean[] readBooleans() {
         int len = readVarInt();
         boolean[] arr = new boolean[len];
@@ -130,17 +253,12 @@ public interface MCDataInput {
     //endregion
 
     //region Var-Primitives
-    @Deprecated //TODO Is this worth it?
-    default int readVarShort() {
-        int low = readUShort();
-        int high = 0;
-        if ((low & 0x8000) != 0) {
-            low = low & 0x7FFF;
-            high = readUByte();
-        }
-        return ((high & 0xFF) << 15) | low;
-    }
 
+    /**
+     * Reads a Variable length int from the stream.
+     *
+     * @return The int.
+     */
     default int readVarInt() {
         int i = 0;
         int j = 0;
@@ -159,6 +277,11 @@ public interface MCDataInput {
         return i;
     }
 
+    /**
+     * Reads a Variable length long from the stream.
+     *
+     * @return The long.
+     */
     default long readVarLong() {
         long i = 0L;
         int j = 0;
@@ -179,16 +302,12 @@ public interface MCDataInput {
     //endregion
 
     //region Var-Arrays.
-    @Deprecated
-    default short[] readVarShorts() {
-        int len = readVarInt();
-        short[] arr = new short[len];
-        for (int i = 0; i < len; i++) {
-            arr[i] = (short) readVarShort();
-        }
-        return arr;
-    }
 
+    /**
+     * Reads an array of Variable length ints from the stream.
+     *
+     * @return The ints.
+     */
     default int[] readVarInts() {
         int len = readVarInt();
         int[] arr = new int[len];
@@ -198,6 +317,11 @@ public interface MCDataInput {
         return arr;
     }
 
+    /**
+     * Reads an array of Variable length longs from the stream.
+     *
+     * @return The longs.
+     */
     default long[] readVarLongs() {
         int len = readVarInt();
         long[] arr = new long[len];
@@ -209,74 +333,195 @@ public interface MCDataInput {
     //endregion
 
     //region Java Objects.
+
+    /**
+     * Reads a UTF-8 encoded {@link String} from the stream.
+     *
+     * @return The {@link String}.
+     */
     default String readString() {
         return new String(readBytes(), StandardCharsets.UTF_8);
     }
 
+    /**
+     * Reads a {@link UUID} from the stream.
+     *
+     * @return The {@link UUID}.
+     */
     default UUID readUUID() {
         return new UUID(readLong(), readLong());
     }
 
+    /**
+     * Reads an {@link Enum} value from the stream.
+     *
+     * @param clazz The Class of the enum.
+     * @return The {@link Enum} value.
+     */
     default <T extends Enum<T>> T readEnum(Class<T> clazz) {
         return clazz.getEnumConstants()[readVarInt()];
     }
 
+    /**
+     * Reads a block of bytes written with,
+     * {@link MCDataOutput#writeBytes(byte[])},
+     * {@link MCDataOutput#writeBytes(byte[], int, int)},
+     * {@link MCDataOutput#writeByteBuffer(ByteBuffer)}, or
+     * {@link MCDataOutput#writeByteBuf(ByteBuf)}
+     *
+     * @return The bytes.
+     */
     default ByteBuffer readByteBuffer() {
         return ByteBuffer.wrap(readBytes());
     }
 
+    /**
+     * Reads a block of chars written with,
+     * {@link MCDataOutput#writeChars(char[])},
+     * {@link MCDataOutput#writeChars(char[], int, int)}, or
+     * {@link MCDataOutput#writeCharBuffer(CharBuffer)}
+     *
+     * @return The chars.
+     */
     default CharBuffer readCharBuffer() {
         return CharBuffer.wrap(readChars());
     }
 
+    /**
+     * Reads a block of shorts written with,
+     * {@link MCDataOutput#writeShorts(short[])},
+     * {@link MCDataOutput#writeShorts(short[], int, int)}, or
+     * {@link MCDataOutput#writeShortBuffer(ShortBuffer)}.
+     *
+     * @return The shorts.
+     */
     default ShortBuffer readShortBuffer() {
         return ShortBuffer.wrap(readShorts());
     }
 
+    /**
+     * Reads a block of ints written with,
+     * {@link MCDataOutput#writeInts(int[])},
+     * {@link MCDataOutput#writeInts(int[], int, int)}, or
+     * {@link MCDataOutput#writeIntBuffer(IntBuffer)}.
+     *
+     * @return The ints.
+     */
     default IntBuffer readIntBuffer() {
         return IntBuffer.wrap(readInts());
     }
 
+    /**
+     * Reads a block of longs written with,
+     * {@link MCDataOutput#writeLongs(long[])},
+     * {@link MCDataOutput#writeLongs(long[], int, int)}, or
+     * {@link MCDataOutput#writeLongBuffer(LongBuffer)}.
+     *
+     * @return The longs.
+     */
     default LongBuffer readLongBuffer() {
         return LongBuffer.wrap(readLongs());
     }
 
+    /**
+     * Reads a block of floats written with,
+     * {@link MCDataOutput#writeFloats(float[])},
+     * {@link MCDataOutput#writeFloats(float[], int, int)}, or
+     * {@link MCDataOutput#writeFloatBuffer(FloatBuffer)}.
+     *
+     * @return The floats.
+     */
     default FloatBuffer readFloatBuffer() {
         return FloatBuffer.wrap(readFloats());
     }
 
+    /**
+     * Reads a block of doubles written with,
+     * {@link MCDataOutput#writeDoubles(double[])},
+     * {@link MCDataOutput#writeDoubles(double[], int, int)}, or
+     * {@link MCDataOutput#writeDoubleBuffer(DoubleBuffer)}.
+     *
+     * @return The doubles.
+     */
     default DoubleBuffer readDoubleBuffer() {
         return DoubleBuffer.wrap(readDoubles());
     }
     //endregion
 
     //region CCL Objects.
+
+    /**
+     * Reads a {@link Vector3} from the stream.
+     *
+     * @return The {@link Vector3}.
+     */
     default Vector3 readVector() {
         return new Vector3(readDouble(), readDouble(), readDouble());
     }
 
+    /**
+     * Reads a {@link Cuboid6} from the stream.
+     *
+     * @return The {@link Cuboid6}.
+     */
     default Cuboid6 readCuboid() {
         return new Cuboid6(readVector(), readVector());
     }
     //endregion
 
     //region MinecraftObjects
+
+    /**
+     * Reads a {@link ResourceLocation} from the stream.
+     *
+     * @return The {@link ResourceLocation}.
+     */
     default ResourceLocation readResourceLocation() {
         return new ResourceLocation(readString());
     }
 
+    /**
+     * Reads a {@link Direction} from the stream.
+     *
+     * @return The {@link Direction}.
+     */
+    default Direction readDirection() {
+        return readEnum(Direction.class);
+    }
+
+    /**
+     * Reads a {@link BlockPos} from the stream.
+     *
+     * @return The {@link BlockPos}.
+     */
     default BlockPos readPos() {
         return new BlockPos(readVarInt(), readVarInt(), readVarInt());
     }
 
+    /**
+     * Reads a {@link Vec3i} from the stream.
+     *
+     * @return The {@link Vec3i}.
+     */
     default Vec3i readVec3i() {
         return readPos();
     }
 
+    /**
+     * Reads a {@link Vec3d} from the stream.
+     *
+     * @return The {@link Vec3d}.
+     */
     default Vec3d readVec3d() {
         return new Vec3d(readDouble(), readDouble(), readDouble());
     }
 
+    /**
+     * Reads a {@link CompoundNBT} from the stream.
+     *
+     * @return The {@link CompoundNBT}.
+     */
+    @Nullable
     default CompoundNBT readCompoundNBT() {
         if (!readBoolean()) {
             return null;
@@ -289,6 +534,13 @@ public interface MCDataInput {
         }
     }
 
+    /**
+     * Reads an {@link ItemStack} from the stream.
+     * It should also be noted that this implementation reads the {@link ItemStack#getCount()}
+     * as a varInt opposed to a byte, as that is favourable in some cases.
+     *
+     * @return The {@link ItemStack}.
+     */
     default ItemStack readItemStack() {
         if (!readBoolean()) {
             return ItemStack.EMPTY;
@@ -301,6 +553,11 @@ public interface MCDataInput {
         }
     }
 
+    /**
+     * Reads a {@link FluidStack} from the stream.
+     *
+     * @return The {@link FluidStack}.
+     */
     default FluidStack readFluidStack() {
         if (!readBoolean()) {
             return FluidStack.EMPTY;
@@ -315,15 +572,35 @@ public interface MCDataInput {
         }
     }
 
+    /**
+     * Reads an {@link ITextComponent} from the stream.
+     *
+     * @return The {@link ITextComponent}.
+     */
     default ITextComponent readTextComponent() {
         return ITextComponent.Serializer.fromJson(readString());
     }
 
+    /**
+     * Reads an {@link IForgeRegistryEntry} from the stream in an 'unsafe' manner,
+     * See {@link MCDataOutput#writeRegistryIdUnsafe(IForgeRegistry, IForgeRegistryEntry)}
+     * for more information on its apparent 'unsafe'ness.
+     *
+     * @param registry The {@link IForgeRegistry} to load the entry from.
+     * @return The {@link IForgeRegistryEntry}.
+     */
     default <T extends IForgeRegistryEntry<T>> T readRegistryIdUnsafe(IForgeRegistry<T> registry) {
         ForgeRegistry<T> _registry = unsafeCast(registry);
         return _registry.getValue(readVarInt());
     }
 
+    /**
+     * Reads an {@link IForgeRegistryEntry} from the stream.
+     * See {@link MCDataOutput#writeRegistryId(IForgeRegistryEntry)}
+     * for more information.
+     *
+     * @return The {@link IForgeRegistryEntry}.
+     */
     default <T extends IForgeRegistryEntry<T>> T readRegistryId() {
         ResourceLocation rName = readResourceLocation();
         ForgeRegistry<T> registry = RegistryManager.ACTIVE.getRegistry(rName);
@@ -331,14 +608,47 @@ public interface MCDataInput {
     }
     //endregion
 
+    //region Netty
+
+    /**
+     * Reads a block of bytes written with,
+     * {@link MCDataOutput#writeBytes(byte[])},
+     * {@link MCDataOutput#writeBytes(byte[], int, int)},
+     * {@link MCDataOutput#writeByteBuffer(ByteBuffer)}, or
+     * {@link MCDataOutput#writeByteBuf(ByteBuf)}
+     *
+     * @return The bytes.
+     */
+    default ByteBuf readByteBuf() {
+        return Unpooled.wrappedBuffer(readBytes());
+    }
+    //endregion
+
+    /**
+     * Wraps this stream into a {@link DataInput} stream.
+     * any data read from the returned {@link DataInput}
+     * is read from this stream.
+     *
+     * @return The {@link DataInput}.
+     */
     default DataInput toDataInput() {
         return new DataInputStream(toInputStream());
     }
 
+    /**
+     * Wraps this stream into an {@link InputStream}.
+     * any data read from the returned {@link InputStream}
+     * is read from this stream.
+     *
+     * @return The {@link InputStream}.
+     */
     default InputStream toInputStream() {
         return new InputStreamWrapper(this);
     }
 
+    /**
+     * Simple wrapper to an {@link InputStream}.
+     */
     final class InputStreamWrapper extends InputStream {
 
         private final MCDataInput in;
@@ -349,7 +659,7 @@ public interface MCDataInput {
 
         @Override
         public int read() {
-            return in.readByte();
+            return in.readByte() & 0xFF;
         }
     }
 }

@@ -4,6 +4,9 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.PacketBuffer;
 
 /**
+ * An {@link MCDataInput} and {@link MCDataOutput} implementation,
+ * delegating to the provided {@link ByteBuf}.
+ *
  * Created by covers1624 on 4/16/20.
  */
 public class MCDataByteBuf implements MCDataInput, MCDataOutput {
@@ -14,6 +17,11 @@ public class MCDataByteBuf implements MCDataInput, MCDataOutput {
         this.buf = buf;
     }
 
+    /**
+     * Gets the underlying buffer as a {@link PacketBuffer}.
+     *
+     * @return The {@link PacketBuffer}.
+     */
     public PacketBuffer toPacketBuffer() {
         return buf instanceof PacketBuffer ? (PacketBuffer) buf : new PacketBuffer(buf);
     }

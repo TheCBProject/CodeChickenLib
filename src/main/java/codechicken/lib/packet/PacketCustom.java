@@ -15,6 +15,7 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.server.management.OpList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -226,11 +227,8 @@ public final class PacketCustom extends MCDataByteBuf {
     @Override public PacketCustom writeBooleans(boolean[] b) { super.writeBooleans(b); return this; }
     @Override public PacketCustom writeBooleans(boolean[] b, int off, int len) { super.writeBooleans(b, off, len); return this; }
     @Override public PacketCustom append(byte[] bytes) { super.append(bytes); return this; }
-    @Override public PacketCustom writeVarShort(int s) { super.writeVarShort(s); return this; }
     @Override public PacketCustom writeVarInt(int i) { super.writeVarInt(i); return this; }
     @Override public PacketCustom writeVarLong(long l) { super.writeVarLong(l); return this; }
-    @Override public PacketCustom writeVarShorts(short[] s) { super.writeVarShorts(s); return this; }
-    @Override public PacketCustom writeVarShorts(short[] s, int off, int len) { super.writeVarShorts(s, off, len); return this; }
     @Override public PacketCustom writeVarInts(int[] i) { super.writeVarInts(i); return this; }
     @Override public PacketCustom writeVarInts(int[] i, int off, int len) { super.writeVarInts(i, off, len); return this; }
     @Override public PacketCustom writeVarLongs(long[] l) { super.writeVarLongs(l); return this; }
@@ -249,6 +247,7 @@ public final class PacketCustom extends MCDataByteBuf {
     @Override public PacketCustom writeVector(Vector3 vec) { super.writeVector(vec); return this; }
     @Override public PacketCustom writeCuboid(Cuboid6 cuboid) { super.writeCuboid(cuboid); return this; }
     @Override public PacketCustom writeResourceLocation(ResourceLocation loc) { super.writeResourceLocation(loc); return this; }
+    @Override public PacketCustom writeDirection(Direction dir) { super.writeDirection(dir); return this; }
     @Override public PacketCustom writePos(BlockPos pos) { super.writePos(pos); return this; }
     @Override public PacketCustom writeVec3i(Vec3i vec) { super.writeVec3i(vec); return this; }
     @Override public PacketCustom writeVec3d(Vec3d vec) { super.writeVec3d(vec); return this; }
@@ -261,6 +260,7 @@ public final class PacketCustom extends MCDataByteBuf {
     @Override public <T extends IForgeRegistryEntry<T>> PacketCustom writeRegistryIdUnsafe(IForgeRegistry<T> registry, ResourceLocation entry) { super.writeRegistryIdUnsafe(registry, entry); return this; }
     @Override public <T extends IForgeRegistryEntry<T>> PacketCustom writeRegistryId(T entry) { super.writeRegistryId(entry); return this; }
     @Override public PacketCustom writeByteBuf(ByteBuf buf) { super.writeByteBuf(buf); return this; }
+    @Override public PacketCustom append(ByteBuf buf) { super.append(buf); return this; }
     //@formatter:off
     //endregion
 }

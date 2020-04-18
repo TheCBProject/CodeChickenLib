@@ -22,12 +22,23 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
+ * Used to build a network channel for use with {@link PacketCustom}.
+ * Similar in design to {@link NetworkRegistry.ChannelBuilder}.
+ * <p>
  * Created by covers1624 on 28/10/19.
  */
 public class PacketCustomChannelBuilder {
 
+    private static final Supplier<String> CONST_1 = () -> "1";
+    private static final Predicate<String> TRUE = e -> true;
+
     private final NetworkRegistry.ChannelBuilder parent;
     private final ResourceLocation channelName;
+
+    private Supplier<String> networkProtocolVersion = CONST_1;
+    private Predicate<String> clientAcceptedVersions = TRUE;
+    private Predicate<String> serverAcceptedVersions = TRUE;
+
     private IClientPacketHandler clientHandler;
     private IServerPacketHandler serverHandler;
     private ILoginPacketHandler loginHandler;
@@ -37,25 +48,66 @@ public class PacketCustomChannelBuilder {
         parent = NetworkRegistry.ChannelBuilder.named(channelName);
     }
 
+    /**
+     * Create a new {@link PacketCustomChannelBuilder} with the given channel name.
+     * Channel names are global and must be unique per mod. Just use this format:
+     * "mod_id:network_name". For example: 'codechickenlib:internal'
+     *
+     * @param channelName The Channel name.
+     * @return The builder.
+     */
     public static PacketCustomChannelBuilder named(ResourceLocation channelName) {
         return new PacketCustomChannelBuilder(channelName);
     }
 
+    /**
+     * Register a Supplier that provides the protocol version associated with this channel.
+     * You are able to compare this value each side of the connection against its local version,
+     * if you wish to talk across protocol versions. The default is to provide '1' as the version.
+     *
+     * @param networkProtocolVersion The version Supplier.
+     * @return The same builder.
+     */
     public PacketCustomChannelBuilder networkProtocolVersion(Supplier<String> networkProtocolVersion) {
-        parent.networkProtocolVersion(networkProtocolVersion);
+        this.networkProtocolVersion = networkProtocolVersion;
         return this;
     }
 
+    /**
+     * Register a Predicate to check the Server side protocol version on the Client. The
+     * default will accept any remote versions.
+     *
+     * @param clientAcceptedVersions The Predicate.
+     * @return The same builder.
+     */
     public PacketCustomChannelBuilder clientAcceptedVersions(Predicate<String> clientAcceptedVersions) {
-        parent.clientAcceptedVersions(clientAcceptedVersions);
+        this.clientAcceptedVersions = clientAcceptedVersions;
         return this;
     }
 
+    /**
+     * Register a Predicate to check the Client side protocol version on the Server. The
+     * default will accept any remote versions.
+     *
+     * @param serverAcceptedVersions The Predicate.
+     * @return The same builder.
+     */
     public PacketCustomChannelBuilder serverAcceptedVersions(Predicate<String> serverAcceptedVersions) {
-        parent.serverAcceptedVersions(serverAcceptedVersions);
+        this.serverAcceptedVersions = serverAcceptedVersions;
         return this;
     }
 
+    /**
+     * Register a double Supplier, to construct the {@link IClientPacketHandler} for the client side.
+     * The double Supplier is used to avoid class loading issues on the server side, you do NOT
+     * need any external sided checks if you call using the following example:
+     * <br/>
+     * <code>builder.assignClientHandler(() -> ClientPacketHandler::new);</code>
+     * <p/>
+     *
+     * @param clientHandler The Supplier.
+     * @return The same builder.
+     */
     public PacketCustomChannelBuilder assignClientHandler(Supplier<Supplier<IClientPacketHandler>> clientHandler) {
         if (FMLEnvironment.dist == Dist.CLIENT) {
             this.clientHandler = clientHandler.get().get();
@@ -63,18 +115,44 @@ public class PacketCustomChannelBuilder {
         return this;
     }
 
+    /**
+     * Register a double Supplier, to construct the {@link IServerPacketHandler} for the client side.
+     * The double Supplier is used to avoid confusion with {@link #assignClientHandler}.
+     * Example usage: <code>builder.assignClientHandler(() -> ServerPacketHandler::new);</code>
+     *
+     * @param serverHandler The Supplier.
+     * @return The same builder.
+     */
+
     public PacketCustomChannelBuilder assignServerHandler(Supplier<Supplier<IServerPacketHandler>> serverHandler) {
         this.serverHandler = serverHandler.get().get();
         return this;
     }
 
+    /**
+     * Register a double Supplier, to construct the {@link ILoginPacketHandler} for sending packets
+     * to the client during handshake. See {@link ILoginPacketHandler} for more information.
+     * Example usage: <code>builder.assignClientHandler(() -> ServerPacketHandler::new);</code>
+     *
+     * @param loginHandler The Supplier.
+     * @return The same builder.
+     */
     public PacketCustomChannelBuilder assignLoginHandler(Supplier<Supplier<ILoginPacketHandler>> loginHandler) {
         this.loginHandler = loginHandler.get().get();
         return this;
     }
 
+    /**
+     * Actually build and register the channel with Forge.
+     *
+     * @return The underlying {@link EventNetworkChannel}
+     */
     public EventNetworkChannel build() {
-        EventNetworkChannel channel = parent.eventNetworkChannel();
+        EventNetworkChannel channel = parent//
+                .networkProtocolVersion(networkProtocolVersion)//
+                .clientAcceptedVersions(clientAcceptedVersions)//
+                .serverAcceptedVersions(serverAcceptedVersions)//
+                .eventNetworkChannel();
 
         if (clientHandler != null) {
             channel.registerObject(new ClientHandler(clientHandler));
@@ -89,6 +167,9 @@ public class PacketCustomChannelBuilder {
         return channel;
     }
 
+    /**
+     * Default handler for Client received packets.
+     */
     public static class ClientHandler {
 
         private final IClientPacketHandler packetHandler;
@@ -113,6 +194,9 @@ public class PacketCustomChannelBuilder {
         }
     }
 
+    /**
+     * Default handler for Server received packets.
+     */
     public static class ServerHandler {
 
         private final IServerPacketHandler packetHandler;
@@ -134,7 +218,10 @@ public class PacketCustomChannelBuilder {
         }
     }
 
-    public class LoginHandler {
+    /**
+     * Default handler for Login packets.
+     */
+    public static class LoginHandler {
 
         private final ILoginPacketHandler packetHandler;
 
