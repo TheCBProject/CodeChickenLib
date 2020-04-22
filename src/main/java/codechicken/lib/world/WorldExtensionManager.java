@@ -59,14 +59,16 @@ public class WorldExtensionManager {
             if (world == null && chunk instanceof ChunkPrimerWrapper) {
                 world = ((ChunkPrimerWrapper) chunk).func_217336_u().getWorld();
             }
-            if (hasExtensions(world)) {
+            if (world == null) {
+                return;
+            }
+            if (!hasExtensions(world)) {
                 WorldExtensionManager.onWorldLoad(world);
+            }
+            createChunkExtension(world, chunk);
 
-                createChunkExtension(world,chunk);
-
-                for (WorldExtension extension : getExtensions(world)) {
-                    extension.loadChunk(chunk);
-                }
+            for (WorldExtension extension : getExtensions(world)) {
+                extension.loadChunk(chunk);
             }
         }
 
@@ -185,7 +187,7 @@ public class WorldExtensionManager {
     }
 
     private static boolean hasExtensions(IWorld world) {
-        return world == null || worldMap.containsKey(world.getDimension().getType());
+        return world != null && worldMap.containsKey(world.getDimension().getType());
     }
 
     private static void onWorldLoad(IWorld world) {

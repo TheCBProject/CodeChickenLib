@@ -17,20 +17,20 @@ import java.util.concurrent.TimeUnit;
  */
 public class VoxelShapeCache {
 
-    private static Cache<AxisAlignedBB, VoxelShape> bbCache = CacheBuilder.newBuilder()//
+    private static final Cache<AxisAlignedBB, VoxelShape> bbToShapeCache = CacheBuilder.newBuilder()//
             .expireAfterAccess(2, TimeUnit.HOURS).build();
-    private static Cache<Cuboid6, VoxelShape> cuboidCache = CacheBuilder.newBuilder()//
+    private static final Cache<Cuboid6, VoxelShape> cuboidToShapeCache = CacheBuilder.newBuilder()//
             .expireAfterAccess(2, TimeUnit.HOURS).build();
 
-    private static Cache<VoxelShape, MutablePair<AxisAlignedBB, Cuboid6>> reverseCache = CacheBuilder.newBuilder()//
+    private static final Cache<VoxelShape, MutablePair<AxisAlignedBB, Cuboid6>> shapeToBBCuboid = CacheBuilder.newBuilder()//
             //Weak keys, as we inherently use identity hashcode, as VoxelShape doesn't have a hashCode.
             .expireAfterAccess(2, TimeUnit.HOURS).weakKeys().build();
 
     public static VoxelShape getShape(AxisAlignedBB aabb) {
-        VoxelShape shape = bbCache.getIfPresent(aabb);
+        VoxelShape shape = bbToShapeCache.getIfPresent(aabb);
         if (shape == null) {
             shape = VoxelShapes.create(aabb);
-            bbCache.put(aabb, shape);
+            bbToShapeCache.put(aabb, shape);
             MutablePair<AxisAlignedBB, Cuboid6> entry = getReverse(shape);
             if (entry.getLeft() == null) {
                 entry.setLeft(aabb);
@@ -40,10 +40,10 @@ public class VoxelShapeCache {
     }
 
     public static VoxelShape getShape(Cuboid6 cuboid) {
-        VoxelShape shape = cuboidCache.getIfPresent(cuboid);
+        VoxelShape shape = cuboidToShapeCache.getIfPresent(cuboid);
         if (shape == null) {
             shape = VoxelShapes.create(cuboid.min.x, cuboid.min.y, cuboid.min.z, cuboid.max.x, cuboid.max.y, cuboid.max.z);
-            cuboidCache.put(cuboid, shape);
+            cuboidToShapeCache.put(cuboid, shape);
             MutablePair<AxisAlignedBB, Cuboid6> entry = getReverse(shape);
             if (entry.getRight() == null) {
                 entry.setRight(cuboid);
@@ -72,10 +72,10 @@ public class VoxelShapeCache {
     }
 
     private static MutablePair<AxisAlignedBB, Cuboid6> getReverse(VoxelShape shape) {
-        MutablePair<AxisAlignedBB, Cuboid6> entry = reverseCache.getIfPresent(shape);
+        MutablePair<AxisAlignedBB, Cuboid6> entry = shapeToBBCuboid.getIfPresent(shape);
         if (entry == null) {
             entry = new MutablePair<>();
-            reverseCache.put(shape, entry);
+            shapeToBBCuboid.put(shape, entry);
         }
         return entry;
     }

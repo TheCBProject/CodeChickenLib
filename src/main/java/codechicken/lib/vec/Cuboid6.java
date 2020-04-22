@@ -1,5 +1,6 @@
 package codechicken.lib.vec;
 
+import codechicken.lib.raytracer.VoxelShapeCache;
 import codechicken.lib.util.Copyable;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
@@ -7,6 +8,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.shapes.VoxelShape;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -54,6 +56,10 @@ public class Cuboid6 implements Copyable<Cuboid6> {
 
     public AxisAlignedBB aabb() {
         return new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
+    }
+
+    public VoxelShape shape() {
+        return VoxelShapeCache.getShape(this);
     }
 
     public CompoundNBT writeToNBT(CompoundNBT tag) {

@@ -16,14 +16,15 @@ import java.util.function.BooleanSupplier;
  */
 public class OpenGLUtils {
 
-    public static boolean openGL20;
-    public static boolean openGL32;
-    public static boolean openGL40;
-    public static boolean openGL43;
-    public static boolean openGL44;
-    public static boolean openGL45;
-    public static boolean openGL46;
+    public static boolean openGL20 = true;
+    public static boolean openGL32 = true;
+    public static boolean openGL40 = true;
+    public static boolean openGL43 = true;
+    public static boolean openGL44 = true;
+    public static boolean openGL45 = true;
+    public static boolean openGL46 = true;
 
+    //TODO
     public static void loadCaps() {
         GLCapabilities caps = GL.getCapabilities();
         openGL20 = caps.OpenGL20;

@@ -221,33 +221,6 @@ public class InventoryUtils {
         return stack1.getItem() == stack2.getItem() && stack1.getDamage() == stack2.getDamage() && stack1.getCount() == stack2.getCount() && Objects.equal(stack1.getTag(), stack2.getTag());
     }
 
-    //    /**
-    //     * Gets an IInventory from a coordinate with support for double chests
-    //     */
-    //    public static IInventory getInventory(World world, BlockPos pos) {
-    //        return getInventory(world.getTileEntity(pos));
-    //    }
-    //
-    //    public static IInventory getInventory(TileEntity tile) {
-    //        if (!(tile instanceof IInventory)) {
-    //            return null;
-    //        }
-    //
-    //        if (tile instanceof TileEntityChest) {
-    //            return getChest((TileEntityChest) tile);
-    //        }
-    //        return (IInventory) tile;
-    //    }
-    //
-    //    public static IInventory getChest(TileEntityChest chest) {
-    //        for (EnumFacing fside : Plane.HORIZONTAL) {
-    //            if (chest.getWorld().getBlockState(chest.getPos().offset(fside)).getBlock() == chest.getBlockType()) {
-    //                return new InventoryLargeChest("container.chestDouble", (TileEntityChest) chest.getWorld().getTileEntity(chest.getPos().offset(fside)), chest);
-    //            }
-    //        }
-    //        return chest;
-    //    }
-
     public static boolean canStack(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
         return stack1.isEmpty() || stack2.isEmpty() || (stack1.getItem() == stack2.getItem() && (stack2.getDamage() == stack1.getDamage()) && ItemStack.areItemStackTagsEqual(stack2, stack1)) && stack1.isStackable();
     }

@@ -12,12 +12,12 @@ import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.LogicalSidedProvider;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -116,7 +116,7 @@ public class ServerUtils {
         ContainerType<?> type = container.getType();
 
         PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, C_OPEN_CONTAINER);
-        packet.writeVarInt(Registry.MENU.getId(type));
+        packet.writeRegistryIdUnsafe(ForgeRegistries.CONTAINERS, type);
         packet.writeVarInt(containerId);
         packet.writeTextComponent(containerProvider.getDisplayName());
         packetConsumer.accept(packet);

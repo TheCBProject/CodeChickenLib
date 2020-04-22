@@ -13,7 +13,7 @@ import java.util.function.Supplier;
  */
 public class SimpleItemGroup extends ItemGroup {
 
-    private Supplier<ItemStack> stackSupplier;
+    private final Supplier<ItemStack> stackSupplier;
 
     public SimpleItemGroup(String label, Supplier<ItemStack> stackSupplier) {
         super(label);

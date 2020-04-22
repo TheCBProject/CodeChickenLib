@@ -26,10 +26,10 @@ public class OBJParser {
     private static final Pattern uvwPattern = Pattern.compile("vt(?: ([\\d\\.+-]+))+");
     private static final Pattern normalPattern = Pattern.compile("vn(?: ([\\d\\.+-]+))+");
     private static final Pattern polyPattern = Pattern.compile("f(?: ((?:\\d*)(?:/\\d*)?(?:/\\d*)?))+");
-    public static final Matcher vertMatcher = vertPattern.matcher("");
-    public static final Matcher uvwMatcher = uvwPattern.matcher("");
-    public static final Matcher normalMatcher = normalPattern.matcher("");
-    public static final Matcher polyMatcher = polyPattern.matcher("");
+    public static final ThreadLocal<Matcher> vertMatcher = ThreadLocal.withInitial(() -> vertPattern.matcher(""));
+    public static final ThreadLocal<Matcher> uvwMatcher = ThreadLocal.withInitial(() -> uvwPattern.matcher(""));
+    public static final ThreadLocal<Matcher> normalMatcher = ThreadLocal.withInitial(() -> normalPattern.matcher(""));
+    public static final ThreadLocal<Matcher> polyMatcher = ThreadLocal.withInitial(() -> polyPattern.matcher(""));
 
     /**
      * Parses vertices, texture coords, normals and polygons from a WaveFront Obj file
@@ -100,7 +100,7 @@ public class OBJParser {
             }
 
             if (line.startsWith("v ")) {
-                assertMatch(vertMatcher, line);
+                assertMatch(vertMatcher.get(), line);
                 double[] values = parseDoubles(line.substring(2), " ");
                 illegalAssert(values.length >= 3, "Vertices must have x, y and z components");
                 Vector3 vert = new Vector3(values[0], values[1], values[2]);
@@ -109,14 +109,14 @@ public class OBJParser {
                 continue;
             }
             if (line.startsWith("vt ")) {
-                assertMatch(uvwMatcher, line);
+                assertMatch(uvwMatcher.get(), line);
                 double[] values = parseDoubles(line.substring(3), " ");
                 illegalAssert(values.length >= 2, "Tex Coords must have u, and v components");
                 uvs.add(new Vector3(values[0], 1 - values[1], 0));
                 continue;
             }
             if (line.startsWith("vn ")) {
-                assertMatch(normalMatcher, line);
+                assertMatch(normalMatcher.get(), line);
                 double[] values = parseDoubles(line.substring(3), " ");
                 illegalAssert(values.length >= 3, "Normals must have x, y and z components");
                 Vector3 norm = new Vector3(values[0], values[1], values[2]).normalize();
@@ -125,7 +125,7 @@ public class OBJParser {
                 continue;
             }
             if (line.startsWith("f ")) {
-                assertMatch(polyMatcher, line);
+                assertMatch(polyMatcher.get(), line);
                 String[] av = line.substring(2).split(" ");
                 illegalAssert(av.length >= 3, "Polygons must have at least 3 vertices");
                 int[][] polyVerts = new int[av.length][3];

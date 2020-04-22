@@ -285,7 +285,7 @@ public class MathHelper {
     }
 
     public static int absSum(BlockPos pos) {
-        return (pos.getX() < 0 ? -pos.getX() : pos.getX()) + (pos.getY() < 0 ? -pos.getY() : pos.getY()) + (pos.getZ() < 0 ? -pos.getZ() : pos.getZ());
+        return Math.abs(pos.getX()) + Math.abs(pos.getY()) + Math.abs(pos.getZ());
     }
 
     public static boolean isAxial(BlockPos pos) {

@@ -14,8 +14,8 @@ import net.minecraft.client.network.play.IClientPlayNetHandler;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import static codechicken.lib.internal.network.CCLNetwork.C_ADD_LANDING_EFFECTS;
 import static codechicken.lib.internal.network.CCLNetwork.C_OPEN_CONTAINER;
@@ -46,10 +46,9 @@ public class ClientPacketHandler implements IClientPacketHandler {
 
     @SuppressWarnings ("unchecked")
     private void handleOpenContainer(PacketCustom packet, Minecraft mc) {
-        int containerId = packet.readVarInt();
+        ContainerType<?> rawType = packet.readRegistryIdUnsafe(ForgeRegistries.CONTAINERS);
         int windowId = packet.readVarInt();
         ITextComponent name = packet.readTextComponent();
-        ContainerType<?> rawType = Registry.MENU.getByValue(containerId);
         if (rawType instanceof ICCLContainerType<?>) {
             ICCLContainerType<?> type = (ICCLContainerType<?>) rawType;
             ScreenManager.getScreenFactory(rawType, mc, windowId, name)//
