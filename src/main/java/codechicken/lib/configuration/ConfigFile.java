@@ -50,12 +50,11 @@ public class ConfigFile extends ConfigTag {
      * Make sure this is only called at load time.
      */
     public void load() {
-        ResourceUtils.tryCreateFile(file);
         isLoading = true;
         clear();
         ConfigReader reader = null;
         try {
-            reader = new ConfigReader(new FileReader(file));
+            reader = new ConfigReader(new FileReader(ResourceUtils.ensureExists(file)));
             parseTag(reader);
         } catch (IOException e) {
             throw new ConfigException(e);

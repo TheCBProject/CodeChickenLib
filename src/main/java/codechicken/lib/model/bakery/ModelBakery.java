@@ -1,6 +1,5 @@
 package codechicken.lib.model.bakery;
 
-import codechicken.lib.internal.CCLLog;
 import codechicken.lib.model.bakedmodels.ModelProperties;
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
@@ -11,6 +10,7 @@ import codechicken.lib.model.bakery.generation.ILayeredBlockBakery;
 import codechicken.lib.model.bakery.generation.ISimpleBlockBakery;
 import codechicken.lib.model.bakery.key.IBlockStateKeyGenerator;
 import codechicken.lib.model.bakery.key.IItemStackKeyGenerator;
+import codechicken.lib.util.LogUtils;
 import codechicken.lib.util.ResourceUtils;
 import codechicken.lib.util.TransformUtils;
 import com.google.common.cache.Cache;
@@ -28,7 +28,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.resource.VanillaResourceType;
-import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +41,8 @@ import java.util.function.Function;
  */
 @OnlyIn (Dist.CLIENT)
 public class ModelBakery {
+
+    private static final Logger logger = LogManager.getLogger();
 
     private static boolean DEBUG = Boolean.parseBoolean(System.getProperty("ccl.debugBakeryLogging"));
     private static boolean FORCE_BLOCK_REBAKE = Boolean.parseBoolean(System.getProperty("ccl.debugForceBlockModelRebake"));
@@ -115,12 +118,12 @@ public class ModelBakery {
             try {
                 model = timeModelGeneration(ModelBakery::generateItemModel, stack, "ITEM: " + key);
             } catch (Throwable t) {
-                CCLLog.errorOnce(t, "ItemBaking", "Fatal exception thrown whilst baking item model for: " + stack);
-//                BakingVertexBuffer buffer = BakingVertexBuffer.create();
-//                if (buffer.isDrawing) {
-//                    buffer.finishDrawing();
-//                    buffer.reset();
-//                }
+                LogUtils.errorOnce(logger, t, "ItemBaking", "Fatal exception thrown whilst baking item model for: " + stack);
+                //                BakingVertexBuffer buffer = BakingVertexBuffer.create();
+                //                if (buffer.isDrawing) {
+                //                    buffer.finishDrawing();
+                //                    buffer.reset();
+                //                }
                 return missingModel;
             }
             if (model != missingModel) {
@@ -178,12 +181,12 @@ public class ModelBakery {
             try {
                 model = timeModelGeneration(ModelBakery::generateModel, state, data, "BLOCK: " + key);
             } catch (Throwable t) {
-                CCLLog.errorOnce(t, "BlockBaking", "Fatal exception thrown whilst baking block model for: " + state);
-//                BakingVertexBuffer buffer = BakingVertexBuffer.create();
-//                if (buffer.isDrawing) {
-//                    buffer.finishDrawing();
-//                    buffer.reset();
-//                }
+                LogUtils.errorOnce(logger, t, "BlockBaking", "Fatal exception thrown whilst baking block model for: " + state);
+                //                BakingVertexBuffer buffer = BakingVertexBuffer.create();
+                //                if (buffer.isDrawing) {
+                //                    buffer.finishDrawing();
+                //                    buffer.reset();
+                //                }
                 return missingModel;
             }
             if (model != missingModel) {
@@ -244,7 +247,7 @@ public class ModelBakery {
 
     private static <T, R> R timeModelGeneration(Function<T, R> func, T thing, String logPostfix) {
         if (DEBUG) {
-            CCLLog.log(Level.INFO, "Baking Model.. Key: %s", logPostfix);
+            logger.info("Baking Model.. Key: {}", logPostfix);
         }
         long start = System.nanoTime();
         R ret = func.apply(thing);
@@ -255,7 +258,7 @@ public class ModelBakery {
 
     private static <T, U, R> R timeModelGeneration(BiFunction<T, U, R> func, T thing, U thing2, String logPostfix) {
         if (DEBUG) {
-            CCLLog.log(Level.INFO, "Baking Model.. Key: %s", logPostfix);
+            logger.info("Baking Model.. Key: {}", logPostfix);
         }
         long start = System.nanoTime();
         R ret = func.apply(thing, thing2);
@@ -275,7 +278,7 @@ public class ModelBakery {
                 s = delta + "ns";
             }
 
-            CCLLog.log(Level.INFO, "Baking finished in %s.", s);
+            logger.info("Baking finished in {}.", s);
         }
     }
 

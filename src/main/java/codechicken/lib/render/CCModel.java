@@ -1,7 +1,7 @@
 package codechicken.lib.render;
 
-import codechicken.lib.lighting.LC;
-import codechicken.lib.lighting.LightModel;
+import codechicken.lib.render.lighting.LC;
+import codechicken.lib.render.lighting.LightModel;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.render.pipeline.IVertexSource;
 import codechicken.lib.render.pipeline.VertexAttribute;

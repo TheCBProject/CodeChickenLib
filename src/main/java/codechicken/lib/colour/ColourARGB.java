@@ -28,7 +28,7 @@ public class ColourARGB extends Colour {
     }
 
     public float[] packArray() {
-        return new float[] { (a & 0xFF) / 255, (r & 0xFF) / 255, (g & 0xFF) / 255, (b & 0xFF) / 255 };
+        return new float[] { (a & 0xFF) / 255f, (r & 0xFF) / 255f, (g & 0xFF) / 255f, (b & 0xFF) / 255f };
     }
 
     public static int pack(Colour colour) {

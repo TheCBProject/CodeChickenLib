@@ -1,6 +1,6 @@
 package codechicken.lib.render;
 
-import codechicken.lib.lighting.LC;
+import codechicken.lib.render.lighting.LC;
 import codechicken.lib.render.pipeline.IVertexSource;
 import codechicken.lib.render.pipeline.attribute.AttributeKey;
 import codechicken.lib.render.pipeline.attribute.LightCoordAttribute;

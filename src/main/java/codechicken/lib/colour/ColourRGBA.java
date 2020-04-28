@@ -27,7 +27,7 @@ public class ColourRGBA extends Colour {
     }
 
     public float[] packArray() {
-        return new float[] { (r & 0xFF) / 255, (g & 0xFF) / 255, (b & 0xFF) / 255, (a & 0xFF) / 255 };
+        return new float[] { (r & 0xFF) / 255f, (g & 0xFF) / 255f, (b & 0xFF) / 255f, (a & 0xFF) / 255f };
     }
 
     @Override

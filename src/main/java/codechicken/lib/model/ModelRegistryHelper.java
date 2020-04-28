@@ -14,9 +14,9 @@ import java.util.List;
 
 public class ModelRegistryHelper {
 
-    private List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<>();
-    private List<IModelBakeCallbackPre> modelBakePreCallbacks = new LinkedList<>();
-    private List<IModelBakeCallback> modelBakeCallbacks = new LinkedList<>();
+    private final List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<>();
+    private final List<IModelBakeCallbackPre> modelBakePreCallbacks = new LinkedList<>();
+    private final List<IModelBakeCallback> modelBakeCallbacks = new LinkedList<>();
 
     public ModelRegistryHelper(IEventBus eventBus) {
         eventBus.register(this);

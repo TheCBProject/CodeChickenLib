@@ -3,12 +3,11 @@ package codechicken.lib.colour;
 import codechicken.lib.config.ConfigTag.IConfigType;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
-import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.lang.Math.max;
 
 public abstract class Colour implements Copyable<Colour> {
 
@@ -55,16 +54,6 @@ public abstract class Colour implements Copyable<Colour> {
         a = colour.a;
     }
 
-    @OnlyIn (Dist.CLIENT)
-    public void glColour() {
-        GlStateManager.color4f((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, (a & 0xFF) / 255F);
-    }
-
-    @OnlyIn (Dist.CLIENT)
-    public void glColour(int a) {
-        GlStateManager.color4f((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, a / 255F);
-    }
-
     public abstract int pack();
 
     public abstract float[] packArray();
@@ -87,10 +76,10 @@ public abstract class Colour implements Copyable<Colour> {
         int ir = (r & 0xFF) - (colour2.r & 0xFF);
         int ig = (g & 0xFF) - (colour2.g & 0xFF);
         int ib = (b & 0xFF) - (colour2.b & 0xFF);
-        a = (byte) (ia < 0 ? 0 : ia);
-        r = (byte) (ir < 0 ? 0 : ir);
-        g = (byte) (ig < 0 ? 0 : ig);
-        b = (byte) (ib < 0 ? 0 : ib);
+        a = (byte) max(ia, 0);
+        r = (byte) max(ir, 0);
+        g = (byte) max(ig, 0);
+        b = (byte) max(ib, 0);
         return this;
     }
 
@@ -212,22 +201,6 @@ public abstract class Colour implements Copyable<Colour> {
 
     public static int packARGB(float[] data) {
         return packARGB(data[0], data[1], data[2], data[3]);
-    }
-
-    public static void glColourRGBA(int colour) {
-        float r = ((colour >> 24) & 0xFF) / 255F;
-        float g = ((colour >> 16) & 0xFF) / 255F;
-        float b = ((colour >> 8) & 0xFF) / 255F;
-        float a = (colour & 0xFF) / 255F;
-        GlStateManager.color4f(r, g, b, a);
-    }
-
-    public static void glColourARGB(int colour) {
-        float r = ((colour >> 16) & 0xFF) / 255F;
-        float g = ((colour >> 8) & 0xFF) / 255F;
-        float b = (colour & 0xFF) / 255F;
-        float a = ((colour >> 24 & 0xFF)) / 255F;
-        GlStateManager.color4f(r, g, b, a);
     }
 
     public boolean equals(Colour colour) {

@@ -1,6 +1,5 @@
 package codechicken.lib.render.block;
 
-import codechicken.lib.internal.CCLLog;
 import codechicken.lib.internal.ExceptionMessageEventHandler;
 import codechicken.lib.internal.proxy.ProxyClient;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -24,7 +23,8 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.ILightReader;
 import net.minecraftforge.client.model.data.IModelData;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 import java.util.Random;
@@ -36,6 +36,8 @@ import static codechicken.lib.util.LambdaUtils.tryOrNull;
  * Created by covers1624 on 8/09/2016.
  */
 public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
+
+    private static final Logger logger = LogManager.getLogger();
 
     public final BlockRendererDispatcher parentDispatcher;
     private static long lastTime;
@@ -132,7 +134,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
         String key = ExceptionUtils.getStackTrace(t) + logMessage;
         if (!ExceptionMessageEventHandler.exceptionMessageCache.contains(key)) {
             ExceptionMessageEventHandler.exceptionMessageCache.add(key);
-            CCLLog.log(Level.ERROR, t, logMessage);
+            logger.error(logMessage, t);
         }
         PlayerEntity player = Minecraft.getInstance().player;
         if (ProxyClient.messagePlayerOnRenderExceptionCaught && player != null) {

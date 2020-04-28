@@ -70,28 +70,6 @@ public class ResourceUtils {
      * Attempts to create a file.
      *
      * @param file The file to create.
-     */
-    @Deprecated//ensureExists.
-    public static void tryCreateFile(File file) {
-        if (!file.getParentFile().exists()) {
-            tryCreateDirectory(file.getParentFile());
-        }
-
-        if (!file.exists()) {
-            try {
-                if (!file.createNewFile()) {
-                    throw new Exception("createNewFile returned false.");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Unable to create file: " + file.getAbsolutePath(), e);
-            }
-        }
-    }
-
-    /**
-     * Attempts to create a file.
-     *
-     * @param file The file to create.
      * @return The same file you passed in.
      */
     public static File ensureExists(File file) {
@@ -107,23 +85,5 @@ public class ResourceUtils {
         }
 
         return file;
-    }
-
-    /**
-     * Attempts to create a directory.
-     *
-     * @param dir The dir to create.
-     */
-    @Deprecated//ensureExists.
-    public static void tryCreateDirectory(File dir) {
-        if (!dir.exists()) {
-            try {
-                if (!dir.mkdirs()) {
-                    throw new Exception("mkdirs returned false.");
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Unable to create directory: " + dir.getAbsolutePath(), e);
-            }
-        }
     }
 }

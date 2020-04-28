@@ -1,8 +1,7 @@
-package codechicken.lib.lighting;
+package codechicken.lib.render.lighting;
 
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;

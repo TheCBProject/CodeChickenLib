@@ -1,11 +1,18 @@
 package codechicken.lib.colour;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.Table;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
-import org.apache.commons.lang3.tuple.Triple;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by covers1624 on 16/09/2016.
@@ -37,7 +44,45 @@ public enum EnumColour implements IStringSerializable {
     private final String unlocalizedName;
     private final int rgb;
 
-    private static final ImmutableList<Triple<EnumColour, EnumColour, EnumColour>> mixMap;
+    private static final ImmutableTable<EnumColour, EnumColour, EnumColour> mixMap;
+
+    private static final Map<String, EnumColour> nameLookup = Arrays.stream(values())//
+            .collect(Collectors.toMap(e -> e.name, Function.identity()));
+
+    private static final Map<ResourceLocation, EnumColour> dyeTagLookup = Arrays.stream(values())//
+            .collect(Collectors.toMap(e -> e.dyeTagName, Function.identity()));
+
+    private static final Map<ResourceLocation, EnumColour> woolTagLookup = Arrays.stream(values())//
+            .collect(Collectors.toMap(e -> e.woolTagName, Function.identity()));
+
+    static {
+        Table<EnumColour, EnumColour, EnumColour> tmp = HashBasedTable.create();
+        //WHITE
+        tmp.put(YELLOW, RED, ORANGE);
+        tmp.put(PINK, PURPLE, MAGENTA);
+        tmp.put(WHITE, BLUE, LIGHT_BLUE);
+        //YELLOW
+        tmp.put(WHITE, GREEN, LIME);
+        tmp.put(WHITE, RED, PINK);
+        tmp.put(WHITE, BLACK, GRAY);
+        tmp.put(WHITE, GRAY, LIGHT_GRAY);
+        tmp.put(BLUE, GREEN, CYAN);
+        tmp.put(BLUE, RED, PURPLE);
+        //Blue
+        tmp.put(ORANGE, RED, BROWN);
+        tmp.put(YELLOW, BLUE, GREEN);
+        //RED
+        //BLACK
+
+        //Build reverse lookups.
+        ImmutableTable.Builder<EnumColour, EnumColour, EnumColour> builder = ImmutableTable.builder();
+        tmp.cellSet().forEach(e -> {
+            builder.put(e.getRowKey(), e.getColumnKey(), e.getValue());
+            builder.put(e.getColumnKey(), e.getRowKey(), e.getValue());
+        });
+
+        mixMap = builder.build();
+    }
 
     EnumColour(String name, String dyeTagName, String woolTagName, String unlocalizedName, int rgb) {
         this.name = name;
@@ -124,14 +169,7 @@ public enum EnumColour implements IStringSerializable {
         if (a == b) {
             return a;
         }
-        synchronized (mixMap) {
-            for (Triple<EnumColour, EnumColour, EnumColour> triple : mixMap) {
-                if ((triple.getLeft().equals(a) && triple.getMiddle().equals(b)) || (triple.getLeft().equals(b) && triple.getMiddle().equals(a))) {
-                    return triple.getRight();
-                }
-            }
-        }
-        return null;
+        return mixMap.get(a, b);
     }
 
     public static EnumColour fromWoolMeta(int id) {
@@ -143,72 +181,30 @@ public enum EnumColour implements IStringSerializable {
     }
 
     public static EnumColour fromDyeTag(ResourceLocation tag) {
-        for (EnumColour c : values()) {
-            if (c.getDyeTagName().equals(tag)) {
-                return c;
-            }
-        }
-        return null;
+        return dyeTagLookup.get(tag);
     }
 
     public static EnumColour fromWoolTag(ResourceLocation tag) {
-        for (EnumColour c : values()) {
-            if (c.getWoolTagName().equals(tag)) {
-                return c;
-            }
-        }
-        return null;
+        return woolTagLookup.get(tag);
     }
 
-    //TODO, Set.contains + Stream nonsense
     public static EnumColour fromDyeStack(ItemStack stack) {
-        for (ResourceLocation tag : stack.getItem().getTags()) {
-            EnumColour c = fromDyeTag(tag);
-            if (c != null) {
-                return c;
-            }
-        }
-        return null;
+        return stack.getItem().getTags().stream()//
+                .map(dyeTagLookup::get)//
+                .filter(Objects::nonNull)//
+                .findFirst()//
+                .orElse(null);
     }
 
     public static EnumColour fromWoolStack(ItemStack stack) {
-        for (ResourceLocation tag : stack.getItem().getTags()) {
-            EnumColour c = fromWoolTag(tag);
-            if (c != null) {
-                return c;
-            }
-        }
-        return null;
+        return stack.getItem().getTags().stream()//
+                .map(woolTagLookup::get)//
+                .filter(Objects::nonNull)//
+                .findFirst()//
+                .orElse(null);
     }
 
     public static EnumColour fromName(String name) {
-        for (EnumColour colour : values()) {
-            if (colour.getName().equalsIgnoreCase(name)) {
-                return colour;
-            }
-        }
-        return null;
-    }
-
-    static {
-        ImmutableList.Builder<Triple<EnumColour, EnumColour, EnumColour>> builder = ImmutableList.builder();
-        //WHITE
-        builder.add(Triple.of(YELLOW, RED, ORANGE));
-        builder.add(Triple.of(PINK, PURPLE, MAGENTA));
-        builder.add(Triple.of(WHITE, BLUE, LIGHT_BLUE));
-        //YELLOW
-        builder.add(Triple.of(WHITE, GREEN, LIME));
-        builder.add(Triple.of(WHITE, RED, PINK));
-        builder.add(Triple.of(WHITE, BLACK, GRAY));
-        builder.add(Triple.of(WHITE, GRAY, LIGHT_GRAY));
-        builder.add(Triple.of(BLUE, GREEN, CYAN));
-        builder.add(Triple.of(BLUE, RED, PURPLE));
-        //Blue
-        builder.add(Triple.of(ORANGE, RED, BROWN));
-        builder.add(Triple.of(YELLOW, BLUE, GREEN));
-        //RED
-        //BLACK
-
-        mixMap = builder.build();
+        return nameLookup.get(name);
     }
 }

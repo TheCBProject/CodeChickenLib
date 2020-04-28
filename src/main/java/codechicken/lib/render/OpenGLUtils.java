@@ -1,7 +1,7 @@
 package codechicken.lib.render;
 
-import codechicken.lib.internal.CCLLog;
-import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 
@@ -11,10 +11,12 @@ import java.util.function.BooleanSupplier;
  * Most of this is available in later LWJGL versions..
  * But.. Mojang..
  * Also contains some utilities.
- *
+ * <p>
  * Created by covers1624 on 20/06/2017.
  */
 public class OpenGLUtils {
+
+    private static final Logger logger = LogManager.getLogger();
 
     public static boolean openGL20 = true;
     public static boolean openGL32 = true;
@@ -40,7 +42,7 @@ public class OpenGLUtils {
         try {
             return sup.getAsBoolean();
         } catch (Throwable ignored) {
-            CCLLog.log(Level.INFO, log);
+            logger.info(log);
             return false;
         }
     }

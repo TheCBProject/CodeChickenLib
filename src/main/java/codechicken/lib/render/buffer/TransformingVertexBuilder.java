@@ -5,11 +5,12 @@ import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 /**
  * Created by covers1624 on 4/24/20.
  */
-public class TransformingVertexBuilder implements IVertexBuilder {
+public class TransformingVertexBuilder implements ISpriteAwareVertexBuilder {
 
     private final IVertexBuilder delegate;
     private final Transformation transform;
@@ -67,5 +68,12 @@ public class TransformingVertexBuilder implements IVertexBuilder {
     @Override
     public void endVertex() {
         delegate.endVertex();
+    }
+
+    @Override
+    public void sprite(TextureAtlasSprite sprite) {
+        if (delegate instanceof ISpriteAwareVertexBuilder) {
+            ((ISpriteAwareVertexBuilder) delegate).sprite(sprite);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package codechicken.lib.lighting;
+package codechicken.lib.render.lighting;
 
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;

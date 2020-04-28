@@ -3,10 +3,8 @@ package codechicken.lib.render;
 import codechicken.lib.render.buffer.TransformingVertexBuilder;
 import codechicken.lib.util.SneakyUtils;
 import codechicken.lib.vec.*;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -147,53 +145,18 @@ public class RenderUtils {
         }
     }
 
-    @Deprecated
-    public static void translateToWorldCoords(ActiveRenderInfo info, MatrixStack stack) {
-        Vec3d projectedView = info.getProjectedView();
-        stack.translate(-projectedView.x, -projectedView.y, -projectedView.z);
-    }
-
     /**
-     * Draws a solid cuboid.
+     * Builds a solid cuboid.
+     * Expects VertexFormat of POSITION_COLOR.
+     * If you need anything more specialized, Use a {@link CCModel}.
      *
-     * @param c Cuboid.
+     * @param builder The {@link IVertexBuilder}
+     * @param c       The {@link Cuboid6}
+     * @param r       Red color.
+     * @param g       Green color.
+     * @param b       Blue Color.
+     * @param a       Alpha channel.
      */
-    @Deprecated
-    public static void drawCuboidSolid(Cuboid6 c, MatrixStack stack) {
-        CCRenderState ccrs = CCRenderState.instance();
-        IVertexBuilder builder = new MatrixApplyingVertexBuilder(ccrs.startDrawing(7, DefaultVertexFormats.POSITION), stack.getLast());
-        builder.pos(c.min.x, c.max.y, c.min.z).endVertex();
-        builder.pos(c.max.x, c.max.y, c.min.z).endVertex();
-        builder.pos(c.max.x, c.min.y, c.min.z).endVertex();
-        builder.pos(c.min.x, c.min.y, c.min.z).endVertex();
-
-        builder.pos(c.min.x, c.min.y, c.max.z).endVertex();
-        builder.pos(c.max.x, c.min.y, c.max.z).endVertex();
-        builder.pos(c.max.x, c.max.y, c.max.z).endVertex();
-        builder.pos(c.min.x, c.max.y, c.max.z).endVertex();
-
-        builder.pos(c.min.x, c.min.y, c.min.z).endVertex();
-        builder.pos(c.max.x, c.min.y, c.min.z).endVertex();
-        builder.pos(c.max.x, c.min.y, c.max.z).endVertex();
-        builder.pos(c.min.x, c.min.y, c.max.z).endVertex();
-
-        builder.pos(c.min.x, c.max.y, c.max.z).endVertex();
-        builder.pos(c.max.x, c.max.y, c.max.z).endVertex();
-        builder.pos(c.max.x, c.max.y, c.min.z).endVertex();
-        builder.pos(c.min.x, c.max.y, c.min.z).endVertex();
-
-        builder.pos(c.min.x, c.min.y, c.max.z).endVertex();
-        builder.pos(c.min.x, c.max.y, c.max.z).endVertex();
-        builder.pos(c.min.x, c.max.y, c.min.z).endVertex();
-        builder.pos(c.min.x, c.min.y, c.min.z).endVertex();
-
-        builder.pos(c.max.x, c.min.y, c.min.z).endVertex();
-        builder.pos(c.max.x, c.max.y, c.min.z).endVertex();
-        builder.pos(c.max.x, c.max.y, c.max.z).endVertex();
-        builder.pos(c.max.x, c.min.y, c.max.z).endVertex();
-        ccrs.draw();
-    }
-
     public static void bufferCuboidSolid(IVertexBuilder builder, Cuboid6 c, float r, float g, float b, float a) {
         builder.pos(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
         builder.pos(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();

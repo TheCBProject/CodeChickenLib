@@ -1,4 +1,4 @@
-package codechicken.lib.lighting;
+package codechicken.lib.render.lighting;
 
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.VectorUtils;

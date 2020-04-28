@@ -1,4 +1,4 @@
-package codechicken.lib.lighting;
+package codechicken.lib.render.lighting;
 
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.CCRenderState;
