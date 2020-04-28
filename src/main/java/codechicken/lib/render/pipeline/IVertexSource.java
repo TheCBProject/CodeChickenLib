@@ -9,13 +9,17 @@ import codechicken.lib.vec.Vertex5;
  */
 public interface IVertexSource {
 
+    /**
+     * The vertices for this model.
+     *
+     * @return The Vertices.
+     */
     Vertex5[] getVertices();
 
     /**
      * Gets an array of vertex attributes
      *
      * @param attr The vertex attribute to get
-     * @param <T>  The attribute array type
      * @return An array, or null if not computed
      */
     <T> T getAttributes(AttributeKey<T> attr);
@@ -26,7 +30,9 @@ public interface IVertexSource {
     boolean hasAttribute(AttributeKey<?> attr);
 
     /**
-     * Callback to set CCRenderState for a vertex before the pipeline runs
+     * Called before the pipeline processes a vertex.
+     *
+     * @param ccrs The instance.
      */
-    void prepareVertex(CCRenderState state);
+    void prepareVertex(CCRenderState ccrs);
 }

@@ -32,16 +32,16 @@ public class IconVertexRangeUVTransform extends UVTransformation {
     }
 
     @Override
-    public void operate(CCRenderState state) {
-        UV uv = state.vert.uv;
-        int index = state.vertexIndex;
+    public void operate(CCRenderState ccrs) {
+        UV uv = ccrs.vert.uv;
+        int index = ccrs.vertexIndex;
         TextureAtlasSprite sprite = getSpriteForVertexIndex(index);
         if (sprite == null) {
             return;
         }
         uv.u = sprite.getInterpolatedU(uv.u * 16);
         uv.v = sprite.getInterpolatedV(uv.v * 16);
-        state.sprite = getSpriteForVertexIndex(state.vertexIndex);
+        ccrs.sprite = getSpriteForVertexIndex(ccrs.vertexIndex);
     }
 
     @Override

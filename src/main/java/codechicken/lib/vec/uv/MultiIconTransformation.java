@@ -14,9 +14,9 @@ public class MultiIconTransformation extends UVTransformation {
     }
 
     @Override
-    public void operate(CCRenderState state) {
-        super.operate(state);
-        state.sprite = icon;
+    public void operate(CCRenderState ccrs) {
+        super.operate(ccrs);
+        ccrs.sprite = icon;
     }
 
     @Override

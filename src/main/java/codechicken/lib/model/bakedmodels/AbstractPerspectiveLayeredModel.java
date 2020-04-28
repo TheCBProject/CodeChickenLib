@@ -1,8 +1,8 @@
 package codechicken.lib.model.bakedmodels;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.data.EmptyModelData;
@@ -19,13 +19,13 @@ import java.util.Random;
 public abstract class AbstractPerspectiveLayeredModel extends AbstractBakedPropertiesModel {
 
     //The layer that designates general quads.
-    protected BlockRenderLayer generalLayer;
+    protected RenderType generalLayer;
 
     public AbstractPerspectiveLayeredModel(ModelProperties properties) {
-        this(properties, BlockRenderLayer.SOLID);
+        this(properties, RenderType.getSolid());
     }
 
-    public AbstractPerspectiveLayeredModel(ModelProperties properties, BlockRenderLayer generalLayer) {
+    public AbstractPerspectiveLayeredModel(ModelProperties properties, RenderType generalLayer) {
         super(properties);
         this.generalLayer = generalLayer;
     }
@@ -37,7 +37,7 @@ public abstract class AbstractPerspectiveLayeredModel extends AbstractBakedPrope
 
     @Override
     public List<BakedQuad> getQuads(BlockState state, Direction side, Random rand, IModelData data) {
-        BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
+        RenderType layer = MinecraftForgeClient.getRenderLayer();
         if (layer == null) {
             layer = generalLayer;
         }
@@ -47,7 +47,7 @@ public abstract class AbstractPerspectiveLayeredModel extends AbstractBakedPrope
     @Override
     protected List<BakedQuad> getAllQuads(BlockState state, IModelData data) {
         List<BakedQuad> allQuads = new ArrayList<>();
-        for (BlockRenderLayer layer : BlockRenderLayer.values()) {
+        for (RenderType layer : RenderType.getBlockRenderTypes()) {
             allQuads.addAll(getLayerQuads(state, null, layer, new Random(0), data));
             for (Direction face : Direction.BY_INDEX) {
                 allQuads.addAll(getLayerQuads(state, face, layer, new Random(0), data));
@@ -56,6 +56,6 @@ public abstract class AbstractPerspectiveLayeredModel extends AbstractBakedPrope
         return allQuads;
     }
 
-    public abstract List<BakedQuad> getLayerQuads(BlockState state, Direction side, BlockRenderLayer layer, Random rand, IModelData data);
+    public abstract List<BakedQuad> getLayerQuads(BlockState state, Direction side, RenderType layer, Random rand, IModelData data);
 
 }

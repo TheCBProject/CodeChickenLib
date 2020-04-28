@@ -37,8 +37,8 @@ public class QuadReInterpolator extends QuadTransformer {
 
     public static final IPipelineElementFactory<QuadReInterpolator> FACTORY = QuadReInterpolator::new;
 
-    private Quad interpCache = new Quad();
-    private InterpHelper interpHelper = new InterpHelper();
+    private final Quad interpCache = new Quad();
+    private final InterpHelper interpHelper = new InterpHelper();
 
     QuadReInterpolator() {
         super();
@@ -47,31 +47,31 @@ public class QuadReInterpolator extends QuadTransformer {
     @Override
     public void reset(CachedFormat format) {
         super.reset(format);
-        this.interpCache.reset(format);
+        interpCache.reset(format);
     }
 
     @Override
     public void setInputQuad(Quad quad) {
         super.setInputQuad(quad);
-        quad.resetInterp(this.interpHelper, quad.orientation.ordinal() >> 1);
+        quad.resetInterp(interpHelper, quad.orientation.ordinal() >> 1);
     }
 
     @Override
     public boolean transform() {
-        int s = this.quad.orientation.ordinal() >> 1;
-        if (this.format.hasColor || this.format.hasUV || this.format.hasLightMap) {
-            this.interpCache.copyFrom(this.quad);
-            this.interpHelper.setup();
-            for (Vertex v : this.quad.vertices) {
-                this.interpHelper.locate(v.dx(s), v.dy(s));
-                if (this.format.hasColor) {
-                    v.interpColorFrom(this.interpHelper, this.interpCache.vertices);
+        int s = quad.orientation.ordinal() >> 1;
+        if (format.hasColor || format.hasUV || format.hasLightMap) {
+            interpCache.copyFrom(quad);
+            interpHelper.setup();
+            for (Vertex v : quad.vertices) {
+                interpHelper.locate(v.dx(s), v.dy(s));
+                if (format.hasColor) {
+                    v.interpColorFrom(interpHelper, interpCache.vertices);
                 }
-                if (this.format.hasUV) {
-                    v.interpUVFrom(this.interpHelper, this.interpCache.vertices);
+                if (format.hasUV) {
+                    v.interpUVFrom(interpHelper, interpCache.vertices);
                 }
-                if (this.format.hasLightMap) {
-                    v.interpLightMapFrom(this.interpHelper, this.interpCache.vertices);
+                if (format.hasLightMap) {
+                    v.interpLightMapFrom(interpHelper, interpCache.vertices);
                 }
             }
         }

@@ -1,8 +1,6 @@
 package codechicken.lib.model.bakery;
 
 import codechicken.lib.internal.CCLLog;
-import codechicken.lib.internal.proxy.ProxyClient;
-import codechicken.lib.model.ModelRegistryHelper;
 import codechicken.lib.model.bakedmodels.ModelProperties;
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
@@ -13,24 +11,21 @@ import codechicken.lib.model.bakery.generation.ILayeredBlockBakery;
 import codechicken.lib.model.bakery.generation.ISimpleBlockBakery;
 import codechicken.lib.model.bakery.key.IBlockStateKeyGenerator;
 import codechicken.lib.model.bakery.key.IItemStackKeyGenerator;
-import codechicken.lib.render.buffer.BakingVertexBuffer;
-import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.ResourceUtils;
 import codechicken.lib.util.TransformUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.resource.VanillaResourceType;
 import org.apache.logging.log4j.Level;
@@ -66,7 +61,7 @@ public class ModelBakery {
                 nukeModelCache();
             }
         });
-        ProxyClient.modelHelper.registerCallback(event -> missingModel = ModelLoaderRegistry.getMissingModel().bake(event.getModelLoader(), TextureUtils::getTexture, TransformUtils.DEFAULT_BLOCK, DefaultVertexFormats.ITEM));
+        //ProxyClient.modelHelper.registerCallback(event -> missingModel = ModelLoaderRegistry.getMissingModel().bake(event.getModelLoader(), TextureUtils::getTexture, TransformUtils.DEFAULT_BLOCK, DefaultVertexFormats.ITEM));
     }
 
     public static IBlockStateKeyGenerator getKeyGenerator(Block block) {
@@ -121,11 +116,11 @@ public class ModelBakery {
                 model = timeModelGeneration(ModelBakery::generateItemModel, stack, "ITEM: " + key);
             } catch (Throwable t) {
                 CCLLog.errorOnce(t, "ItemBaking", "Fatal exception thrown whilst baking item model for: " + stack);
-                BakingVertexBuffer buffer = BakingVertexBuffer.create();
-                if (buffer.isDrawing) {
-                    buffer.finishDrawing();
-                    buffer.reset();
-                }
+//                BakingVertexBuffer buffer = BakingVertexBuffer.create();
+//                if (buffer.isDrawing) {
+//                    buffer.finishDrawing();
+//                    buffer.reset();
+//                }
                 return missingModel;
             }
             if (model != missingModel) {
@@ -184,11 +179,11 @@ public class ModelBakery {
                 model = timeModelGeneration(ModelBakery::generateModel, state, data, "BLOCK: " + key);
             } catch (Throwable t) {
                 CCLLog.errorOnce(t, "BlockBaking", "Fatal exception thrown whilst baking block model for: " + state);
-                BakingVertexBuffer buffer = BakingVertexBuffer.create();
-                if (buffer.isDrawing) {
-                    buffer.finishDrawing();
-                    buffer.reset();
-                }
+//                BakingVertexBuffer buffer = BakingVertexBuffer.create();
+//                if (buffer.isDrawing) {
+//                    buffer.finishDrawing();
+//                    buffer.reset();
+//                }
                 return missingModel;
             }
             if (model != missingModel) {
@@ -219,18 +214,18 @@ public class ModelBakery {
             }
             if (bakery instanceof ILayeredBlockBakery) {
                 ILayeredBlockBakery layeredBakery = (ILayeredBlockBakery) bakery;
-                Map<BlockRenderLayer, Map<Direction, List<BakedQuad>>> layerFaceQuadMap = new HashMap<>();
-                Map<BlockRenderLayer, List<BakedQuad>> layerGeneralQuads = new HashMap<>();
-                for (BlockRenderLayer layer : BlockRenderLayer.values()) {
-                    if (state.getBlock().canRenderInLayer(state, layer)) {
+                Map<RenderType, Map<Direction, List<BakedQuad>>> layerFaceQuadMap = new HashMap<>();
+                Map<RenderType, List<BakedQuad>> layerGeneralQuads = new HashMap<>();
+                for (RenderType layer : RenderType.getBlockRenderTypes()) {
+                    if (RenderTypeLookup.canRenderInLayer(state, layer)) {
                         LinkedList<BakedQuad> quads = new LinkedList<>();
                         quads.addAll(layeredBakery.bakeLayerFace(null, layer, state, data));
                         layerGeneralQuads.put(layer, quads);
                     }
                 }
 
-                for (BlockRenderLayer layer : BlockRenderLayer.values()) {
-                    if (state.getBlock().canRenderInLayer(state, layer)) {
+                for (RenderType layer : RenderType.getBlockRenderTypes()) {
+                    if (RenderTypeLookup.canRenderInLayer(state, layer)) {
                         Map<Direction, List<BakedQuad>> faceQuadMap = new HashMap<>();
                         for (Direction face : Direction.BY_INDEX) {
                             List<BakedQuad> quads = new LinkedList<>();
@@ -241,7 +236,7 @@ public class ModelBakery {
                     }
                 }
                 ModelProperties properties = new ModelProperties(true, true, null);
-                return new PerspectiveAwareLayeredModel(layerFaceQuadMap, layerGeneralQuads, new PerspectiveProperties(TransformUtils.DEFAULT_BLOCK, properties), BlockRenderLayer.SOLID);
+                return new PerspectiveAwareLayeredModel(layerFaceQuadMap, layerGeneralQuads, new PerspectiveProperties(TransformUtils.DEFAULT_BLOCK, properties), RenderType.getSolid());
             }
         }
         return missingModel;

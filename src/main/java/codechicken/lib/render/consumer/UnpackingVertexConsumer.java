@@ -23,7 +23,7 @@ public class UnpackingVertexConsumer implements IVertexConsumer {
 
     public UnpackingVertexConsumer(VertexFormat format) {
         this.format = format;
-        unpackedData = new float[4][format.getElementCount()][4];
+        unpackedData = new float[4][format.getElements().size()][4];
     }
 
     @Override
@@ -54,7 +54,7 @@ public class UnpackingVertexConsumer implements IVertexConsumer {
     @Override
     public void put(int element, float... data) {
         System.arraycopy(data, 0, unpackedData[vertices][element], 0, data.length);
-        if (element == getVertexFormat().getElementCount() - 1) {
+        if (element == getVertexFormat().getElements().size() - 1) {
             vertices++;
         }
     }

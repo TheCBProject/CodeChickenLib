@@ -5,7 +5,7 @@ import codechicken.lib.render.CCRenderState;
 
 public class ColourMultiplier implements IVertexOperation {
 
-    private static ThreadLocal<ColourMultiplier> instances = ThreadLocal.withInitial(() -> new ColourMultiplier(-1));
+    private static final ThreadLocal<ColourMultiplier> instances = ThreadLocal.withInitial(() -> new ColourMultiplier(-1));
 
     public static ColourMultiplier instance(int colour) {
         ColourMultiplier instance = instances.get();
@@ -13,7 +13,7 @@ public class ColourMultiplier implements IVertexOperation {
         return instance;
     }
 
-    public static final int operationIndex = CCRenderState.registerOperation();
+    public static final int operationIndex = IVertexOperation.registerOperation();
     public int colour;
 
     public ColourMultiplier(int colour) {
@@ -21,18 +21,18 @@ public class ColourMultiplier implements IVertexOperation {
     }
 
     @Override
-    public boolean load(CCRenderState state) {
+    public boolean load(CCRenderState ccrs) {
         if (colour == -1) {
             return false;
         }
 
-        state.pipeline.addDependency(state.colourAttrib);
+        ccrs.pipeline.addDependency(ccrs.colourAttrib);
         return true;
     }
 
     @Override
-    public void operate(CCRenderState state) {
-        state.colour = ColourRGBA.multiply(state.colour, colour);
+    public void operate(CCRenderState ccrs) {
+        ccrs.colour = ColourRGBA.multiply(ccrs.colour, colour);
     }
 
     @Override

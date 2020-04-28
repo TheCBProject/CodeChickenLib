@@ -1,6 +1,5 @@
 package codechicken.lib.render.pipeline;
 
-import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.attribute.AttributeKey;
 import codechicken.lib.util.ArrayUtils;
 
@@ -12,23 +11,19 @@ import codechicken.lib.util.ArrayUtils;
  */
 public abstract class VertexAttribute<T> implements IVertexOperation {
 
-    private final int operationIndex = CCRenderState.registerOperation();
-
     /**
      * Set to true when the attribute is part of the pipeline. Should only be managed by CCRenderState when constructing the pipeline
      */
     public boolean active = false;
+    private final AttributeKey<T> key;
 
-    /**
-     * Construct a new array for storage of vertex attributes in a model
-     */
-    public abstract T newArray(int length);
-
-    public abstract String getAttribName();
+    public VertexAttribute(AttributeKey<T> key) {
+        this.key = key;
+    }
 
     @Override
     public int operationID() {
-        return operationIndex;
+        return key.operationIndex;
     }
 
     public static <R> R copyOf(AttributeKey<R> attr, R src, int length) {

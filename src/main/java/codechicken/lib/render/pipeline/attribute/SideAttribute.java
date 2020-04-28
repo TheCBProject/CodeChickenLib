@@ -9,42 +9,31 @@ import codechicken.lib.util.VectorUtils;
  */
 public class SideAttribute extends VertexAttribute<int[]> {
 
-    public static final AttributeKey<int[]> attributeKey = new AttributeKey<int[]>() {
-        @Override
-        public int[] newArray(int length) {
-            return new int[length];
-        }
-    };
+    public static final AttributeKey<int[]> attributeKey = new AttributeKey<int[]>("side", int[]::new);
 
     private int[] sideRef;
 
-    @Override
-    public int[] newArray(int length) {
-        return new int[length];
+    public SideAttribute() {
+        super(attributeKey);
     }
 
     @Override
-    public String getAttribName() {
-        return "sideAttrib";
-    }
-
-    @Override
-    public boolean load(CCRenderState state) {
-        sideRef = state.model.getAttributes(SideAttribute.attributeKey);
-        if (state.model.hasAttribute(SideAttribute.attributeKey)) {
+    public boolean load(CCRenderState ccrs) {
+        sideRef = ccrs.model.getAttributes(attributeKey);
+        if (ccrs.model.hasAttribute(attributeKey)) {
             return sideRef != null;
         }
 
-        state.pipeline.addDependency(state.normalAttrib);
+        ccrs.pipeline.addDependency(ccrs.normalAttrib);
         return true;
     }
 
     @Override
-    public void operate(CCRenderState state) {
+    public void operate(CCRenderState ccrs) {
         if (sideRef != null) {
-            state.side = sideRef[state.vertexIndex];
+            ccrs.side = sideRef[ccrs.vertexIndex];
         } else {
-            state.side = VectorUtils.findSide(state.normal);
+            ccrs.side = VectorUtils.findSide(ccrs.normal);
         }
     }
 }

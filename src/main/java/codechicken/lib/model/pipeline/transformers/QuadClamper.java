@@ -42,21 +42,21 @@ public class QuadClamper extends QuadTransformer {
 
     public QuadClamper(IVertexConsumer parent, AxisAlignedBB bounds) {
         super(parent);
-        this.clampBounds = bounds;
+        clampBounds = bounds;
     }
 
     public void setClampBounds(AxisAlignedBB bounds) {
-        this.clampBounds = bounds;
+        clampBounds = bounds;
     }
 
     @Override
     public boolean transform() {
-        int s = this.quad.orientation.ordinal() >> 1;
+        int s = quad.orientation.ordinal() >> 1;
 
-        this.quad.clamp(this.clampBounds);
+        quad.clamp(clampBounds);
 
         // Check if the quad would be invisible and cull it.
-        Vertex[] vertices = this.quad.vertices;
+        Vertex[] vertices = quad.vertices;
         float x1 = vertices[0].dx(s);
         float x2 = vertices[1].dx(s);
         float x3 = vertices[2].dx(s);

@@ -11,46 +11,36 @@ import codechicken.lib.vec.Vector3;
  */
 public class LightCoordAttribute extends VertexAttribute<LC[]> {
 
-    public static final AttributeKey<LC[]> attributeKey = new AttributeKey<LC[]>() {
-        @Override
-        public LC[] newArray(int length) {
-            return new LC[length];
-        }
-    };
+    public static final AttributeKey<LC[]> attributeKey = new AttributeKey<>("light_coord", LC[]::new);
+
+    private final Vector3 vec = new Vector3();//for computation
+    private final Vector3 pos = new Vector3();
 
     private LC[] lcRef;
-    private Vector3 vec = new Vector3();//for computation
-    private Vector3 pos = new Vector3();
 
-    @Override
-    public LC[] newArray(int length) {
-        return new LC[length];
+    public LightCoordAttribute() {
+        super(attributeKey);
     }
 
     @Override
-    public String getAttribName() {
-        return "lightCoordAttrib";
-    }
-
-    @Override
-    public boolean load(CCRenderState state) {
-        lcRef = state.model.getAttributes(LightCoordAttribute.attributeKey);
-        if (state.model.hasAttribute(LightCoordAttribute.attributeKey)) {
+    public boolean load(CCRenderState ccrs) {
+        lcRef = ccrs.model.getAttributes(attributeKey);
+        if (ccrs.model.hasAttribute(attributeKey)) {
             return lcRef != null;
         }
 
-        pos.set(state.lightMatrix.pos);
-        state.pipeline.addDependency(state.sideAttrib);
-        state.pipeline.addRequirement(Transformation.operationIndex);
+        pos.set(ccrs.lightMatrix.pos);
+        ccrs.pipeline.addDependency(ccrs.sideAttrib);
+        ccrs.pipeline.addRequirement(Transformation.operationIndex);
         return true;
     }
 
     @Override
-    public void operate(CCRenderState state) {
+    public void operate(CCRenderState ccrs) {
         if (lcRef != null) {
-            state.lc.set(lcRef[state.vertexIndex]);
+            ccrs.lc.set(lcRef[ccrs.vertexIndex]);
         } else {
-            state.lc.compute(vec.set(state.vert.vec).subtract(pos), state.side);
+            ccrs.lc.compute(vec.set(ccrs.vert.vec).subtract(pos), ccrs.side);
         }
     }
 }

@@ -9,37 +9,26 @@ import codechicken.lib.render.pipeline.VertexAttribute;
  */
 public class ColourAttribute extends VertexAttribute<int[]> {
 
-    public static final AttributeKey<int[]> attributeKey = new AttributeKey<int[]>() {
-        @Override
-        public int[] newArray(int length) {
-            return new int[length];
-        }
-    };
+    public static final AttributeKey<int[]> attributeKey = new AttributeKey<>("colour", int[]::new);
 
     private int[] colourRef;
 
-    @Override
-    public int[] newArray(int length) {
-        return new int[length];
+    public ColourAttribute() {
+        super(attributeKey);
     }
 
     @Override
-    public String getAttribName() {
-        return "colourAttrib";
+    public boolean load(CCRenderState ccrs) {
+        colourRef = ccrs.model.getAttributes(attributeKey);
+        return colourRef != null || !ccrs.model.hasAttribute(attributeKey);
     }
 
     @Override
-    public boolean load(CCRenderState state) {
-        colourRef = state.model.getAttributes(ColourAttribute.attributeKey);
-        return colourRef != null || !state.model.hasAttribute(ColourAttribute.attributeKey);
-    }
-
-    @Override
-    public void operate(CCRenderState state) {
+    public void operate(CCRenderState ccrs) {
         if (colourRef != null) {
-            state.colour = ColourRGBA.multiply(state.baseColour, colourRef[state.vertexIndex]);
+            ccrs.colour = ColourRGBA.multiply(ccrs.baseColour, colourRef[ccrs.vertexIndex]);
         } else {
-            state.colour = state.baseColour;
+            ccrs.colour = ccrs.baseColour;
         }
     }
 }

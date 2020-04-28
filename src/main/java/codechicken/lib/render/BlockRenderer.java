@@ -8,7 +8,6 @@ import codechicken.lib.render.pipeline.attribute.SideAttribute;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vertex5;
 
-//TODO Ability to use this without lighting.
 public class BlockRenderer {
 
     public static class BlockFace implements IVertexSource {
@@ -34,8 +33,8 @@ public class BlockRenderer {
         }
 
         @Override
-        public void prepareVertex(CCRenderState state) {
-            state.side = side;
+        public void prepareVertex(CCRenderState ccrs) {
+            ccrs.side = side;
         }
 
         public BlockFace computeLightCoords() {
@@ -154,14 +153,12 @@ public class BlockRenderer {
         }
 
         @Override
-        public void prepareVertex(CCRenderState state) {
-            state.side = state.vertexIndex >> 2;
+        public void prepareVertex(CCRenderState ccrs) {
+            ccrs.side = ccrs.vertexIndex >> 2;
         }
     }
 
     public static ThreadLocal<FullBlock> fullBlocks = ThreadLocal.withInitial(FullBlock::new);
-    @Deprecated//Replaced with thread save version.
-    public static FullBlock fullBlock = new FullBlock();
 
     public static void renderFullBlock(CCRenderState state, int sideMask) {
         state.setModel(fullBlocks.get());

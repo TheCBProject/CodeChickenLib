@@ -10,6 +10,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 
+import java.util.List;
+
 /**
  * Created by covers1624 on 15/01/2017.
  * TODO, Maybe merge with CCRS??
@@ -37,7 +39,8 @@ public class CCRSConsumer implements IVertexConsumer {
     public void put(int e, float... data) {
         VertexFormat format = getVertexFormat();
 
-        VertexFormatElement fmte = format.getElement(e);
+        List<VertexFormatElement> elements = format.getElements();
+        VertexFormatElement fmte = elements.get(e);
         switch (fmte.getUsage()) {
             case POSITION:
                 ccrs.vert.vec.set(data).add(offset);
@@ -45,8 +48,8 @@ public class CCRSConsumer implements IVertexConsumer {
             case UV:
                 if (fmte.getIndex() == 0) {
                     ccrs.vert.uv.set(data[0], data[1]);
-                } else {
-                    ccrs.brightness = (int) (data[1] * 0xFFFF / 2) << 16 | (int) (data[0] * 0xFFFF / 2);
+                } else if (fmte.getIndex() == 2) {
+                    ccrs.brightness = (int) (data[1] * 0xF0) << 16 | (int) (data[0] * 0xF0);
                 }
                 break;
             case COLOR:
@@ -60,7 +63,7 @@ public class CCRSConsumer implements IVertexConsumer {
             default:
                 throw new UnsupportedOperationException("Generic vertex format element");
         }
-        if (e == format.getElementCount() - 1) {
+        if (e == elements.size() - 1) {
             ccrs.writeVert();
         }
     }

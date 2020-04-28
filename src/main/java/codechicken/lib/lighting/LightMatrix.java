@@ -5,21 +5,22 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IEnviromentBlockReader;
+import net.minecraft.world.ILightReader;
 
 /**
  * Note that when using the class as a vertex transformer, the vertices are assumed to be within the BB (x, y, z) -> (x+1, y+1, z+1)
  */
 public class LightMatrix implements IVertexOperation {
 
-    public static final int operationIndex = CCRenderState.registerOperation();
+    public static final int operationIndex = IVertexOperation.registerOperation();
 
     public int computed = 0;
     public float[][] ao = new float[13][4];
     public int[][] brightness = new int[13][4];
 
-    public IEnviromentBlockReader access;
+    public ILightReader access;
     public BlockPos pos = BlockPos.ZERO;
 
     private int sampled = 0;
@@ -77,7 +78,7 @@ public class LightMatrix implements IVertexOperation {
         System.out.println(Arrays.deepToString(ssamplem));
     }*/
 
-    public void locate(IEnviromentBlockReader a, BlockPos bPos) {
+    public void locate(ILightReader a, BlockPos bPos) {
         access = a;
         pos = bPos;
         computed = 0;
@@ -88,8 +89,8 @@ public class LightMatrix implements IVertexOperation {
         if ((sampled & 1 << i) == 0) {
             BlockPos bp = new BlockPos(pos.getX() + (i % 3) - 1, pos.getY() + (i / 9) - 1, pos.getZ() + (i / 3 % 3) - 1);
             BlockState b = access.getBlockState(bp);
-            bSamples[i] = access.getCombinedLight(bp, b.getLightValue(access, bp));
-            aSamples[i] = b.func_215703_d(access, bp);
+            bSamples[i] = WorldRenderer.getCombinedLight(access, bp);
+            aSamples[i] = b.getAmbientOcclusionLightValue(access, bp);
             sampled |= 1 << i;
         }
     }
@@ -146,24 +147,25 @@ public class LightMatrix implements IVertexOperation {
     }
 
     @Override
-    public boolean load(CCRenderState state) {
-        if (!state.computeLighting) {
+    public boolean load(CCRenderState ccrs) {
+        if (!ccrs.computeLighting) {
             return false;
         }
 
-        state.pipeline.addDependency(state.colourAttrib);
-        state.pipeline.addDependency(state.lightCoordAttrib);
+        ccrs.pipeline.addDependency(ccrs.colourAttrib);
+        ccrs.pipeline.addDependency(ccrs.lightCoordAttrib);
         return true;
     }
 
     @Override
-    public void operate(CCRenderState state) {
-        LC lc = state.lc;
+    public void operate(CCRenderState ccrs) {
+        LC lc = ccrs.lc;
         float[] a = ao(lc.side);
         float f = (a[0] * lc.fa + a[1] * lc.fb + a[2] * lc.fc + a[3] * lc.fd);
         int[] b = brightness(lc.side);
-        state.colour = ColourRGBA.multiplyC(state.colour, f);
-        state.brightness = (int) (b[0] * lc.fa + b[1] * lc.fb + b[2] * lc.fc + b[3] * lc.fd) & 0xFF00FF;
+        ccrs.colour = ColourRGBA.multiplyC(ccrs.colour, f);
+        //System.out.println("0x808080FF * " + f + " = 0x" + Integer.toHexString(state.colour));
+        ccrs.brightness = (int) (b[0] * lc.fa + b[1] * lc.fb + b[2] * lc.fc + b[3] * lc.fd) & 0xFF00FF;
     }
 
     @Override

@@ -1,16 +1,18 @@
 package codechicken.lib.lighting;
 
 import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.pipeline.IVertexOperation;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IEnviromentBlockReader;
+import net.minecraft.world.ILightReader;
 
 public class PlanarLightMatrix extends PlanarLightModel {
 
-    public static final int operationIndex = CCRenderState.registerOperation();
+    public static final int operationIndex = IVertexOperation.registerOperation();
     public static PlanarLightMatrix instance = new PlanarLightMatrix();
 
-    public IEnviromentBlockReader access;
+    public ILightReader access;
     public BlockPos pos = BlockPos.ZERO;
 
     private int sampled = 0;
@@ -20,7 +22,7 @@ public class PlanarLightMatrix extends PlanarLightModel {
         super(PlanarLightModel.standardLightModel.colours);
     }
 
-    public PlanarLightMatrix locate(IEnviromentBlockReader a, BlockPos bPos) {
+    public PlanarLightMatrix locate(ILightReader a, BlockPos bPos) {
         access = a;
         pos = bPos;
         sampled = 0;
@@ -29,23 +31,22 @@ public class PlanarLightMatrix extends PlanarLightModel {
 
     public int brightness(int side) {
         if ((sampled & 1 << side) == 0) {
-            BlockState b = access.getBlockState(pos);
-            brightness[side] = access.getCombinedLight(pos, b.getBlock().getLightValue(b, access, pos));
+            brightness[side] = WorldRenderer.getCombinedLight(access, pos);
             sampled |= 1 << side;
         }
         return brightness[side];
     }
 
     @Override
-    public boolean load(CCRenderState state) {
-        state.pipeline.addDependency(state.sideAttrib);
+    public boolean load(CCRenderState ccrs) {
+        ccrs.pipeline.addDependency(ccrs.sideAttrib);
         return true;
     }
 
     @Override
-    public void operate(CCRenderState state) {
-        super.operate(state);
-        state.brightness = brightness(state.side);
+    public void operate(CCRenderState ccrs) {
+        super.operate(ccrs);
+        ccrs.brightness = brightness(ccrs.side);
     }
 
     @Override

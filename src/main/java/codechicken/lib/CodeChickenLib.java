@@ -35,7 +35,7 @@ public class CodeChickenLib {
     @SubscribeEvent
     public void onCommonSetup(FMLCommonSetupEvent event) {
         proxy.commonSetup(event);
-        config = new ConfigFile(new File("config/ccl.cfg"));//TODO, Investigate forge config.
+        config = new ConfigFile(new File("config/ccl.cfg"));
         CCLNetwork.init();
     }
 

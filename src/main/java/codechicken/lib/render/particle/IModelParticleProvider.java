@@ -6,8 +6,7 @@ import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IEnviromentBlockReader;
+import net.minecraft.world.IBlockReader;
 import net.minecraftforge.client.model.data.IModelData;
 
 import javax.annotation.Nonnull;
@@ -32,7 +31,7 @@ public interface IModelParticleProvider extends IBakedModel {
      * @param pos         The pos.
      * @return A Set of Textures to use.
      */
-    Set<TextureAtlasSprite> getHitEffects(@Nonnull BlockRayTraceResult traceResult, BlockState state, IEnviromentBlockReader world, BlockPos pos, IModelData modelData);
+    Set<TextureAtlasSprite> getHitEffects(@Nonnull BlockRayTraceResult traceResult, BlockState state, IBlockReader world, BlockPos pos, IModelData modelData);
 
     /**
      * Used to retrieve the destroy particles for the block.
@@ -42,6 +41,6 @@ public interface IModelParticleProvider extends IBakedModel {
      * @param pos   The pos.
      * @return A Set of Textures to use.
      */
-    Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IEnviromentBlockReader world, BlockPos pos, IModelData data);
+    Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IBlockReader world, BlockPos pos, IModelData data);
 
 }

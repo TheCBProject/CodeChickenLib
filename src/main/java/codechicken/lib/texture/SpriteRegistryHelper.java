@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -22,13 +23,13 @@ import java.util.function.Consumer;
  */
 public class SpriteRegistryHelper {
 
-    public static final String TEXTURES = "textures";
-    public static final String PARTICLE_TEXTURES = "textures/particle";
-    public static final String MOB_EFFECT_TEXTURES = "textures/mob_effect";
-    public static final String PAINTING_TEXTURES = "textures/painting";
+    public static final ResourceLocation TEXTURES = PlayerContainer.LOCATION_BLOCKS_TEXTURE;
+//    public static final ResourceLocation PARTICLE_TEXTURES = "textures/particle";
+//    public static final ResourceLocation MOB_EFFECT_TEXTURES = "textures/mob_effect";
+//    public static final ResourceLocation PAINTING_TEXTURES = "textures/painting";
 
-    private final Multimap<String, IIconRegister> iconRegisters = HashMultimap.create();
-    private final Map<String, AtlasRegistrarImpl> atlasRegistrars = new HashMap<>();
+    private final Multimap<ResourceLocation, IIconRegister> iconRegisters = HashMultimap.create();
+    private final Map<ResourceLocation, AtlasRegistrarImpl> atlasRegistrars = new HashMap<>();
 
     public SpriteRegistryHelper() {
         this(FMLJavaModLoadingContext.get().getModEventBus());
@@ -40,13 +41,13 @@ public class SpriteRegistryHelper {
 
     /**
      * Adds an IIconRegister for the given basePath.
-     * The base path should be that returned by {@link AtlasTexture#getBasePath()}
+     * The base path should be that returned by {@link AtlasTexture#getTextureLocation()}
      * Some known vanilla defaults are provided above.
      *
      * @param basePath     The base path for the Atlas.
      * @param iconRegister The IIconRegister.
      */
-    public void addIIconRegister(String basePath, IIconRegister iconRegister) {
+    public void addIIconRegister(ResourceLocation basePath, IIconRegister iconRegister) {
         iconRegisters.put(basePath, iconRegister);
     }
 
@@ -61,10 +62,10 @@ public class SpriteRegistryHelper {
 
     //######### INTERNAL
     private AtlasRegistrarImpl getRegistrar(AtlasTexture atlas) {
-        AtlasRegistrarImpl registrar = atlasRegistrars.get(atlas.getBasePath());
+        AtlasRegistrarImpl registrar = atlasRegistrars.get(atlas.getTextureLocation());
         if (registrar == null) {
             registrar = new AtlasRegistrarImpl();
-            atlasRegistrars.put(atlas.getBasePath(), registrar);
+            atlasRegistrars.put(atlas.getTextureLocation(), registrar);
         }
         return registrar;
     }
@@ -73,7 +74,7 @@ public class SpriteRegistryHelper {
     public void onTextureStitchPre(TextureStitchEvent.Pre event) {
         AtlasTexture atlas = event.getMap();
         AtlasRegistrarImpl registrar = getRegistrar(atlas);
-        iconRegisters.get(atlas.getBasePath()).forEach(e -> e.registerIcons(registrar));
+        iconRegisters.get(atlas.getTextureLocation()).forEach(e -> e.registerIcons(registrar));
         registrar.processPre(event::addSprite);
     }
 
@@ -86,7 +87,7 @@ public class SpriteRegistryHelper {
 
     private static final class AtlasRegistrarImpl implements AtlasRegistrar {
 
-        private Multimap<ResourceLocation, Consumer<TextureAtlasSprite>> sprites = HashMultimap.create();
+        private final Multimap<ResourceLocation, Consumer<TextureAtlasSprite>> sprites = HashMultimap.create();
 
         @Override
         public void registerSprite(ResourceLocation loc, Consumer<TextureAtlasSprite> onReady) {

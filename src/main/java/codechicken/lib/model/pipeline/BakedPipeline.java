@@ -23,9 +23,9 @@ import codechicken.lib.model.ISmartVertexConsumer;
 import codechicken.lib.model.Quad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
+import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
-import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -39,19 +39,19 @@ import java.util.stream.Collectors;
  * the Pipeline has Elements, each element has a name, state and a transformer,
  * you can enable and disable elements easily, you can also grab the underlying
  * transformer for the element if you need to set its state before rendering.
- *
+ * <p>
  * The BakedPipeline is final once created, you cannot add or remove elements,
  * you should not need to add or remove them runtime, enable and disable exist.
- *
+ * <p>
  * You must use the Builder class to construct a BakedPipeline, see {@link #builder}
- *
+ * <p>
  * Transformers run on a mutable state inside each transformer, allowing for easy reuse.
  * It is recommended to store your pipeline inside a ThreadLocal because 'minecraft'.
- *
+ * <p>
  * Each Transformer should be smart enough to expand itself for each newly sized VertexFormat it comes across,
  * meaning that the internal states for the transformers can be safely shared across VertexFormats, this reduces
  * array creations, and generally makes the system as efficient as it is.
- *
+ * <p>
  * To use the system:
  * Grab any elements you need to set state data on first, using {@link #getElement(String, Class)}
  * transformers should NOT clear their state on pipeline Reset's so set any global data on elements now.
@@ -59,8 +59,7 @@ import java.util.stream.Collectors;
  * Now you should disable / enable any optional elements that are needed, NOTE: Element states are reset when resetting
  * the pipeline.
  * Now you will need to call {@link #prepare(IVertexConsumer)} on the pipeline, here you will pass your collector,
- * usually this is some form of (Unpacked)BakedQuadBuilder, See {@link QuadBuilder} for a simple and fast implementation
- * for standard BakedQuads, and {@link UnpackedBakedQuad.Builder} for UnpackedBakedQuads.
+ * usually this is some form of {@link BakedQuadBuilder}, or {@link Quad} can also pack things.
  * Now final step, simply pipe the quad you want to transform INTO the pipeline 'quad.pipe(pipeline)'
  * And that's it! hell, Pipe a pipeline into each other for all i care, the system is efficient enough that there
  * would be no performance penalty for doing so.
@@ -69,15 +68,15 @@ import java.util.stream.Collectors;
  */
 public class BakedPipeline implements ISmartVertexConsumer {
 
-    private PipelineElement[] elements;
-    private Map<String, PipelineElement> nameLookup;
+    private final PipelineElement<?>[] elements;
+    private final Map<String, PipelineElement<?>> nameLookup;
     private IPipelineConsumer first;
 
-    private Quad unpacker = new Quad();
+    private final Quad unpacker = new Quad();
 
-    private BakedPipeline(PipelineElement[] elements) {
+    private BakedPipeline(PipelineElement<?>[] elements) {
         this.elements = elements;
-        this.nameLookup = Arrays.stream(elements).collect(Collectors.toMap(e -> e.name, e -> e));
+        nameLookup = Arrays.stream(elements).collect(Collectors.toMap(e -> e.name, e -> e));
     }
 
     /**
@@ -96,7 +95,7 @@ public class BakedPipeline implements ISmartVertexConsumer {
      * @param format The format.
      */
     public void reset(VertexFormat format) {
-        this.reset(CachedFormat.lookup(format));
+        reset(CachedFormat.lookup(format));
     }
 
     /**
@@ -106,11 +105,11 @@ public class BakedPipeline implements ISmartVertexConsumer {
      * @param format The format.
      */
     public void reset(CachedFormat format) {
-        this.unpacker.reset(format);
-        for (PipelineElement element : this.elements) {
+        unpacker.reset(format);
+        for (PipelineElement<?> element : elements) {
             element.reset(format);
         }
-        this.first = null;
+        first = null;
     }
 
     /**
@@ -121,7 +120,7 @@ public class BakedPipeline implements ISmartVertexConsumer {
      * @return The element.
      */
     public <T extends IPipelineConsumer> T getElement(String name, Class<T> clazz) {
-        PipelineElement element = this.nameLookup.get(name);
+        PipelineElement<?> element = nameLookup.get(name);
         if (element != null) {
             if (!clazz.isAssignableFrom(element.consumer.getClass())) {
                 throw new IllegalArgumentException("Element with name " + name + " is not assignable from reference class.");
@@ -137,7 +136,7 @@ public class BakedPipeline implements ISmartVertexConsumer {
      * @param name The elements name.
      */
     public void enableElement(String name) {
-        this.setElementState(name, true);
+        setElementState(name, true);
     }
 
     /**
@@ -146,7 +145,7 @@ public class BakedPipeline implements ISmartVertexConsumer {
      * @param name The elements name.
      */
     public void disableElement(String name) {
-        this.setElementState(name, false);
+        setElementState(name, false);
     }
 
     /**
@@ -156,7 +155,7 @@ public class BakedPipeline implements ISmartVertexConsumer {
      * @param enabled The state to set it to.
      */
     public void setElementState(String name, boolean enabled) {
-        PipelineElement element = this.nameLookup.get(name);
+        PipelineElement<?> element = nameLookup.get(name);
         if (element != null) {
             element.isEnabled = enabled;
             return;
@@ -172,10 +171,10 @@ public class BakedPipeline implements ISmartVertexConsumer {
      */
     public void prepare(IVertexConsumer collector) {
         IPipelineConsumer next = null;
-        for (PipelineElement element : this.elements) {
+        for (PipelineElement<?> element : elements) {
             if (element.isEnabled) {
-                if (this.first == null) {
-                    this.first = element.consumer;
+                if (first == null) {
+                    first = element.consumer;
                 } else {
                     next.setParent(element.consumer);
                 }
@@ -187,58 +186,58 @@ public class BakedPipeline implements ISmartVertexConsumer {
 
     @Override
     public VertexFormat getVertexFormat() {
-        this.check();
-        return this.first.getVertexFormat();
+        check();
+        return first.getVertexFormat();
     }
 
     @Override
     public void setQuadTint(int tint) {
-        this.check();
-        this.unpacker.setQuadTint(tint);
+        check();
+        unpacker.setQuadTint(tint);
     }
 
     @Override
-    public void setQuadOrientation(EnumFacing orientation) {
-        this.check();
-        this.unpacker.setQuadOrientation(orientation);
+    public void setQuadOrientation(Direction orientation) {
+        check();
+        unpacker.setQuadOrientation(orientation);
     }
 
     @Override
     public void setApplyDiffuseLighting(boolean diffuse) {
-        this.check();
-        this.unpacker.setApplyDiffuseLighting(diffuse);
+        check();
+        unpacker.setApplyDiffuseLighting(diffuse);
     }
 
     @Override
     public void setTexture(TextureAtlasSprite texture) {
-        this.check();
-        this.unpacker.setTexture(texture);
+        check();
+        unpacker.setTexture(texture);
     }
 
     @Override
     public void put(int element, float... data) {
-        this.check();
-        this.unpacker.put(element, data);
-        if (this.unpacker.full) {
-            this.onFull();
+        check();
+        unpacker.put(element, data);
+        if (unpacker.full) {
+            onFull();
         }
     }
 
     @Override
     public void put(Quad quad) {
-        this.check();
-        this.unpacker.put(quad);
+        check();
+        unpacker.put(quad);
     }
 
     private void check() {
-        if (this.first == null) {
+        if (first == null) {
             throw new IllegalStateException("Pipeline used before prepare was called.");
         }
     }
 
     private void onFull() {
-        this.first.setInputQuad(this.unpacker);
-        this.first.put(this.unpacker);
+        first.setInputQuad(unpacker);
+        first.put(unpacker);
     }
 
     /**
@@ -252,9 +251,9 @@ public class BakedPipeline implements ISmartVertexConsumer {
         public boolean isEnabled;
 
         public void reset(CachedFormat format) {
-            this.isEnabled = this.defaultState;
-            this.consumer.setParent(null);
-            this.consumer.reset(format);
+            isEnabled = defaultState;
+            consumer.setParent(null);
+            consumer.reset(format);
         }
     }
 
@@ -267,7 +266,7 @@ public class BakedPipeline implements ISmartVertexConsumer {
      */
     public static class Builder {
 
-        private LinkedList<PipelineElement> elements = new LinkedList<>();
+        private final LinkedList<PipelineElement<?>> elements = new LinkedList<>();
 
         /**
          * Inserts an element to the front of the list, Useful if you have a more complex system
@@ -279,7 +278,7 @@ public class BakedPipeline implements ISmartVertexConsumer {
          * @return The same builder.
          */
         public Builder addFirst(String name, IPipelineElementFactory<?> factory) {
-            return this.addFirst(name, factory, true);
+            return addFirst(name, factory, true);
         }
 
         /**
@@ -293,7 +292,7 @@ public class BakedPipeline implements ISmartVertexConsumer {
          * @return The same builder.
          */
         public Builder addFirst(String name, IPipelineElementFactory<?> factory, boolean defaultState) {
-            return this.addFirst(name, factory, defaultState, e -> {
+            return addFirst(name, factory, defaultState, e -> {
             });
         }
 
@@ -309,9 +308,9 @@ public class BakedPipeline implements ISmartVertexConsumer {
          * @return The same builder.
          */
         public <T extends IPipelineConsumer> Builder addFirst(String name, IPipelineElementFactory<T> factory, boolean defaultState, Consumer<T> defaultsSetter) {
-            PipelineElement<T> element = this.makeElement(name, factory, defaultState);
+            PipelineElement<T> element = makeElement(name, factory, defaultState);
             defaultsSetter.accept(element.consumer);
-            this.elements.addFirst(element);
+            elements.addFirst(element);
             return this;
         }
 
@@ -324,7 +323,7 @@ public class BakedPipeline implements ISmartVertexConsumer {
          * @return The same builder.
          */
         public Builder addElement(String name, IPipelineElementFactory<?> factory) {
-            return this.addElement(name, factory, true);
+            return addElement(name, factory, true);
         }
 
         /**
@@ -337,7 +336,7 @@ public class BakedPipeline implements ISmartVertexConsumer {
          * @return The same builder.
          */
         public Builder addElement(String name, IPipelineElementFactory<?> factory, boolean defaultState) {
-            return this.addElement(name, factory, defaultState, e -> {
+            return addElement(name, factory, defaultState, e -> {
             });
         }
 
@@ -352,15 +351,15 @@ public class BakedPipeline implements ISmartVertexConsumer {
          * @return The same builder.
          */
         public <T extends IPipelineConsumer> Builder addElement(String name, IPipelineElementFactory<T> factory, boolean defaultState, Consumer<T> defaultsSetter) {
-            PipelineElement<T> element = this.makeElement(name, factory, defaultState);
+            PipelineElement<T> element = makeElement(name, factory, defaultState);
             defaultsSetter.accept(element.consumer);
-            this.elements.add(element);
+            elements.add(element);
             return this;
         }
 
         // Internal method, used to construct the PipelineElement class.
         private <T extends IPipelineConsumer> PipelineElement<T> makeElement(String name, IPipelineElementFactory<T> factory, boolean defaultState) {
-            if (this.elements.stream().anyMatch(p -> p.name.equals(name))) {
+            if (elements.stream().anyMatch(p -> p.name.equals(name))) {
                 throw new IllegalArgumentException("Unable to add element with duplicate name: " + name);
             }
             PipelineElement<T> element = new PipelineElement<>();
@@ -376,7 +375,7 @@ public class BakedPipeline implements ISmartVertexConsumer {
          * @return The new Pipeline.
          */
         public BakedPipeline build() {
-            return new BakedPipeline(this.elements.toArray(new PipelineElement[0]));
+            return new BakedPipeline(elements.toArray(new PipelineElement[0]));
         }
     }
 }

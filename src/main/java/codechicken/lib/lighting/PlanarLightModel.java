@@ -18,19 +18,19 @@ public class PlanarLightModel implements IVertexOperation {
     }
 
     @Override
-    public boolean load(CCRenderState state) {
-        if (!state.computeLighting) {
+    public boolean load(CCRenderState ccrs) {
+        if (!ccrs.computeLighting) {
             return false;
         }
 
-        state.pipeline.addDependency(state.sideAttrib);
-        state.pipeline.addDependency(state.colourAttrib);
+        ccrs.pipeline.addDependency(ccrs.sideAttrib);
+        ccrs.pipeline.addDependency(ccrs.colourAttrib);
         return true;
     }
 
     @Override
-    public void operate(CCRenderState state) {
-        state.colour = ColourRGBA.multiply(state.colour, colours[state.side]);
+    public void operate(CCRenderState ccrs) {
+        ccrs.colour = ColourRGBA.multiply(ccrs.colour, colours[ccrs.side]);
     }
 
     @Override

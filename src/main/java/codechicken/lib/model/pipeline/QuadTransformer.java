@@ -23,7 +23,7 @@ import codechicken.lib.model.ISmartVertexConsumer;
 import codechicken.lib.model.Quad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -37,15 +37,15 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
  */
 public abstract class QuadTransformer implements IVertexConsumer, ISmartVertexConsumer, IPipelineConsumer {
 
+    protected final Quad quad;
     protected CachedFormat format;
     protected IVertexConsumer consumer;
-    protected Quad quad;
 
     /**
      * Used for the BakedPipeline.
      */
     protected QuadTransformer() {
-        this.quad = new Quad();
+        quad = new Quad();
     }
 
     public QuadTransformer(IVertexConsumer consumer) {
@@ -59,73 +59,49 @@ public abstract class QuadTransformer implements IVertexConsumer, ISmartVertexCo
     public QuadTransformer(CachedFormat format, IVertexConsumer consumer) {
         this.format = format;
         this.consumer = consumer;
-        this.quad = new Quad(format);
+        quad = new Quad(format);
     }
 
     @Override
     @OverridingMethodsMustInvokeSuper
     public void reset(CachedFormat format) {
         this.format = format;
-        this.quad.reset(format);
+        quad.reset(format);
     }
 
     @Override
     public void setParent(IVertexConsumer parent) {
-        this.consumer = parent;
+        consumer = parent;
     }
 
     @Override
     @OverridingMethodsMustInvokeSuper
     public void setInputQuad(Quad quad) {
-        if (this.consumer instanceof IPipelineConsumer) {
-            ((IPipelineConsumer) this.consumer).setInputQuad(quad);
+        if (consumer instanceof IPipelineConsumer) {
+            ((IPipelineConsumer) consumer).setInputQuad(quad);
         }
     }
 
     // @formatter:off
-	@Override
-	public VertexFormat getVertexFormat()
-	{
-		return this.format.format;
-	}
-
-	@Override
-	public void setQuadTint( int tint )
-	{
-		this.quad.setQuadTint( tint );
-	}
-
-	@Override
-	public void setQuadOrientation( EnumFacing orientation )
-	{
-		this.quad.setQuadOrientation( orientation );
-	}
-
-	@Override
-	public void setApplyDiffuseLighting( boolean diffuse )
-	{
-		this.quad.setApplyDiffuseLighting( diffuse );
-	}
-
-	@Override
-	public void setTexture( TextureAtlasSprite texture )
-	{
-		this.quad.setTexture( texture );
-	}
+	@Override public VertexFormat getVertexFormat() { return format.format; }
+	@Override public void setQuadTint( int tint ) { quad.setQuadTint( tint ); }
+	@Override public void setQuadOrientation( Direction orientation ) { quad.setQuadOrientation( orientation ); }
+	@Override public void setApplyDiffuseLighting( boolean diffuse ) { quad.setApplyDiffuseLighting( diffuse ); }
+	@Override public void setTexture( TextureAtlasSprite texture ) { quad.setTexture( texture ); }
 	// @formatter:on
 
     @Override
     public void put(int element, float... data) {
-        this.quad.put(element, data);
-        if (this.quad.full) {
-            this.onFull();
+        quad.put(element, data);
+        if (quad.full) {
+            onFull();
         }
     }
 
     @Override
     public void put(Quad quad) {
         this.quad.put(quad);
-        this.onFull();
+        onFull();
     }
 
     /**
@@ -136,8 +112,8 @@ public abstract class QuadTransformer implements IVertexConsumer, ISmartVertexCo
     public abstract boolean transform();
 
     public void onFull() {
-        if (this.transform()) {
-            this.quad.pipe(this.consumer);
+        if (transform()) {
+            quad.pipe(consumer);
         }
     }
 

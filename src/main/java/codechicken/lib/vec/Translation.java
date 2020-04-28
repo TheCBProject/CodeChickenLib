@@ -1,9 +1,6 @@
 package codechicken.lib.vec;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.util.math.Vec3i;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -11,7 +8,7 @@ import java.math.RoundingMode;
 
 public class Translation extends Transformation {
 
-    public static final Translation CENTER = new Translation(Vector3.center);
+    public static final Translation CENTER = new Translation(Vector3.CENTER);
 
     public Vector3 vec;
 
@@ -46,11 +43,11 @@ public class Translation extends Transformation {
         return this;
     }
 
-    @Override
-    @OnlyIn (Dist.CLIENT)
-    public void glApply() {
-        GlStateManager.translated(vec.x, vec.y, vec.z);
-    }
+    //    @Override
+    //    @OnlyIn (Dist.CLIENT)
+    //    public void glApply() {
+    //        GlStateManager.translated(vec.x, vec.y, vec.z);
+    //    }
 
     @Override
     public Transformation inverse() {

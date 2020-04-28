@@ -21,9 +21,9 @@ public abstract class VariableTransformation extends Transformation {
         mat.multiply(this.mat);
     }
 
-    @Override
-    @OnlyIn (Dist.CLIENT)
-    public void glApply() {
-        mat.glApply();
-    }
+//    @Override
+//    @OnlyIn (Dist.CLIENT)
+//    public void glApply() {
+//        mat.glApply();
+//    }
 }

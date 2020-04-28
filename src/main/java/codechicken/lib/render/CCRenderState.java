@@ -4,7 +4,8 @@ import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.lighting.LC;
 import codechicken.lib.lighting.LightMatrix;
-import codechicken.lib.render.buffer.BakingVertexBuffer;
+import codechicken.lib.lighting.PlanarLightModel;
+import codechicken.lib.render.buffer.ISpriteAwareVertexBuilder;
 import codechicken.lib.render.pipeline.CCRenderPipeline;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.render.pipeline.IVertexSource;
@@ -12,17 +13,18 @@ import codechicken.lib.render.pipeline.VertexAttribute;
 import codechicken.lib.render.pipeline.attribute.*;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
-import com.mojang.blaze3d.platform.GLX;
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.IVertexConsumer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IEnviromentBlockReader;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.ILightReader;
 import net.minecraftforge.fluids.FluidStack;
 
 /**
@@ -33,15 +35,7 @@ import net.minecraftforge.fluids.FluidStack;
  */
 public class CCRenderState {
 
-    private static int nextOperationIndex;
-
-    public static int registerOperation() {
-        return nextOperationIndex++;
-    }
-
-    public static int operationCount() {
-        return nextOperationIndex;
-    }
+    private static final ThreadLocal<CCRenderState> instances = ThreadLocal.withInitial(CCRenderState::new);
 
     //Each attrib needs to be assigned in this order to have a valid operation index.
     public final VertexAttribute<Vector3[]> normalAttrib = new NormalAttribute();
@@ -50,23 +44,31 @@ public class CCRenderState {
     public final VertexAttribute<int[]> sideAttrib = new SideAttribute();
     public final VertexAttribute<LC[]> lightCoordAttrib = new LightCoordAttribute();
 
-    private static final ThreadLocal<CCRenderState> instances = ThreadLocal.withInitial(CCRenderState::new);
-
     //pipeline state
     public IVertexSource model;
     public int firstVertexIndex;
     public int lastVertexIndex;
     public int vertexIndex;
     public CCRenderPipeline pipeline;
-    @OnlyIn (Dist.CLIENT)
-    public BufferBuilder r;
-    @OnlyIn (Dist.CLIENT)
+    public IVertexBuilder r;
     public VertexFormat fmt;
 
     //context
+    /**
+     * The base color, multiplied by the {@link ColourAttribute} from the bound model if present otherwise used as-is.
+     */
     public int baseColour;
+    /**
+     * An override for the alpha colour component.
+     */
     public int alphaOverride;
+    /**
+     * Lets the {@link LightMatrix} or {@link PlanarLightModel} know if this {@link CCRenderState} should compute lighting.
+     */
     public boolean computeLighting;
+    /**
+     * A standard {@link LightMatrix} instance to be shared on this pipeline.
+     */
     public LightMatrix lightMatrix = new LightMatrix();
 
     //vertex outputs
@@ -74,11 +76,11 @@ public class CCRenderState {
     public final Vector3 normal = new Vector3();
     public int colour;
     public int brightness;
+    public int overlay;
 
     //attribute storage
     public int side;
     public LC lc = new LC();
-    @OnlyIn (Dist.CLIENT)
     public TextureAtlasSprite sprite;
 
     private CCRenderState() {
@@ -89,14 +91,77 @@ public class CCRenderState {
         return instances.get();
     }
 
+    /**
+     * Bind this {@link CCRenderState} instance to the {@link Tessellator} buffer
+     * and prepare to start drawing vertices for the given <code>mode</code> and {@link VertexFormat}.
+     *
+     * @param mode   The GL integer mode. E.g: GL_QUADS, GL_TRIANGLES, and so on.
+     * @param format The {@link VertexFormat}.
+     * @return The {@link BufferBuilder} instance from {@link Tessellator}.
+     */
+    public BufferBuilder startDrawing(int mode, VertexFormat format) {
+        BufferBuilder r = Tessellator.getInstance().getBuffer();
+        r.begin(mode, format);
+        bind(r);
+        return r;
+    }
+
+    /**
+     * Bind this {@link CCRenderState} instance to the given {@link BufferBuilder}
+     * and prepare to start drawing vertices for the given <code>mode</code> and {@link VertexFormat}.
+     *
+     * @param mode   The GL integer mode. E.g: GL_QUADS, GL_TRIANGLES, and so on.
+     * @param format The {@link VertexFormat}.
+     * @param buffer The {@link BufferBuilder} to bind to.
+     * @return The same {@link BufferBuilder} that was passed in.
+     */
+    public BufferBuilder startDrawing(int mode, VertexFormat format, BufferBuilder buffer) {
+        buffer.begin(mode, format);
+        bind(buffer);
+        return buffer;
+    }
+
+    /**
+     * Bind this {@link CCRenderState} instance to the given {@link BufferBuilder}.
+     *
+     * @param r The {@link BufferBuilder}.
+     */
+    public void bind(BufferBuilder r) {
+        bind(r, r.getVertexFormat());
+    }
+
+    /**
+     * Bind this {@link CCRenderState} to the given {@link IVertexBuilder} and {@link VertexFormat}.
+     *
+     * @param consumer The {@link IVertexBuilder} to bind to.
+     * @param format   The {@link VertexFormat} of the {@link IVertexBuilder}.
+     */
+    public void bind(IVertexBuilder consumer, VertexFormat format) {
+        r = consumer;
+        fmt = format;
+    }
+
+    /**
+     * Bind this {@link CCRenderState} to the given {@link RenderType}.
+     *
+     * @param renderType The {@link RenderType} to bind to.
+     * @param getter     The {@link IRenderTypeBuffer} instance.
+     */
+    public void bind(RenderType renderType, IRenderTypeBuffer getter) {
+        bind(getter.getBuffer(renderType), renderType.getVertexFormat());
+    }
+
+    /**
+     * Resets this {@link CCRenderState} instance's pipeline and internal state.
+     */
     public void reset() {
         model = null;
         pipeline.reset();
         computeLighting = true;
-        baseColour = alphaOverride = -1;
+        colour = baseColour = alphaOverride = -1;
     }
 
-    public void preRenderWorld(IEnviromentBlockReader world, BlockPos pos) {
+    public void preRenderWorld(ILightReader world, BlockPos pos) {
         this.reset();
         this.colour = 0xFFFFFFFF;
         this.setBrightness(world, pos);
@@ -155,26 +220,34 @@ public class CCRenderState {
     }
 
     public void writeVert() {
-        if (r instanceof BakingVertexBuffer) {
-            ((BakingVertexBuffer) r).setSprite(sprite);
+        if (r instanceof ISpriteAwareVertexBuilder) {
+            ((ISpriteAwareVertexBuilder) r).sprite(sprite);
         }
-        for (int e = 0; e < fmt.getElementCount(); e++) {
-            VertexFormatElement fmte = fmt.getElement(e);
+        ImmutableList<VertexFormatElement> elements = fmt.getElements();
+        for (int e = 0; e < elements.size(); e++) {
+            VertexFormatElement fmte = elements.get(e);
             switch (fmte.getUsage()) {
                 case POSITION:
                     r.pos(vert.vec.x, vert.vec.y, vert.vec.z);
                     break;
                 case UV:
-                    if (fmte.getIndex() == 0) {
-                        r.tex(vert.uv.u, vert.uv.v);
-                    } else {
-                        r.lightmap(brightness >> 16 & 65535, brightness & 65535);
+                    int idx = fmte.getIndex();
+                    switch (idx) {
+                        case 0:
+                            r.tex((float) vert.uv.u, (float) vert.uv.v);
+                            break;
+                        case 1:
+                            r.overlay(overlay);
+                            break;
+                        case 2:
+                            r.lightmap(brightness);
+                            break;
                     }
                     break;
                 case COLOR:
-                    if (r.isColorDisabled()) {
+                    if (r instanceof BufferBuilder && ((BufferBuilder) r).defaultColor) {
                         //-_- Fucking mojang..
-                        r.nextVertexFormatIndex();
+                        ((BufferBuilder) r).nextVertexFormatIndex();
                     } else {
                         r.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
                     }
@@ -191,20 +264,17 @@ public class CCRenderState {
         r.endVertex();
     }
 
+    @Deprecated
     public void pushColour() {
         GlStateManager.color4f((colour >>> 24) / 255F, (colour >> 16 & 0xFF) / 255F, (colour >> 8 & 0xFF) / 255F, (alphaOverride >= 0 ? alphaOverride : colour & 0xFF) / 255F);
     }
 
-    public void setBrightness(IEnviromentBlockReader world, BlockPos pos) {
-        brightness = world.getBlockState(pos).getPackedLightmapCoords(world, pos);
+    public void setBrightness(ILightReader world, BlockPos pos) {
+        brightness = WorldRenderer.getPackedLightmapCoords(world, world.getBlockState(pos), pos);
     }
 
-    public void pullLightmap() {
-        brightness = (int) GLX.lastBrightnessY << 16 | (int) GLX.lastBrightnessX;
-    }
-
-    public void pushLightmap() {
-        GLX.glMultiTexCoord2f(GLX.GL_TEXTURE1, brightness & 0xFFFF, brightness >>> 16);
+    public void setBrightness(Entity entity, float frameDelta) {
+        brightness = Minecraft.getInstance().getRenderManager().getPackedLight(entity, frameDelta);
     }
 
     public void setFluidColour(FluidStack fluidStack) {
@@ -223,52 +293,15 @@ public class CCRenderState {
         return new ColourRGBA(colour);
     }
 
-    @OnlyIn (Dist.CLIENT)
-    public BufferBuilder startDrawing(int mode, VertexFormat format) {
-        BufferBuilder r = Tessellator.getInstance().getBuffer();
-        r.begin(mode, format);
-        bind(r);
+    public IVertexBuilder getConsumer() {
         return r;
     }
 
-    @OnlyIn (Dist.CLIENT)
-    public BufferBuilder startDrawing(int mode, VertexFormat format, BufferBuilder buffer) {
-        buffer.begin(mode, format);
-        bind(buffer);
-        return buffer;
-    }
-
-    @OnlyIn (Dist.CLIENT)
-    public void bind(BufferBuilder r) {
-        this.r = r;
-        fmt = r.getVertexFormat();
-    }
-
-    @OnlyIn (Dist.CLIENT)
-    public BufferBuilder getBuffer() {
-        return r;
-    }
-
-    @OnlyIn (Dist.CLIENT)
     public VertexFormat getVertexFormat() {
         return fmt;
     }
 
     public void draw() {
         Tessellator.getInstance().draw();
-    }
-
-    /**
-     * Polls the currently bound VertexBuffer to see if it is drawing.
-     * If no buffer is bound it checks Tessellator.getInstance.getBuffer.
-     *
-     * @return If the buffer is drawing.
-     */
-    public boolean isDrawing() {
-        if (r != null) {
-            return r.isDrawing;
-        } else {
-            return Tessellator.getInstance().getBuffer().isDrawing;
-        }
     }
 }

@@ -62,7 +62,7 @@ public class CustomParticleHandler {
     @OnlyIn (Dist.CLIENT)
     public static boolean handleRunningEffects(World world, BlockPos pos, BlockState state, Entity entity) {
         //Spoof a raytrace from the feet.
-        BlockRayTraceResult traceResult = new BlockRayTraceResult(new Vec3d(entity.posX, pos.getY() + 1, entity.posZ), Direction.UP, pos, false);
+        BlockRayTraceResult traceResult = new BlockRayTraceResult(entity.getPositionVec().add(0, 1, 0), Direction.UP, pos, false);
         BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes();
         IBakedModel model = modelShapes.getModel(state);
         if (model instanceof IModelParticleProvider) {
@@ -70,9 +70,9 @@ public class CustomParticleHandler {
             ParticleManager particleManager = Minecraft.getInstance().particles;
             List<TextureAtlasSprite> sprites = new ArrayList<>(((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos, modelData));
             TextureAtlasSprite rolledSprite = sprites.get(world.rand.nextInt(sprites.size()));
-            double x = entity.posX + (world.rand.nextFloat() - 0.5D) * entity.getWidth();
+            double x = entity.getPosX() + (world.rand.nextFloat() - 0.5D) * entity.getWidth();
             double y = entity.getBoundingBox().minY + 0.1D;
-            double z = entity.posZ + (world.rand.nextFloat() - 0.5D) * entity.getWidth();
+            double z = entity.getPosZ() + (world.rand.nextFloat() - 0.5D) * entity.getWidth();
             particleManager.addEffect(new CustomBreakingParticle(world, x, y, z, -entity.getMotion().x * 4.0D, 1.5D, -entity.getMotion().z * 4.0D, rolledSprite));
             return true;
         }

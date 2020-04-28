@@ -153,13 +153,13 @@ public class TransformationList extends Transformation {
         return transformations.size() == 0;
     }
 
-    @Override
-    @OnlyIn (Dist.CLIENT)
-    public void glApply() {
-        for (int i = transformations.size() - 1; i >= 0; i--) {
-            transformations.get(i).glApply();
-        }
-    }
+//    @Override
+//    @OnlyIn (Dist.CLIENT)
+//    public void glApply() {
+//        for (int i = transformations.size() - 1; i >= 0; i--) {
+//            transformations.get(i).glApply();
+//        }
+//    }
 
     @Override
     public Transformation inverse() {

@@ -19,18 +19,17 @@
 package codechicken.lib.model;
 
 import codechicken.lib.math.InterpHelper;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import codechicken.lib.vec.Vector3;
+import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.IVertexProducer;
 import net.minecraftforge.client.model.pipeline.LightUtil;
-import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
-
-import javax.vecmath.Vector3f;
 
 /**
  * A simple easy to manipulate quad format. Can be reset and then used on a different format.
@@ -42,7 +41,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
     public CachedFormat format;
 
     public int tintIndex = -1;
-    public EnumFacing orientation;
+    public Direction orientation;
     public boolean diffuseLighting = true;
     public TextureAtlasSprite sprite;
 
@@ -51,11 +50,11 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
 
     // Not copied.
     private int vertexIndex = 0;
+
     // Cache for normal computation.
-    private Vector3f v1 = new Vector3f();
-    private Vector3f v2 = new Vector3f();
-    private Vector3f t = new Vector3f();
-    private Vector3f normal = new Vector3f();
+    private final Vector3 v1 = new Vector3();
+    private final Vector3 v2 = new Vector3();
+    private final Vector3 t = new Vector3();
 
     /**
      * Use this if you reset the quad each time you use it.
@@ -74,45 +73,45 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
 
     @Override
     public VertexFormat getVertexFormat() {
-        return this.format.format;
+        return format.format;
     }
 
     @Override
     public void setQuadTint(int tint) {
-        this.tintIndex = tint;
+        tintIndex = tint;
     }
 
     @Override
-    public void setQuadOrientation(EnumFacing orientation) {
+    public void setQuadOrientation(Direction orientation) {
         this.orientation = orientation;
     }
 
     @Override
     public void setApplyDiffuseLighting(boolean diffuse) {
-        this.diffuseLighting = diffuse;
+        diffuseLighting = diffuse;
     }
 
     @Override
     public void setTexture(TextureAtlasSprite texture) {
-        this.sprite = texture;
+        sprite = texture;
     }
 
     @Override
     public void put(int element, float... data) {
-        if (this.full) {
+        if (full) {
             throw new RuntimeException("Unable to add data when full.");
         }
-        Vertex v = this.vertices[this.vertexIndex];
+        Vertex v = vertices[vertexIndex];
         if (v == null) {
-            v = new Vertex(this.format);
-            this.vertices[this.vertexIndex] = v;
+            v = new Vertex(format);
+            vertices[vertexIndex] = v;
         }
         System.arraycopy(data, 0, v.raw[element], 0, data.length);
-        if (element == (this.format.elementCount - 1)) {
-            this.vertexIndex++;
-            if (this.vertexIndex == 4) {
-                this.vertexIndex = 0;
-                this.full = true;
+        if (element == (format.elementCount - 1)) {
+            vertexIndex++;
+            if (vertexIndex == 4) {
+                vertexIndex = 0;
+                full = true;
                 if (orientation == null) {
                     calculateOrientation(false);
                 }
@@ -122,7 +121,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
 
     @Override
     public void put(Quad quad) {
-        this.copyFrom(quad);
+        copyFrom(quad);
     }
 
     @Override
@@ -130,12 +129,12 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
         if (consumer instanceof ISmartVertexConsumer) {
             ((ISmartVertexConsumer) consumer).put(this);
         } else {
-            consumer.setQuadTint(this.tintIndex);
-            consumer.setQuadOrientation(this.orientation);
-            consumer.setApplyDiffuseLighting(this.diffuseLighting);
-            consumer.setTexture(this.sprite);
-            for (Vertex v : this.vertices) {
-                for (int e = 0; e < this.format.elementCount; e++) {
+            consumer.setQuadTint(tintIndex);
+            consumer.setQuadOrientation(orientation);
+            consumer.setApplyDiffuseLighting(diffuseLighting);
+            consumer.setTexture(sprite);
+            for (Vertex v : vertices) {
+                for (int e = 0; e < format.elementCount; e++) {
                     consumer.put(e, v.raw[e]);
                 }
             }
@@ -151,10 +150,10 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
      */
     public InterpHelper resetInterp(InterpHelper helper, int s) {
         helper.reset( //
-                this.vertices[0].dx(s), this.vertices[0].dy(s), //
-                this.vertices[1].dx(s), this.vertices[1].dy(s), //
-                this.vertices[2].dx(s), this.vertices[2].dy(s), //
-                this.vertices[3].dx(s), this.vertices[3].dy(s));
+                vertices[0].dx(s), vertices[0].dy(s), //
+                vertices[1].dx(s), vertices[1].dy(s), //
+                vertices[2].dx(s), vertices[2].dy(s), //
+                vertices[3].dx(s), vertices[3].dy(s));
         return helper;
     }
 
@@ -164,7 +163,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
      * @param bb The box.
      */
     public void clamp(AxisAlignedBB bb) {
-        for (Vertex vertex : this.vertices) {
+        for (Vertex vertex : vertices) {
             float[] vec = vertex.vec;
             vec[0] = (float) MathHelper.clamp(vec[0], bb.minX, bb.maxX);
             vec[1] = (float) MathHelper.clamp(vec[1], bb.minY, bb.maxY);
@@ -180,26 +179,20 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
      * @param setNormal If the normal vector should be updated.
      */
     public void calculateOrientation(boolean setNormal) {
-        this.v1.set(this.vertices[3].vec);
-        this.t.set(this.vertices[1].vec);
-        this.v1.sub(this.t);
+        v1.set(vertices[3].vec).subtract(t.set(vertices[1].vec));
+        v2.set(vertices[2].vec).subtract(t.set(vertices[0].vec));
 
-        this.v2.set(this.vertices[2].vec);
-        this.t.set(this.vertices[0].vec);
-        this.v2.sub(this.t);
+        Vector3 normal = v2.crossProduct(v1).normalize();
 
-        this.normal.cross(this.v2, this.v1);
-        this.normal.normalize();
-
-        if (this.format.hasNormal && setNormal) {
-            for (Vertex vertex : this.vertices) {
-                vertex.normal[0] = this.normal.x;
-                vertex.normal[1] = this.normal.y;
-                vertex.normal[2] = this.normal.z;
+        if (format.hasNormal && setNormal) {
+            for (Vertex vertex : vertices) {
+                vertex.normal[0] = (float) normal.x;
+                vertex.normal[1] = (float) normal.y;
+                vertex.normal[2] = (float) normal.z;
                 vertex.normal[3] = 0;
             }
         }
-        this.orientation = EnumFacing.getFacingFromVector(this.normal.x, this.normal.y, this.normal.z);
+        orientation = Direction.getFacingFromVector(normal.x, normal.y, normal.z);
     }
 
     /**
@@ -208,17 +201,17 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
      * @return The new quad.
      */
     public Quad copy() {
-        if (!this.full) {
+        if (!full) {
             throw new RuntimeException("Only copying full quads is supported.");
         }
-        Quad quad = new Quad(this.format);
-        quad.tintIndex = this.tintIndex;
-        quad.orientation = this.orientation;
-        quad.diffuseLighting = this.diffuseLighting;
-        quad.sprite = this.sprite;
+        Quad quad = new Quad(format);
+        quad.tintIndex = tintIndex;
+        quad.orientation = orientation;
+        quad.diffuseLighting = diffuseLighting;
+        quad.sprite = sprite;
         quad.full = true;
         for (int i = 0; i < 4; i++) {
-            quad.vertices[i] = this.vertices[i].copy();
+            quad.vertices[i] = vertices[i].copy();
         }
         return quad;
     }
@@ -231,14 +224,14 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
      * @return This quad.
      */
     public Quad copyFrom(Quad quad) {
-        this.tintIndex = quad.tintIndex;
-        this.orientation = quad.orientation;
-        this.diffuseLighting = quad.diffuseLighting;
-        this.sprite = quad.sprite;
-        this.full = quad.full;
+        tintIndex = quad.tintIndex;
+        orientation = quad.orientation;
+        diffuseLighting = quad.diffuseLighting;
+        sprite = quad.sprite;
+        full = quad.full;
         for (int v = 0; v < 4; v++) {
-            for (int e = 0; e < this.format.elementCount; e++) {
-                System.arraycopy(quad.vertices[v].raw[e], 0, this.vertices[v].raw[e], 0, 4);
+            for (int e = 0; e < format.elementCount; e++) {
+                System.arraycopy(quad.vertices[v].raw[e], 0, vertices[v].raw[e], 0, 4);
             }
         }
         return this;
@@ -251,19 +244,19 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
      */
     public void reset(CachedFormat format) {
         this.format = format;
-        this.tintIndex = -1;
-        this.orientation = null;
-        this.diffuseLighting = true;
-        this.sprite = null;
-        for (int i = 0; i < this.vertices.length; i++) {
-            Vertex v = this.vertices[i];
+        tintIndex = -1;
+        orientation = null;
+        diffuseLighting = true;
+        sprite = null;
+        for (int i = 0; i < vertices.length; i++) {
+            Vertex v = vertices[i];
             if (v == null) {
-                this.vertices[i] = v = new Vertex(format);
+                vertices[i] = v = new Vertex(format);
             }
             v.reset(format);
         }
-        this.vertexIndex = 0;
-        this.full = false;
+        vertexIndex = 0;
+        full = false;
     }
 
     /**
@@ -272,29 +265,22 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
      * @return The BakedQuad.
      */
     public BakedQuad bake() {
-        int[] packedData = new int[this.format.format.getNextOffset()];
+        if (format.format != DefaultVertexFormats.BLOCK) {
+            throw new IllegalStateException("Unable to bake this quad to the specified format. " + format.format);
+        }
+        int[] packedData = new int[format.format.getSize()];
         for (int v = 0; v < 4; v++) {
-            for (int e = 0; e < this.format.elementCount; e++) {
-                LightUtil.pack(this.vertices[v].raw[e], packedData, this.format.format, v, e);
+            for (int e = 0; e < format.elementCount; e++) {
+                LightUtil.pack(vertices[v].raw[e], packedData, format.format, v, e);
             }
         }
-        return new BakedQuad(packedData, this.tintIndex, this.orientation, this.sprite, this.diffuseLighting, this.format.format);
-    }
-
-    /**
-     * Bakes this quad to an UnpackedBakedQuad.
-     *
-     * @return The UnpackedBakedQuad.
-     */
-    public UnpackedBakedQuad bakeUnpacked() {
-        UnpackedBakedQuad.Builder quad = new UnpackedBakedQuad.Builder(this.format.format);
-        this.pipe(quad);
-        return quad.build();
+        return new BakedQuad(packedData, tintIndex, orientation, sprite, diffuseLighting);
     }
 
     /**
      * A simple vertex format.
      */
+    //TODO Move this to use Vector3 and so on?
     public static class Vertex {
 
         public CachedFormat format;
@@ -309,6 +295,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
         public float[] normal;
         public float[] color;
         public float[] uv;
+        public float[] overlay;
         public float[] lightmap;
 
         /**
@@ -318,8 +305,8 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
          */
         public Vertex(CachedFormat format) {
             this.format = format;
-            this.raw = new float[format.elementCount][4];
-            this.preProcess();
+            raw = new float[format.elementCount][4];
+            preProcess();
         }
 
         /**
@@ -328,12 +315,12 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
          * @param other The other.
          */
         public Vertex(Vertex other) {
-            this.format = other.format;
-            this.raw = other.raw.clone();
-            for (int v = 0; v < this.format.elementCount; v++) {
-                this.raw[v] = other.raw[v].clone();
+            format = other.format;
+            raw = other.raw.clone();
+            for (int v = 0; v < format.elementCount; v++) {
+                raw[v] = other.raw[v].clone();
             }
-            this.preProcess();
+            preProcess();
         }
 
         /**
@@ -341,20 +328,23 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
          * update raw.
          */
         public void preProcess() {
-            if (this.format.hasPosition) {
-                this.vec = this.raw[this.format.positionIndex];
+            if (format.hasPosition) {
+                vec = raw[format.positionIndex];
             }
-            if (this.format.hasNormal) {
-                this.normal = this.raw[this.format.normalIndex];
+            if (format.hasNormal) {
+                normal = raw[format.normalIndex];
             }
-            if (this.format.hasColor) {
-                this.color = this.raw[this.format.colorIndex];
+            if (format.hasColor) {
+                color = raw[format.colorIndex];
             }
-            if (this.format.hasUV) {
-                this.uv = this.raw[this.format.uvIndex];
+            if (format.hasUV) {
+                uv = raw[format.uvIndex];
             }
-            if (this.format.hasLightMap) {
-                this.lightmap = this.raw[this.format.lightMapIndex];
+            if (format.hasOverlay) {
+                overlay = raw[format.overlayIndex];
+            }
+            if (format.hasLightMap) {
+                lightmap = raw[format.lightMapIndex];
             }
         }
 
@@ -366,9 +356,9 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
          */
         public float dx(int s) {
             if (s <= 1) {
-                return this.vec[0];
+                return vec[0];
             } else {
-                return this.vec[2];
+                return vec[2];
             }
         }
 
@@ -380,9 +370,9 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
          */
         public float dy(int s) {
             if (s > 0) {
-                return this.vec[1];
+                return vec[1];
             } else {
-                return this.vec[2];
+                return vec[2];
             }
         }
 
@@ -401,7 +391,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
                 float p4 = others[3].color[e];
                 // Only interpolate if colors are different.
                 if (p1 != p2 || p2 != p3 || p3 != p4) {
-                    this.color[e] = interpHelper.interpolate(p1, p2, p3, p4);
+                    color[e] = interpHelper.interpolate(p1, p2, p3, p4);
                 }
             }
             return this;
@@ -421,7 +411,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
                 float p3 = others[2].uv[e];
                 float p4 = others[3].uv[e];
                 if (p1 != p2 || p2 != p3 || p3 != p4) {
-                    this.uv[e] = interpHelper.interpolate(p1, p2, p3, p4);
+                    uv[e] = interpHelper.interpolate(p1, p2, p3, p4);
                 }
             }
             return this;
@@ -441,7 +431,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
                 float p3 = others[2].lightmap[e];
                 float p4 = others[3].lightmap[e];
                 if (p1 != p2 || p2 != p3 || p3 != p4) {
-                    this.lightmap[e] = interpHelper.interpolate(p1, p2, p3, p4);
+                    lightmap[e] = interpHelper.interpolate(p1, p2, p3, p4);
                 }
             }
             return this;
@@ -463,22 +453,22 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
          */
         public void reset(CachedFormat format) {
             // If the format is different and our raw array is smaller, then expand it.
-            if (!this.format.equals(format) && format.elementCount > this.raw.length) {
-                this.raw = new float[format.elementCount][4];
+            if (!this.format.equals(format) && format.elementCount > raw.length) {
+                raw = new float[format.elementCount][4];
             }
             this.format = format;
 
-            this.vec = null;
-            this.normal = null;
-            this.color = null;
-            this.uv = null;
-            this.lightmap = null;
+            vec = null;
+            normal = null;
+            color = null;
+            uv = null;
+            lightmap = null;
 
             // for (float[] f : raw) {
             // Arrays.fill(f, 0F);
             // }
 
-            this.preProcess();
+            preProcess();
         }
     }
 }

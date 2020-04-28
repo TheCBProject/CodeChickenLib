@@ -56,37 +56,37 @@ public class ProxyClient extends Proxy {
         //
         //        ClientCommandHandler.instance.registerCommand(new CCLClientCommand());
 
-        RenderingRegistry.registerEntityRenderingHandler(DummyEntity.class, manager -> {
-            sanitizeEntityRenderers(manager);
-            return new EntityRenderer<DummyEntity>(manager) {
-                protected ResourceLocation getEntityTexture(DummyEntity entity) {
-                    return null;
-                }
-            };
-        });
+//        RenderingRegistry.registerEntityRenderingHandler(DummyEntity.class, manager -> {
+//            sanitizeEntityRenderers(manager);
+//            return new EntityRenderer<DummyEntity>(manager) {
+//                public ResourceLocation getEntityTexture(DummyEntity entity) {
+//                    return null;
+//                }
+//            };
+//        });
     }
 
-    @OnlyIn (Dist.CLIENT)
-    public static void sanitizeEntityRenderers(EntityRendererManager renderManager) {
-        if (!hasSanitized) {
-            try {
-                for (EntityRenderer<? extends Entity> render : renderManager.renderers.values()) {
-                    if (render != null) {
-                        for (Field field : render.getClass().getDeclaredFields()) {
-                            if (field.getType().equals(ItemRenderer.class)) {
-                                field.setAccessible(true);
-                                //field.set(render, CCRenderItem.getOverridenItemRender());
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Unable to reflect an EntityRenderer!", e);
-            }
-            renderManager.renderers.remove(DummyEntity.class);
-            hasSanitized = true;
-        }
-    }
+//    @OnlyIn (Dist.CLIENT)
+//    public static void sanitizeEntityRenderers(EntityRendererManager renderManager) {
+//        if (!hasSanitized) {
+//            try {
+//                for (EntityRenderer<? extends Entity> render : renderManager.renderers.values()) {
+//                    if (render != null) {
+//                        for (Field field : render.getClass().getDeclaredFields()) {
+//                            if (field.getType().equals(ItemRenderer.class)) {
+//                                field.setAccessible(true);
+//                                //field.set(render, CCRenderItem.getOverridenItemRender());
+//                            }
+//                        }
+//                    }
+//                }
+//            } catch (Exception e) {
+//                throw new RuntimeException("Unable to reflect an EntityRenderer!", e);
+//            }
+//            renderManager.renderers.remove(DummyEntity.class);
+//            hasSanitized = true;
+//        }
+//    }
 
     private void loadClientConfig() {
         ConfigTag tag;

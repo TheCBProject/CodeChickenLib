@@ -9,41 +9,30 @@ import codechicken.lib.render.pipeline.VertexAttribute;
  */
 public class LightingAttribute extends VertexAttribute<int[]> {
 
-    public static final AttributeKey<int[]> attributeKey = new AttributeKey<int[]>() {
-        @Override
-        public int[] newArray(int length) {
-            return new int[length];
-        }
-    };
+    public static final AttributeKey<int[]> attributeKey = new AttributeKey<>("lighting", int[]::new);
 
     private int[] colourRef;
 
-    @Override
-    public int[] newArray(int length) {
-        return new int[length];
+    public LightingAttribute() {
+        super(attributeKey);
     }
 
     @Override
-    public String getAttribName() {
-        return "lightingAttrib";
-    }
-
-    @Override
-    public boolean load(CCRenderState state) {
-        if (!state.computeLighting || !state.fmt.hasColor() || !state.model.hasAttribute(LightingAttribute.attributeKey)) {
+    public boolean load(CCRenderState ccrs) {
+        if (!ccrs.computeLighting || !ccrs.fmt.hasColor() || !ccrs.model.hasAttribute(attributeKey)) {
             return false;
         }
 
-        colourRef = state.model.getAttributes(LightingAttribute.attributeKey);
+        colourRef = ccrs.model.getAttributes(attributeKey);
         if (colourRef != null) {
-            state.pipeline.addDependency(state.colourAttrib);
+            ccrs.pipeline.addDependency(ccrs.colourAttrib);
             return true;
         }
         return false;
     }
 
     @Override
-    public void operate(CCRenderState state) {
-        state.colour = ColourRGBA.multiply(state.colour, colourRef[state.vertexIndex]);
+    public void operate(CCRenderState ccrs) {
+        ccrs.colour = ColourRGBA.multiply(ccrs.colour, colourRef[ccrs.vertexIndex]);
     }
 }

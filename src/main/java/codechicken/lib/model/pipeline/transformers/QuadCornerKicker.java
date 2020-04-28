@@ -21,13 +21,13 @@ package codechicken.lib.model.pipeline.transformers;
 import codechicken.lib.model.Quad.Vertex;
 import codechicken.lib.model.pipeline.IPipelineElementFactory;
 import codechicken.lib.model.pipeline.QuadTransformer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.AxisDirection;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3i;
 
-import static net.minecraft.util.EnumFacing.AxisDirection.NEGATIVE;
-import static net.minecraft.util.EnumFacing.AxisDirection.POSITIVE;
+import static net.minecraft.util.Direction.AxisDirection.NEGATIVE;
+import static net.minecraft.util.Direction.AxisDirection.POSITIVE;
 
 /**
  * This transformer is a little complicated.
@@ -75,7 +75,7 @@ public class QuadCornerKicker extends QuadTransformer {
      * @param side The side.
      */
     public void setSide(int side) {
-        this.mySide = side;
+        mySide = side;
     }
 
     /**
@@ -85,7 +85,7 @@ public class QuadCornerKicker extends QuadTransformer {
      * @param mask The mask.
      */
     public void setFacadeMask(int mask) {
-        this.facadeMask = mask;
+        facadeMask = mask;
     }
 
     /**
@@ -111,22 +111,21 @@ public class QuadCornerKicker extends QuadTransformer {
 
     @Override
     public boolean transform() {
-
-        int side = this.quad.orientation.ordinal();
-        if (side != this.mySide && side != (this.mySide ^ 1)) {
-            for (int hoz : horizonals[this.mySide]) {
+        int side = quad.orientation.ordinal();
+        if (side != mySide && side != (mySide ^ 1)) {
+            for (int hoz : horizonals[mySide]) {
                 if (side != hoz && side != (hoz ^ 1)) {
-                    if ((this.facadeMask & (1 << hoz)) != 0) {
-                        Corner corner = Corner.fromSides(this.mySide ^ 1, side, hoz);
-                        for (Vertex vertex : this.quad.vertices) {
+                    if ((facadeMask & (1 << hoz)) != 0) {
+                        Corner corner = Corner.fromSides(mySide ^ 1, side, hoz);
+                        for (Vertex vertex : quad.vertices) {
                             float x = vertex.vec[0];
                             float y = vertex.vec[1];
                             float z = vertex.vec[2];
-                            if (epsComp(x, corner.pX(this.box)) && epsComp(y, corner.pY(this.box)) && epsComp(z, corner.pZ(this.box))) {
-                                Vec3i vec = EnumFacing.VALUES[hoz].getDirectionVec();
-                                x -= vec.getX() * this.thickness;
-                                y -= vec.getY() * this.thickness;
-                                z -= vec.getZ() * this.thickness;
+                            if (epsComp(x, corner.pX(box)) && epsComp(y, corner.pY(box)) && epsComp(z, corner.pZ(box))) {
+                                Vec3i vec = Direction.BY_INDEX[hoz].getDirectionVec();
+                                x -= vec.getX() * thickness;
+                                y -= vec.getY() * thickness;
+                                z -= vec.getZ() * thickness;
                                 vertex.vec[0] = x;
                                 vertex.vec[1] = y;
                                 vertex.vec[2] = z;
@@ -152,9 +151,9 @@ public class QuadCornerKicker extends QuadTransformer {
         MAX_X_MAX_Y_MIN_Z(POSITIVE, POSITIVE, NEGATIVE),
         MAX_X_MAX_Y_MAX_Z(POSITIVE, POSITIVE, POSITIVE);
 
-        private AxisDirection xAxis;
-        private AxisDirection yAxis;
-        private AxisDirection zAxis;
+        private final AxisDirection xAxis;
+        private final AxisDirection yAxis;
+        private final AxisDirection zAxis;
 
         private static final int[] sideMask = { 0, 2, 0, 1, 0, 4 };
 
@@ -181,15 +180,15 @@ public class QuadCornerKicker extends QuadTransformer {
         }
 
         public float pX(AxisAlignedBB box) {
-            return (float) (this.xAxis == NEGATIVE ? box.minX : box.maxX);
+            return (float) (xAxis == NEGATIVE ? box.minX : box.maxX);
         }
 
         public float pY(AxisAlignedBB box) {
-            return (float) (this.yAxis == NEGATIVE ? box.minY : box.maxY);
+            return (float) (yAxis == NEGATIVE ? box.minY : box.maxY);
         }
 
         public float pZ(AxisAlignedBB box) {
-            return (float) (this.zAxis == NEGATIVE ? box.minZ : box.maxZ);
+            return (float) (zAxis == NEGATIVE ? box.minZ : box.maxZ);
         }
     }
 }

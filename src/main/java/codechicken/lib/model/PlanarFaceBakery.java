@@ -19,7 +19,7 @@ import net.minecraft.util.Direction;
 public class PlanarFaceBakery {
 
     public static BakedQuad bakeFace(Direction face, TextureAtlasSprite sprite) {
-        return bakeFace(face, sprite, DefaultVertexFormats.ITEM);
+        return bakeFace(face, sprite, DefaultVertexFormats.BLOCK);
     }
 
     public static BakedQuad bakeFace(Direction face, TextureAtlasSprite sprite, VertexFormat format) {

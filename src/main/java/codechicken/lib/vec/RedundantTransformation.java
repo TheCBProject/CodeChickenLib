@@ -22,10 +22,10 @@ public class RedundantTransformation extends Transformation {
         return this;
     }
 
-    @Override
-    @OnlyIn (Dist.CLIENT)
-    public void glApply() {
-    }
+//    @Override
+//    @OnlyIn (Dist.CLIENT)
+//    public void glApply() {
+//    }
 
     @Override
     public Transformation inverse() {

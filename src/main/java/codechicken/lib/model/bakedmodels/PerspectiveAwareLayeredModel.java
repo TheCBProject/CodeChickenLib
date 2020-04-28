@@ -3,9 +3,9 @@ package codechicken.lib.model.bakedmodels;
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.data.IModelData;
 
@@ -19,21 +19,21 @@ import java.util.Random;
  */
 public class PerspectiveAwareLayeredModel extends AbstractPerspectiveLayeredModel {
 
-    private final ImmutableMap<BlockRenderLayer, Map<Direction, List<BakedQuad>>> layerFaceQuadMap;
-    private final ImmutableMap<BlockRenderLayer, List<BakedQuad>> layerGeneralQuads;
+    private final ImmutableMap<RenderType, Map<Direction, List<BakedQuad>>> layerFaceQuadMap;
+    private final ImmutableMap<RenderType, List<BakedQuad>> layerGeneralQuads;
 
-    public PerspectiveAwareLayeredModel(Map<BlockRenderLayer, Map<Direction, List<BakedQuad>>> layerFaceQuadMap, PerspectiveProperties properties) {
-        this(layerFaceQuadMap, ImmutableMap.of(), properties, BlockRenderLayer.SOLID);
+    public PerspectiveAwareLayeredModel(Map<RenderType, Map<Direction, List<BakedQuad>>> layerFaceQuadMap, PerspectiveProperties properties) {
+        this(layerFaceQuadMap, ImmutableMap.of(), properties, RenderType.getSolid());
     }
 
-    public PerspectiveAwareLayeredModel(Map<BlockRenderLayer, Map<Direction, List<BakedQuad>>> layerFaceQuadMap, Map<BlockRenderLayer, List<BakedQuad>> layerGeneralQuads, PerspectiveProperties properties, BlockRenderLayer generallayer) {
+    public PerspectiveAwareLayeredModel(Map<RenderType, Map<Direction, List<BakedQuad>>> layerFaceQuadMap, Map<RenderType, List<BakedQuad>> layerGeneralQuads, PerspectiveProperties properties, RenderType generallayer) {
         super(properties, generallayer);
         this.layerFaceQuadMap = ImmutableMap.copyOf(layerFaceQuadMap);
         this.layerGeneralQuads = ImmutableMap.copyOf(layerGeneralQuads);
     }
 
     @Override
-    public List<BakedQuad> getLayerQuads(BlockState state, Direction side, BlockRenderLayer layer, Random rand, IModelData data) {
+    public List<BakedQuad> getLayerQuads(BlockState state, Direction side, RenderType layer, Random rand, IModelData data) {
         if (side == null) {
             if (layerGeneralQuads.containsKey(layer)) {
                 return layerGeneralQuads.get(layer);

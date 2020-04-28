@@ -7,7 +7,7 @@ import codechicken.lib.vec.Vector3;
 
 public class LightModel implements IVertexOperation {
 
-    public static final int operationIndex = CCRenderState.registerOperation();
+    public static final int operationIndex = IVertexOperation.registerOperation();
 
     public static class Light {
 
@@ -88,19 +88,19 @@ public class LightModel implements IVertexOperation {
     }
 
     @Override
-    public boolean load(CCRenderState state) {
-        if (!state.computeLighting) {
+    public boolean load(CCRenderState ccrs) {
+        if (!ccrs.computeLighting) {
             return false;
         }
 
-        state.pipeline.addDependency(state.normalAttrib);
-        state.pipeline.addDependency(state.colourAttrib);
+        ccrs.pipeline.addDependency(ccrs.normalAttrib);
+        ccrs.pipeline.addDependency(ccrs.colourAttrib);
         return true;
     }
 
     @Override
-    public void operate(CCRenderState state) {
-        state.colour = apply(state.colour, state.normal);
+    public void operate(CCRenderState ccrs) {
+        ccrs.colour = apply(ccrs.colour, ccrs.normal);
     }
 
     @Override

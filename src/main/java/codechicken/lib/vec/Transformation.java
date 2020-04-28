@@ -2,15 +2,13 @@ package codechicken.lib.vec;
 
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
  * Abstract supertype for any 3D vector transformation
  */
 public abstract class Transformation extends ITransformation<Vector3, Transformation> implements IVertexOperation {
 
-    public static final int operationIndex = CCRenderState.registerOperation();
+    public static final int operationIndex = IVertexOperation.registerOperation();
 
     /**
      * Applies this transformation to a normal (doesn't translate)
@@ -34,20 +32,20 @@ public abstract class Transformation extends ITransformation<Vector3, Transforma
         return new TransformationList(this, t);
     }
 
-    @OnlyIn (Dist.CLIENT)
-    public abstract void glApply();
+    //    @OnlyIn (Dist.CLIENT)
+    //    public abstract void glApply();
 
     @Override
-    public boolean load(CCRenderState state) {
-        state.pipeline.addRequirement(state.normalAttrib.operationID());
+    public boolean load(CCRenderState ccrs) {
+        ccrs.pipeline.addRequirement(ccrs.normalAttrib.operationID());
         return !isRedundant();
     }
 
     @Override
-    public void operate(CCRenderState state) {
-        apply(state.vert.vec);
-        if (state.normalAttrib.active) {
-            applyN(state.normal);
+    public void operate(CCRenderState ccrs) {
+        apply(ccrs.vert.vec);
+        if (ccrs.normalAttrib.active) {
+            applyN(ccrs.normal);
         }
     }
 

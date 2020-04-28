@@ -29,6 +29,9 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkDataLoad(ChunkDataEvent.Load event) {
+            if (event.getWorld() == null) {
+                return;
+            }
             if (!hasExtensions(event.getWorld())) {
                 WorldExtensionManager.onWorldLoad(event.getWorld());
             }

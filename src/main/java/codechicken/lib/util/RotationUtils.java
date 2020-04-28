@@ -31,9 +31,9 @@ public class RotationUtils {
      */
     public static Direction getPlacedRotation(BlockPos pos, LivingEntity entity) {
         int entityRotation = (int) Math.floor(entity.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
-        if (Math.abs(entity.posX - pos.getX()) < 2.0D && Math.abs(entity.posZ - pos.getZ()) < 2.0D) {
+        if (Math.abs(entity.getPosX() - pos.getX()) < 2.0D && Math.abs(entity.getPosZ() - pos.getZ()) < 2.0D) {
 
-            double eyeDistance = entity.posY + 1.82D - pos.getY();
+            double eyeDistance = entity.getPosY() + 1.82D - pos.getY();
 
             if (eyeDistance > 2.0D) {
                 return Direction.DOWN;

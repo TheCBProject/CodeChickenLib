@@ -1,12 +1,11 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.util.Copyable;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.util.math.Vec3i;
 
-import javax.vecmath.Matrix4d;
-import javax.vecmath.Matrix4f;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -69,8 +68,8 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         set(mat);
     }
 
-    public Matrix4(Matrix4d mat) {
-        set(mat);
+    public Matrix4(MatrixStack stack) {
+        set(stack.getLast().getMatrix());
     }
 
     public Matrix4 setIdentity() {
@@ -81,6 +80,10 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     //region Translate, Scale, Transpose.
+    public Matrix4 translate(Vec3i pos) {
+        return translate(pos.getX(), pos.getY(), pos.getZ());
+    }
+
     public Matrix4 translate(Vector3 vec) {
         return translate(vec.x, vec.y, vec.z);
     }
@@ -431,28 +434,6 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
 
         return this;
     }
-
-    public Matrix4 set(Matrix4d mat) {
-
-        m00 = mat.m00;
-        m01 = mat.m01;
-        m02 = mat.m02;
-        m03 = mat.m03;
-        m10 = mat.m10;
-        m11 = mat.m11;
-        m12 = mat.m12;
-        m13 = mat.m13;
-        m20 = mat.m20;
-        m21 = mat.m21;
-        m22 = mat.m22;
-        m23 = mat.m23;
-        m30 = mat.m30;
-        m31 = mat.m31;
-        m32 = mat.m32;
-        m33 = mat.m33;
-
-        return this;
-    }
     //endregion
 
     public Matrix4 copy() {
@@ -529,10 +510,6 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         return new Matrix4f(toArrayF());
     }
 
-    public Matrix4d toMatrix4d() {
-        return new Matrix4d(toArrayD());
-    }
-
     @Override
     public void apply(Matrix4 mat) {
         mat.multiply(this);
@@ -555,8 +532,8 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         return this;
     }
 
-    @Override
-    @OnlyIn (Dist.CLIENT)
+    //@Override
+    //@OnlyIn (Dist.CLIENT)
     public void glApply() {
         glBuf.put((float) m00).put((float) m10).put((float) m20).put((float) m30).put((float) m01).put((float) m11).put((float) m21).put((float) m31).put((float) m02).put((float) m12).put((float) m22).put((float) m32).put((float) m03).put((float) m13).put((float) m23).put((float) m33);
         glBuf.flip();

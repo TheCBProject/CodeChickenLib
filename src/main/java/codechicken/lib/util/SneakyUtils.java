@@ -10,6 +10,10 @@ import java.util.function.Function;
  */
 public class SneakyUtils {
 
+    public static Runnable none(){
+        return () -> {};
+    }
+
     public static Runnable sneak(ThrowingRunnable<Throwable> tr) {
         return () -> sneaky(tr);
     }

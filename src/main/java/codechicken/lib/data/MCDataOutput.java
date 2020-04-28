@@ -388,11 +388,11 @@ public interface MCDataOutput {
      */
     default MCDataOutput writeVarInt(int i) {
         while ((i & 0xffffff80) != 0) {
-            this.writeByte(i & 0x7f | 0x80);
+            writeByte(i & 0x7f | 0x80);
             i >>>= 7;
         }
 
-        this.writeByte(i);
+        writeByte(i);
         return this;
     }
 
@@ -775,6 +775,7 @@ public interface MCDataOutput {
         if (stack.isEmpty()) {
             writeBoolean(false);
         } else {
+            writeBoolean(true);
             Item item = stack.getItem();
             writeRegistryIdUnsafe(ForgeRegistries.ITEMS, item);
             writeVarInt(stack.getCount());

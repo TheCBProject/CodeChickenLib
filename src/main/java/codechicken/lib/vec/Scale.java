@@ -39,11 +39,11 @@ public class Scale extends Transformation {
         mat.scale(factor);
     }
 
-    @Override
-    @OnlyIn (Dist.CLIENT)
-    public void glApply() {
-        GlStateManager.scaled(factor.x, factor.y, factor.z);
-    }
+//    @Override
+//    @OnlyIn (Dist.CLIENT)
+//    public void glApply() {
+//        GlStateManager.scaled(factor.x, factor.y, factor.z);
+//    }
 
     @Override
     public Transformation inverse() {

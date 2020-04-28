@@ -18,9 +18,11 @@
 
 package codechicken.lib.model;
 
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CachedFormat {
 
     public static final Map<VertexFormat, CachedFormat> formatCache = new ConcurrentHashMap<>();
+    private static final CachedFormat BLOCK = new CachedFormat(DefaultVertexFormats.BLOCK);
 
     /**
      * Lookup or create the CachedFormat for a given VertexFormat.
@@ -41,6 +44,10 @@ public class CachedFormat {
      * @return The CachedFormat.
      */
     public static CachedFormat lookup(VertexFormat format) {
+        //Hotwire the common one.
+        if (format == DefaultVertexFormats.BLOCK) {
+            return BLOCK;
+        }
         return formatCache.computeIfAbsent(format, CachedFormat::new);
     }
 
@@ -50,12 +57,14 @@ public class CachedFormat {
     public boolean hasNormal;
     public boolean hasColor;
     public boolean hasUV;
+    public boolean hasOverlay;
     public boolean hasLightMap;
 
     public int positionIndex = -1;
     public int normalIndex = -1;
     public int colorIndex = -1;
     public int uvIndex = -1;
+    public int overlayIndex = -1;
     public int lightMapIndex = -1;
 
     public int elementCount;
@@ -67,46 +76,56 @@ public class CachedFormat {
      */
     public CachedFormat(VertexFormat format) {
         this.format = format;
-        this.elementCount = format.getElementCount();
-        for (int i = 0; i < this.elementCount; i++) {
-            VertexFormatElement element = format.getElement(i);
+        List<VertexFormatElement> elements = format.getElements();
+        elementCount = elements.size();
+        for (int i = 0; i < elementCount; i++) {
+            VertexFormatElement element = elements.get(i);
+            label:
             switch (element.getUsage()) {
                 case POSITION:
-                    if (this.hasPosition) {
+                    if (hasPosition) {
                         throw new IllegalStateException("Found 2 position elements..");
                     }
-                    this.hasPosition = true;
-                    this.positionIndex = i;
+                    hasPosition = true;
+                    positionIndex = i;
                     break;
                 case NORMAL:
-                    if (this.hasNormal) {
+                    if (hasNormal) {
                         throw new IllegalStateException("Found 2 normal elements..");
                     }
-                    this.hasNormal = true;
-                    this.normalIndex = i;
+                    hasNormal = true;
+                    normalIndex = i;
                     break;
                 case COLOR:
-                    if (this.hasColor) {
+                    if (hasColor) {
                         throw new IllegalStateException("Found 2 color elements..");
                     }
-                    this.hasColor = true;
-                    this.colorIndex = i;
+                    hasColor = true;
+                    colorIndex = i;
                     break;
                 case UV:
-                    if (element.getIndex() == 0) {
-                        if (this.hasUV) {
-                            throw new IllegalStateException("Found 2 UV elements..");
-                        }
-                        this.hasUV = true;
-                        this.uvIndex = i;
-                        break;
-                    } else if (element.getIndex() == 1) {
-                        if (this.hasLightMap) {
-                            throw new IllegalStateException("Found 2 LightMap elements..");
-                        }
-                        this.hasLightMap = true;
-                        this.lightMapIndex = i;
-                        break;
+                    switch (element.getIndex()) {
+                        case 0:
+                            if (hasUV) {
+                                throw new IllegalStateException("Found 2 UV elements..");
+                            }
+                            hasUV = true;
+                            uvIndex = i;
+                            break label;
+                        case 1:
+                            if (hasOverlay) {
+                                throw new IllegalStateException("Found 2 Overlay elements..");
+                            }
+                            hasOverlay = true;
+                            overlayIndex = i;
+                            break label;
+                        case 2:
+                            if (hasLightMap) {
+                                throw new IllegalStateException("Found 2 LightMap elements..");
+                            }
+                            hasLightMap = true;
+                            lightMapIndex = i;
+                            break label;
                     }
                     break;
             }
@@ -122,23 +141,23 @@ public class CachedFormat {
             return false;
         }
         CachedFormat other = (CachedFormat) obj;
-        return other.elementCount == this.elementCount && //
-                other.positionIndex == this.positionIndex && //
-                other.normalIndex == this.normalIndex && //
-                other.colorIndex == this.colorIndex && //
-                other.uvIndex == this.uvIndex && //
-                other.lightMapIndex == this.lightMapIndex;
+        return other.elementCount == elementCount && //
+                other.positionIndex == positionIndex && //
+                other.normalIndex == normalIndex && //
+                other.colorIndex == colorIndex && //
+                other.uvIndex == uvIndex && //
+                other.lightMapIndex == lightMapIndex;
     }
 
     @Override
     public int hashCode() {
         int result = 1;
-        result = 31 * result + this.elementCount;
-        result = 31 * result + this.positionIndex;
-        result = 31 * result + this.normalIndex;
-        result = 31 * result + this.colorIndex;
-        result = 31 * result + this.uvIndex;
-        result = 31 * result + this.lightMapIndex;
+        result = 31 * result + elementCount;
+        result = 31 * result + positionIndex;
+        result = 31 * result + normalIndex;
+        result = 31 * result + colorIndex;
+        result = 31 * result + uvIndex;
+        result = 31 * result + lightMapIndex;
         return result;
     }
 }

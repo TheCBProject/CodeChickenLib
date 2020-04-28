@@ -53,6 +53,87 @@ function remap(mapping) {
     return mapping;
 }
 
+function printInsnList(list) {
+    var labels = []
+    for (var i = 0; i < list.size(); i++) {
+        printInsn(list.get(i), labels)
+    }
+}
+
+function printInsn(insn) {
+    printInsn(insn, [])
+}
+
+function getLabelIdx(labels, node) {
+    //Apparently we dont have Array.includes..
+    for (var i = 0; i < labels.length; i++) {
+        if (labels[i] === node.getLabel()) {
+            return i | 0;
+        }
+    }
+    labels.push(node.getLabel())
+    return (labels.length - 1)  | 0
+}
+
+function printInsn(insn, labels) {
+    switch (insn.getType()) {
+        case AbstractInsnNode.INSN:
+            ASMAPI.log('INFO', "\t{}", OPCODES[insn.getOpcode()]);
+            break;
+        case AbstractInsnNode.INT_INSN:
+            ASMAPI.log('INFO', "\t{} {}", OPCODES[insn.getOpcode()], insn.getOpcode() == Opcodes.NEWARRAY ? TYPES[insn.operand] : insn.operand);
+            break;
+        case AbstractInsnNode.VAR_INSN:
+            ASMAPI.log('INFO', "\t{} {}", OPCODES[insn.getOpcode()], insn.var);
+            break;
+        case AbstractInsnNode.TYPE_INSN:
+            ASMAPI.log('INFO', "\t{} {}", OPCODES[insn.getOpcode()], insn.desc);
+            break;
+        case AbstractInsnNode.FIELD_INSN:
+            ASMAPI.log('INFO', "\t{} {}.{} : {}", OPCODES[insn.getOpcode()], insn.owner, insn.name, insn.desc);
+            break;
+        case AbstractInsnNode.METHOD_INSN:
+            var itf = insn.itf ? " (itf)" : "";
+            ASMAPI.log('INFO', "\t{} {}.{} {}{}", OPCODES[insn.getOpcode()], insn.owner, insn.name, insn.desc, itf);
+            break;
+        case AbstractInsnNode.INVOKE_DYNAMIC_INSN:
+            ASMAPI.log('INFO', "\t{} Lazy", OPCODES[insn.getOpcode()]);
+            break;
+        case AbstractInsnNode.JUMP_INSN:
+            ASMAPI.log('INFO', "\t{} L{}", OPCODES[insn.getOpcode()], getLabelIdx(labels, insn.label));
+            break;
+        case AbstractInsnNode.LABEL:
+            ASMAPI.log('INFO', "\tLABEL L{}", getLabelIdx(labels, insn));
+            break;
+        case AbstractInsnNode.LDC_INSN:
+            var str = insn.cst;
+            if (str instanceof Type) {
+                str = str.getDescriptor();
+            }
+            ASMAPI.log('INFO', "\t{} {}", OPCODES[insn.getOpcode()], str);
+            break;
+        case AbstractInsnNode.IINC_INSN:
+            ASMAPI.log('INFO', "\t{} {} {}", OPCODES[insn.getOpcode()], insn.var, insn.incr);
+            break;
+        case AbstractInsnNode.TABLESWITCH_INSN:
+            ASMAPI.log('INFO', "\t{} Lazy", OPCODES[insn.getOpcode()]);
+            break;
+        case AbstractInsnNode.LOOKUPSWITCH_INSN:
+            ASMAPI.log('INFO', "\t{} Lazy", OPCODES[insn.getOpcode()]);
+            break;
+        case AbstractInsnNode.MULTIANEWARRAY_INSN:
+            ASMAPI.log('INFO', "\t{} {} {}", OPCODES[insn.getOpcode()], insn.desc, insn.dims);
+            break;
+        case AbstractInsnNode.FRAME:
+            ASMAPI.log('INFO', "\tFRAME:{} Local: {}, Stack: {}", insn.type, insn.local, insn.stack);
+            break;
+        case AbstractInsnNode.LINE:
+            ASMAPI.log('INFO', "\tLINENUMBER {} {}", insn.line, getLabelIdx(labels, insn.start));
+            break;
+    }
+}
+
+//Borrowed from org.objectweb.asm.util.Textifier
 var OPCODES = [
     "NOP", // 0 (0x0)
     "ACONST_NULL", // 1 (0x1)
@@ -256,6 +337,15 @@ var OPCODES = [
     "IFNONNULL" // 199 (0xc7)
 ];
 
+FRAME_TYPES = [
+    "F_NEW",
+    "F_FULL",
+    "F_APPEND",
+    "F_CHOP",
+    "F_SAME",
+    "F_SAME1"
+]
+
 //IntInsn
 TYPES = [
     "",
@@ -271,61 +361,3 @@ TYPES = [
     "T_INT",
     "T_LONG"
 ];
-
-function printInsn(insn) {
-    switch (insn.getType()) {
-        case AbstractInsnNode.INSN:
-            ASMAPI.log('INFO', "\t{}", OPCODES[insn.getOpcode()]);
-            break;
-        case AbstractInsnNode.INT_INSN:
-            ASMAPI.log('INFO', "\t{} {}", OPCODES[insn.getOpcode()], insn.getOpcode() == Opcodes.NEWARRAY ? TYPES[insn.operand] : insn.operand);
-            break;
-        case AbstractInsnNode.VAR_INSN:
-            ASMAPI.log('INFO', "\t{} {}", OPCODES[insn.getOpcode()], insn.var);
-            break;
-        case AbstractInsnNode.TYPE_INSN:
-            ASMAPI.log('INFO', "\t{} {}", OPCODES[insn.getOpcode()], insn.desc);
-            break;
-        case AbstractInsnNode.FIELD_INSN:
-            ASMAPI.log('INFO', "\t{} {}.{} : {}", OPCODES[insn.getOpcode()], insn.owner, insn.name, insn.desc);
-            break;
-        case AbstractInsnNode.METHOD_INSN:
-            var itf = insn.itf ? " (itf)" : "";
-            ASMAPI.log('INFO', "\t{} {}.{} {}{}", OPCODES[insn.getOpcode()], insn.owner, insn.name, insn.desc, itf);
-            break;
-        case AbstractInsnNode.INVOKE_DYNAMIC_INSN:
-            ASMAPI.log('INFO', "\t{} Lazy", OPCODES[insn.getOpcode()]);
-            break;
-        case AbstractInsnNode.JUMP_INSN:
-            ASMAPI.log('INFO', "\t{} Lazy", OPCODES[insn.getOpcode()]);
-            break;
-        case AbstractInsnNode.LABEL:
-            ASMAPI.log('INFO', "\tLABEL Lazy");
-            break;
-        case AbstractInsnNode.LDC_INSN:
-            var str = insn.cst;
-            if (str instanceof Type) {
-                str = str.getDescriptor();
-            }
-            ASMAPI.log('INFO', "\t{} {}", OPCODES[insn.getOpcode()], str);
-            break;
-        case AbstractInsnNode.IINC_INSN:
-            ASMAPI.log('INFO', "\t{} {} {}", OPCODES[insn.getOpcode()], insn.var, insn.incr);
-            break;
-        case AbstractInsnNode.TABLESWITCH_INSN:
-            ASMAPI.log('INFO', "\t{} Lazy", OPCODES[insn.getOpcode()]);
-            break;
-        case AbstractInsnNode.LOOKUPSWITCH_INSN:
-            ASMAPI.log('INFO', "\t{} Lazy", OPCODES[insn.getOpcode()]);
-            break;
-        case AbstractInsnNode.MULTIANEWARRAY_INSN:
-            ASMAPI.log('INFO', "\t{} {} {}", OPCODES[insn.getOpcode()], insn.desc, insn.dims);
-            break;
-        case AbstractInsnNode.FRAME:
-            ASMAPI.log('INFO', "\t{} Lazy", OPCODES[insn.getOpcode()]);
-            break;
-        case AbstractInsnNode.LINE:
-            ASMAPI.log('INFO', "\tLINENUMBER {} Lazy", insn.line);
-            break;
-    }
-}

@@ -5,7 +5,9 @@ import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.EnumColour;
 import codechicken.lib.render.RenderUtils;
 import codechicken.lib.vec.Cuboid6;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,31 +32,32 @@ public class HighlightHandler {
     @SubscribeEvent
     public static void renderWorldLast(RenderWorldLastEvent event) {
         if (highlight != null) {
-            GlStateManager.pushMatrix();
-            RenderUtils.translateToWorldCoords(Minecraft.getInstance().gameRenderer.getActiveRenderInfo());
-            GlStateManager.translated(highlight.getX(), highlight.getY(), highlight.getZ());
+            MatrixStack stack = event.getMatrixStack();
+            stack.push();
+            RenderUtils.translateToWorldCoords(Minecraft.getInstance().gameRenderer.getActiveRenderInfo(), stack);
+            stack.translate(highlight.getX(), highlight.getY(), highlight.getZ());
 
-            GlStateManager.disableTexture();
-            GlStateManager.enableBlend();
-            GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            GlStateManager.depthMask(false);
+            RenderSystem.disableTexture();
+            RenderSystem.enableBlend();
+            RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            RenderSystem.depthMask(false);
             if (!useDepth) {
-                GlStateManager.disableDepthTest();
+                RenderSystem.disableDepthTest();
             }
             RED.glColour();
-            RenderUtils.drawCuboidSolid(BOX);
+            //RenderUtils.drawCuboidSolid(BOX, stack);
             BLACK.glColour();
-            RenderUtils.drawCuboidOutline(BOX);
+            //RenderUtils.drawCuboidOutline(BOX, stack);
 
             if (!useDepth) {
-                GlStateManager.enableDepthTest();
+                RenderSystem.enableDepthTest();
             }
-            GlStateManager.depthMask(true);
-            GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            GlStateManager.disableBlend();
-            GlStateManager.enableTexture();
+            RenderSystem.depthMask(true);
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            RenderSystem.disableBlend();
+            RenderSystem.enableTexture();
 
-            GlStateManager.popMatrix();
+            stack.pop();
         }
     }
 }

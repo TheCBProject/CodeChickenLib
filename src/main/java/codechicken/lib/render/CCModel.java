@@ -9,6 +9,7 @@ import codechicken.lib.render.pipeline.attribute.*;
 import codechicken.lib.render.pipeline.attribute.AttributeKey.AttributeKeyRegistry;
 import codechicken.lib.util.ArrayUtils;
 import codechicken.lib.util.Copyable;
+import codechicken.lib.util.SneakyUtils;
 import codechicken.lib.util.VectorUtils;
 import codechicken.lib.vec.*;
 import codechicken.lib.vec.uv.UV;
@@ -20,25 +21,6 @@ import java.util.*;
 import static codechicken.lib.vec.Rotation.sideRotations;
 
 public class CCModel implements IVertexSource, Copyable<CCModel> {
-
-    private static class PositionNormalEntry {
-
-        public Vector3 pos;
-        public LinkedList<Vector3> normals = new LinkedList<>();
-
-        public PositionNormalEntry(Vector3 position) {
-            pos = position;
-        }
-
-        public boolean positionEqual(Vector3 v) {
-            return pos.x == v.x && pos.y == v.y && pos.z == v.z;
-        }
-
-        public PositionNormalEntry addNormal(Vector3 normal) {
-            normals.add(normal);
-            return this;
-        }
-    }
 
     public final int vertexMode;
     public final int vp;
@@ -66,7 +48,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
     @Override
     public <T> T getAttributes(AttributeKey<T> attr) {
         if (attr.attributeKeyIndex < attributes.size()) {
-            return (T) attributes.get(attr.attributeKeyIndex);
+            return SneakyUtils.unsafeCast(attributes.get(attr.attributeKeyIndex));
         }
         return null;
     }
@@ -77,7 +59,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
     }
 
     @Override
-    public void prepareVertex(CCRenderState state) {
+    public void prepareVertex(CCRenderState ccrs) {
     }
 
     public <T> T getOrAllocate(AttributeKey<T> attr) {
@@ -425,7 +407,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
         verts = Arrays.copyOf(verts, newLen);
         for (int i = 0; i < attributes.size(); i++) {
             if (attributes.get(i) != null) {
-                attributes.set(i, VertexAttribute.copyOf((AttributeKey) AttributeKeyRegistry.getAttributeKey(i), attributes.get(i), newLen));
+                attributes.set(i, VertexAttribute.copyOf(AttributeKeyRegistry.getAttributeKey(i), attributes.get(i), newLen));
             }
         }
 
@@ -780,5 +762,24 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
             c.enclose(verts[i].vec);
         }
         return c;
+    }
+
+    private static class PositionNormalEntry {
+
+        public Vector3 pos;
+        public LinkedList<Vector3> normals = new LinkedList<>();
+
+        public PositionNormalEntry(Vector3 position) {
+            pos = position;
+        }
+
+        public boolean positionEqual(Vector3 v) {
+            return pos.x == v.x && pos.y == v.y && pos.z == v.z;
+        }
+
+        public PositionNormalEntry addNormal(Vector3 normal) {
+            normals.add(normal);
+            return this;
+        }
     }
 }

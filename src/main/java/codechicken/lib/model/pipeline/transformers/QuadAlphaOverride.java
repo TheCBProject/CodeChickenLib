@@ -24,43 +24,36 @@ import codechicken.lib.model.pipeline.QuadTransformer;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 
 /**
- * This transformer tints quads..
- * Feed it the output of BlockColors.colorMultiplier.
+ * This transformer simply overrides the alpha of the quad.
+ * Only operates if the format has color.
  *
  * @author covers1624
  */
-public class QuadTinter extends QuadTransformer {
+public class QuadAlphaOverride extends QuadTransformer {
 
-    public static final IPipelineElementFactory<QuadTinter> FACTORY = QuadTinter::new;
+    public static final IPipelineElementFactory<QuadAlphaOverride> FACTORY = QuadAlphaOverride::new;
 
-    private int tint;
+    private float alphaOverride;
 
-    QuadTinter() {
+    QuadAlphaOverride() {
         super();
     }
 
-    public QuadTinter(IVertexConsumer consumer, int tint) {
+    public QuadAlphaOverride(IVertexConsumer consumer, float alphaOverride) {
         super(consumer);
-        this.tint = tint;
+        this.alphaOverride = alphaOverride;
     }
 
-    public QuadTinter setTint(int tint) {
-        this.tint = tint;
+    public QuadAlphaOverride setAlphaOverride(float alphaOverride) {
+        this.alphaOverride = alphaOverride;
         return this;
     }
 
     @Override
     public boolean transform() {
-        // Nuke tintIndex.
-        this.quad.tintIndex = -1;
-        if (this.format.hasColor) {
-            float r = (this.tint >> 0x10 & 0xFF) / 255F;
-            float g = (this.tint >> 0x08 & 0xFF) / 255F;
-            float b = (this.tint & 0xFF) / 255F;
-            for (Vertex v : this.quad.vertices) {
-                v.color[0] *= r;
-                v.color[1] *= g;
-                v.color[2] *= b;
+        if (format.hasColor) {
+            for (Vertex v : quad.vertices) {
+                v.color[3] = alphaOverride;
             }
         }
         return true;

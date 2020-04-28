@@ -3,6 +3,9 @@ package codechicken.lib.vec;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.renderer.Vector3f;
+import net.minecraft.client.renderer.Vector4f;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -12,17 +15,29 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.vecmath.Vector3f;
-import javax.vecmath.Vector4f;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
 public class Vector3 implements Copyable<Vector3> {
 
+    public static final Vector3 ZERO = new Vector3();
+    public static final Vector3 CENTER = new Vector3(0.5, 0.5, 0.5);
+    public static final Vector3 ONE = new Vector3(1, 1, 1);
+    public static final Vector3 X_POS = new Vector3(1, 0, 0);
+    public static final Vector3 X_NEG = new Vector3(-1, 0, 0);
+    public static final Vector3 Y_POS = new Vector3(0, 1, 0);
+    public static final Vector3 Y_NEG = new Vector3(0, -1, 0);
+    public static final Vector3 Z_POS = new Vector3(0, 0, 1);
+    public static final Vector3 Z_NEG = new Vector3(0, 0, -1);
+
+    @Deprecated
     public static Vector3 zero = new Vector3();
+    @Deprecated
     public static Vector3 one = new Vector3(1, 1, 1);
+    @Deprecated
     public static Vector3 down = new Vector3(0, -1, 0);
+    @Deprecated
     public static Vector3 center = new Vector3(0.5, 0.5, 0.5);
 
     public double x;
@@ -71,11 +86,11 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public static Vector3 fromEntity(Entity e) {
-        return new Vector3(e.posX, e.posY, e.posZ);
+        return new Vector3(e.getPositionVec());
     }
 
     public static Vector3 fromEntityCenter(Entity e) {
-        return new Vector3(e.posX, e.posY - e.getYOffset() + e.getHeight() / 2, e.posZ);
+        return new Vector3(e.getPositionVec()).subtract(0, e.getYOffset() + e.getHeight() / 2, 0);
     }
 
     public static Vector3 fromTile(TileEntity tile) {
@@ -121,7 +136,6 @@ public class Vector3 implements Copyable<Vector3> {
         return tag;
     }
 
-    @OnlyIn (Dist.CLIENT)
     public Vector3f vector3f() {
         return new Vector3f((float) x, (float) y, (float) z);
     }
@@ -129,11 +143,6 @@ public class Vector3 implements Copyable<Vector3> {
     @OnlyIn (Dist.CLIENT)
     public Vector4f vector4f() {
         return new Vector4f((float) x, (float) y, (float) z, 1);
-    }
-
-    @OnlyIn (Dist.CLIENT)
-    public void glVertex() {
-        GlStateManager.vertex3f((float) x, (float) y, (float) z);
     }
 
     public double[] toArrayD() {
