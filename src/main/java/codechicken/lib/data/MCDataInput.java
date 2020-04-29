@@ -36,7 +36,7 @@ import static codechicken.lib.util.SneakyUtils.unsafeCast;
  * Provides the ability to read various datas from some sort of data stream.
  * See {@link MCDataInputStream} to wrap an {@link InputStream} to this.
  * See {@link MCByteStream} to wrap an {@link ByteBuf} to this.
- *
+ * <p>
  * Created by covers1624 on 4/15/20.
  */
 public interface MCDataInput {
@@ -288,7 +288,7 @@ public interface MCDataInput {
         byte b0;
 
         do {
-            b0 = this.readByte();
+            b0 = readByte();
             i |= (long) (b0 & 0x7f) << j++ * 7;
             if (j > 10) {
                 throw new RuntimeException("VarLong too big");
@@ -299,6 +299,29 @@ public interface MCDataInput {
 
         return i;
     }
+
+    /**
+     * Reads a Variable length signed int.
+     *
+     * @return The int.
+     * @see MCDataOutput#writeSignedVarInt
+     */
+    default int readSignedVarInt() {
+        int i = readVarInt();
+        return (i & 1) == 0 ? i >>> 1 : -(i >>> 1) - 1;
+    }
+
+    /**
+     * Reads a Variable length signed long.
+     *
+     * @return The long.
+     * @see MCDataOutput#writeSignedVarLong
+     */
+    default long readSignedVarLong() {
+        long i = readVarLong();
+        return (i & 1) == 0 ? i >>> 1 : -(i >>> 1) - 1;
+    }
+
     //endregion
 
     //region Var-Arrays.
@@ -327,6 +350,34 @@ public interface MCDataInput {
         long[] arr = new long[len];
         for (int i = 0; i < len; i++) {
             arr[i] = readVarLong();
+        }
+        return arr;
+    }
+
+    /**
+     * Reads an array of Variable length Signed ints from the stream.
+     *
+     * @return The ints.
+     */
+    default int[] readSignedVarInts() {
+        int len = readVarInt();
+        int[] arr = new int[len];
+        for (int i = 0; i < len; i++) {
+            arr[i] = readSignedVarInt();
+        }
+        return arr;
+    }
+
+    /**
+     * Reads an array of Variable length Signed longs from the stream.
+     *
+     * @return The longs.
+     */
+    default long[] readSignedVarLongs() {
+        int len = readVarInt();
+        long[] arr = new long[len];
+        for (int i = 0; i < len; i++) {
+            arr[i] = readSignedVarLong();
         }
         return arr;
     }

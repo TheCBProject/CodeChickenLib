@@ -34,7 +34,7 @@ import static java.text.MessageFormat.format;
  * Provides the ability to write various datas to some sort of data stream.
  * See {@link MCDataOutputStream} to wrap an {@link OutputStream} to this.
  * See {@link MCByteStream} to wrap an {@link ByteBuf} to this.
- *
+ * <p>
  * Created by covers1624 on 4/15/20.
  */
 public interface MCDataOutput {
@@ -382,6 +382,8 @@ public interface MCDataOutput {
 
     /**
      * Writes a Variable length int.
+     * Doesn't handle Signed ints well, they end up as 5 bytes,
+     * instead of 4, Use {@link #writeSignedVarInt} if you requires numbers <= -1
      *
      * @param i The int.
      * @return The same stream.
@@ -398,6 +400,8 @@ public interface MCDataOutput {
 
     /**
      * Writes a Variable length long.
+     * Doesn't handle Signed longs well, they end up as 10 bytes,
+     * instead of 8, Use {@link #writeSignedVarLong} if you requires numbers <= -1
      *
      * @param l The long.
      * @return The same stream.
@@ -409,6 +413,28 @@ public interface MCDataOutput {
         }
         writeByte((int) l);
         return this;
+    }
+
+    /**
+     * Writes a Signed Variable length int.
+     * Favourable for numbers <= -1
+     *
+     * @param i The int.
+     * @return The same stream.
+     */
+    default MCDataOutput writeSignedVarInt(int i) {
+        return writeVarInt(i >= 0 ? 2 * i : -2 * (i + 1) + 1);
+    }
+
+    /**
+     * Writes a Signed Variable length long.
+     * Favourable for numbers <= -1
+     *
+     * @param i The long.
+     * @return The same stream.
+     */
+    default MCDataOutput writeSignedVarLong(long i) {
+        return writeVarLong(i >= 0 ? 2 * i : -2 * (i + 1) + 1);
     }
     //endregion
 
@@ -474,6 +500,70 @@ public interface MCDataOutput {
         writeVarInt(len);
         for (int i2 = 0; i2 < len; i2++) {
             writeVarLong(l[off + i2]);
+        }
+        return this;
+    }
+
+    /**
+     * Writes an array of Variable length Signed  ints to the stream.
+     * First writes the arrays length as a varInt, followed
+     * by the array data.
+     *
+     * @param i The array.
+     * @return The same stream.
+     */
+    default MCDataOutput writeSignedVarInts(int[] i) {
+        return writeSignedVarInts(i, 0, i.length);
+    }
+
+    /**
+     * Writes an array of Variable length Signed  ints to the stream.
+     * First writes the arrays length as a varInt, followed
+     * by the array data.
+     *
+     * @param i   The array.
+     * @param off An offset into the array to start reading from.
+     * @param len How many elements to read.
+     * @return The same stream.
+     */
+    default MCDataOutput writeSignedVarInts(int[] i, int off, int len) {
+        Objects.requireNonNull(i);
+        checkLen(i.length, off, len);
+        writeVarInt(len);
+        for (int i2 = 0; i2 < len; i2++) {
+            writeSignedVarInt(i[off + i2]);
+        }
+        return this;
+    }
+
+    /**
+     * Writes an array of Variable length Signed  longs to the stream.
+     * First writes the arrays length as a varInt, followed
+     * by the array data.
+     *
+     * @param l The array.
+     * @return The same stream.
+     */
+    default MCDataOutput writeSignedVarLongs(long[] l) {
+        return writeSignedVarLongs(l, 0, l.length);
+    }
+
+    /**
+     * Writes an array of Variable length Signed longs to the stream.
+     * First writes the arrays length as a varInt, followed
+     * by the array data.
+     *
+     * @param l   The array.
+     * @param off An offset into the array to start reading from.
+     * @param len How many elements to read.
+     * @return The same stream.
+     */
+    default MCDataOutput writeSignedVarLongs(long[] l, int off, int len) {
+        Objects.requireNonNull(l);
+        checkLen(l.length, off, len);
+        writeVarInt(len);
+        for (int i2 = 0; i2 < len; i2++) {
+            writeSignedVarLong(l[off + i2]);
         }
         return this;
     }
@@ -763,7 +853,7 @@ public interface MCDataOutput {
      * to be sent to the client. For Example, the inventory of a pouch / bag(Containers sync it).
      * However, in Client -> Server sync, the entire tag may be required, modders can choose,
      * if they want a stacks full tag or not. The default is to use {@link ItemStack#getShareTag()}.
-     *
+     * <p>
      * It should also be noted that this implementation writes the {@link ItemStack#getCount()}
      * as a varInt opposed to a byte, as that is favourable in some cases.
      *
