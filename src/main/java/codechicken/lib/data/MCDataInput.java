@@ -546,7 +546,7 @@ public interface MCDataInput {
      * @return The {@link BlockPos}.
      */
     default BlockPos readPos() {
-        return new BlockPos(readVarInt(), readVarInt(), readVarInt());
+        return new BlockPos(readSignedVarInt(), readSignedVarInt(), readSignedVarInt());
     }
 
     /**

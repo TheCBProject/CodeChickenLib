@@ -795,9 +795,9 @@ public interface MCDataOutput {
      * @return The same stream.
      */
     default MCDataOutput writeVec3i(Vec3i vec) {
-        writeVarInt(vec.getX());
-        writeVarInt(vec.getY());
-        writeVarInt(vec.getZ());
+        writeSignedVarInt(vec.getX());
+        writeSignedVarInt(vec.getY());
+        writeSignedVarInt(vec.getZ());
         return this;
     }
 
