@@ -275,12 +275,6 @@ public class Rotation extends Transformation {
         return quat;
     }
 
-    //    @Override
-    //    @OnlyIn (Dist.CLIENT)
-    //    public void glApply() {
-    //        GlStateManager.rotated((angle * MathHelper.todeg), axis.x, axis.y, axis.z);
-    //    }
-
     @Override
     public Transformation inverse() {
         return new Rotation(-angle, axis);

@@ -1,8 +1,5 @@
 package codechicken.lib.vec;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 public class RedundantTransformation extends Transformation {
 
     @Override
@@ -21,11 +18,6 @@ public class RedundantTransformation extends Transformation {
     public Transformation at(Vector3 point) {
         return this;
     }
-
-//    @Override
-//    @OnlyIn (Dist.CLIENT)
-//    public void glApply() {
-//    }
 
     @Override
     public Transformation inverse() {

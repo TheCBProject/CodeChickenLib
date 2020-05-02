@@ -65,7 +65,7 @@ public class Translation extends Transformation {
 
     @Override
     public boolean isRedundant() {
-        return vec.equalsT(Vector3.zero);
+        return vec.equalsT(Vector3.ZERO);
     }
 
     @Override

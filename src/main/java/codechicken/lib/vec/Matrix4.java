@@ -3,6 +3,7 @@ package codechicken.lib.vec;
 import codechicken.lib.util.Copyable;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.client.renderer.Matrix3f;
 import net.minecraft.client.renderer.Matrix4f;
 import net.minecraft.util.math.Vec3i;
 
@@ -16,7 +17,7 @@ import java.nio.FloatBuffer;
 
 public class Matrix4 extends Transformation implements Copyable<Matrix4> {
 
-    private static FloatBuffer glBuf = ByteBuffer.allocateDirect(16 * 8).order(ByteOrder.nativeOrder()).asFloatBuffer();
+    private static final FloatBuffer glBuf = ByteBuffer.allocateDirect(16 * 8).order(ByteOrder.nativeOrder()).asFloatBuffer();
 
     //m<row><column>
     public double m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33;
@@ -69,7 +70,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public Matrix4(MatrixStack stack) {
-        set(stack.getLast().getMatrix());
+        set(stack);
     }
 
     public Matrix4 setIdentity() {
@@ -326,7 +327,6 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public Matrix4 set(float[] matrix) {
-
         m00 = matrix[0];
         m01 = matrix[1];
         m02 = matrix[2];
@@ -348,7 +348,6 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public Matrix4 set(double[] matrix) {
-
         m00 = matrix[0];
         m01 = matrix[1];
         m02 = matrix[2];
@@ -370,7 +369,6 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public Matrix4 set(FloatBuffer buffer) {
-
         m00 = buffer.get();
         m01 = buffer.get();
         m02 = buffer.get();
@@ -392,7 +390,6 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public Matrix4 set(DoubleBuffer buffer) {
-
         m00 = buffer.get();
         m01 = buffer.get();
         m02 = buffer.get();
@@ -413,8 +410,11 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         return this;
     }
 
-    public Matrix4 set(Matrix4f mat) {
+    public Matrix4 set(MatrixStack stack) {
+        return set(stack.getLast().getMatrix());
+    }
 
+    public Matrix4 set(Matrix4f mat) {
         m00 = mat.m00;
         m01 = mat.m01;
         m02 = mat.m02;
@@ -441,7 +441,6 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public float[] toArrayF() {
-
         float[] matrix = new float[16];
         matrix[0] = (float) m00;
         matrix[1] = (float) m01;
@@ -464,7 +463,6 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public double[] toArrayD() {
-
         double[] matrix = new double[16];
         matrix[0] = m00;
         matrix[1] = m01;
@@ -532,8 +530,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         return this;
     }
 
-    //@Override
-    //@OnlyIn (Dist.CLIENT)
+    @SuppressWarnings ("deprecation")
     public void glApply() {
         glBuf.put((float) m00).put((float) m10).put((float) m20).put((float) m30).put((float) m01).put((float) m11).put((float) m21).put((float) m31).put((float) m02).put((float) m12).put((float) m22).put((float) m32).put((float) m03).put((float) m13).put((float) m23).put((float) m33);
         glBuf.flip();

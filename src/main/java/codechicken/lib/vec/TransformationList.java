@@ -1,8 +1,5 @@
 package codechicken.lib.vec;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -42,7 +39,7 @@ public class TransformationList extends Transformation {
     /**
      * Returns a global space matrix as opposed to an object space matrix (reverse application order)
      *
-     * @return
+     * @return The matrix.
      */
     public Matrix4 reverseCompile() {
         Matrix4 mat = new Matrix4();
@@ -153,14 +150,6 @@ public class TransformationList extends Transformation {
         return transformations.size() == 0;
     }
 
-//    @Override
-//    @OnlyIn (Dist.CLIENT)
-//    public void glApply() {
-//        for (int i = transformations.size() - 1; i >= 0; i--) {
-//            transformations.get(i).glApply();
-//        }
-//    }
-
     @Override
     public Transformation inverse() {
         TransformationList rev = new TransformationList();
@@ -172,10 +161,10 @@ public class TransformationList extends Transformation {
 
     @Override
     public String toString() {
-        String s = "";
+        StringBuilder s = new StringBuilder();
         for (Transformation t : transformations) {
-            s += "\n" + t.toString();
+            s.append("\n").append(t.toString());
         }
-        return s.trim();
+        return s.toString().trim();
     }
 }

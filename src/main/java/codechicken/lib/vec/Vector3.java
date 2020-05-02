@@ -2,8 +2,6 @@ package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.Vector4f;
 import net.minecraft.entity.Entity;
@@ -21,24 +19,17 @@ import java.math.RoundingMode;
 
 public class Vector3 implements Copyable<Vector3> {
 
-    public static final Vector3 ZERO = new Vector3();
+    public static final Vector3 ZERO = new Vector3(0, 0, 0);
     public static final Vector3 CENTER = new Vector3(0.5, 0.5, 0.5);
-    public static final Vector3 ONE = new Vector3(1, 1, 1);
-    public static final Vector3 X_POS = new Vector3(1, 0, 0);
+    //@formatter:off
+    public static final Vector3 ONE =   new Vector3( 1, 1, 1);
+    public static final Vector3 X_POS = new Vector3( 1, 0, 0);
     public static final Vector3 X_NEG = new Vector3(-1, 0, 0);
-    public static final Vector3 Y_POS = new Vector3(0, 1, 0);
-    public static final Vector3 Y_NEG = new Vector3(0, -1, 0);
-    public static final Vector3 Z_POS = new Vector3(0, 0, 1);
-    public static final Vector3 Z_NEG = new Vector3(0, 0, -1);
-
-    @Deprecated
-    public static Vector3 zero = new Vector3();
-    @Deprecated
-    public static Vector3 one = new Vector3(1, 1, 1);
-    @Deprecated
-    public static Vector3 down = new Vector3(0, -1, 0);
-    @Deprecated
-    public static Vector3 center = new Vector3(0.5, 0.5, 0.5);
+    public static final Vector3 Y_POS = new Vector3( 0, 1, 0);
+    public static final Vector3 Y_NEG = new Vector3( 0,-1, 0);
+    public static final Vector3 Z_POS = new Vector3( 0, 0, 1);
+    public static final Vector3 Z_NEG = new Vector3( 0, 0,-1);
+    //@formatter:on
 
     public double x;
     public double y;
@@ -192,6 +183,10 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public Vector3 add(Vector3 vec) {
+        return add(vec.x, vec.y, vec.z);
+    }
+
+    public Vector3 add(Vec3d vec) {
         return add(vec.x, vec.y, vec.z);
     }
 

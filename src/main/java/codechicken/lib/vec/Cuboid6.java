@@ -237,56 +237,54 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return 0;
     }
 
-    public double getSide(Direction side) {
+    public double getSide(int side) {
         switch (side) {
-            case DOWN:
+            case 0:
                 return min.y;
-            case UP:
+            case 1:
                 return max.y;
-            case NORTH:
+            case 2:
                 return min.z;
-            case SOUTH:
+            case 3:
                 return max.z;
-            case WEST:
+            case 4:
                 return min.x;
-            case EAST:
+            case 5:
                 return max.x;
         }
         return 0;
     }
 
-    @Deprecated
-    public double getSide(int s) {
-        return getSide(Direction.BY_INDEX[s]);
+    public double getSide(Direction side) {
+        return getSide(side.ordinal());
     }
 
-    public Cuboid6 setSide(Direction side, double d) {
+    public Cuboid6 setSide(int side, double d) {
         switch (side) {
-            case DOWN:
+            case 0:
                 min.y = d;
                 break;
-            case UP:
+            case 1:
                 max.y = d;
                 break;
-            case NORTH:
+            case 2:
                 min.z = d;
                 break;
-            case SOUTH:
+            case 3:
                 max.z = d;
                 break;
-            case WEST:
+            case 4:
                 min.x = d;
                 break;
-            case EAST:
+            case 5:
                 max.x = d;
                 break;
         }
         return this;
     }
 
-    @Deprecated
-    public Cuboid6 setSide(int s, double d) {
-        return setSide(Direction.BY_INDEX[s], d);
+    public Cuboid6 setSide(Direction side, double d) {
+        return setSide(side.ordinal(), d);
     }
 
     public int hashCode() {

@@ -32,9 +32,6 @@ public abstract class Transformation extends ITransformation<Vector3, Transforma
         return new TransformationList(this, t);
     }
 
-    //    @OnlyIn (Dist.CLIENT)
-    //    public abstract void glApply();
-
     @Override
     public boolean load(CCRenderState ccrs) {
         ccrs.pipeline.addRequirement(ccrs.normalAttrib.operationID());

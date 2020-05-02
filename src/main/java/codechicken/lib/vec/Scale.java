@@ -1,10 +1,5 @@
 package codechicken.lib.vec;
 
-
-import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -39,12 +34,6 @@ public class Scale extends Transformation {
         mat.scale(factor);
     }
 
-//    @Override
-//    @OnlyIn (Dist.CLIENT)
-//    public void glApply() {
-//        GlStateManager.scaled(factor.x, factor.y, factor.z);
-//    }
-
     @Override
     public Transformation inverse() {
         return new Scale(1 / factor.x, 1 / factor.y, 1 / factor.z);
@@ -61,7 +50,7 @@ public class Scale extends Transformation {
 
     @Override
     public boolean isRedundant() {
-        return factor.equalsT(Vector3.one);
+        return factor.equalsT(Vector3.ONE);
     }
 
     @Override
