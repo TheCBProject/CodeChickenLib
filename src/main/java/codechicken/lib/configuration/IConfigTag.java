@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISerializableConfigTag<E> {
+public interface IConfigTag {
 
     /**
      * If the tag has a parent tag.
@@ -25,7 +25,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      * @return The parent tag, null if the tag has no parent.
      */
     @Nullable
-    E getParent();
+    IConfigTag getParent();
 
     /**
      * A category is defined as a tag that has children.
@@ -75,7 +75,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      *
      * @return The tag.
      */
-    E markDirty();
+    IConfigTag markDirty();
 
     /**
      * Clears all children from this tag.
@@ -97,7 +97,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      * @param name The name of the tag.
      * @return The tag.
      */
-    E getTag(String name);
+    IConfigTag getTag(String name);
 
     /**
      * Gets a tag if one is present.
@@ -106,7 +106,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      * @return The tag.
      */
     @Nullable
-    E getTagIfPresent(String name);
+    IConfigTag getTagIfPresent(String name);
 
     /**
      * Deletes a child tag if the specified tag exists.
@@ -114,7 +114,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      * @param name The name of the tag to delete.
      * @return This tag.
      */
-    E deleteTag(String name);
+    IConfigTag deleteTag(String name);
 
     /**
      * Returns a list of all child elements for this tag.
@@ -129,7 +129,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      *
      * @param consumer The callback.
      */
-    void walkTags(Consumer<E> consumer);
+    void walkTags(Consumer<IConfigTag> consumer);
 
     /**
      * Resets the tag to the stored default value.
@@ -137,7 +137,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      *
      * @return This tag.
      */
-    E resetToDefault();
+    IConfigTag resetToDefault();
 
     /**
      * Completely arbitrary string settable by the implementor,
@@ -157,7 +157,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      * @param version The new version.
      * @return This tag.
      */
-    E setTagVersion(String version);
+    IConfigTag setTagVersion(String version);
 
     /**
      * Returns the type of the tag.
@@ -171,21 +171,114 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      *
      * @param comment The comment.
      */
-    E setComment(String comment);
+    IConfigTag setComment(String comment);
 
     /**
      * Sets a MultiLine comment above the given tag.
      *
      * @param lines The lines.
      */
-    E setComment(String... lines);
+    IConfigTag setComment(String... lines);
 
     /**
      * Sets a MultiLine comment above the given tag.
      *
      * @param lines The lines.
      */
-    E setComment(List<String> lines);
+    IConfigTag setComment(List<String> lines);
+
+    boolean getBoolean();
+
+    String getString();
+
+    int getInt();
+
+    int getHex();
+
+    double getDouble();
+
+    //
+    IConfigTag setDefaultBoolean(boolean value);
+
+    IConfigTag setDefaultString(String value);
+
+    IConfigTag setDefaultInt(int value);
+
+    IConfigTag setDefaultHex(int value);
+
+    IConfigTag setDefaultDouble(double value);
+
+    //
+    IConfigTag setBoolean(boolean value);
+
+    IConfigTag setString(String value);
+
+    IConfigTag setInt(int value);
+
+    IConfigTag setHex(int value);
+
+    IConfigTag setDouble(double value);
+
+    //
+    List<Boolean> getBooleanList();
+
+    List<String> getStringList();
+
+    List<Integer> getIntList();
+
+    List<Integer> getHexList();
+
+    List<Double> getDoubleList();
+
+    //
+    IConfigTag setDefaultBooleanList(List<Boolean> value);
+
+    IConfigTag setDefaultStringList(List<String> value);
+
+    IConfigTag setDefaultIntList(List<Integer> value);
+
+    IConfigTag setDefaultHexList(List<Integer> value);
+
+    IConfigTag setDefaultDoubleList(List<Double> value);
+
+    //
+    IConfigTag setBooleanList(List<Boolean> value);
+
+    IConfigTag setStringList(List<String> value);
+
+    IConfigTag setIntList(List<Integer> value);
+
+    IConfigTag setHexList(List<Integer> value);
+
+    IConfigTag setDoubleList(List<Double> value);
+
+    /**
+     * Copies the tag.
+     * If called on a child tag, it is split from its parent.
+     *
+     * @return The copy.
+     */
+    IConfigTag copy();
+
+    /**
+     * Copies the tag, not really meant for public use.
+     * Internally, called with the already copied parent.
+     *
+     * @param parent The already copied parent.
+     * @return The copy.
+     */
+    IConfigTag copy(IConfigTag parent);
+
+    /**
+     * Copies the tags value from the provided tag.
+     * If called on a Category, all children of the category
+     * are called to copy from their pair.
+     * If their pair doesnt exist, an exception is thrown.
+     *
+     * @param other The tag to copy values from.
+     * @return This tag.
+     */
+    IConfigTag copyFrom(IConfigTag other);
 
     /**
      * Tells the config to save to disk.
@@ -201,7 +294,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      * Specifies that this config should sync to the client.
      * If you set this, you MUST supply a syncCallback.
      */
-    E setSyncToClient();
+    IConfigTag setSyncToClient();
 
     /**
      * Sets the callback for a sync event.
@@ -212,7 +305,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      * @param consumer The consumer.
      * @return This tag.
      */
-    E setSyncCallback(ThrowingBiConsumer<E, SyncType, SyncException> consumer);
+    IConfigTag setSyncCallback(ThrowingBiConsumer<IConfigTag, SyncType, SyncException> consumer);
 
     /**
      * This can be used to check if this tag or any of its children
@@ -220,7 +313,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      * If its a category, it will ask its child tree if any require syncing
      * and return true if ANY of them want to sync.
      * If its a value, it will return true if marked as requiring syncing.
-     *
+     * <p>
      * NOTE:
      * Categories will return true even if none of their direct children require syncing,
      * any child in the tree requiring sync will propagate up the tag hierarchy,
@@ -249,6 +342,10 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      * @throws SyncException Can be thrown by a sync callback to specify an unrecoverable issue.
      */
     void runSync(SyncType type) throws SyncException;
+
+    void read(MCDataInput in);
+
+    void write(MCDataOutput out);
 
     //INTERNAL!!!!!!
     Object getRawValue();
@@ -442,7 +539,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
      * then just trust the data synced with Connect / Disconnect, if that isn't possible
      * throw a {@link SyncException}
      */
-    public static enum SyncType {
+    enum SyncType {
         MANUAL,
         CONNECT,
         DISCONNECT
@@ -451,7 +548,7 @@ public interface IConfigTag<E extends IConfigTag> extends IConfigValue<E>, ISeri
     /**
      * Throw this from a Sync callback to notify the sync pipeline of an unrecoverable issue.
      */
-    public static class SyncException extends Exception {
+    class SyncException extends Exception {
 
         public SyncException(String reason) {
             super(reason);

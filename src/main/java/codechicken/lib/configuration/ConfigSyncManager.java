@@ -27,7 +27,7 @@ public class ConfigSyncManager {
     private static final Logger logger = LogManager.getLogger("CodeChickenLib-ConfigSync");
 
     //Always contains master object.
-    private static Map<String, IConfigTag<IConfigTag>> syncMap = new HashMap<>();
+    private static Map<String, IConfigTag> syncMap = new HashMap<>();
     //Contains copies of the individual values that can be synced.
     private static Map<String, SyncState> clientRollbackMap = new HashMap<>();
 
@@ -67,7 +67,7 @@ public class ConfigSyncManager {
         for (int i = 0; i < numStates; i++) {
             String ident = packet.readString();
             logger.log(Level.INFO, "Applying config sync for {}.", ident);
-            IConfigTag<IConfigTag> found = syncMap.get(ident);
+            IConfigTag found = syncMap.get(ident);
             SyncState state = SyncState.create(found.copy());
             clientRollbackMap.put(ident, state);
             SyncState.applyTo(packet, found);
@@ -85,9 +85,9 @@ public class ConfigSyncManager {
 
     public static class SyncState {
 
-        public List<IConfigTag<IConfigTag>> syncTags = new ArrayList<>();
+        public List<IConfigTag> syncTags = new ArrayList<>();
 
-        public static SyncState create(IConfigTag<IConfigTag> tag) {
+        public static SyncState create(IConfigTag tag) {
             SyncState state = new SyncState();
             tag.walkTags(e -> {
                 if (!e.isCategory() && e.requiresSync()) {
@@ -98,16 +98,16 @@ public class ConfigSyncManager {
             return state;
         }
 
-        public static void applyTo(MCDataInput in, IConfigTag<IConfigTag> parent) {
+        public static void applyTo(MCDataInput in, IConfigTag parent) {
             SyncState master = SyncState.create(parent);
-            Map<String, IConfigTag<IConfigTag>> lookup = new HashMap<>();
-            for (IConfigTag<IConfigTag> tag : master.syncTags) {
+            Map<String, IConfigTag> lookup = new HashMap<>();
+            for (IConfigTag tag : master.syncTags) {
                 lookup.put(tag.getUnlocalizedName(), tag);
             }
             int numTags = in.readVarInt();
             for (int i = 0; i < numTags; i++) {
                 String ident = in.readString();
-                IConfigTag<IConfigTag> found = lookup.get(ident);
+                IConfigTag found = lookup.get(ident);
                 if (found == null) {
                     throw new RuntimeException("Unable to apply server sync, tag does not exist! " + ident);
                 }
@@ -121,14 +121,14 @@ public class ConfigSyncManager {
 
         }
 
-        public void revert(IConfigTag<IConfigTag> parent) {
+        public void revert(IConfigTag parent) {
             SyncState master = SyncState.create(parent);
-            Map<String, IConfigTag<IConfigTag>> lookup = new HashMap<>();
-            for (IConfigTag<IConfigTag> tag : master.syncTags) {
+            Map<String, IConfigTag> lookup = new HashMap<>();
+            for (IConfigTag tag : master.syncTags) {
                 lookup.put(tag.getUnlocalizedName(), tag);
             }
-            for (IConfigTag<IConfigTag> tag : syncTags) {
-                IConfigTag<IConfigTag> found = lookup.get(tag.getUnlocalizedName());
+            for (IConfigTag tag : syncTags) {
+                IConfigTag found = lookup.get(tag.getUnlocalizedName());
                 if (found == null) {
                     throw new RuntimeException("Unable to revert config state, tag no longer exists.. " + tag.getUnlocalizedName());
                 }
@@ -143,7 +143,7 @@ public class ConfigSyncManager {
 
         public void write(MCDataOutput out) {
             out.writeVarInt(syncTags.size());
-            for (IConfigTag<?> tag : syncTags) {
+            for (IConfigTag tag : syncTags) {
                 out.writeString(tag.getUnlocalizedName());
                 tag.write(out);
             }

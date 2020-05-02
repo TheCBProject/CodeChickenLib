@@ -1,7 +1,7 @@
 package codechicken.lib.internal.proxy;
 
 import codechicken.lib.CodeChickenLib;
-import codechicken.lib.configuration.ConfigTag;
+import codechicken.lib.configuration.ConfigTagImpl;
 import codechicken.lib.model.bakery.ModelBakery;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.BlockRenderingRegistry;
@@ -31,8 +31,8 @@ public class ProxyClient extends Proxy {
     }
 
     private void loadClientConfig() {
-        ConfigTag tag;
-        ConfigTag clientTag = CodeChickenLib.config.getTag("client");
+        ConfigTagImpl tag;
+        ConfigTagImpl clientTag = CodeChickenLib.config.getTag("client");
         clientTag.deleteTag("block_renderer_dispatcher_misc");
 
         tag = clientTag.getTag("catchBlockRenderExceptions")//

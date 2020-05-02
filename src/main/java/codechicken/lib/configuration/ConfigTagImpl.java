@@ -5,6 +5,7 @@ import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.util.ThrowingBiConsumer;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
@@ -22,7 +23,7 @@ import java.util.regex.Pattern;
 /**
  * Created by covers1624 on 18/07/2017.
  */
-public class ConfigTag implements IConfigTag<ConfigTag> {
+public class ConfigTagImpl implements IConfigTag {
 
     private static Pattern QUOTE_PATTERN = Pattern.compile("(?<=\")(.*)(?=\")");
     private static Pattern STRING_MATCHER = Pattern.compile("(?<=.:\")(.*)(\"=\")(.*)(?=\")");
@@ -32,8 +33,8 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
 
     protected String name;
     protected String version;
-    protected Map<String, ConfigTag> children;
-    protected ConfigTag parent;
+    protected Map<String, ConfigTagImpl> children;
+    protected ConfigTagImpl parent;
     protected boolean dirty;
 
     protected List<String> comment;
@@ -45,9 +46,9 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     protected Object defaultValue;
 
     protected boolean syncToClient;
-    protected ThrowingBiConsumer<ConfigTag, SyncType, SyncException> syncCallback;
+    protected ThrowingBiConsumer<IConfigTag, SyncType, SyncException> syncCallback;
 
-    protected ConfigTag(String name, ConfigTag parent) {
+    protected ConfigTagImpl(String name, ConfigTagImpl parent) {
         this.name = name;
         this.parent = parent;
         children = new LinkedHashMap<>();
@@ -80,7 +81,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
                     throw new ConfigParseException("Malformed line! @%s, %s", reader.getCurrLine(), line);
                 }
                 String name = matcher.group();
-                ConfigTag tag = getTag(name);
+                ConfigTagImpl tag = getTag(name);
                 tag.parseTag(reader);
                 continue;
             }
@@ -98,7 +99,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
             }
             //Get the name of the tag.
             String name = matcher.group(1);
-            ConfigTag tag = getTag(name);
+            ConfigTagImpl tag = getTag(name);
             if (!isList) {
                 //Get the value.
                 String value;
@@ -217,8 +218,8 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
                 writeLine(writer, depth, "~%s", version);
                 writer.println();
             }
-            for (Iterator<Entry<String, ConfigTag>> iterator = children.entrySet().iterator(); iterator.hasNext(); ) {
-                Entry<String, ConfigTag> entry = iterator.next();
+            for (Iterator<Entry<String, ConfigTagImpl>> iterator = children.entrySet().iterator(); iterator.hasNext(); ) {
+                Entry<String, ConfigTagImpl> entry = iterator.next();
                 int inc = 0;
                 for (String comment : entry.getValue().comment) {
                     writeLine(writer, depth, "#" + comment);
@@ -274,7 +275,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
 
     @Nullable
     @Override
-    public ConfigTag getParent() {
+    public IConfigTag getParent() {
         return parent;
     }
 
@@ -296,7 +297,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     @Override
     public String getUnlocalizedName() {
         List<String> list = new ArrayList<>();
-        ConfigTag parent = this;
+        IConfigTag parent = this;
         while ((parent = parent.getParent()) != null) {
             list.add(parent.getName());
         }
@@ -314,7 +315,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag markDirty() {
+    public ConfigTagImpl markDirty() {
         dirty = true;//Mark us a dirty.
         if (hasParent()) {//If we are a child, we need to mark the parent dirty.
             parent.markDirty();
@@ -332,7 +333,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
 
     protected void onSave() {
         dirty = false;
-        children.values().forEach(ConfigTag::onSave);
+        children.values().forEach(ConfigTagImpl::onSave);
     }
 
     @Override
@@ -341,20 +342,20 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag getTag(String name) {
+    public ConfigTagImpl getTag(String name) {
         addTagCheck();
-        return children.computeIfAbsent(name, s -> new ConfigTag(s, this));
+        return children.computeIfAbsent(name, s -> new ConfigTagImpl(s, this));
     }
 
     @Override
     @Nullable
-    public ConfigTag getTagIfPresent(String name) {
+    public ConfigTagImpl getTagIfPresent(String name) {
         addTagCheck();
         return children.get(name);
     }
 
     @Override
-    public ConfigTag deleteTag(String name) {
+    public ConfigTagImpl deleteTag(String name) {
         if (isCategory()) {
             children.remove(name);
         }
@@ -367,11 +368,11 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public void walkTags(Consumer<ConfigTag> consumer) {
+    public void walkTags(Consumer<IConfigTag> consumer) {
         if (!isCategory()) {
             throw new UnsupportedOperationException("Unable to walk a value.");
         }
-        for (ConfigTag tag : children.values()) {
+        for (ConfigTagImpl tag : children.values()) {
             consumer.accept(tag);
             if (tag.isCategory()) {
                 tag.walkTags(consumer);
@@ -380,9 +381,9 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag resetToDefault() {
+    public ConfigTagImpl resetToDefault() {
         if (isCategory()) {
-            children.values().forEach(ConfigTag::resetToDefault);
+            children.values().forEach(ConfigTagImpl::resetToDefault);
         } else {
             value = defaultValue;
         }
@@ -395,7 +396,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setTagVersion(String version) {
+    public ConfigTagImpl setTagVersion(String version) {
         this.version = version;
         return this;
     }
@@ -411,7 +412,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setComment(String comment) {
+    public ConfigTagImpl setComment(String comment) {
         this.comment = new LinkedList<>();
         this.comment.add(comment);
         markDirty();
@@ -419,12 +420,12 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setComment(String... lines) {
+    public ConfigTagImpl setComment(String... lines) {
         return setComment(Arrays.asList(lines));
     }
 
     @Override
-    public ConfigTag setComment(List<String> lines) {
+    public ConfigTagImpl setComment(List<String> lines) {
         this.comment = new LinkedList<>(lines);
         markDirty();
         return this;
@@ -502,7 +503,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setDefaultBoolean(boolean value) {
+    public ConfigTagImpl setDefaultBoolean(boolean value) {
         setDefaultCheck();
 
         defaultValue = value;
@@ -514,7 +515,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setDefaultString(String value) {
+    public ConfigTagImpl setDefaultString(String value) {
         setDefaultCheck();
 
         defaultValue = value;
@@ -526,7 +527,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setDefaultInt(int value) {
+    public ConfigTagImpl setDefaultInt(int value) {
         setDefaultCheck();
 
         defaultValue = value;
@@ -538,7 +539,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setDefaultHex(int value) {
+    public ConfigTagImpl setDefaultHex(int value) {
         setDefaultCheck();
 
         defaultValue = value;
@@ -550,7 +551,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setDefaultDouble(double value) {
+    public ConfigTagImpl setDefaultDouble(double value) {
         setDefaultCheck();
 
         defaultValue = value;
@@ -562,7 +563,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setBoolean(boolean value) {
+    public ConfigTagImpl setBoolean(boolean value) {
         setValueCheck();
         type = TagType.BOOLEAN;
         this.value = value;
@@ -571,7 +572,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setString(String value) {
+    public ConfigTagImpl setString(String value) {
         setValueCheck();
         type = TagType.STRING;
         this.value = value;
@@ -580,7 +581,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setInt(int value) {
+    public ConfigTagImpl setInt(int value) {
         setValueCheck();
         type = TagType.INT;
         this.value = value;
@@ -589,7 +590,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setHex(int value) {
+    public ConfigTagImpl setHex(int value) {
         setValueCheck();
         this.value = value;
         type = TagType.HEX;
@@ -598,7 +599,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setDouble(double value) {
+    public ConfigTagImpl setDouble(double value) {
         setValueCheck();
         type = TagType.DOUBLE;
         this.value = value;
@@ -694,7 +695,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setDefaultBooleanList(List<Boolean> value) {
+    public ConfigTagImpl setDefaultBooleanList(List<Boolean> value) {
         setDefaultCheck();
 
         defaultValue = value;
@@ -706,7 +707,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setDefaultStringList(List<String> value) {
+    public ConfigTagImpl setDefaultStringList(List<String> value) {
         setDefaultCheck();
 
         defaultValue = value;
@@ -718,7 +719,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setDefaultIntList(List<Integer> value) {
+    public ConfigTagImpl setDefaultIntList(List<Integer> value) {
         setDefaultCheck();
 
         defaultValue = value;
@@ -730,7 +731,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setDefaultHexList(List<Integer> value) {
+    public ConfigTagImpl setDefaultHexList(List<Integer> value) {
         setDefaultCheck();
 
         defaultValue = value;
@@ -742,7 +743,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setDefaultDoubleList(List<Double> value) {
+    public ConfigTagImpl setDefaultDoubleList(List<Double> value) {
         setDefaultCheck();
 
         defaultValue = value;
@@ -761,35 +762,35 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag setBooleanList(List<Boolean> value) {
+    public ConfigTagImpl setBooleanList(List<Boolean> value) {
         setList(value);
         listType = TagType.BOOLEAN;
         return this;
     }
 
     @Override
-    public ConfigTag setStringList(List<String> value) {
+    public ConfigTagImpl setStringList(List<String> value) {
         setList(value);
         listType = TagType.STRING;
         return this;
     }
 
     @Override
-    public ConfigTag setIntList(List<Integer> value) {
+    public ConfigTagImpl setIntList(List<Integer> value) {
         setList(value);
         listType = TagType.INT;
         return this;
     }
 
     @Override
-    public ConfigTag setHexList(List<Integer> value) {
+    public ConfigTagImpl setHexList(List<Integer> value) {
         setList(value);
         listType = TagType.HEX;
         return this;
     }
 
     @Override
-    public ConfigTag setDoubleList(List<Double> value) {
+    public ConfigTagImpl setDoubleList(List<Double> value) {
         setList(value);
         listType = TagType.DOUBLE;
         return this;
@@ -797,18 +798,18 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     //endregion
 
     @Override
-    public ConfigTag copy() {
+    public IConfigTag copy() {
         return copy(null);
     }
 
     @Override
-    public ConfigTag copy(ConfigTag parent) {
-        ConfigTag copy = new ConfigTag(name, parent);
+    public IConfigTag copy(IConfigTag parent) {
+        ConfigTagImpl copy = new ConfigTagImpl(name, (ConfigTagImpl) parent);
         copy.version = version;
         copy.comment = new LinkedList<>(comment);
         if (isCategory()) {
-            for (Entry<String, ConfigTag> entry : children.entrySet()) {
-                copy.children.put(entry.getKey(), entry.getValue().copy(copy));
+            for (Entry<String, ConfigTagImpl> entry : children.entrySet()) {
+                copy.children.put(entry.getKey(), (ConfigTagImpl) entry.getValue().copy(copy));
             }
         } else {
             copy.type = type;
@@ -825,37 +826,37 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     }
 
     @Override
-    public ConfigTag copyFrom(ConfigTag other) {
+    public IConfigTag copyFrom(IConfigTag other) {
         if (isCategory()) {
-            for (Entry<String, ConfigTag> entry : children.entrySet()) {
-                ConfigTag otherTag = other.getTagIfPresent(entry.getKey());
+            for (Entry<String, ConfigTagImpl> entry : children.entrySet()) {
+                IConfigTag otherTag = other.getTagIfPresent(entry.getKey());
                 if (otherTag == null) {
                     throw new IllegalArgumentException("copyFrom called with a tag that does not have the same children. Missing: " + entry.getKey());
                 }
                 entry.getValue().copyFrom(otherTag);
             }
         } else {
-            value = type.copy(other.value);
+            value = type.copy(((ConfigTagImpl) other).value);
         }
         return this;
     }
 
     @Override
-    public ConfigTag setSyncToClient() {
+    public ConfigTagImpl setSyncToClient() {
         children.values().forEach(IConfigTag::setSyncToClient);
         syncToClient = true;
         return this;
     }
 
     @Override
-    public ConfigTag setSyncCallback(ThrowingBiConsumer<ConfigTag, SyncType, SyncException> consumer) {
+    public ConfigTagImpl setSyncCallback(ThrowingBiConsumer<IConfigTag, SyncType, SyncException> consumer) {
         syncCallback = consumer;
         return this;
     }
 
     @Override
     public boolean requiresSync() {
-        for (ConfigTag tag : children.values()) {
+        for (ConfigTagImpl tag : children.values()) {
             if (tag.requiresSync()) {
                 return true;
             }
@@ -868,7 +869,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
         if (syncCallback != null) {
             syncCallback.accept(this, type);
         }
-        for (ConfigTag tag : children.values()) {
+        for (ConfigTagImpl tag : children.values()) {
             tag.runSync(type);
         }
     }
@@ -879,7 +880,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
             int numChildren = in.readVarInt();
             for (int i = 0; i < numChildren; i++) {
                 String name = in.readString();
-                ConfigTag found = children.get(name);
+                ConfigTagImpl found = children.get(name);
                 if (found == null) {
                     throw new IllegalArgumentException("read called with data that does not align to this tag, Missing: " + name);
                 }
@@ -894,7 +895,7 @@ public class ConfigTag implements IConfigTag<ConfigTag> {
     public void write(MCDataOutput out) {
         if (isCategory()) {
             out.writeVarInt(children.size());
-            for (Entry<String, ConfigTag> entry : children.entrySet()) {
+            for (Entry<String, ConfigTagImpl> entry : children.entrySet()) {
                 out.writeString(entry.getKey());
                 entry.getValue().write(out);
             }

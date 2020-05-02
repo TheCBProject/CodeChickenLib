@@ -5,7 +5,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 
-public class ConfigFile extends ConfigTag {
+public class ConfigFile extends ConfigTagImpl {
 
     protected File file;
     protected boolean isLoading;
