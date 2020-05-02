@@ -65,7 +65,6 @@ public interface ICCBlockRenderer {
         ccrs.overlay = OverlayTexture.NO_OVERLAY;
         ccrs.brightness = WorldRenderer.getPackedLightmapCoords(world, state, pos);
         mStack.push();
-        mStack.translate(1, 1, 1);
         renderBlock(state, pos, world, mStack, builder, new Random(), data);
         mStack.pop();
     }

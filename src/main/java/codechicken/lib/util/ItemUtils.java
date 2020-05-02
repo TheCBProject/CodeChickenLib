@@ -193,15 +193,4 @@ public class ItemUtils {
     public static boolean areStacksSameOrTagged(ItemStack stack1, ItemStack stack2) {
         return areStacksSameType(stack1, stack2) || tagsMatch(stack1.getItem(), stack2.getItem());
     }
-
-    //    /**
-    //     * {@link ItemStack}s with damage 32767 are wildcards allowing all damages. Eg all colours of wool are allowed to create Beds.
-    //     *
-    //     * @param stack1 The {@link ItemStack} being compared.
-    //     * @param stack2 The {@link ItemStack} to compare to.
-    //     * @return whether the two items are the same from the perspective of a crafting inventory.
-    //     */
-    //    public static boolean areStacksSameTypeCrafting(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
-    //        return !stack1.isEmpty() && !stack2.isEmpty() && stack1.getItem() == stack2.getItem() && (stack1.getItemDamage() == stack2.getItemDamage() || stack1.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack2.getItemDamage() == OreDictionary.WILDCARD_VALUE || stack1.getItem().isDamageable());
-    //    }
 }
