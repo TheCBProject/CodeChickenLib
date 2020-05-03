@@ -1,6 +1,7 @@
 package codechicken.lib;
 
-import codechicken.lib.configuration.ConfigFile;
+import codechicken.lib.configuration.ConfigTag;
+import codechicken.lib.configuration.StandardConfigFile;
 import codechicken.lib.internal.network.CCLNetwork;
 import codechicken.lib.internal.proxy.Proxy;
 import codechicken.lib.internal.proxy.ProxyClient;
@@ -14,6 +15,7 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Created by covers1624 on 12/10/2016.
@@ -23,7 +25,7 @@ public class CodeChickenLib {
 
     public static final String MOD_ID = "codechickenlib";
 
-    public static ConfigFile config;
+    public static ConfigTag config;
 
     public static Proxy proxy;
 
@@ -35,7 +37,7 @@ public class CodeChickenLib {
     @SubscribeEvent
     public void onCommonSetup(FMLCommonSetupEvent event) {
         proxy.commonSetup(event);
-        config = new ConfigFile(new File("config/ccl.cfg"));
+        config = new StandardConfigFile(Paths.get("config/ccl.cfg")).load();
         CCLNetwork.init();
     }
 

@@ -3,13 +3,18 @@ package codechicken.lib.configuration;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.util.ThrowingBiConsumer;
+import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap;
+import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-public interface IConfigTag {
+public interface ConfigTag {
 
     /**
      * If the tag has a parent tag.
@@ -25,7 +30,7 @@ public interface IConfigTag {
      * @return The parent tag, null if the tag has no parent.
      */
     @Nullable
-    IConfigTag getParent();
+    ConfigTag getParent();
 
     /**
      * A category is defined as a tag that has children.
@@ -75,7 +80,7 @@ public interface IConfigTag {
      *
      * @return The tag.
      */
-    IConfigTag markDirty();
+    ConfigTag markDirty();
 
     /**
      * Clears all children from this tag.
@@ -97,7 +102,7 @@ public interface IConfigTag {
      * @param name The name of the tag.
      * @return The tag.
      */
-    IConfigTag getTag(String name);
+    ConfigTag getTag(String name);
 
     /**
      * Gets a tag if one is present.
@@ -106,7 +111,7 @@ public interface IConfigTag {
      * @return The tag.
      */
     @Nullable
-    IConfigTag getTagIfPresent(String name);
+    ConfigTag getTagIfPresent(String name);
 
     /**
      * Deletes a child tag if the specified tag exists.
@@ -114,7 +119,7 @@ public interface IConfigTag {
      * @param name The name of the tag to delete.
      * @return This tag.
      */
-    IConfigTag deleteTag(String name);
+    ConfigTag deleteTag(String name);
 
     /**
      * Returns a list of all child elements for this tag.
@@ -129,7 +134,7 @@ public interface IConfigTag {
      *
      * @param consumer The callback.
      */
-    void walkTags(Consumer<IConfigTag> consumer);
+    void walkTags(Consumer<ConfigTag> consumer);
 
     /**
      * Resets the tag to the stored default value.
@@ -137,7 +142,7 @@ public interface IConfigTag {
      *
      * @return This tag.
      */
-    IConfigTag resetToDefault();
+    ConfigTag resetToDefault();
 
     /**
      * Completely arbitrary string settable by the implementor,
@@ -157,7 +162,7 @@ public interface IConfigTag {
      * @param version The new version.
      * @return This tag.
      */
-    IConfigTag setTagVersion(String version);
+    ConfigTag setTagVersion(String version);
 
     /**
      * Returns the type of the tag.
@@ -166,26 +171,28 @@ public interface IConfigTag {
      */
     TagType getTagType();
 
+    TagType getListType();
+
     /**
      * Sets a single line comment above the given tag.
      *
      * @param comment The comment.
      */
-    IConfigTag setComment(String comment);
+    ConfigTag setComment(String comment);
 
     /**
      * Sets a MultiLine comment above the given tag.
      *
      * @param lines The lines.
      */
-    IConfigTag setComment(String... lines);
+    ConfigTag setComment(String... lines);
 
     /**
      * Sets a MultiLine comment above the given tag.
      *
      * @param lines The lines.
      */
-    IConfigTag setComment(List<String> lines);
+    ConfigTag setComment(List<String> lines);
 
     boolean getBoolean();
 
@@ -198,26 +205,26 @@ public interface IConfigTag {
     double getDouble();
 
     //
-    IConfigTag setDefaultBoolean(boolean value);
+    ConfigTag setDefaultBoolean(boolean value);
 
-    IConfigTag setDefaultString(String value);
+    ConfigTag setDefaultString(String value);
 
-    IConfigTag setDefaultInt(int value);
+    ConfigTag setDefaultInt(int value);
 
-    IConfigTag setDefaultHex(int value);
+    ConfigTag setDefaultHex(int value);
 
-    IConfigTag setDefaultDouble(double value);
+    ConfigTag setDefaultDouble(double value);
 
     //
-    IConfigTag setBoolean(boolean value);
+    ConfigTag setBoolean(boolean value);
 
-    IConfigTag setString(String value);
+    ConfigTag setString(String value);
 
-    IConfigTag setInt(int value);
+    ConfigTag setInt(int value);
 
-    IConfigTag setHex(int value);
+    ConfigTag setHex(int value);
 
-    IConfigTag setDouble(double value);
+    ConfigTag setDouble(double value);
 
     //
     List<Boolean> getBooleanList();
@@ -231,26 +238,26 @@ public interface IConfigTag {
     List<Double> getDoubleList();
 
     //
-    IConfigTag setDefaultBooleanList(List<Boolean> value);
+    ConfigTag setDefaultBooleanList(List<Boolean> value);
 
-    IConfigTag setDefaultStringList(List<String> value);
+    ConfigTag setDefaultStringList(List<String> value);
 
-    IConfigTag setDefaultIntList(List<Integer> value);
+    ConfigTag setDefaultIntList(List<Integer> value);
 
-    IConfigTag setDefaultHexList(List<Integer> value);
+    ConfigTag setDefaultHexList(List<Integer> value);
 
-    IConfigTag setDefaultDoubleList(List<Double> value);
+    ConfigTag setDefaultDoubleList(List<Double> value);
 
     //
-    IConfigTag setBooleanList(List<Boolean> value);
+    ConfigTag setBooleanList(List<Boolean> value);
 
-    IConfigTag setStringList(List<String> value);
+    ConfigTag setStringList(List<String> value);
 
-    IConfigTag setIntList(List<Integer> value);
+    ConfigTag setIntList(List<Integer> value);
 
-    IConfigTag setHexList(List<Integer> value);
+    ConfigTag setHexList(List<Integer> value);
 
-    IConfigTag setDoubleList(List<Double> value);
+    ConfigTag setDoubleList(List<Double> value);
 
     /**
      * Copies the tag.
@@ -258,7 +265,7 @@ public interface IConfigTag {
      *
      * @return The copy.
      */
-    IConfigTag copy();
+    ConfigTag copy();
 
     /**
      * Copies the tag, not really meant for public use.
@@ -267,7 +274,7 @@ public interface IConfigTag {
      * @param parent The already copied parent.
      * @return The copy.
      */
-    IConfigTag copy(IConfigTag parent);
+    ConfigTag copy(ConfigTag parent);
 
     /**
      * Copies the tags value from the provided tag.
@@ -278,23 +285,19 @@ public interface IConfigTag {
      * @param other The tag to copy values from.
      * @return This tag.
      */
-    IConfigTag copyFrom(IConfigTag other);
+    ConfigTag copyFrom(ConfigTag other);
 
     /**
      * Tells the config to save to disk.
      * The tag will ONLY save to disk if it is marked as dirty.
      */
-    default void save() {
-        if (hasParent()) {
-            getParent().save();
-        }
-    }
+    void save();
 
     /**
      * Specifies that this config should sync to the client.
      * If you set this, you MUST supply a syncCallback.
      */
-    IConfigTag setSyncToClient();
+    ConfigTag setSyncToClient();
 
     /**
      * Sets the callback for a sync event.
@@ -305,7 +308,7 @@ public interface IConfigTag {
      * @param consumer The consumer.
      * @return This tag.
      */
-    IConfigTag setSyncCallback(ThrowingBiConsumer<IConfigTag, SyncType, SyncException> consumer);
+    ConfigTag setSyncCallback(ThrowingBiConsumer<ConfigTag, SyncType, SyncException> consumer);
 
     /**
      * This can be used to check if this tag or any of its children
@@ -350,18 +353,8 @@ public interface IConfigTag {
     //INTERNAL!!!!!!
     Object getRawValue();
 
-    public static enum TagType {
-        BOOLEAN {
-            @Override
-            public char getChar() {
-                return 'B';
-            }
-
-            @Override
-            public Object copy(Object value) {
-                return value;
-            }
-
+    enum TagType {
+        BOOLEAN('B') {
             @Override
             public Object read(MCDataInput in, TagType listType) {
                 return in.readBoolean();
@@ -372,17 +365,7 @@ public interface IConfigTag {
                 out.writeBoolean((Boolean) value);
             }
         },
-        STRING {
-            @Override
-            public char getChar() {
-                return 'S';
-            }
-
-            @Override
-            public Object copy(Object value) {
-                return value;
-            }
-
+        STRING('S') {
             @Override
             public Object read(MCDataInput in, TagType listType) {
                 return in.readString();
@@ -393,35 +376,20 @@ public interface IConfigTag {
                 out.writeString((String) value);
             }
         },
-        INT {
-            @Override
-            public char getChar() {
-                return 'I';
-            }
-
-            @Override
-            public Object copy(Object value) {
-                return value;
-            }
-
+        INT('I') {
             @Override
             public Object read(MCDataInput in, TagType listType) {
-                return in.readVarInt();
+                return in.readSignedVarInt();
             }
 
             @Override
             public void write(MCDataOutput out, TagType listType, Object value) {
-                out.writeVarInt((Integer) value);
+                out.writeSignedVarInt((Integer) value);
             }
         },
-        HEX {
+        HEX('H') {
             @Override
-            public char getChar() {
-                return 'H';
-            }
-
-            @Override
-            protected String processLine(Object obj) {
+            public String processLine(Object obj) {
                 Integer hex = (Integer) obj;
                 return "0x" + (Long.toString(((long) hex) << 32 >>> 32, 16)).toUpperCase();
             }
@@ -435,23 +403,8 @@ public interface IConfigTag {
             public void write(MCDataOutput out, TagType listType, Object value) {
                 INT.write(out, listType, value);
             }
-
-            @Override
-            public Object copy(Object value) {
-                return value;
-            }
         },
-        DOUBLE {
-            @Override
-            public char getChar() {
-                return 'D';
-            }
-
-            @Override
-            public Object copy(Object value) {
-                return value;
-            }
-
+        DOUBLE('D') {
             @Override
             public Object read(MCDataInput in, TagType listType) {
                 return in.readDouble();
@@ -462,12 +415,7 @@ public interface IConfigTag {
                 out.writeDouble((Double) value);
             }
         },
-        LIST {
-            @Override
-            public char getChar() {
-                return '#';//Invalid, this should never be written. So make it a comment.
-            }
-
+        LIST('#') {
             @Override
             @SuppressWarnings ("unchecked")
             public Object copy(Object value) {
@@ -479,7 +427,7 @@ public interface IConfigTag {
                 List list = new LinkedList();
                 int num = in.readVarInt();
                 for (int i = 0; i < num; i++) {
-                    list.add(listType.read(in, listType));
+                    list.add(listType.read(in, null));
                 }
                 return list;
             }
@@ -489,40 +437,34 @@ public interface IConfigTag {
                 List list = (List) value;
                 out.writeVarInt(list.size());
                 for (Object o : list) {
-                    listType.write(out, listType, o);
+                    listType.write(out, null, o);
                 }
             }
         };
 
-        public abstract char getChar();
+        private static final Char2ObjectMap<TagType> tagTypes = Arrays.stream(TagType.values())//
+                .filter(e -> e != LIST)//
+                .collect(Collectors.toMap(e -> e.ch, Function.identity(), (a, b) -> a, Char2ObjectArrayMap::new));
+        protected final char ch;
 
-        public abstract Object copy(Object value);
+        TagType(char ch) {
+            this.ch = ch;
+        }
 
-        protected String processLine(Object obj) {
+        public char getChar() {
+            return ch;
+        }
+
+        public Object copy(Object value) {
+            return value;
+        }
+
+        public String processLine(Object obj) {
             return obj.toString();
         }
 
         public static TagType fromChar(char c) {
-            switch (c) {
-                case 'B': {
-                    return BOOLEAN;
-                }
-                case 'S': {
-                    return STRING;
-                }
-                case 'I': {
-                    return INT;
-                }
-                case 'D': {
-                    return DOUBLE;
-                }
-                case 'H': {
-                    return HEX;
-                }
-                default: {
-                    return null;
-                }
-            }
+            return tagTypes.getOrDefault(c, null);
         }
 
         public abstract Object read(MCDataInput in, TagType listType);
@@ -532,7 +474,7 @@ public interface IConfigTag {
 
     /**
      * Used to identify why your sync callback is being called,
-     * Manual is only ever fired if you call {@link IConfigTag#runSync}
+     * Manual is only ever fired if you call {@link ConfigTag#runSync}
      * Connect and Disconnect can be used to identify runtime sync and reload,
      * Special actions may need to be taken to rebuild internal data structures.
      * It is recommended to do any initial error checking and resetting to defaults on Manual

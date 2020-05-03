@@ -1,271 +1,48 @@
 package codechicken.lib.configuration;
 
-import codechicken.lib.configuration.ConfigFile.ConfigReader;
+import codechicken.lib.configuration.parser.ConfigFile;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.util.ThrowingBiConsumer;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
 
 import javax.annotation.Nullable;
-import java.io.BufferedReader;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by covers1624 on 18/07/2017.
  */
-public class ConfigTagImpl implements IConfigTag {
+public class ConfigTagImpl implements ConfigTag {
 
-    private static Pattern QUOTE_PATTERN = Pattern.compile("(?<=\")(.*)(?=\")");
-    private static Pattern STRING_MATCHER = Pattern.compile("(?<=.:\")(.*)(\"=\")(.*)(?=\")");
+    private final ConfigFile configFile;
+    public String name;
+    public String version;
+    public Map<String, ConfigTagImpl> children;
+    public ConfigTagImpl parent;
+    public boolean dirty;
 
-    private static final Set<String> validTrue = Sets.newHashSet("true", "yes", "1");
-    private static final Set<String> validFalse = Sets.newHashSet("false", "no", "0");
+    public List<String> comment;
+    public TagType type;
 
-    protected String name;
-    protected String version;
-    protected Map<String, ConfigTagImpl> children;
-    protected ConfigTagImpl parent;
-    protected boolean dirty;
+    public TagType listType;
 
-    protected List<String> comment;
-    private TagType type;
+    public Object value;
+    public Object defaultValue;
 
-    protected TagType listType;
+    public boolean syncToClient;
+    public ThrowingBiConsumer<ConfigTag, SyncType, SyncException> syncCallback;
 
-    protected Object value;
-    protected Object defaultValue;
+    public ConfigTagImpl(String name, ConfigTagImpl parent) {
+        this(null, name, parent);
+    }
 
-    protected boolean syncToClient;
-    protected ThrowingBiConsumer<IConfigTag, SyncType, SyncException> syncCallback;
-
-    protected ConfigTagImpl(String name, ConfigTagImpl parent) {
+    public ConfigTagImpl(ConfigFile configFile, String name, ConfigTagImpl parent) {
+        this.configFile = configFile;
         this.name = name;
         this.parent = parent;
         children = new LinkedHashMap<>();
         comment = new LinkedList<>();
-    }
-
-    @SuppressWarnings ("unchecked")
-    protected void parseTag(ConfigReader reader) throws IOException {
-        while (true) {
-            String line = readLine(reader);
-            if (line == null) {
-                break;
-            }
-            //Ignore comments and empty lines.
-            if (line.isEmpty() || line.startsWith("//") || line.startsWith("#")) {
-                continue;
-            }
-            //Check if we have reached the end of our tag.
-            if (line.startsWith("}")) {
-                break;
-            }
-            if (line.startsWith("~")) {
-                version = line.substring(1);
-                continue;
-            }
-            //Check if we are the start of a new tag.
-            if (line.startsWith("\"") && line.endsWith("{")) {
-                Matcher matcher = QUOTE_PATTERN.matcher(line);
-                if (!matcher.find()) {
-                    throw new ConfigParseException("Malformed line! @%s, %s", reader.getCurrLine(), line);
-                }
-                String name = matcher.group();
-                ConfigTagImpl tag = getTag(name);
-                tag.parseTag(reader);
-                continue;
-            }
-            //Actual value parsing!
-            boolean isList = line.endsWith("<");
-            char first = line.charAt(0);
-            TagType type = TagType.fromChar(first);
-            if (type == null) {
-                throw new ConfigParseException("Invalid value type %s, @Line:%s, %s", first, reader.getCurrLine(), line);
-            }
-            //If we are a string we need a custom matcher.
-            Matcher matcher = (type != TagType.STRING || isList ? QUOTE_PATTERN : STRING_MATCHER).matcher(line);
-            if (!matcher.find()) {
-                throw new ConfigParseException("Malformed line! @%s, %s", reader.getCurrLine(), line);
-            }
-            //Get the name of the tag.
-            String name = matcher.group(1);
-            ConfigTagImpl tag = getTag(name);
-            if (!isList) {
-                //Get the value.
-                String value;
-                if (type == TagType.STRING) {
-                    value = matcher.group(3);
-                } else {
-                    int equals = line.indexOf('=');
-                    value = line.substring(equals + 1);
-                }
-                switch (type) {
-                    //Parse the types.
-                    case BOOLEAN: {
-                        tag.setBoolean(parseBoolean(value, reader.getCurrLine()));
-                        continue;
-                    }
-                    case STRING: {
-                        tag.setString(value);
-                        continue;
-                    }
-                    case INT: {
-                        tag.setInt(Integer.parseInt(value));
-                        continue;
-                    }
-                    case HEX: {
-                        tag.setHex((int) Long.parseLong(value.replace("0x", ""), 16));
-                        continue;
-                    }
-                    case DOUBLE: {
-                        tag.setDouble(Double.parseDouble(value));
-                        continue;
-                    }
-                }
-            }
-
-            List list = new LinkedList<>();
-            //We got this far, must be a list!
-            while (true) {
-                String listLine = readLine(reader);
-                if (listLine == null) {
-                    throw new EOFException("End of line reached whilst parsing list?");
-                }
-                if (listLine.isEmpty() || line.startsWith("//") || line.startsWith("#")) {
-                    continue;
-                }
-                if (listLine.startsWith(">")) {
-                    break;
-                }
-                switch (type) {
-                    case BOOLEAN: {
-                        list.add(parseBoolean(listLine, reader.getCurrLine()));
-                        break;
-                    }
-                    case STRING: {
-                        list.add(listLine);
-                        break;
-                    }
-                    case INT: {
-                        list.add(Integer.parseInt(listLine));
-                        break;
-                    }
-                    case HEX: {
-                        list.add((int) Long.parseLong(listLine.replace("0x", ""), 16));
-                        break;
-                    }
-                    case DOUBLE: {
-                        list.add(Double.parseDouble(listLine));
-                        break;
-                    }
-                    default: {
-                        //This should absolutely never happen ever.
-                        throw new ConfigParseException("Invalid type state at list parsing?? %s", line);
-                    }
-                }
-            }
-            switch (type) {
-                case BOOLEAN:
-                    tag.setBooleanList(list);
-                    break;
-                case STRING:
-                    tag.setStringList(list);
-                    break;
-                case INT:
-                    tag.setIntList(list);
-                    break;
-                case HEX:
-                    tag.setHexList(list);
-                    break;
-                case DOUBLE:
-                    tag.setDoubleList(list);
-                    break;
-            }
-        }
-    }
-
-    private static boolean parseBoolean(String value, int line) throws IOException {
-        Boolean bool = null;
-        if (validTrue.contains(value.toLowerCase(Locale.US))) {
-            bool = true;
-        } else if (validFalse.contains(value.toLowerCase(Locale.US))) {
-            bool = false;
-        }
-        if (bool == null) {
-            throw new ConfigParseException("Invalid Boolean qualifier! %s on line: %s, supported: %s", value, line, Joiner.on(", ").join(Iterables.concat(validTrue, validFalse)));
-        }
-        return bool;
-    }
-
-    protected static String readLine(BufferedReader reader) throws IOException {
-        String line = reader.readLine();
-        return line == null ? null : line.replace("\t", "");
-    }
-
-    protected void writeTag(PrintWriter writer, int depth) {
-        if (isCategory()) {
-            if (version != null) {
-                writeLine(writer, depth, "~%s", version);
-                writer.println();
-            }
-            for (Iterator<Entry<String, ConfigTagImpl>> iterator = children.entrySet().iterator(); iterator.hasNext(); ) {
-                Entry<String, ConfigTagImpl> entry = iterator.next();
-                int inc = 0;
-                for (String comment : entry.getValue().comment) {
-                    writeLine(writer, depth, "#" + comment);
-                }
-                if (entry.getValue().isCategory()) {
-                    writeLine(writer, depth, "\"%s\" {", entry.getKey());
-                    inc++;
-                }
-                entry.getValue().writeTag(writer, depth + inc);
-                if (entry.getValue().isCategory()) {
-                    writeLine(writer, depth, "}");
-                }
-                if (iterator.hasNext()) {
-                    writer.println();
-                }
-            }
-        } else if (isValue()) {
-            switch (type) {
-                case STRING:
-                    writeLine(writer, depth, "%s:\"%s\"=\"%s\"", type.getChar(), name, value);
-                    break;
-                case BOOLEAN:
-                case INT:
-                case HEX:
-                case DOUBLE:
-                    writeLine(writer, depth, "%s:\"%s\"=%s", type.getChar(), name, type.processLine(value));
-                    break;
-                case LIST: {
-                    writeLine(writer, depth, "%s:\"%s\" <", listType.getChar(), name);
-                    for (Object object : ((List) value)) {
-                        writeLine(writer, depth + 1, "%s", listType.processLine(object));
-                    }
-                    writeLine(writer, depth, ">");
-                    break;
-                }
-            }
-        } else {
-            throw new IllegalStateException("Somehow a tag is not a category or a value..");
-        }
-    }
-
-    protected void writeLine(PrintWriter writer, int tabs, String line, Object... data) {
-        for (int i = 0; i < tabs; i++) {
-            writer.print('\t');
-        }
-        writer.println(String.format(line, data));
     }
 
     @Override
@@ -275,7 +52,7 @@ public class ConfigTagImpl implements IConfigTag {
 
     @Nullable
     @Override
-    public IConfigTag getParent() {
+    public ConfigTag getParent() {
         return parent;
     }
 
@@ -297,7 +74,7 @@ public class ConfigTagImpl implements IConfigTag {
     @Override
     public String getUnlocalizedName() {
         List<String> list = new ArrayList<>();
-        IConfigTag parent = this;
+        ConfigTag parent = this;
         while ((parent = parent.getParent()) != null) {
             list.add(parent.getName());
         }
@@ -337,6 +114,17 @@ public class ConfigTagImpl implements IConfigTag {
     }
 
     @Override
+    public void save() {
+        if (hasParent()) {
+            getParent().save();
+            return;
+        }
+        if (isDirty()) {
+            configFile.save(this);
+        }
+    }
+
+    @Override
     public boolean hasTag(String name) {
         return value == null && children.containsKey(name);
     }
@@ -368,7 +156,7 @@ public class ConfigTagImpl implements IConfigTag {
     }
 
     @Override
-    public void walkTags(Consumer<IConfigTag> consumer) {
+    public void walkTags(Consumer<ConfigTag> consumer) {
         if (!isCategory()) {
             throw new UnsupportedOperationException("Unable to walk a value.");
         }
@@ -407,6 +195,11 @@ public class ConfigTagImpl implements IConfigTag {
     }
 
     @Override
+    public TagType getListType() {
+        return listType;
+    }
+
+    @Override
     public Object getRawValue() {
         return value;
     }
@@ -434,7 +227,6 @@ public class ConfigTagImpl implements IConfigTag {
     //region Getters.
     @Override
     public boolean getBoolean() {
-
         if (value == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.BOOLEAN) {
@@ -448,7 +240,6 @@ public class ConfigTagImpl implements IConfigTag {
 
     @Override
     public String getString() {
-
         if (value == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.STRING) {
@@ -462,7 +253,6 @@ public class ConfigTagImpl implements IConfigTag {
 
     @Override
     public int getInt() {
-
         if (value == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.INT) {
@@ -476,7 +266,6 @@ public class ConfigTagImpl implements IConfigTag {
 
     @Override
     public int getHex() {
-
         if (value == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.HEX) {
@@ -490,7 +279,6 @@ public class ConfigTagImpl implements IConfigTag {
 
     @Override
     public double getDouble() {
-
         if (value == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.DOUBLE) {
@@ -612,7 +400,6 @@ public class ConfigTagImpl implements IConfigTag {
     @Override
     @SuppressWarnings ("unchecked")
     public List<Boolean> getBooleanList() {
-
         if (value == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
@@ -629,7 +416,6 @@ public class ConfigTagImpl implements IConfigTag {
     @Override
     @SuppressWarnings ("unchecked")
     public List<String> getStringList() {
-
         if (value == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
@@ -646,7 +432,6 @@ public class ConfigTagImpl implements IConfigTag {
     @Override
     @SuppressWarnings ("unchecked")
     public List<Integer> getIntList() {
-
         if (value == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
@@ -663,7 +448,6 @@ public class ConfigTagImpl implements IConfigTag {
     @Override
     @SuppressWarnings ("unchecked")
     public List<Integer> getHexList() {
-
         if (value == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
@@ -680,7 +464,6 @@ public class ConfigTagImpl implements IConfigTag {
     @Override
     @SuppressWarnings ("unchecked")
     public List<Double> getDoubleList() {
-
         if (value == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
@@ -798,12 +581,12 @@ public class ConfigTagImpl implements IConfigTag {
     //endregion
 
     @Override
-    public IConfigTag copy() {
+    public ConfigTag copy() {
         return copy(null);
     }
 
     @Override
-    public IConfigTag copy(IConfigTag parent) {
+    public ConfigTag copy(ConfigTag parent) {
         ConfigTagImpl copy = new ConfigTagImpl(name, (ConfigTagImpl) parent);
         copy.version = version;
         copy.comment = new LinkedList<>(comment);
@@ -826,10 +609,10 @@ public class ConfigTagImpl implements IConfigTag {
     }
 
     @Override
-    public IConfigTag copyFrom(IConfigTag other) {
+    public ConfigTag copyFrom(ConfigTag other) {
         if (isCategory()) {
             for (Entry<String, ConfigTagImpl> entry : children.entrySet()) {
-                IConfigTag otherTag = other.getTagIfPresent(entry.getKey());
+                ConfigTag otherTag = other.getTagIfPresent(entry.getKey());
                 if (otherTag == null) {
                     throw new IllegalArgumentException("copyFrom called with a tag that does not have the same children. Missing: " + entry.getKey());
                 }
@@ -843,13 +626,13 @@ public class ConfigTagImpl implements IConfigTag {
 
     @Override
     public ConfigTagImpl setSyncToClient() {
-        children.values().forEach(IConfigTag::setSyncToClient);
+        children.values().forEach(ConfigTag::setSyncToClient);
         syncToClient = true;
         return this;
     }
 
     @Override
-    public ConfigTagImpl setSyncCallback(ThrowingBiConsumer<IConfigTag, SyncType, SyncException> consumer) {
+    public ConfigTagImpl setSyncCallback(ThrowingBiConsumer<ConfigTag, SyncType, SyncException> consumer) {
         syncCallback = consumer;
         return this;
     }
@@ -921,13 +704,4 @@ public class ConfigTagImpl implements IConfigTag {
             throw new IllegalStateException("Unable to set the default value of a tag that already has a default value.");
         }
     }
-
-    public TagType getType() {
-        return type;
-    }
-
-    public TagType getListType() {
-        return listType;
-    }
-
 }

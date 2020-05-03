@@ -1,4 +1,4 @@
-package codechicken.lib.configuration;
+package codechicken.lib.configuration.parser;
 
 import java.io.IOException;
 
