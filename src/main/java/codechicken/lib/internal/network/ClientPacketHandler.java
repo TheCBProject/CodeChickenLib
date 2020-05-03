@@ -38,9 +38,6 @@ public class ClientPacketHandler implements IClientPacketHandler {
             case C_OPEN_CONTAINER:
                 handleOpenContainer(packet, mc);
                 break;
-            case 20:
-                //                ConfigSyncManager.readSyncPacket(packet);
-                break;
         }
     }
 
