@@ -154,8 +154,8 @@ public class ConfigTests {
     }
 
     private static void ensureSame(ConfigTag a, ConfigTag b) throws ConfigTestException {
-        String aName = a.getUnlocalizedName();
-        String bName = b.getUnlocalizedName();
+        String aName = a.getQualifiedName();
+        String bName = b.getQualifiedName();
         if (a.isValue()) {
             if (!b.isValue()) {
                 throw new ConfigTestException(String.format("Tag B '%s' is not a value like tag A '%s'.", bName, aName));

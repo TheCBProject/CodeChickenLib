@@ -57,12 +57,13 @@ public interface ConfigTag {
     String getName();
 
     /**
-     * Returns a name fit for localization based on the tree.
-     * //TODO Explain how name is generated.
+     * Returns a qualified name for this tag.
+     * Generated from the parent's qualified name plus this tags name
+     * separated with a dot. E.g: 'some.tag.structure'
      *
-     * @return The name for localization.
+     * @return The qualified name.
      */
-    String getUnlocalizedName();
+    String getQualifiedName();
 
     /**
      * If this tag is dirty.
@@ -292,6 +293,8 @@ public interface ConfigTag {
      * The tag will ONLY save to disk if it is marked as dirty.
      */
     void save();
+
+    ConfigTag load();
 
     /**
      * Specifies that this config should sync to the client.

@@ -72,7 +72,7 @@ public class ConfigTagImpl implements ConfigTag {
     }
 
     @Override
-    public String getUnlocalizedName() {
+    public String getQualifiedName() {
         List<String> list = new ArrayList<>();
         ConfigTag parent = this;
         while ((parent = parent.getParent()) != null) {
@@ -122,6 +122,15 @@ public class ConfigTagImpl implements ConfigTag {
         if (isDirty()) {
             configFile.save(this);
         }
+    }
+
+    @Override
+    public ConfigTag load() {
+        if (hasParent()) {
+            throw new IllegalStateException("Must call load on parent.");
+        }
+        configFile.load();
+        return this;
     }
 
     @Override

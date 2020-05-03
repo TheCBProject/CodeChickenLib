@@ -1,6 +1,7 @@
 package codechicken.lib.configuration.parser;
 
 import codechicken.lib.configuration.ConfigTag;
+import codechicken.lib.configuration.ConfigTagImpl;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -10,7 +11,7 @@ import java.nio.file.Path;
  */
 public interface ConfigSerializer {
 
-    ConfigTag parse(Path file, ConfigFile configFile) throws IOException;
+    void parse(Path file, ConfigTagImpl rootTag) throws IOException;
 
     void save(Path file, ConfigTag tag) throws IOException;
 

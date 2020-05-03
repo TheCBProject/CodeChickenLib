@@ -36,14 +36,14 @@ public class StandardConfigSerializer implements ConfigSerializer {
     private static final Set<String> validFalse = Sets.newHashSet("false", "no", "0");
 
     @Override
-    public ConfigTag parse(Path file, ConfigFile configFile) throws IOException {
+    public void parse(Path file, ConfigTagImpl rootTag) throws IOException {
         try (ConfigReader reader = new ConfigReader(Files.newBufferedReader(file))) {
-            return parse(new ConfigTagImpl(configFile, "", null), reader);
+            parse(rootTag, reader);
         }
     }
 
     @SuppressWarnings ({ "unchecked", "rawtypes" })
-    private ConfigTagImpl parse(ConfigTagImpl thisTag, ConfigReader reader) throws IOException {
+    private void parse(ConfigTagImpl thisTag, ConfigReader reader) throws IOException {
         while (true) {
             String line = readLine(reader);
             if (line == null) {
@@ -180,7 +180,6 @@ public class StandardConfigSerializer implements ConfigSerializer {
                     break;
             }
         }
-        return thisTag;
     }
 
     private static boolean parseBoolean(String value, int line) throws IOException {

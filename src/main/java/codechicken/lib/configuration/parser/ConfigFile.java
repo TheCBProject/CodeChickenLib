@@ -7,6 +7,8 @@ import codechicken.lib.configuration.ConfigTag;
  */
 public interface ConfigFile {
 
+    ConfigTag deferLoad();
+
     ConfigTag load();
 
     void save(ConfigTag tag);
