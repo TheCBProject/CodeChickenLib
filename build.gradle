@@ -124,6 +124,12 @@ task srcJar(type: Jar) {
     classifier = 'sources'
 }
 
+task deobfJar(type:Jar) {
+    build.dependsOn it
+    from sourceSets.main.output
+    classifier = 'deobf'
+}
+
 publishing {
     repositories {
         if (System.getenv('MAVEN_PASS')) {
@@ -143,6 +149,7 @@ publishing {
             version project.version
             artifact jar
             artifact srcJar
+            artifact deobfJar
 
             pom {
                 name = archivesBaseName
