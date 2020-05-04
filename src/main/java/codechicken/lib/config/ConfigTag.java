@@ -1,4 +1,4 @@
-package codechicken.lib.configuration;
+package codechicken.lib.config;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;

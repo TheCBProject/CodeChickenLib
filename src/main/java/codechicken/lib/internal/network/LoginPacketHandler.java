@@ -1,6 +1,6 @@
 package codechicken.lib.internal.network;
 
-import codechicken.lib.configuration.ConfigSyncManager;
+import codechicken.lib.config.ConfigSyncManager;
 import codechicken.lib.packet.ICustomPacketHandler;
 import codechicken.lib.packet.PacketCustom;
 import net.minecraft.client.Minecraft;

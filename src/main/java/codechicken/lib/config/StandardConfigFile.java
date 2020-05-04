@@ -1,7 +1,7 @@
-package codechicken.lib.configuration;
+package codechicken.lib.config;
 
-import codechicken.lib.configuration.parser.AbstractConfigFile;
-import codechicken.lib.configuration.parser.StandardConfigSerializer;
+import codechicken.lib.config.parser.AbstractConfigFile;
+import codechicken.lib.config.parser.StandardConfigSerializer;
 
 import java.nio.file.Path;
 

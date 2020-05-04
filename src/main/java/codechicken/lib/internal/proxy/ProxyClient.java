@@ -1,8 +1,7 @@
 package codechicken.lib.internal.proxy;
 
 import codechicken.lib.CodeChickenLib;
-import codechicken.lib.configuration.ConfigTag;
-import codechicken.lib.configuration.ConfigTagImpl;
+import codechicken.lib.config.ConfigTag;
 import codechicken.lib.model.bakery.ModelBakery;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.BlockRenderingRegistry;

@@ -1,6 +1,6 @@
-package codechicken.lib.configuration;
+package codechicken.lib.config;
 
-import codechicken.lib.configuration.parser.ConfigFile;
+import codechicken.lib.config.parser.ConfigFile;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.util.ThrowingBiConsumer;

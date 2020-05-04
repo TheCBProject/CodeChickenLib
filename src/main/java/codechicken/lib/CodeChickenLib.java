@@ -1,7 +1,7 @@
 package codechicken.lib;
 
-import codechicken.lib.configuration.ConfigTag;
-import codechicken.lib.configuration.StandardConfigFile;
+import codechicken.lib.config.ConfigTag;
+import codechicken.lib.config.StandardConfigFile;
 import codechicken.lib.internal.network.CCLNetwork;
 import codechicken.lib.internal.proxy.Proxy;
 import codechicken.lib.internal.proxy.ProxyClient;
@@ -14,7 +14,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-import java.io.File;
 import java.nio.file.Paths;
 
 /**

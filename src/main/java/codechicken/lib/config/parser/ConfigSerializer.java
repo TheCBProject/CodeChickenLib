@@ -1,7 +1,7 @@
-package codechicken.lib.configuration.parser;
+package codechicken.lib.config.parser;
 
-import codechicken.lib.configuration.ConfigTag;
-import codechicken.lib.configuration.ConfigTagImpl;
+import codechicken.lib.config.ConfigTag;
+import codechicken.lib.config.ConfigTagImpl;
 
 import java.io.IOException;
 import java.nio.file.Path;

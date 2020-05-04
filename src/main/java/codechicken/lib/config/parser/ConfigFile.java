@@ -1,6 +1,6 @@
-package codechicken.lib.configuration.parser;
+package codechicken.lib.config.parser;
 
-import codechicken.lib.configuration.ConfigTag;
+import codechicken.lib.config.ConfigTag;
 
 /**
  * Created by covers1624 on 5/3/20.

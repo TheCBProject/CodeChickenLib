@@ -1,8 +1,8 @@
-package codechicken.lib.configuration;
+package codechicken.lib.config;
 
 import codechicken.lib.CodeChickenLib;
-import codechicken.lib.configuration.ConfigTag.SyncException;
-import codechicken.lib.configuration.ConfigTag.SyncType;
+import codechicken.lib.config.ConfigTag.SyncException;
+import codechicken.lib.config.ConfigTag.SyncType;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.packet.PacketCustom;

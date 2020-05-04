@@ -1,9 +1,9 @@
 package codechicken.lib.test.config;
 
-import codechicken.lib.configuration.ConfigTag;
-import codechicken.lib.configuration.StandardConfigFile;
-import codechicken.lib.configuration.parser.ConfigFile;
-import codechicken.lib.configuration.parser.StandardConfigSerializer;
+import codechicken.lib.config.ConfigTag;
+import codechicken.lib.config.StandardConfigFile;
+import codechicken.lib.config.parser.ConfigFile;
+import codechicken.lib.config.parser.StandardConfigSerializer;
 import codechicken.lib.data.MCDataByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Assert;
