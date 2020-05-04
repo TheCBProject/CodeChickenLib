@@ -1,39 +1,11 @@
 package codechicken.lib.colour;
 
-import codechicken.lib.config.ConfigTag.IConfigType;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static java.lang.Math.max;
 
 public abstract class Colour implements Copyable<Colour> {
-
-    public static IConfigType<Colour> configRGB = new IConfigType<Colour>() {
-        @Override
-        public String configValue(Colour entry) {
-            String s = Long.toString(((long) entry.rgb()) << 32 >>> 32, 16);
-            while (s.length() < 6) {
-                s = "0" + s;
-            }
-            return "0x" + s.toUpperCase();
-        }
-
-        private final Pattern patternRGB = Pattern.compile("(\\d+),(\\d+),(\\d+)");
-
-        @Override
-        public Colour valueOf(String text) throws Exception {
-            Matcher matcherRGB = patternRGB.matcher(text.replaceAll("\\s", ""));
-            if (matcherRGB.matches()) {
-                return new ColourRGBA(Integer.parseInt(matcherRGB.group(1)), Integer.parseInt(matcherRGB.group(2)), Integer.parseInt(matcherRGB.group(3)), 0xFF);
-            }
-
-            int hex = (int) Long.parseLong(text.replace("0x", ""), 16);
-            return new ColourRGBA(hex << 8 | 0xFF);
-        }
-    };
 
     public byte r;
     public byte g;
