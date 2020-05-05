@@ -8,6 +8,7 @@ import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.packet.PacketCustom;
 import com.google.common.base.Joiner;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -31,7 +32,6 @@ import static codechicken.lib.internal.network.CCLNetwork.NET_CHANNEL;
  * Master registry in charge of config syncing.
  * Created by covers1624 on 15/06/18.
  */
-@EventBusSubscriber (modid = CodeChickenLib.MOD_ID)
 public class ConfigSyncManager {
 
     private static final Logger logger = LogManager.getLogger();
@@ -84,15 +84,6 @@ public class ConfigSyncManager {
             clientRollbackMap.put(ident, state);
             SyncState.applyTo(packet, found);
         }
-    }
-
-    @SubscribeEvent
-    public static void onClientDisconnected(ClientPlayerNetworkEvent.LoggedOutEvent event) {
-        for (Map.Entry<ResourceLocation, SyncState> entry : clientRollbackMap.entrySet()) {
-            logger.log(Level.INFO, "Client disconnect, rolling back config for {}.", entry.getKey());
-            entry.getValue().revert(syncMap.get(entry.getKey()));
-        }
-        clientRollbackMap.clear();
     }
 
     public static class SyncState {
@@ -156,6 +147,19 @@ public class ConfigSyncManager {
                 out.writeString(tag.getQualifiedName());
                 tag.write(out);
             }
+        }
+    }
+
+    @EventBusSubscriber (modid = CodeChickenLib.MOD_ID, value = Dist.CLIENT)
+    public static class EventHandler {
+
+        @SubscribeEvent
+        public static void onClientDisconnected(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+            for (Map.Entry<ResourceLocation, SyncState> entry : clientRollbackMap.entrySet()) {
+                logger.log(Level.INFO, "Client disconnect, rolling back config for {}.", entry.getKey());
+                entry.getValue().revert(syncMap.get(entry.getKey()));
+            }
+            clientRollbackMap.clear();
         }
     }
 }
