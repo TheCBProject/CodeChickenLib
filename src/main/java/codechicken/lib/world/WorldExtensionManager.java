@@ -45,11 +45,17 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkDataSave(ChunkDataEvent.Save event) {
+            if (event.getWorld() == null) {
+                return;
+            }
             for (WorldExtension extension : getExtensions(event.getWorld())) {
                 extension.saveChunkData(event.getChunk(), event.getData());
             }
 
             ChunkPos pos = event.getChunk().getPos();
+            if (pos == null) {
+                return;
+            }
             if (!event.getWorld().chunkExists(pos.x, pos.z)) {
                 removeChunk(event.getWorld(), event.getChunk());
             }
