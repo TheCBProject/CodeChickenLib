@@ -5,6 +5,8 @@ import codechicken.lib.config.StandardConfigFile;
 import codechicken.lib.internal.network.CCLNetwork;
 import codechicken.lib.internal.proxy.Proxy;
 import codechicken.lib.internal.proxy.ProxyClient;
+import codechicken.lib.render.OpenGLUtils;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -31,6 +33,9 @@ public class CodeChickenLib {
     public CodeChickenLib() {
         proxy = DistExecutor.runForDist(() -> ProxyClient::new, () -> Proxy::new);
         FMLJavaModLoadingContext.get().getModEventBus().register(this);
+        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> {
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(OpenGLUtils::onModelRegistryEvent);
+        });
     }
 
     @SubscribeEvent

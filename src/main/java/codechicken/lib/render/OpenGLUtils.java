@@ -1,5 +1,6 @@
 package codechicken.lib.render;
 
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL;
@@ -8,26 +9,21 @@ import org.lwjgl.opengl.GLCapabilities;
 import java.util.function.BooleanSupplier;
 
 /**
- * Most of this is available in later LWJGL versions..
- * But.. Mojang..
- * Also contains some utilities.
- * <p>
  * Created by covers1624 on 20/06/2017.
  */
 public class OpenGLUtils {
 
     private static final Logger logger = LogManager.getLogger();
 
-    public static boolean openGL20 = true;
-    public static boolean openGL32 = true;
-    public static boolean openGL40 = true;
-    public static boolean openGL43 = true;
-    public static boolean openGL44 = true;
-    public static boolean openGL45 = true;
-    public static boolean openGL46 = true;
+    public static boolean openGL20;
+    public static boolean openGL32;
+    public static boolean openGL40;
+    public static boolean openGL43;
+    public static boolean openGL44;
+    public static boolean openGL45;
+    public static boolean openGL46;
 
-    //TODO
-    public static void loadCaps() {
+    public static void onModelRegistryEvent(ModelRegistryEvent event) {
         GLCapabilities caps = GL.getCapabilities();
         openGL20 = caps.OpenGL20;
         openGL32 = caps.OpenGL32;
