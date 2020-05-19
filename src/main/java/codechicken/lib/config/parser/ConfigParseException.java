@@ -15,6 +15,10 @@ public class ConfigParseException extends IOException {
         this(String.format(format, data));
     }
 
+    public ConfigParseException(Throwable cause, String format, Object... data) {
+        this(cause, String.format(format, data));
+    }
+
     public ConfigParseException(Throwable cause, String message) {
         super(message, cause);
     }

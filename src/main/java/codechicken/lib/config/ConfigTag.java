@@ -175,18 +175,23 @@ public interface ConfigTag {
     TagType getListType();
 
     /**
-     * Sets a single line comment above the given tag.
+     * Sets a comment above the given tag,
+     * Will be split on '\n'
      *
      * @param comment The comment.
      */
-    ConfigTag setComment(String comment);
+    default ConfigTag setComment(String comment) {
+        return setComment(comment.split("\n"));
+    }
 
     /**
      * Sets a MultiLine comment above the given tag.
      *
      * @param lines The lines.
      */
-    ConfigTag setComment(String... lines);
+    default ConfigTag setComment(String... lines) {
+        return setComment(Arrays.asList(lines));
+    }
 
     /**
      * Sets a MultiLine comment above the given tag.

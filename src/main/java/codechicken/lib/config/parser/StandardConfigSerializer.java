@@ -77,12 +77,12 @@ public class StandardConfigSerializer implements ConfigSerializer {
             char first = line.charAt(0);
             ConfigTag.TagType type = ConfigTag.TagType.fromChar(first);
             if (type == null) {
-                throw new ConfigParseException("Invalid value type %s, @Line:%s, %s", first, reader.getCurrLine(), line);
+                throw new ConfigParseException("Invalid value type %s, @Line:%s, '%s'", first, reader.getCurrLine(), line);
             }
             //If we are a string we need a custom matcher.
             Matcher matcher = (type != ConfigTag.TagType.STRING || isList ? QUOTE_PATTERN : STRING_MATCHER).matcher(line);
             if (!matcher.find()) {
-                throw new ConfigParseException("Malformed line! @%s, %s", reader.getCurrLine(), line);
+                throw new ConfigParseException("Malformed line! @%s, '%s'", reader.getCurrLine(), line);
             }
             //Get the name of the tag.
             String name = matcher.group(1);
@@ -94,6 +94,9 @@ public class StandardConfigSerializer implements ConfigSerializer {
                     value = matcher.group(3);
                 } else {
                     int equals = line.indexOf('=');
+                    if (equals == -1) {
+                        throw new ConfigParseException("Malformed line! @%s, '%s', Expected equals sign.", reader.getCurrLine(), line);
+                    }
                     value = line.substring(equals + 1);
                 }
                 switch (type) {
@@ -107,15 +110,27 @@ public class StandardConfigSerializer implements ConfigSerializer {
                         continue;
                     }
                     case INT: {
-                        tag.setInt(Integer.parseInt(value));
+                        try {
+                            tag.setInt(Integer.parseInt(value));
+                        } catch (NumberFormatException e) {
+                            throw new ConfigParseException(e, "Malformed line!, @%s, '%s'", reader.getCurrLine(), line);
+                        }
                         continue;
                     }
                     case HEX: {
-                        tag.setHex((int) Long.parseLong(value.replace("0x", ""), 16));
+                        try {
+                            tag.setHex((int) Long.parseLong(value.replace("0x", ""), 16));
+                        } catch (NumberFormatException e) {
+                            throw new ConfigParseException(e, "Malformed line!, @%s, '%s'", reader.getCurrLine(), line);
+                        }
                         continue;
                     }
                     case DOUBLE: {
-                        tag.setDouble(Double.parseDouble(value));
+                        try {
+                            tag.setDouble(Double.parseDouble(value));
+                        } catch (NumberFormatException e) {
+                            throw new ConfigParseException(e, "Malformed line!, @%s, '%s'", reader.getCurrLine(), line);
+                        }
                         continue;
                     }
                 }
@@ -197,7 +212,7 @@ public class StandardConfigSerializer implements ConfigSerializer {
 
     protected static String readLine(BufferedReader reader) throws IOException {
         String line = reader.readLine();
-        return line == null ? null : line.replace("\t", "");
+        return line == null ? null : line.trim();
     }
 
     @Override
@@ -226,7 +241,7 @@ public class StandardConfigSerializer implements ConfigSerializer {
                 Map.Entry<String, ConfigTagImpl> entry = iterator.next();
                 int inc = 0;
                 for (String comment : entry.getValue().comment) {
-                    writeLine(writer, depth, "#" + comment);
+                    writeLine(writer, depth, "# " + comment);
                 }
                 if (entry.getValue().isCategory()) {
                     writeLine(writer, depth, "\"%s\" {", entry.getKey());

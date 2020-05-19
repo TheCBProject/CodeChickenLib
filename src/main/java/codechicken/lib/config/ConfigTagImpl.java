@@ -121,6 +121,7 @@ public class ConfigTagImpl implements ConfigTag {
         }
         if (isDirty()) {
             configFile.save(this);
+            onSave();
         }
     }
 
@@ -214,21 +215,8 @@ public class ConfigTagImpl implements ConfigTag {
     }
 
     @Override
-    public ConfigTagImpl setComment(String comment) {
-        this.comment = new LinkedList<>();
-        this.comment.add(comment);
-        markDirty();
-        return this;
-    }
-
-    @Override
-    public ConfigTagImpl setComment(String... lines) {
-        return setComment(Arrays.asList(lines));
-    }
-
-    @Override
     public ConfigTagImpl setComment(List<String> lines) {
-        this.comment = new LinkedList<>(lines);
+        comment = new LinkedList<>(lines);
         markDirty();
         return this;
     }
@@ -653,7 +641,7 @@ public class ConfigTagImpl implements ConfigTag {
                 return true;
             }
         }
-        return false;
+        return syncToClient;
     }
 
     @Override

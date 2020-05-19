@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by covers1624 on 5/3/20.
@@ -39,8 +40,15 @@ public class AbstractConfigFile implements ConfigFile {
                 serializer.parse(file, rootTag);
                 return rootTag;
             } catch (IOException e) {
+                rootTag.clear();
                 didError = true;
-                logger.error("Failed to load config '{}', creating default.", file, e);
+                Path backupFile = null;
+                try {
+                    backupFile = backupFile(file);
+                } catch (IOException ioException) {
+                    logger.warn("Failed to backup config file: ", e);
+                }
+                logger.error("Failed to load config '{}', Backing up config to '{}' and generating a fresh one.", file, backupFile, e);
             }
         }
         return rootTag;
@@ -58,5 +66,17 @@ public class AbstractConfigFile implements ConfigFile {
     @Override
     public boolean didError() {
         return didError;
+    }
+
+    private static Path backupFile(Path file) throws IOException {
+        String fName = file.getFileName().toString();
+        int lastDot = fName.lastIndexOf(".");
+        if (lastDot != -1) {
+            String backupName = fName.substring(0, lastDot) + "-backup-" + TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
+            Path backup = file.resolveSibling(backupName + fName.substring(lastDot));
+            Files.move(file, backup);
+            return backup;
+        }
+        return null;
     }
 }
