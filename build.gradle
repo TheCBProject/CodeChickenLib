@@ -78,7 +78,7 @@ processResources {
 
 repositories {
     mavenLocal()
-    maven { url = "http://chickenbones.net/maven" }
+    maven { url = "https://maven.covers1624.net/" }
 }
 
 
