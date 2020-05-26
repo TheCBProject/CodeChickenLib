@@ -11,22 +11,20 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
  * Utilities for persistent TextureAtlasSprite registration.
- *
+ * <p>
  * Created by covers1624 on 27/10/19.
  */
 public class SpriteRegistryHelper {
 
     public static final ResourceLocation TEXTURES = PlayerContainer.LOCATION_BLOCKS_TEXTURE;
-//    public static final ResourceLocation PARTICLE_TEXTURES = "textures/particle";
-//    public static final ResourceLocation MOB_EFFECT_TEXTURES = "textures/mob_effect";
-//    public static final ResourceLocation PAINTING_TEXTURES = "textures/painting";
+    //    public static final ResourceLocation PARTICLE_TEXTURES = "textures/particle";
+    //    public static final ResourceLocation MOB_EFFECT_TEXTURES = "textures/mob_effect";
+    //    public static final ResourceLocation PAINTING_TEXTURES = "textures/painting";
 
     private final Multimap<ResourceLocation, IIconRegister> iconRegisters = HashMultimap.create();
     private final Map<ResourceLocation, AtlasRegistrarImpl> atlasRegistrars = new HashMap<>();
@@ -88,10 +86,16 @@ public class SpriteRegistryHelper {
     private static final class AtlasRegistrarImpl implements AtlasRegistrar {
 
         private final Multimap<ResourceLocation, Consumer<TextureAtlasSprite>> sprites = HashMultimap.create();
+        private final List<Consumer<AtlasTexture>> postCallbacks = new ArrayList<>();
 
         @Override
         public void registerSprite(ResourceLocation loc, Consumer<TextureAtlasSprite> onReady) {
             sprites.put(loc, onReady);
+        }
+
+        @Override
+        public void postRegister(Consumer<AtlasTexture> func) {
+            postCallbacks.add(func);
         }
 
         private void processPre(Consumer<ResourceLocation> register) {
@@ -102,6 +106,9 @@ public class SpriteRegistryHelper {
             for (Map.Entry<ResourceLocation, Collection<Consumer<TextureAtlasSprite>>> entry : sprites.asMap().entrySet()) {
                 TextureAtlasSprite sprite = atlas.getSprite(entry.getKey());
                 entry.getValue().forEach(e -> e.accept(sprite));
+            }
+            for (Consumer<AtlasTexture> callback : postCallbacks) {
+                callback.accept(atlas);
             }
         }
     }

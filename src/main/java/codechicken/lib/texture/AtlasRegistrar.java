@@ -1,5 +1,6 @@
 package codechicken.lib.texture;
 
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ResourceLocation;
 
@@ -38,4 +39,6 @@ public interface AtlasRegistrar {
         registerSprite(loc, e -> {
         });
     }
+
+    void postRegister(Consumer<AtlasTexture> func);
 }
