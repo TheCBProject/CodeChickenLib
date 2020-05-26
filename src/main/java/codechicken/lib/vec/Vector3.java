@@ -81,7 +81,7 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public static Vector3 fromEntityCenter(Entity e) {
-        return new Vector3(e.getPositionVec()).subtract(0, e.getYOffset() + e.getHeight() / 2, 0);
+        return new Vector3(e.getPositionVec()).add(0, e.getYOffset() + e.getHeight() / 2, 0);
     }
 
     public static Vector3 fromTile(TileEntity tile) {
