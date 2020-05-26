@@ -44,6 +44,14 @@ public class UV implements Copyable<UV> {
         return set(uv.u, uv.v, uv.tex);
     }
 
+    public UV set(double[] da) {
+        return set(da[0], da[1]);
+    }
+
+    public UV set(float[] fa) {
+        return set(fa[0], fa[1]);
+    }
+
     public UV copy() {
         return new UV(this);
     }

@@ -45,11 +45,6 @@ public class ServerUtils {
         return getServer().getPlayerList().getPlayers();
     }
 
-    @Deprecated// ServerWorld.getPlayers()
-    public static ArrayList<ServerPlayerEntity> getPlayersInDimension(int dimension) {
-        return null;
-    }
-
     public static boolean isPlayerLoadingChunk(ServerPlayerEntity player, ChunkPos chunk) {
         return player.getServerWorld().getChunkProvider().chunkManager.getTrackingPlayers(chunk, false).anyMatch(e -> e.getEntityId() == player.getEntityId());
     }
