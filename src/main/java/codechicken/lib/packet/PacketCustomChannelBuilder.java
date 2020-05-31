@@ -147,7 +147,7 @@ public class PacketCustomChannelBuilder {
      *
      * @return The underlying {@link EventNetworkChannel}
      */
-    public EventNetworkChannel build() {
+    public synchronized EventNetworkChannel build() {
         EventNetworkChannel channel = parent//
                 .networkProtocolVersion(networkProtocolVersion)//
                 .clientAcceptedVersions(clientAcceptedVersions)//
