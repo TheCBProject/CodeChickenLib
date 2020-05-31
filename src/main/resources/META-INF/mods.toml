@@ -7,7 +7,7 @@ issueTrackerURL="https://github.com/TheCBProject/CodeChickenLib"
 	displayName="CodeChicken Lib"
 	version="${version}"
 
-	updateJSONURL="http://chickenbones.net/Files/notification/version.php?query=forge&file=CodeChickenLib&version=${mc_version}"
+	updateJSONURL="https://version-check.covers1624.net/check/?mod=CodeChickenLib&mc=${mc_version}"
 	displayURL="http://chickenbones.net/Pages/links.html"
 	authors="ChickenBones, covers1624"
 	description='''
