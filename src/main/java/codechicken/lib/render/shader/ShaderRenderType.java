@@ -1,18 +1,18 @@
 package codechicken.lib.render.shader;
 
-import codechicken.lib.render.buffer.DelegateRenderType;
 import net.minecraft.client.renderer.RenderType;
 
 /**
  * Created by covers1624 on 24/5/20.
  */
-public class ShaderRenderType extends DelegateRenderType {
+public class ShaderRenderType extends RenderType {
 
+    private final RenderType parent;
     private final ShaderProgram program;
     private final UniformCache uniforms;
 
     public ShaderRenderType(RenderType parent, ShaderProgram program, UniformCache uniforms) {
-        super(parent);
+        super(parent.name, parent.getVertexFormat(), parent.getDrawMode(), parent.getBufferSize(), parent.isUseDelegate(), parent.needsSorting, null, null);
         this.parent = parent;
         this.program = program;
         this.uniforms = uniforms;
@@ -20,7 +20,7 @@ public class ShaderRenderType extends DelegateRenderType {
 
     @Override
     public void setupRenderState() {
-        super.setupRenderState();
+        parent.setupRenderState();
         program.use();
         program.popCache(uniforms);
     }
@@ -29,7 +29,14 @@ public class ShaderRenderType extends DelegateRenderType {
     public void clearRenderState() {
         program.release();
         parent.clearRenderState();
-        super.clearRenderState();
+    }
+
+    public ShaderProgram getProgram() {
+        return program;
+    }
+
+    public UniformCache getUniforms() {
+        return uniforms;
     }
 
     @Override
