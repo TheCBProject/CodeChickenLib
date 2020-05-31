@@ -284,7 +284,7 @@ public class ConfigTagImpl implements ConfigTag {
             throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
         }
 
-        return (Integer) value;
+        return (Double) value;
     }
 
     @Override
