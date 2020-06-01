@@ -1,12 +1,12 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.util.Copyable;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.renderer.Matrix3f;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.util.math.Vec3i;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.vecmath.Matrix4d;
+import javax.vecmath.Matrix4f;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -17,7 +17,7 @@ import java.nio.FloatBuffer;
 
 public class Matrix4 extends Transformation implements Copyable<Matrix4> {
 
-    private static final FloatBuffer glBuf = ByteBuffer.allocateDirect(16 * 8).order(ByteOrder.nativeOrder()).asFloatBuffer();
+    private static FloatBuffer glBuf = ByteBuffer.allocateDirect(16 * 8).order(ByteOrder.nativeOrder()).asFloatBuffer();
 
     //m<row><column>
     public double m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33;
@@ -69,8 +69,8 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         set(mat);
     }
 
-    public Matrix4(MatrixStack stack) {
-        set(stack);
+    public Matrix4(Matrix4d mat) {
+        set(mat);
     }
 
     public Matrix4 setIdentity() {
@@ -81,10 +81,6 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     //region Translate, Scale, Transpose.
-    public Matrix4 translate(Vec3i pos) {
-        return translate(pos.getX(), pos.getY(), pos.getZ());
-    }
-
     public Matrix4 translate(Vector3 vec) {
         return translate(vec.x, vec.y, vec.z);
     }
@@ -327,6 +323,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public Matrix4 set(float[] matrix) {
+
         m00 = matrix[0];
         m01 = matrix[1];
         m02 = matrix[2];
@@ -348,6 +345,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public Matrix4 set(double[] matrix) {
+
         m00 = matrix[0];
         m01 = matrix[1];
         m02 = matrix[2];
@@ -369,6 +367,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public Matrix4 set(FloatBuffer buffer) {
+
         m00 = buffer.get();
         m01 = buffer.get();
         m02 = buffer.get();
@@ -390,6 +389,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public Matrix4 set(DoubleBuffer buffer) {
+
         m00 = buffer.get();
         m01 = buffer.get();
         m02 = buffer.get();
@@ -410,11 +410,30 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         return this;
     }
 
-    public Matrix4 set(MatrixStack stack) {
-        return set(stack.getLast().getMatrix());
+    public Matrix4 set(Matrix4f mat) {
+
+        m00 = mat.m00;
+        m01 = mat.m01;
+        m02 = mat.m02;
+        m03 = mat.m03;
+        m10 = mat.m10;
+        m11 = mat.m11;
+        m12 = mat.m12;
+        m13 = mat.m13;
+        m20 = mat.m20;
+        m21 = mat.m21;
+        m22 = mat.m22;
+        m23 = mat.m23;
+        m30 = mat.m30;
+        m31 = mat.m31;
+        m32 = mat.m32;
+        m33 = mat.m33;
+
+        return this;
     }
 
-    public Matrix4 set(Matrix4f mat) {
+    public Matrix4 set(Matrix4d mat) {
+
         m00 = mat.m00;
         m01 = mat.m01;
         m02 = mat.m02;
@@ -441,6 +460,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public float[] toArrayF() {
+
         float[] matrix = new float[16];
         matrix[0] = (float) m00;
         matrix[1] = (float) m01;
@@ -463,6 +483,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public double[] toArrayD() {
+
         double[] matrix = new double[16];
         matrix[0] = m00;
         matrix[1] = m01;
@@ -508,6 +529,10 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         return new Matrix4f(toArrayF());
     }
 
+    public Matrix4d toMatrix4d() {
+        return new Matrix4d(toArrayD());
+    }
+
     @Override
     public void apply(Matrix4 mat) {
         mat.multiply(this);
@@ -530,7 +555,8 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         return this;
     }
 
-    @SuppressWarnings ("deprecation")
+    @Override
+    @OnlyIn (Dist.CLIENT)
     public void glApply() {
         glBuf.put((float) m00).put((float) m10).put((float) m20).put((float) m30).put((float) m01).put((float) m11).put((float) m21).put((float) m31).put((float) m02).put((float) m12).put((float) m22).put((float) m32).put((float) m03).put((float) m13).put((float) m23).put((float) m33);
         glBuf.flip();
@@ -569,11 +595,11 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         if (obj instanceof Matrix4) {
             Matrix4 other = (Matrix4) obj;
             //@formatter:off
-			return     this.m00 == other.m00 && this.m01 == other.m01 && this.m02 == other.m02 && this.m03 == other.m03
-					&& this.m10 == other.m10 && this.m11 == other.m11 && this.m12 == other.m12 && this.m13 == other.m13
-					&& this.m20 == other.m20 && this.m21 == other.m21 && this.m22 == other.m22 && this.m23 == other.m23
-					&& this.m30 == other.m30 && this.m31 == other.m31 && this.m32 == other.m32 && this.m33 == other.m33;
-			//@formatter:on
+            return     this.m00 == other.m00 && this.m01 == other.m01 && this.m02 == other.m02 && this.m03 == other.m03
+                    && this.m10 == other.m10 && this.m11 == other.m11 && this.m12 == other.m12 && this.m13 == other.m13
+                    && this.m20 == other.m20 && this.m21 == other.m21 && this.m22 == other.m22 && this.m23 == other.m23
+                    && this.m30 == other.m30 && this.m31 == other.m31 && this.m32 == other.m32 && this.m33 == other.m33;
+            //@formatter:on
         }
         return false;
     }
@@ -583,9 +609,9 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         //@formatter:off
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
         return "[" + new BigDecimal(m00, cont) + "," + new BigDecimal(m01, cont) + "," + new BigDecimal(m02, cont) + "," + new BigDecimal(m03, cont) + "]\n" +
-               "[" + new BigDecimal(m10, cont) + "," + new BigDecimal(m11, cont) + "," + new BigDecimal(m12, cont) + "," + new BigDecimal(m13, cont) + "]\n" +
-               "[" + new BigDecimal(m20, cont) + "," + new BigDecimal(m21, cont) + "," + new BigDecimal(m22, cont) + "," + new BigDecimal(m23, cont) + "]\n" +
-               "[" + new BigDecimal(m30, cont) + "," + new BigDecimal(m31, cont) + "," + new BigDecimal(m32, cont) + "," + new BigDecimal(m33, cont) + "]";
+                "[" + new BigDecimal(m10, cont) + "," + new BigDecimal(m11, cont) + "," + new BigDecimal(m12, cont) + "," + new BigDecimal(m13, cont) + "]\n" +
+                "[" + new BigDecimal(m20, cont) + "," + new BigDecimal(m21, cont) + "," + new BigDecimal(m22, cont) + "," + new BigDecimal(m23, cont) + "]\n" +
+                "[" + new BigDecimal(m30, cont) + "," + new BigDecimal(m31, cont) + "," + new BigDecimal(m32, cont) + "," + new BigDecimal(m33, cont) + "]";
         //@formatter:on
     }
 }

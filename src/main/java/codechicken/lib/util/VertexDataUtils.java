@@ -1,15 +1,18 @@
 package codechicken.lib.util;
 
 import codechicken.lib.colour.Colour;
+import codechicken.lib.math.MathHelper;
 import codechicken.lib.vec.Vertex5;
+import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.uv.UVTransformation;
 import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.texture.MissingTextureSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.Usage;
 import net.minecraft.util.Direction;
-import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 
 import java.util.ArrayList;
@@ -88,24 +91,24 @@ public class VertexDataUtils {
         return -1;
     }
 
-    //    /**
-    //     * Attempts to get the TextureAtlasSprite for a given UV mapping.
-    //     * This is not threaded and will search EVERY sprite loaded in the texture map.
-    //     * This is meant to be a last resort, where possible always try to avoid using this or have this be fired.
-    //     * TODO Improve searching by caching value ranges somehow.
-    //     *
-    //     * @param textureMap The TextureMap to search.
-    //     * @param uv         The UV mapping to find.
-    //     * @return The TextureAtlasSprite found, returns missing icon if it hasn't been found.
-    //     */
-    //    public static TextureAtlasSprite getSpriteForUV(AtlasTexture textureMap, UV uv) {
-    //        for (TextureAtlasSprite sprite : textureMap.mapUploadedSprites.values()) {
-    //            if (MathHelper.between(sprite.getMinU(), uv.u, sprite.getMaxU()) && MathHelper.between(sprite.getMinV(), uv.v, sprite.getMaxV())) {
-    //                return sprite;
-    //            }
-    //        }
-    //        return textureMap.missingImage;
-    //    }
+    /**
+     * Attempts to get the TextureAtlasSprite for a given UV mapping.
+     * This is not threaded and will search EVERY sprite loaded in the texture map.
+     * This is meant to be a last resort, where possible always try to avoid using this or have this be fired.
+     * TODO Improve searching by caching value ranges somehow.
+     *
+     * @param textureMap The TextureMap to search.
+     * @param uv         The UV mapping to find.
+     * @return The TextureAtlasSprite found, returns missing icon if it hasn't been found.
+     */
+    public static TextureAtlasSprite getSpriteForUV(AtlasTexture textureMap, UV uv) {
+        for (TextureAtlasSprite sprite : textureMap.mapUploadedSprites.values()) {
+            if (MathHelper.between(sprite.getMinU(), uv.u, sprite.getMaxU()) && MathHelper.between(sprite.getMinV(), uv.v, sprite.getMaxV())) {
+                return sprite;
+            }
+        }
+        return textureMap.getSprite(MissingTextureSprite.getLocation());
+    }
 
     public static Map<Direction, List<BakedQuad>> sortFaceData(List<BakedQuad> quads) {
         Map<Direction, List<BakedQuad>> faceQuadMap = new HashMap<>();
@@ -161,59 +164,6 @@ public class VertexDataUtils {
         //        return copyQuad(builder.build());
         return null;
     }
-
-    private static void putVertex(BakedQuadBuilder builder, VertexFormat format, Direction face, Vertex5 vert, Colour colour) {
-        //        for (int e = 0; e < format.getElementCount(); e++) {
-        //            VertexFormatElement element = format.getElement(e);
-        //            switch (element.getUsage()) {
-        //
-        //                case POSITION:
-        //                    Vector3 vec = vert.vec;
-        //                    builder.put(e, (float) vec.x, (float) vec.y, (float) vec.z, 1);
-        //                    break;
-        //                case NORMAL:
-        //                    builder.put(e, face.getXOffset(), face.getYOffset(), face.getZOffset(), 0);
-        //                    break;
-        //                case COLOR:
-        //                    builder.put(e, (colour.r & 0xFF) / 255F, (colour.g & 0xFF) / 255F, (colour.b & 0xFF) / 255F, (colour.a & 0xFF) / 255F);
-        //                    break;
-        //                case UV:
-        //                    UV uv = vert.uv;
-        //                    builder.put(e, (float) uv.u, (float) uv.v, 0, 1);
-        //                    break;
-        //                default:
-        //                    builder.put(e);
-        //                    break;
-        //            }
-        //        }
-    }
-
-    //    public static List<BakedQuad> shadeQuadFaces(BakedQuad... quads) {
-    //        return shadeQuadFaces(Arrays.asList(quads));
-    //    }
-    //
-    //    public static List<BakedQuad> shadeQuadFaces(List<BakedQuad> quads) {
-    //        LinkedList<BakedQuad> shadedQuads = new LinkedList<>();
-    //        for (BakedQuad quad : quads) {
-    //            int[] rawData = quad.getVertexData();
-    //            for (int v = 0; v < 4; v++) {
-    //                for (int e = 0; e < quad.getFormat().getElementCount(); e++) {
-    //                    VertexFormatElement element = quad.getFormat().getElement(e);
-    //                    if (element.getUsage() == Usage.COLOR) {
-    //                        float[] data = new float[4];
-    //                        LightUtil.unpack(rawData, data, quad.getFormat(), v, e);
-    //
-    //                        data = diffuseFaceLight(quad.getFace(), data);
-    //
-    //                        LightUtil.pack(data, rawData, quad.getFormat(), v, e);
-    //                    }
-    //                }
-    //            }
-    //            shadedQuads.add(new BakedQuad(rawData, quad.getTintIndex(), quad.getFace(), quad.getSprite(), quad.shouldApplyDiffuseLighting(), quad.getFormat()));
-    //        }
-    //
-    //        return shadedQuads;
-    //    }
 
     private static float[] diffuseFaceLight(Direction face, float[] colour) {
         double diffuse;

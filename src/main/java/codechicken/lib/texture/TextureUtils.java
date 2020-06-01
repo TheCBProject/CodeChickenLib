@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.MissingTextureSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
@@ -141,7 +140,7 @@ public class TextureUtils {
     }
 
     public static AtlasTexture getTextureMap() {
-        return Minecraft.getInstance().getModelManager().getAtlasTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
+        return Minecraft.getInstance().getTextureMap();
     }
 
     public static TextureAtlasSprite getMissingSprite() {
@@ -149,11 +148,11 @@ public class TextureUtils {
     }
 
     public static TextureAtlasSprite getTexture(String location) {
-        return getTextureMap().getSprite(new ResourceLocation(location));
+        return getTextureMap().getAtlasSprite(location);
     }
 
     public static TextureAtlasSprite getTexture(ResourceLocation location) {
-        return getTextureMap().getSprite(location);
+        return getTexture(location.toString());
     }
 
     public static TextureAtlasSprite getBlockTexture(String string) {
@@ -236,7 +235,7 @@ public class TextureUtils {
             if (quads != null && quads.size() > 0) {
                 TextureAtlasSprite[] sprites = new TextureAtlasSprite[quads.size()];
                 for (int i = 0; i < quads.size(); i++) {
-                    sprites[i] = quads.get(i).func_187508_a();
+                    sprites[i] = quads.get(i).getSprite();
                 }
                 return sprites;
             }

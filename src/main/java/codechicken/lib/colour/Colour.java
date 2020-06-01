@@ -2,7 +2,7 @@ package codechicken.lib.colour;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -31,12 +31,12 @@ public abstract class Colour implements Copyable<Colour> {
 
     @OnlyIn (Dist.CLIENT)
     public void glColour() {
-        RenderSystem.color4f((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, (a & 0xFF) / 255F);
+        GlStateManager.color4f((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, (a & 0xFF) / 255F);
     }
 
     @OnlyIn (Dist.CLIENT)
     public void glColour(int a) {
-        RenderSystem.color4f((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, a / 255F);
+        GlStateManager.color4f((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, a / 255F);
     }
 
     public abstract int pack();

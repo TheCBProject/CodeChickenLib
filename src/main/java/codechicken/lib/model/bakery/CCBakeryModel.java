@@ -12,7 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
@@ -53,11 +53,6 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
     }
 
     @Override
-    public boolean func_230044_c_() {
-        return false;
-    }
-
-    @Override
     public boolean isBuiltInRenderer() {
         return false;
     }
@@ -68,7 +63,7 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
     }
 
     @Override
-    public Set<TextureAtlasSprite> getHitEffects(BlockRayTraceResult traceResult, BlockState state, IBlockReader world, BlockPos pos, IModelData data) {
+    public Set<TextureAtlasSprite> getHitEffects(BlockRayTraceResult traceResult, BlockState state, IEnviromentBlockReader world, BlockPos pos, IModelData data) {
         IBakedModel model = ModelBakery.getCachedModel(state, data);
         if (model instanceof IModelParticleProvider) {
             return ((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos, data);
@@ -77,7 +72,7 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
     }
 
     @Override
-    public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IBlockReader world, BlockPos pos, IModelData data) {
+    public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IEnviromentBlockReader world, BlockPos pos, IModelData data) {
         //TODO, Destroy may need IModelData
         IBakedModel model = ModelBakery.getCachedModel(state, EmptyModelData.INSTANCE);
         if (model instanceof IModelParticleProvider) {

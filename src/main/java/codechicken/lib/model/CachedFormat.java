@@ -64,7 +64,7 @@ public class CachedFormat {
     public int normalIndex = -1;
     public int colorIndex = -1;
     public int uvIndex = -1;
-    public int overlayIndex = -1;
+    //public int overlayIndex = -1;
     public int lightMapIndex = -1;
 
     public int elementCount;
@@ -113,13 +113,13 @@ public class CachedFormat {
                             uvIndex = i;
                             break label;
                         case 1:
-                            if (hasOverlay) {
-                                throw new IllegalStateException("Found 2 Overlay elements..");
-                            }
-                            hasOverlay = true;
-                            overlayIndex = i;
-                            break label;
-                        case 2:
+//                            if (hasOverlay) {
+//                                throw new IllegalStateException("Found 2 Overlay elements..");
+//                            }
+//                            hasOverlay = true;
+//                            overlayIndex = i;
+//                            break label;
+//                        case 2:
                             if (hasLightMap) {
                                 throw new IllegalStateException("Found 2 LightMap elements..");
                             }

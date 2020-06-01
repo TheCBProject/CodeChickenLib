@@ -1,8 +1,11 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
+import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -273,6 +276,12 @@ public class Rotation extends Transformation {
             quat = Quat.aroundAxis(axis, angle);
         }
         return quat;
+    }
+
+    @Override
+    @OnlyIn (Dist.CLIENT)
+    public void glApply() {
+        GlStateManager.rotated((angle * MathHelper.todeg), axis.x, axis.y, axis.z);
     }
 
     @Override

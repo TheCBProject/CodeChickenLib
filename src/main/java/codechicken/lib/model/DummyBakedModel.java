@@ -35,11 +35,6 @@ public class DummyBakedModel implements IBakedModel {
     }
 
     @Override
-    public boolean func_230044_c_() {
-        return false;
-    }
-
-    @Override
     public boolean isBuiltInRenderer() {
         return false;
     }

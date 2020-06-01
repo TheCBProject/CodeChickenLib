@@ -1,12 +1,10 @@
 package codechicken.lib.render;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
-import codechicken.lib.vec.Matrix4;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.DrawHighlightEvent;
+import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -42,15 +40,14 @@ public class CCRenderEventHandler {
 
     @OnlyIn (Dist.CLIENT)
     @SubscribeEvent (priority = EventPriority.LOW)
-    public void onBlockHighlight(DrawHighlightEvent.HighlightBlock event) {
+    public void onBlockHighlight(DrawBlockHighlightEvent event) {
+
         //We have found a CuboidRayTraceResult, Lets render it properly..
-        BlockRayTraceResult hit = event.getTarget();
+        RayTraceResult hit = event.getTarget();
         if (hit instanceof CuboidRayTraceResult) {
             CuboidRayTraceResult cuboidHit = (CuboidRayTraceResult) hit;
             event.setCanceled(true);
-            Matrix4 mat = new Matrix4(event.getMatrix());
-            mat.translate(cuboidHit.getPos());
-            RenderUtils.bufferHitbox(mat, event.getBuffers(), event.getInfo(), cuboidHit.cuboid6);
+            RenderUtils.renderHitBox(event.getInfo(), cuboidHit.cuboid6.copy().add(cuboidHit.getPos()));
         }
     }
 }

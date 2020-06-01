@@ -1,5 +1,8 @@
 package codechicken.lib.vec;
 
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 public abstract class VariableTransformation extends Transformation {
 
     public Matrix4 mat;
@@ -16,5 +19,11 @@ public abstract class VariableTransformation extends Transformation {
     @Override
     public void apply(Matrix4 mat) {
         mat.multiply(this.mat);
+    }
+
+    @Override
+    @OnlyIn (Dist.CLIENT)
+    public void glApply() {
+        mat.glApply();
     }
 }

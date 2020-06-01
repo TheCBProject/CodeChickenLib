@@ -1,5 +1,9 @@
 package codechicken.lib.vec;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -32,6 +36,12 @@ public class Scale extends Transformation {
     @Override
     public void apply(Matrix4 mat) {
         mat.scale(factor);
+    }
+
+    @Override
+    @OnlyIn (Dist.CLIENT)
+    public void glApply() {
+        GlStateManager.scaled(factor.x, factor.y, factor.z);
     }
 
     @Override

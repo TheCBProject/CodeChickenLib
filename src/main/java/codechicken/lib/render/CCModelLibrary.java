@@ -3,15 +3,8 @@ package codechicken.lib.render;
 import codechicken.lib.vec.Quat;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.renderer.RenderState;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 
 import static codechicken.lib.math.MathHelper.phi;
-import static net.minecraft.client.renderer.RenderState.*;
 
 public class CCModelLibrary {
 
@@ -86,28 +79,4 @@ public class CCModelLibrary {
         icosahedron4.verts[i * 3 + 2] = icosahedron7.verts[i * 4 + 2] = icosahedron7.verts[i * 4 + 3] = new Vertex5(vec3, u3, v3);
         i++;
     }
-
-    public static RenderType getIcos4RenderType(ResourceLocation texture, boolean lighting) {
-        return RenderType.makeType("icosahedron4", DefaultVertexFormats.BLOCK, GL11.GL_TRIANGLES, 256, makeIcosState(texture, lighting));
-    }
-
-    public static RenderType getIcos7RenderType(ResourceLocation texture, boolean lighting) {
-        return RenderType.makeType("icosahedron7", DefaultVertexFormats.BLOCK, GL11.GL_QUADS, 256, makeIcosState(texture, lighting));
-    }
-
-    public static RenderType.State makeIcosState(ResourceLocation texture, boolean lighting) {
-        return RenderType.State.getBuilder()//
-                .texture(new RenderState.TextureState(texture, false, false))//
-                .texturing(new RenderState.TexturingState("icosahedron", () -> {
-                    if (!lighting) {
-                        RenderSystem.disableLighting();
-                    }
-                }, () -> {
-                }))//
-                .transparency(NO_TRANSPARENCY)//
-                .diffuseLighting(DIFFUSE_LIGHTING_ENABLED)//
-                .lightmap(LIGHTMAP_ENABLED)//
-                .build(false);
-    }
-
 }

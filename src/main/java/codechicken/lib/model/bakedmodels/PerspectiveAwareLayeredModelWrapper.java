@@ -3,10 +3,10 @@ package codechicken.lib.model.bakedmodels;
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.data.IModelData;
 
@@ -20,15 +20,15 @@ import java.util.Random;
  */
 public class PerspectiveAwareLayeredModelWrapper extends AbstractPerspectiveLayeredModel {
 
-    private final ImmutableMap<RenderType, IBakedModel> layerModelMap;
+    private final ImmutableMap<BlockRenderLayer, IBakedModel> layerModelMap;
 
-    public PerspectiveAwareLayeredModelWrapper(Map<RenderType, IBakedModel> layerModelMap, PerspectiveProperties properties) {
+    public PerspectiveAwareLayeredModelWrapper(Map<BlockRenderLayer, IBakedModel> layerModelMap, PerspectiveProperties properties) {
         super(properties);
         this.layerModelMap = ImmutableMap.copyOf(layerModelMap);
     }
 
     @Override
-    public List<BakedQuad> getLayerQuads(BlockState state, Direction side, RenderType layer, Random rand, IModelData data) {
+    public List<BakedQuad> getLayerQuads(BlockState state, Direction side, BlockRenderLayer layer, Random rand, IModelData data) {
         if (layerModelMap.containsKey(layer)) {
             return layerModelMap.get(layer).getQuads(state, side, rand);
         }

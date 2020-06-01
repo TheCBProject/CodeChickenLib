@@ -2,16 +2,16 @@ package codechicken.lib.render.lighting;
 
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ILightReader;
+import net.minecraft.world.IEnviromentBlockReader;
 
 public class PlanarLightMatrix extends PlanarLightModel {
 
     public static final int operationIndex = IVertexOperation.registerOperation();
     public static PlanarLightMatrix instance = new PlanarLightMatrix();
 
-    public ILightReader access;
+    public IEnviromentBlockReader access;
     public BlockPos pos = BlockPos.ZERO;
 
     private int sampled = 0;
@@ -21,7 +21,7 @@ public class PlanarLightMatrix extends PlanarLightModel {
         super(PlanarLightModel.standardLightModel.colours);
     }
 
-    public PlanarLightMatrix locate(ILightReader a, BlockPos bPos) {
+    public PlanarLightMatrix locate(IEnviromentBlockReader a, BlockPos bPos) {
         access = a;
         pos = bPos;
         sampled = 0;
@@ -30,7 +30,8 @@ public class PlanarLightMatrix extends PlanarLightModel {
 
     public int brightness(int side) {
         if ((sampled & 1 << side) == 0) {
-            brightness[side] = WorldRenderer.getCombinedLight(access, pos);
+            BlockState b = access.getBlockState(pos);
+            brightness[side] = access.getCombinedLight(pos, b.getBlock().getLightValue(b, access, pos));
             sampled |= 1 << side;
         }
         return brightness[side];

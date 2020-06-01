@@ -23,7 +23,7 @@ It contains libraries for 3D math and transformations, model rendering, packets,
 [[dependencies.codechickenlib]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.15.2]"
+    versionRange="[1.14.4]"
     ordering="NONE"
     side="BOTH"
 

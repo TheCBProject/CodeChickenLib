@@ -40,8 +40,8 @@ function initializeCoreMod() {
             'target': {
                 'type': 'METHOD',
                 'class': 'net.minecraft.client.Minecraft',
-                'methodName': '<init>',
-                'methodDesc': '(Lnet/minecraft/client/GameConfiguration;)V'
+                'methodName': 'func_71384_a',
+                'methodDesc': '()V'
             },
             'transformer': doTransform
         }

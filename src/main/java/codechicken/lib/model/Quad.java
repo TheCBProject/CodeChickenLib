@@ -265,16 +265,16 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
      * @return The BakedQuad.
      */
     public BakedQuad bake() {
-        if (format.format != DefaultVertexFormats.BLOCK) {
-            throw new IllegalStateException("Unable to bake this quad to the specified format. " + format.format);
-        }
+//        if (format.format != DefaultVertexFormats.BLOCK) {
+//            throw new IllegalStateException("Unable to bake this quad to the specified format. " + format.format);
+//        }
         int[] packedData = new int[format.format.getSize()];
         for (int v = 0; v < 4; v++) {
             for (int e = 0; e < format.elementCount; e++) {
                 LightUtil.pack(vertices[v].raw[e], packedData, format.format, v, e);
             }
         }
-        return new BakedQuad(packedData, tintIndex, orientation, sprite, diffuseLighting);
+        return new BakedQuad(packedData, tintIndex, orientation, sprite, diffuseLighting, format.format);
     }
 
     /**
@@ -295,7 +295,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
         public float[] normal;
         public float[] color;
         public float[] uv;
-        public float[] overlay;
+//        public float[] overlay;
         public float[] lightmap;
 
         /**
@@ -340,9 +340,9 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
             if (format.hasUV) {
                 uv = raw[format.uvIndex];
             }
-            if (format.hasOverlay) {
-                overlay = raw[format.overlayIndex];
-            }
+//            if (format.hasOverlay) {
+//                overlay = raw[format.overlayIndex];
+//            }
             if (format.hasLightMap) {
                 lightmap = raw[format.lightMapIndex];
             }

@@ -1,5 +1,8 @@
 package codechicken.lib.vec;
 
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -148,6 +151,14 @@ public class TransformationList extends Transformation {
     @Override
     public boolean isRedundant() {
         return transformations.size() == 0;
+    }
+
+    @Override
+    @OnlyIn (Dist.CLIENT)
+    public void glApply() {
+        for (int i = transformations.size() - 1; i >= 0; i--) {
+            transformations.get(i).glApply();
+        }
     }
 
     @Override

@@ -1,8 +1,6 @@
 package codechicken.lib.render.shader;
 
 import codechicken.lib.vec.Matrix4;
-import net.minecraft.client.renderer.Matrix3f;
-import net.minecraft.client.renderer.Matrix4f;
 
 /**
  * All supported Uniform types.
@@ -69,10 +67,6 @@ public interface UniformCache {
 
     void glUniformMatrix3f(String name, boolean transpose, float[] matrix);
 
-    void glUniformMatrix3f(String name, Matrix3f matrix);
-
-    void glUniformMatrix3f(String name, boolean transpose, Matrix3f matrix);
-
     void glUniformMatrix3x2f(String name, float[] matrix);
 
     void glUniformMatrix3x2f(String name, boolean transpose, float[] matrix);
@@ -88,10 +82,6 @@ public interface UniformCache {
     void glUniformMatrix4f(String name, Matrix4 matrix);
 
     void glUniformMatrix4f(String name, boolean transpose, Matrix4 matrix);
-
-    void glUniformMatrix4f(String name, Matrix4f matrix);
-
-    void glUniformMatrix4f(String name, boolean transpose, Matrix4f matrix);
 
     void glUniformMatrix4x2f(String name, float[] matrix);
 
@@ -117,10 +107,6 @@ public interface UniformCache {
 
     void glUniformMatrix3d(String name, boolean transpose, double[] matrix);
 
-    void glUniformMatrix3d(String name, Matrix3f matrix);
-
-    void glUniformMatrix3d(String name, boolean transpose, Matrix3f matrix);
-
     void glUniformMatrix3x2d(String name, double[] matrix);
 
     void glUniformMatrix3x2d(String name, boolean transpose, double[] matrix);
@@ -136,10 +122,6 @@ public interface UniformCache {
     void glUniformMatrix4d(String name, Matrix4 matrix);
 
     void glUniformMatrix4d(String name, boolean transpose, Matrix4 matrix);
-
-    void glUniformMatrix4d(String name, Matrix4f matrix);
-
-    void glUniformMatrix4d(String name, boolean transpose, Matrix4f matrix);
 
     void glUniformMatrix4x2d(String name, double[] matrix);
 

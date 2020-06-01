@@ -70,9 +70,9 @@ public class CustomParticleHandler {
             ParticleManager particleManager = Minecraft.getInstance().particles;
             List<TextureAtlasSprite> sprites = new ArrayList<>(((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos, modelData));
             TextureAtlasSprite rolledSprite = sprites.get(world.rand.nextInt(sprites.size()));
-            double x = entity.getPosX() + (world.rand.nextFloat() - 0.5D) * entity.getWidth();
+            double x = entity.posX + (world.rand.nextFloat() - 0.5D) * entity.getWidth();
             double y = entity.getBoundingBox().minY + 0.1D;
-            double z = entity.getPosZ() + (world.rand.nextFloat() - 0.5D) * entity.getWidth();
+            double z = entity.posZ + (world.rand.nextFloat() - 0.5D) * entity.getWidth();
             particleManager.addEffect(new CustomBreakingParticle(world, x, y, z, -entity.getMotion().x * 4.0D, 1.5D, -entity.getMotion().z * 4.0D, rolledSprite));
             return true;
         }

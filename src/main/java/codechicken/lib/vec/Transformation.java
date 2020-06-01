@@ -2,6 +2,8 @@ package codechicken.lib.vec;
 
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
  * Abstract supertype for any 3D vector transformation
@@ -31,6 +33,9 @@ public abstract class Transformation extends ITransformation<Vector3, Transforma
     public TransformationList with(Transformation t) {
         return new TransformationList(this, t);
     }
+
+    @OnlyIn (Dist.CLIENT)
+    public abstract void glApply();
 
     @Override
     public boolean load(CCRenderState ccrs) {

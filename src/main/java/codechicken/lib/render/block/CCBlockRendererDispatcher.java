@@ -2,14 +2,19 @@ package codechicken.lib.render.block;
 
 import codechicken.lib.internal.ExceptionMessageEventHandler;
 import codechicken.lib.internal.proxy.ProxyClient;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import codechicken.lib.model.bakedmodels.ModelProperties;
+import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
+import codechicken.lib.render.buffer.BakingVertexBuffer;
+import codechicken.lib.util.TransformUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.color.BlockColors;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
@@ -20,7 +25,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.ILightReader;
+import net.minecraft.world.IEnviromentBlockReader;
 import net.minecraftforge.client.model.data.IModelData;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
@@ -50,17 +55,39 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
         this.blockModelShapes = parent.blockModelShapes;
     }
 
-    //In world.
     @Override
-    public boolean renderModel(BlockState state, BlockPos pos, ILightReader world, MatrixStack stack, IVertexBuilder builder, boolean checkSides, Random rand, IModelData modelData) {
+    public void renderBlockDamage(BlockState state, BlockPos pos, TextureAtlasSprite sprite, IEnviromentBlockReader world) {
+        Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandle(world, pos, state)).findFirst();
+        if (renderOpt.isPresent()) {
+            ICCBlockRenderer renderer = renderOpt.get();
+            //state = state.getActualState(world, pos);
+            //TODO This needs to be optimized, probably not the most efficient thing in the world..
+            BufferBuilder parent = Tessellator.getInstance().getBuffer();
+            BakingVertexBuffer buffer = BakingVertexBuffer.create();
+            buffer.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
+            buffer.begin(7, parent.getVertexFormat());
+            renderer.handleRenderBlockDamage(world, pos, state, sprite, buffer);
+            buffer.finishDrawing();
+            buffer.setTranslation(0, 0, 0);
+            IBakedModel model = new PerspectiveAwareBakedModel(buffer.bake(), TransformUtils.DEFAULT_BLOCK, new ModelProperties(true, true, null));
+            blockModelRenderer.renderModel(world, model, state, pos, parent, true, new Random(), state.getPositionRandom(pos));
+
+        } else {
+            parentDispatcher.renderBlockDamage(state, pos, sprite, world);
+        }
+    }
+
+    @Override
+    public boolean renderBlock(BlockState state, BlockPos pos, IEnviromentBlockReader world, BufferBuilder buffer, Random random, IModelData modelData) {
+        BlockState inState = state;
         try {
-            Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleBlock(world, pos, state)).findFirst();
+            Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandle(world, pos, inState)).findFirst();
             if (renderOpt.isPresent()) {
-                return renderOpt.get().renderBlock(state, pos, world, stack, builder, rand, modelData);
+                return renderOpt.get().renderBlock(world, pos, state, buffer, random, modelData);
             }
         } catch (Throwable t) {
             if (ProxyClient.catchBlockRenderExceptions) {
-                handleCaughtException(t, state, pos, world);
+                handleCaughtException(t, inState, pos, world);
                 return false;
             }
             CrashReport crashreport = CrashReport.makeCrashReport(t, "Tessellating CCL block in world");
@@ -69,52 +96,39 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
             throw new ReportedException(crashreport);
         }
         try {
-            return parentDispatcher.renderModel(state, pos, world, stack, builder, checkSides, rand, modelData);
+            return parentDispatcher.renderBlock(state, pos, world, buffer, random, modelData);
         } catch (Throwable t) {
             if (ProxyClient.catchBlockRenderExceptions) {
-                handleCaughtException(t, state, pos, world);
+                handleCaughtException(t, inState, pos, world);
                 return false;
             }
             throw t;
         }
     }
 
-    //Block Damage
     @Override
-    public void renderModel(BlockState state, BlockPos pos, ILightReader world, MatrixStack matrixStackIn, IVertexBuilder vertexBuilderIn, IModelData data) {
-        Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleBlock(world, pos, state)).findFirst();
+    @SuppressWarnings ("OptionalIsPresent")
+    public boolean renderFluid(BlockPos pos, IEnviromentBlockReader world, BufferBuilder buffer, IFluidState state) {
+        Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandle(world, pos, state)).findFirst();
         if (renderOpt.isPresent()) {
-            renderOpt.get().renderBreaking(state, pos, world, matrixStackIn, vertexBuilderIn, data);
+            return renderOpt.get().renderFluid(world, pos, state, buffer);
         } else {
-            parentDispatcher.renderModel(state, pos, world, matrixStackIn, vertexBuilderIn, data);
+            return super.renderFluid(pos, world, buffer, state);
         }
     }
 
-    //Fluids
     @Override
-    public boolean renderFluid(BlockPos pos, ILightReader world, IVertexBuilder builder, IFluidState state) {
-        Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleFluid(world, pos, state)).findFirst();
-        //noinspection OptionalIsPresent
+    public void renderBlockBrightness(BlockState state, float brightness) {
+        Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleBrightness(state)).findFirst();
         if (renderOpt.isPresent()) {
-            return renderOpt.get().renderFluid(pos, world, builder, state);
+            renderOpt.get().renderBrightness(state, brightness);
         } else {
-            return super.renderFluid(pos, world, builder, state);
-        }
-    }
-
-    //From an entity
-    @Override
-    public void renderBlock(BlockState blockStateIn, MatrixStack matrixStackIn, IRenderTypeBuffer bufferTypeIn, int combinedLightIn, int combinedOverlayIn, IModelData modelData) {
-        Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleEntity(blockStateIn)).findFirst();
-        if (renderOpt.isPresent()) {
-            renderOpt.get().renderEntity(blockStateIn, matrixStackIn, bufferTypeIn, combinedLightIn, combinedOverlayIn, modelData);
-        } else {
-            parentDispatcher.renderBlock(blockStateIn, matrixStackIn, bufferTypeIn, combinedLightIn, combinedOverlayIn, modelData);
+            parentDispatcher.renderBlockBrightness(state, brightness);
         }
     }
 
     @SuppressWarnings ("Convert2MethodRef")//Suppress these, the lambdas need to be synthetic functions instead of a method reference.
-    private static void handleCaughtException(Throwable t, BlockState inState, BlockPos pos, ILightReader world) {
+    private static void handleCaughtException(Throwable t, BlockState inState, BlockPos pos, IEnviromentBlockReader world) {
         Block inBlock = inState.getBlock();
         TileEntity tile = world.getTileEntity(pos);
 

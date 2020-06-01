@@ -4,8 +4,6 @@ import codechicken.lib.util.Copyable;
 import codechicken.lib.vec.Matrix4;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.client.renderer.Matrix3f;
-import net.minecraft.client.renderer.Matrix4f;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL20;
@@ -161,8 +159,6 @@ public class ShaderUniformCache implements UniformCache {
     @Override public void glUniformMatrix2x4f(String name, boolean transpose, float[] matrix) { glUniformF(name, transpose, matrix); }
     @Override public void glUniformMatrix3f(String name, float[] matrix) { glUniformMatrix3f(name, false, matrix); }
     @Override public void glUniformMatrix3f(String name, boolean transpose, float[] matrix) { glUniformF(name, transpose, matrix); }
-    @Override public void glUniformMatrix3f(String name, Matrix3f matrix) { glUniformMatrix3f(name, false, matrix); }
-    @Override public void glUniformMatrix3f(String name, boolean transpose, Matrix3f matrix) { glUniformF(name, transpose, toArrayF(matrix)); }
     @Override public void glUniformMatrix3x2f(String name, float[] matrix) { glUniformMatrix3x2f(name, false, matrix); }
     @Override public void glUniformMatrix3x2f(String name, boolean transpose, float[] matrix) { glUniformF(name, transpose, matrix); }
     @Override public void glUniformMatrix3x4f(String name, float[] matrix) { glUniformMatrix3x4f(name, false, matrix); }
@@ -171,8 +167,6 @@ public class ShaderUniformCache implements UniformCache {
     @Override public void glUniformMatrix4f(String name, boolean transpose, float[] matrix) { glUniformF(name, transpose, matrix); }
     @Override public void glUniformMatrix4f(String name, Matrix4 matrix) { glUniformMatrix4f(name, false, matrix); }
     @Override public void glUniformMatrix4f(String name, boolean transpose, Matrix4 matrix) { glUniformMatrix4f(name, transpose, matrix.toArrayF()); }
-    @Override public void glUniformMatrix4f(String name, Matrix4f matrix) { glUniformMatrix4f(name, false, matrix); }
-    @Override public void glUniformMatrix4f(String name, boolean transpose, Matrix4f matrix) { glUniformMatrix4f(name, transpose, new Matrix4(matrix)); }
     @Override public void glUniformMatrix4x2f(String name, float[] matrix) { glUniformMatrix4x2f(name, false, matrix); }
     @Override public void glUniformMatrix4x2f(String name, boolean transpose, float[] matrix) { glUniformF(name, transpose, matrix); }
     @Override public void glUniformMatrix4x3f(String name, float[] matrix) { glUniformMatrix4x3f(name, false, matrix); }
@@ -186,8 +180,6 @@ public class ShaderUniformCache implements UniformCache {
     @Override public void glUniformMatrix2x4d(String name, boolean transpose, double[] matrix) { glUniformD(name, transpose, matrix); }
     @Override public void glUniformMatrix3d(String name, double[] matrix) { glUniformMatrix3d(name, false, matrix); }
     @Override public void glUniformMatrix3d(String name, boolean transpose, double[] matrix) { glUniformD(name, transpose, matrix); }
-    @Override public void glUniformMatrix3d(String name, Matrix3f matrix) { glUniformMatrix3d(name, false, matrix); }
-    @Override public void glUniformMatrix3d(String name, boolean transpose, Matrix3f matrix) { glUniformD(name, transpose, toArrayD(matrix)); }
     @Override public void glUniformMatrix3x2d(String name, double[] matrix) { glUniformMatrix3x2d(name, false, matrix); }
     @Override public void glUniformMatrix3x2d(String name, boolean transpose, double[] matrix) { glUniformD(name, transpose, matrix); }
     @Override public void glUniformMatrix3x4d(String name, double[] matrix) { glUniformMatrix3x4d(name, false, matrix); }
@@ -195,8 +187,6 @@ public class ShaderUniformCache implements UniformCache {
     @Override public void glUniformMatrix4d(String name, double[] matrix) { glUniformMatrix4d(name, false, matrix); }
     @Override public void glUniformMatrix4d(String name, Matrix4 matrix) { glUniformMatrix4d(name, false, matrix); }
     @Override public void glUniformMatrix4d(String name, boolean transpose, Matrix4 matrix) { glUniformMatrix4d(name, transpose, matrix.toArrayD()); }
-    @Override public void glUniformMatrix4d(String name, Matrix4f matrix) { glUniformMatrix4d(name, false, matrix); }
-    @Override public void glUniformMatrix4d(String name, boolean transpose, Matrix4f matrix) { glUniformMatrix4d(name, transpose, new Matrix4(matrix)); }
     @Override public void glUniformMatrix4d(String name, boolean transpose, double[] matrix) { glUniformD(name, transpose, matrix); }
     @Override public void glUniformMatrix4x2d(String name, double[] matrix) { glUniformMatrix4x2d(name, false, matrix); }
     @Override public void glUniformMatrix4x2d(String name, boolean transpose, double[] matrix) { glUniformD(name, transpose, matrix); }
@@ -250,34 +240,6 @@ public class ShaderUniformCache implements UniformCache {
         }
 
         ((DoubleUniformEntry) entry).set(values, transpose);
-    }
-
-    private static double[] toArrayD(Matrix3f matrix) {
-        return new double[] {//
-                matrix.m00,//
-                matrix.m01,//
-                matrix.m02,//
-                matrix.m10,//
-                matrix.m11,//
-                matrix.m12,//
-                matrix.m20,//
-                matrix.m21,//
-                matrix.m22 //
-        };
-    }
-
-    private static float[] toArrayF(Matrix3f matrix) {
-        return new float[] {//
-                matrix.m00,//
-                matrix.m01,//
-                matrix.m02,//
-                matrix.m10,//
-                matrix.m11,//
-                matrix.m12,//
-                matrix.m20,//
-                matrix.m21,//
-                matrix.m22 //
-        };
     }
 
     public abstract class UniformEntry<T> implements Copyable<UniformEntry<T>> {
