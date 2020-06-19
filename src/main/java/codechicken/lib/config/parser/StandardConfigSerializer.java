@@ -170,6 +170,10 @@ public class StandardConfigSerializer implements ConfigSerializer {
                         list.add(Integer.parseInt(listLine));
                         break;
                     }
+                    case LONG: {
+                        list.add(Long.parseLong(listLine));
+                        break;
+                    }
                     case HEX: {
                         list.add((int) Long.parseLong(listLine.replace("0x", ""), 16));
                         break;
@@ -193,6 +197,9 @@ public class StandardConfigSerializer implements ConfigSerializer {
                     break;
                 case INT:
                     tag.setIntList(list);
+                    break;
+                case LONG:
+                    tag.setLongList(list);
                     break;
                 case HEX: {
                     tag.setHexList(list);

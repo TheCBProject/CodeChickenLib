@@ -245,6 +245,8 @@ public interface ConfigTag {
 
     List<Integer> getIntList();
 
+    List<Long> getLongList();
+
     List<Integer> getHexList();
 
     List<Double> getDoubleList();
@@ -256,6 +258,8 @@ public interface ConfigTag {
 
     ConfigTag setDefaultIntList(List<Integer> value);
 
+    ConfigTag setDefaultLongList(List<Long> value);
+
     ConfigTag setDefaultHexList(List<Integer> value);
 
     ConfigTag setDefaultDoubleList(List<Double> value);
@@ -266,6 +270,8 @@ public interface ConfigTag {
     ConfigTag setStringList(List<String> value);
 
     ConfigTag setIntList(List<Integer> value);
+
+    ConfigTag setLongList(List<Long> value);
 
     ConfigTag setHexList(List<Integer> value);
 
