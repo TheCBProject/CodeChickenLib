@@ -117,6 +117,14 @@ public class StandardConfigSerializer implements ConfigSerializer {
                         }
                         continue;
                     }
+                    case LONG: {
+                        try {
+                            tag.setLong(Long.parseLong(value));
+                        } catch (NumberFormatException e) {
+                            throw new ConfigParseException(e, "Malformed line!, @%s, '%s'", reader.getCurrLine(), line);
+                        }
+                        continue;
+                    }
                     case HEX: {
                         try {
                             tag.setHex((int) Long.parseLong(value.replace("0x", ""), 16));
@@ -262,6 +270,7 @@ public class StandardConfigSerializer implements ConfigSerializer {
                     break;
                 case BOOLEAN:
                 case INT:
+                case LONG:
                 case HEX:
                 case DOUBLE:
                     writeLine(writer, depth, "%s:\"%s\"=%s", tag.type.getChar(), tag.name, tag.type.processLine(tag.value));

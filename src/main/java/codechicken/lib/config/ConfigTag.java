@@ -206,6 +206,8 @@ public interface ConfigTag {
 
     int getInt();
 
+    long getLong();
+
     int getHex();
 
     double getDouble();
@@ -217,6 +219,8 @@ public interface ConfigTag {
 
     ConfigTag setDefaultInt(int value);
 
+    ConfigTag setDefaultLong(long value);
+
     ConfigTag setDefaultHex(int value);
 
     ConfigTag setDefaultDouble(double value);
@@ -227,6 +231,8 @@ public interface ConfigTag {
     ConfigTag setString(String value);
 
     ConfigTag setInt(int value);
+
+    ConfigTag setLong(long value);
 
     ConfigTag setHex(int value);
 
@@ -393,6 +399,17 @@ public interface ConfigTag {
             @Override
             public void write(MCDataOutput out, TagType listType, Object value) {
                 out.writeSignedVarInt((Integer) value);
+            }
+        },
+        LONG('L') {
+            @Override
+            public Object read(MCDataInput in, TagType listType) {
+                return in.readSignedVarLong();
+            }
+
+            @Override
+            public void write(MCDataOutput out, TagType listType, Object value) {
+                out.writeSignedVarLong((Long) value);
             }
         },
         HEX('H') {
