@@ -206,6 +206,8 @@ public interface ConfigTag {
 
     int getInt();
 
+    long getLong();
+
     int getHex();
 
     double getDouble();
@@ -216,6 +218,8 @@ public interface ConfigTag {
     ConfigTag setDefaultString(String value);
 
     ConfigTag setDefaultInt(int value);
+
+    ConfigTag setDefaultLong(long value);
 
     ConfigTag setDefaultHex(int value);
 
@@ -228,6 +232,8 @@ public interface ConfigTag {
 
     ConfigTag setInt(int value);
 
+    ConfigTag setLong(long value);
+
     ConfigTag setHex(int value);
 
     ConfigTag setDouble(double value);
@@ -238,6 +244,8 @@ public interface ConfigTag {
     List<String> getStringList();
 
     List<Integer> getIntList();
+
+    List<Long> getLongList();
 
     List<Integer> getHexList();
 
@@ -250,6 +258,8 @@ public interface ConfigTag {
 
     ConfigTag setDefaultIntList(List<Integer> value);
 
+    ConfigTag setDefaultLongList(List<Long> value);
+
     ConfigTag setDefaultHexList(List<Integer> value);
 
     ConfigTag setDefaultDoubleList(List<Double> value);
@@ -260,6 +270,8 @@ public interface ConfigTag {
     ConfigTag setStringList(List<String> value);
 
     ConfigTag setIntList(List<Integer> value);
+
+    ConfigTag setLongList(List<Long> value);
 
     ConfigTag setHexList(List<Integer> value);
 
@@ -393,6 +405,17 @@ public interface ConfigTag {
             @Override
             public void write(MCDataOutput out, TagType listType, Object value) {
                 out.writeSignedVarInt((Integer) value);
+            }
+        },
+        LONG('L') {
+            @Override
+            public Object read(MCDataInput in, TagType listType) {
+                return in.readSignedVarLong();
+            }
+
+            @Override
+            public void write(MCDataOutput out, TagType listType, Object value) {
+                out.writeSignedVarLong((Long) value);
             }
         },
         HEX('H') {

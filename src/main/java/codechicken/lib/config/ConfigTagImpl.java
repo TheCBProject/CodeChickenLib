@@ -262,6 +262,19 @@ public class ConfigTagImpl implements ConfigTag {
     }
 
     @Override
+    public long getLong() {
+        if (value == null) {
+            throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
+        } else if (type != TagType.LONG) {
+            throw new UnsupportedOperationException("ConfigTag is not of a Integer type, Actual: " + type);
+        } else if (!(value instanceof Long)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        }
+
+        return (Long) value;
+    }
+
+    @Override
     public int getHex() {
         if (value == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
@@ -324,6 +337,18 @@ public class ConfigTagImpl implements ConfigTag {
     }
 
     @Override
+    public ConfigTag setDefaultLong(long value) {
+        setDefaultCheck();
+
+        defaultValue = value;
+        if (this.value == null) {
+            setLong(value);
+        }
+
+        return this;
+    }
+
+    @Override
     public ConfigTagImpl setDefaultHex(int value) {
         setDefaultCheck();
 
@@ -369,6 +394,15 @@ public class ConfigTagImpl implements ConfigTag {
     public ConfigTagImpl setInt(int value) {
         setValueCheck();
         type = TagType.INT;
+        this.value = value;
+        markDirty();
+        return this;
+    }
+
+    @Override
+    public ConfigTag setLong(long value) {
+        setValueCheck();
+        type = TagType.LONG;
         this.value = value;
         markDirty();
         return this;
@@ -435,6 +469,22 @@ public class ConfigTagImpl implements ConfigTag {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.INT) {
             throw new UnsupportedOperationException("List is not of a Integer type, Actual: " + type);
+        } else if (!(value instanceof List)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        }
+
+        return (List) value;
+    }
+
+    @Override
+    @SuppressWarnings ("unchecked")
+    public List<Long> getLongList() {
+        if (value == null) {
+            throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
+        } else if (type != TagType.LIST) {
+            throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
+        } else if (listType != TagType.LONG) {
+            throw new UnsupportedOperationException("List is not of a Long type, Actual: " + type);
         } else if (!(value instanceof List)) {
             throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
         }
@@ -511,6 +561,18 @@ public class ConfigTagImpl implements ConfigTag {
     }
 
     @Override
+    public ConfigTagImpl setDefaultLongList(List<Long> value) {
+        setDefaultCheck();
+
+        defaultValue = value;
+        if (this.value == null) {
+            setLongList(value);
+        }
+
+        return this;
+    }
+
+    @Override
     public ConfigTagImpl setDefaultHexList(List<Integer> value) {
         setDefaultCheck();
 
@@ -559,6 +621,13 @@ public class ConfigTagImpl implements ConfigTag {
     public ConfigTagImpl setIntList(List<Integer> value) {
         setList(value);
         listType = TagType.INT;
+        return this;
+    }
+
+    @Override
+    public ConfigTagImpl setLongList(List<Long> value) {
+        setList(value);
+        listType = TagType.LONG;
         return this;
     }
 
