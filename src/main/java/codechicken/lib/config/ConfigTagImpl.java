@@ -484,7 +484,7 @@ public class ConfigTagImpl implements ConfigTag {
         } else if (type != TagType.LIST) {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.LONG) {
-            throw new UnsupportedOperationException("List is not of a Integer type, Actual: " + type);
+            throw new UnsupportedOperationException("List is not of a Long type, Actual: " + type);
         } else if (!(value instanceof List)) {
             throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
         }
