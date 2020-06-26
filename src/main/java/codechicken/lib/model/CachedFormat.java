@@ -80,7 +80,6 @@ public class CachedFormat {
         elementCount = elements.size();
         for (int i = 0; i < elementCount; i++) {
             VertexFormatElement element = elements.get(i);
-            label:
             switch (element.getUsage()) {
                 case POSITION:
                     if (hasPosition) {
@@ -111,21 +110,21 @@ public class CachedFormat {
                             }
                             hasUV = true;
                             uvIndex = i;
-                            break label;
+                            break;
                         case 1:
                             if (hasOverlay) {
                                 throw new IllegalStateException("Found 2 Overlay elements..");
                             }
                             hasOverlay = true;
                             overlayIndex = i;
-                            break label;
+                            break;
                         case 2:
                             if (hasLightMap) {
                                 throw new IllegalStateException("Found 2 LightMap elements..");
                             }
                             hasLightMap = true;
                             lightMapIndex = i;
-                            break label;
+                            break;
                     }
                     break;
             }

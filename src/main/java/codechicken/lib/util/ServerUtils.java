@@ -37,6 +37,7 @@ public class ServerUtils {
         return LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
     }
 
+    @Deprecated
     public static ServerPlayerEntity getPlayer(String playername) {
         return getServer().getPlayerList().getPlayerByUsername(playername);
     }

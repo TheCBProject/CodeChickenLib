@@ -59,6 +59,10 @@ public class AttributeKey<T> {
         public static <T> AttributeKey<T> getAttributeKey(int index) {
             return SneakyUtils.unsafeCast(attributeKeys.get(index));
         }
+
+        public static int numAttributes() {
+            return attributeKeys.size();
+        }
     }
 
 }
