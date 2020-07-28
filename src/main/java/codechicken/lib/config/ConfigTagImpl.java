@@ -28,6 +28,7 @@ public class ConfigTagImpl implements ConfigTag {
     public TagType listType;
 
     public Object value;
+    public Object networkValue;
     public Object defaultValue;
 
     public boolean syncToClient;
@@ -58,12 +59,12 @@ public class ConfigTagImpl implements ConfigTag {
 
     @Override
     public boolean isCategory() {
-        return value == null || !children.isEmpty();
+        return getSyncedValue() == null || !children.isEmpty();
     }
 
     @Override
     public boolean isValue() {
-        return children.isEmpty() && value != null;
+        return children.isEmpty() && getSyncedValue() != null;
     }
 
     @Override
@@ -136,7 +137,7 @@ public class ConfigTagImpl implements ConfigTag {
 
     @Override
     public boolean hasTag(String name) {
-        return value == null && children.containsKey(name);
+        return getSyncedValue() == null && children.containsKey(name);
     }
 
     @Override
@@ -215,6 +216,14 @@ public class ConfigTagImpl implements ConfigTag {
     }
 
     @Override
+    public Object getSyncedValue() {
+        if (networkValue == null) {
+            return getRawValue();
+        }
+        return networkValue;
+    }
+
+    @Override
     public ConfigTagImpl setComment(List<String> lines) {
         comment = new LinkedList<>(lines);
         markDirty();
@@ -224,80 +233,80 @@ public class ConfigTagImpl implements ConfigTag {
     //region Getters.
     @Override
     public boolean getBoolean() {
-        if (value == null) {
+        if (getSyncedValue() == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.BOOLEAN) {
             throw new UnsupportedOperationException("ConfigTag is not of a Boolean type, Actual: " + type);
-        } else if (!(value instanceof Boolean)) {
-            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        } else if (!(getSyncedValue() instanceof Boolean)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, getSyncedValue().getClass()));
         }
 
-        return (Boolean) value;
+        return (Boolean) getSyncedValue();
     }
 
     @Override
     public String getString() {
-        if (value == null) {
+        if (getSyncedValue() == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.STRING) {
             throw new UnsupportedOperationException("ConfigTag is not of a String type, Actual: " + type);
-        } else if (!(value instanceof String)) {
-            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        } else if (!(getSyncedValue() instanceof String)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, getSyncedValue().getClass()));
         }
 
-        return (String) value;
+        return (String) getSyncedValue();
     }
 
     @Override
     public int getInt() {
-        if (value == null) {
+        if (getSyncedValue() == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.INT) {
             throw new UnsupportedOperationException("ConfigTag is not of a Integer type, Actual: " + type);
-        } else if (!(value instanceof Integer)) {
-            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        } else if (!(getSyncedValue() instanceof Integer)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, getSyncedValue().getClass()));
         }
 
-        return (Integer) value;
+        return (Integer) getSyncedValue();
     }
 
     @Override
     public long getLong() {
-        if (value == null) {
+        if (getSyncedValue() == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LONG) {
             throw new UnsupportedOperationException("ConfigTag is not of a Integer type, Actual: " + type);
-        } else if (!(value instanceof Long)) {
-            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        } else if (!(getSyncedValue() instanceof Long)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, getSyncedValue().getClass()));
         }
 
-        return (Long) value;
+        return (Long) getSyncedValue();
     }
 
     @Override
     public int getHex() {
-        if (value == null) {
+        if (getSyncedValue() == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.HEX) {
             throw new UnsupportedOperationException("ConfigTag is not of a Hex type, Actual: " + type);
-        } else if (!(value instanceof Integer)) {
-            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        } else if (!(getSyncedValue() instanceof Integer)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, getSyncedValue().getClass()));
         }
 
-        return (Integer) value;
+        return (Integer) getSyncedValue();
     }
 
     @Override
     public double getDouble() {
-        if (value == null) {
+        if (getSyncedValue() == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.DOUBLE) {
             throw new UnsupportedOperationException("ConfigTag is not of a Double type, Actual: " + type);
-        } else if (!(value instanceof Double)) {
-            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        } else if (!(getSyncedValue() instanceof Double)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, getSyncedValue().getClass()));
         }
 
-        return (Double) value;
+        return (Double) getSyncedValue();
     }
 
     @Override
@@ -305,7 +314,7 @@ public class ConfigTagImpl implements ConfigTag {
         setDefaultCheck();
 
         defaultValue = value;
-        if (this.value == null) {
+        if (this.getRawValue() == null) {
             setBoolean(value);
         }
 
@@ -317,7 +326,7 @@ public class ConfigTagImpl implements ConfigTag {
         setDefaultCheck();
 
         defaultValue = value;
-        if (this.value == null) {
+        if (this.getRawValue() == null) {
             setString(value);
         }
 
@@ -329,7 +338,7 @@ public class ConfigTagImpl implements ConfigTag {
         setDefaultCheck();
 
         defaultValue = value;
-        if (this.value == null) {
+        if (this.getRawValue() == null) {
             setInt(value);
         }
 
@@ -341,7 +350,7 @@ public class ConfigTagImpl implements ConfigTag {
         setDefaultCheck();
 
         defaultValue = value;
-        if (this.value == null) {
+        if (this.getRawValue() == null) {
             setLong(value);
         }
 
@@ -353,7 +362,7 @@ public class ConfigTagImpl implements ConfigTag {
         setDefaultCheck();
 
         defaultValue = value;
-        if (this.value == null) {
+        if (this.getRawValue() == null) {
             setHex(value);
         }
 
@@ -365,7 +374,7 @@ public class ConfigTagImpl implements ConfigTag {
         setDefaultCheck();
 
         defaultValue = value;
-        if (this.value == null) {
+        if (this.getRawValue() == null) {
             setDouble(value);
         }
 
@@ -431,97 +440,97 @@ public class ConfigTagImpl implements ConfigTag {
     @Override
     @SuppressWarnings ("unchecked")
     public List<Boolean> getBooleanList() {
-        if (value == null) {
+        if (getSyncedValue() == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.BOOLEAN) {
             throw new UnsupportedOperationException("List is not of a Boolean type, Actual: " + type);
-        } else if (!(value instanceof List)) {
-            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        } else if (!(getSyncedValue() instanceof List)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, getSyncedValue().getClass()));
         }
 
-        return (List) value;
+        return (List) getSyncedValue();
     }
 
     @Override
     @SuppressWarnings ("unchecked")
     public List<String> getStringList() {
-        if (value == null) {
+        if (getSyncedValue() == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.STRING) {
             throw new UnsupportedOperationException("List is not of a String type, Actual: " + type);
-        } else if (!(value instanceof List)) {
-            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        } else if (!(getSyncedValue() instanceof List)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, getSyncedValue().getClass()));
         }
 
-        return (List) value;
+        return (List) getSyncedValue();
     }
 
     @Override
     @SuppressWarnings ("unchecked")
     public List<Integer> getIntList() {
-        if (value == null) {
+        if (getSyncedValue() == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.INT) {
             throw new UnsupportedOperationException("List is not of a Integer type, Actual: " + type);
-        } else if (!(value instanceof List)) {
-            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        } else if (!(getSyncedValue() instanceof List)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, getSyncedValue().getClass()));
         }
 
-        return (List) value;
+        return (List) getSyncedValue();
     }
 
     @Override
     @SuppressWarnings ("unchecked")
     public List<Long> getLongList() {
-        if (value == null) {
+        if (getSyncedValue() == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.LONG) {
             throw new UnsupportedOperationException("List is not of a Long type, Actual: " + type);
-        } else if (!(value instanceof List)) {
-            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        } else if (!(getSyncedValue() instanceof List)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, getSyncedValue().getClass()));
         }
 
-        return (List) value;
+        return (List) getSyncedValue();
     }
 
     @Override
     @SuppressWarnings ("unchecked")
     public List<Integer> getHexList() {
-        if (value == null) {
+        if (getSyncedValue() == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.HEX) {
             throw new UnsupportedOperationException("List is not of a Hex type, Actual: " + type);
-        } else if (!(value instanceof List)) {
-            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        } else if (!(getSyncedValue() instanceof List)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, getSyncedValue().getClass()));
         }
 
-        return (List) value;
+        return (List) getSyncedValue();
     }
 
     @Override
     @SuppressWarnings ("unchecked")
     public List<Double> getDoubleList() {
-        if (value == null) {
+        if (getSyncedValue() == null) {
             throw new IllegalStateException("Tag in a weird state, value is null, did you set a default?");
         } else if (type != TagType.LIST) {
             throw new UnsupportedOperationException("ConfigTag is not of a List type, Actual: " + type);
         } else if (listType != TagType.DOUBLE) {
             throw new UnsupportedOperationException("List is not of a Double type, Actual: " + type);
-        } else if (!(value instanceof List)) {
-            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, value.getClass()));
+        } else if (!(getSyncedValue() instanceof List)) {
+            throw new IllegalStateException(String.format("Tag appears to be in an invalid state.. Requested: %s, Current %s.", type, getSyncedValue().getClass()));
         }
 
-        return (List) value;
+        return (List) getSyncedValue();
     }
 
     @Override
@@ -529,7 +538,7 @@ public class ConfigTagImpl implements ConfigTag {
         setDefaultCheck();
 
         defaultValue = value;
-        if (this.value == null) {
+        if (this.getRawValue() == null) {
             setBooleanList(value);
         }
 
@@ -541,7 +550,7 @@ public class ConfigTagImpl implements ConfigTag {
         setDefaultCheck();
 
         defaultValue = value;
-        if (this.value == null) {
+        if (this.getRawValue() == null) {
             setStringList(value);
         }
 
@@ -553,7 +562,7 @@ public class ConfigTagImpl implements ConfigTag {
         setDefaultCheck();
 
         defaultValue = value;
-        if (this.value == null) {
+        if (this.getRawValue() == null) {
             setIntList(value);
         }
 
@@ -565,7 +574,7 @@ public class ConfigTagImpl implements ConfigTag {
         setDefaultCheck();
 
         defaultValue = value;
-        if (this.value == null) {
+        if (this.getRawValue() == null) {
             setLongList(value);
         }
 
@@ -577,7 +586,7 @@ public class ConfigTagImpl implements ConfigTag {
         setDefaultCheck();
 
         defaultValue = value;
-        if (this.value == null) {
+        if (this.getRawValue() == null) {
             setHexList(value);
         }
 
@@ -589,7 +598,7 @@ public class ConfigTagImpl implements ConfigTag {
         setDefaultCheck();
 
         defaultValue = value;
-        if (this.value == null) {
+        if (this.getRawValue() == null) {
             setDoubleList(value);
         }
 
@@ -664,7 +673,7 @@ public class ConfigTagImpl implements ConfigTag {
             copy.type = type;
             copy.listType = listType;
 
-            copy.value = type.copy(value);
+            copy.value = type.copy(getRawValue());
             if (defaultValue != null) {
                 copy.defaultValue = type.copy(defaultValue);
             }
@@ -685,7 +694,7 @@ public class ConfigTagImpl implements ConfigTag {
                 entry.getValue().copyFrom(otherTag);
             }
         } else {
-            value = type.copy(((ConfigTagImpl) other).value);
+            value = type.copy(other.getRawValue());
         }
         return this;
     }
@@ -749,12 +758,37 @@ public class ConfigTagImpl implements ConfigTag {
                 entry.getValue().write(out);
             }
         } else {
-            type.write(out, listType, value);
+            type.write(out, listType, getRawValue());
         }
     }
 
+    @Override
+    public void readNetwork(MCDataInput in) {
+        if (isCategory()) {
+            int numChildren = in.readVarInt();
+            for (int i = 0; i < numChildren; i++) {
+                String name = in.readString();
+                ConfigTagImpl found = children.get(name);
+                if (found == null) {
+                    throw new IllegalArgumentException("read called with data that does not align to this tag, Missing: " + name);
+                }
+                found.readNetwork(in);
+            }
+        } else {
+            networkValue = type.read(in, listType);
+        }
+    }
+
+    @Override
+    public void networkRestore() {
+        if (isCategory()) {
+            children.values().forEach(ConfigTagImpl::networkRestore);
+        }
+        networkValue = null;
+    }
+
     protected void addTagCheck() {
-        if (value != null) {
+        if (getRawValue() != null) {
             throw new UnsupportedOperationException("Unable to get a child tag for a tag that has a value.");
         }
     }

@@ -370,8 +370,14 @@ public interface ConfigTag {
 
     void write(MCDataOutput out);
 
+    void readNetwork(MCDataInput in);
+
+    void networkRestore();
+
     //INTERNAL!!!!!!
     Object getRawValue();
+
+    Object getSyncedValue();
 
     enum TagType {
         BOOLEAN('B') {

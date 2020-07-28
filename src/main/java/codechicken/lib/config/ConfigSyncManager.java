@@ -111,7 +111,7 @@ public class ConfigSyncManager {
                 if (found == null) {
                     throw new RuntimeException("Unable to apply server sync, tag does not exist! " + ident);
                 }
-                found.read(in);
+                found.readNetwork(in);
             }
             try {
                 parent.runSync(SyncType.CONNECT);
@@ -132,7 +132,7 @@ public class ConfigSyncManager {
                 if (found == null) {
                     throw new RuntimeException("Unable to revert config state, tag no longer exists.. " + tag.getQualifiedName());
                 }
-                found.copyFrom(tag);
+                found.networkRestore();
             }
             try {
                 parent.runSync(SyncType.DISCONNECT);
