@@ -1,8 +1,13 @@
 package codechicken.lib.model.bakedmodels;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
@@ -58,16 +63,12 @@ public abstract class WrappedItemModel implements IBakedModel {
         return overrideList;
     }
 
-    protected void renderWrapped(ItemStack stack, TransformType transformType, MatrixStack mStack, IRenderTypeBuffer getter, int packedLight, int packedOverlay) {
-//        IBakedModel model = wrapped.getOverrides().func_239290_a_(wrapped, stack, world, entity);
-//
-//        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-//        RenderType rType = RenderTypeLookup.getRenderType(stack);
-//        if (transformType == TransformType.GUI && Objects.equals(rType, Atlases.getTranslucentBlockType())) {
-//            rType = Atlases.getTranslucentCullBlockType();
-//        }
-//
-//        IVertexBuilder builder = ItemRenderer.getBuffer(getter, rType, true, stack.hasEffect());
-//        itemRenderer.renderModel(model, stack, packedLight, packedOverlay, mStack, builder);
+    protected void renderWrapped(ItemStack stack, TransformType transformType, MatrixStack mStack, IRenderTypeBuffer getter, int packedLight, int packedOverlay, boolean fabulous) {
+        IBakedModel model = wrapped.getOverrides().func_239290_a_(wrapped, stack, world, entity);
+
+        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+        RenderType rType = RenderTypeLookup.func_239219_a_(stack, fabulous);
+        IVertexBuilder builder = ItemRenderer.getBuffer(getter, rType, true, stack.hasEffect());
+        itemRenderer.renderModel(model, stack, packedLight, packedOverlay, mStack, builder);
     }
 }
