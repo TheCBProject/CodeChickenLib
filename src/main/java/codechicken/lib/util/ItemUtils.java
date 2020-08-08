@@ -11,7 +11,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 
@@ -131,7 +131,7 @@ public class ItemUtils {
     public static void ejectItem(World world, BlockPos pos, @Nonnull ItemStack stack, Direction dir) {
         pos.offset(dir);
         ItemEntity entity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-        entity.setMotion(new Vec3d(dir.getDirectionVec()).scale(0.3));
+        entity.setMotion(Vector3d.func_237491_b_(dir.getDirectionVec()).scale(0.3));
         entity.setPickupDelay(10);
         world.addEntity(entity);
     }

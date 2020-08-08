@@ -7,7 +7,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ILightReader;
+import net.minecraft.world.IBlockDisplayReader;
 
 /**
  * Note that when using the class as a vertex transformer, the vertices are assumed to be within the BB (x, y, z) -> (x+1, y+1, z+1)
@@ -20,7 +20,7 @@ public class LightMatrix implements IVertexOperation {
     public float[][] ao = new float[13][4];
     public int[][] brightness = new int[13][4];
 
-    public ILightReader access;
+    public IBlockDisplayReader access;
     public BlockPos pos = BlockPos.ZERO;
 
     private int sampled = 0;
@@ -78,7 +78,7 @@ public class LightMatrix implements IVertexOperation {
         System.out.println(Arrays.deepToString(ssamplem));
     }*/
 
-    public void locate(ILightReader a, BlockPos bPos) {
+    public void locate(IBlockDisplayReader a, BlockPos bPos) {
         access = a;
         pos = bPos;
         computed = 0;

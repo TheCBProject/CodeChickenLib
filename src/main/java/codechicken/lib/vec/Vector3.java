@@ -2,14 +2,14 @@ package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
-import net.minecraft.client.renderer.Vector3f;
-import net.minecraft.client.renderer.Vector4f;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.util.math.vector.Vector4f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -58,7 +58,7 @@ public class Vector3 implements Copyable<Vector3> {
         this(fa[0], fa[1], fa[2]);
     }
 
-    public Vector3(Vec3d vec) {
+    public Vector3(Vector3d vec) {
         x = vec.x;
         y = vec.y;
         z = vec.z;
@@ -68,7 +68,7 @@ public class Vector3 implements Copyable<Vector3> {
         return fromVec3i(pos);
     }
 
-    public static Vector3 fromVec3i(Vec3i pos) {
+    public static Vector3 fromVec3i(Vector3i pos) {
         return new Vector3(pos.getX(), pos.getY(), pos.getZ());
     }
 
@@ -112,8 +112,8 @@ public class Vector3 implements Copyable<Vector3> {
         return new Vector3(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
     }
 
-    public Vec3d vec3() {
-        return new Vec3d(x, y, z);
+    public Vector3d vec3() {
+        return new Vector3d(x, y, z);
     }
 
     public BlockPos pos() {
@@ -159,7 +159,7 @@ public class Vector3 implements Copyable<Vector3> {
         return set(vec.x, vec.y, vec.z);
     }
 
-    public Vector3 set(Vec3i vec) {
+    public Vector3 set(Vector3i vec) {
         return set(vec.getX(), vec.getY(), vec.getZ());
     }
 
@@ -186,7 +186,7 @@ public class Vector3 implements Copyable<Vector3> {
         return add(vec.x, vec.y, vec.z);
     }
 
-    public Vector3 add(Vec3d vec) {
+    public Vector3 add(Vector3d vec) {
         return add(vec.x, vec.y, vec.z);
     }
 
@@ -209,7 +209,7 @@ public class Vector3 implements Copyable<Vector3> {
         return subtract(vec.x, vec.y, vec.z);
     }
 
-    public Vector3 subtract(Vec3d vec) {
+    public Vector3 subtract(Vector3d vec) {
         return subtract(vec.x, vec.y, vec.z);
     }
 

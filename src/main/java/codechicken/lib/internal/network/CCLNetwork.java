@@ -22,7 +22,7 @@ public class CCLNetwork {
     public static void init() {
         netChannel = PacketCustomChannelBuilder.named(NET_CHANNEL)//
                 .assignClientHandler(() -> ClientPacketHandler::new)//
-                .assignLoginHandler(() -> LoginPacketHandler::new)
+                .assignLoginHandler(() -> LoginPacketHandler::new)//
                 .build();
     }
 

@@ -11,7 +11,7 @@ import java.io.InputStream;
  * An {@link MCDataInput} implementation, reading
  * its data from either a {@link InputStream} or
  * {@link DataInput} stream.
- *
+ * <p>
  * Created by covers1624 on 4/16/20.
  */
 public class MCDataInputStream implements MCDataInput {

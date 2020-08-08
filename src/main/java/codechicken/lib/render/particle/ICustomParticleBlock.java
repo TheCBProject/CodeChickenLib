@@ -14,7 +14,7 @@ import net.minecraftforge.common.extensions.IForgeBlock;
 
 /**
  * Trait like interface for adding CustomParticle support to any block, Simply implement :D
- *
+ * <p>
  * Created by covers1624 on 31/10/19.
  */
 public interface ICustomParticleBlock extends IForgeBlock {

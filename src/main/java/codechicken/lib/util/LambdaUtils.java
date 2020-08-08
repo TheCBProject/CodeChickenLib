@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 
 /**
  * Basically a bunch of lambda helpers.
- *
+ * <p>
  * Created by covers1624 on 1/06/2017.
  */
 public class LambdaUtils {

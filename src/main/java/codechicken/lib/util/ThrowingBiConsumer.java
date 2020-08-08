@@ -1,10 +1,8 @@
 package codechicken.lib.util;
 
-import java.util.Objects;
-
 /**
  * A simple BiConsumer that has a throws declaration.
- * 
+ * <p>
  * Created by covers1624 on 15/06/18.
  */
 @FunctionalInterface

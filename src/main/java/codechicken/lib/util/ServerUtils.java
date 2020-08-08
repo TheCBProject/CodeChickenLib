@@ -11,8 +11,9 @@ import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerProfileCache;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -20,7 +21,6 @@ import net.minecraftforge.fml.LogicalSidedProvider;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -51,11 +51,11 @@ public class ServerUtils {
     }
 
     public static File getSaveDirectory() {
-        return getSaveDirectory(DimensionType.OVERWORLD);
+        return getSaveDirectory(World.field_234918_g_);
     }
 
-    public static File getSaveDirectory(DimensionType dimension) {
-        return getServer().getWorld(dimension).getSaveHandler().getWorldDirectory();
+    public static File getSaveDirectory(RegistryKey<World> dimension) {
+        return getServer().anvilConverterForAnvilFile.func_237291_a_(dimension);
     }
 
     public static GameProfile getGameProfile(String username) {

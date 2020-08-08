@@ -5,7 +5,7 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ILightReader;
+import net.minecraft.world.IBlockDisplayReader;
 
 /**
  * Simple brightness model that only works for axis planar sides
@@ -15,14 +15,14 @@ public class SimpleBrightnessModel implements IVertexOperation {
     public static final int operationIndex = IVertexOperation.registerOperation();
     public static SimpleBrightnessModel instance = new SimpleBrightnessModel();
 
-    public ILightReader access;
+    public IBlockDisplayReader access;
     public BlockPos pos = BlockPos.ZERO;
 
     private int sampled = 0;
     private int[] samples = new int[6];
     private BlockPos c = BlockPos.ZERO;
 
-    public void locate(ILightReader a, BlockPos bPos) {
+    public void locate(IBlockDisplayReader a, BlockPos bPos) {
         access = a;
         pos = bPos;
         sampled = 0;

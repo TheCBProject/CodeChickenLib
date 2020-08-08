@@ -4,7 +4,7 @@ import net.minecraft.item.ItemStack;
 
 /**
  * Used to handle rendering FirstPerson items the same as a map.
- *
+ * <p>
  * Created by covers1624 on 15/02/2017.
  */
 public interface IMapRenderer {

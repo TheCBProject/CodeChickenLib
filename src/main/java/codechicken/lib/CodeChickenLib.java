@@ -13,7 +13,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.nio.file.Paths;
@@ -31,11 +30,9 @@ public class CodeChickenLib {
     public static Proxy proxy;
 
     public CodeChickenLib() {
-        proxy = DistExecutor.runForDist(() -> ProxyClient::new, () -> Proxy::new);
+        proxy = DistExecutor.safeRunForDist(() -> ProxyClient::new, () -> Proxy::new);
         FMLJavaModLoadingContext.get().getModEventBus().register(this);
-        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> {
-            FMLJavaModLoadingContext.get().getModEventBus().addListener(OpenGLUtils::onModelRegistryEvent);
-        });
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> OpenGLUtils::init);
     }
 
     @SubscribeEvent
@@ -53,12 +50,5 @@ public class CodeChickenLib {
     @SubscribeEvent
     public void onServerSetup(FMLDedicatedServerSetupEvent event) {
         proxy.serverSetup(event);
-
     }
-
-    @SubscribeEvent
-    public void onServerStarting(FMLServerStartingEvent event) {
-
-    }
-
 }

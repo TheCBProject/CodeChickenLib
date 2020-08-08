@@ -4,7 +4,7 @@ import codechicken.lib.vec.Vector3;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 
 //TODO Copyable.
 public class DistanceRayTraceResult extends BlockRayTraceResult implements Comparable<DistanceRayTraceResult> {
@@ -18,7 +18,7 @@ public class DistanceRayTraceResult extends BlockRayTraceResult implements Compa
         this(false, hitVec.vec3(), faceIn, posIn, isInside, data, dist);
     }
 
-    protected DistanceRayTraceResult(boolean isMissIn, Vec3d hitVec, Direction faceIn, BlockPos posIn, boolean isInside, Object data, double dist) {
+    protected DistanceRayTraceResult(boolean isMissIn, Vector3d hitVec, Direction faceIn, BlockPos posIn, boolean isInside, Object data, double dist) {
         super(isMissIn, hitVec, faceIn, posIn, isInside);
         setData(data);
         this.dist = dist;

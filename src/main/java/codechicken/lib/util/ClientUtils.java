@@ -36,7 +36,7 @@ public class ClientUtils extends CommonUtils {
         }
     }
 
-    public static String getWorldSaveName() {
-        return Minecraft.getInstance().isSingleplayer() ? Minecraft.getInstance().getIntegratedServer().getFolderName() : null;
-    }
+//    public static String getWorldSaveName() {
+//        return Minecraft.getInstance().isSingleplayer() ? Minecraft.getInstance().getIntegratedServer().getFolderName() : null;
+//    }
 }

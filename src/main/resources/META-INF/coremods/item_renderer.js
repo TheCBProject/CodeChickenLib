@@ -93,4 +93,5 @@ function isNonImportant(insn) {
     var type = insn.getType();
     return type == AbstractInsnNode.LINE || type == AbstractInsnNode.FRAME || type == AbstractInsnNode.LABEL
 }
+
 //endregion

@@ -5,9 +5,8 @@ import it.unimi.dsi.fastutil.doubles.DoubleList;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.vector.Vector3d;
 import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nullable;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 
 /**
  * A VoxelShape implementation for handling SubHit's on IndexedCuboid6's
- *
+ * <p>
  * Created by covers1624 on 31/10/19.
  */
 public class SubHitVoxelShape extends VoxelShape {
@@ -43,7 +42,7 @@ public class SubHitVoxelShape extends VoxelShape {
 
     @Nullable
     @Override
-    public BlockRayTraceResult rayTrace(Vec3d start, Vec3d end, BlockPos pos) {
+    public BlockRayTraceResult rayTrace(Vector3d start, Vector3d end, BlockPos pos) {
         CuboidRayTraceResult closest = null;
         double dist = Double.MAX_VALUE;
         for (Pair<IndexedCuboid6, VoxelShape> cuboidShape : cuboidShapes) {
@@ -56,7 +55,7 @@ public class SubHitVoxelShape extends VoxelShape {
         return closest;
     }
 
-    private CuboidRayTraceResult rayTrace(Vec3d start, Vec3d end, BlockPos pos, IndexedCuboid6 cuboid, VoxelShape shape) {
+    private CuboidRayTraceResult rayTrace(Vector3d start, Vector3d end, BlockPos pos, IndexedCuboid6 cuboid, VoxelShape shape) {
         BlockRayTraceResult hit = shape.rayTrace(start, end, pos);
         if (hit != null) {
             Vector3 hitVec = new Vector3(hit.getHitVec());

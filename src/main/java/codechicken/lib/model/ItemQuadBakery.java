@@ -2,9 +2,9 @@ package codechicken.lib.model;
 
 import codechicken.lib.util.ArrayUtils;
 import codechicken.lib.util.LambdaUtils;
-import net.minecraft.client.renderer.TransformationMatrix;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraftforge.client.model.ItemLayerModel;
 
 import java.util.LinkedList;

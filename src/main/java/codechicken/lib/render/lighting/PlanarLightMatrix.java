@@ -4,14 +4,14 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ILightReader;
+import net.minecraft.world.IBlockDisplayReader;
 
 public class PlanarLightMatrix extends PlanarLightModel {
 
     public static final int operationIndex = IVertexOperation.registerOperation();
     public static PlanarLightMatrix instance = new PlanarLightMatrix();
 
-    public ILightReader access;
+    public IBlockDisplayReader access;
     public BlockPos pos = BlockPos.ZERO;
 
     private int sampled = 0;
@@ -21,7 +21,7 @@ public class PlanarLightMatrix extends PlanarLightModel {
         super(PlanarLightModel.standardLightModel.colours);
     }
 
-    public PlanarLightMatrix locate(ILightReader a, BlockPos bPos) {
+    public PlanarLightMatrix locate(IBlockDisplayReader a, BlockPos bPos) {
         access = a;
         pos = bPos;
         sampled = 0;

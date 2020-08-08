@@ -12,6 +12,7 @@ import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -19,7 +20,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
@@ -33,7 +34,6 @@ import java.util.Random;
 import java.util.Set;
 
 import static codechicken.lib.internal.network.CCLNetwork.C_ADD_LANDING_EFFECTS;
-import static codechicken.lib.internal.network.CCLNetwork.C_OPEN_CONTAINER;
 
 /**
  * Created by covers1624 on 21/11/2016.
@@ -73,7 +73,7 @@ public class CustomParticleHandler {
             double x = entity.getPosX() + (world.rand.nextFloat() - 0.5D) * entity.getWidth();
             double y = entity.getBoundingBox().minY + 0.1D;
             double z = entity.getPosZ() + (world.rand.nextFloat() - 0.5D) * entity.getWidth();
-            particleManager.addEffect(new CustomBreakingParticle(world, x, y, z, -entity.getMotion().x * 4.0D, 1.5D, -entity.getMotion().z * 4.0D, rolledSprite));
+            particleManager.addEffect(new CustomBreakingParticle((ClientWorld) world, x, y, z, -entity.getMotion().x * 4.0D, 1.5D, -entity.getMotion().z * 4.0D, rolledSprite));
             return true;
         }
 
@@ -142,7 +142,7 @@ public class CustomParticleHandler {
     @OnlyIn (Dist.CLIENT)
     public static void addLandingEffects(World world, BlockPos pos, BlockState state, Vector3 entityPos, int numParticles) {
         //Spoof a raytrace from the feet.
-        BlockRayTraceResult traceResult = new BlockRayTraceResult(new Vec3d(entityPos.x, pos.getY() + 1, entityPos.z), Direction.UP, pos, false);
+        BlockRayTraceResult traceResult = new BlockRayTraceResult(new Vector3d(entityPos.x, pos.getY() + 1, entityPos.z), Direction.UP, pos, false);
         ParticleManager manager = Minecraft.getInstance().particles;
         Random randy = new Random();
         BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes();
@@ -157,7 +157,7 @@ public class CustomParticleHandler {
                     double mX = randy.nextGaussian() * speed;
                     double mY = randy.nextGaussian() * speed;
                     double mZ = randy.nextGaussian() * speed;
-                    manager.addEffect(CustomBreakingParticle.newLandingParticle(world, entityPos.x, entityPos.y, entityPos.z, mX, mY, mZ, sprites.get(randy.nextInt(sprites.size()))));
+                    manager.addEffect(CustomBreakingParticle.newLandingParticle((ClientWorld) world, entityPos.x, entityPos.y, entityPos.z, mX, mY, mZ, sprites.get(randy.nextInt(sprites.size()))));
                 }
             }
         }
@@ -191,7 +191,7 @@ public class CustomParticleHandler {
             diff.x = bounds.max.x + border;
         }
 
-        particleManager.addEffect(new CustomBreakingParticle(world, pos.x, pos.y, pos.z, 0, 0, 0, icon).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+        particleManager.addEffect(new CustomBreakingParticle((ClientWorld) world, pos.x, pos.y, pos.z, 0, 0, 0, icon).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
     }
 
     @OnlyIn (Dist.CLIENT)
@@ -206,7 +206,7 @@ public class CustomParticleHandler {
                     double x = bounds.min.x + (i + 0.5) * diff.x / density.x;
                     double y = bounds.min.y + (j + 0.5) * diff.y / density.y;
                     double z = bounds.min.z + (k + 0.5) * diff.z / density.z;
-                    particleManager.addEffect(new CustomBreakingParticle(world, x, y, z, x - center.x, y - center.y, z - center.z, icons.get(world.rand.nextInt(icons.size()))));
+                    particleManager.addEffect(new CustomBreakingParticle((ClientWorld) world, x, y, z, x - center.x, y - center.y, z - center.z, icons.get(world.rand.nextInt(icons.size()))));
                 }
             }
         }

@@ -1,6 +1,6 @@
 package codechicken.lib.render;
 
-import net.minecraftforge.client.event.ModelRegistryEvent;
+import com.mojang.blaze3d.systems.RenderSystem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL;
@@ -24,16 +24,19 @@ public class OpenGLUtils {
     public static boolean openGL45;
     public static boolean openGL46;
 
-    public static void onModelRegistryEvent(ModelRegistryEvent event) {
-        GLCapabilities caps = GL.getCapabilities();
-        openGL20 = caps.OpenGL20;
-        openGL21 = caps.OpenGL21;
-        openGL32 = caps.OpenGL32;
-        openGL40 = caps.OpenGL40;
-        openGL43 = caps.OpenGL43;
-        openGL44 = caps.OpenGL44;
-        openGL45 = caps.OpenGL45;
-        openGL46 = caps.OpenGL46;
+    public static void init() {
+        //Let the RenderThread handle this on next frame flip.
+        RenderSystem.recordRenderCall(() -> {
+            GLCapabilities caps = GL.getCapabilities();
+            openGL20 = caps.OpenGL20;
+            openGL21 = caps.OpenGL21;
+            openGL32 = caps.OpenGL32;
+            openGL40 = caps.OpenGL40;
+            openGL43 = caps.OpenGL43;
+            openGL44 = caps.OpenGL44;
+            openGL45 = caps.OpenGL45;
+            openGL46 = caps.OpenGL46;
+        });
     }
 
     private static boolean tryGet(BooleanSupplier sup, String log) {

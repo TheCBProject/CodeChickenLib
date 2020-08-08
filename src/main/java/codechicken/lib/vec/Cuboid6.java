@@ -6,9 +6,9 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -30,7 +30,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         this.max = max;
     }
 
-    public Cuboid6(Vec3i min, Vec3i max) {
+    public Cuboid6(Vector3i min, Vector3i max) {
         this.min = Vector3.fromVec3i(min);
         this.max = Vector3.fromVec3i(max);
     }
@@ -78,7 +78,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return set(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
-    public Cuboid6 set(Vec3i min, Vec3i max) {
+    public Cuboid6 set(Vector3i min, Vector3i max) {
         return set(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ());
     }
 
@@ -100,7 +100,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return add(vec.x, vec.y, vec.z);
     }
 
-    public Cuboid6 add(Vec3i vec) {
+    public Cuboid6 add(Vector3i vec) {
         return add(vec.getX(), vec.getY(), vec.getZ());
     }
 
@@ -122,11 +122,11 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return subtract(vec.x, vec.y, vec.z);
     }
 
-    public Cuboid6 subtract(Vec3i vec) {
+    public Cuboid6 subtract(Vector3i vec) {
         return subtract(vec.getX(), vec.getY(), vec.getZ());
     }
 
-    public Cuboid6 subtract(Vec3d vec) {
+    public Cuboid6 subtract(Vector3d vec) {
         return subtract(vec.x, vec.y, vec.z);
     }
 

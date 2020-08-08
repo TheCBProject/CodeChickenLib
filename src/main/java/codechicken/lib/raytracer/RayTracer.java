@@ -7,12 +7,18 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.ForgeMod;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +34,7 @@ public class RayTracer {
      * @param pos     The position offset for the start and end vector.
      * @return The closest hit to the start vector.
      */
-    public static CuboidRayTraceResult rayTraceCuboidsClosest(Vec3d start, Vec3d end, BlockPos pos, List<IndexedCuboid6> cuboids) {
+    public static CuboidRayTraceResult rayTraceCuboidsClosest(Vector3d start, Vector3d end, BlockPos pos, List<IndexedCuboid6> cuboids) {
         return rayTraceCuboidsClosest(new Vector3(start), new Vector3(end), pos, cuboids);
     }
 
@@ -88,7 +94,7 @@ public class RayTracer {
      * @param boxes The cuboids to trace.
      * @return The closest hit to the start vector.
      */
-    public static CuboidRayTraceResult rayTraceCuboidsClosest(Vec3d start, Vec3d end, BlockPos pos, AxisAlignedBB... boxes) {
+    public static CuboidRayTraceResult rayTraceCuboidsClosest(Vector3d start, Vector3d end, BlockPos pos, AxisAlignedBB... boxes) {
         List<IndexedCuboid6> cuboidList = new LinkedList<>();
         if (boxes != null) {
             for (AxisAlignedBB box : boxes) {
@@ -128,7 +134,7 @@ public class RayTracer {
      * @param cuboids The cuboids to trace.
      * @return The closest hit to the start vector.
      */
-    public static CuboidRayTraceResult rayTraceCuboidsClosest(Vec3d start, Vec3d end, BlockPos pos, Cuboid6... cuboids) {
+    public static CuboidRayTraceResult rayTraceCuboidsClosest(Vector3d start, Vector3d end, BlockPos pos, Cuboid6... cuboids) {
         List<IndexedCuboid6> cuboidList = new LinkedList<>();
         if (cuboids != null) {
             for (Cuboid6 cuboid : cuboids) {
@@ -160,7 +166,7 @@ public class RayTracer {
      * @param cuboids The cuboids to check for a hit.
      * @return The closest hit to the start vector.
      */
-    public static CuboidRayTraceResult rayTraceCuboidsClosest(Vec3d start, Vec3d end, BlockPos pos, IndexedCuboid6... cuboids) {
+    public static CuboidRayTraceResult rayTraceCuboidsClosest(Vector3d start, Vector3d end, BlockPos pos, IndexedCuboid6... cuboids) {
         List<IndexedCuboid6> cuboidList = new LinkedList<>();
         if (cuboids != null) {
             Collections.addAll(cuboidList, cuboids);
@@ -190,13 +196,13 @@ public class RayTracer {
     }
 
     public static BlockRayTraceResult retraceBlock(IBlockReader world, PlayerEntity player, BlockPos pos) {
-        Vec3d startVec = getStartVec(player);
-        Vec3d endVec = getEndVec(player);
+        Vector3d startVec = getStartVec(player);
+        Vector3d endVec = getEndVec(player);
         BlockState state = world.getBlockState(pos);
         VoxelShape baseShape = state.getShape(world, pos);
         BlockRayTraceResult baseTraceResult = baseShape.rayTrace(startVec, endVec, pos);
         if (baseTraceResult != null) {
-            BlockRayTraceResult raytraceTraceShape = state.getRaytraceShape(world, pos).rayTrace(startVec, endVec, pos);
+            BlockRayTraceResult raytraceTraceShape = state.getRaytraceShape(world, pos, ISelectionContext.forEntity(player)).rayTrace(startVec, endVec, pos);
             if (raytraceTraceShape != null) {
                 return raytraceTraceShape;
             }
@@ -205,7 +211,7 @@ public class RayTracer {
     }
 
     private static double getBlockReachDistance_server(ServerPlayerEntity player) {
-        return player.getAttribute(PlayerEntity.REACH_DISTANCE).getValue();
+        return player.getAttribute(ForgeMod.REACH_DISTANCE.get()).getValue();
     }
 
     @OnlyIn (Dist.CLIENT)
@@ -230,17 +236,17 @@ public class RayTracer {
     }
 
     public static BlockRayTraceResult retrace(PlayerEntity player, double reach, RayTraceContext.BlockMode blockMode, RayTraceContext.FluidMode fluidMode) {
-        Vec3d startVec = getStartVec(player);
-        Vec3d endVec = getEndVec(player, reach);
+        Vector3d startVec = getStartVec(player);
+        Vector3d endVec = getEndVec(player, reach);
         return player.world.rayTraceBlocks(new RayTraceContext(startVec, endVec, blockMode, fluidMode, player));
     }
 
-    public static Vec3d getCorrectedHeadVec(PlayerEntity player) {
+    public static Vector3d getCorrectedHeadVec(PlayerEntity player) {
         Vector3 v = Vector3.fromEntity(player).add(0, player.getEyeHeight(), 0);
         return v.vec3();
     }
 
-    public static Vec3d getStartVec(PlayerEntity player) {
+    public static Vector3d getStartVec(PlayerEntity player) {
         return getCorrectedHeadVec(player);
     }
 
@@ -249,16 +255,16 @@ public class RayTracer {
         return player.world.isRemote ? getBlockReachDistance_client() : player instanceof ServerPlayerEntity ? getBlockReachDistance_server((ServerPlayerEntity) player) : 5D;
     }
 
-    public static Vec3d getEndVec(PlayerEntity player) {
-        Vec3d headVec = getCorrectedHeadVec(player);
-        Vec3d lookVec = player.getLook(1.0F);
+    public static Vector3d getEndVec(PlayerEntity player) {
+        Vector3d headVec = getCorrectedHeadVec(player);
+        Vector3d lookVec = player.getLook(1.0F);
         double reach = getBlockReachDistance(player);
         return headVec.add(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
     }
 
-    public static Vec3d getEndVec(PlayerEntity player, double reach) {
-        Vec3d headVec = getCorrectedHeadVec(player);
-        Vec3d lookVec = player.getLook(1.0F);
+    public static Vector3d getEndVec(PlayerEntity player, double reach) {
+        Vector3d headVec = getCorrectedHeadVec(player);
+        Vector3d lookVec = player.getLook(1.0F);
         return headVec.add(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
     }
 }

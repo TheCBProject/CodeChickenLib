@@ -3,14 +3,14 @@ package codechicken.lib.render.particle;
 import net.minecraft.client.particle.IParticleRenderType;
 import net.minecraft.client.particle.SpriteTexturedParticle;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.world.World;
+import net.minecraft.client.world.ClientWorld;
 
 public class CustomBreakingParticle extends SpriteTexturedParticle {
 
     private final float field_217571_C;
     private final float field_217572_F;
 
-    public CustomBreakingParticle(World world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
+    public CustomBreakingParticle(ClientWorld world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
         super(world, x, y, z, dx, dy, dz);
         setSprite(icon);
         particleGravity = 1;
@@ -20,7 +20,7 @@ public class CustomBreakingParticle extends SpriteTexturedParticle {
         this.field_217572_F = this.rand.nextFloat() * 3.0F;
     }
 
-    public static CustomBreakingParticle newLandingParticle(World world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
+    public static CustomBreakingParticle newLandingParticle(ClientWorld world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
         CustomBreakingParticle particle = new CustomBreakingParticle(world, x, y, z, dx, dy, dz, icon);
         particle.motionX = dx;
         particle.motionY = dy;

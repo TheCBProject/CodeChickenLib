@@ -3,9 +3,8 @@ package codechicken.lib.vec;
 import codechicken.lib.util.Copyable;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.client.renderer.Matrix3f;
-import net.minecraft.client.renderer.Matrix4f;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Vector3i;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -81,7 +80,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     //region Translate, Scale, Transpose.
-    public Matrix4 translate(Vec3i pos) {
+    public Matrix4 translate(Vector3i pos) {
         return translate(pos.getX(), pos.getY(), pos.getZ());
     }
 

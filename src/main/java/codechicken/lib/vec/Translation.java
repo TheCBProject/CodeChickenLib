@@ -1,6 +1,6 @@
 package codechicken.lib.vec;
 
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.vector.Vector3i;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -16,7 +16,7 @@ public class Translation extends Transformation {
         this.vec = vec;
     }
 
-    public Translation(Vec3i vec) {
+    public Translation(Vector3i vec) {
         this.vec = Vector3.fromVec3i(vec);
     }
 

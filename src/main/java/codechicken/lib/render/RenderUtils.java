@@ -10,13 +10,13 @@ import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderState;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.Material;
+import net.minecraft.client.renderer.model.RenderMaterial;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
@@ -73,7 +73,7 @@ public class RenderUtils {
         } else {
             bound.max.y = bound.min.y + (bound.max.y - bound.min.y) * capacity;
         }
-        Material material = ForgeHooksClient.getBlockMaterial(attributes.getStillTexture(stack));
+        RenderMaterial material = ForgeHooksClient.getBlockMaterial(attributes.getStillTexture(stack));
         ccrs.bind(renderType, getter);
         ccrs.baseColour = attributes.getColor(stack) << 8 | alpha;
         makeFluidModel(bound, material.getSprite(), res).render(ccrs, mat);
@@ -190,7 +190,7 @@ public class RenderUtils {
     }
 
     public static void bufferHitbox(Matrix4 mat, IRenderTypeBuffer getter, ActiveRenderInfo renderInfo, Cuboid6 cuboid) {
-        Vec3d projectedView = renderInfo.getProjectedView();
+        Vector3d projectedView = renderInfo.getProjectedView();
         bufferHitBox(mat.copy().translate(-projectedView.x, -projectedView.y, -projectedView.z), getter, cuboid);
     }
 

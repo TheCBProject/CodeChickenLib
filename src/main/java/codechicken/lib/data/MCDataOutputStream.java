@@ -11,7 +11,7 @@ import java.io.OutputStream;
  * An {@link MCDataOutput} implementation writing all
  * its data to either a {@link OutputStream} or
  * {@link DataOutput} stream.
- *
+ * <p>
  * Created by covers1624 on 4/15/20.
  */
 public class MCDataOutputStream implements MCDataOutput {

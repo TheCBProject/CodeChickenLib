@@ -16,14 +16,14 @@ import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.server.management.OpList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -127,24 +127,24 @@ public final class PacketCustom extends MCDataByteBuf {
         ServerUtils.getServer().getPlayerList().sendPacketToAllPlayers(packet);
     }
 
-    public void sendPacketToAllAround(BlockPos pos, double range, DimensionType dim) {
+    public void sendPacketToAllAround(BlockPos pos, double range, RegistryKey<World> dim) {
         sendPacketToAllAround(pos.getX(), pos.getY(), pos.getZ(), range, dim);
     }
 
-    public void sendPacketToAllAround(double x, double y, double z, double range, DimensionType dim) {
+    public void sendPacketToAllAround(double x, double y, double z, double range, RegistryKey<World> dim) {
         sendToAllAround(toPacket(NetworkDirection.PLAY_TO_CLIENT), x, y, z, range, dim);
     }
 
-    public static void sendToAllAround(IPacket<?> packet, double x, double y, double z, double range, DimensionType dim) {
+    public static void sendToAllAround(IPacket<?> packet, double x, double y, double z, double range, RegistryKey<World> dim) {
         ServerUtils.getServer().getPlayerList().sendToAllNearExcept(null, x, y, z, range, dim, packet);
     }
 
-    public void sendToDimension(DimensionType dim) {
+    public void sendToDimension(RegistryKey<World> dim) {
         sendToDimension(toPacket(NetworkDirection.PLAY_TO_CLIENT), dim);
     }
 
-    public static void sendToDimension(IPacket<?> packet, DimensionType dim) {
-        ServerUtils.getServer().getPlayerList().sendPacketToAllPlayersInDimension(packet, dim);
+    public static void sendToDimension(IPacket<?> packet, RegistryKey<World> dim) {
+        ServerUtils.getServer().getPlayerList().func_232642_a_(packet, dim);
     }
 
     public void sendToChunk(TileEntity tile) {
@@ -249,8 +249,8 @@ public final class PacketCustom extends MCDataByteBuf {
     @Override public PacketCustom writeResourceLocation(ResourceLocation loc) { super.writeResourceLocation(loc); return this; }
     @Override public PacketCustom writeDirection(Direction dir) { super.writeDirection(dir); return this; }
     @Override public PacketCustom writePos(BlockPos pos) { super.writePos(pos); return this; }
-    @Override public PacketCustom writeVec3i(Vec3i vec) { super.writeVec3i(vec); return this; }
-    @Override public PacketCustom writeVec3d(Vec3d vec) { super.writeVec3d(vec); return this; }
+    @Override public PacketCustom writeVec3i(Vector3i vec) { super.writeVec3i(vec); return this; }
+    @Override public PacketCustom writeVec3d(Vector3d vec) { super.writeVec3d(vec); return this; }
     @Override public PacketCustom writeCompoundNBT(CompoundNBT tag) { super.writeCompoundNBT(tag); return this; }
     @Override public PacketCustom writeFluidStack(FluidStack stack) { super.writeFluidStack(stack); return this; }
     @Override public PacketCustom writeItemStack(ItemStack stack) { super.writeItemStack(stack); return this; }

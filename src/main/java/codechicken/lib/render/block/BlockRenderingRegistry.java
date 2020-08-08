@@ -1,7 +1,5 @@
 package codechicken.lib.render.block;
 
-import codechicken.lib.reflect.ObfMapping;
-import codechicken.lib.reflect.ReflectionManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraftforge.api.distmarker.Dist;

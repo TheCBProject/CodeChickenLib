@@ -6,7 +6,7 @@ import net.minecraft.network.PacketBuffer;
 /**
  * An {@link MCDataInput} and {@link MCDataOutput} implementation,
  * delegating to the provided {@link ByteBuf}.
- *
+ * <p>
  * Created by covers1624 on 4/16/20.
  */
 public class MCDataByteBuf implements MCDataInput, MCDataOutput {

@@ -2,10 +2,10 @@ package codechicken.lib.render;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
+import codechicken.lib.render.buffer.ISpriteAwareVertexBuilder;
 import codechicken.lib.render.lighting.LC;
 import codechicken.lib.render.lighting.LightMatrix;
 import codechicken.lib.render.lighting.PlanarLightModel;
-import codechicken.lib.render.buffer.ISpriteAwareVertexBuilder;
 import codechicken.lib.render.pipeline.CCRenderPipeline;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.render.pipeline.IVertexSource;
@@ -23,7 +23,7 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ILightReader;
+import net.minecraft.world.IBlockDisplayReader;
 import net.minecraftforge.fluids.FluidStack;
 
 /**
@@ -160,7 +160,7 @@ public class CCRenderState {
         colour = baseColour = alphaOverride = -1;
     }
 
-    public void preRenderWorld(ILightReader world, BlockPos pos) {
+    public void preRenderWorld(IBlockDisplayReader world, BlockPos pos) {
         this.reset();
         this.colour = 0xFFFFFFFF;
         this.setBrightness(world, pos);
@@ -268,7 +268,7 @@ public class CCRenderState {
         GlStateManager.color4f((colour >>> 24) / 255F, (colour >> 16 & 0xFF) / 255F, (colour >> 8 & 0xFF) / 255F, (alphaOverride >= 0 ? alphaOverride : colour & 0xFF) / 255F);
     }
 
-    public void setBrightness(ILightReader world, BlockPos pos) {
+    public void setBrightness(IBlockDisplayReader world, BlockPos pos) {
         brightness = WorldRenderer.getPackedLightmapCoords(world, world.getBlockState(pos), pos);
     }
 

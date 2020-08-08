@@ -51,7 +51,7 @@ public class SneakyUtils {
      * Evaluates a {@link ThrowingProducer} returning the producers result.
      * Re-Throws any exception.
      *
-     * @param tp  The {@link ThrowingProducer}.
+     * @param tp The {@link ThrowingProducer}.
      * @return The result of the producer.
      */
     public static <T> T sneaky(ThrowingProducer<T, Throwable> tp) {

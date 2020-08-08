@@ -11,8 +11,8 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.*;
@@ -789,12 +789,12 @@ public interface MCDataOutput {
     }
 
     /**
-     * Writes a {@link Vec3i} to the stream.
+     * Writes a {@link Vector3i} to the stream.
      *
-     * @param vec The {@link Vec3i}.
+     * @param vec The {@link Vector3i}.
      * @return The same stream.
      */
-    default MCDataOutput writeVec3i(Vec3i vec) {
+    default MCDataOutput writeVec3i(Vector3i vec) {
         writeSignedVarInt(vec.getX());
         writeSignedVarInt(vec.getY());
         writeSignedVarInt(vec.getZ());
@@ -802,12 +802,12 @@ public interface MCDataOutput {
     }
 
     /**
-     * Writes a {@link Vec3d} to the stream.
+     * Writes a {@link Vector3d} to the stream.
      *
-     * @param vec The {@link Vec3d}.
+     * @param vec The {@link Vector3d}.
      * @return The same stream.
      */
-    default MCDataOutput writeVec3d(Vec3d vec) {
+    default MCDataOutput writeVec3d(Vector3d vec) {
         writeDouble(vec.x);
         writeDouble(vec.y);
         writeDouble(vec.z);

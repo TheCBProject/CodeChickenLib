@@ -1,8 +1,8 @@
 package codechicken.lib.render.shader;
 
 import codechicken.lib.vec.Matrix4;
-import net.minecraft.client.renderer.Matrix3f;
-import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.util.math.vector.Matrix3f;
+import net.minecraft.util.math.vector.Matrix4f;
 
 /**
  * All supported Uniform types.

@@ -14,13 +14,14 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.ILightReader;
+import net.minecraft.world.IBlockDisplayReader;
 import net.minecraftforge.client.model.data.IModelData;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
@@ -52,7 +53,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
 
     //In world.
     @Override
-    public boolean renderModel(BlockState state, BlockPos pos, ILightReader world, MatrixStack stack, IVertexBuilder builder, boolean checkSides, Random rand, IModelData modelData) {
+    public boolean renderModel(BlockState state, BlockPos pos, IBlockDisplayReader world, MatrixStack stack, IVertexBuilder builder, boolean checkSides, Random rand, IModelData modelData) {
         try {
             Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleBlock(world, pos, state)).findFirst();
             if (renderOpt.isPresent()) {
@@ -81,18 +82,18 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
 
     //Block Damage
     @Override
-    public void renderModel(BlockState state, BlockPos pos, ILightReader world, MatrixStack matrixStackIn, IVertexBuilder vertexBuilderIn, IModelData data) {
+    public void renderBlockDamage(BlockState state, BlockPos pos, IBlockDisplayReader world, MatrixStack matrixStackIn, IVertexBuilder vertexBuilderIn, IModelData data) {
         Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleBlock(world, pos, state)).findFirst();
         if (renderOpt.isPresent()) {
             renderOpt.get().renderBreaking(state, pos, world, matrixStackIn, vertexBuilderIn, data);
         } else {
-            parentDispatcher.renderModel(state, pos, world, matrixStackIn, vertexBuilderIn, data);
+            parentDispatcher.renderBlockDamage(state, pos, world, matrixStackIn, vertexBuilderIn, data);
         }
     }
 
     //Fluids
     @Override
-    public boolean renderFluid(BlockPos pos, ILightReader world, IVertexBuilder builder, IFluidState state) {
+    public boolean renderFluid(BlockPos pos, IBlockDisplayReader world, IVertexBuilder builder, FluidState state) {
         Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleFluid(world, pos, state)).findFirst();
         //noinspection OptionalIsPresent
         if (renderOpt.isPresent()) {
@@ -114,7 +115,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
     }
 
     @SuppressWarnings ("Convert2MethodRef")//Suppress these, the lambdas need to be synthetic functions instead of a method reference.
-    private static void handleCaughtException(Throwable t, BlockState inState, BlockPos pos, ILightReader world) {
+    private static void handleCaughtException(Throwable t, BlockState inState, BlockPos pos, IBlockDisplayReader world) {
         Block inBlock = inState.getBlock();
         TileEntity tile = world.getTileEntity(pos);
 
@@ -141,7 +142,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
             long time = System.nanoTime();
             if (TimeUnit.NANOSECONDS.toSeconds(time - lastTime) > 5) {
                 lastTime = time;
-                player.sendMessage(new StringTextComponent("CCL Caught an exception rendering a block. See the log for info."));
+                player.sendMessage(new StringTextComponent("CCL Caught an exception rendering a block. See the log for info."), Util.field_240973_b_);
             }
         }
     }

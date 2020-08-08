@@ -20,10 +20,10 @@ public interface ISimpleBlockBakery extends IBlockBakery {
     /**
      * Used to actually generate quads for your block. Using this interface it is assumed that you only wish to render on one specific layer.
      * If you want to render on multiple layers use {@link ILayeredBlockBakery}
-     *
+     * <p>
      * Face may be null!!
      * Treat a null face as "general" quads, Quads that will NOT be culled by neighboring blocks.
-     *
+     * <p>
      * You will be requested for "general" AND face quads.
      *
      * @param face  The face quads are requested for.

@@ -15,8 +15,9 @@ import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.*;
@@ -550,21 +551,21 @@ public interface MCDataInput {
     }
 
     /**
-     * Reads a {@link Vec3i} from the stream.
+     * Reads a {@link Vector3i} from the stream.
      *
-     * @return The {@link Vec3i}.
+     * @return The {@link Vector3i}.
      */
-    default Vec3i readVec3i() {
+    default Vector3i readVec3i() {
         return readPos();
     }
 
     /**
-     * Reads a {@link Vec3d} from the stream.
+     * Reads a {@link Vector3d} from the stream.
      *
-     * @return The {@link Vec3d}.
+     * @return The {@link Vector3d}.
      */
-    default Vec3d readVec3d() {
-        return new Vec3d(readDouble(), readDouble(), readDouble());
+    default Vector3d readVec3d() {
+        return new Vector3d(readDouble(), readDouble(), readDouble());
     }
 
     /**
@@ -628,8 +629,8 @@ public interface MCDataInput {
      *
      * @return The {@link ITextComponent}.
      */
-    default ITextComponent readTextComponent() {
-        return ITextComponent.Serializer.fromJson(readString());
+    default IFormattableTextComponent readTextComponent() {
+        return ITextComponent.Serializer.func_240643_a_(readString());
     }
 
     /**

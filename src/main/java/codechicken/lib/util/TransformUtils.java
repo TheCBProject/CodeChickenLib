@@ -1,12 +1,11 @@
 package codechicken.lib.util;
 
-import codechicken.lib.vec.Matrix4;
 import codechicken.lib.vec.Vector3;
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.client.renderer.Quaternion;
-import net.minecraft.client.renderer.TransformationMatrix;
-import net.minecraft.client.renderer.Vector3f;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.TransformationMatrix;
+import net.minecraft.util.math.vector.Vector3f;
 
 import java.util.HashMap;
 import java.util.Map;

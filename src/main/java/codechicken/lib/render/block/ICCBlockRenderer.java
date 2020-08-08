@@ -8,9 +8,9 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.fluid.IFluidState;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ILightReader;
+import net.minecraft.world.IBlockDisplayReader;
 import net.minecraftforge.client.model.data.IModelData;
 
 import java.util.Random;
@@ -30,7 +30,7 @@ public interface ICCBlockRenderer {
      * @param blockState The BlockState.
      * @return If you wish to render the BlockState.
      */
-    boolean canHandleBlock(ILightReader world, BlockPos pos, BlockState blockState);
+    boolean canHandleBlock(IBlockDisplayReader world, BlockPos pos, BlockState blockState);
 
     /**
      * Called to render your block in world.
@@ -47,7 +47,7 @@ public interface ICCBlockRenderer {
      * @param data    Any ModelData.
      * @return If quads were added.
      */
-    boolean renderBlock(BlockState state, BlockPos pos, ILightReader world, MatrixStack mStack, IVertexBuilder builder, Random random, IModelData data);
+    boolean renderBlock(BlockState state, BlockPos pos, IBlockDisplayReader world, MatrixStack mStack, IVertexBuilder builder, Random random, IModelData data);
 
     /**
      * Called when vanilla is rendering breaking texture over your block.
@@ -60,7 +60,7 @@ public interface ICCBlockRenderer {
      * @param builder The {@link IVertexBuilder} to add quads to.
      * @param data    Any ModelData.
      */
-    default void renderBreaking(BlockState state, BlockPos pos, ILightReader world, MatrixStack mStack, IVertexBuilder builder, IModelData data) {
+    default void renderBreaking(BlockState state, BlockPos pos, IBlockDisplayReader world, MatrixStack mStack, IVertexBuilder builder, IModelData data) {
         CCRenderState ccrs = CCRenderState.instance();
         ccrs.overlay = OverlayTexture.NO_OVERLAY;
         ccrs.brightness = WorldRenderer.getPackedLightmapCoords(world, state, pos);
@@ -108,7 +108,7 @@ public interface ICCBlockRenderer {
      * @param fluidState The IFluidState.
      * @return If you wish to render the IFluidState.
      */
-    default boolean canHandleFluid(ILightReader world, BlockPos pos, IFluidState fluidState) {
+    default boolean canHandleFluid(IBlockDisplayReader world, BlockPos pos, FluidState fluidState) {
         return false;
     }
 
@@ -121,10 +121,10 @@ public interface ICCBlockRenderer {
      * @param pos     Position.
      * @param world   World.
      * @param builder The {@link IVertexBuilder}.
-     * @param state   The {@link IFluidState}
+     * @param state   The {@link FluidState}
      * @return If any quads were added.
      */
-    default boolean renderFluid(BlockPos pos, ILightReader world, IVertexBuilder builder, IFluidState state) {
+    default boolean renderFluid(BlockPos pos, IBlockDisplayReader world, IVertexBuilder builder, FluidState state) {
         return false;
     }
     //endregion

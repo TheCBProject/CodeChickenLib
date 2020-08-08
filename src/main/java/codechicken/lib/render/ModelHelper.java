@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Various helpers for CCModels
- *
+ * <p>
  * Created by covers1624 on 21/06/2017.
  */
 public class ModelHelper {

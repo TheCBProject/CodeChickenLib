@@ -72,7 +72,7 @@ function getLabelIdx(labels, node) {
         }
     }
     labels.push(node.getLabel())
-    return (labels.length - 1)  | 0
+    return (labels.length - 1) | 0
 }
 
 function printInsn(insn, labels) {

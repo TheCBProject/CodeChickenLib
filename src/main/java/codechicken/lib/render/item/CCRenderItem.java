@@ -15,7 +15,7 @@ import net.minecraftforge.client.ForgeHooksClient;
  * Currently this class is injected with 'META-INF/coremods/item_renderer.js'
  * by replacing the instance creation of ItemRenderer, with CCRenderItem.
  * TODO, Replace with mixin.
- *
+ * <p>
  * Created by covers1624 on 17/10/2016.
  */
 public class CCRenderItem extends ItemRenderer {

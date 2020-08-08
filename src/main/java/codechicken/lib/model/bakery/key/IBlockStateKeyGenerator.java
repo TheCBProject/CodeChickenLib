@@ -13,7 +13,7 @@ public interface IBlockStateKeyGenerator {
      * The bakery implementation is global, so make sure you prefix your blocks registry name and meta.
      * E.g. "thermalexpansion:machine|6"
      * Just remember, this key defines a model in the cache, if a model with the provided key is not found, your bakery will be called to generate one.
-     *
+     * <p>
      * The stack is always as follows CCBakeryModel > Bakery > Gen Key > Hey does this key exist in cache ? ret model : Call block specific bakery to gen model > cache > ret.
      *
      * @param state

@@ -5,10 +5,10 @@ import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.TransformUtils;
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.client.renderer.TransformationMatrix;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.util.math.vector.TransformationMatrix;
 
 /**
  * TODO GuiLight.Side stuff IBakedModel.func_230044_c_

@@ -7,13 +7,13 @@ import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 
@@ -90,7 +90,7 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
     public ItemOverrideList getOverrides() {
         return new ItemOverrideList() {
             @Override
-            public IBakedModel getModelWithOverrides(IBakedModel originalModel, ItemStack stack, World world, LivingEntity entity) {
+            public IBakedModel func_239290_a_(IBakedModel originalModel, ItemStack stack, ClientWorld world, LivingEntity entity) {
                 IBakedModel model = ModelBakery.getCachedItemModel(stack);
                 if (model == null) {
                     return originalModel;

@@ -1,7 +1,7 @@
 package codechicken.lib.render.pipeline.attribute;
 
-import codechicken.lib.render.lighting.LC;
 import codechicken.lib.render.CCRenderState;
+import codechicken.lib.render.lighting.LC;
 import codechicken.lib.render.pipeline.VertexAttribute;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;

@@ -32,7 +32,7 @@ public class VertexDataUtils {
     public static int getPositionElement(VertexFormat format) {
         List<VertexFormatElement> elements = format.getElements();
         for (int e = 0; e < elements.size(); e++) {
-            if (elements.get(e).isPositionElement()) {
+            if (elements.get(e).getUsage() == Usage.POSITION) {
                 return e;
             }
         }

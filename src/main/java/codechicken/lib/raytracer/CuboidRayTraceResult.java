@@ -3,7 +3,7 @@ package codechicken.lib.raytracer;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 
 /**
  * Created by covers1624 on 8/9/2016.
@@ -24,7 +24,7 @@ public class CuboidRayTraceResult extends DistanceRayTraceResult {
         this.cuboid6 = cuboid;
     }
 
-    protected CuboidRayTraceResult(boolean isMissIn, Vec3d hit, Direction side, BlockPos pos, boolean isInside, IndexedCuboid6 cuboid, double dist) {
+    protected CuboidRayTraceResult(boolean isMissIn, Vector3d hit, Direction side, BlockPos pos, boolean isInside, IndexedCuboid6 cuboid, double dist) {
         super(isMissIn, hit, side, pos, isInside, cuboid, dist);
         this.cuboid6 = cuboid;
     }

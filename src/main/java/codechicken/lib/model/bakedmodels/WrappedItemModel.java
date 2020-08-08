@@ -1,24 +1,21 @@
 package codechicken.lib.model.bakedmodels;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
-import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -31,13 +28,13 @@ public abstract class WrappedItemModel implements IBakedModel {
     @Nullable
     protected LivingEntity entity;
     @Nullable
-    protected World world;
+    protected ClientWorld world;
 
     private final ItemOverrideList overrideList = new ItemOverrideList() {
         @Override
-        public IBakedModel getModelWithOverrides(IBakedModel originalModel, ItemStack stack, @Nullable World world, @Nullable LivingEntity entity) {
+        public IBakedModel func_239290_a_(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity) {
             WrappedItemModel.this.entity = entity;
-            WrappedItemModel.this.world = world == null ? entity == null ? null : entity.world : null;
+            WrappedItemModel.this.world = world == null ? entity == null ? null : (ClientWorld) entity.world : null;
             return originalModel;
         }
     };
@@ -62,15 +59,15 @@ public abstract class WrappedItemModel implements IBakedModel {
     }
 
     protected void renderWrapped(ItemStack stack, TransformType transformType, MatrixStack mStack, IRenderTypeBuffer getter, int packedLight, int packedOverlay) {
-        IBakedModel model = wrapped.getOverrides().getModelWithOverrides(wrapped, stack, world, entity);
-
-        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-        RenderType rType = RenderTypeLookup.getRenderType(stack);
-        if (transformType == TransformType.GUI && Objects.equals(rType, Atlases.getTranslucentBlockType())) {
-            rType = Atlases.getTranslucentCullBlockType();
-        }
-
-        IVertexBuilder builder = ItemRenderer.getBuffer(getter, rType, true, stack.hasEffect());
-        itemRenderer.renderModel(model, stack, packedLight, packedOverlay, mStack, builder);
+//        IBakedModel model = wrapped.getOverrides().func_239290_a_(wrapped, stack, world, entity);
+//
+//        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+//        RenderType rType = RenderTypeLookup.getRenderType(stack);
+//        if (transformType == TransformType.GUI && Objects.equals(rType, Atlases.getTranslucentBlockType())) {
+//            rType = Atlases.getTranslucentCullBlockType();
+//        }
+//
+//        IVertexBuilder builder = ItemRenderer.getBuffer(getter, rType, true, stack.hasEffect());
+//        itemRenderer.renderModel(model, stack, packedLight, packedOverlay, mStack, builder);
     }
 }

@@ -2,7 +2,6 @@ package codechicken.lib.render;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.vec.Matrix4;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

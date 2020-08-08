@@ -20,7 +20,7 @@ public interface IItemBakery extends IBakery {
 
     /**
      * Used to actually generate quads for your ItemStack based on the face being requested.
-     *
+     * <p>
      * Face may be null!
      * Treat a null face as "general" quads, Item Rendering doesn't have any sense of "faces" this is more so a fall over
      * of blocks having face quads. It is fine to have all your quads in the "general" face, but Recommended against for debugging.
