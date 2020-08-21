@@ -3,12 +3,15 @@ buildscript {
         mavenLocal()
         jcenter()
         maven { url = "https://files.minecraftforge.net/maven" }
+        maven { url = "https://repo.spongepowered.org/maven" }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: "org.spongepowered.mixin"
 apply plugin: 'maven-publish'
 
 group = 'codechicken'
@@ -66,6 +69,10 @@ minecraft {
     }
 }
 
+mixin {
+    add (sourceSets.main, "mixins.codechickenlib.refmap.json")
+}
+
 processResources {
     inputs.property "version", version
     inputs.property "mc_version", config.mc_version
@@ -87,21 +94,23 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
+def commonManifest = {
+    attributes 'Specification-Title': archivesBaseName
+    attributes 'Specification-Vendor': 'covers1624'
+    attributes 'Specification-Version': "1"
+    attributes 'Implementation-Title': archivesBaseName
+    attributes 'Implementation-Vendor': 'covers1624'
+    attributes 'Implementation-Version': version
+    attributes 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+    attributes 'MixinConfigs': 'mixins.codechickenlib.json'
+}
 
 version = "${config.mc_version}-${version}"
 jar {
     finalizedBy 'reobfJar'
     finalizedBy 'signJar'
     classifier = 'universal'
-    manifest {
-        attributes 'Specification-Title': archivesBaseName
-        attributes 'Specification-Vendor': 'covers1624'
-        attributes 'Specification-Version': "1"
-        attributes 'Implementation-Title': archivesBaseName
-        attributes 'Implementation-Vendor': 'covers1624'
-        attributes 'Implementation-Version': version
-        attributes 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-    }
+    manifest commonManifest
     from file("LICENSE")
 }
 
@@ -130,6 +139,7 @@ task deobfJar(type:Jar) {
     build.dependsOn it
     from sourceSets.main.output
     classifier = 'deobf'
+    manifest commonManifest
     from file("LICENSE")
 }
 

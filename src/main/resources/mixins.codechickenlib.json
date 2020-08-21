@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "codechicken.lib.internal.mixin",
+	"refmap": "mixins.codechickenlib.refmap.json",
+	"target": "@env(DEFAULT)",
+	"compatibilityLevel": "JAVA_8",
+	"client" : [
+		"ItemRendererMixin"
+	]
+}
