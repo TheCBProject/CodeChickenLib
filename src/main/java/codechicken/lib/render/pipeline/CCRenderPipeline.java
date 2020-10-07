@@ -37,7 +37,8 @@ public class CCRenderPipeline {
     }
 
     private void unbuild() {
-        for (VertexAttribute<?> attrib : attribs) {
+        for (int i = 0; i < attribs.size(); i++) {
+            VertexAttribute<?> attrib = attribs.get(i);
             attrib.active = false;
         }
         attribs.clear();
@@ -86,7 +87,8 @@ public class CCRenderPipeline {
             }
         }
 
-        for (PipelineNode node : nodes) {
+        for (int i = 0; i < nodes.size(); i++) {
+            PipelineNode node = nodes.get(i);
             node.add();
         }
     }
@@ -108,7 +110,8 @@ public class CCRenderPipeline {
     }
 
     public void operate() {
-        for (IVertexOperation aSorted : sorted) {
+        for (int i = 0; i < sorted.size(); i++) {
+            IVertexOperation aSorted = sorted.get(i);
             aSorted.operate(renderState);
         }
     }
@@ -158,7 +161,8 @@ public class CCRenderPipeline {
                 return;
             }
 
-            for (PipelineNode dep : deps) {
+            for (int i = 0; i < deps.size(); i++) {
+                PipelineNode dep = deps.get(i);
                 dep.add();
             }
             deps.clear();

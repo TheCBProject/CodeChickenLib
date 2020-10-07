@@ -29,6 +29,6 @@ public class SimpleCapProvider<T> implements ICapabilityProvider {
         if (capability == cap) {
             return instanceOpt.cast();
         }
-        return null;
+        return LazyOptional.empty();
     }
 }
