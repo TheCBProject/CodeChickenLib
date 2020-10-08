@@ -26,7 +26,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.resource.VanillaResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,14 +46,14 @@ public class ModelBakery {
 
     private static final Logger logger = LogManager.getLogger();
 
-    private static boolean DEBUG = Boolean.parseBoolean(System.getProperty("ccl.debugBakeryLogging"));
-    private static boolean FORCE_BLOCK_REBAKE = Boolean.parseBoolean(System.getProperty("ccl.debugForceBlockModelRebake"));
-    private static boolean FORCE_ITEM_REBAKE = Boolean.parseBoolean(System.getProperty("ccl.debugForceItemModelRebake"));
+    private static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("ccl.debugBakeryLogging"));
+    private static final boolean FORCE_BLOCK_REBAKE = Boolean.parseBoolean(System.getProperty("ccl.debugForceBlockModelRebake"));
+    private static final boolean FORCE_ITEM_REBAKE = Boolean.parseBoolean(System.getProperty("ccl.debugForceItemModelRebake"));
 
-    private static Cache<String, IBakedModel> keyModelCache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
+    private static final Cache<String, IBakedModel> keyModelCache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
 
-    private static Map<Item, IItemStackKeyGenerator> itemKeyGeneratorMap = Collections.synchronizedMap(new HashMap<>());
-    private static Map<Block, IBlockStateKeyGenerator> blockKeyGeneratorMap = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<Item, IItemStackKeyGenerator> itemKeyGeneratorMap = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<Block, IBlockStateKeyGenerator> blockKeyGeneratorMap = Collections.synchronizedMap(new HashMap<>());
     private static IBakedModel missingModel;
 
     public static final IBlockStateKeyGenerator defaultBlockKeyGenerator = (state, data) -> state.toString();
@@ -64,7 +66,11 @@ public class ModelBakery {
                 nukeModelCache();
             }
         });
-        //ProxyClient.modelHelper.registerCallback(event -> missingModel = ModelLoaderRegistry.getMissingModel().bake(event.getModelLoader(), TextureUtils::getTexture, TransformUtils.DEFAULT_BLOCK, DefaultVertexFormats.ITEM));
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(ModelBakery::onModelBake);
+    }
+
+    private static void onModelBake(ModelBakeEvent event) {
+        missingModel = event.getModelManager().getMissingModel();
     }
 
     public static IBlockStateKeyGenerator getKeyGenerator(Block block) {
@@ -95,20 +101,6 @@ public class ModelBakery {
         itemKeyGeneratorMap.put(item, generator);
     }
 
-    //    @SuppressWarnings ("deprecation")
-    //    public static IBlockState handleExtendedState(IExtendedBlockState state, IBlockAccess world, BlockPos pos) {
-    //        Block block = state.getBlock();
-    //
-    //        if (block instanceof IBakeryProvider) {
-    //            IBakery bakery = ((IBakeryProvider) block).getBakery();
-    //            if (bakery instanceof IBlockBakery) {
-    //                return ((IBlockBakery) bakery).handleState(state, world, pos);
-    //            }
-    //            throw new IllegalStateException("ModelBakery.handleExtendedState called for block that implements IBakeryProvider but does not return a IBlockBakery in IBakeryProvider.getBakery()!");
-    //        }
-    //        return state;
-    //    }
-
     public static IBakedModel getCachedItemModel(ItemStack stack) {
         IBakedModel model;
         IItemStackKeyGenerator generator = getKeyGenerator(stack.getItem());
@@ -119,11 +111,6 @@ public class ModelBakery {
                 model = timeModelGeneration(ModelBakery::generateItemModel, stack, "ITEM: " + key);
             } catch (Throwable t) {
                 LogUtils.errorOnce(logger, t, "ItemBaking", "Fatal exception thrown whilst baking item model for: " + stack);
-                //                BakingVertexBuffer buffer = BakingVertexBuffer.create();
-                //                if (buffer.isDrawing) {
-                //                    buffer.finishDrawing();
-                //                    buffer.reset();
-                //                }
                 return missingModel;
             }
             if (model != missingModel) {
@@ -162,17 +149,6 @@ public class ModelBakery {
         if (state == null) {
             return missingModel;
         }
-        //        if (state.getUnlistedProperties().containsKey(ModelErrorStateProperty.ERROR_STATE)) {
-        //            ErrorState errorState = state.getValue(ModelErrorStateProperty.ERROR_STATE);
-        //            if (errorState == null) {
-        //                CCLLog.logOncePerTick(Level.FATAL, "A CCL controlled model has been improperly handled by someone and will NOT be rendered. No more information available.");
-        //                return missingModel;
-        //            }
-        //            if (errorState.hasErrored()) {
-        //                CCLLog.logOncePerTick(Level.ERROR, "A CCL controlled model has reported an error and will NOT be rendered: \n" + errorState.getReason());
-        //                return missingModel;
-        //            }
-        //        }
         IBakedModel model;
         IBlockStateKeyGenerator keyGenerator = getKeyGenerator(state.getBlock());
         String key = keyGenerator.generateKey(state, data);
@@ -182,11 +158,6 @@ public class ModelBakery {
                 model = timeModelGeneration(ModelBakery::generateModel, state, data, "BLOCK: " + key);
             } catch (Throwable t) {
                 LogUtils.errorOnce(logger, t, "BlockBaking", "Fatal exception thrown whilst baking block model for: " + state);
-                //                BakingVertexBuffer buffer = BakingVertexBuffer.create();
-                //                if (buffer.isDrawing) {
-                //                    buffer.finishDrawing();
-                //                    buffer.reset();
-                //                }
                 return missingModel;
             }
             if (model != missingModel) {
