@@ -8,8 +8,14 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
     }
 }
+
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id "net.covers1624.signing" version '1.1.4'
+}
+
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'maven-publish'
 
 group = 'codechicken'
 archivesBaseName = 'CodeChickenLib'
@@ -42,9 +48,10 @@ if (System.getenv("KEY_STORE")) {
     println 'No signing secrets found, build will not be signed.'
 }
 
-version = "${project.config.mod_version}." + (System.getenv("BUILD_NUMBER") ?: "1")
-println "Starting build of ${archivesBaseName}, Version: ${version}"
-println "Using forge ${config.forge_version}, for Minecraft ${config.mc_version}"
+config.mod_version = "${config.mod_version}." + (System.getenv("BUILD_NUMBER") ?: "1")
+version = "${config.mc_version}-${config.mod_version}"
+println "Starting build of ${archivesBaseName}, Version: ${config.mod_version}"
+println "Using Forge: ${config.forge_version}, for Minecraft: ${config.mc_version}, with Mappings: ${config.mappings}"
 
 minecraft {
     mappings channel: 'snapshot', version: config.mappings
@@ -66,13 +73,16 @@ minecraft {
     }
 }
 
-processResources {
-    inputs.property "version", version
-    inputs.property "mc_version", config.mc_version
+processResources { task ->
+    inputs.property 'mod_version', config.mod_version
+    inputs.property 'mc_version', config.mc_version
 
-    from(sourceSets.main.resources.srcDirs) {
-        include 'META-INF/mods.toml'
-        expand 'version': version, 'mc_version': config.mc_version
+    from(sourceSets.main.resources.srcDirs) { spec ->
+        spec.include 'META-INF/mods.toml'
+        task.doFirst {
+            spec.expand 'version': config.mod_version,
+                    'mc_version': config.mc_version
+        }
     }
 }
 
@@ -87,11 +97,22 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
+signing {
+    if (!signProps.empty) {
+        jars {
+            sign jar
+            after 'reobfJar'
 
-version = "${config.mc_version}-${version}"
+            keyStore = signProps.keyStore
+            alias = signProps.alias
+            storePass = signProps.storePass
+            keyPass = signProps.keyPass
+        }
+    }
+}
+
 jar {
     finalizedBy 'reobfJar'
-    finalizedBy 'signJar'
     classifier = 'universal'
     manifest {
         attributes 'Specification-Title': archivesBaseName
@@ -101,20 +122,6 @@ jar {
         attributes 'Implementation-Vendor': 'covers1624'
         attributes 'Implementation-Version': version
         attributes 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-    }
-}
-
-task signJar(type: net.minecraftforge.gradle.common.task.SignJar, dependsOn: 'reobfJar') {
-    onlyIf { !signProps.isEmpty() }
-
-    if (!signProps.isEmpty()) {
-        keyStore = signProps.keyStore
-        alias = signProps.alias
-        storePass = signProps.storePass
-        keyPass = signProps.keyPass
-
-        inputFile = jar.archivePath
-        outputFile = jar.archivePath
     }
 }
 
