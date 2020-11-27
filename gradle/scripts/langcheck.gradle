@@ -1,0 +1,70 @@
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.function.Function
+import java.util.stream.Collectors
+
+task checkLang {
+    doLast {
+        def projectPath = projectDir.toPath()
+        def assetDir = projectPath.resolve("src/main/resources/assets/codechickenlib/lang")
+        def dataDir = projectPath.resolve("src/main/resources/data/codechickenlib/lang")
+
+        def aIndex = indexChildren(assetDir)
+        def bIndex = indexChildren(dataDir)
+
+        def added= bIndex.keySet()  - aIndex.keySet()
+        def common = bIndex.keySet() .intersect(aIndex.keySet() )
+        def removed = aIndex.keySet()  - bIndex.keySet()
+        def errors = []
+        added.each {
+            errors.add("File $it doesn't exist in data dir.")
+        }
+        removed.each {
+            errors.add("File $it doesn't exist in assets dir.")
+        }
+        common.each {
+            def a = aIndex[it]
+            def b = bIndex[it]
+            if (a.bytes != b.bytes) {
+                errors.add("File $it has been modified.")
+            }
+        }
+
+        if (!errors.empty) {
+            throw new RuntimeException("Lang dirs don't match:\n" + errors.join("\n"))
+        }
+    }
+}
+
+task updateLang {
+    doLast {
+        delete {
+            delete(new File(projectDir, "src/main/resources/data/codechickenlib/lang"))
+        }
+        copy {
+            from new File(projectDir, "src/main/resources/assets/codechickenlib/lang")
+            into new File(projectDir, "src/main/resources/data/codechickenlib/lang")
+        }
+    }
+}
+
+if (System.getenv("GITHUB_CI")) {
+    build.dependsOn checkLang
+} else {
+    processResources.dependsOn updateLang
+}
+
+Map<String, Path> indexChildren(Path toIndex) throws IOException {
+    def stream = Files.walk(toIndex)
+    def ret = stream.filter { e -> Files.isRegularFile(e) }
+            .collect(Collectors.toMap({ stripStart('/', toIndex.relativize(it).toString().replace("\\", "/")) }, Function.identity()))
+    stream.close()
+    return ret
+}
+
+String stripStart(String start, String str) {
+    if (!str.isEmpty() && str.startsWith(start)) {
+        return str.replaceFirst(start, "")
+    }
+    return str
+}

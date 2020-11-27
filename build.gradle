@@ -16,6 +16,7 @@ plugins {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
+apply from: "gradle/scripts/langcheck.gradle"
 
 group = 'codechicken'
 archivesBaseName = 'CodeChickenLib'
@@ -131,7 +132,7 @@ task srcJar(type: Jar) {
     classifier = 'sources'
 }
 
-task deobfJar(type:Jar) {
+task deobfJar(type: Jar) {
     build.dependsOn it
     from sourceSets.main.output
     classifier = 'deobf'
@@ -226,3 +227,4 @@ def resolve(module, chop = true, configuration = 'compile', errorMissing = true)
     }
     return version
 }
+
