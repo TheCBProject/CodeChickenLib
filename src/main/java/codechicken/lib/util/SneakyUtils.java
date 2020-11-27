@@ -12,16 +12,25 @@ import java.util.function.Supplier;
  */
 public class SneakyUtils {
 
+    private static final Runnable NULL_RUNNABLE = () -> {};
+    private static final Callable<Object> NULL_CALLABLE = () -> null;
+    private static final Supplier<Object> NULL_SUPPLIER = () -> null;
+    private static final Consumer<Object> NULL_CONSUMER = e -> {};
+
     public static Runnable none() {
-        return () -> {};
+        return NULL_RUNNABLE;
     }
 
     public static <T> Callable<T> nullC() {
-        return () -> null;
+        return unsafeCast(NULL_CALLABLE);
     }
 
     public static <T> Supplier<T> nullS() {
-        return () -> null;
+        return unsafeCast(NULL_SUPPLIER);
+    }
+
+    public static <T> Consumer<T> nullCons() {
+        return unsafeCast(NULL_CONSUMER);
     }
 
     public static Runnable concat(Runnable a, Runnable b) {
@@ -51,7 +60,7 @@ public class SneakyUtils {
      * Evaluates a {@link ThrowingProducer} returning the producers result.
      * Re-Throws any exception.
      *
-     * @param tp  The {@link ThrowingProducer}.
+     * @param tp The {@link ThrowingProducer}.
      * @return The result of the producer.
      */
     public static <T> T sneaky(ThrowingProducer<T, Throwable> tp) {

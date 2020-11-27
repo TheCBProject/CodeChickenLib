@@ -13,6 +13,8 @@ import java.util.function.Consumer;
  */
 public class ShaderProgramBuilder {
 
+    private static final Consumer<UniformCache> NULL_CALLBACK = e -> {};
+
     private final Map<String, ShaderObject> shaders = new HashMap<>();
     private Consumer<UniformCache> cacheCallback;
 
@@ -47,7 +49,7 @@ public class ShaderProgramBuilder {
     }
 
     public ShaderProgram build() {
-        return new ShaderProgram(shaders.values(), cacheCallback);
+        return new ShaderProgram(shaders.values(), cacheCallback == null ? NULL_CALLBACK : cacheCallback);
     }
 
     public static class ShaderObjectBuilder {
