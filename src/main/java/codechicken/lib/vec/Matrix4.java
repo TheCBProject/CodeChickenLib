@@ -5,15 +5,13 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.Matrix3f;
 import net.minecraft.client.renderer.Matrix4f;
+import net.minecraft.client.renderer.Vector4f;
 import net.minecraft.util.math.Vec3i;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
+import java.nio.*;
 
 public class Matrix4 extends Transformation implements Copyable<Matrix4> {
 
@@ -302,6 +300,15 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         vec.y = y;
         vec.z = z;
     }
+
+    public void multMatrix(Vector4f vec) {
+        double x = m00 * vec.getX() + m01 * vec.getY() + m02 * vec.getZ() + m03 * vec.getW();
+        double y = m10 * vec.getX() + m11 * vec.getY() + m12 * vec.getZ() + m13 * vec.getW();
+        double z = m20 * vec.getX() + m21 * vec.getY() + m22 * vec.getZ() + m23 * vec.getW();
+        double w = m30 * vec.getX() + m31 * vec.getY() + m32 * vec.getZ() + m33 * vec.getW();
+
+        vec.set((float) x, (float) y, (float) z, (float) w);
+    }
     //endregion
 
     //region Set
@@ -506,6 +513,28 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
 
     public Matrix4f toMatrix4f() {
         return new Matrix4f(toArrayF());
+    }
+
+    public static Vector3 gluProject(Vector3 obj, Matrix4 modelMatrix, Matrix4 projMatrix, IntBuffer viewport) {
+        Vector4f o = new Vector4f((float) obj.x, (float) obj.y, (float) obj.z, 1.0F);
+        modelMatrix.multMatrix(o);
+        projMatrix.multMatrix(o);
+
+        if (o.getW() == 0) {
+            return Vector3.ZERO.copy();
+        }
+        o.setW((1.0F / o.getW()) * 0.5F);
+
+        o.setX(o.getX() * o.getW() + 0.5F);
+        o.setY(o.getY() * o.getW() + 0.5F);
+        o.setZ(o.getZ() * o.getW() + 0.5F);
+
+        Vector3 winPos = new Vector3();
+        winPos.z = o.getZ();
+
+        winPos.x = o.getX() * viewport.get(viewport.position() + 2) + viewport.get(viewport.position() + 0);
+        winPos.y = o.getY() * viewport.get(viewport.position() + 3) + viewport.get(viewport.position() + 1);
+        return winPos;
     }
 
     @Override
