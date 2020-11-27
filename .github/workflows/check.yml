@@ -1,10 +1,6 @@
 name: Check
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [push, pull_request]
 
 env:
   BUILD_NUMBER: 9999
