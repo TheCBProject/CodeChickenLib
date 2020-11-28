@@ -10,9 +10,16 @@ buildscript {
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
+
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id "net.covers1624.signing" version '1.1.4'
+}
+
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: "org.spongepowered.mixin"
-apply plugin: 'maven-publish'
+apply from: "gradle/scripts/langcheck.gradle"
 
 group = 'codechicken'
 archivesBaseName = 'CodeChickenLib'
@@ -45,9 +52,10 @@ if (System.getenv("KEY_STORE")) {
     println 'No signing secrets found, build will not be signed.'
 }
 
-version = "${project.config.mod_version}." + (System.getenv("BUILD_NUMBER") ?: "1")
-println "Starting build of ${archivesBaseName}, Version: ${version}"
-println "Using forge ${config.forge_version}, for Minecraft ${config.mc_version}"
+config.mod_version = "${config.mod_version}." + (System.getenv("BUILD_NUMBER") ?: "1")
+version = "${config.mc_version}-${config.mod_version}"
+println "Starting build of ${archivesBaseName}, Version: ${config.mod_version}"
+println "Using Forge: ${config.forge_version}, for Minecraft: ${config.mc_version}, with Mappings: ${config.mappings}"
 
 minecraft {
     mappings channel: 'snapshot', version: config.mappings
@@ -73,13 +81,16 @@ mixin {
     add (sourceSets.main, "mixins.codechickenlib.refmap.json")
 }
 
-processResources {
-    inputs.property "version", version
-    inputs.property "mc_version", config.mc_version
+processResources { task ->
+    inputs.property 'mod_version', config.mod_version
+    inputs.property 'mc_version', config.mc_version
 
-    from(sourceSets.main.resources.srcDirs) {
-        include 'META-INF/mods.toml'
-        expand 'version': version, 'mc_version': config.mc_version
+    from(sourceSets.main.resources.srcDirs) { spec ->
+        spec.include 'META-INF/mods.toml'
+        task.doFirst {
+            spec.expand 'version': config.mod_version,
+                    'mc_version': config.mc_version
+        }
     }
 }
 
@@ -94,38 +105,34 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-def commonManifest = {
-    attributes 'Specification-Title': archivesBaseName
-    attributes 'Specification-Vendor': 'covers1624'
-    attributes 'Specification-Version': "1"
-    attributes 'Implementation-Title': archivesBaseName
-    attributes 'Implementation-Vendor': 'covers1624'
-    attributes 'Implementation-Version': version
-    attributes 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-    attributes 'MixinConfigs': 'mixins.codechickenlib.json'
+signing {
+    if (!signProps.empty) {
+        jars {
+            sign jar
+            after 'reobfJar'
+
+            keyStore = signProps.keyStore
+            alias = signProps.alias
+            storePass = signProps.storePass
+            keyPass = signProps.keyPass
+        }
+    }
 }
 
-version = "${config.mc_version}-${version}"
 jar {
     finalizedBy 'reobfJar'
-    finalizedBy 'signJar'
     classifier = 'universal'
-    manifest commonManifest
-    from file("LICENSE")
-}
-
-task signJar(type: net.minecraftforge.gradle.common.task.SignJar, dependsOn: 'reobfJar') {
-    onlyIf { !signProps.isEmpty() }
-
-    if (!signProps.isEmpty()) {
-        keyStore = signProps.keyStore
-        alias = signProps.alias
-        storePass = signProps.storePass
-        keyPass = signProps.keyPass
-
-        inputFile = jar.archivePath
-        outputFile = jar.archivePath
+    manifest {
+        attributes 'Specification-Title': archivesBaseName
+        attributes 'Specification-Vendor': 'covers1624'
+        attributes 'Specification-Version': "1"
+        attributes 'Implementation-Title': archivesBaseName
+        attributes 'Implementation-Vendor': 'covers1624'
+        attributes 'Implementation-Version': version
+        attributes 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        attributes 'MixinConfigs': 'mixins.codechickenlib.json'
     }
+    from file("LICENSE")
 }
 
 task srcJar(type: Jar) {
@@ -135,11 +142,10 @@ task srcJar(type: Jar) {
     from file("LICENSE")
 }
 
-task deobfJar(type:Jar) {
+task deobfJar(type: Jar) {
     build.dependsOn it
     from sourceSets.main.output
     classifier = 'deobf'
-    manifest commonManifest
     from file("LICENSE")
 }
 
@@ -232,3 +238,4 @@ def resolve(module, chop = true, configuration = 'compile', errorMissing = true)
     }
     return version
 }
+

@@ -1,5 +1,6 @@
 package codechicken.lib.math;
 
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3i;
 
@@ -269,11 +270,11 @@ public class MathHelper {
     }
 
     public static int compare(int a, int b) {
-        return a == b ? 0 : a < b ? -1 : 1;
+        return Integer.compare(a, b);
     }
 
     public static int compare(double a, double b) {
-        return a == b ? 0 : a < b ? -1 : 1;
+        return Double.compare(a, b);
     }
 
     public static BlockPos min(Vector3i pos1, Vector3i pos2) {
@@ -293,28 +294,33 @@ public class MathHelper {
     }
 
     public static int toSide(BlockPos pos) {
+        Direction side = getSide(pos);
+        return side == null ? -1 : side.getIndex();
+    }
+
+    public static Direction getSide(BlockPos pos) {
         if (!isAxial(pos)) {
-            return -1;
+            return null;
         }
         if (pos.getY() < 0) {
-            return 0;
+            return Direction.DOWN;
         }
         if (pos.getY() > 0) {
-            return 1;
+            return Direction.UP;
         }
         if (pos.getZ() < 0) {
-            return 2;
+            return Direction.NORTH;
         }
         if (pos.getZ() > 0) {
-            return 3;
+            return Direction.SOUTH;
         }
         if (pos.getX() < 0) {
-            return 4;
+            return Direction.WEST;
         }
         if (pos.getX() > 0) {
-            return 5;
+            return Direction.EAST;
         }
 
-        return -1;
+        return null;
     }
 }
