@@ -106,7 +106,7 @@ dependencies {
 }
 
 signing {
-    if (!signProps.empty) {
+    if (!signProps.isEmpty()) {
         jars {
             sign jar
             after 'reobfJar'
