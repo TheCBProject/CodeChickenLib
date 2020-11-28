@@ -9,11 +9,11 @@ public class FontUtils {
     public static FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
 
     public static void drawCenteredString(MatrixStack mStack, String s, int xCenter, int y, int colour) {
-        fontRenderer.func_238405_a_(mStack, s, xCenter - fontRenderer.getStringWidth(s) / 2, y, colour);
+        fontRenderer.drawStringWithShadow(mStack, s, xCenter - fontRenderer.getStringWidth(s) / 2, y, colour);
     }
 
     public static void drawRightString(MatrixStack mStack, String s, int xRight, int y, int colour) {
-        fontRenderer.func_238405_a_(mStack, s, xRight - fontRenderer.getStringWidth(s), y, colour);
+        fontRenderer.drawStringWithShadow(mStack, s, xRight - fontRenderer.getStringWidth(s), y, colour);
     }
 
 //    public static final String[] prefixes = new String[] { "K", "M", "G" };

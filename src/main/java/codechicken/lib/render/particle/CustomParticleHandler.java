@@ -87,7 +87,7 @@ public class CustomParticleHandler {
      *
      * @param state   The state.
      * @param world   The world.
-     * @param hit     The trace result.
+     * @param traceResult     The trace result.
      * @param manager The ParticleManager.
      * @return True if particles were added, basically just return the result of this method inside {@link Block#addLandingEffects}
      */
@@ -191,7 +191,7 @@ public class CustomParticleHandler {
             diff.x = bounds.max.x + border;
         }
 
-        particleManager.addEffect(new CustomBreakingParticle((ClientWorld) world, pos.x, pos.y, pos.z, 0, 0, 0, icon).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+        particleManager.addEffect(new CustomBreakingParticle((ClientWorld) world, pos.x, pos.y, pos.z, 0, 0, 0, icon).multiplyVelocity(0.2F).multiplyParticleScaleBy(0.6F));
     }
 
     @OnlyIn (Dist.CLIENT)

@@ -236,7 +236,7 @@ public class TextureUtils {
             if (quads != null && quads.size() > 0) {
                 TextureAtlasSprite[] sprites = new TextureAtlasSprite[quads.size()];
                 for (int i = 0; i < quads.size(); i++) {
-                    sprites[i] = quads.get(i).func_187508_a();
+                    sprites[i] = quads.get(i).getSprite();
                 }
                 return sprites;
             }

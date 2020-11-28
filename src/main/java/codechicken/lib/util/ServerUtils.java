@@ -51,11 +51,11 @@ public class ServerUtils {
     }
 
     public static File getSaveDirectory() {
-        return getSaveDirectory(World.field_234918_g_);
+        return getSaveDirectory(World.OVERWORLD);
     }
 
     public static File getSaveDirectory(RegistryKey<World> dimension) {
-        return getServer().anvilConverterForAnvilFile.func_237291_a_(dimension);
+        return getServer().anvilConverterForAnvilFile.getDimensionFolder(dimension);
     }
 
     public static GameProfile getGameProfile(String username) {

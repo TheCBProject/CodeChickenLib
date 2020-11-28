@@ -131,7 +131,7 @@ public class ItemUtils {
     public static void ejectItem(World world, BlockPos pos, @Nonnull ItemStack stack, Direction dir) {
         pos.offset(dir);
         ItemEntity entity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-        entity.setMotion(Vector3d.func_237491_b_(dir.getDirectionVec()).scale(0.3));
+        entity.setMotion(Vector3d.copy(dir.getDirectionVec()).scale(0.3));
         entity.setPickupDelay(10);
         world.addEntity(entity);
     }

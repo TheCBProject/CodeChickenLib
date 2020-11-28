@@ -30,7 +30,7 @@ public class TileChunkLoadHook {
         IChunk chunk = event.getChunk();
         Map<BlockPos, TileEntity> tiles = null;
         if (chunk instanceof ChunkPrimerWrapper) {
-            chunk = ((ChunkPrimerWrapper) chunk).func_217336_u();
+            chunk = ((ChunkPrimerWrapper) chunk).getChunk();
         }
         if (chunk instanceof Chunk) {
             tiles = ((Chunk) chunk).getTileEntityMap();

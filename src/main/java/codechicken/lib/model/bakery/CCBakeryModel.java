@@ -53,7 +53,7 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
     }
 
     @Override
-    public boolean func_230044_c_() {
+    public boolean isSideLit() {
         return false;
     }
 
@@ -90,7 +90,7 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
     public ItemOverrideList getOverrides() {
         return new ItemOverrideList() {
             @Override
-            public IBakedModel func_239290_a_(IBakedModel originalModel, ItemStack stack, ClientWorld world, LivingEntity entity) {
+            public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, ClientWorld world, LivingEntity entity) {
                 IBakedModel model = ModelBakery.getCachedItemModel(stack);
                 if (model == null) {
                     return originalModel;

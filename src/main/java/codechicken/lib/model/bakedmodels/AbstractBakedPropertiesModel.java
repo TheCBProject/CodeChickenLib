@@ -55,7 +55,7 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
     }
 
     @Override
-    public boolean func_230044_c_() {
+    public boolean isSideLit() {
         return false;//TODO What?
     }
 
@@ -79,7 +79,7 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
         return getAllQuads(state, modelData).stream()//
                 .filter(quad -> quad.getFace() == traceResult.getFace())//
                 .filter(quad -> checkDepth(quad, vec, traceResult.getFace()))//
-                .map(BakedQuad::func_187508_a)//
+                .map(BakedQuad::getSprite)//
                 .collect(Collectors.toSet());//
     }
 
@@ -112,7 +112,7 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
 
     @Override
     public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IBlockReader world, BlockPos pos, IModelData data) {
-        return getAllQuads(state, data).stream().map(BakedQuad::func_187508_a).collect(Collectors.toSet());
+        return getAllQuads(state, data).stream().map(BakedQuad::getSprite).collect(Collectors.toSet());
     }
 
     @Override

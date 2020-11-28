@@ -142,7 +142,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
             long time = System.nanoTime();
             if (TimeUnit.NANOSECONDS.toSeconds(time - lastTime) > 5) {
                 lastTime = time;
-                player.sendMessage(new StringTextComponent("CCL Caught an exception rendering a block. See the log for info."), Util.field_240973_b_);
+                player.sendMessage(new StringTextComponent("CCL Caught an exception rendering a block. See the log for info."), Util.DUMMY_UUID);
             }
         }
     }

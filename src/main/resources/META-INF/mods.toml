@@ -18,13 +18,13 @@ It contains libraries for 3D math and transformations, model rendering, packets,
 [[dependencies.codechickenlib]]
 	modId="forge"
 	mandatory=true
-	versionRange="[32,)"
+	versionRange="[35.1,)"
 	ordering="NONE"
 	side="BOTH"
 [[dependencies.codechickenlib]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.16.3,1.16.4]"
+    versionRange="[1.16.4]"
     ordering="NONE"
     side="BOTH"
 
