@@ -1,6 +1,8 @@
 package codechicken.lib.internal.command;
 
+import codechicken.lib.CodeChickenLib;
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -10,7 +12,10 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.ISuggestionProvider;
+import net.minecraft.command.arguments.ArgumentTypes;
+import net.minecraft.command.arguments.IArgumentSerializer;
 import net.minecraft.entity.EntityType;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -52,5 +57,21 @@ public class EntityTypeArgument implements ArgumentType<EntityType<?>> {
 
     public static EntityType<?> getEntityType(CommandContext<CommandSource> src, String name) {
         return src.getArgument(name, EntityType.class);
+    }
+
+    public static class Serializer implements IArgumentSerializer<EntityTypeArgument> {
+
+        @Override
+        public void write(EntityTypeArgument argument, PacketBuffer buffer) {
+        }
+
+        @Override
+        public EntityTypeArgument read(PacketBuffer buffer) {
+            return new EntityTypeArgument();
+        }
+
+        @Override
+        public void write(EntityTypeArgument p_212244_1_, JsonObject p_212244_2_) {
+        }
     }
 }

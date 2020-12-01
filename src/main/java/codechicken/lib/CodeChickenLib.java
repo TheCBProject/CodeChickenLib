@@ -37,6 +37,7 @@ public class CodeChickenLib {
         FMLJavaModLoadingContext.get().getModEventBus().register(this);
         MinecraftForge.EVENT_BUS.addListener(CCLCommands::registerCommands);
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> OpenGLUtils::init);
+        CCLCommands.registerArguments();
     }
 
     @SubscribeEvent
