@@ -39,6 +39,7 @@ public class CodeChickenLib {
         DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> {
             FMLJavaModLoadingContext.get().getModEventBus().addListener(OpenGLUtils::onModelRegistryEvent);
         });
+        CCLCommands.registerArguments();
     }
 
     @SubscribeEvent
