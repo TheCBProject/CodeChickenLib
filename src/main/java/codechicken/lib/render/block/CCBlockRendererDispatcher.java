@@ -99,7 +99,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
         if (renderOpt.isPresent()) {
             return renderOpt.get().renderFluid(pos, world, builder, state);
         } else {
-            return super.renderFluid(pos, world, builder, state);
+            return parentDispatcher.renderFluid(pos, world, builder, state);
         }
     }
 
@@ -128,13 +128,13 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
         builder.append("  Tile Class:    ").append(tryOrNull(() -> tile.getClass())).append("\n");
         builder.append("  Tile Id:       ").append(tryOrNull(() -> TileEntityType.getId(tile.getType()))).append("\n");
         builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.write(new CompoundNBT()))).append("\n");
+        builder.append("This functionality can be disabled in the CCL config file.\n");
         if (ProxyClient.messagePlayerOnRenderExceptionCaught) {
-            builder.append("You can turn off player messages in the CCL config file.\n");
+            builder.append("You can also turn off player messages in the CCL config file.\n");
         }
         String logMessage = builder.toString();
         String key = ExceptionUtils.getStackTrace(t) + logMessage;
-        if (!ExceptionMessageEventHandler.exceptionMessageCache.contains(key)) {
-            ExceptionMessageEventHandler.exceptionMessageCache.add(key);
+        if (ExceptionMessageEventHandler.exceptionMessageCache.add(key)) {
             logger.error(logMessage, t);
         }
         PlayerEntity player = Minecraft.getInstance().player;
