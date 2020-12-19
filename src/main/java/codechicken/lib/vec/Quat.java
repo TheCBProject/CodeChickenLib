@@ -63,8 +63,8 @@ public class Quat implements Copyable<Quat> {
 
     public Quat setAroundAxis(double ax, double ay, double az, double angle) {
         angle *= 0.5;
-        double d4 = MathHelper.sin(angle);
-        return set(MathHelper.cos(angle), ax * d4, ay * d4, az * d4);
+        double d4 = Math.sin(angle);
+        return set(Math.cos(angle), ax * d4, ay * d4, az * d4);
     }
 
     public Quat setAroundAxis(Vector3 axis, double angle) {
