@@ -19,8 +19,8 @@ public class UVRotation extends UVTransformation {
 
     @Override
     public void apply(UV uv) {
-        double c = MathHelper.cos(angle);
-        double s = MathHelper.sin(angle);
+        double c = Math.cos(angle);
+        double s = Math.sin(angle);
         double u2 = c * uv.u + s * uv.v;
         uv.v = -s * uv.u + c * uv.v;
         uv.u = u2;

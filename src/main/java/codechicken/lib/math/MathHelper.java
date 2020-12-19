@@ -12,6 +12,7 @@ public class MathHelper {
     public static final double torad = 0.017453292519943;
     public static final double sqrt2 = 1.414213562373095;
 
+    @Deprecated //1.17, No replacement, don't use a sin table.
     public static double[] SIN_TABLE = new double[65536];
 
     static {
@@ -25,12 +26,14 @@ public class MathHelper {
         SIN_TABLE[49152] = 1;
     }
 
+    @Deprecated //1.17, Use Math.sin
     public static double sin(double d) {
-        return SIN_TABLE[(int) ((float) d * 10430.378F) & 65535];
+        return Math.sin(d);
     }
 
+    @Deprecated //1.17, Use Math.cos
     public static double cos(double d) {
-        return SIN_TABLE[(int) ((float) d * 10430.378F + 16384.0F) & 65535];
+        return Math.cos(d);
     }
 
     /**
