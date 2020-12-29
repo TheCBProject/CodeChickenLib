@@ -83,24 +83,29 @@ public final class PacketCustom extends MCDataByteBuf {
     }
 
     //region To and from NBT / TilePacket.
+    @Deprecated//Use methods on MCDataByteBuf
     public CompoundNBT writeToNBT(CompoundNBT tagCompound) {
         tagCompound.putByteArray("CCL:data", buf.array());
         return tagCompound;
     }
 
+    @Deprecated//Use methods on MCDataByteBuf
     public CompoundNBT toNBTTag() {
         return writeToNBT(new CompoundNBT());
     }
 
+    @Deprecated//Use methods on MCDataByteBuf
     public static PacketCustom fromNBTTag(CompoundNBT tagCompound) {
         return new PacketCustom(Unpooled.copiedBuffer(tagCompound.getByteArray("CCL:data")));
     }
 
+    @Deprecated//Use methods on MCDataByteBuf
     public SUpdateTileEntityPacket toTilePacket(BlockPos pos) {
         return new SUpdateTileEntityPacket(pos, -6000, toNBTTag());
     }
 
     @OnlyIn (Dist.CLIENT)
+    @Deprecated//Use methods on MCDataByteBuf
     public static PacketCustom fromTilePacket(SUpdateTileEntityPacket tilePacket) {
         return fromNBTTag(tilePacket.getNbtCompound());
     }
