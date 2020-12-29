@@ -27,6 +27,8 @@ archivesBaseName = 'CodeChickenLib'
 targetCompatibility = "1.8"
 sourceCompatibility = "1.8"
 
+sourceSets.main.resources.srcDirs += "src/main/generated"
+
 file('build.properties').withReader {
     def prop = new Properties()
     prop.load(it)
@@ -71,7 +73,7 @@ minecraft {
         }
         data {
             workingDirectory file('run')
-            args '--mod', 'codechickenlib', '--all', '--output', file("src/generated/resources")
+            args '--mod', 'codechickenlib', '--all', '--output', file("src/main/generated"), '--existing', file("src/main/resources")
             mods { codechickenlib { source sourceSets.main } }
         }
     }
