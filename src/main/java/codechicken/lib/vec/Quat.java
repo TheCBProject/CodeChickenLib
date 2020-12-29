@@ -2,6 +2,7 @@ package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
+import net.minecraft.client.renderer.Quaternion;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -26,6 +27,13 @@ public class Quat implements Copyable<Quat> {
         y = quat.y;
         z = quat.z;
         s = quat.s;
+    }
+
+    public Quat(Quaternion quat) {
+        x = quat.getX();
+        y = quat.getY();
+        z = quat.getZ();
+        z = quat.getW();
     }
 
     public Quat(double d, double d1, double d2, double d3) {
@@ -95,6 +103,10 @@ public class Quat implements Copyable<Quat> {
         z = d3;
 
         return this;
+    }
+
+    public Quaternion toQuaternion() {
+        return new Quaternion((float) x, (float) y, (float) z, (float) s);
     }
 
     public double mag() {

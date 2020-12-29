@@ -6,6 +6,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -129,9 +130,7 @@ public class InventorySimple implements IInventory/*, ICapabilityProvider*/ {
 
     @Override
     public void clear() {
-        for (int i = 0; i < items.length; i++) {
-            items[i] = ItemStack.EMPTY;
-        }
+        Arrays.fill(items, ItemStack.EMPTY);
     }
 
     //    @Override
