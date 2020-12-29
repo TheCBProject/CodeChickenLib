@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
  *
  * Created by covers1624 on 31/10/19.
  */
+@Deprecated//Use MultiIndexedVoxelShape
 public class SubHitVoxelShape extends VoxelShape {
 
     private final VoxelShape shape;

@@ -1,8 +1,8 @@
 package codechicken.lib.render;
 
 import codechicken.lib.raytracer.CuboidRayTraceResult;
+import codechicken.lib.raytracer.VoxelShapeRayTraceResult;
 import codechicken.lib.vec.Matrix4;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -51,6 +51,12 @@ public class CCRenderEventHandler {
             Matrix4 mat = new Matrix4(event.getMatrix());
             mat.translate(cuboidHit.getPos());
             RenderUtils.bufferHitbox(mat, event.getBuffers(), event.getInfo(), cuboidHit.cuboid6);
+        } else if (hit instanceof VoxelShapeRayTraceResult) {
+            VoxelShapeRayTraceResult voxelHit = (VoxelShapeRayTraceResult) hit;
+            event.setCanceled(true);
+            Matrix4 mat = new Matrix4(event.getMatrix());
+            mat.translate(voxelHit.getPos());
+            RenderUtils.bufferShapeHitBox(mat, event.getBuffers(), event.getInfo(), voxelHit.shape);
         }
     }
 }

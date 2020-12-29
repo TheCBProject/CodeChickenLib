@@ -18,6 +18,10 @@ public class DistanceRayTraceResult extends BlockRayTraceResult implements Compa
         this(false, hitVec.vec3(), faceIn, posIn, isInside, data, dist);
     }
 
+    public DistanceRayTraceResult(Vec3d hitVec, Direction faceIn, BlockPos posIn, boolean isInside, Object data, double dist) {
+        this(false, hitVec, faceIn, posIn, isInside, data, dist);
+    }
+
     protected DistanceRayTraceResult(boolean isMissIn, Vec3d hitVec, Direction faceIn, BlockPos posIn, boolean isInside, Object data, double dist) {
         super(isMissIn, hitVec, faceIn, posIn, isInside);
         setData(data);
@@ -36,6 +40,7 @@ public class DistanceRayTraceResult extends BlockRayTraceResult implements Compa
         return new DistanceRayTraceResult(getType() == Type.MISS, getHitVec(), getFace(), getPos(), isInside(), hitInfo, dist);
     }
 
+    @Deprecated
     public void offsetHit(BlockPos pos) {
         hitResult = hitResult.add(pos.getX(), pos.getY(), pos.getZ());
     }

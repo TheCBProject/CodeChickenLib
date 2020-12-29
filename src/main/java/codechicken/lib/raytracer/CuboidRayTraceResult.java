@@ -7,9 +7,8 @@ import net.minecraft.util.math.Vec3d;
 
 /**
  * Created by covers1624 on 8/9/2016.
- * This class is kind of special as if you return this in Block.collisionRayTrace, when the blocks HitBox is rendered it will cancel and use the cuboid provided here.
- * This is to get around the fact that it is currently impossible to determine from Block.getSelectedBoundingBox what sub box to render as you have absolutely no player context to do a trace.
  */
+@Deprecated
 public class CuboidRayTraceResult extends DistanceRayTraceResult {
 
     public IndexedCuboid6 cuboid6;
