@@ -1,7 +1,15 @@
 package codechicken.lib.data;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import net.minecraft.nbt.ByteArrayNBT;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
  * An {@link MCDataInput} and {@link MCDataOutput} implementation,
@@ -12,6 +20,10 @@ import net.minecraft.network.PacketBuffer;
 public class MCDataByteBuf implements MCDataInput, MCDataOutput {
 
     protected final ByteBuf buf;
+
+    public MCDataByteBuf() {
+        this(Unpooled.buffer());
+    }
 
     public MCDataByteBuf(ByteBuf buf) {
         this.buf = buf;
@@ -26,6 +38,34 @@ public class MCDataByteBuf implements MCDataInput, MCDataOutput {
         return buf instanceof PacketBuffer ? (PacketBuffer) buf : new PacketBuffer(buf);
     }
 
+    public INBT toTag() {
+        return new ByteArrayNBT(buf.array());
+    }
+
+    public static MCDataByteBuf fromTag(INBT tag) {
+        if (!(tag instanceof ByteArrayNBT)) {
+            throw new IllegalArgumentException("Expected ByteArrayNBT, got: " + tag.getClass().getSimpleName());
+        }
+        return new MCDataByteBuf(Unpooled.copiedBuffer(((ByteArrayNBT) tag).getByteArray()));
+    }
+
+    public CompoundNBT writeToNBT(CompoundNBT tag, String key) {
+        tag.put(key, toTag());
+        return tag;
+    }
+
+    public static MCDataByteBuf readFromNBT(CompoundNBT tag, String key) {
+        return fromTag(tag.get(key));
+    }
+
+    public SUpdateTileEntityPacket toTilePacket(BlockPos pos) {
+        return new SUpdateTileEntityPacket(pos, -6000, writeToNBT(new CompoundNBT(), "data"));
+    }
+
+    @OnlyIn (Dist.CLIENT)
+    public static MCDataByteBuf fromTilePacket(SUpdateTileEntityPacket tilePacket) {
+        return fromTag(tilePacket.getNbtCompound().get("data"));
+    }
     //@formatter:off
     @Override public byte readByte() { return buf.readByte(); }
     @Override public short readUByte() { return buf.readUnsignedByte(); }
