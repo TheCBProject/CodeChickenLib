@@ -13,6 +13,8 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,8 @@ import java.util.List;
  * Created by covers1624 on 28/12/20.
  */
 public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRecipeBuilder> {
+
+    private static final Logger logger = LogManager.getLogger();
 
     private final List<String> patternLines = new ArrayList<>();
     private final Char2ObjectMap<Ingredient> keys = new Char2ObjectOpenHashMap<>();
@@ -50,14 +54,23 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
     }
 
     public ShapedRecipeBuilder key(char key, Tag<Item> item) {
-        return key(key, Ingredient.fromTag(item));
+        addAutoCriteria(item);
+        return keyInternal(key, Ingredient.fromTag(item));
     }
 
     public ShapedRecipeBuilder key(char key, IItemProvider item) {
-        return key(key, Ingredient.fromItems(item));
+        addAutoCriteria(item);
+        return keyInternal(key, Ingredient.fromItems(item));
     }
 
     public ShapedRecipeBuilder key(char key, Ingredient ingredient) {
+        if (generateCriteria) {
+            logger.warn("Criteria not automatically generated for raw ingredient.", new Throwable("Here, have a stack trace"));
+        }
+        return keyInternal(key, ingredient);
+    }
+
+    private ShapedRecipeBuilder keyInternal(char key, Ingredient ingredient) {
         if (keys.containsKey(key)) {
             throw new IllegalArgumentException("Symbol '" + key + "' is already defined!");
         }
