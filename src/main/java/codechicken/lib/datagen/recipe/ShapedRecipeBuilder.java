@@ -98,10 +98,10 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
     protected void validate() {
         super.validate();
         if (patternLines.isEmpty()) {
-            throw new IllegalStateException("No pattern is defined for shaped recipe " + id + "!");
+            throw new IllegalStateException("No pattern is defined for shaped recipe " + id + "!", created);
         }
         if (patternLines.size() == 1 && patternLines.get(0).length() == 1) {
-            throw new IllegalStateException("Shaped recipe " + id + " only takes in a single item - should it be a shapeless recipe instead?");
+            throw new IllegalStateException("Shaped recipe " + id + " only takes in a single item - should it be a shapeless recipe instead?", created);
         }
 
         CharSet chars = new CharOpenHashSet(keys.keySet());
@@ -111,14 +111,14 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
             for (char c : line.toCharArray()) {
                 if (c == ' ') { continue; }
                 if (!keys.containsKey(c)) {
-                    throw new IllegalStateException("Pattern in recipe " + id + " uses undefined symbol '" + c + "'");
+                    throw new IllegalStateException("Pattern in recipe " + id + " uses undefined symbol '" + c + "'", created);
                 }
                 chars.remove(c);
             }
         }
 
         if (!chars.isEmpty()) {
-            throw new IllegalStateException("Ingredients are defined but not used in pattern for recipe " + id);
+            throw new IllegalStateException("Ingredients are defined but not used in pattern for recipe " + id, created);
         }
     }
 
