@@ -200,9 +200,7 @@ public class CCRenderState {
 
     public void setPipeline(IVertexSource model, int start, int end, IVertexOperation... ops) {
         pipeline.reset();
-        pipeline.forceFormatAttributes = false;
         setModel(model, start, end);
-        pipeline.forceFormatAttributes = true;
         pipeline.setPipeline(ops);
     }
 

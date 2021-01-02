@@ -12,6 +12,7 @@ public class CCRenderPipeline {
     @Deprecated
     private final PipelineBuilder builder;
 
+    @Deprecated//Hack removed.
     public boolean forceFormatAttributes = true;
 
     private final List<VertexAttribute<?>> attribs = new ArrayList<>();
@@ -46,18 +47,6 @@ public class CCRenderPipeline {
     }
 
     public void rebuild() {
-        if (forceFormatAttributes) {
-            if (renderState.fmt.hasNormal()) {
-                addAttribute(renderState.normalAttrib);
-            }
-            if (renderState.fmt.hasColor()) {
-                addAttribute(renderState.colourAttrib);
-            }
-            if (renderState.computeLighting) {
-                addAttribute(renderState.lightingAttrib);
-            }
-        }
-
         if (ops.isEmpty() || renderState.model == null) {
             return;
         }
@@ -67,6 +56,16 @@ public class CCRenderPipeline {
             nodes.add(new PipelineNode());
         }
         unbuild();
+
+        if (renderState.fmt.hasNormal()) {
+            addAttribute(renderState.normalAttrib);
+        }
+        if (renderState.fmt.hasColor()) {
+            addAttribute(renderState.colourAttrib);
+        }
+        if (renderState.computeLighting) {
+            addAttribute(renderState.lightingAttrib);
+        }
 
         // addDependency adds things to this.
         //noinspection ForLoopReplaceableByForEach
