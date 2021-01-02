@@ -29,6 +29,7 @@ import static codechicken.lib.util.SneakyUtils.unsafeCast;
  */
 public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R, T>> implements RecipeBuilder {
 
+    protected final Throwable created = new Throwable("Created at");
     protected final Advancement.Builder advancementBuilder = Advancement.Builder.builder();
     protected final IRecipeSerializer<?> serializer;
     protected final ResourceLocation id;
@@ -83,7 +84,7 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
 
     protected void validate() {
         if (advancementBuilder.getCriteria().isEmpty()) {
-            throw new IllegalStateException("No way of obtaining recipe " + id);
+            throw new IllegalStateException("No way of obtaining recipe " + id, created);
         }
 
     }
