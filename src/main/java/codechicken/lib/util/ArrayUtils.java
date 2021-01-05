@@ -271,6 +271,24 @@ public class ArrayUtils {
     }
 
     /**
+     * Returns the index of the first occurrence of the specified element in the array
+     * with the same identity. (Ref compare).
+     * Will return -1 if the element is non existent in the array.
+     *
+     * @param array  The array to search.
+     * @param object Element to find.
+     * @return The index in the array of the object.
+     */
+    public static <T> int indexOfRef(T[] array, T object) {
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == object) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Create a new array using the provided array as a template for both type and length.
      *
      * @param array The template.
