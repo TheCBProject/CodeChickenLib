@@ -38,6 +38,7 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     private final Set<Tag<Item>> criteriaTags = new HashSet<>();
     private int criteriaCounter = 0;
     protected boolean generateCriteria = false;
+    protected boolean enableUnlocking = false;
     private String group;
 
     protected AbstractRecipeBuilder(IRecipeSerializer<?> serializer, ResourceLocation id, R result) {
@@ -52,7 +53,13 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
 
     protected abstract ResourceLocation getAdvancementId();
 
+    public T enableUnlocking() {
+        enableUnlocking = true;
+        return getThis();
+    }
+
     public T autoCriteria() {
+        enableUnlocking();
         generateCriteria = true;
         return getThis();
     }
@@ -63,6 +70,9 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     }
 
     public T addCriterion(String name, ICriterionInstance criterion) {
+        if (!enableUnlocking) {
+            throw new IllegalStateException("Recipe unlocking must be enabled with 'enableUnlocking'");
+        }
         advancementBuilder.withCriterion(name, criterion);
         return getThis();
     }
@@ -75,15 +85,17 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     @Override
     public final IFinishedRecipe build() {
         validate();
-        advancementBuilder.withParentId(new ResourceLocation("recipes/root"))
-                .withCriterion("has_the_recipe", new RecipeUnlockedTrigger.Instance(id))
-                .withRewards(AdvancementRewards.Builder.recipe(id))
-                .withRequirementsStrategy(IRequirementsStrategy.OR);
+        if (enableUnlocking) {
+            advancementBuilder.withParentId(new ResourceLocation("recipes/root"))
+                    .withCriterion("has_the_recipe", new RecipeUnlockedTrigger.Instance(id))
+                    .withRewards(AdvancementRewards.Builder.recipe(id))
+                    .withRequirementsStrategy(IRequirementsStrategy.OR);
+        }
         return _build();
     }
 
     protected void validate() {
-        if (advancementBuilder.getCriteria().isEmpty()) {
+        if (enableUnlocking && advancementBuilder.getCriteria().isEmpty()) {
             throw new IllegalStateException("No way of obtaining recipe " + id, created);
         }
 
@@ -137,7 +149,7 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
         @Nullable
         @Override
         public JsonObject getAdvancementJson() {
-            return advancementBuilder.serialize();
+            return enableUnlocking ? advancementBuilder.serialize() : null;
         }
 
         @Nullable
