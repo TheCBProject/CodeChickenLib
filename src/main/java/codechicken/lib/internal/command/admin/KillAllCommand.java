@@ -1,5 +1,6 @@
 package codechicken.lib.internal.command.admin;
 
+import codechicken.lib.util.SneakyUtils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -15,6 +16,7 @@ import net.minecraft.world.server.ServerWorld;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -37,7 +39,7 @@ public class KillAllCommand {
                         .then(argument("entity", entityType())
                                 .executes(ctx -> {
                                     EntityType<?> entityType = getEntityType(ctx, "entity");
-                                    return killallForce(ctx, e -> e.getType().equals(entityType));
+                                    return killallForce(ctx, e -> Objects.equals(e.getType(), entityType));
                                 })
                         )
                         .executes(ctx -> killallForce(ctx, e -> e instanceof IMob))
@@ -45,7 +47,7 @@ public class KillAllCommand {
                                 .then(argument("entity", entityType())
                                         .executes(ctx -> {
                                             EntityType<?> entityType = getEntityType(ctx, "entity");
-                                            return killAllGracefully(ctx, e -> e.getType().equals(entityType));
+                                            return killAllGracefully(ctx, e -> Objects.equals(e.getType(), entityType));
                                         })
                                 )
                                 .executes(ctx -> killAllGracefully(ctx, e -> e instanceof IMob))
@@ -71,6 +73,7 @@ public class KillAllCommand {
         Object2IntMap<EntityType<?>> counts = new Object2IntOpenHashMap<>();
         counts.defaultReturnValue(0);
         world.getEntities()
+                .filter(Objects::nonNull)
                 .filter(predicate)
                 .filter(e -> provider.chunkExists(floor(e.getPosX()) >> 4, floor(e.getPosZ()) >> 4))
                 .forEach(e -> {

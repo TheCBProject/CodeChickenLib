@@ -3,6 +3,7 @@ package codechicken.lib.render;
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.buffer.ISpriteAwareVertexBuilder;
+import codechicken.lib.render.buffer.TransformingVertexBuilder;
 import codechicken.lib.render.lighting.LC;
 import codechicken.lib.render.lighting.LightMatrix;
 import codechicken.lib.render.lighting.PlanarLightModel;
@@ -11,9 +12,11 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.render.pipeline.IVertexSource;
 import codechicken.lib.render.pipeline.VertexAttribute;
 import codechicken.lib.render.pipeline.attribute.*;
+import codechicken.lib.vec.Matrix4;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
@@ -148,6 +151,30 @@ public class CCRenderState {
      */
     public void bind(RenderType renderType, IRenderTypeBuffer getter) {
         bind(getter.getBuffer(renderType), renderType.getVertexFormat());
+    }
+
+    /**
+     * Bind this {@link CCRenderState} to the given {@link RenderType}, applying
+     * the given MatrixStack.
+     *
+     * @param renderType The {@link RenderType} to bind to.
+     * @param getter     The {@link IRenderTypeBuffer} instance.
+     * @param mStack     The {@link MatrixStack} to apply.
+     */
+    public void bind(RenderType renderType, IRenderTypeBuffer getter, MatrixStack mStack) {
+        bind(new TransformingVertexBuilder(getter.getBuffer(renderType), mStack), renderType.getVertexFormat());
+    }
+
+    /**
+     * Bind this {@link CCRenderState} to the given {@link RenderType}, applying
+     * the given MatrixStack.
+     *
+     * @param renderType The {@link RenderType} to bind to.
+     * @param getter     The {@link IRenderTypeBuffer} instance.
+     * @param mat        The {@link Matrix4} to apply.
+     */
+    public void bind(RenderType renderType, IRenderTypeBuffer getter, Matrix4 mat) {
+        bind(new TransformingVertexBuilder(getter.getBuffer(renderType), mat), renderType.getVertexFormat());
     }
 
     /**
