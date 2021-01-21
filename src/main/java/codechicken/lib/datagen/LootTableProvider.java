@@ -3,13 +3,21 @@ package codechicken.lib.datagen;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraft.advancements.criterion.EnchantmentPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.advancements.criterion.MinMaxBounds;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
-import net.minecraft.loot.*;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.loot.*;
+import net.minecraft.loot.conditions.ILootCondition;
+import net.minecraft.loot.conditions.MatchTool;
+import net.minecraft.loot.functions.ApplyBonus;
+import net.minecraft.loot.functions.SetCount;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -78,12 +86,54 @@ public abstract class LootTableProvider implements IDataProvider {
 
     public static abstract class BlockLootProvider extends LootTableProvider {
 
+        protected static final ILootCondition.IBuilder SILK_TOUCH = MatchTool.builder(ItemPredicate.Builder.create()
+                .enchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.IntBound.atLeast(1)))
+        );
+        protected static final ILootCondition.IBuilder NO_SILK_TOUCH = SILK_TOUCH.inverted();
+
         protected BlockLootProvider(DataGenerator dataGenerator) {
             super(dataGenerator);
         }
 
         protected LootPool.Builder singleItem(IItemProvider item) {
-            return LootPool.builder().rolls(ConstantRange.of(1)).addEntry(ItemLootEntry.builder(item));
+            return LootPool.builder()
+                    .rolls(ConstantRange.of(1))
+                    .addEntry(ItemLootEntry.builder(item));
+        }
+
+        protected LootPool.Builder singleItemOr(IItemProvider failDrop, ILootCondition.IBuilder condition, LootEntry.Builder<?> passDrop) {
+            return LootPool.builder()
+                    .rolls(ConstantRange.of(1))
+                    .addEntry(ItemLootEntry.builder(failDrop)
+                            .acceptCondition(condition)
+                            .alternatively(passDrop)
+                    );
+        }
+
+        protected LootPool.Builder singleItemOrSilk(IItemProvider silk, LootEntry.Builder<?> drop) {
+            return singleItemOr(silk, SILK_TOUCH, drop);
+        }
+
+        protected LootPool.Builder singleItemOrSilk(IItemProvider silk, IItemProvider drop) {
+            return singleItemOrSilk(silk, ItemLootEntry.builder(drop));
+        }
+
+        protected LootPool.Builder valueRange(IItemProvider item, int min, int max) {
+            return LootPool.builder()
+                    .rolls(ConstantRange.of(1))
+                    .addEntry(ItemLootEntry.builder(item)
+                            .acceptFunction(SetCount.builder(new RandomValueRange(min, max)))
+                    );
+        }
+
+        protected LootPool.Builder valueRangeOrSilk(IItemProvider silk, IItemProvider drop, int min, int max) {
+            return singleItemOr(silk, SILK_TOUCH, ItemLootEntry.builder(drop).acceptFunction(SetCount.builder(new RandomValueRange(min, max))));
+        }
+        protected LootPool.Builder valueRangeOrSilkWithFortune(IItemProvider silk, IItemProvider drop, int min, int max) {
+            return singleItemOr(silk, SILK_TOUCH, ItemLootEntry.builder(drop)
+                    .acceptFunction(SetCount.builder(new RandomValueRange(min, max)))
+                    .acceptFunction(ApplyBonus.oreDrops(Enchantments.FORTUNE))
+            );
         }
 
         protected void register(Block block, LootPool.Builder... pools) {
