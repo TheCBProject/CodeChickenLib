@@ -17,6 +17,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
@@ -224,6 +225,23 @@ public class RenderUtils {
         builder.pos(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
         builder.pos(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
         builder.pos(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+    }
+
+    public static void bufferShapeHitBox(Matrix4 mat, IRenderTypeBuffer buffers, ActiveRenderInfo renderInfo, VoxelShape shape) {
+        Vector3d projectedView = renderInfo.getProjectedView();
+        bufferShapeHitBox(mat.copy().translate(-projectedView.x, -projectedView.y, -projectedView.z), buffers, shape);
+    }
+
+    public static void bufferShapeHitBox(Matrix4 mat, IRenderTypeBuffer buffers, VoxelShape shape) {
+        IVertexBuilder builder = new TransformingVertexBuilder(buffers.getBuffer(RenderType.getLines()), mat);
+        bufferShapeOutline(builder, shape, 0.0F, 0.0F, 0.0F, 0.4F);
+    }
+
+    public static void bufferShapeOutline(IVertexBuilder builder, VoxelShape shape, float r, float g, float b, float a) {
+        shape.forEachEdge((x1, y1, z1, x2, y2, z2) -> {
+            builder.pos(x1, y1, z1).color(r, g, b, a).endVertex();
+            builder.pos(x2, y2, z2).color(r, g, b, a).endVertex();
+        });
     }
 
     public static Matrix4 getMatrix(Matrix4 in, Vector3 translation, Rotation rotation, double scale) {

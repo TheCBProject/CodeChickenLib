@@ -20,6 +20,7 @@ public class IndexedCuboid6 extends Cuboid6 {
         this.data = data;
     }
 
+    @Deprecated
     public CuboidRayTraceResult calculateIntercept(Vector3 start, Vector3 end) {
         Vector3 hit = null;
         Direction sideHit = null;
