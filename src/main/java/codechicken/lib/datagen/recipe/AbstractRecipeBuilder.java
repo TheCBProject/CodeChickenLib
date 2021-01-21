@@ -5,14 +5,19 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.ICriterionInstance;
 import net.minecraft.advancements.IRequirementsStrategy;
-import net.minecraft.advancements.criterion.EntityPredicate;
-import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
+import net.minecraft.advancements.criterion.*;
 import net.minecraft.data.IFinishedRecipe;
+import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.tags.Tag;
+import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 
 import javax.annotation.Nullable;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static codechicken.lib.util.SneakyUtils.unsafeCast;
 
@@ -25,6 +30,10 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     protected final IRecipeSerializer<?> serializer;
     protected final ResourceLocation id;
     protected final R result;
+    private final Set<IItemProvider> criteriaItems = new HashSet<>();
+    private final Set<Tag<Item>> criteriaTags = new HashSet<>();
+    private int criteriaCounter = 0;
+    protected boolean generateCriteria = false;
     private String group;
 
     protected AbstractRecipeBuilder(IRecipeSerializer<?> serializer, ResourceLocation id, R result) {
@@ -38,6 +47,11 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     }
 
     protected abstract ResourceLocation getAdvancementId();
+
+    public T autoCriteria() {
+        generateCriteria = true;
+        return getThis();
+    }
 
     public T setGroup(String group) {
         this.group = group;
@@ -72,6 +86,30 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     }
 
     protected abstract AbstractFinishedRecipe _build();
+
+    protected void addAutoCriteria(IItemProvider item) {
+        if (generateCriteria && criteriaItems.add(item)) {
+            addCriterion("has_ingredient_" + criteriaCounter++, hasItem(item));
+        }
+    }
+
+    protected void addAutoCriteria(Tag<Item> tag) {
+        if (generateCriteria && criteriaTags.add(tag)) {
+            addCriterion("has_ingredient_" + criteriaCounter++, hasItem(tag));
+        }
+    }
+
+    protected InventoryChangeTrigger.Instance hasItem(IItemProvider itemIn) {
+        return this.hasItem(ItemPredicate.Builder.create().item(itemIn).build());
+    }
+
+    protected InventoryChangeTrigger.Instance hasItem(Tag<Item> tagIn) {
+        return this.hasItem(ItemPredicate.Builder.create().tag(tagIn).build());
+    }
+
+    protected InventoryChangeTrigger.Instance hasItem(ItemPredicate... predicates) {
+        return new InventoryChangeTrigger.Instance(EntityPredicate.AndPredicate.ANY_AND, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, predicates);
+    }
 
     public abstract class AbstractFinishedRecipe implements IFinishedRecipe {
 

@@ -1,16 +1,22 @@
 package codechicken.lib.datagen.recipe;
 
 import com.google.gson.JsonObject;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.tags.Tag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Created by covers1624 on 28/12/20.
  */
 public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<FurnaceRecipeBuilder> {
+
+    private static final Logger logger = LogManager.getLogger();
 
     private Ingredient ingredient;
     private float experience = 0.0F;
@@ -112,7 +118,22 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
     //endregion
 
+    public FurnaceRecipeBuilder ingredient(Tag<Item> tag) {
+        addAutoCriteria(tag);
+        this.ingredient = Ingredient.fromTag(tag);
+        return this;
+    }
+
+    public FurnaceRecipeBuilder ingredient(IItemProvider item) {
+        addAutoCriteria(item);
+        this.ingredient = Ingredient.fromItems(item);
+        return this;
+    }
+
     public FurnaceRecipeBuilder ingredient(Ingredient ingredient) {
+        if (generateCriteria) {
+            logger.warn("Criteria not automatically generated for raw ingredient.", new Throwable("Here, have a stack trace"));
+        }
         this.ingredient = ingredient;
         return this;
     }

@@ -9,6 +9,8 @@ import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.tags.Tag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +19,8 @@ import java.util.List;
  * Created by covers1624 on 28/12/20.
  */
 public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapelessRecipeBuilder> {
+
+    private static final Logger logger = LogManager.getLogger();
 
     private final List<Ingredient> ingredients = new ArrayList<>();
 
@@ -49,7 +53,12 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
     }
 
     public ShapelessRecipeBuilder addIngredient(Tag<Item> tag, int quantity) {
-        return addIngredient(Ingredient.fromTag(tag), quantity);
+        addAutoCriteria(tag);
+        Ingredient ingredient = Ingredient.fromTag(tag);
+        for (int i = 0; i < quantity; ++i) {
+            ingredients.add(ingredient);
+        }
+        return this;
     }
 
     public ShapelessRecipeBuilder addIngredient(IItemProvider item) {
@@ -57,10 +66,11 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
     }
 
     public ShapelessRecipeBuilder addIngredient(IItemProvider item, int quantity) {
+        addAutoCriteria(item);
+        Ingredient ingredient = Ingredient.fromItems(item);
         for (int i = 0; i < quantity; ++i) {
-            addIngredient(Ingredient.fromItems(item));
+            ingredients.add(ingredient);
         }
-
         return this;
     }
 
@@ -69,6 +79,9 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
     }
 
     public ShapelessRecipeBuilder addIngredient(Ingredient ingredient, int quantity) {
+        if (generateCriteria) {
+            logger.warn("Criteria not automatically generated for raw ingredient.", new Throwable("Here, have a stack trace"));
+        }
         for (int i = 0; i < quantity; ++i) {
             ingredients.add(ingredient);
         }
