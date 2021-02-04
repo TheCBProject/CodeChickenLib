@@ -2,6 +2,7 @@ package codechicken.lib.render;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
+import codechicken.lib.model.CachedFormat;
 import codechicken.lib.render.buffer.ISpriteAwareVertexBuilder;
 import codechicken.lib.render.buffer.TransformingVertexBuilder;
 import codechicken.lib.render.lighting.LC;
@@ -54,6 +55,7 @@ public class CCRenderState {
     public CCRenderPipeline pipeline;
     public IVertexBuilder r;
     public VertexFormat fmt;
+    public CachedFormat cFmt;
 
     //context
     /**
@@ -141,6 +143,7 @@ public class CCRenderState {
     public void bind(IVertexBuilder consumer, VertexFormat format) {
         r = consumer;
         fmt = format;
+        cFmt = CachedFormat.lookup(format);
     }
 
     /**

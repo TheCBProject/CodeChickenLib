@@ -19,7 +19,7 @@ public class LightingAttribute extends VertexAttribute<int[]> {
 
     @Override
     public boolean load(CCRenderState ccrs) {
-        if (!ccrs.computeLighting || !ccrs.fmt.hasColor() || !ccrs.model.hasAttribute(attributeKey)) {
+        if (!ccrs.computeLighting || !ccrs.cFmt.hasColor || !ccrs.model.hasAttribute(attributeKey)) {
             return false;
         }
 
