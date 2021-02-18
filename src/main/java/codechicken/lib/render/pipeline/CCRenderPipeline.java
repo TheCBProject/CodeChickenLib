@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings ("ForLoopReplaceableByForEach")
 public class CCRenderPipeline {
 
     private final CCRenderState renderState;
@@ -47,24 +48,27 @@ public class CCRenderPipeline {
     }
 
     public void rebuild() {
-        if (ops.isEmpty() || renderState.model == null) {
+        if (renderState.model == null || renderState.fmt == null) return;
+
+        unbuild();
+
+        if (renderState.cFmt.hasNormal) {
+            addAttribute(renderState.normalAttrib);
+        }
+        if (renderState.cFmt.hasColor) {
+            addAttribute(renderState.colourAttrib);
+        }
+        if (renderState.computeLighting) {
+            addAttribute(renderState.lightingAttrib);
+        }
+
+        if (ops.isEmpty()) {
             return;
         }
 
         //ensure enough nodes for all ops
         while (nodes.size() < IVertexOperation.operationCount()) {
             nodes.add(new PipelineNode());
-        }
-        unbuild();
-
-        if (renderState.fmt.hasNormal()) {
-            addAttribute(renderState.normalAttrib);
-        }
-        if (renderState.fmt.hasColor()) {
-            addAttribute(renderState.colourAttrib);
-        }
-        if (renderState.computeLighting) {
-            addAttribute(renderState.lightingAttrib);
         }
 
         // addDependency adds things to this.

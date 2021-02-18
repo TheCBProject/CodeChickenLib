@@ -2,11 +2,12 @@ package codechicken.lib.render;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
+import codechicken.lib.model.CachedFormat;
+import codechicken.lib.render.buffer.ISpriteAwareVertexBuilder;
 import codechicken.lib.render.buffer.TransformingVertexBuilder;
 import codechicken.lib.render.lighting.LC;
 import codechicken.lib.render.lighting.LightMatrix;
 import codechicken.lib.render.lighting.PlanarLightModel;
-import codechicken.lib.render.buffer.ISpriteAwareVertexBuilder;
 import codechicken.lib.render.pipeline.CCRenderPipeline;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.render.pipeline.IVertexSource;
@@ -19,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -55,6 +55,7 @@ public class CCRenderState {
     public CCRenderPipeline pipeline;
     public IVertexBuilder r;
     public VertexFormat fmt;
+    public CachedFormat cFmt;
 
     //context
     /**
@@ -142,6 +143,7 @@ public class CCRenderState {
     public void bind(IVertexBuilder consumer, VertexFormat format) {
         r = consumer;
         fmt = format;
+        cFmt = CachedFormat.lookup(format);
     }
 
     /**
