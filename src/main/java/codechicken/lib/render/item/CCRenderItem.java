@@ -28,11 +28,12 @@ public class CCRenderItem extends ItemRenderer {
     public void renderItem(ItemStack stack, ItemCameraTransforms.TransformType transformType, boolean leftHand, MatrixStack mStack, IRenderTypeBuffer getter, int packedLight, int packedOverlay, IBakedModel modelIn) {
         if (modelIn instanceof IItemRenderer) {
             mStack.push();
-            IBakedModel handled = ForgeHooksClient.handleCameraTransforms(mStack, modelIn, transformType, leftHand);
-            mStack.translate(-0.5D, -0.5D, -0.5D);
             //If anyone doesnt return an IItemRenderer from here, your doing it wrong.
-            ((IItemRenderer) handled).renderItem(stack, transformType, mStack, getter, packedLight, packedOverlay);
+            IItemRenderer handled = (IItemRenderer) ForgeHooksClient.handleCameraTransforms(mStack, modelIn, transformType, leftHand);
+            mStack.translate(-0.5D, -0.5D, -0.5D);
+            handled.renderItem(stack, transformType, mStack, getter, packedLight, packedOverlay);
             mStack.pop();
+            return;
         }
         super.renderItem(stack, transformType, leftHand, mStack, getter, packedLight, packedOverlay, modelIn);
     }
