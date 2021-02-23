@@ -1,5 +1,7 @@
 package codechicken.lib.texture;
 
+import codechicken.lib.colour.Colour;
+import codechicken.lib.colour.ColourARGB;
 import codechicken.lib.util.ResourceUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.block.BlockState;
@@ -25,21 +27,29 @@ import java.util.Random;
 
 public class TextureUtils {
 
-    //    /**
-    //     * @return an array of ARGB pixel data
-    //     */
-    //    public static int[] loadTextureData(ResourceLocation resource) {
-    //        return loadTexture(resource).data;
-    //    }
+    /**
+     * @return an array of ARGB pixel data
+     */
+    public static int[] loadTextureData(ResourceLocation resource) {
+        BufferedImage img = loadBufferedImage(resource);
+        if (img == null) {
+            return new int[0];
+        }
+        int w = img.getWidth();
+        int h = img.getHeight();
+        int[] data = new int[w * h];
+        img.getRGB(0, 0, w, h, data, 0, w);
+        return data;
+    }
 
-    //    public static Colour[] loadTextureColours(ResourceLocation resource) {
-    //        int[] idata = loadTextureData(resource);
-    //        Colour[] data = new Colour[idata.length];
-    //        for (int i = 0; i < data.length; i++) {
-    //            data[i] = new ColourARGB(idata[i]);
-    //        }
-    //        return data;
-    //    }
+    public static Colour[] loadTextureColours(ResourceLocation resource) {
+        int[] idata = loadTextureData(resource);
+        Colour[] data = new Colour[idata.length];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = new ColourARGB(idata[i]);
+        }
+        return data;
+    }
 
     public static BufferedImage loadBufferedImage(ResourceLocation textureFile) {
         try {
