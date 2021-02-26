@@ -1,0 +1,13 @@
+{
+	"required": false,
+	"minVersion": "0.8",
+	"package": "codechicken.lib.internal.optifine.mixin",
+	"refmap": "mixins.codechickenlib.refmap.json",
+	"plugin": "codechicken.lib.internal.optifine.OptiFinePlugin",
+	"target": "@env(DEFAULT)",
+	"compatibilityLevel": "JAVA_8",
+	"client" : [
+		"GameSettingsMixin",
+		"GuiPerformanceSettingsOFMixin"
+	]
+}

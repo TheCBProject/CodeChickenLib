@@ -132,7 +132,7 @@ jar {
         attributes 'Implementation-Vendor': 'covers1624'
         attributes 'Implementation-Version': version
         attributes 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        attributes 'MixinConfigs': 'mixins.codechickenlib.json'
+        attributes 'MixinConfigs': 'mixins.codechickenlib.json,mixins.codechickenlib.optifine.json'
     }
     from file("LICENSE")
 }

@@ -6,5 +6,9 @@
 	"ccl.commands.killall.success": "Killed %s entities.",
 	"ccl.commands.killall.success.line": "Killed %s",
 	"ccl.commands.count.fail": "Found no entities.",
-	"ccl.commands.count.total": "Found %s entities."
+	"ccl.commands.count.total": "Found %s entities.",
+	"ccl.optifine.toast.title": "OptiFine Incompatibility",
+	"ccl.optifine.toast.description": "FastRender not supported",
+	"ccl.optifine.confirm.title": "OptiFine Incompatibility",
+	"ccl.optifine.confirm.description": "Enabling Fast Render is known to cause rendering issues for forge mods, Please do not report any graphical errors to mod developers with this option turned on. Ensure that you are able to reproduce graphical errors without Optifine installed.\nAre you sure you wish to proceed?"
 }
