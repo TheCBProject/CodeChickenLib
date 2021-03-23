@@ -85,7 +85,7 @@ public class CapabilityCache {
      */
     public void clear() {
         selfCache.clear();
-        Arrays.stream(Direction.BY_INDEX).map(this::getCacheForSide).forEach(Map::clear);
+        Arrays.stream(Direction.BY_3D_DATA).map(this::getCacheForSide).forEach(Map::clear);
     }
 
     /**
@@ -105,7 +105,7 @@ public class CapabilityCache {
         if (side < 0 || diff != 1) {
             return;
         }
-        Direction sideChanged = Direction.BY_INDEX[side];
+        Direction sideChanged = Direction.BY_3D_DATA[side];
 
         Iterables.concat(selfCache.entrySet(), getCacheForSide(sideChanged).entrySet()).forEach(entry -> {
             Object2IntPair<LazyOptional<?>> pair = entry.getValue();
@@ -195,7 +195,7 @@ public class CapabilityCache {
     }
 
     private LazyOptional<?> requestCapability(Capability<?> capability, Direction to) {
-        TileEntity tile = world.getTileEntity(pos.offset(to));
+        TileEntity tile = world.getBlockEntity(pos.relative(to));
         Direction inverse = to == null ? null : to.getOpposite();
         if (tile != null) {
             return tile.getCapability(capability, inverse);

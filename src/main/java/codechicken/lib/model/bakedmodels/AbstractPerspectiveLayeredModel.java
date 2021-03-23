@@ -22,7 +22,7 @@ public abstract class AbstractPerspectiveLayeredModel extends AbstractBakedPrope
     protected RenderType generalLayer;
 
     public AbstractPerspectiveLayeredModel(ModelProperties properties) {
-        this(properties, RenderType.getSolid());
+        this(properties, RenderType.solid());
     }
 
     public AbstractPerspectiveLayeredModel(ModelProperties properties, RenderType generalLayer) {
@@ -47,9 +47,9 @@ public abstract class AbstractPerspectiveLayeredModel extends AbstractBakedPrope
     @Override
     protected List<BakedQuad> getAllQuads(BlockState state, IModelData data) {
         List<BakedQuad> allQuads = new ArrayList<>();
-        for (RenderType layer : RenderType.getBlockRenderTypes()) {
+        for (RenderType layer : RenderType.chunkBufferLayers()) {
             allQuads.addAll(getLayerQuads(state, null, layer, new Random(0), data));
-            for (Direction face : Direction.BY_INDEX) {
+            for (Direction face : Direction.BY_3D_DATA) {
                 allQuads.addAll(getLayerQuads(state, face, layer, new Random(0), data));
             }
         }

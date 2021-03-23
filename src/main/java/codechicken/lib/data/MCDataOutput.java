@@ -870,7 +870,7 @@ public interface MCDataOutput {
             writeRegistryIdUnsafe(ForgeRegistries.ITEMS, item);
             writeVarInt(stack.getCount());
             CompoundNBT nbt = null;
-            if (item.isDamageable() || item.shouldSyncTag()) {
+            if (item.canBeDepleted() || item.shouldOverrideMultiplayerNbt()) {
                 nbt = limitedTag ? stack.getShareTag() : stack.getTag();
             }
             writeCompoundNBT(nbt);

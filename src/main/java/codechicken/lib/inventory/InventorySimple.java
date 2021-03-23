@@ -54,7 +54,7 @@ public class InventorySimple implements IInventory/*, ICapabilityProvider*/ {
     }
 
     @Override
-    public int getSizeInventory() {
+    public int getContainerSize() {
         return items.length;
     }
 
@@ -65,53 +65,53 @@ public class InventorySimple implements IInventory/*, ICapabilityProvider*/ {
 
     @Override
     @Nonnull
-    public ItemStack getStackInSlot(int slot) {
+    public ItemStack getItem(int slot) {
         return items[slot];
     }
 
     @Override
     @Nonnull
-    public ItemStack decrStackSize(int slot, int amount) {
+    public ItemStack removeItem(int slot, int amount) {
         return InventoryUtils.decrStackSize(this, slot, amount);
     }
 
     @Override
     @Nonnull
-    public ItemStack removeStackFromSlot(int slot) {
+    public ItemStack removeItemNoUpdate(int slot) {
         return InventoryUtils.removeStackFromSlot(this, slot);
     }
 
     @Override
-    public void setInventorySlotContents(int slot, ItemStack stack) {
+    public void setItem(int slot, ItemStack stack) {
         items[slot] = stack;
-        markDirty();
+        setChanged();
     }
 
     @Override
-    public int getInventoryStackLimit() {
+    public int getMaxStackSize() {
         return limit;
     }
 
     @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
+    public boolean stillValid(PlayerEntity player) {
         return true;
     }
 
     @Override
-    public boolean isItemValidForSlot(int i, ItemStack itemstack) {
+    public boolean canPlaceItem(int i, ItemStack itemstack) {
         return true;
     }
 
     @Override
-    public void markDirty() {
+    public void setChanged() {
     }
 
     @Override
-    public void openInventory(PlayerEntity player) {
+    public void startOpen(PlayerEntity player) {
     }
 
     @Override
-    public void closeInventory(PlayerEntity player) {
+    public void stopOpen(PlayerEntity player) {
     }
 
     //    @Override
@@ -129,7 +129,7 @@ public class InventorySimple implements IInventory/*, ICapabilityProvider*/ {
     //    }
 
     @Override
-    public void clear() {
+    public void clearContent() {
         Arrays.fill(items, ItemStack.EMPTY);
     }
 

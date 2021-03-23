@@ -42,16 +42,16 @@ public abstract class LootTableProvider implements IDataProvider {
     }
 
     @Override
-    public void act(DirectoryCache cache) {
+    public void run(DirectoryCache cache) {
         tables.clear();
         Path out = dataGenerator.getOutputFolder();
 
         registerTables();
 
-        ValidationTracker validator = new ValidationTracker(LootParameterSets.GENERIC, e -> null, tables::get);
+        ValidationTracker validator = new ValidationTracker(LootParameterSets.ALL_PARAMS, e -> null, tables::get);
 
         tables.forEach((name, table) -> {
-            LootTableManager.validateLootTable(validator, name, table);
+            LootTableManager.validate(validator, name, table);
         });
 
         Multimap<String, String> problems = validator.getProblems();
@@ -65,7 +65,7 @@ public abstract class LootTableProvider implements IDataProvider {
         tables.forEach((name, table) -> {
             Path output = getPath(out, name);
             try {
-                IDataProvider.save(GSON, cache, LootTableManager.toJson(table), output);
+                IDataProvider.save(GSON, cache, LootTableManager.serialize(table), output);
             } catch (IOException e) {
                 logger.error("Couldn't save loot table {}", output, e);
             }
@@ -86,27 +86,27 @@ public abstract class LootTableProvider implements IDataProvider {
 
     public static abstract class BlockLootProvider extends LootTableProvider {
 
-        protected static final ILootCondition.IBuilder SILK_TOUCH = MatchTool.builder(ItemPredicate.Builder.create()
-                .enchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.IntBound.atLeast(1)))
+        protected static final ILootCondition.IBuilder SILK_TOUCH = MatchTool.toolMatches(ItemPredicate.Builder.item()
+                .hasEnchantment(new EnchantmentPredicate(Enchantments.SILK_TOUCH, MinMaxBounds.IntBound.atLeast(1)))
         );
-        protected static final ILootCondition.IBuilder NO_SILK_TOUCH = SILK_TOUCH.inverted();
+        protected static final ILootCondition.IBuilder NO_SILK_TOUCH = SILK_TOUCH.invert();
 
         protected BlockLootProvider(DataGenerator dataGenerator) {
             super(dataGenerator);
         }
 
         protected LootPool.Builder singleItem(IItemProvider item) {
-            return LootPool.builder()
-                    .rolls(ConstantRange.of(1))
-                    .addEntry(ItemLootEntry.builder(item));
+            return LootPool.lootPool()
+                    .setRolls(ConstantRange.exactly(1))
+                    .add(ItemLootEntry.lootTableItem(item));
         }
 
         protected LootPool.Builder singleItemOr(IItemProvider failDrop, ILootCondition.IBuilder condition, LootEntry.Builder<?> passDrop) {
-            return LootPool.builder()
-                    .rolls(ConstantRange.of(1))
-                    .addEntry(ItemLootEntry.builder(failDrop)
-                            .acceptCondition(condition)
-                            .alternatively(passDrop)
+            return LootPool.lootPool()
+                    .setRolls(ConstantRange.exactly(1))
+                    .add(ItemLootEntry.lootTableItem(failDrop)
+                            .when(condition)
+                            .otherwise(passDrop)
                     );
         }
 
@@ -115,31 +115,31 @@ public abstract class LootTableProvider implements IDataProvider {
         }
 
         protected LootPool.Builder singleItemOrSilk(IItemProvider silk, IItemProvider drop) {
-            return singleItemOrSilk(silk, ItemLootEntry.builder(drop));
+            return singleItemOrSilk(silk, ItemLootEntry.lootTableItem(drop));
         }
 
         protected LootPool.Builder valueRange(IItemProvider item, int min, int max) {
-            return LootPool.builder()
-                    .rolls(ConstantRange.of(1))
-                    .addEntry(ItemLootEntry.builder(item)
-                            .acceptFunction(SetCount.builder(new RandomValueRange(min, max)))
+            return LootPool.lootPool()
+                    .setRolls(ConstantRange.exactly(1))
+                    .add(ItemLootEntry.lootTableItem(item)
+                            .apply(SetCount.setCount(new RandomValueRange(min, max)))
                     );
         }
 
         protected LootPool.Builder valueRangeOrSilk(IItemProvider silk, IItemProvider drop, int min, int max) {
-            return singleItemOr(silk, SILK_TOUCH, ItemLootEntry.builder(drop).acceptFunction(SetCount.builder(new RandomValueRange(min, max))));
+            return singleItemOr(silk, SILK_TOUCH, ItemLootEntry.lootTableItem(drop).apply(SetCount.setCount(new RandomValueRange(min, max))));
         }
         protected LootPool.Builder valueRangeOrSilkWithFortune(IItemProvider silk, IItemProvider drop, int min, int max) {
-            return singleItemOr(silk, SILK_TOUCH, ItemLootEntry.builder(drop)
-                    .acceptFunction(SetCount.builder(new RandomValueRange(min, max)))
-                    .acceptFunction(ApplyBonus.oreDrops(Enchantments.FORTUNE))
+            return singleItemOr(silk, SILK_TOUCH, ItemLootEntry.lootTableItem(drop)
+                    .apply(SetCount.setCount(new RandomValueRange(min, max)))
+                    .apply(ApplyBonus.addOreBonusCount(Enchantments.BLOCK_FORTUNE))
             );
         }
 
         protected void register(Block block, LootPool.Builder... pools) {
-            LootTable.Builder builder = LootTable.builder();
+            LootTable.Builder builder = LootTable.lootTable();
             for (LootPool.Builder pool : pools) {
-                builder.addLootPool(pool);
+                builder.withPool(pool);
             }
             register(block, builder);
         }
@@ -149,7 +149,7 @@ public abstract class LootTableProvider implements IDataProvider {
         }
 
         protected void register(ResourceLocation name, LootTable.Builder builder) {
-            registerTable(new ResourceLocation(name.getNamespace(), "blocks/" + name.getPath()), builder.setParameterSet(LootParameterSets.BLOCK).build());
+            registerTable(new ResourceLocation(name.getNamespace(), "blocks/" + name.getPath()), builder.setParamSet(LootParameterSets.BLOCK).build());
         }
     }
 

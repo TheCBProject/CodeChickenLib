@@ -184,11 +184,11 @@ public class RayTracer {
      * @return A new CuboidRayTraceResult if successful, null if fail.
      */
     public static CuboidRayTraceResult rayTrace(BlockPos pos, Vector3 start, Vector3 end, IndexedCuboid6 cuboid) {
-        BlockRayTraceResult bbResult = VoxelShapes.create(cuboid.aabb()).rayTrace(start.vec3(), end.vec3(), pos);
+        BlockRayTraceResult bbResult = VoxelShapes.create(cuboid.aabb()).clip(start.vec3(), end.vec3(), pos);
 
         if (bbResult != null) {
-            Vector3 hitVec = new Vector3(bbResult.getHitVec());
-            Direction sideHit = bbResult.getFace();
+            Vector3 hitVec = new Vector3(bbResult.getLocation());
+            Direction sideHit = bbResult.getDirection();
             double dist = hitVec.copy().subtract(start).magSquared();
             return new CuboidRayTraceResult(hitVec, sideHit, pos, bbResult.isInside(), cuboid, dist);
         }
@@ -200,9 +200,9 @@ public class RayTracer {
         Vector3d endVec = getEndVec(player);
         BlockState state = world.getBlockState(pos);
         VoxelShape baseShape = state.getShape(world, pos);
-        BlockRayTraceResult baseTraceResult = baseShape.rayTrace(startVec, endVec, pos);
+        BlockRayTraceResult baseTraceResult = baseShape.clip(startVec, endVec, pos);
         if (baseTraceResult != null) {
-            BlockRayTraceResult raytraceTraceShape = state.getRaytraceShape(world, pos, ISelectionContext.forEntity(player)).rayTrace(startVec, endVec, pos);
+            BlockRayTraceResult raytraceTraceShape = state.getVisualShape(world, pos, ISelectionContext.of(player)).clip(startVec, endVec, pos);
             if (raytraceTraceShape != null) {
                 return raytraceTraceShape;
             }
@@ -216,7 +216,7 @@ public class RayTracer {
 
     @OnlyIn (Dist.CLIENT)
     private static double getBlockReachDistance_client() {
-        return Minecraft.getInstance().playerController.getBlockReachDistance();
+        return Minecraft.getInstance().gameMode.getPickRange();
     }
 
     public static BlockRayTraceResult retrace(PlayerEntity player) {
@@ -238,7 +238,7 @@ public class RayTracer {
     public static BlockRayTraceResult retrace(PlayerEntity player, double reach, RayTraceContext.BlockMode blockMode, RayTraceContext.FluidMode fluidMode) {
         Vector3d startVec = getStartVec(player);
         Vector3d endVec = getEndVec(player, reach);
-        return player.world.rayTraceBlocks(new RayTraceContext(startVec, endVec, blockMode, fluidMode, player));
+        return player.level.clip(new RayTraceContext(startVec, endVec, blockMode, fluidMode, player));
     }
 
     public static Vector3d getCorrectedHeadVec(PlayerEntity player) {
@@ -252,19 +252,19 @@ public class RayTracer {
 
     @Deprecated // Use attribute directly? avoid all this nonsense.
     public static double getBlockReachDistance(PlayerEntity player) {
-        return player.world.isRemote ? getBlockReachDistance_client() : player instanceof ServerPlayerEntity ? getBlockReachDistance_server((ServerPlayerEntity) player) : 5D;
+        return player.level.isClientSide ? getBlockReachDistance_client() : player instanceof ServerPlayerEntity ? getBlockReachDistance_server((ServerPlayerEntity) player) : 5D;
     }
 
     public static Vector3d getEndVec(PlayerEntity player) {
         Vector3d headVec = getCorrectedHeadVec(player);
-        Vector3d lookVec = player.getLook(1.0F);
+        Vector3d lookVec = player.getViewVector(1.0F);
         double reach = getBlockReachDistance(player);
         return headVec.add(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
     }
 
     public static Vector3d getEndVec(PlayerEntity player, double reach) {
         Vector3d headVec = getCorrectedHeadVec(player);
-        Vector3d lookVec = player.getLook(1.0F);
+        Vector3d lookVec = player.getViewVector(1.0F);
         return headVec.add(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
     }
 }

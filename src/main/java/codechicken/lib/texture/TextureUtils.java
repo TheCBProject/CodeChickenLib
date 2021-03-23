@@ -100,21 +100,21 @@ public class TextureUtils {
     //    }
 
     public static void prepareTexture(int target, int texture, int min_mag_filter, int wrap) {
-        GlStateManager.texParameter(target, GL11.GL_TEXTURE_MIN_FILTER, min_mag_filter);
-        GlStateManager.texParameter(target, GL11.GL_TEXTURE_MAG_FILTER, min_mag_filter);
+        GlStateManager._texParameter(target, GL11.GL_TEXTURE_MIN_FILTER, min_mag_filter);
+        GlStateManager._texParameter(target, GL11.GL_TEXTURE_MAG_FILTER, min_mag_filter);
         if (target == GL11.GL_TEXTURE_2D) {
-            GlStateManager.bindTexture(target);
+            GlStateManager._bindTexture(target);
         } else {
             GL11.glBindTexture(target, texture);
         }
 
         switch (target) {
             case GL12.GL_TEXTURE_3D:
-                GlStateManager.texParameter(target, GL12.GL_TEXTURE_WRAP_R, wrap);
+                GlStateManager._texParameter(target, GL12.GL_TEXTURE_WRAP_R, wrap);
             case GL11.GL_TEXTURE_2D:
-                GlStateManager.texParameter(target, GL11.GL_TEXTURE_WRAP_T, wrap);
+                GlStateManager._texParameter(target, GL11.GL_TEXTURE_WRAP_T, wrap);
             case GL11.GL_TEXTURE_1D:
-                GlStateManager.texParameter(target, GL11.GL_TEXTURE_WRAP_S, wrap);
+                GlStateManager._texParameter(target, GL11.GL_TEXTURE_WRAP_S, wrap);
         }
     }
 
@@ -151,7 +151,7 @@ public class TextureUtils {
     }
 
     public static AtlasTexture getTextureMap() {
-        return Minecraft.getInstance().getModelManager().getAtlasTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
+        return Minecraft.getInstance().getModelManager().getAtlas(PlayerContainer.BLOCK_ATLAS);
     }
 
     public static TextureAtlasSprite getMissingSprite() {
@@ -187,7 +187,7 @@ public class TextureUtils {
     }
 
     public static void changeTexture(ResourceLocation texture) {
-        getTextureManager().bindTexture(texture);
+        getTextureManager().bind(texture);
     }
 
     public static void disableMipmap(String texture) {
@@ -207,15 +207,15 @@ public class TextureUtils {
     }
 
     public static void bindBlockTexture() {
-        changeTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+        changeTexture(AtlasTexture.LOCATION_BLOCKS);
     }
 
     public static void dissableBlockMipmap() {
-        disableMipmap(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+        disableMipmap(AtlasTexture.LOCATION_BLOCKS);
     }
 
     public static void restoreBlockMipmap() {
-        restoreLastMipmap(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
+        restoreLastMipmap(AtlasTexture.LOCATION_BLOCKS);
     }
 
     @Deprecated
@@ -240,7 +240,7 @@ public class TextureUtils {
 
     @Deprecated
     public static TextureAtlasSprite[] getIconsForBlock(BlockState state, Direction side) {
-        IBakedModel model = Minecraft.getInstance().getBlockRendererDispatcher().getModelForState(state);
+        IBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
         if (model != null) {
             List<BakedQuad> quads = model.getQuads(state, side, new Random(0));
             if (quads != null && quads.size() > 0) {
@@ -256,9 +256,9 @@ public class TextureUtils {
 
     @Deprecated
     public static TextureAtlasSprite getParticleIconForBlock(BlockState state) {
-        IBakedModel model = Minecraft.getInstance().getBlockRendererDispatcher().getModelForState(state);
+        IBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
         if (model != null) {
-            return model.getParticleTexture();
+            return model.getParticleIcon();
         }
         return null;
     }

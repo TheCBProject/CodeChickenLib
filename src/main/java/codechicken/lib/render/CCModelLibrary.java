@@ -88,26 +88,26 @@ public class CCModelLibrary {
     }
 
     public static RenderType getIcos4RenderType(ResourceLocation texture, boolean lighting) {
-        return RenderType.makeType("icosahedron4", DefaultVertexFormats.BLOCK, GL11.GL_TRIANGLES, 256, makeIcosState(texture, lighting));
+        return RenderType.create("icosahedron4", DefaultVertexFormats.BLOCK, GL11.GL_TRIANGLES, 256, makeIcosState(texture, lighting));
     }
 
     public static RenderType getIcos7RenderType(ResourceLocation texture, boolean lighting) {
-        return RenderType.makeType("icosahedron7", DefaultVertexFormats.BLOCK, GL11.GL_QUADS, 256, makeIcosState(texture, lighting));
+        return RenderType.create("icosahedron7", DefaultVertexFormats.BLOCK, GL11.GL_QUADS, 256, makeIcosState(texture, lighting));
     }
 
     public static RenderType.State makeIcosState(ResourceLocation texture, boolean lighting) {
-        return RenderType.State.getBuilder()//
-                .texture(new RenderState.TextureState(texture, false, false))//
-                .texturing(new RenderState.TexturingState("icosahedron", () -> {
+        return RenderType.State.builder()//
+                .setTextureState(new RenderState.TextureState(texture, false, false))//
+                .setTexturingState(new RenderState.TexturingState("icosahedron", () -> {
                     if (!lighting) {
                         RenderSystem.disableLighting();
                     }
                 }, () -> {
                 }))//
-                .transparency(NO_TRANSPARENCY)//
-                .diffuseLighting(DIFFUSE_LIGHTING_ENABLED)//
-                .lightmap(LIGHTMAP_ENABLED)//
-                .build(false);
+                .setTransparencyState(NO_TRANSPARENCY)//
+                .setDiffuseLightingState(DIFFUSE_LIGHTING)//
+                .setLightmapState(LIGHTMAP)//
+                .createCompositeState(false);
     }
 
 }

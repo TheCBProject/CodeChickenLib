@@ -36,13 +36,13 @@ public class DistanceRayTraceResult extends BlockRayTraceResult implements Compa
     }
 
     @Override
-    public DistanceRayTraceResult withFace(Direction newFace) {
-        return new DistanceRayTraceResult(getType() == Type.MISS, getHitVec(), getFace(), getPos(), isInside(), hitInfo, dist);
+    public DistanceRayTraceResult withDirection(Direction newFace) {
+        return new DistanceRayTraceResult(getType() == Type.MISS, getLocation(), getDirection(), getBlockPos(), isInside(), hitInfo, dist);
     }
 
     @Deprecated
     public void offsetHit(BlockPos pos) {
-        hitResult = hitResult.add(pos.getX(), pos.getY(), pos.getZ());
+        location = location.add(pos.getX(), pos.getY(), pos.getZ());
     }
 
     @Override

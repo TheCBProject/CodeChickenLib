@@ -43,7 +43,7 @@ public class EntityTypeArgument implements ArgumentType<EntityType<?>> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return ISuggestionProvider.func_212476_a(Registry.ENTITY_TYPE.keySet().stream(), builder);
+        return ISuggestionProvider.suggestResource(Registry.ENTITY_TYPE.keySet().stream(), builder);
     }
 
     @Override
@@ -62,16 +62,16 @@ public class EntityTypeArgument implements ArgumentType<EntityType<?>> {
     public static class Serializer implements IArgumentSerializer<EntityTypeArgument> {
 
         @Override
-        public void write(EntityTypeArgument argument, PacketBuffer buffer) {
+        public void serializeToNetwork(EntityTypeArgument argument, PacketBuffer buffer) {
         }
 
         @Override
-        public EntityTypeArgument read(PacketBuffer buffer) {
+        public EntityTypeArgument deserializeFromNetwork(PacketBuffer buffer) {
             return new EntityTypeArgument();
         }
 
         @Override
-        public void write(EntityTypeArgument p_212244_1_, JsonObject p_212244_2_) {
+        public void serializeToJson(EntityTypeArgument p_212244_1_, JsonObject p_212244_2_) {
         }
     }
 }

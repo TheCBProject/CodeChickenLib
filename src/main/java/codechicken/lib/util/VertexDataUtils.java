@@ -110,7 +110,7 @@ public class VertexDataUtils {
     public static Map<Direction, List<BakedQuad>> sortFaceData(List<BakedQuad> quads) {
         Map<Direction, List<BakedQuad>> faceQuadMap = new HashMap<>();
         for (BakedQuad quad : quads) {
-            List<BakedQuad> faceQuads = faceQuadMap.computeIfAbsent(quad.getFace(), k -> new ArrayList<>());
+            List<BakedQuad> faceQuads = faceQuadMap.computeIfAbsent(quad.getDirection(), k -> new ArrayList<>());
             faceQuads.add(quad);
         }
         return faceQuadMap;

@@ -26,7 +26,7 @@ import static codechicken.lib.util.SneakyUtils.unsafeCast;
 public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R, T>> implements RecipeBuilder {
 
     protected final Throwable created = new Throwable("Created at");
-    protected final Advancement.Builder advancementBuilder = Advancement.Builder.builder();
+    protected final Advancement.Builder advancementBuilder = Advancement.Builder.advancement();
     protected final IRecipeSerializer<?> serializer;
     protected final ResourceLocation id;
     protected final R result;
@@ -69,7 +69,7 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
         if (!enableUnlocking) {
             throw new IllegalStateException("Recipe unlocking must be enabled with 'enableUnlocking'");
         }
-        advancementBuilder.withCriterion(name, criterion);
+        advancementBuilder.addCriterion(name, criterion);
         return getThis();
     }
 
@@ -82,10 +82,10 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     public final IFinishedRecipe build() {
         validate();
         if (enableUnlocking) {
-            advancementBuilder.withParentId(new ResourceLocation("recipes/root"))
-                    .withCriterion("has_the_recipe", RecipeUnlockedTrigger.create(id))
-                    .withRewards(AdvancementRewards.Builder.recipe(id))
-                    .withRequirementsStrategy(IRequirementsStrategy.OR);
+            advancementBuilder.parent(new ResourceLocation("recipes/root"))
+                    .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
+                    .rewards(AdvancementRewards.Builder.recipe(id))
+                    .requirements(IRequirementsStrategy.OR);
         }
         return _build();
     }
@@ -112,45 +112,45 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     }
 
     protected InventoryChangeTrigger.Instance hasItem(IItemProvider itemIn) {
-        return this.hasItem(ItemPredicate.Builder.create().item(itemIn).build());
+        return this.hasItem(ItemPredicate.Builder.item().of(itemIn).build());
     }
 
     protected InventoryChangeTrigger.Instance hasItem(Tag<Item> tagIn) {
-        return this.hasItem(ItemPredicate.Builder.create().tag(tagIn).build());
+        return this.hasItem(ItemPredicate.Builder.item().of(tagIn).build());
     }
 
     protected InventoryChangeTrigger.Instance hasItem(ItemPredicate... predicates) {
-        return new InventoryChangeTrigger.Instance(EntityPredicate.AndPredicate.ANY_AND, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, predicates);
+        return new InventoryChangeTrigger.Instance(EntityPredicate.AndPredicate.ANY, MinMaxBounds.IntBound.ANY, MinMaxBounds.IntBound.ANY, MinMaxBounds.IntBound.ANY, predicates);
     }
 
     public abstract class AbstractFinishedRecipe implements IFinishedRecipe {
 
         @Override
-        public void serialize(JsonObject json) {
+        public void serializeRecipeData(JsonObject json) {
             if (!StringUtils.isNullOrEmpty(group)) {
                 json.addProperty("group", group);
             }
         }
 
         @Override
-        public IRecipeSerializer<?> getSerializer() {
+        public IRecipeSerializer<?> getType() {
             return serializer;
         }
 
         @Override
-        public ResourceLocation getID() {
+        public ResourceLocation getId() {
             return id;
         }
 
         @Nullable
         @Override
-        public JsonObject getAdvancementJson() {
-            return enableUnlocking ? advancementBuilder.serialize() : null;
+        public JsonObject serializeAdvancement() {
+            return enableUnlocking ? advancementBuilder.serializeToJson() : null;
         }
 
         @Nullable
         @Override
-        public ResourceLocation getAdvancementID() {
+        public ResourceLocation getAdvancementId() {
             return AbstractRecipeBuilder.this.getAdvancementId();
         }
     }

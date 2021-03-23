@@ -16,17 +16,17 @@ public class MiscCommands {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(literal("ccl")
                 .then(literal("meminfo")
-                        .requires(e -> e.hasPermissionLevel(4))
+                        .requires(e -> e.hasPermission(4))
                         .executes(MiscCommands::printMemInfo)
                 )
                 .then(literal("gc")
-                        .requires(e -> e.hasPermissionLevel(4))
+                        .requires(e -> e.hasPermission(4))
                         .executes(ctx -> {
-                            ctx.getSource().sendFeedback(new TranslationTextComponent("ccl.commands.gc.before"), true);
+                            ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.gc.before"), true);
                             printMemInfo(ctx, true);
-                            ctx.getSource().sendFeedback(new TranslationTextComponent("ccl.commands.gc.performing"), true);
+                            ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.gc.performing"), true);
                             System.gc();
-                            ctx.getSource().sendFeedback(new TranslationTextComponent("ccl.commands.gc.after"), true);
+                            ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.gc.after"), true);
                             printMemInfo(ctx, true);
                             return 0;
                         })
@@ -49,8 +49,8 @@ public class MiscCommands {
             mem = " " + mem;
             allocated = " " + allocated;
         }
-        ctx.getSource().sendFeedback(new StringTextComponent(mem), true);
-        ctx.getSource().sendFeedback(new StringTextComponent(allocated), true);
+        ctx.getSource().sendSuccess(new StringTextComponent(mem), true);
+        ctx.getSource().sendSuccess(new StringTextComponent(allocated), true);
         return 0;
     }
 

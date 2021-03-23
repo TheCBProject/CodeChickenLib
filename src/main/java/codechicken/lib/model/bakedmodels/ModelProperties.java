@@ -6,12 +6,13 @@ import codechicken.lib.util.Copyable;
 import codechicken.lib.util.TransformUtils;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.IModelTransform;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.math.vector.TransformationMatrix;
 
 /**
- * TODO GuiLight.Side stuff IBakedModel.func_230044_c_
+ * TODO GuiLight.Side stuff IBakedModel.usesBlockLight
  * Created by covers1624 on 19/11/2016.
  */
 public class ModelProperties implements Copyable<ModelProperties> {
@@ -48,7 +49,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
     }
 
     public static ModelProperties createFromModel(IBakedModel model) {
-        return new ModelProperties(model.isAmbientOcclusion(), model.isGui3d(), model.isBuiltInRenderer(), model.getParticleTexture());
+        return new ModelProperties(model.useAmbientOcclusion(), model.isGui3d(), model.isCustomRenderer(), model.getParticleIcon());
     }
 
     public boolean isAmbientOcclusion() {
@@ -64,7 +65,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
     }
 
     public TextureAtlasSprite getParticleTexture() {
-        //TODO, 1.13, Force ModelProperties to be constructed after texture stitching.
+        //TODO, Move this to use a ResourceLocation.
         if (particle == null) {
             particle = TextureUtils.getMissingSprite();
         }
@@ -88,13 +89,13 @@ public class ModelProperties implements Copyable<ModelProperties> {
         public static final PerspectiveProperties DEFAULT_ITEM = new PerspectiveProperties(TransformUtils.DEFAULT_ITEM, true, false);
         public static final PerspectiveProperties DEFAULT_BLOCK = new PerspectiveProperties(TransformUtils.DEFAULT_BLOCK, true, true);
 
-        private final ImmutableMap<TransformType, TransformationMatrix> transforms;
+        private final IModelTransform transforms;
 
-        public PerspectiveProperties(ImmutableMap<TransformType, TransformationMatrix> transforms, boolean isAO, boolean isGui3D) {
+        public PerspectiveProperties(IModelTransform transforms, boolean isAO, boolean isGui3D) {
             this(transforms, isAO, isGui3D, false, null);
         }
 
-        public PerspectiveProperties(ImmutableMap<TransformType, TransformationMatrix> transforms, boolean isAO, boolean isGui3D, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
+        public PerspectiveProperties(IModelTransform transforms, boolean isAO, boolean isGui3D, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
             this(transforms, new ModelProperties(isAO, isGui3D, isBuiltInRenderer, particle));
         }
 
@@ -102,12 +103,12 @@ public class ModelProperties implements Copyable<ModelProperties> {
             this(properties.getTransforms(), properties);
         }
 
-        public PerspectiveProperties(ImmutableMap<TransformType, TransformationMatrix> transforms, ModelProperties properties) {
+        public PerspectiveProperties(IModelTransform transforms, ModelProperties properties) {
             super(properties);
             this.transforms = transforms;
         }
 
-        public ImmutableMap<TransformType, TransformationMatrix> getTransforms() {
+        public IModelTransform getTransforms() {
             return transforms;
         }
 
@@ -118,14 +119,14 @@ public class ModelProperties implements Copyable<ModelProperties> {
 
         public static class PerspectiveBuilder extends Builder {
 
-            private ImmutableMap<TransformType, TransformationMatrix> transforms;
+            private IModelTransform transforms;
 
             protected PerspectiveBuilder(Builder builder) {
                 super(builder.isAO, builder.isAO, builder.isBuiltInRenderer, builder.particle);
             }
 
             @Override
-            public PerspectiveBuilder withTransforms(ImmutableMap<TransformType, TransformationMatrix> transforms) {
+            public PerspectiveBuilder withTransforms(IModelTransform transforms) {
                 this.transforms = transforms;
                 return this;
             }
@@ -155,10 +156,10 @@ public class ModelProperties implements Copyable<ModelProperties> {
         }
 
         public Builder copyFrom(IBakedModel model) {
-            isAO = model.isAmbientOcclusion();
+            isAO = model.useAmbientOcclusion();
             isGui3D = model.isGui3d();
-            isBuiltInRenderer = model.isBuiltInRenderer();
-            particle = model.getParticleTexture();
+            isBuiltInRenderer = model.isCustomRenderer();
+            particle = model.getParticleIcon();
             return this;
         }
 
@@ -190,7 +191,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
             return this;
         }
 
-        public PerspectiveBuilder withTransforms(ImmutableMap<TransformType, TransformationMatrix> transforms) {
+        public PerspectiveBuilder withTransforms(IModelTransform transforms) {
             PerspectiveBuilder builder = new PerspectiveBuilder(this);
             builder.withTransforms(transforms);
             return builder;

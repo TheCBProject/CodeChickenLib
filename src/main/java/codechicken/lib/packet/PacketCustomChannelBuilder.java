@@ -185,7 +185,7 @@ public class PacketCustomChannelBuilder {
             }
             PacketCustom packet = new PacketCustom(event.getPayload());
             NetworkEvent.Context ctx = event.getSource().get();
-            INetHandler netHandler = ctx.getNetworkManager().getNetHandler();
+            INetHandler netHandler = ctx.getNetworkManager().getPacketListener();
             ctx.setPacketHandled(true);
             if (netHandler instanceof ClientPlayNetHandler) {
                 ClientPlayNetHandler nh = (ClientPlayNetHandler) netHandler;
@@ -209,7 +209,7 @@ public class PacketCustomChannelBuilder {
         public void onServerPayload(NetworkEvent.ClientCustomPayloadEvent event) {
             PacketCustom packet = new PacketCustom(event.getPayload());
             NetworkEvent.Context ctx = event.getSource().get();
-            INetHandler netHandler = ctx.getNetworkManager().getNetHandler();
+            INetHandler netHandler = ctx.getNetworkManager().getPacketListener();
             ctx.setPacketHandled(true);
             if (netHandler instanceof ServerPlayNetHandler) {
                 ServerPlayNetHandler nh = (ServerPlayNetHandler) netHandler;
@@ -241,7 +241,7 @@ public class PacketCustomChannelBuilder {
         public void onClientPayload(NetworkEvent.LoginPayloadEvent event) {
             PacketCustom packet = new PacketCustom(event.getPayload());
             NetworkEvent.Context ctx = event.getSource().get();
-            INetHandler netHandler = ctx.getNetworkManager().getNetHandler();
+            INetHandler netHandler = ctx.getNetworkManager().getPacketListener();
             ctx.setPacketHandled(true);
             if (netHandler instanceof ClientLoginNetHandler) {
                 ClientLoginNetHandler nh = (ClientLoginNetHandler) netHandler;

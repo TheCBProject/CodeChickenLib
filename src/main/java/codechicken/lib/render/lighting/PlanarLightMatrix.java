@@ -30,7 +30,7 @@ public class PlanarLightMatrix extends PlanarLightModel {
 
     public int brightness(int side) {
         if ((sampled & 1 << side) == 0) {
-            brightness[side] = WorldRenderer.getCombinedLight(access, pos);
+            brightness[side] = WorldRenderer.getLightColor(access, pos);
             sampled |= 1 << side;
         }
         return brightness[side];

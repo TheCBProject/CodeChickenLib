@@ -36,33 +36,33 @@ public class SimpleItemTier implements IItemTier {
     }
 
     @Override
-    public int getMaxUses() {
+    public int getUses() {
         return maxUses;
     }
 
     @Override
-    public float getEfficiency() {
+    public float getSpeed() {
         return efficiency;
     }
 
     @Override
-    public float getAttackDamage() {
+    public float getAttackDamageBonus() {
         return attackDamage;
     }
 
     @Override
-    public int getHarvestLevel() {
+    public int getLevel() {
         return harvestLevel;
     }
 
     @Override
-    public int getEnchantability() {
+    public int getEnchantmentValue() {
         return enchantability;
     }
 
     @Override
-    public Ingredient getRepairMaterial() {
-        return repairMaterial.getValue();
+    public Ingredient getRepairIngredient() {
+        return repairMaterial.get();
     }
 
     public static class Builder {
@@ -78,12 +78,12 @@ public class SimpleItemTier implements IItemTier {
         }
 
         public Builder from(IItemTier other) {
-            maxUses(other.getMaxUses());
-            efficiency(other.getEfficiency());
-            attackDamage(other.getAttackDamage());
-            harvestLevel(other.getHarvestLevel());
-            enchantability(other.getEnchantability());
-            repairMaterial(other::getRepairMaterial);
+            maxUses(other.getUses());
+            efficiency(other.getSpeed());
+            attackDamage(other.getAttackDamageBonus());
+            harvestLevel(other.getLevel());
+            enchantability(other.getEnchantmentValue());
+            repairMaterial(other::getRepairIngredient);
             return this;
         }
 

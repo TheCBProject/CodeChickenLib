@@ -26,22 +26,22 @@ public class InventoryUtils {
      */
     @Nonnull
     public static ItemStack decrStackSize(IInventory inv, int slot, int size) {
-        ItemStack item = inv.getStackInSlot(slot);
+        ItemStack item = inv.getItem(slot);
 
         if (!item.isEmpty()) {
             if (item.getCount() <= size) {
-                inv.setInventorySlotContents(slot, ItemStack.EMPTY);
-                inv.markDirty();
+                inv.setItem(slot, ItemStack.EMPTY);
+                inv.setChanged();
                 return item;
             }
             ItemStack itemstack1 = item.split(size);
             if (item.getCount() == 0) {
-                inv.setInventorySlotContents(slot, ItemStack.EMPTY);
+                inv.setItem(slot, ItemStack.EMPTY);
             } else {
-                inv.setInventorySlotContents(slot, item);
+                inv.setItem(slot, item);
             }
 
-            inv.markDirty();
+            inv.setChanged();
             return itemstack1;
         }
         return ItemStack.EMPTY;
@@ -51,8 +51,8 @@ public class InventoryUtils {
      * Static default implementation for IInventory method
      */
     public static ItemStack removeStackFromSlot(IInventory inv, int slot) {
-        ItemStack stack = inv.getStackInSlot(slot);
-        inv.setInventorySlotContents(slot, ItemStack.EMPTY);
+        ItemStack stack = inv.getItem(slot);
+        inv.setItem(slot, ItemStack.EMPTY);
         return stack;
     }
 
@@ -97,7 +97,7 @@ public class InventoryUtils {
         for (int i = 0; i < items.length; i++) {
             CompoundNBT tag = new CompoundNBT();
             tag.putShort("Slot", (short) i);
-            items[i].write(tag);
+            items[i].save(tag);
 
             if (maxQuantity > Short.MAX_VALUE) {
                 tag.putInt("Quantity", items[i].getCount());
@@ -117,10 +117,10 @@ public class InventoryUtils {
         for (int i = 0; i < tagList.size(); i++) {
             CompoundNBT tag = tagList.getCompound(i);
             int b = tag.getShort("Slot");
-            items[b] = ItemStack.read(tag);
+            items[b] = ItemStack.of(tag);
             INBT quant = tag.get("Quantity");
             if (quant instanceof NumberNBT) {
-                items[b].setCount(((NumberNBT) quant).getInt());
+                items[b].setCount(((NumberNBT) quant).getAsInt());
             }
         }
     }
@@ -143,12 +143,12 @@ public class InventoryUtils {
     }
 
     public static int fitStackInSlot(InventoryRange inv, int slot, ItemStack stack) {
-        ItemStack base = inv.inv.getStackInSlot(slot);
+        ItemStack base = inv.inv.getItem(slot);
         if (!canStack(base, stack) || !inv.canInsertItem(slot, stack)) {
             return 0;
         }
 
-        int fit = !base.isEmpty() ? incrStackSize(base, inv.inv.getInventoryStackLimit() - base.getCount()) : inv.inv.getInventoryStackLimit();
+        int fit = !base.isEmpty() ? incrStackSize(base, inv.inv.getMaxStackSize() - base.getCount()) : inv.inv.getMaxStackSize();
         return Math.min(fit, stack.getCount());
     }
 
@@ -164,7 +164,7 @@ public class InventoryUtils {
         stack = stack.copy();
         for (int pass = 0; pass < 2; pass++) {
             for (int slot : inv.slots) {
-                ItemStack base = inv.inv.getStackInSlot(slot);
+                ItemStack base = inv.inv.getItem(slot);
                 if ((pass == 0) == (base.isEmpty())) {
                     continue;
                 }
@@ -177,11 +177,11 @@ public class InventoryUtils {
                     stack.shrink(fit);
                     if (!simulate) {
                         base.grow(fit);
-                        inv.inv.setInventorySlotContents(slot, base);
+                        inv.inv.setItem(slot, base);
                     }
                 } else {
                     if (!simulate) {
-                        inv.inv.setInventorySlotContents(slot, ItemUtils.copyStack(stack, fit));
+                        inv.inv.setItem(slot, ItemUtils.copyStack(stack, fit));
                     }
                     stack.shrink(fit);
                 }
@@ -201,7 +201,7 @@ public class InventoryUtils {
      * Gets the stack in slot if it can be extracted
      */
     public static ItemStack getExtractableStack(InventoryRange inv, int slot) {
-        ItemStack stack = inv.inv.getStackInSlot(slot);
+        ItemStack stack = inv.inv.getItem(slot);
         if (stack.isEmpty() || !inv.canExtractItem(slot, stack)) {
             return ItemStack.EMPTY;
         }
@@ -218,24 +218,24 @@ public class InventoryUtils {
             return stack1 == stack2;
         }
 
-        return stack1.getItem() == stack2.getItem() && stack1.getDamage() == stack2.getDamage() && stack1.getCount() == stack2.getCount() && Objects.equal(stack1.getTag(), stack2.getTag());
+        return stack1.getItem() == stack2.getItem() && stack1.getDamageValue() == stack2.getDamageValue() && stack1.getCount() == stack2.getCount() && Objects.equal(stack1.getTag(), stack2.getTag());
     }
 
     public static boolean canStack(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
-        return stack1.isEmpty() || stack2.isEmpty() || (stack1.getItem() == stack2.getItem() && (stack2.getDamage() == stack1.getDamage()) && ItemStack.areItemStackTagsEqual(stack2, stack1)) && stack1.isStackable();
+        return stack1.isEmpty() || stack2.isEmpty() || (stack1.getItem() == stack2.getItem() && (stack2.getDamageValue() == stack1.getDamageValue()) && ItemStack.tagMatches(stack2, stack1)) && stack1.isStackable();
     }
 
     /**
      * Consumes one item from slot in inv with support for containers.
      */
     public static void consumeItem(IInventory inv, int slot) {
-        ItemStack stack = inv.getStackInSlot(slot);
+        ItemStack stack = inv.getItem(slot);
         Item item = stack.getItem();
         if (item.hasContainerItem(stack)) {
             ItemStack container = item.getContainerItem(stack);
-            inv.setInventorySlotContents(slot, container);
+            inv.setItem(slot, container);
         } else {
-            inv.decrStackSize(slot, 1);
+            inv.removeItem(slot, 1);
         }
     }
 
@@ -243,7 +243,7 @@ public class InventoryUtils {
      * Gets the size of the stack in a slot. Returns 0 on empty stacks
      */
     public static int stackSize(IInventory inv, int slot) {
-        ItemStack stack = inv.getStackInSlot(slot);
+        ItemStack stack = inv.getItem(slot);
         return stack.isEmpty() ? 0 : stack.getCount();
     }
 
@@ -251,10 +251,10 @@ public class InventoryUtils {
      * Drops all items from inv using removeStackFromSlot
      */
     public static void dropOnClose(PlayerEntity player, IInventory inv) {
-        for (int i = 0; i < inv.getSizeInventory(); i++) {
-            ItemStack stack = inv.removeStackFromSlot(i);
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            ItemStack stack = inv.removeItemNoUpdate(i);
             if (!stack.isEmpty()) {
-                player.dropItem(stack, false);
+                player.drop(stack, false);
             }
         }
     }

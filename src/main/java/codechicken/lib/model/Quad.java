@@ -192,7 +192,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
                 vertex.normal[3] = 0;
             }
         }
-        orientation = Direction.getFacingFromVector(normal.x, normal.y, normal.z);
+        orientation = Direction.getNearest(normal.x, normal.y, normal.z);
     }
 
     /**
@@ -268,7 +268,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
         if (format.format != DefaultVertexFormats.BLOCK) {
             throw new IllegalStateException("Unable to bake this quad to the specified format. " + format.format);
         }
-        int[] packedData = new int[format.format.getSize()];
+        int[] packedData = new int[format.format.getVertexSize()];
         for (int v = 0; v < 4; v++) {
             for (int e = 0; e < format.elementCount; e++) {
                 LightUtil.pack(vertices[v].raw[e], packedData, format.format, v, e);

@@ -184,7 +184,7 @@ public class Rotation extends Transformation {
      * @return The rotation for the face == side^1
      */
     public static int getSidedRotation(PlayerEntity player, int side) {
-        Vector3 look = new Vector3(player.getLook(1));
+        Vector3 look = new Vector3(player.getViewVector(1));
         double max = 0;
         int maxr = 0;
         for (int r = 0; r < 4; r++) {
@@ -210,7 +210,7 @@ public class Rotation extends Transformation {
      * @return The side towards which the entity is most directly looking.
      */
     public static int getSideFromLookAngle(LivingEntity entity) {
-        Vector3 look = new Vector3(entity.getLook(1));
+        Vector3 look = new Vector3(entity.getViewVector(1));
         double max = 0;
         int maxs = 0;
         for (int s = 0; s < 6; s++) {

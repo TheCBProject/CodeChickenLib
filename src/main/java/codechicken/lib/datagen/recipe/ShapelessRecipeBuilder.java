@@ -45,7 +45,7 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
     }
 
     public static ShapelessRecipeBuilder builder(ItemStack result, ResourceLocation id) {
-        return new ShapelessRecipeBuilder(IRecipeSerializer.CRAFTING_SHAPELESS, id, result);
+        return new ShapelessRecipeBuilder(IRecipeSerializer.SHAPELESS_RECIPE, id, result);
     }
 
     public ShapelessRecipeBuilder addIngredient(Tag<Item> tag) {
@@ -54,7 +54,7 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
 
     public ShapelessRecipeBuilder addIngredient(Tag<Item> tag, int quantity) {
         addAutoCriteria(tag);
-        Ingredient ingredient = Ingredient.fromTag(tag);
+        Ingredient ingredient = Ingredient.of(tag);
         for (int i = 0; i < quantity; ++i) {
             ingredients.add(ingredient);
         }
@@ -67,7 +67,7 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
 
     public ShapelessRecipeBuilder addIngredient(IItemProvider item, int quantity) {
         addAutoCriteria(item);
-        Ingredient ingredient = Ingredient.fromItems(item);
+        Ingredient ingredient = Ingredient.of(item);
         for (int i = 0; i < quantity; ++i) {
             ingredients.add(ingredient);
         }
@@ -97,12 +97,12 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
     public class FinishedShapelessRecipe extends AbstractItemStackFinishedRecipe {
 
         @Override
-        public void serialize(JsonObject json) {
-            super.serialize(json);
+        public void serializeRecipeData(JsonObject json) {
+            super.serializeRecipeData(json);
 
             JsonArray ingredients = new JsonArray();
             for (Ingredient ingredient : ShapelessRecipeBuilder.this.ingredients) {
-                ingredients.add(ingredient.serialize());
+                ingredients.add(ingredient.toJson());
             }
             json.add("ingredients", ingredients);
         }

@@ -32,8 +32,8 @@ public class ClientPacketHandler implements IClientPacketHandler {
                 BlockPos pos = packet.readPos();
                 Vector3 vec = packet.readVector();
                 int numParticles = packet.readVarInt();
-                BlockState state = mc.world.getBlockState(pos);
-                CustomParticleHandler.addLandingEffects(mc.world, pos, state, vec, numParticles);
+                BlockState state = mc.level.getBlockState(pos);
+                CustomParticleHandler.addLandingEffects(mc.level, pos, state, vec, numParticles);
                 break;
             case C_OPEN_CONTAINER:
                 handleOpenContainer(packet, mc);
@@ -53,8 +53,8 @@ public class ClientPacketHandler implements IClientPacketHandler {
                     .ifPresent(screenFactory -> {
                         Container container = type.create(windowId, Minecraft.getInstance().player.inventory, packet);
                         Screen screen = screenFactory.create(container, mc.player.inventory, name);
-                        mc.player.openContainer = ((IHasContainer<?>) screen).getContainer();
-                        mc.displayGuiScreen(screen);
+                        mc.player.containerMenu = ((IHasContainer<?>) screen).getMenu();
+                        mc.setScreen(screen);
                     });
 
         }

@@ -29,7 +29,7 @@ public class LazyValuePair<K, V> extends Pair<K, V> {
 
     @Override
     public V getRight() {
-        return value.getValue();
+        return value.get();
     }
 
     @Override

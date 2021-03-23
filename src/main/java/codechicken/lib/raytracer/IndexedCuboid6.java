@@ -26,7 +26,7 @@ public class IndexedCuboid6 extends Cuboid6 {
         Direction sideHit = null;
         double dist = Double.MAX_VALUE;
 
-        for (Direction face : Direction.BY_INDEX) {
+        for (Direction face : Direction.BY_3D_DATA) {
             Vector3 suspectHit = null;
             switch (face) {
                 case DOWN:

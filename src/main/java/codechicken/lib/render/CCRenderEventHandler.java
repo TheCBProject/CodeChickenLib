@@ -49,13 +49,13 @@ public class CCRenderEventHandler {
             CuboidRayTraceResult cuboidHit = (CuboidRayTraceResult) hit;
             event.setCanceled(true);
             Matrix4 mat = new Matrix4(event.getMatrix());
-            mat.translate(cuboidHit.getPos());
+            mat.translate(cuboidHit.getBlockPos());
             RenderUtils.bufferHitbox(mat, event.getBuffers(), event.getInfo(), cuboidHit.cuboid6);
         } else if (hit instanceof VoxelShapeRayTraceResult) {
             VoxelShapeRayTraceResult voxelHit = (VoxelShapeRayTraceResult) hit;
             event.setCanceled(true);
             Matrix4 mat = new Matrix4(event.getMatrix());
-            mat.translate(voxelHit.getPos());
+            mat.translate(voxelHit.getBlockPos());
             RenderUtils.bufferShapeHitBox(mat, event.getBuffers(), event.getInfo(), voxelHit.shape);
         }
     }

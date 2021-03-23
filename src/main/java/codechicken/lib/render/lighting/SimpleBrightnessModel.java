@@ -30,8 +30,8 @@ public class SimpleBrightnessModel implements IVertexOperation {
 
     public int sample(int side) {
         if ((sampled & 1 << side) == 0) {
-            c = pos.offset(Direction.BY_INDEX[side]);
-            samples[side] = WorldRenderer.getCombinedLight(access, c);
+            c = pos.relative(Direction.BY_3D_DATA[side]);
+            samples[side] = WorldRenderer.getLightColor(access, c);
             sampled |= 1 << side;
         }
         return samples[side];

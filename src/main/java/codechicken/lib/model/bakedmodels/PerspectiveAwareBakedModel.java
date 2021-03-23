@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IModelTransform;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.util.Direction;
@@ -22,15 +23,15 @@ public class PerspectiveAwareBakedModel extends AbstractBakedPropertiesModel {
     private final ImmutableMap<Direction, List<BakedQuad>> faceQuads;
     private final ImmutableList<BakedQuad> generalQuads;
 
-    public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, ImmutableMap<TransformType, TransformationMatrix> transforms, ModelProperties properties) {
+    public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, IModelTransform transforms, ModelProperties properties) {
         this(faceQuads, ImmutableList.of(), transforms, properties);
     }
 
-    public PerspectiveAwareBakedModel(List<BakedQuad> generalQuads, ImmutableMap<TransformType, TransformationMatrix> transforms, ModelProperties properties) {
+    public PerspectiveAwareBakedModel(List<BakedQuad> generalQuads, IModelTransform transforms, ModelProperties properties) {
         this(ImmutableMap.of(), generalQuads, transforms, properties);
     }
 
-    public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, ImmutableMap<TransformType, TransformationMatrix> transforms, ModelProperties properties) {
+    public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, IModelTransform transforms, ModelProperties properties) {
         this(faceQuads, generalQuads, new PerspectiveProperties(transforms, properties));
     }
 

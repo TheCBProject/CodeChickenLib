@@ -22,7 +22,7 @@ public class SimpleItemGroup extends ItemGroup {
 
     @Nonnull
     @Override
-    public ItemStack createIcon() {
+    public ItemStack makeIcon() {
         return stackSupplier.get();
     }
 }

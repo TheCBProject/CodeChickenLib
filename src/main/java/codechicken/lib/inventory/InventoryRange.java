@@ -19,7 +19,7 @@ public class InventoryRange {
 
     @Deprecated// Use EnumFacing version.
     public InventoryRange(IInventory inv, int side) {
-        this(inv, Direction.BY_INDEX[side]);
+        this(inv, Direction.BY_3D_DATA[side]);
     }
 
     public InventoryRange(IInventory inv, Direction side) {
@@ -29,7 +29,7 @@ public class InventoryRange {
             sidedInv = (ISidedInventory) inv;
             slots = sidedInv.getSlotsForFace(face);
         } else {
-            slots = new int[inv.getSizeInventory()];
+            slots = new int[inv.getContainerSize()];
             for (int i = 0; i < slots.length; i++) {
                 slots[i] = i;
             }
@@ -58,11 +58,11 @@ public class InventoryRange {
     }
 
     public boolean canInsertItem(int slot, @Nonnull ItemStack item) {
-        return sidedInv == null ? inv.isItemValidForSlot(slot, item) : sidedInv.canInsertItem(slot, item, face);
+        return sidedInv == null ? inv.canPlaceItem(slot, item) : sidedInv.canPlaceItemThroughFace(slot, item, face);
     }
 
     public boolean canExtractItem(int slot, @Nonnull ItemStack item) {
-        return sidedInv == null ? inv.isItemValidForSlot(slot, item) : sidedInv.canExtractItem(slot, item, face);
+        return sidedInv == null ? inv.canPlaceItem(slot, item) : sidedInv.canTakeItemThroughFace(slot, item, face);
     }
 
     public int lastSlot() {

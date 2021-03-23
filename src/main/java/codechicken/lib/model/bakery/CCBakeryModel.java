@@ -43,7 +43,7 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
     }
 
     @Override
-    public boolean isAmbientOcclusion() {
+    public boolean useAmbientOcclusion() {
         return true;
     }
 
@@ -53,17 +53,17 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
     }
 
     @Override
-    public boolean isSideLit() {
+    public boolean usesBlockLight() {
         return false;
     }
 
     @Override
-    public boolean isBuiltInRenderer() {
+    public boolean isCustomRenderer() {
         return false;
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture() {
+    public TextureAtlasSprite getParticleIcon() {
         return TextureUtils.getMissingSprite();
     }
 
@@ -90,7 +90,7 @@ public class CCBakeryModel implements IBakedModel, IModelParticleProvider {
     public ItemOverrideList getOverrides() {
         return new ItemOverrideList() {
             @Override
-            public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, ClientWorld world, LivingEntity entity) {
+            public IBakedModel resolve(IBakedModel originalModel, ItemStack stack, ClientWorld world, LivingEntity entity) {
                 IBakedModel model = ModelBakery.getCachedItemModel(stack);
                 if (model == null) {
                     return originalModel;

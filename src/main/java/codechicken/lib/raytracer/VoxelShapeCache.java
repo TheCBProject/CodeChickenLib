@@ -49,7 +49,7 @@ public class VoxelShapeCache {
     public static VoxelShape getShape(Cuboid6 cuboid) {
         VoxelShape shape = cuboidToShapeCache.getIfPresent(cuboid);
         if (shape == null) {
-            shape = VoxelShapes.create(cuboid.min.x, cuboid.min.y, cuboid.min.z, cuboid.max.x, cuboid.max.y, cuboid.max.z);
+            shape = VoxelShapes.box(cuboid.min.x, cuboid.min.y, cuboid.min.z, cuboid.max.x, cuboid.max.y, cuboid.max.z);
             cuboidToShapeCache.put(cuboid, shape);
             MutablePair<AxisAlignedBB, Cuboid6> entry = getReverse(shape);
             if (entry.getRight() == null) {
@@ -72,7 +72,7 @@ public class VoxelShapeCache {
     public static AxisAlignedBB getAABB(VoxelShape shape) {
         MutablePair<AxisAlignedBB, Cuboid6> entry = getReverse(shape);
         if (entry.getLeft() == null) {
-            entry.setLeft(shape.getBoundingBox());
+            entry.setLeft(shape.bounds());
         }
         return entry.getLeft();
     }
@@ -82,8 +82,8 @@ public class VoxelShapeCache {
         MutablePair<AxisAlignedBB, Cuboid6> entry = getReverse(shape);
         if (entry.getRight() == null) {
             entry.setRight(new Cuboid6(// I hope this is okay, don't want to rely on AABB cache.
-                    shape.getStart(Direction.Axis.X), shape.getStart(Direction.Axis.Y), shape.getStart(Direction.Axis.Z),//
-                    shape.getEnd(Direction.Axis.X), shape.getEnd(Direction.Axis.Y), shape.getEnd(Direction.Axis.Z)//
+                    shape.min(Direction.Axis.X), shape.min(Direction.Axis.Y), shape.min(Direction.Axis.Z),//
+                    shape.max(Direction.Axis.X), shape.max(Direction.Axis.Y), shape.max(Direction.Axis.Z)//
             ));
         }
         return entry.getRight();

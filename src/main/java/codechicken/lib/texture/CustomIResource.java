@@ -52,8 +52,8 @@ public class CustomIResource implements IResource {
     }
 
     @Override
-    public String getPackName() {
-        return wrapped.getPackName();
+    public String getSourceName() {
+        return wrapped.getSourceName();
     }
 
     @Override

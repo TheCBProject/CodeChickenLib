@@ -44,11 +44,11 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
     private static long lastTime;
 
     public CCBlockRendererDispatcher(BlockRendererDispatcher parent, BlockColors blockColours) {
-        super(parent.getBlockModelShapes(), blockColours);
+        super(parent.getBlockModelShaper(), blockColours);
         parentDispatcher = parent;
-        this.blockModelRenderer = parent.blockModelRenderer;
-        this.fluidRenderer = parent.fluidRenderer;
-        this.blockModelShapes = parent.blockModelShapes;
+        this.modelRenderer = parent.modelRenderer;
+        this.liquidBlockRenderer = parent.liquidBlockRenderer;
+        this.blockModelShaper = parent.blockModelShaper;
     }
 
     //In world.
@@ -64,9 +64,9 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
                 handleCaughtException(t, state, pos, world);
                 return false;
             }
-            CrashReport crashreport = CrashReport.makeCrashReport(t, "Tessellating CCL block in world");
-            CrashReportCategory crashreportcategory = crashreport.makeCategory("Block being tessellated");
-            CrashReportCategory.addBlockInfo(crashreportcategory, pos, state);
+            CrashReport crashreport = CrashReport.forThrowable(t, "Tessellating CCL block in world");
+            CrashReportCategory crashreportcategory = crashreport.addCategory("Block being tessellated");
+            CrashReportCategory.populateBlockDetails(crashreportcategory, pos, state);
             throw new ReportedException(crashreport);
         }
         try {
@@ -93,13 +93,13 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
 
     //Fluids
     @Override
-    public boolean renderFluid(BlockPos pos, IBlockDisplayReader world, IVertexBuilder builder, FluidState state) {
+    public boolean renderLiquid(BlockPos pos, IBlockDisplayReader world, IVertexBuilder builder, FluidState state) {
         Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleFluid(world, pos, state)).findFirst();
         //noinspection OptionalIsPresent
         if (renderOpt.isPresent()) {
             return renderOpt.get().renderFluid(pos, world, builder, state);
         } else {
-            return parentDispatcher.renderFluid(pos, world, builder, state);
+            return parentDispatcher.renderLiquid(pos, world, builder, state);
         }
     }
 
@@ -117,7 +117,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
     @SuppressWarnings ("Convert2MethodRef")//Suppress these, the lambdas need to be synthetic functions instead of a method reference.
     private static void handleCaughtException(Throwable t, BlockState inState, BlockPos pos, IBlockDisplayReader world) {
         Block inBlock = inState.getBlock();
-        TileEntity tile = world.getTileEntity(pos);
+        TileEntity tile = world.getBlockEntity(pos);
 
         StringBuilder builder = new StringBuilder("\n CCL has caught an exception whilst rendering a block\n");
         builder.append("  BlockPos:      ").append(String.format("x:%s, y:%s, z:%s", pos.getX(), pos.getY(), pos.getZ())).append("\n");
@@ -126,8 +126,8 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
         builder.append("  State:         ").append(inState).append("\n");
         builder.append(" Tile at position\n");
         builder.append("  Tile Class:    ").append(tryOrNull(() -> tile.getClass())).append("\n");
-        builder.append("  Tile Id:       ").append(tryOrNull(() -> TileEntityType.getId(tile.getType()))).append("\n");
-        builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.write(new CompoundNBT()))).append("\n");
+        builder.append("  Tile Id:       ").append(tryOrNull(() -> TileEntityType.getKey(tile.getType()))).append("\n");
+        builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.save(new CompoundNBT()))).append("\n");
         builder.append("This functionality can be disabled in the CCL config file.\n");
         if (ProxyClient.messagePlayerOnRenderExceptionCaught) {
             builder.append("You can also turn off player messages in the CCL config file.\n");
@@ -142,7 +142,7 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
             long time = System.nanoTime();
             if (TimeUnit.NANOSECONDS.toSeconds(time - lastTime) > 5) {
                 lastTime = time;
-                player.sendMessage(new StringTextComponent("CCL Caught an exception rendering a block. See the log for info."), Util.DUMMY_UUID);
+                player.sendMessage(new StringTextComponent("CCL Caught an exception rendering a block. See the log for info."), Util.NIL_UUID);
             }
         }
     }

@@ -107,7 +107,7 @@ public final class PacketCustom extends MCDataByteBuf {
     @OnlyIn (Dist.CLIENT)
     @Deprecated//Use methods on MCDataByteBuf
     public static PacketCustom fromTilePacket(SUpdateTileEntityPacket tilePacket) {
-        return fromNBTTag(tilePacket.getNbtCompound());
+        return fromNBTTag(tilePacket.getTag());
     }
 
     //endregion
@@ -120,7 +120,7 @@ public final class PacketCustom extends MCDataByteBuf {
         if (player == null) {
             sendToClients(packet);
         } else {
-            player.connection.sendPacket(packet);
+            player.connection.send(packet);
         }
     }
 
@@ -129,7 +129,7 @@ public final class PacketCustom extends MCDataByteBuf {
     }
 
     public static void sendToClients(IPacket<?> packet) {
-        ServerUtils.getServer().getPlayerList().sendPacketToAllPlayers(packet);
+        ServerUtils.getServer().getPlayerList().broadcastAll(packet);
     }
 
     public void sendPacketToAllAround(BlockPos pos, double range, RegistryKey<World> dim) {
@@ -141,7 +141,7 @@ public final class PacketCustom extends MCDataByteBuf {
     }
 
     public static void sendToAllAround(IPacket<?> packet, double x, double y, double z, double range, RegistryKey<World> dim) {
-        ServerUtils.getServer().getPlayerList().sendToAllNearExcept(null, x, y, z, range, dim, packet);
+        ServerUtils.getServer().getPlayerList().broadcast(null, x, y, z, range, dim, packet);
     }
 
     public void sendToDimension(RegistryKey<World> dim) {
@@ -149,11 +149,11 @@ public final class PacketCustom extends MCDataByteBuf {
     }
 
     public static void sendToDimension(IPacket<?> packet, RegistryKey<World> dim) {
-        ServerUtils.getServer().getPlayerList().func_232642_a_(packet, dim);
+        ServerUtils.getServer().getPlayerList().broadcastAll(packet, dim);
     }
 
     public void sendToChunk(TileEntity tile) {
-        sendToChunk(tile.getWorld(), tile.getPos());
+        sendToChunk(tile.getLevel(), tile.getBlockPos());
     }
 
     public void sendToChunk(World world, BlockPos blockPos) {
@@ -178,7 +178,7 @@ public final class PacketCustom extends MCDataByteBuf {
 
     public static void sendToChunk(IPacket<?> packet, World world, ChunkPos pos) {
         ServerWorld serverWorld = (ServerWorld) world;
-        serverWorld.getChunkProvider().chunkManager.getTrackingPlayers(pos, false).forEach(e -> e.connection.sendPacket(packet));
+        serverWorld.getChunkSource().chunkMap.getPlayers(pos, false).forEach(e -> e.connection.send(packet));
     }
 
     public void sendToOps() {
@@ -186,9 +186,9 @@ public final class PacketCustom extends MCDataByteBuf {
     }
 
     public static void sendToOps(IPacket<?> packet) {
-        OpList opList = ServerUtils.getServer().getPlayerList().getOppedPlayers();
+        OpList opList = ServerUtils.getServer().getPlayerList().getOps();
         for (ServerPlayerEntity player : ServerUtils.getServer().getPlayerList().getPlayers()) {
-            if (opList.hasEntry(player.getGameProfile())) {
+            if (opList.contains(player.getGameProfile())) {
                 sendToPlayer(packet, player);
             }
         }
@@ -201,7 +201,7 @@ public final class PacketCustom extends MCDataByteBuf {
 
     @OnlyIn (Dist.CLIENT)
     public static void sendToServer(IPacket<?> packet) {
-        Minecraft.getInstance().getConnection().sendPacket(packet);
+        Minecraft.getInstance().getConnection().send(packet);
     }
 
     //endregion

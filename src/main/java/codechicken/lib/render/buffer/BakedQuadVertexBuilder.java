@@ -53,7 +53,7 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
     }
 
     @Override
-    public IVertexBuilder pos(double x, double y, double z) {
+    public IVertexBuilder vertex(double x, double y, double z) {
         checkNewQuad();
         current.vertices[vertex].vec[0] = (float) x;
         current.vertices[vertex].vec[1] = (float) y;
@@ -72,7 +72,7 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
     }
 
     @Override
-    public IVertexBuilder tex(float u, float v) {
+    public IVertexBuilder uv(float u, float v) {
         checkNewQuad();
         current.vertices[vertex].uv[0] = u;
         current.vertices[vertex].uv[1] = v;
@@ -80,7 +80,7 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
     }
 
     @Override
-    public IVertexBuilder overlay(int u, int v) {
+    public IVertexBuilder overlayCoords(int u, int v) {
         checkNewQuad();
         current.vertices[vertex].overlay[0] = u / (float) 0xF0;
         current.vertices[vertex].overlay[1] = v / (float) 0xF0;
@@ -88,7 +88,7 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
     }
 
     @Override
-    public IVertexBuilder lightmap(int u, int v) {
+    public IVertexBuilder uv2(int u, int v) {
         checkNewQuad();
         current.vertices[vertex].lightmap[0] = u / (float) 0xF0;
         current.vertices[vertex].lightmap[1] = v / (float) 0xF0;

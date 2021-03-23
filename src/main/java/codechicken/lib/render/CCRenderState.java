@@ -104,7 +104,7 @@ public class CCRenderState {
      * @return The {@link BufferBuilder} instance from {@link Tessellator}.
      */
     public BufferBuilder startDrawing(int mode, VertexFormat format) {
-        BufferBuilder r = Tessellator.getInstance().getBuffer();
+        BufferBuilder r = Tessellator.getInstance().getBuilder();
         r.begin(mode, format);
         bind(r);
         return r;
@@ -153,7 +153,7 @@ public class CCRenderState {
      * @param getter     The {@link IRenderTypeBuffer} instance.
      */
     public void bind(RenderType renderType, IRenderTypeBuffer getter) {
-        bind(getter.getBuffer(renderType), renderType.getVertexFormat());
+        bind(getter.getBuffer(renderType), renderType.format());
     }
 
     /**
@@ -165,7 +165,7 @@ public class CCRenderState {
      * @param mStack     The {@link MatrixStack} to apply.
      */
     public void bind(RenderType renderType, IRenderTypeBuffer getter, MatrixStack mStack) {
-        bind(new TransformingVertexBuilder(getter.getBuffer(renderType), mStack), renderType.getVertexFormat());
+        bind(new TransformingVertexBuilder(getter.getBuffer(renderType), mStack), renderType.format());
     }
 
     /**
@@ -177,7 +177,7 @@ public class CCRenderState {
      * @param mat        The {@link Matrix4} to apply.
      */
     public void bind(RenderType renderType, IRenderTypeBuffer getter, Matrix4 mat) {
-        bind(new TransformingVertexBuilder(getter.getBuffer(renderType), mat), renderType.getVertexFormat());
+        bind(new TransformingVertexBuilder(getter.getBuffer(renderType), mat), renderType.format());
     }
 
     /**
@@ -255,26 +255,26 @@ public class CCRenderState {
             VertexFormatElement fmte = elements.get(e);
             switch (fmte.getUsage()) {
                 case POSITION:
-                    r.pos(vert.vec.x, vert.vec.y, vert.vec.z);
+                    r.vertex(vert.vec.x, vert.vec.y, vert.vec.z);
                     break;
                 case UV:
                     int idx = fmte.getIndex();
                     switch (idx) {
                         case 0:
-                            r.tex((float) vert.uv.u, (float) vert.uv.v);
+                            r.uv((float) vert.uv.u, (float) vert.uv.v);
                             break;
                         case 1:
-                            r.overlay(overlay);
+                            r.overlayCoords(overlay);
                             break;
                         case 2:
-                            r.lightmap(brightness);
+                            r.uv2(brightness);
                             break;
                     }
                     break;
                 case COLOR:
-                    if (r instanceof BufferBuilder && ((BufferBuilder) r).defaultColor) {
+                    if (r instanceof BufferBuilder && ((BufferBuilder) r).defaultColorSet) {
                         //-_- Fucking mojang..
-                        ((BufferBuilder) r).nextVertexFormatIndex();
+                        ((BufferBuilder) r).nextElement();
                     } else {
                         r.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
                     }
@@ -293,15 +293,15 @@ public class CCRenderState {
 
     @Deprecated
     public void pushColour() {
-        GlStateManager.color4f((colour >>> 24) / 255F, (colour >> 16 & 0xFF) / 255F, (colour >> 8 & 0xFF) / 255F, (alphaOverride >= 0 ? alphaOverride : colour & 0xFF) / 255F);
+        GlStateManager._color4f((colour >>> 24) / 255F, (colour >> 16 & 0xFF) / 255F, (colour >> 8 & 0xFF) / 255F, (alphaOverride >= 0 ? alphaOverride : colour & 0xFF) / 255F);
     }
 
     public void setBrightness(IBlockDisplayReader world, BlockPos pos) {
-        brightness = WorldRenderer.getPackedLightmapCoords(world, world.getBlockState(pos), pos);
+        brightness = WorldRenderer.getLightColor(world, world.getBlockState(pos), pos);
     }
 
     public void setBrightness(Entity entity, float frameDelta) {
-        brightness = Minecraft.getInstance().getRenderManager().getPackedLight(entity, frameDelta);
+        brightness = Minecraft.getInstance().getEntityRenderDispatcher().getPackedLightCoords(entity, frameDelta);
     }
 
     public void setFluidColour(FluidStack fluidStack) {
@@ -329,6 +329,6 @@ public class CCRenderState {
     }
 
     public void draw() {
-        Tessellator.getInstance().draw();
+        Tessellator.getInstance().end();
     }
 }

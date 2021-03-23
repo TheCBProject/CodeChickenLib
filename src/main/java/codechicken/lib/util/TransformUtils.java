@@ -2,10 +2,12 @@ package codechicken.lib.util;
 
 import codechicken.lib.vec.Vector3;
 import com.google.common.collect.ImmutableMap;
+import net.minecraft.client.renderer.model.IModelTransform;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraftforge.client.model.SimpleModelTransform;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +23,11 @@ public class TransformUtils {
 
     private static final TransformationMatrix flipX = new TransformationMatrix(null, null, new Vector3f(-1, 1, 1), null);
 
-    public static final ImmutableMap<TransformType, TransformationMatrix> DEFAULT_BLOCK;
-    public static final ImmutableMap<TransformType, TransformationMatrix> DEFAULT_ITEM;
-    public static final ImmutableMap<TransformType, TransformationMatrix> DEFAULT_TOOL;
-    public static final ImmutableMap<TransformType, TransformationMatrix> DEFAULT_BOW;
-    public static final ImmutableMap<TransformType, TransformationMatrix> DEFAULT_HANDHELD_ROD;
+    public static final IModelTransform DEFAULT_BLOCK;
+    public static final IModelTransform DEFAULT_ITEM;
+    public static final IModelTransform DEFAULT_TOOL;
+    public static final IModelTransform DEFAULT_BOW;
+    public static final IModelTransform DEFAULT_HANDHELD_ROD;
 
     static {
         Map<TransformType, TransformationMatrix> map;
@@ -42,7 +44,7 @@ public class TransformUtils {
         map.put(TransformType.THIRD_PERSON_LEFT_HAND,   flipLeft(thirdPerson));
         map.put(TransformType.FIRST_PERSON_RIGHT_HAND,  create(0F, 0F, 0F, 0F, 45F, 0F, 0.4F));
         map.put(TransformType.FIRST_PERSON_LEFT_HAND,   create(0F, 0F, 0F, 0F, 225F, 0F, 0.4F));
-        DEFAULT_BLOCK = ImmutableMap.copyOf(map);
+        DEFAULT_BLOCK = new SimpleModelTransform(ImmutableMap.copyOf(map));
 
         map = new HashMap<>();
         thirdPerson =                                    create(   0F,  3F,   1F, 0F,  0F, 0F, 0.55F);
@@ -53,7 +55,7 @@ public class TransformUtils {
         map.put(TransformType.THIRD_PERSON_LEFT_HAND,    flipLeft(thirdPerson));
         map.put(TransformType.FIRST_PERSON_RIGHT_HAND,   firstPerson);
         map.put(TransformType.FIRST_PERSON_LEFT_HAND,    flipLeft(firstPerson));
-        DEFAULT_ITEM = ImmutableMap.copyOf(map);
+        DEFAULT_ITEM = new SimpleModelTransform(ImmutableMap.copyOf(map));
 
         map = new HashMap<>();
         map.put(TransformType.GROUND,                   create(   0F,  2F,   0F, 0F,  0F, 0F, 0.5F));
@@ -62,7 +64,7 @@ public class TransformUtils {
         map.put(TransformType.THIRD_PERSON_LEFT_HAND,   create(   0F,  4F, 0.5F, 0F, 90F,-55,0.85F));
         map.put(TransformType.FIRST_PERSON_RIGHT_HAND,  create(1.13F,3.2F,1.13F, 0F,-90F, 25,0.68F));
         map.put(TransformType.FIRST_PERSON_LEFT_HAND,   create(1.13F,3.2F,1.13F, 0F, 90F,-25,0.68F));
-        DEFAULT_TOOL = ImmutableMap.copyOf(map);
+        DEFAULT_TOOL = new SimpleModelTransform(ImmutableMap.copyOf(map));
 
         map = new HashMap<>();
         map.put(TransformType.GROUND,                   create(   0F,  2F,   0F,  0F,   0F,  0F, 0.5F));
@@ -71,7 +73,7 @@ public class TransformUtils {
         map.put(TransformType.THIRD_PERSON_LEFT_HAND,   create(  -1F, -2F, 2.5F,-80F,-280F, 40F, 0.9F));
         map.put(TransformType.FIRST_PERSON_RIGHT_HAND,  create(1.13F,3.2F,1.13F,  0F, -90F, 25F,0.68F));
         map.put(TransformType.FIRST_PERSON_LEFT_HAND,   create(1.13F,3.2F,1.13F,  0F,  90F,-25F,0.68F));
-        DEFAULT_BOW = ImmutableMap.copyOf(map);
+        DEFAULT_BOW = new SimpleModelTransform(ImmutableMap.copyOf(map));
 
         map = new HashMap<>();
         map.put(TransformType.GROUND,                   create(0F, 2F,   0F, 0F,  0F,  0F, 0.5F));
@@ -79,7 +81,7 @@ public class TransformUtils {
         map.put(TransformType.THIRD_PERSON_LEFT_HAND,   create(0F,  4F,2.5F, 0F,-90F,-55F,0.85F));
         map.put(TransformType.FIRST_PERSON_RIGHT_HAND,  create(0F,1.6F,0.8F, 0F, 90F, 25F,0.68F));
         map.put(TransformType.FIRST_PERSON_LEFT_HAND,   create(0F,1.6F,0.8F, 0F,-90F,-25F,0.68F));
-        DEFAULT_HANDHELD_ROD = ImmutableMap.copyOf(map);
+        DEFAULT_HANDHELD_ROD = new SimpleModelTransform(ImmutableMap.copyOf(map));
         //@formatter:on
     }
 
@@ -120,7 +122,7 @@ public class TransformUtils {
      * @return The new TRSRTransformation.
      */
     public static TransformationMatrix create(Vector3f transform, Vector3f rotation, Vector3f scale) {
-        return new TransformationMatrix(transform, new Quaternion(rotation.getX(), rotation.getY(), rotation.getZ(), true), scale, null)/*.blockCenterToCorner()*/;
+        return new TransformationMatrix(transform, new Quaternion(rotation.x(), rotation.y(), rotation.z(), true), scale, null)/*.blockCenterToCorner()*/;
     }
 
     /**

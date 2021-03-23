@@ -37,8 +37,8 @@ public class DataGenerators {
         }
 
         @Override
-        protected void registerTags() {
-            getOrCreateBuilder(CCLTags.Blocks.WOOL)
+        protected void addTags() {
+            tag(CCLTags.Blocks.WOOL)
                     .addTag(CCLTags.Blocks.WOOL_WHITE)
                     .addTag(CCLTags.Blocks.WOOL_ORANGE)
                     .addTag(CCLTags.Blocks.WOOL_MAGENTA)
@@ -55,22 +55,22 @@ public class DataGenerators {
                     .addTag(CCLTags.Blocks.WOOL_GREEN)
                     .addTag(CCLTags.Blocks.WOOL_RED)
                     .addTag(CCLTags.Blocks.WOOL_BLACK);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_WHITE).add(Blocks.WHITE_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_ORANGE).add(Blocks.ORANGE_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_MAGENTA).add(Blocks.MAGENTA_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_LIGHT_BLUE).add(Blocks.LIGHT_BLUE_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_YELLOW).add(Blocks.YELLOW_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_LIME).add(Blocks.LIME_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_PINK).add(Blocks.PINK_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_GRAY).add(Blocks.GRAY_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_LIGHT_GRAY).add(Blocks.LIGHT_GRAY_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_CYAN).add(Blocks.CYAN_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_PURPLE).add(Blocks.PURPLE_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_BLUE).add(Blocks.BLUE_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_BROWN).add(Blocks.BROWN_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_GREEN).add(Blocks.GREEN_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_RED).add(Blocks.RED_WOOL);
-            getOrCreateBuilder(CCLTags.Blocks.WOOL_BLACK).add(Blocks.BLACK_WOOL);
+            tag(CCLTags.Blocks.WOOL_WHITE).add(Blocks.WHITE_WOOL);
+            tag(CCLTags.Blocks.WOOL_ORANGE).add(Blocks.ORANGE_WOOL);
+            tag(CCLTags.Blocks.WOOL_MAGENTA).add(Blocks.MAGENTA_WOOL);
+            tag(CCLTags.Blocks.WOOL_LIGHT_BLUE).add(Blocks.LIGHT_BLUE_WOOL);
+            tag(CCLTags.Blocks.WOOL_YELLOW).add(Blocks.YELLOW_WOOL);
+            tag(CCLTags.Blocks.WOOL_LIME).add(Blocks.LIME_WOOL);
+            tag(CCLTags.Blocks.WOOL_PINK).add(Blocks.PINK_WOOL);
+            tag(CCLTags.Blocks.WOOL_GRAY).add(Blocks.GRAY_WOOL);
+            tag(CCLTags.Blocks.WOOL_LIGHT_GRAY).add(Blocks.LIGHT_GRAY_WOOL);
+            tag(CCLTags.Blocks.WOOL_CYAN).add(Blocks.CYAN_WOOL);
+            tag(CCLTags.Blocks.WOOL_PURPLE).add(Blocks.PURPLE_WOOL);
+            tag(CCLTags.Blocks.WOOL_BLUE).add(Blocks.BLUE_WOOL);
+            tag(CCLTags.Blocks.WOOL_BROWN).add(Blocks.BROWN_WOOL);
+            tag(CCLTags.Blocks.WOOL_GREEN).add(Blocks.GREEN_WOOL);
+            tag(CCLTags.Blocks.WOOL_RED).add(Blocks.RED_WOOL);
+            tag(CCLTags.Blocks.WOOL_BLACK).add(Blocks.BLACK_WOOL);
         }
 
         @Override
@@ -86,8 +86,8 @@ public class DataGenerators {
         }
 
         @Override
-        protected void registerTags() {
-            getOrCreateBuilder(CCLTags.Items.WOOL)
+        protected void addTags() {
+            tag(CCLTags.Items.WOOL)
                     .addTag(CCLTags.Items.WOOL_WHITE)
                     .addTag(CCLTags.Items.WOOL_ORANGE)
                     .addTag(CCLTags.Items.WOOL_MAGENTA)
@@ -104,22 +104,22 @@ public class DataGenerators {
                     .addTag(CCLTags.Items.WOOL_GREEN)
                     .addTag(CCLTags.Items.WOOL_RED)
                     .addTag(CCLTags.Items.WOOL_BLACK);
-            getOrCreateBuilder(CCLTags.Items.WOOL_WHITE).add(Items.WHITE_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_ORANGE).add(Items.ORANGE_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_MAGENTA).add(Items.MAGENTA_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_LIGHT_BLUE).add(Items.LIGHT_BLUE_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_YELLOW).add(Items.YELLOW_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_LIME).add(Items.LIME_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_PINK).add(Items.PINK_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_GRAY).add(Items.GRAY_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_LIGHT_GRAY).add(Items.LIGHT_GRAY_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_CYAN).add(Items.CYAN_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_PURPLE).add(Items.PURPLE_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_BLUE).add(Items.BLUE_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_BROWN).add(Items.BROWN_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_GREEN).add(Items.GREEN_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_RED).add(Items.RED_WOOL);
-            getOrCreateBuilder(CCLTags.Items.WOOL_BLACK).add(Items.BLACK_WOOL);
+            tag(CCLTags.Items.WOOL_WHITE).add(Items.WHITE_WOOL);
+            tag(CCLTags.Items.WOOL_ORANGE).add(Items.ORANGE_WOOL);
+            tag(CCLTags.Items.WOOL_MAGENTA).add(Items.MAGENTA_WOOL);
+            tag(CCLTags.Items.WOOL_LIGHT_BLUE).add(Items.LIGHT_BLUE_WOOL);
+            tag(CCLTags.Items.WOOL_YELLOW).add(Items.YELLOW_WOOL);
+            tag(CCLTags.Items.WOOL_LIME).add(Items.LIME_WOOL);
+            tag(CCLTags.Items.WOOL_PINK).add(Items.PINK_WOOL);
+            tag(CCLTags.Items.WOOL_GRAY).add(Items.GRAY_WOOL);
+            tag(CCLTags.Items.WOOL_LIGHT_GRAY).add(Items.LIGHT_GRAY_WOOL);
+            tag(CCLTags.Items.WOOL_CYAN).add(Items.CYAN_WOOL);
+            tag(CCLTags.Items.WOOL_PURPLE).add(Items.PURPLE_WOOL);
+            tag(CCLTags.Items.WOOL_BLUE).add(Items.BLUE_WOOL);
+            tag(CCLTags.Items.WOOL_BROWN).add(Items.BROWN_WOOL);
+            tag(CCLTags.Items.WOOL_GREEN).add(Items.GREEN_WOOL);
+            tag(CCLTags.Items.WOOL_RED).add(Items.RED_WOOL);
+            tag(CCLTags.Items.WOOL_BLACK).add(Items.BLACK_WOOL);
         }
 
         @Override

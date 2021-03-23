@@ -5,6 +5,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 
+import net.minecraft.inventory.container.ContainerType.IFactory;
+
 /**
  * Created by covers1624 on 28/10/19.
  */
@@ -24,8 +26,8 @@ public interface ICCLContainerType<T extends Container> {
 
         @Override
         public T create(int windowId, PlayerInventory inventory, MCDataInput packet) {
-            if (factory instanceof ICCLContainerFactory) {
-                return ((ICCLContainerFactory<T>) factory).create(windowId, inventory, packet);
+            if (constructor instanceof ICCLContainerFactory) {
+                return ((ICCLContainerFactory<T>) constructor).create(windowId, inventory, packet);
             }
             return null;
         }

@@ -21,8 +21,8 @@ public class BlockRenderingRegistry {
     public static void init() {
         if (!initialized) {
             Minecraft mc = Minecraft.getInstance();
-            BlockRendererDispatcher parentDispatcher = mc.getBlockRendererDispatcher();
-            mc.blockRenderDispatcher = new CCBlockRendererDispatcher(parentDispatcher, mc.getBlockColors());
+            BlockRendererDispatcher parentDispatcher = mc.getBlockRenderer();
+            mc.blockRenderer = new CCBlockRendererDispatcher(parentDispatcher, mc.getBlockColors());
             initialized = true;
         }
     }

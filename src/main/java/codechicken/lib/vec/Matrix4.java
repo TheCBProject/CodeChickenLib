@@ -301,10 +301,10 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public void multMatrix(Vector4f vec) {
-        double x = m00 * vec.getX() + m01 * vec.getY() + m02 * vec.getZ() + m03 * vec.getW();
-        double y = m10 * vec.getX() + m11 * vec.getY() + m12 * vec.getZ() + m13 * vec.getW();
-        double z = m20 * vec.getX() + m21 * vec.getY() + m22 * vec.getZ() + m23 * vec.getW();
-        double w = m30 * vec.getX() + m31 * vec.getY() + m32 * vec.getZ() + m33 * vec.getW();
+        double x = m00 * vec.x() + m01 * vec.y() + m02 * vec.z() + m03 * vec.w();
+        double y = m10 * vec.x() + m11 * vec.y() + m12 * vec.z() + m13 * vec.w();
+        double z = m20 * vec.x() + m21 * vec.y() + m22 * vec.z() + m23 * vec.w();
+        double w = m30 * vec.x() + m31 * vec.y() + m32 * vec.z() + m33 * vec.w();
 
         vec.set((float) x, (float) y, (float) z, (float) w);
     }
@@ -417,7 +417,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     public Matrix4 set(MatrixStack stack) {
-        return set(stack.getLast().getMatrix());
+        return set(stack.last().pose());
     }
 
     public Matrix4 set(Matrix4f mat) {
@@ -519,20 +519,20 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         modelMatrix.multMatrix(o);
         projMatrix.multMatrix(o);
 
-        if (o.getW() == 0) {
+        if (o.w() == 0) {
             return Vector3.ZERO.copy();
         }
-        o.setW((1.0F / o.getW()) * 0.5F);
+        o.setW((1.0F / o.w()) * 0.5F);
 
-        o.setX(o.getX() * o.getW() + 0.5F);
-        o.setY(o.getY() * o.getW() + 0.5F);
-        o.setZ(o.getZ() * o.getW() + 0.5F);
+        o.setX(o.x() * o.w() + 0.5F);
+        o.setY(o.y() * o.w() + 0.5F);
+        o.setZ(o.z() * o.w() + 0.5F);
 
         Vector3 winPos = new Vector3();
-        winPos.z = o.getZ();
+        winPos.z = o.z();
 
-        winPos.x = o.getX() * viewport.get(viewport.position() + 2) + viewport.get(viewport.position() + 0);
-        winPos.y = o.getY() * viewport.get(viewport.position() + 3) + viewport.get(viewport.position() + 1);
+        winPos.x = o.x() * viewport.get(viewport.position() + 2) + viewport.get(viewport.position() + 0);
+        winPos.y = o.y() * viewport.get(viewport.position() + 3) + viewport.get(viewport.position() + 1);
         return winPos;
     }
 
@@ -562,7 +562,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     public void glApply() {
         glBuf.put((float) m00).put((float) m10).put((float) m20).put((float) m30).put((float) m01).put((float) m11).put((float) m21).put((float) m31).put((float) m02).put((float) m12).put((float) m22).put((float) m32).put((float) m03).put((float) m13).put((float) m23).put((float) m33);
         glBuf.flip();
-        GlStateManager.multMatrix(glBuf);
+        GlStateManager._multMatrix(glBuf);
     }
 
     @Override

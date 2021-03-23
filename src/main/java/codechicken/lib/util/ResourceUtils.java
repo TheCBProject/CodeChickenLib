@@ -63,7 +63,7 @@ public class ResourceUtils {
      * @param reloadListener The listener.
      */
     public static void registerReloadListener(ISelectiveResourceReloadListener reloadListener) {
-        getResourceManager().addReloadListener(reloadListener);
+        getResourceManager().registerReloadListener(reloadListener);
     }
 
     /**

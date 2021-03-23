@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  */
 public class SpriteRegistryHelper {
 
-    public static final ResourceLocation TEXTURES = PlayerContainer.LOCATION_BLOCKS_TEXTURE;
+    public static final ResourceLocation TEXTURES = PlayerContainer.BLOCK_ATLAS;
     //    public static final ResourceLocation PARTICLE_TEXTURES = "textures/particle";
     //    public static final ResourceLocation MOB_EFFECT_TEXTURES = "textures/mob_effect";
     //    public static final ResourceLocation PAINTING_TEXTURES = "textures/painting";
@@ -60,10 +60,10 @@ public class SpriteRegistryHelper {
 
     //######### INTERNAL
     private AtlasRegistrarImpl getRegistrar(AtlasTexture atlas) {
-        AtlasRegistrarImpl registrar = atlasRegistrars.get(atlas.getTextureLocation());
+        AtlasRegistrarImpl registrar = atlasRegistrars.get(atlas.location());
         if (registrar == null) {
             registrar = new AtlasRegistrarImpl();
-            atlasRegistrars.put(atlas.getTextureLocation(), registrar);
+            atlasRegistrars.put(atlas.location(), registrar);
         }
         return registrar;
     }
@@ -72,7 +72,7 @@ public class SpriteRegistryHelper {
     public void onTextureStitchPre(TextureStitchEvent.Pre event) {
         AtlasTexture atlas = event.getMap();
         AtlasRegistrarImpl registrar = getRegistrar(atlas);
-        iconRegisters.get(atlas.getTextureLocation()).forEach(e -> e.registerIcons(registrar));
+        iconRegisters.get(atlas.location()).forEach(e -> e.registerIcons(registrar));
         registrar.processPre(event::addSprite);
     }
 

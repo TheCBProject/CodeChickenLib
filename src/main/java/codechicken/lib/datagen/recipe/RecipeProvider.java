@@ -42,15 +42,15 @@ public abstract class RecipeProvider implements IDataProvider {
     }
 
     @Override
-    public final void act(DirectoryCache cache) throws IOException {
+    public final void run(DirectoryCache cache) throws IOException {
         Path path = generator.getOutputFolder();
         registerRecipes();
         for (Map.Entry<ResourceLocation, RecipeBuilder> entry : recipes.entrySet()) {
             ResourceLocation id = entry.getKey();
             IFinishedRecipe finishedRecipe = entry.getValue().build();
-            saveRecipe(cache, finishedRecipe.getRecipeJson(), path.resolve("data/" + id.getNamespace() + "/recipes/" + id.getPath() + ".json"));
+            saveRecipe(cache, finishedRecipe.serializeRecipe(), path.resolve("data/" + id.getNamespace() + "/recipes/" + id.getPath() + ".json"));
 
-            JsonObject advancement = finishedRecipe.getAdvancementJson();
+            JsonObject advancement = finishedRecipe.serializeAdvancement();
             if (advancement != null) {
                 saveRecipeAdvancement(cache, advancement, path.resolve("data/" + id.getNamespace() + "/advancements/" + id.getPath() + ".json"));
             }
@@ -103,8 +103,8 @@ public abstract class RecipeProvider implements IDataProvider {
     private void saveRecipe(DirectoryCache cache, JsonObject recipeJson, Path path) {
         try {
             String json = GSON.toJson(recipeJson);
-            String hash = HASH_FUNCTION.hashUnencodedChars(json).toString();
-            if (!hash.equals(cache.getPreviousHash(path)) || !Files.exists(path)) {
+            String hash = SHA1.hashUnencodedChars(json).toString();
+            if (!hash.equals(cache.getHash(path)) || !Files.exists(path)) {
                 Files.createDirectories(path.getParent());
 
                 try (BufferedWriter writer = Files.newBufferedWriter(path)) {
@@ -112,7 +112,7 @@ public abstract class RecipeProvider implements IDataProvider {
                 }
             }
 
-            cache.recordHash(path, hash);
+            cache.putNew(path, hash);
         } catch (IOException e) {
             logger.error("Couldn't save recipe {}", path, e);
         }
@@ -122,8 +122,8 @@ public abstract class RecipeProvider implements IDataProvider {
     private void saveRecipeAdvancement(DirectoryCache cache, JsonObject advancementJson, Path path) {
         try {
             String json = GSON.toJson(advancementJson);
-            String hash = HASH_FUNCTION.hashUnencodedChars(json).toString();
-            if (!hash.equals(cache.getPreviousHash(path)) || !Files.exists(path)) {
+            String hash = SHA1.hashUnencodedChars(json).toString();
+            if (!hash.equals(cache.getHash(path)) || !Files.exists(path)) {
                 Files.createDirectories(path.getParent());
 
                 try (BufferedWriter writer = Files.newBufferedWriter(path)) {
@@ -131,25 +131,25 @@ public abstract class RecipeProvider implements IDataProvider {
                 }
             }
 
-            cache.recordHash(path, hash);
+            cache.putNew(path, hash);
         } catch (IOException e) {
             logger.error("Couldn't save recipe advancement {}", path, e);
         }
     }
 
     protected EnterBlockTrigger.Instance enteredBlock(Block blockIn) {
-        return new EnterBlockTrigger.Instance(EntityPredicate.AndPredicate.ANY_AND, blockIn, StatePropertiesPredicate.EMPTY);
+        return new EnterBlockTrigger.Instance(EntityPredicate.AndPredicate.ANY, blockIn, StatePropertiesPredicate.ANY);
     }
 
     protected InventoryChangeTrigger.Instance hasItem(IItemProvider itemIn) {
-        return this.hasItem(ItemPredicate.Builder.create().item(itemIn).build());
+        return this.hasItem(ItemPredicate.Builder.item().of(itemIn).build());
     }
 
     protected InventoryChangeTrigger.Instance hasItem(Tag<Item> tagIn) {
-        return this.hasItem(ItemPredicate.Builder.create().tag(tagIn).build());
+        return this.hasItem(ItemPredicate.Builder.item().of(tagIn).build());
     }
 
     protected InventoryChangeTrigger.Instance hasItem(ItemPredicate... predicates) {
-        return new InventoryChangeTrigger.Instance(EntityPredicate.AndPredicate.ANY_AND, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, MinMaxBounds.IntBound.UNBOUNDED, predicates);
+        return new InventoryChangeTrigger.Instance(EntityPredicate.AndPredicate.ANY, MinMaxBounds.IntBound.ANY, MinMaxBounds.IntBound.ANY, MinMaxBounds.IntBound.ANY, predicates);
     }
 }

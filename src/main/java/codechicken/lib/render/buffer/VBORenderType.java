@@ -41,7 +41,7 @@ public class VBORenderType extends DelegateRenderType {
      * @param factory The Factory used to fill the BufferBuilder with data.
      */
     public VBORenderType(RenderType parent, BiConsumer<VertexFormat, BufferBuilder> factory) {
-        this(parent, parent.getVertexFormat(), factory);
+        this(parent, parent.format(), factory);
     }
 
     /**
@@ -66,13 +66,13 @@ public class VBORenderType extends DelegateRenderType {
             bufferId = GL15.glGenBuffers();
         }
 
-        BufferBuilder builder = new BufferBuilder(getBufferSize());
-        builder.begin(getDrawMode(), getVertexFormat());
-        factory.accept(getVertexFormat(), builder);
-        builder.finishDrawing();
-        Pair<BufferBuilder.DrawState, ByteBuffer> pair = builder.getNextBuffer();
+        BufferBuilder builder = new BufferBuilder(bufferSize());
+        builder.begin(mode(), format());
+        factory.accept(format(), builder);
+        builder.end();
+        Pair<BufferBuilder.DrawState, ByteBuffer> pair = builder.popNextBuffer();
         ByteBuffer buffer = pair.getSecond();
-        count = buffer.remaining() / getVertexFormat().getSize();
+        count = buffer.remaining() / format().getVertexSize();
 
         GL15.glBindBuffer(GL_ARRAY_BUFFER, bufferId);
         GL15.glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
@@ -94,16 +94,16 @@ public class VBORenderType extends DelegateRenderType {
             rebuild();
         }
         GL15.glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-        getVertexFormat().setupBufferState(0);
-        GL15.glDrawArrays(getDrawMode(), 0, count);
-        getVertexFormat().clearBufferState();
+        format().setupBufferState(0);
+        GL15.glDrawArrays(mode(), 0, count);
+        format().clearBufferState();
         GL15.glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     @Override
-    public void finish(BufferBuilder buffer, int cameraX, int cameraY, int cameraZ) {
-        buffer.finishDrawing();//We dont care about this, but we need to tell it to finish.
-        buffer.getNextBuffer();
+    public void end(BufferBuilder buffer, int cameraX, int cameraY, int cameraZ) {
+        buffer.end();//We dont care about this, but we need to tell it to finish.
+        buffer.popNextBuffer();
 
         setupRenderState();
         render();
@@ -160,9 +160,9 @@ public class VBORenderType extends DelegateRenderType {
         }
 
         @Override
-        public void finish(BufferBuilder buffer, int cameraX, int cameraY, int cameraZ) {
-            buffer.finishDrawing();//We dont care about this, but we need to tell it to finish.
-            buffer.getNextBuffer();
+        public void end(BufferBuilder buffer, int cameraX, int cameraY, int cameraZ) {
+            buffer.end();//We dont care about this, but we need to tell it to finish.
+            buffer.popNextBuffer();
 
             setupRenderState();
             parent.render();

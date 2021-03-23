@@ -23,22 +23,22 @@ public class IndexedVoxelShape extends VoxelShape {
     private final Object data;
 
     public IndexedVoxelShape(VoxelShape parent, Object data) {
-        super(parent.part);
+        super(parent.shape);
         this.parent = parent;
         this.data = data;
     }
 
     @Override
-    public DoubleList getValues(Direction.Axis axis) {
-        return parent.getValues(axis);
+    public DoubleList getCoords(Direction.Axis axis) {
+        return parent.getCoords(axis);
     }
 
     @Nullable
     @Override
-    public VoxelShapeRayTraceResult rayTrace(Vector3d start, Vector3d end, BlockPos pos) {
-        BlockRayTraceResult result = parent.rayTrace(start, end, pos);
+    public VoxelShapeRayTraceResult clip(Vector3d start, Vector3d end, BlockPos pos) {
+        BlockRayTraceResult result = parent.clip(start, end, pos);
         if (result == null) return null;
-        double dist = result.getHitVec().squareDistanceTo(start);
+        double dist = result.getLocation().distanceToSqr(start);
         return new VoxelShapeRayTraceResult(result, this, dist);
     }
 

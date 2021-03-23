@@ -37,9 +37,9 @@ public abstract class WrappedItemModel implements IBakedModel {
 
     private final ItemOverrideList overrideList = new ItemOverrideList() {
         @Override
-        public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity) {
+        public IBakedModel resolve(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity) {
             WrappedItemModel.this.entity = entity;
-            WrappedItemModel.this.world = world == null ? entity == null ? null : (ClientWorld) entity.world : null;
+            WrappedItemModel.this.world = world == null ? entity == null ? null : (ClientWorld) entity.level : null;
             return originalModel;
         }
     };
@@ -54,7 +54,7 @@ public abstract class WrappedItemModel implements IBakedModel {
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture() {
+    public TextureAtlasSprite getParticleIcon() {
         return null;
     }
 
@@ -64,11 +64,11 @@ public abstract class WrappedItemModel implements IBakedModel {
     }
 
     protected void renderWrapped(ItemStack stack, TransformType transformType, MatrixStack mStack, IRenderTypeBuffer getter, int packedLight, int packedOverlay, boolean fabulous) {
-        IBakedModel model = wrapped.getOverrides().getOverrideModel(wrapped, stack, world, entity);
+        IBakedModel model = wrapped.getOverrides().resolve(wrapped, stack, world, entity);
 
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-        RenderType rType = RenderTypeLookup.func_239219_a_(stack, fabulous);
-        IVertexBuilder builder = ItemRenderer.getBuffer(getter, rType, true, stack.hasEffect());
-        itemRenderer.renderModel(model, stack, packedLight, packedOverlay, mStack, builder);
+        RenderType rType = RenderTypeLookup.getRenderType(stack, fabulous);
+        IVertexBuilder builder = ItemRenderer.getFoilBuffer(getter, rType, true, stack.hasFoil());
+        itemRenderer.renderModelLists(model, stack, packedLight, packedOverlay, mStack, builder);
     }
 }

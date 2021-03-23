@@ -42,24 +42,24 @@ public class RenderUtils {
         }
 
         entityItem = new ItemEntity(EntityType.ITEM, null);
-        entityItem.hoverStart = 0;
+        entityItem.bobOffs = 0;
     }
 
     @Deprecated
     private static void loadItemRenderer() {
         if (!hasInitRenderItem) {
             Minecraft minecraft = Minecraft.getInstance();
-            uniformRenderItem = new net.minecraft.client.renderer.entity.ItemRenderer(minecraft.getRenderManager(), minecraft.getItemRenderer());
+            uniformRenderItem = new net.minecraft.client.renderer.entity.ItemRenderer(minecraft.getEntityRenderDispatcher(), minecraft.getItemRenderer());
             hasInitRenderItem = true;
         }
     }
 
     public static RenderType getFluidRenderType() {
-        return RenderType.makeType("ccl:fluid_render", DefaultVertexFormats.POSITION_COLOR_TEX, GL11.GL_QUADS, 256, RenderType.State.getBuilder()//
-                .texture(RenderType.BLOCK_SHEET)//
-                .transparency(RenderType.TRANSLUCENT_TRANSPARENCY)//
-                .texturing(new RenderState.TexturingState("disable_lighting", RenderSystem::disableLighting, SneakyUtils::none))//
-                .build(false)//
+        return RenderType.create("ccl:fluid_render", DefaultVertexFormats.POSITION_COLOR_TEX, GL11.GL_QUADS, 256, RenderType.State.builder()//
+                .setTextureState(RenderType.BLOCK_SHEET)//
+                .setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY)//
+                .setTexturingState(new RenderState.TexturingState("disable_lighting", RenderSystem::disableLighting, SneakyUtils::none))//
+                .createCompositeState(false)//
         );
     }
 
@@ -77,7 +77,7 @@ public class RenderUtils {
         RenderMaterial material = ForgeHooksClient.getBlockMaterial(attributes.getStillTexture(stack));
         ccrs.bind(renderType, getter);
         ccrs.baseColour = attributes.getColor(stack) << 8 | alpha;
-        makeFluidModel(bound, material.getSprite(), res).render(ccrs, mat);
+        makeFluidModel(bound, material.sprite(), res).render(ccrs, mat);
     }
 
     public static CCModel makeFluidModel(Cuboid6 bound, TextureAtlasSprite tex, double res) {
@@ -107,10 +107,10 @@ public class RenderUtils {
         Vector3 c = new Vector3();
         Vector3 d = new Vector3();
 
-        double u1 = icon.getMinU();
-        double du = icon.getMaxU() - icon.getMinU();
-        double v2 = icon.getMaxV();
-        double dv = icon.getMaxV() - icon.getMinV();
+        double u1 = icon.getU0();
+        double du = icon.getU1() - icon.getU0();
+        double v2 = icon.getV1();
+        double dv = icon.getV1() - icon.getV0();
 
         double wlen = wide.mag();
         double hlen = high.mag();
@@ -159,88 +159,88 @@ public class RenderUtils {
      * @param a       Alpha channel.
      */
     public static void bufferCuboidSolid(IVertexBuilder builder, Cuboid6 c, float r, float g, float b, float a) {
-        builder.pos(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
 
-        builder.pos(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
 
-        builder.pos(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
 
-        builder.pos(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
 
-        builder.pos(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
 
-        builder.pos(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
     }
 
     public static void bufferHitbox(Matrix4 mat, IRenderTypeBuffer getter, ActiveRenderInfo renderInfo, Cuboid6 cuboid) {
-        Vector3d projectedView = renderInfo.getProjectedView();
+        Vector3d projectedView = renderInfo.getPosition();
         bufferHitBox(mat.copy().translate(-projectedView.x, -projectedView.y, -projectedView.z), getter, cuboid);
     }
 
     public static void bufferHitBox(Matrix4 mat, IRenderTypeBuffer getter, Cuboid6 cuboid) {
-        IVertexBuilder builder = new TransformingVertexBuilder(getter.getBuffer(RenderType.getLines()), mat);
+        IVertexBuilder builder = new TransformingVertexBuilder(getter.getBuffer(RenderType.lines()), mat);
         bufferCuboidOutline(builder, cuboid.copy().expand(0.0020000000949949026D), 0.0F, 0.0F, 0.0F, 0.4F);
     }
 
     public static void bufferCuboidOutline(IVertexBuilder builder, Cuboid6 c, float r, float g, float b, float a) {
-        builder.pos(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.pos(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.vertex(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
     }
 
     public static void bufferShapeHitBox(Matrix4 mat, IRenderTypeBuffer buffers, ActiveRenderInfo renderInfo, VoxelShape shape) {
-        Vector3d projectedView = renderInfo.getProjectedView();
+        Vector3d projectedView = renderInfo.getPosition();
         bufferShapeHitBox(mat.copy().translate(-projectedView.x, -projectedView.y, -projectedView.z), buffers, shape);
     }
 
     public static void bufferShapeHitBox(Matrix4 mat, IRenderTypeBuffer buffers, VoxelShape shape) {
-        IVertexBuilder builder = new TransformingVertexBuilder(buffers.getBuffer(RenderType.getLines()), mat);
+        IVertexBuilder builder = new TransformingVertexBuilder(buffers.getBuffer(RenderType.lines()), mat);
         bufferShapeOutline(builder, shape, 0.0F, 0.0F, 0.0F, 0.4F);
     }
 
     public static void bufferShapeOutline(IVertexBuilder builder, VoxelShape shape, float r, float g, float b, float a) {
-        shape.forEachEdge((x1, y1, z1, x2, y2, z2) -> {
-            builder.pos(x1, y1, z1).color(r, g, b, a).endVertex();
-            builder.pos(x2, y2, z2).color(r, g, b, a).endVertex();
+        shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
+            builder.vertex(x1, y1, z1).color(r, g, b, a).endVertex();
+            builder.vertex(x2, y2, z2).color(r, g, b, a).endVertex();
         });
     }
 
