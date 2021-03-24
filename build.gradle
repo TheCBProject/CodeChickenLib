@@ -21,11 +21,10 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: "org.spongepowered.mixin"
 apply from: "gradle/scripts/langcheck.gradle"
 
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+
 group = 'codechicken'
 archivesBaseName = 'CodeChickenLib'
-
-targetCompatibility = "1.8"
-sourceCompatibility = "1.8"
 
 sourceSets.main.resources.srcDirs += "src/main/generated"
 
@@ -80,7 +79,7 @@ minecraft {
 }
 
 mixin {
-    add (sourceSets.main, "mixins.codechickenlib.refmap.json")
+    add(sourceSets.main, "mixins.codechickenlib.refmap.json")
 }
 
 processResources { task ->
@@ -91,7 +90,8 @@ processResources { task ->
         spec.include 'META-INF/mods.toml'
         task.doFirst {
             spec.expand 'version': config.mod_version,
-                    'mc_version': config.mc_version
+                    'mc_version': config.mc_version,
+                    'forge_version': config.forge_version
         }
     }
 }
@@ -104,7 +104,6 @@ repositories {
     mavenLocal()
     maven { url = "https://maven.covers1624.net/" }
 }
-
 
 dependencies {
     minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
