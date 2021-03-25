@@ -124,19 +124,21 @@ signing {
     }
 }
 
+def commonManifest = {
+    attributes 'Specification-Title': archivesBaseName
+    attributes 'Specification-Vendor': 'covers1624'
+    attributes 'Specification-Version': "1"
+    attributes 'Implementation-Title': archivesBaseName
+    attributes 'Implementation-Vendor': 'covers1624'
+    attributes 'Implementation-Version': version
+    attributes 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+    attributes 'MixinConfigs': 'mixins.codechickenlib.json'
+}
+
 jar {
     finalizedBy 'reobfJar'
     classifier = 'universal'
-    manifest {
-        attributes 'Specification-Title': archivesBaseName
-        attributes 'Specification-Vendor': 'covers1624'
-        attributes 'Specification-Version': "1"
-        attributes 'Implementation-Title': archivesBaseName
-        attributes 'Implementation-Vendor': 'covers1624'
-        attributes 'Implementation-Version': version
-        attributes 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        attributes 'MixinConfigs': 'mixins.codechickenlib.json'
-    }
+    manifest commonManifest
     from file("LICENSE")
 }
 
@@ -151,6 +153,7 @@ task deobfJar(type: Jar) {
     build.dependsOn it
     from sourceSets.main.output
     classifier = 'deobf'
+    manifest commonManifest
     from file("LICENSE")
 }
 
