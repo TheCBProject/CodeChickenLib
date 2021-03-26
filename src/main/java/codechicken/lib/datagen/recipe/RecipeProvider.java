@@ -11,8 +11,8 @@ import net.minecraft.data.IDataProvider;
 import net.minecraft.data.IFinishedRecipe;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.tags.Tag;
+import net.minecraft.item.crafting.SpecialRecipeSerializer;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -98,6 +98,8 @@ public abstract class RecipeProvider implements IDataProvider {
     protected FurnaceRecipeBuilder campfire(IItemProvider result, int count, ResourceLocation id) { return builder(FurnaceRecipeBuilder.campfire(new ItemStack(result, count), id)); }
     protected FurnaceRecipeBuilder campfire(ItemStack result) { return builder(FurnaceRecipeBuilder.campfire(result, result.getItem().getRegistryName())); }
     protected FurnaceRecipeBuilder campfire(ItemStack result, ResourceLocation id) { return builder(FurnaceRecipeBuilder.campfire(result, id)); }
+    protected SpecialRecipeBuilder special(SpecialRecipeSerializer<?> serializer, String id) { return builder(SpecialRecipeBuilder.builder(serializer, id)); }
+    protected SpecialRecipeBuilder special(SpecialRecipeSerializer<?> serializer, ResourceLocation id) { return builder(SpecialRecipeBuilder.builder(serializer, id)); }
     //@formatter:on
 
     private void saveRecipe(DirectoryCache cache, JsonObject recipeJson, Path path) {
@@ -145,7 +147,7 @@ public abstract class RecipeProvider implements IDataProvider {
         return this.hasItem(ItemPredicate.Builder.item().of(itemIn).build());
     }
 
-    protected InventoryChangeTrigger.Instance hasItem(Tag<Item> tagIn) {
+    protected InventoryChangeTrigger.Instance hasItem(ITag<Item> tagIn) {
         return this.hasItem(ItemPredicate.Builder.item().of(tagIn).build());
     }
 

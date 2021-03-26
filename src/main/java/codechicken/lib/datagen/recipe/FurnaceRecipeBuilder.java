@@ -5,7 +5,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -118,7 +118,7 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
     //endregion
 
-    public FurnaceRecipeBuilder ingredient(Tag<Item> tag) {
+    public FurnaceRecipeBuilder ingredient(ITag<Item> tag) {
         addAutoCriteria(tag);
         this.ingredient = Ingredient.of(tag);
         return this;

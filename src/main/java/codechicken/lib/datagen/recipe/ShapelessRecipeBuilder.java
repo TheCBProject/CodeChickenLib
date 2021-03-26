@@ -6,7 +6,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -48,11 +48,11 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
         return new ShapelessRecipeBuilder(IRecipeSerializer.SHAPELESS_RECIPE, id, result);
     }
 
-    public ShapelessRecipeBuilder addIngredient(Tag<Item> tag) {
+    public ShapelessRecipeBuilder addIngredient(ITag<Item> tag) {
         return addIngredient(tag, 1);
     }
 
-    public ShapelessRecipeBuilder addIngredient(Tag<Item> tag, int quantity) {
+    public ShapelessRecipeBuilder addIngredient(ITag<Item> tag, int quantity) {
         addAutoCriteria(tag);
         Ingredient ingredient = Ingredient.of(tag);
         for (int i = 0; i < quantity; ++i) {

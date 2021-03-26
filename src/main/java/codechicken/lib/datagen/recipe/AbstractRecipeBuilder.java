@@ -9,7 +9,7 @@ import net.minecraft.advancements.criterion.*;
 import net.minecraft.data.IFinishedRecipe;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
@@ -31,7 +31,7 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     protected final ResourceLocation id;
     protected final R result;
     private final Set<IItemProvider> criteriaItems = new HashSet<>();
-    private final Set<Tag<Item>> criteriaTags = new HashSet<>();
+    private final Set<ITag<Item>> criteriaTags = new HashSet<>();
     private int criteriaCounter = 0;
     protected boolean generateCriteria = false;
     protected boolean enableUnlocking = false;
@@ -105,7 +105,7 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
         }
     }
 
-    protected void addAutoCriteria(Tag<Item> tag) {
+    protected void addAutoCriteria(ITag<Item> tag) {
         if (generateCriteria && criteriaTags.add(tag)) {
             addCriterion("has_ingredient_" + criteriaCounter++, hasItem(tag));
         }
@@ -115,7 +115,7 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
         return this.hasItem(ItemPredicate.Builder.item().of(itemIn).build());
     }
 
-    protected InventoryChangeTrigger.Instance hasItem(Tag<Item> tagIn) {
+    protected InventoryChangeTrigger.Instance hasItem(ITag<Item> tagIn) {
         return this.hasItem(ItemPredicate.Builder.item().of(tagIn).build());
     }
 

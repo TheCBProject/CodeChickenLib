@@ -10,7 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -53,7 +53,7 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
         return new ShapedRecipeBuilder(IRecipeSerializer.SHAPED_RECIPE, id, result);
     }
 
-    public ShapedRecipeBuilder key(char key, Tag<Item> item) {
+    public ShapedRecipeBuilder key(char key, ITag<Item> item) {
         addAutoCriteria(item);
         return keyInternal(key, Ingredient.of(item));
     }
@@ -109,7 +109,7 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
 
         for (String line : this.patternLines) {
             for (char c : line.toCharArray()) {
-                if (c == ' ') { continue; }
+                if (c == ' ') continue;
                 if (!keys.containsKey(c)) {
                     throw new IllegalStateException("Pattern in recipe " + id + " uses undefined symbol '" + c + "'", created);
                 }
