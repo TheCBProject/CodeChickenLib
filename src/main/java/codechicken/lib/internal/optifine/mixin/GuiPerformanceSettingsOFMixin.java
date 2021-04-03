@@ -37,28 +37,28 @@ public abstract class GuiPerformanceSettingsOFMixin extends Screen {
         }
 
         OptionButton button = (OptionButton) widget;
-        if (!(button.func_238517_a_() instanceof IteratableOption)) {
+        if (!(button.getOption() instanceof IteratableOption)) {
             return;
         }
 
-        IteratableOption option = (IteratableOption) button.func_238517_a_();
-        if (!(option.getBaseMessageTranslation() instanceof TranslationTextComponent)) {
+        IteratableOption option = (IteratableOption) button.getOption();
+        if (!(option.getCaption() instanceof TranslationTextComponent)) {
             return;
         }
 
-        TranslationTextComponent translation = (TranslationTextComponent) option.getBaseMessageTranslation();
+        TranslationTextComponent translation = (TranslationTextComponent) option.getCaption();
         if (!translation.getKey().equals("of.options.FAST_RENDER")) {
             return;
         }
 
-        GameSettings gameSettings = Minecraft.getInstance().gameSettings;
+        GameSettings gameSettings = Minecraft.getInstance().options;
         if (!(gameSettings instanceof OptiFineGameSettingsBridge) || !((OptiFineGameSettingsBridge) gameSettings).bridge$isFastRender()) {
             return;
         }
 
-        Minecraft.getInstance().displayGuiScreen(new ConfirmScreen(callback -> {
+        Minecraft.getInstance().setScreen(new ConfirmScreen(callback -> {
             ((OptiFineGameSettingsBridge) gameSettings).bridge$setFastRender(callback);
-            Minecraft.getInstance().displayGuiScreen(this);
+            Minecraft.getInstance().setScreen(this);
         }, new TranslationTextComponent("ccl.optifine.confirm.title"), new TranslationTextComponent("ccl.optifine.confirm.description")));
     }
 }

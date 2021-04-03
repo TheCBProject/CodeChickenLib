@@ -26,21 +26,21 @@ public class OptiFineGuiListener {
             return;
         }
 
-        GameSettings gameSettings = Minecraft.getInstance().gameSettings;
+        GameSettings gameSettings = Minecraft.getInstance().options;
         if (!(gameSettings instanceof OptiFineGameSettingsBridge) || !((OptiFineGameSettingsBridge) gameSettings).bridge$isFastRender()) {
             notified = true;
             return;
         }
 
         if (firstRenderTime == 0) {
-            firstRenderTime = Util.milliTime();
+            firstRenderTime = Util.getMillis();
             previousMouseX = event.getMouseX();
             previousMouseY = event.getMouseY();
             return;
         }
 
         // Wait for fade in effect
-        if (Util.milliTime() - firstRenderTime < 1000) {
+        if (Util.getMillis() - firstRenderTime < 1000) {
             return;
         }
 
@@ -50,7 +50,7 @@ public class OptiFineGuiListener {
         }
 
         notified = true;
-        Minecraft.getInstance().getToastGui().add(new SystemToast(
+        Minecraft.getInstance().getToasts().addToast(new SystemToast(
                 SystemToast.Type.TUTORIAL_HINT,
                 new TranslationTextComponent("ccl.optifine.toast.title"),
                 new TranslationTextComponent("ccl.optifine.toast.description")
