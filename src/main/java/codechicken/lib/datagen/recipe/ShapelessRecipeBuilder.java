@@ -6,7 +6,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -45,16 +45,16 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
     }
 
     public static ShapelessRecipeBuilder builder(ItemStack result, ResourceLocation id) {
-        return new ShapelessRecipeBuilder(IRecipeSerializer.CRAFTING_SHAPELESS, id, result);
+        return new ShapelessRecipeBuilder(IRecipeSerializer.SHAPELESS_RECIPE, id, result);
     }
 
-    public ShapelessRecipeBuilder addIngredient(Tag<Item> tag) {
+    public ShapelessRecipeBuilder addIngredient(ITag<Item> tag) {
         return addIngredient(tag, 1);
     }
 
-    public ShapelessRecipeBuilder addIngredient(Tag<Item> tag, int quantity) {
+    public ShapelessRecipeBuilder addIngredient(ITag<Item> tag, int quantity) {
         addAutoCriteria(tag);
-        Ingredient ingredient = Ingredient.fromTag(tag);
+        Ingredient ingredient = Ingredient.of(tag);
         for (int i = 0; i < quantity; ++i) {
             ingredients.add(ingredient);
         }
@@ -67,7 +67,7 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
 
     public ShapelessRecipeBuilder addIngredient(IItemProvider item, int quantity) {
         addAutoCriteria(item);
-        Ingredient ingredient = Ingredient.fromItems(item);
+        Ingredient ingredient = Ingredient.of(item);
         for (int i = 0; i < quantity; ++i) {
             ingredients.add(ingredient);
         }
@@ -97,12 +97,12 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
     public class FinishedShapelessRecipe extends AbstractItemStackFinishedRecipe {
 
         @Override
-        public void serialize(JsonObject json) {
-            super.serialize(json);
+        public void serializeRecipeData(JsonObject json) {
+            super.serializeRecipeData(json);
 
             JsonArray ingredients = new JsonArray();
             for (Ingredient ingredient : ShapelessRecipeBuilder.this.ingredients) {
-                ingredients.add(ingredient.serialize());
+                ingredients.add(ingredient.toJson());
             }
             json.add("ingredients", ingredients);
         }

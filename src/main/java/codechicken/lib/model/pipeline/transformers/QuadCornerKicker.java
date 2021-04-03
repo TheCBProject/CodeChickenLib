@@ -122,7 +122,7 @@ public class QuadCornerKicker extends QuadTransformer {
                             float y = vertex.vec[1];
                             float z = vertex.vec[2];
                             if (epsComp(x, corner.pX(box)) && epsComp(y, corner.pY(box)) && epsComp(z, corner.pZ(box))) {
-                                Vector3i vec = Direction.BY_INDEX[hoz].getDirectionVec();
+                                Vector3i vec = Direction.BY_3D_DATA[hoz].getNormal();
                                 x -= vec.getX() * thickness;
                                 y -= vec.getY() * thickness;
                                 z -= vec.getZ() * thickness;

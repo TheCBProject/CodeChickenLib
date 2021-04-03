@@ -31,7 +31,7 @@ public class CountCommand {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(literal("ccl")
                 .then(literal("count")
-                        .requires(e -> e.hasPermissionLevel(2))
+                        .requires(e -> e.hasPermission(2))
                         .then(argument("entity", entityType())
                                 .executes(ctx -> {
                                     EntityType<?> entityType = getEntityType(ctx, "entity");
@@ -45,13 +45,13 @@ public class CountCommand {
 
     private static int countAllEntities(CommandContext<CommandSource> ctx, Predicate<EntityType<?>> predicate) {
         CommandSource source = ctx.getSource();
-        ServerWorld world = source.getWorld();
-        ServerChunkProvider provider = world.getChunkProvider();
+        ServerWorld world = source.getLevel();
+        ServerChunkProvider provider = world.getChunkSource();
         Object2IntMap<EntityType<?>> counts = new Object2IntOpenHashMap<>();
         counts.defaultReturnValue(0);
         world.getEntities()
                 .filter(e -> predicate.test(e.getType()))
-                .filter(e -> provider.chunkExists(floor(e.getPosX()) >> 4, floor(e.getPosZ()) >> 4))
+                .filter(e -> provider.hasChunk(floor(e.getX()) >> 4, floor(e.getZ()) >> 4))
                 .forEach(e -> {
                     int count = counts.getInt(e.getType());
                     counts.put(e.getType(), count + 1);
@@ -64,13 +64,13 @@ public class CountCommand {
         for (EntityType<?> type : order) {
             int count = counts.getInt(type);
             String name = type.getRegistryName().toString();
-            ctx.getSource().sendFeedback(new StringTextComponent(GREEN + name + RESET + " x " + AQUA + count), false);
+            ctx.getSource().sendSuccess(new StringTextComponent(GREEN + name + RESET + " x " + AQUA + count), false);
             total += count;
         }
         if (order.size() == 0) {
-            ctx.getSource().sendFeedback(new TranslationTextComponent("ccl.commands.count.fail"), false);
+            ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.count.fail"), false);
         } else if (order.size() > 1) {
-            ctx.getSource().sendFeedback(new TranslationTextComponent("ccl.commands.count.total", AQUA.toString() + total + RESET), false);
+            ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.count.total", AQUA.toString() + total + RESET), false);
         }
 
         return total;

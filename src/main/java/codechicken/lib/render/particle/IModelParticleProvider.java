@@ -18,7 +18,7 @@ import java.util.Set;
 public interface IModelParticleProvider extends IBakedModel {
 
     @Override
-    default TextureAtlasSprite getParticleTexture() {
+    default TextureAtlasSprite getParticleIcon() {
         return TextureUtils.getMissingSprite();
     }
 

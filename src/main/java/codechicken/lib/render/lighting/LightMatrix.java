@@ -92,8 +92,8 @@ public class LightMatrix implements IVertexOperation {
         if ((sampled & 1 << i) == 0) {
             BlockPos bp = new BlockPos(pos.getX() + (i % 3) - 1, pos.getY() + (i / 9) - 1, pos.getZ() + (i / 3 % 3) - 1);
             BlockState b = access.getBlockState(bp);
-            bSamples[i] = WorldRenderer.getCombinedLight(access, bp);
-            aSamples[i] = b.getAmbientOcclusionLightValue(access, bp);
+            bSamples[i] = WorldRenderer.getLightColor(access, bp);
+            aSamples[i] = b.getShadeBrightness(access, bp);
             sampled |= 1 << i;
         }
     }
@@ -113,7 +113,7 @@ public class LightMatrix implements IVertexOperation {
             int[] ssample = ssamplem[side];
             for (int q = 0; q < 4; q++) {
                 int[] qsample = qsamplem[q];
-                if (Minecraft.isAmbientOcclusionEnabled()) {
+                if (Minecraft.useAmbientOcclusion()) {
                     interp(side, q, ssample[qsample[0]], ssample[qsample[1]], ssample[qsample[2]], ssample[qsample[3]]);
                 } else {
                     interp(side, q, ssample[4], ssample[4], ssample[4], ssample[4]);

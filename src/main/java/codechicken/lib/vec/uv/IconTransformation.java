@@ -20,8 +20,8 @@ public class IconTransformation extends UVTransformation {
 
     @Override
     public void apply(UV uv) {
-        uv.u = icon.getInterpolatedU(uv.u * 16);
-        uv.v = icon.getInterpolatedV(uv.v * 16);
+        uv.u = icon.getU(uv.u * 16);
+        uv.v = icon.getV(uv.v * 16);
     }
 
     @Override

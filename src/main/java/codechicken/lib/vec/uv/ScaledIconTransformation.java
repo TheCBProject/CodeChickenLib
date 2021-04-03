@@ -23,7 +23,7 @@ public class ScaledIconTransformation extends IconTransformation {
     @Override
     public void apply(UV texcoord) {
 
-        texcoord.u = icon.getInterpolatedU(texcoord.u % 2 * 16) + su * (icon.getMaxU() - icon.getMinU());
-        texcoord.v = icon.getInterpolatedV(texcoord.v % 2 * 16) + sv * (icon.getMaxV() - icon.getMinV());
+        texcoord.u = icon.getU(texcoord.u % 2 * 16) + su * (icon.getU1() - icon.getU0());
+        texcoord.v = icon.getV(texcoord.v % 2 * 16) + sv * (icon.getV1() - icon.getV0());
     }
 }

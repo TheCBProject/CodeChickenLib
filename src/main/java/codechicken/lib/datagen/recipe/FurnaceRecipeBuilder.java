@@ -5,7 +5,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -44,7 +44,7 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
 
     public static FurnaceRecipeBuilder smelting(ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(IRecipeSerializer.SMELTING, id, result)
+        return new FurnaceRecipeBuilder(IRecipeSerializer.SMELTING_RECIPE, id, result)
                 .cookingTime(200);
     }
     //endregion
@@ -67,7 +67,7 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
 
     public static FurnaceRecipeBuilder blasting(ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(IRecipeSerializer.BLASTING, id, result)
+        return new FurnaceRecipeBuilder(IRecipeSerializer.BLASTING_RECIPE, id, result)
                 .cookingTime(100);
     }
     //endregion
@@ -90,7 +90,7 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
 
     public static FurnaceRecipeBuilder smoking(ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(IRecipeSerializer.SMOKING, id, result)
+        return new FurnaceRecipeBuilder(IRecipeSerializer.SMOKING_RECIPE, id, result)
                 .cookingTime(100);
     }
     //endregion
@@ -113,20 +113,20 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
 
     public static FurnaceRecipeBuilder campfire(ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(IRecipeSerializer.CAMPFIRE_COOKING, id, result)
+        return new FurnaceRecipeBuilder(IRecipeSerializer.CAMPFIRE_COOKING_RECIPE, id, result)
                 .cookingTime(600);
     }
     //endregion
 
-    public FurnaceRecipeBuilder ingredient(Tag<Item> tag) {
+    public FurnaceRecipeBuilder ingredient(ITag<Item> tag) {
         addAutoCriteria(tag);
-        this.ingredient = Ingredient.fromTag(tag);
+        this.ingredient = Ingredient.of(tag);
         return this;
     }
 
     public FurnaceRecipeBuilder ingredient(IItemProvider item) {
         addAutoCriteria(item);
-        this.ingredient = Ingredient.fromItems(item);
+        this.ingredient = Ingredient.of(item);
         return this;
     }
 
@@ -156,9 +156,9 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     public class FinishedFurnaceRecipe extends AbstractItemStackFinishedRecipe {
 
         @Override
-        public void serialize(JsonObject json) {
-            super.serialize(json);
-            json.add("ingredient", ingredient.serialize());
+        public void serializeRecipeData(JsonObject json) {
+            super.serializeRecipeData(json);
+            json.add("ingredient", ingredient.toJson());
             json.addProperty("experience", experience);
             json.addProperty("cookingtime", cookingTime);
         }

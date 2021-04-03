@@ -29,10 +29,10 @@ public class Quat implements Copyable<Quat> {
     }
 
     public Quat(Quaternion quat) {
-        x = quat.getX();
-        y = quat.getY();
-        z = quat.getZ();
-        z = quat.getW();
+        x = quat.i();
+        y = quat.j();
+        z = quat.k();
+        s = quat.r();
     }
 
     public Quat(double d, double d1, double d2, double d3) {

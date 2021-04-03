@@ -9,6 +9,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.IModelTransform;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -40,7 +41,7 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
     }
 
     @Override
-    public boolean isAmbientOcclusion() {
+    public boolean useAmbientOcclusion() {
         return properties.isAmbientOcclusion();
     }
 
@@ -50,24 +51,24 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
     }
 
     @Override
-    public boolean isBuiltInRenderer() {
+    public boolean isCustomRenderer() {
         return properties.isBuiltInRenderer();
     }
 
     @Override
-    public boolean isSideLit() {
+    public boolean usesBlockLight() {
         return false;//TODO What?
     }
 
     @Override
-    public TextureAtlasSprite getParticleTexture() {
+    public TextureAtlasSprite getParticleIcon() {
         return properties.getParticleTexture();
     }
 
     protected List<BakedQuad> getAllQuads(BlockState state, IModelData modelData) {
         List<BakedQuad> allQuads = new ArrayList<>();
         allQuads.addAll(getQuads(state, null, new Random(0), modelData));
-        for (Direction face : Direction.BY_INDEX) {
+        for (Direction face : Direction.BY_3D_DATA) {
             allQuads.addAll(getQuads(state, face, new Random(0), modelData));
         }
         return allQuads;
@@ -75,16 +76,16 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
 
     @Override
     public Set<TextureAtlasSprite> getHitEffects(@Nonnull BlockRayTraceResult traceResult, BlockState state, IBlockReader world, BlockPos pos, IModelData modelData) {
-        Vector3 vec = new Vector3(traceResult.getHitVec()).subtract(traceResult.getPos());
+        Vector3 vec = new Vector3(traceResult.getLocation()).subtract(traceResult.getBlockPos());
         return getAllQuads(state, modelData).stream()//
-                .filter(quad -> quad.getFace() == traceResult.getFace())//
-                .filter(quad -> checkDepth(quad, vec, traceResult.getFace()))//
+                .filter(quad -> quad.getDirection() == traceResult.getDirection())//
+                .filter(quad -> checkDepth(quad, vec, traceResult.getDirection()))//
                 .map(BakedQuad::getSprite)//
                 .collect(Collectors.toSet());//
     }
 
     protected boolean checkDepth(BakedQuad quad, Vector3 hit, Direction hitFace) {
-        int[] quadData = quad.getVertexData();
+        int[] quadData = quad.getVertices();
         CachedFormat format = CachedFormat.lookup(DefaultVertexFormats.BLOCK);
 
         Vector3 posVec = new Vector3();
@@ -123,7 +124,7 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
     @Override
     public IBakedModel handlePerspective(TransformType transformType, MatrixStack mat) {
         if (properties instanceof PerspectiveProperties) {
-            ImmutableMap<TransformType, TransformationMatrix> transforms = ((PerspectiveProperties) properties).getTransforms();
+            IModelTransform transforms = ((PerspectiveProperties) properties).getTransforms();
             return PerspectiveMapWrapper.handlePerspective(this, transforms, transformType, mat);
         }
         return IModelParticleProvider.super.handlePerspective(transformType, mat);

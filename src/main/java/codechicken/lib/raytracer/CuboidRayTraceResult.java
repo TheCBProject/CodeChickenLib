@@ -29,12 +29,12 @@ public class CuboidRayTraceResult extends DistanceRayTraceResult {
     }
 
     @Override
-    public DistanceRayTraceResult withFace(Direction newFace) {
-        return new CuboidRayTraceResult(getType() == Type.MISS, getHitVec(), newFace, getPos(), isInside(), cuboid6, dist);
+    public DistanceRayTraceResult withDirection(Direction newFace) {
+        return new CuboidRayTraceResult(getType() == Type.MISS, getLocation(), newFace, getBlockPos(), isInside(), cuboid6, dist);
     }
 
     public DistanceRayTraceResult getAsDistanceResult() {
-        return new DistanceRayTraceResult(getType() == Type.MISS, getHitVec(), getFace(), getPos(), isInside(), hitInfo, dist);
+        return new DistanceRayTraceResult(getType() == Type.MISS, getLocation(), getDirection(), getBlockPos(), isInside(), hitInfo, dist);
     }
 
     @Override

@@ -39,7 +39,7 @@ public class ServerUtils {
 
     @Deprecated
     public static ServerPlayerEntity getPlayer(String playername) {
-        return getServer().getPlayerList().getPlayerByUsername(playername);
+        return getServer().getPlayerList().getPlayerByName(playername);
     }
 
     public static List<ServerPlayerEntity> getPlayers() {
@@ -47,7 +47,7 @@ public class ServerUtils {
     }
 
     public static boolean isPlayerLoadingChunk(ServerPlayerEntity player, ChunkPos chunk) {
-        return player.getServerWorld().getChunkProvider().chunkManager.getTrackingPlayers(chunk, false).anyMatch(e -> e.getEntityId() == player.getEntityId());
+        return player.getLevel().getChunkSource().chunkMap.getPlayers(chunk, false).anyMatch(e -> e.getId() == player.getId());
     }
 
     public static File getSaveDirectory() {
@@ -55,7 +55,7 @@ public class ServerUtils {
     }
 
     public static File getSaveDirectory(RegistryKey<World> dimension) {
-        return getServer().anvilConverterForAnvilFile.getDimensionFolder(dimension);
+        return getServer().storageSource.getDimensionPath(dimension);
     }
 
     public static GameProfile getGameProfile(String username) {
@@ -66,23 +66,23 @@ public class ServerUtils {
 
         //try and access it in the cache without forcing a save
         username = username.toLowerCase(Locale.ROOT);
-        PlayerProfileCache.ProfileEntry cachedEntry = getServer().getPlayerProfileCache().usernameToProfileEntryMap.get(username);
+        PlayerProfileCache.ProfileEntry cachedEntry = getServer().getProfileCache().profilesByName.get(username);
         if (cachedEntry != null) {
-            return cachedEntry.getGameProfile();
+            return cachedEntry.getProfile();
         }
 
         //load it from the cache
-        return getServer().getPlayerProfileCache().getGameProfileForUsername(username);
+        return getServer().getProfileCache().get(username);
     }
 
     public static boolean isPlayerOP(UUID uuid) {
-        GameProfile profile = getServer().getPlayerProfileCache().getProfileByUUID(uuid);
-        return profile != null && getServer().getPlayerList().canSendCommands(profile);
+        GameProfile profile = getServer().getProfileCache().get(uuid);
+        return profile != null && getServer().getPlayerList().isOp(profile);
     }
 
     public static boolean isPlayerOP(String username) {
         GameProfile prof = getGameProfile(username);
-        return prof != null && getServer().getPlayerList().canSendCommands(prof);
+        return prof != null && getServer().getPlayerList().isOp(prof);
     }
     //
     //    public static boolean isPlayerOwner(String username) {
@@ -101,12 +101,12 @@ public class ServerUtils {
     }
 
     public static void openContainer(ServerPlayerEntity player, INamedContainerProvider containerProvider, Consumer<MCDataOutput> packetConsumer) {
-        if (player.world.isRemote()) {
+        if (player.level.isClientSide()) {
             return;
         }
-        player.closeContainer();
-        player.getNextWindowId();
-        int containerId = player.currentWindowId;
+        player.doCloseContainer();
+        player.nextContainerCounter();
+        int containerId = player.containerCounter;
 
         Container container = containerProvider.createMenu(containerId, player.inventory, player);
         ContainerType<?> type = container.getType();
@@ -118,8 +118,8 @@ public class ServerUtils {
         packetConsumer.accept(packet);
 
         packet.sendToPlayer(player);
-        player.openContainer = container;
-        player.openContainer.addListener(player);
+        player.containerMenu = container;
+        player.containerMenu.addSlotListener(player);
         MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(player, container));
     }
 }

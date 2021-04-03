@@ -39,28 +39,28 @@ public class SimpleArmorMaterial implements IArmorMaterial {
     }
 
     @Override
-    public int getDurability(EquipmentSlotType slot) {
+    public int getDurabilityForSlot(EquipmentSlotType slot) {
         return durability[slot.getIndex()];
     }
 
     @Override
-    public int getDamageReductionAmount(EquipmentSlotType slot) {
+    public int getDefenseForSlot(EquipmentSlotType slot) {
         return damageReduction[slot.getIndex()];
     }
 
     @Override
-    public int getEnchantability() {
+    public int getEnchantmentValue() {
         return enchantability;
     }
 
     @Override
-    public SoundEvent getSoundEvent() {
+    public SoundEvent getEquipSound() {
         return soundEvent;
     }
 
     @Override
-    public Ingredient getRepairMaterial() {
-        return repairMaterial.getValue();
+    public Ingredient getRepairIngredient() {
+        return repairMaterial.get();
     }
 
     @Override
@@ -99,7 +99,7 @@ public class SimpleArmorMaterial implements IArmorMaterial {
 
         public Builder durabilityFactor(int factor) {
             for (int i = 0; i < 4; i++) {
-                durability[i] = ArmorMaterial.MAX_DAMAGE_ARRAY[i] * factor;
+                durability[i] = ArmorMaterial.HEALTH_PER_SLOT[i] * factor;
             }
             return this;
         }

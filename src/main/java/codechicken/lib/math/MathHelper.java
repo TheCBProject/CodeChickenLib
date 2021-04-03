@@ -298,7 +298,7 @@ public class MathHelper {
 
     public static int toSide(BlockPos pos) {
         Direction side = getSide(pos);
-        return side == null ? -1 : side.getIndex();
+        return side == null ? -1 : side.get3DDataValue();
     }
 
     public static Direction getSide(BlockPos pos) {

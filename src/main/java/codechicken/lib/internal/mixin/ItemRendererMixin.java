@@ -22,19 +22,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ItemRendererMixin {
 
     @Inject (//
-            method = "renderItem(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/model/ItemCameraTransforms$TransformType;ZLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;IILnet/minecraft/client/renderer/model/IBakedModel;)V",//
+            method = "render(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/model/ItemCameraTransforms$TransformType;ZLcom/mojang/blaze3d/matrix/MatrixStack;Lnet/minecraft/client/renderer/IRenderTypeBuffer;IILnet/minecraft/client/renderer/model/IBakedModel;)V",//
             at = @At ("HEAD"),//
             cancellable = true//
     )
     public void onRenderItem(ItemStack stack, ItemCameraTransforms.TransformType transformType, boolean leftHand, MatrixStack mStack, IRenderTypeBuffer buffers, int packedLight, int packedOverlay, IBakedModel modelIn, CallbackInfo ci) {
         if (modelIn instanceof IItemRenderer) {
             ci.cancel();
-            mStack.push();
+            mStack.pushPose();
             //If anyone doesnt return an IItemRenderer from here, your doing it wrong.
             IItemRenderer renderer = (IItemRenderer) ForgeHooksClient.handleCameraTransforms(mStack, modelIn, transformType, leftHand);
             mStack.translate(-0.5D, -0.5D, -0.5D);
             renderer.renderItem(stack, transformType, mStack, buffers, packedLight, packedOverlay);
-            mStack.pop();
+            mStack.popPose();
         }
     }
 

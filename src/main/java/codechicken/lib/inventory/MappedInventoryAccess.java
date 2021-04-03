@@ -31,7 +31,7 @@ public class MappedInventoryAccess implements IInventory {
     public void reset() {
         slotMap.clear();
         nextslot:
-        for (int i = 0; i < inv.getSizeInventory(); i++) {
+        for (int i = 0; i < inv.getContainerSize(); i++) {
             for (InventoryAccessor a : accessors) {
                 if (!a.canAccessSlot(i)) {
                     continue nextslot;
@@ -43,7 +43,7 @@ public class MappedInventoryAccess implements IInventory {
     }
 
     @Override
-    public int getSizeInventory() {
+    public int getContainerSize() {
         return slotMap.size();
     }
 
@@ -54,40 +54,40 @@ public class MappedInventoryAccess implements IInventory {
 
     @Override
     @Nonnull
-    public ItemStack getStackInSlot(int slot) {
-        return inv.getStackInSlot(slotMap.get(slot));
+    public ItemStack getItem(int slot) {
+        return inv.getItem(slotMap.get(slot));
     }
 
     @Override
     @Nonnull
-    public ItemStack decrStackSize(int slot, int amount) {
-        return inv.decrStackSize(slotMap.get(slot), amount);
+    public ItemStack removeItem(int slot, int amount) {
+        return inv.removeItem(slotMap.get(slot), amount);
     }
 
     @Override
     @Nonnull
-    public ItemStack removeStackFromSlot(int slot) {
-        return inv.removeStackFromSlot(slotMap.get(slot));
+    public ItemStack removeItemNoUpdate(int slot) {
+        return inv.removeItemNoUpdate(slotMap.get(slot));
     }
 
     @Override
-    public void setInventorySlotContents(int slot, ItemStack stack) {
-        inv.setInventorySlotContents(slotMap.get(slot), stack);
+    public void setItem(int slot, ItemStack stack) {
+        inv.setItem(slotMap.get(slot), stack);
     }
 
     @Override
-    public int getInventoryStackLimit() {
-        return inv.getInventoryStackLimit();
+    public int getMaxStackSize() {
+        return inv.getMaxStackSize();
     }
 
     @Override
-    public void markDirty() {
-        inv.markDirty();
+    public void setChanged() {
+        inv.setChanged();
     }
 
     @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
-        return inv.isUsableByPlayer(player);
+    public boolean stillValid(PlayerEntity player) {
+        return inv.stillValid(player);
     }
 
     public void addAccessor(InventoryAccessor accessor) {
@@ -96,18 +96,18 @@ public class MappedInventoryAccess implements IInventory {
     }
 
     @Override
-    public boolean isItemValidForSlot(int slot, ItemStack stack) {
-        return inv.isItemValidForSlot(slotMap.get(slot), stack);
+    public boolean canPlaceItem(int slot, ItemStack stack) {
+        return inv.canPlaceItem(slotMap.get(slot), stack);
     }
 
     @Override
-    public void openInventory(PlayerEntity player) {
-        inv.openInventory(player);
+    public void startOpen(PlayerEntity player) {
+        inv.startOpen(player);
     }
 
     @Override
-    public void closeInventory(PlayerEntity player) {
-        inv.closeInventory(player);
+    public void stopOpen(PlayerEntity player) {
+        inv.stopOpen(player);
     }
 
     //    @Override
@@ -126,8 +126,8 @@ public class MappedInventoryAccess implements IInventory {
     //    }
 
     @Override
-    public void clear() {
-        inv.clear();
+    public void clearContent() {
+        inv.clearContent();
     }
 
     //    @Override

@@ -93,7 +93,7 @@ public enum EnumColour implements IStringSerializable {
     }
 
     @Override
-    public String getString() {
+    public String getSerializedName() {
         return name;
     }
 
@@ -110,7 +110,7 @@ public enum EnumColour implements IStringSerializable {
     }
 
     public String getLocalizedName() {
-        return I18n.format(getUnlocalizedName());
+        return I18n.get(getUnlocalizedName());
     }
 
     public int getWoolMeta() {

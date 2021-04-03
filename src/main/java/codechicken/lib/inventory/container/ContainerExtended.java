@@ -19,31 +19,31 @@ public abstract class ContainerExtended extends Container implements IContainerL
 
     protected ContainerExtended(ContainerType<?> type, int id) {
         super(type, id);
-        listeners.add(this);
+        containerListeners.add(this);
     }
 
     @Override
-    public void addListener(@Nonnull IContainerListener listener) {
+    public void addSlotListener(@Nonnull IContainerListener listener) {
         if (listener instanceof ServerPlayerEntity) {
             playerCrafters.add((ServerPlayerEntity) listener);
-            sendContainerAndContentsToPlayer(this, getInventory(), Collections.singletonList((ServerPlayerEntity) listener));
-            detectAndSendChanges();
+            sendContainerAndContentsToPlayer(this, getItems(), Collections.singletonList((ServerPlayerEntity) listener));
+            broadcastChanges();
         } else {
-            super.addListener(listener);
+            super.addSlotListener(listener);
         }
     }
 
     @Override
-    public void removeListener(@Nonnull IContainerListener listener) {
+    public void removeSlotListener(@Nonnull IContainerListener listener) {
         if (listener instanceof ServerPlayerEntity) {
             playerCrafters.remove(listener);
         } else {
-            super.removeListener(listener);
+            super.removeSlotListener(listener);
         }
     }
 
     @Override
-    public void sendAllContents(@Nonnull Container container, @Nonnull NonNullList<ItemStack> list) {
+    public void refreshContainer(@Nonnull Container container, @Nonnull NonNullList<ItemStack> list) {
         sendContainerAndContentsToPlayer(container, list, playerCrafters);
     }
 
@@ -60,7 +60,7 @@ public abstract class ContainerExtended extends Container implements IContainerL
         }
 
         for (ServerPlayerEntity player : playerCrafters) {
-            player.sendAllContents(container, list);
+            player.refreshContainer(container, list);
         }
 
         for (int i = 0; i < largeStacks.size(); i++) {
@@ -75,43 +75,43 @@ public abstract class ContainerExtended extends Container implements IContainerL
     }
 
     @Override
-    public void sendWindowProperty(@Nonnull Container container, int i, int j) {
+    public void setContainerData(@Nonnull Container container, int i, int j) {
         for (ServerPlayerEntity player : playerCrafters) {
-            player.sendWindowProperty(container, i, j);
+            player.setContainerData(container, i, j);
         }
     }
 
     @Override
-    public void sendSlotContents(@Nonnull Container container, int slot, @Nonnull ItemStack stack) {
+    public void slotChanged(@Nonnull Container container, int slot, @Nonnull ItemStack stack) {
         if (!stack.isEmpty() && stack.getCount() > Byte.MAX_VALUE) {
             sendLargeStack(stack, slot, playerCrafters);
         } else {
             for (ServerPlayerEntity player : playerCrafters) {
-                player.sendSlotContents(container, slot, stack);
+                player.slotChanged(container, slot, stack);
             }
         }
     }
 
     @Nonnull
     @Override
-    public ItemStack slotClick(int slot, int dragType, @Nonnull ClickType clickType, @Nonnull PlayerEntity player) {
-        if (slot >= 0 && slot < inventorySlots.size()) {
+    public ItemStack clicked(int slot, int dragType, @Nonnull ClickType clickType, @Nonnull PlayerEntity player) {
+        if (slot >= 0 && slot < slots.size()) {
             Slot actualSlot = getSlot(slot);
             if (actualSlot instanceof SlotHandleClicks) {
                 return ((SlotHandleClicks) actualSlot).slotClick(this, player, dragType, clickType);
             }
         }
-        return super.slotClick(slot, dragType, clickType, player);
+        return super.clicked(slot, dragType, clickType, player);
     }
 
     @Nonnull
     @Override
-    public ItemStack transferStackInSlot(@Nonnull PlayerEntity par1EntityPlayer, int slotIndex) {
+    public ItemStack quickMoveStack(@Nonnull PlayerEntity par1EntityPlayer, int slotIndex) {
         ItemStack transferredStack = ItemStack.EMPTY;
-        Slot slot = inventorySlots.get(slotIndex);
+        Slot slot = slots.get(slotIndex);
 
-        if (slot != null && slot.getHasStack()) {
-            ItemStack stack = slot.getStack();
+        if (slot != null && slot.hasItem()) {
+            ItemStack stack = slot.getItem();
             transferredStack = stack.copy();
 
             if (!doMergeStackAreas(slotIndex, stack)) {
@@ -119,9 +119,9 @@ public abstract class ContainerExtended extends Container implements IContainerL
             }
 
             if (stack.getCount() == 0) {
-                slot.putStack(ItemStack.EMPTY);
+                slot.set(ItemStack.EMPTY);
             } else {
-                slot.onSlotChanged();
+                slot.setChanged();
             }
         }
 
@@ -129,7 +129,7 @@ public abstract class ContainerExtended extends Container implements IContainerL
     }
 
     @Override
-    public boolean mergeItemStack(@Nonnull ItemStack stack, int startIndex, int endIndex, boolean reverse) {
+    public boolean moveItemStackTo(@Nonnull ItemStack stack, int startIndex, int endIndex, boolean reverse) {
         boolean merged = false;
         int slotIndex = reverse ? endIndex - 1 : startIndex;
 
@@ -139,21 +139,21 @@ public abstract class ContainerExtended extends Container implements IContainerL
 
         if (stack.isStackable()) {//search for stacks to increase
             while (stack.getCount() > 0 && (reverse ? slotIndex >= startIndex : slotIndex < endIndex)) {
-                Slot slot = inventorySlots.get(slotIndex);
-                ItemStack slotStack = slot.getStack();
+                Slot slot = slots.get(slotIndex);
+                ItemStack slotStack = slot.getItem();
 
-                if (!slotStack.isEmpty() && areItemsAndTagsEqual(stack, slotStack)) {
+                if (!slotStack.isEmpty() && consideredTheSameItem(stack, slotStack)) {
                     int totalStackSize = slotStack.getCount() + stack.getCount();
-                    int maxStackSize = Math.min(stack.getMaxStackSize(), slot.getSlotStackLimit());
+                    int maxStackSize = Math.min(stack.getMaxStackSize(), slot.getMaxStackSize());
                     if (totalStackSize <= maxStackSize) {
                         stack.setCount(0);
                         slotStack.setCount(totalStackSize);
-                        slot.onSlotChanged();
+                        slot.setChanged();
                         merged = true;
                     } else if (slotStack.getCount() < maxStackSize) {
                         stack.shrink(maxStackSize - slotStack.getCount());
                         slotStack.setCount(maxStackSize);
-                        slot.onSlotChanged();
+                        slot.setChanged();
                         merged = true;
                     }
                 }
@@ -164,17 +164,17 @@ public abstract class ContainerExtended extends Container implements IContainerL
         if (stack.getCount() > 0) {//normal transfer :)
             slotIndex = reverse ? endIndex - 1 : startIndex;
             while (stack.getCount() > 0 && (reverse ? slotIndex >= startIndex : slotIndex < endIndex)) {
-                Slot slot = this.inventorySlots.get(slotIndex);
+                Slot slot = this.slots.get(slotIndex);
 
-                if (!slot.getHasStack() && slot.isItemValid(stack)) {
-                    int maxStackSize = Math.min(stack.getMaxStackSize(), slot.getSlotStackLimit());
+                if (!slot.hasItem() && slot.mayPlace(stack)) {
+                    int maxStackSize = Math.min(stack.getMaxStackSize(), slot.getMaxStackSize());
                     if (stack.getCount() <= maxStackSize) {
-                        slot.putStack(stack.copy());
-                        slot.onSlotChanged();
+                        slot.set(stack.copy());
+                        slot.setChanged();
                         stack.setCount(0);
                     } else {
-                        slot.putStack(stack.split(maxStackSize));
-                        slot.onSlotChanged();
+                        slot.set(stack.split(maxStackSize));
+                        slot.setChanged();
                     }
                     merged = true;
                 }
@@ -205,7 +205,7 @@ public abstract class ContainerExtended extends Container implements IContainerL
     }
 
     @Override
-    public boolean canInteractWith(@Nonnull PlayerEntity var1) {
+    public boolean stillValid(@Nonnull PlayerEntity var1) {
         return true;
     }
 
@@ -234,8 +234,8 @@ public abstract class ContainerExtended extends Container implements IContainerL
     }
 
     public void sendProgressBarUpdate(int barID, int value) {
-        for (IContainerListener crafting : listeners) {
-            crafting.sendWindowProperty(this, barID, value);
+        for (IContainerListener crafting : containerListeners) {
+            crafting.setContainerData(this, barID, value);
         }
     }
 }

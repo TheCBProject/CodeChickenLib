@@ -10,7 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.ITag;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
@@ -50,17 +50,17 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
     }
 
     public static ShapedRecipeBuilder builder(ItemStack result, ResourceLocation id) {
-        return new ShapedRecipeBuilder(IRecipeSerializer.CRAFTING_SHAPED, id, result);
+        return new ShapedRecipeBuilder(IRecipeSerializer.SHAPED_RECIPE, id, result);
     }
 
-    public ShapedRecipeBuilder key(char key, Tag<Item> item) {
+    public ShapedRecipeBuilder key(char key, ITag<Item> item) {
         addAutoCriteria(item);
-        return keyInternal(key, Ingredient.fromTag(item));
+        return keyInternal(key, Ingredient.of(item));
     }
 
     public ShapedRecipeBuilder key(char key, IItemProvider item) {
         addAutoCriteria(item);
-        return keyInternal(key, Ingredient.fromItems(item));
+        return keyInternal(key, Ingredient.of(item));
     }
 
     public ShapedRecipeBuilder key(char key, Ingredient ingredient) {
@@ -109,7 +109,7 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
 
         for (String line : this.patternLines) {
             for (char c : line.toCharArray()) {
-                if (c == ' ') { continue; }
+                if (c == ' ') continue;
                 if (!keys.containsKey(c)) {
                     throw new IllegalStateException("Pattern in recipe " + id + " uses undefined symbol '" + c + "'", created);
                 }
@@ -125,15 +125,15 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
     public class FinishedShapedRecipe extends AbstractItemStackFinishedRecipe {
 
         @Override
-        public void serialize(JsonObject json) {
-            super.serialize(json);
+        public void serializeRecipeData(JsonObject json) {
+            super.serializeRecipeData(json);
             JsonArray pattern = new JsonArray();
             patternLines.forEach(pattern::add);
             json.add("pattern", pattern);
 
             JsonObject key = new JsonObject();
             for (Char2ObjectMap.Entry<Ingredient> entry : keys.char2ObjectEntrySet()) {
-                key.add(String.valueOf(entry.getCharKey()), entry.getValue().serialize());
+                key.add(String.valueOf(entry.getCharKey()), entry.getValue().toJson());
             }
             json.add("key", key);
         }

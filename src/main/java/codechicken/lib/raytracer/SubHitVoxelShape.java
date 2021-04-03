@@ -29,7 +29,7 @@ public class SubHitVoxelShape extends VoxelShape {
      * @param cuboids Any SubHit's.
      */
     public SubHitVoxelShape(VoxelShape shape, List<IndexedCuboid6> cuboids) {
-        super(shape.part);
+        super(shape.shape);
         this.shape = shape;
         cuboidShapes = cuboids.stream()//
                 .map(e -> Pair.of(e, VoxelShapeCache.getShape(e)))//
@@ -37,13 +37,13 @@ public class SubHitVoxelShape extends VoxelShape {
     }
 
     @Override
-    public DoubleList getValues(Direction.Axis axis) {
-        return shape.getValues(axis);
+    public DoubleList getCoords(Direction.Axis axis) {
+        return shape.getCoords(axis);
     }
 
     @Nullable
     @Override
-    public BlockRayTraceResult rayTrace(Vector3d start, Vector3d end, BlockPos pos) {
+    public BlockRayTraceResult clip(Vector3d start, Vector3d end, BlockPos pos) {
         CuboidRayTraceResult closest = null;
         double dist = Double.MAX_VALUE;
         for (Pair<IndexedCuboid6, VoxelShape> cuboidShape : cuboidShapes) {
@@ -57,10 +57,10 @@ public class SubHitVoxelShape extends VoxelShape {
     }
 
     private CuboidRayTraceResult rayTrace(Vector3d start, Vector3d end, BlockPos pos, IndexedCuboid6 cuboid, VoxelShape shape) {
-        BlockRayTraceResult hit = shape.rayTrace(start, end, pos);
+        BlockRayTraceResult hit = shape.clip(start, end, pos);
         if (hit != null) {
-            Vector3 hitVec = new Vector3(hit.getHitVec());
-            return new CuboidRayTraceResult(hitVec, hit.getFace(), pos, hit.isInside(), cuboid, hitVec.copy().subtract(start).magSquared());
+            Vector3 hitVec = new Vector3(hit.getLocation());
+            return new CuboidRayTraceResult(hitVec, hit.getDirection(), pos, hit.isInside(), cuboid, hitVec.copy().subtract(start).magSquared());
         }
         return null;
     }

@@ -630,7 +630,7 @@ public interface MCDataInput {
      * @return The {@link ITextComponent}.
      */
     default IFormattableTextComponent readTextComponent() {
-        return ITextComponent.Serializer.getComponentFromJson(readString());
+        return ITextComponent.Serializer.fromJson(readString());
     }
 
     /**

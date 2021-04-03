@@ -27,7 +27,7 @@ public class ItemUtils {
 
     public static boolean isPlayerHolding(LivingEntity entity, Predicate<Item> predicate) {
         for (Hand hand : Hand.values()) {
-            ItemStack stack = entity.getHeldItem(hand);
+            ItemStack stack = entity.getItemInHand(hand);
             if (!stack.isEmpty()) {
                 if (predicate.test(stack.getItem())) {
                     return true;
@@ -38,14 +38,14 @@ public class ItemUtils {
     }
 
     public static boolean isPlayerHoldingSomething(PlayerEntity player) {
-        return !player.getHeldItemMainhand().isEmpty() || !player.getHeldItemOffhand().isEmpty();
+        return !player.getMainHandItem().isEmpty() || !player.getOffhandItem().isEmpty();
     }
 
     @Nonnull
     public static ItemStack getHeldStack(PlayerEntity player) {
-        ItemStack stack = player.getHeldItemMainhand();
+        ItemStack stack = player.getMainHandItem();
         if (stack.isEmpty()) {
-            stack = player.getHeldItemOffhand();
+            stack = player.getOffhandItem();
         }
         return stack;
     }
@@ -55,8 +55,8 @@ public class ItemUtils {
      */
     public static void dropItem(ItemStack stack, World world, Vector3 dropLocation) {
         ItemEntity item = new ItemEntity(world, dropLocation.x, dropLocation.y, dropLocation.z, stack);
-        item.setMotion(world.rand.nextGaussian() * 0.05, world.rand.nextGaussian() * 0.05 + 0.2F, world.rand.nextGaussian() * 0.05);
-        world.addEntity(item);
+        item.setDeltaMovement(world.random.nextGaussian() * 0.05, world.random.nextGaussian() * 0.05 + 0.2F, world.random.nextGaussian() * 0.05);
+        world.addFreshEntity(item);
     }
 
     /**
@@ -68,12 +68,12 @@ public class ItemUtils {
      * @param velocity The velocity to add.
      */
     public static void dropItem(World world, BlockPos pos, @Nonnull ItemStack stack, double velocity) {
-        double xVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
-        double yVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
-        double zVelocity = world.rand.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
+        double xVelocity = world.random.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
+        double yVelocity = world.random.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
+        double zVelocity = world.random.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
         ItemEntity entityItem = new ItemEntity(world, pos.getX() + xVelocity, pos.getY() + yVelocity, pos.getZ() + zVelocity, stack);
-        entityItem.setPickupDelay(10);
-        world.addEntity(entityItem);
+        entityItem.setPickUpDelay(10);
+        world.addFreshEntity(entityItem);
     }
 
     /**
@@ -95,8 +95,8 @@ public class ItemUtils {
      * @param inventory IInventory to drop.
      */
     public static void dropInventory(World world, BlockPos pos, IInventory inventory) {
-        for (int i = 0; i < inventory.getSizeInventory(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
             if (!stack.isEmpty() && stack.getCount() > 0) {
                 dropItem(world, pos, stack);
             }
@@ -129,11 +129,11 @@ public class ItemUtils {
      * @param dir   Direction to shoot.
      */
     public static void ejectItem(World world, BlockPos pos, @Nonnull ItemStack stack, Direction dir) {
-        pos.offset(dir);
+        pos.relative(dir);
         ItemEntity entity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-        entity.setMotion(Vector3d.copy(dir.getDirectionVec()).scale(0.3));
-        entity.setPickupDelay(10);
-        world.addEntity(entity);
+        entity.setDeltaMovement(Vector3d.atLowerCornerOf(dir.getNormal()).scale(0.3));
+        entity.setPickUpDelay(10);
+        world.addFreshEntity(entity);
     }
 
     /**
@@ -170,9 +170,9 @@ public class ItemUtils {
      * @return Returns the difference.
      */
     public static int compareItemStack(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
-        int itemStack1ID = Item.getIdFromItem(stack1.getItem());
-        int itemStack2ID = Item.getIdFromItem(stack1.getItem());
-        return itemStack1ID != itemStack2ID ? itemStack1ID - itemStack2ID : (stack1.getDamage() == stack2.getDamage() ? 0 : stack1.getDamage() - stack2.getDamage());
+        int itemStack1ID = Item.getId(stack1.getItem());
+        int itemStack2ID = Item.getId(stack1.getItem());
+        return itemStack1ID != itemStack2ID ? itemStack1ID - itemStack2ID : (stack1.getDamageValue() == stack2.getDamageValue() ? 0 : stack1.getDamageValue() - stack2.getDamageValue());
     }
 
     /**
@@ -181,7 +181,7 @@ public class ItemUtils {
      * @return whether the two items are the same in terms of damage and itemID.
      */
     public static boolean areStacksSameType(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
-        return !stack1.isEmpty() && !stack2.isEmpty() && (stack1.getItem() == stack2.getItem() && (stack2.getDamage() == stack1.getDamage()) && ItemStack.areItemStackTagsEqual(stack2, stack1));
+        return !stack1.isEmpty() && !stack2.isEmpty() && (stack1.getItem() == stack2.getItem() && (stack2.getDamageValue() == stack1.getDamageValue()) && ItemStack.tagMatches(stack2, stack1));
     }
 
     public static boolean tagsMatch(Item item1, Item item2) {

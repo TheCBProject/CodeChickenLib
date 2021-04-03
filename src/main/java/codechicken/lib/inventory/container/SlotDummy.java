@@ -24,14 +24,14 @@ public class SlotDummy extends SlotHandleClicks {
 
     @Override
     public ItemStack slotClick(ContainerExtended container, PlayerEntity player, int button, ClickType clickType) {
-        ItemStack held = player.inventory.getItemStack();
+        ItemStack held = player.inventory.getCarried();
         boolean shift = clickType == ClickType.QUICK_MOVE;
         slotClick(held, button, shift);
         return ItemStack.EMPTY;
     }
 
     public void slotClick(@Nonnull ItemStack held, int button, boolean shift) {
-        ItemStack tstack = getStack();
+        ItemStack tstack = getItem();
         if (!held.isEmpty() && (tstack.isEmpty() || !InventoryUtils.canStack(held, tstack))) {
             int quantity = Math.min(held.getCount(), stackLimit);
             if (shift) {
@@ -40,7 +40,7 @@ public class SlotDummy extends SlotHandleClicks {
             if (button == 1) {
                 quantity = 1;
             }
-            putStack(ItemUtils.copyStack(held, quantity));
+            set(ItemUtils.copyStack(held, quantity));
         } else if (!tstack.isEmpty()) {
             int inc;
             if (!held.isEmpty()) {
@@ -56,23 +56,23 @@ public class SlotDummy extends SlotHandleClicks {
             }
             int quantity = tstack.getCount() + inc;
             if (quantity <= 0) {
-                putStack(ItemStack.EMPTY);
+                set(ItemStack.EMPTY);
             } else {
-                putStack(ItemUtils.copyStack(tstack, quantity));
+                set(ItemUtils.copyStack(tstack, quantity));
             }
         }
     }
 
     @Override
-    public void putStack(@Nonnull ItemStack stack) {
+    public void set(@Nonnull ItemStack stack) {
         if (!stack.isEmpty() && stack.getCount() > stackLimit) {
             stack = ItemUtils.copyStack(stack, stackLimit);
         }
-        super.putStack(stack);
+        super.set(stack);
     }
 
     @Override
-    public boolean canTakeStack(PlayerEntity playerIn) {
+    public boolean mayPickup(PlayerEntity playerIn) {
         return false;
     }
 }

@@ -58,7 +58,7 @@ public class ModelBakery {
 
     public static final IBlockStateKeyGenerator defaultBlockKeyGenerator = (state, data) -> state.toString();
 
-    public static final IItemStackKeyGenerator defaultItemKeyGenerator = stack -> stack.getItem().getRegistryName().toString() + "|" + stack.getDamage();
+    public static final IItemStackKeyGenerator defaultItemKeyGenerator = stack -> stack.getItem().getRegistryName().toString() + "|" + stack.getDamageValue();
 
     public static void init() {
         ResourceUtils.registerReloadListener((resourceManager, p) -> {
@@ -131,7 +131,7 @@ public class ModelBakery {
             Map<Direction, List<BakedQuad>> faceQuads = new HashMap<>();
             generalQuads.addAll(bakery.bakeItemQuads(null, stack));
 
-            for (Direction face : Direction.BY_INDEX) {
+            for (Direction face : Direction.BY_3D_DATA) {
                 List<BakedQuad> quads = new LinkedList<>();
 
                 quads.addAll(bakery.bakeItemQuads(face, stack));
@@ -176,7 +176,7 @@ public class ModelBakery {
                 Map<Direction, List<BakedQuad>> faceQuads = new HashMap<>();
                 generalQuads.addAll(simpleBakery.bakeQuads(null, state, data));
 
-                for (Direction face : Direction.BY_INDEX) {
+                for (Direction face : Direction.BY_3D_DATA) {
                     List<BakedQuad> quads = new LinkedList<>();
 
                     quads.addAll(simpleBakery.bakeQuads(face, state, data));
@@ -190,7 +190,7 @@ public class ModelBakery {
                 ILayeredBlockBakery layeredBakery = (ILayeredBlockBakery) bakery;
                 Map<RenderType, Map<Direction, List<BakedQuad>>> layerFaceQuadMap = new HashMap<>();
                 Map<RenderType, List<BakedQuad>> layerGeneralQuads = new HashMap<>();
-                for (RenderType layer : RenderType.getBlockRenderTypes()) {
+                for (RenderType layer : RenderType.chunkBufferLayers()) {
                     if (RenderTypeLookup.canRenderInLayer(state, layer)) {
                         LinkedList<BakedQuad> quads = new LinkedList<>();
                         quads.addAll(layeredBakery.bakeLayerFace(null, layer, state, data));
@@ -198,10 +198,10 @@ public class ModelBakery {
                     }
                 }
 
-                for (RenderType layer : RenderType.getBlockRenderTypes()) {
+                for (RenderType layer : RenderType.chunkBufferLayers()) {
                     if (RenderTypeLookup.canRenderInLayer(state, layer)) {
                         Map<Direction, List<BakedQuad>> faceQuadMap = new HashMap<>();
-                        for (Direction face : Direction.BY_INDEX) {
+                        for (Direction face : Direction.BY_3D_DATA) {
                             List<BakedQuad> quads = new LinkedList<>();
                             quads.addAll(layeredBakery.bakeLayerFace(face, layer, state, data));
                             faceQuadMap.put(face, quads);
@@ -210,7 +210,7 @@ public class ModelBakery {
                     }
                 }
                 ModelProperties properties = new ModelProperties(true, true, null);
-                return new PerspectiveAwareLayeredModel(layerFaceQuadMap, layerGeneralQuads, new PerspectiveProperties(TransformUtils.DEFAULT_BLOCK, properties), RenderType.getSolid());
+                return new PerspectiveAwareLayeredModel(layerFaceQuadMap, layerGeneralQuads, new PerspectiveProperties(TransformUtils.DEFAULT_BLOCK, properties), RenderType.solid());
             }
         }
         return missingModel;

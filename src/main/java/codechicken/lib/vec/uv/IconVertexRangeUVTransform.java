@@ -39,8 +39,8 @@ public class IconVertexRangeUVTransform extends UVTransformation {
         if (sprite == null) {
             return;
         }
-        uv.u = sprite.getInterpolatedU(uv.u * 16);
-        uv.v = sprite.getInterpolatedV(uv.v * 16);
+        uv.u = sprite.getU(uv.u * 16);
+        uv.v = sprite.getV(uv.v * 16);
         ccrs.sprite = getSpriteForVertexIndex(ccrs.vertexIndex);
     }
 

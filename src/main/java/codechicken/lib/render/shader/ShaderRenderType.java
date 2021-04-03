@@ -12,7 +12,7 @@ public class ShaderRenderType extends RenderType {
     private final UniformCache uniforms;
 
     public ShaderRenderType(RenderType parent, ShaderProgram program, UniformCache uniforms) {
-        super(parent.name, parent.getVertexFormat(), parent.getDrawMode(), parent.getBufferSize(), parent.isUseDelegate(), parent.needsSorting, null, null);
+        super(parent.name, parent.format(), parent.mode(), parent.bufferSize(), parent.affectsCrumbling(), parent.sortOnUpload, null, null);
         this.parent = parent;
         this.program = program;
         this.uniforms = uniforms;

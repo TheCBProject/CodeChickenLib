@@ -18,16 +18,16 @@ public class InventoryCopy implements IInventory {
     public IInventory inv;
 
     public InventoryCopy(IInventory inv) {
-        items = new ItemStack[inv.getSizeInventory()];
+        items = new ItemStack[inv.getContainerSize()];
         ArrayUtils.fillArray(items, ItemStack.EMPTY, (Objects::isNull));
-        accessible = new boolean[inv.getSizeInventory()];
+        accessible = new boolean[inv.getContainerSize()];
         this.inv = inv;
         update();
     }
 
     public void update() {
         for (int i = 0; i < items.length; i++) {
-            ItemStack stack = inv.getStackInSlot(i);
+            ItemStack stack = inv.getItem(i);
             if (!stack.isEmpty()) {
                 items[i] = stack.copy();
             }
@@ -52,7 +52,7 @@ public class InventoryCopy implements IInventory {
     }
 
     @Override
-    public int getSizeInventory() {
+    public int getContainerSize() {
         return items.length;
     }
 
@@ -63,52 +63,52 @@ public class InventoryCopy implements IInventory {
 
     @Override
     @Nonnull
-    public ItemStack getStackInSlot(int slot) {
+    public ItemStack getItem(int slot) {
         return items[slot];
     }
 
     @Nonnull
-    public ItemStack decrStackSize(int slot, int amount) {
+    public ItemStack removeItem(int slot, int amount) {
         return InventoryUtils.decrStackSize(this, slot, amount);
     }
 
     @Override
     @Nonnull
-    public ItemStack removeStackFromSlot(int slot) {
+    public ItemStack removeItemNoUpdate(int slot) {
         return InventoryUtils.removeStackFromSlot(this, slot);
     }
 
     @Override
-    public void setInventorySlotContents(int slot, ItemStack stack) {
+    public void setItem(int slot, ItemStack stack) {
         items[slot] = stack;
-        markDirty();
+        setChanged();
     }
 
     @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
+    public boolean stillValid(PlayerEntity player) {
         return true;
     }
 
     @Override
-    public int getInventoryStackLimit() {
+    public int getMaxStackSize() {
         return 64;
     }
 
     @Override
-    public void markDirty() {
+    public void setChanged() {
     }
 
     @Override
-    public boolean isItemValidForSlot(int i, ItemStack itemstack) {
-        return inv.isItemValidForSlot(i, itemstack);
+    public boolean canPlaceItem(int i, ItemStack itemstack) {
+        return inv.canPlaceItem(i, itemstack);
     }
 
     @Override
-    public void openInventory(PlayerEntity player) {
+    public void startOpen(PlayerEntity player) {
     }
 
     @Override
-    public void closeInventory(PlayerEntity player) {
+    public void stopOpen(PlayerEntity player) {
     }
 
     //    @Override
@@ -126,7 +126,7 @@ public class InventoryCopy implements IInventory {
     //    }
 
     @Override
-    public void clear() {
+    public void clearContent() {
     }
 
     //    @Override

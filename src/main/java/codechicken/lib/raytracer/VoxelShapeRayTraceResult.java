@@ -18,7 +18,7 @@ public class VoxelShapeRayTraceResult extends DistanceRayTraceResult {
     public IndexedVoxelShape shape;
 
     public VoxelShapeRayTraceResult(BlockRayTraceResult other, IndexedVoxelShape shape, double dist) {
-        super(other.getHitVec(), other.getFace(), other.getPos(), other.isInside(), shape.getData(), dist);
+        super(other.getLocation(), other.getDirection(), other.getBlockPos(), other.isInside(), shape.getData(), dist);
         this.shape = shape;
     }
 
@@ -38,12 +38,12 @@ public class VoxelShapeRayTraceResult extends DistanceRayTraceResult {
     }
 
     @Override
-    public DistanceRayTraceResult withFace(Direction newFace) {
-        return new VoxelShapeRayTraceResult(getType() == Type.MISS, getHitVec(), newFace, getPos(), isInside(), shape, dist);
+    public DistanceRayTraceResult withDirection(Direction newFace) {
+        return new VoxelShapeRayTraceResult(getType() == Type.MISS, getLocation(), newFace, getBlockPos(), isInside(), shape, dist);
     }
 
     public DistanceRayTraceResult getAsDistanceResult() {
-        return new DistanceRayTraceResult(getType() == Type.MISS, getHitVec(), getFace(), getPos(), isInside(), hitInfo, dist);
+        return new DistanceRayTraceResult(getType() == Type.MISS, getLocation(), getDirection(), getBlockPos(), isInside(), hitInfo, dist);
     }
 
     @Override

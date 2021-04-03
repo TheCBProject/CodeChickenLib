@@ -23,7 +23,7 @@ public class PerspectiveAwareLayeredModel extends AbstractPerspectiveLayeredMode
     private final ImmutableMap<RenderType, List<BakedQuad>> layerGeneralQuads;
 
     public PerspectiveAwareLayeredModel(Map<RenderType, Map<Direction, List<BakedQuad>>> layerFaceQuadMap, PerspectiveProperties properties) {
-        this(layerFaceQuadMap, ImmutableMap.of(), properties, RenderType.getSolid());
+        this(layerFaceQuadMap, ImmutableMap.of(), properties, RenderType.solid());
     }
 
     public PerspectiveAwareLayeredModel(Map<RenderType, Map<Direction, List<BakedQuad>>> layerFaceQuadMap, Map<RenderType, List<BakedQuad>> layerGeneralQuads, PerspectiveProperties properties, RenderType generallayer) {

@@ -26,10 +26,10 @@ public class TransformingVertexBuilder implements ISpriteAwareVertexBuilder {
     }
 
     @Override
-    public IVertexBuilder pos(double x, double y, double z) {
+    public IVertexBuilder vertex(double x, double y, double z) {
         storage.set(x, y, z);
         transform.apply(storage);
-        delegate.pos(storage.x, storage.y, storage.z);
+        delegate.vertex(storage.x, storage.y, storage.z);
         return this;
     }
 
@@ -40,20 +40,20 @@ public class TransformingVertexBuilder implements ISpriteAwareVertexBuilder {
     }
 
     @Override
-    public IVertexBuilder tex(float u, float v) {
-        delegate.tex(u, v);
+    public IVertexBuilder uv(float u, float v) {
+        delegate.uv(u, v);
         return this;
     }
 
     @Override
-    public IVertexBuilder overlay(int u, int v) {
-        delegate.overlay(u, v);
+    public IVertexBuilder overlayCoords(int u, int v) {
+        delegate.overlayCoords(u, v);
         return this;
     }
 
     @Override
-    public IVertexBuilder lightmap(int u, int v) {
-        delegate.lightmap(u, v);
+    public IVertexBuilder uv2(int u, int v) {
+        delegate.uv2(u, v);
         return this;
     }
 

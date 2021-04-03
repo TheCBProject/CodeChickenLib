@@ -62,18 +62,18 @@ public class CustomParticleHandler {
     @OnlyIn (Dist.CLIENT)
     public static boolean handleRunningEffects(World world, BlockPos pos, BlockState state, Entity entity) {
         //Spoof a raytrace from the feet.
-        BlockRayTraceResult traceResult = new BlockRayTraceResult(entity.getPositionVec().add(0, 1, 0), Direction.UP, pos, false);
-        BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes();
-        IBakedModel model = modelShapes.getModel(state);
+        BlockRayTraceResult traceResult = new BlockRayTraceResult(entity.position().add(0, 1, 0), Direction.UP, pos, false);
+        BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
+        IBakedModel model = modelShapes.getBlockModel(state);
         if (model instanceof IModelParticleProvider) {
             IModelData modelData = ModelDataManager.getModelData(world, pos);
-            ParticleManager particleManager = Minecraft.getInstance().particles;
+            ParticleManager particleManager = Minecraft.getInstance().particleEngine;
             List<TextureAtlasSprite> sprites = new ArrayList<>(((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos, modelData));
-            TextureAtlasSprite rolledSprite = sprites.get(world.rand.nextInt(sprites.size()));
-            double x = entity.getPosX() + (world.rand.nextFloat() - 0.5D) * entity.getWidth();
+            TextureAtlasSprite rolledSprite = sprites.get(world.random.nextInt(sprites.size()));
+            double x = entity.getX() + (world.random.nextFloat() - 0.5D) * entity.getBbWidth();
             double y = entity.getBoundingBox().minY + 0.1D;
-            double z = entity.getPosZ() + (world.rand.nextFloat() - 0.5D) * entity.getWidth();
-            particleManager.addEffect(new CustomBreakingParticle((ClientWorld) world, x, y, z, -entity.getMotion().x * 4.0D, 1.5D, -entity.getMotion().z * 4.0D, rolledSprite));
+            double z = entity.getZ() + (world.random.nextFloat() - 0.5D) * entity.getBbWidth();
+            particleManager.add(new CustomBreakingParticle((ClientWorld) world, x, y, z, -entity.getDeltaMovement().x * 4.0D, 1.5D, -entity.getDeltaMovement().z * 4.0D, rolledSprite));
             return true;
         }
 
@@ -95,21 +95,21 @@ public class CustomParticleHandler {
     public static boolean handleHitEffects(BlockState state, World world, RayTraceResult traceResult, ParticleManager manager) {
         if (traceResult instanceof BlockRayTraceResult) {
             BlockRayTraceResult hit = (BlockRayTraceResult) traceResult;
-            BlockPos pos = hit.getPos();
-            BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes();
-            IBakedModel model = modelShapes.getModel(state);
+            BlockPos pos = hit.getBlockPos();
+            BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
+            IBakedModel model = modelShapes.getBlockModel(state);
             if (model instanceof IModelParticleProvider) {
                 IModelData modelData = ModelDataManager.getModelData(world, pos);
                 Cuboid6 bounds;
                 if (hit instanceof CuboidRayTraceResult) {
                     bounds = ((CuboidRayTraceResult) hit).cuboid6;
                 } else {
-                    bounds = new Cuboid6(state.getShape(world, pos).getBoundingBox());
+                    bounds = new Cuboid6(state.getShape(world, pos).bounds());
                 }
                 bounds = bounds.copy().add(pos);
                 Set<TextureAtlasSprite> hitSprites = ((IModelParticleProvider) model).getHitEffects(hit, state, world, pos, modelData);
                 List<TextureAtlasSprite> sprites = new ArrayList<>(hitSprites);
-                addBlockHitEffects(world, bounds, hit.getFace(), sprites.get(world.rand.nextInt(sprites.size())), manager);
+                addBlockHitEffects(world, bounds, hit.getDirection(), sprites.get(world.random.nextInt(sprites.size())), manager);
                 return true;
             }
         }
@@ -128,11 +128,11 @@ public class CustomParticleHandler {
      */
     @OnlyIn (Dist.CLIENT)
     public static boolean handleDestroyEffects(World world, BlockPos pos, BlockState state, ParticleManager manager) {
-        BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes();
-        IBakedModel model = modelShapes.getModel(state);
+        BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
+        IBakedModel model = modelShapes.getBlockModel(state);
         if (model instanceof IModelParticleProvider) {
             IModelData modelData = ModelDataManager.getModelData(world, pos);
-            Cuboid6 bounds = new Cuboid6(state.getShape(world, pos).getBoundingBox());
+            Cuboid6 bounds = new Cuboid6(state.getShape(world, pos).bounds());
             addBlockDestroyEffects(world, bounds.add(pos), new ArrayList<>(((IModelParticleProvider) model).getDestroyEffects(state, world, pos, modelData)), manager);
             return true;
         }
@@ -143,10 +143,10 @@ public class CustomParticleHandler {
     public static void addLandingEffects(World world, BlockPos pos, BlockState state, Vector3 entityPos, int numParticles) {
         //Spoof a raytrace from the feet.
         BlockRayTraceResult traceResult = new BlockRayTraceResult(new Vector3d(entityPos.x, pos.getY() + 1, entityPos.z), Direction.UP, pos, false);
-        ParticleManager manager = Minecraft.getInstance().particles;
+        ParticleManager manager = Minecraft.getInstance().particleEngine;
         Random randy = new Random();
-        BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes();
-        IBakedModel model = modelShapes.getModel(state);
+        BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
+        IBakedModel model = modelShapes.getBlockModel(state);
         if (model instanceof IModelParticleProvider) {
             IModelData modelData = ModelDataManager.getModelData(world, pos);
             List<TextureAtlasSprite> sprites = new ArrayList<>(((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos, modelData));
@@ -157,7 +157,7 @@ public class CustomParticleHandler {
                     double mX = randy.nextGaussian() * speed;
                     double mY = randy.nextGaussian() * speed;
                     double mZ = randy.nextGaussian() * speed;
-                    manager.addEffect(CustomBreakingParticle.newLandingParticle((ClientWorld) world, entityPos.x, entityPos.y, entityPos.z, mX, mY, mZ, sprites.get(randy.nextInt(sprites.size()))));
+                    manager.add(CustomBreakingParticle.newLandingParticle((ClientWorld) world, entityPos.x, entityPos.y, entityPos.z, mX, mY, mZ, sprites.get(randy.nextInt(sprites.size()))));
                 }
             }
         }
@@ -167,9 +167,9 @@ public class CustomParticleHandler {
     public static void addBlockHitEffects(World world, Cuboid6 bounds, Direction side, TextureAtlasSprite icon, ParticleManager particleManager) {
         float border = 0.1F;
         Vector3 diff = bounds.max.copy().subtract(bounds.min).add(-2 * border);
-        diff.x *= world.rand.nextDouble();
-        diff.y *= world.rand.nextDouble();
-        diff.z *= world.rand.nextDouble();
+        diff.x *= world.random.nextDouble();
+        diff.y *= world.random.nextDouble();
+        diff.z *= world.random.nextDouble();
         Vector3 pos = diff.add(bounds.min).add(border);
 
         if (side == Direction.DOWN) {
@@ -191,7 +191,7 @@ public class CustomParticleHandler {
             diff.x = bounds.max.x + border;
         }
 
-        particleManager.addEffect(new CustomBreakingParticle((ClientWorld) world, pos.x, pos.y, pos.z, 0, 0, 0, icon).multiplyVelocity(0.2F).multiplyParticleScaleBy(0.6F));
+        particleManager.add(new CustomBreakingParticle((ClientWorld) world, pos.x, pos.y, pos.z, 0, 0, 0, icon).setPower(0.2F).scale(0.6F));
     }
 
     @OnlyIn (Dist.CLIENT)
@@ -206,7 +206,7 @@ public class CustomParticleHandler {
                     double x = bounds.min.x + (i + 0.5) * diff.x / density.x;
                     double y = bounds.min.y + (j + 0.5) * diff.y / density.y;
                     double z = bounds.min.z + (k + 0.5) * diff.z / density.z;
-                    particleManager.addEffect(new CustomBreakingParticle((ClientWorld) world, x, y, z, x - center.x, y - center.y, z - center.z, icons.get(world.rand.nextInt(icons.size()))));
+                    particleManager.add(new CustomBreakingParticle((ClientWorld) world, x, y, z, x - center.x, y - center.y, z - center.z, icons.get(world.random.nextInt(icons.size()))));
                 }
             }
         }

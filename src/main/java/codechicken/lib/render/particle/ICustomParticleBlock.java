@@ -28,7 +28,7 @@ public interface ICustomParticleBlock extends IForgeBlock {
     @Override
     @OnlyIn (Dist.CLIENT)
     default boolean addRunningEffects(BlockState state, World world, BlockPos pos, Entity entity) {
-        return world.isRemote && CustomParticleHandler.handleRunningEffects(world, pos, state, entity);
+        return world.isClientSide && CustomParticleHandler.handleRunningEffects(world, pos, state, entity);
     }
 
     @Override

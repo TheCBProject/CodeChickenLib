@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.IModelTransform;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -42,7 +43,7 @@ public interface IItemRenderer extends IBakedModel {
      *
      * @return The transforms.
      */
-    ImmutableMap<TransformType, TransformationMatrix> getTransforms();
+    IModelTransform getModelTransform();
 
     /**
      * Called to handle this model's perspective. Either use {@link #getTransforms()}
@@ -54,15 +55,15 @@ public interface IItemRenderer extends IBakedModel {
      */
     @Override
     default IBakedModel handlePerspective(TransformType transformType, MatrixStack mat) {
-        return PerspectiveMapWrapper.handlePerspective(this, getTransforms(), transformType, mat);
+        return PerspectiveMapWrapper.handlePerspective(this, getModelTransform(), transformType, mat);
     }
 
     //Useless methods for IItemRenderer.
     //@formatter:off
     @Override default boolean doesHandlePerspectives() { return true; }
     @Override default List<BakedQuad> getQuads(BlockState state, Direction side, Random rand) { return Collections.emptyList(); }
-    @Override default boolean isBuiltInRenderer() { return true; }
-    @Override default TextureAtlasSprite getParticleTexture() { return TextureUtils.getMissingSprite(); }
+    @Override default boolean isCustomRenderer() { return true; }
+    @Override default TextureAtlasSprite getParticleIcon() { return TextureUtils.getMissingSprite(); }
     @Override default ItemOverrideList getOverrides() { return ItemOverrideList.EMPTY; }
     //@formatter:on
 }

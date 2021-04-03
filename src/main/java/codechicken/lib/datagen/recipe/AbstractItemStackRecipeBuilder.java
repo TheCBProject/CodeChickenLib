@@ -16,7 +16,7 @@ public abstract class AbstractItemStackRecipeBuilder<T extends AbstractRecipeBui
 
     @Override
     protected ResourceLocation getAdvancementId() {
-        return new ResourceLocation(id.getNamespace(), "recipes/" + this.result.getItem().getGroup().getPath() + "/" + id.getPath());
+        return new ResourceLocation(id.getNamespace(), "recipes/" + this.result.getItem().getItemCategory().getRecipeFolderName() + "/" + id.getPath());
     }
 
     @Override
@@ -25,8 +25,8 @@ public abstract class AbstractItemStackRecipeBuilder<T extends AbstractRecipeBui
     public abstract class AbstractItemStackFinishedRecipe extends AbstractFinishedRecipe {
 
         @Override
-        public void serialize(JsonObject json) {
-            super.serialize(json);
+        public void serializeRecipeData(JsonObject json) {
+            super.serializeRecipeData(json);
             JsonObject result = new JsonObject();
             ItemStack resultStack = AbstractItemStackRecipeBuilder.this.result;
             result.addProperty("item", resultStack.getItem().getRegistryName().toString());

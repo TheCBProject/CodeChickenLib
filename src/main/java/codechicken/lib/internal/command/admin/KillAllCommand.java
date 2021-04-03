@@ -35,7 +35,7 @@ public class KillAllCommand {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(literal("ccl")
                 .then(literal("killall")
-                        .requires(e -> e.hasPermissionLevel(2))
+                        .requires(e -> e.hasPermission(2))
                         .then(argument("entity", entityType())
                                 .executes(ctx -> {
                                     EntityType<?> entityType = getEntityType(ctx, "entity");
@@ -57,25 +57,25 @@ public class KillAllCommand {
     }
 
     private static int killAllGracefully(CommandContext<CommandSource> ctx, Predicate<Entity> predicate) {
-        return killEntities(ctx, predicate, Entity::onKillCommand);
+        return killEntities(ctx, predicate, Entity::kill);
     }
 
     private static int killallForce(CommandContext<CommandSource> ctx, Predicate<Entity> predicate) {
         CommandSource source = ctx.getSource();
-        ServerWorld world = source.getWorld();
-        return killEntities(ctx, predicate, world::removeEntity);
+        ServerWorld world = source.getLevel();
+        return killEntities(ctx, predicate, world::despawn);
     }
 
     private static int killEntities(CommandContext<CommandSource> ctx, Predicate<Entity> predicate, Consumer<Entity> killFunc) {
         CommandSource source = ctx.getSource();
-        ServerWorld world = source.getWorld();
-        ServerChunkProvider provider = world.getChunkProvider();
+        ServerWorld world = source.getLevel();
+        ServerChunkProvider provider = world.getChunkSource();
         Object2IntMap<EntityType<?>> counts = new Object2IntOpenHashMap<>();
         counts.defaultReturnValue(0);
         world.getEntities()
                 .filter(Objects::nonNull)
                 .filter(predicate)
-                .filter(e -> provider.chunkExists(floor(e.getPosX()) >> 4, floor(e.getPosZ()) >> 4))
+                .filter(e -> provider.hasChunk(floor(e.getX()) >> 4, floor(e.getZ()) >> 4))
                 .forEach(e -> {
                     killFunc.accept(e);
                     int count = counts.getInt(e.getType());
@@ -89,13 +89,13 @@ public class KillAllCommand {
         for (EntityType<?> type : order) {
             int count = counts.getInt(type);
             String name = type.getRegistryName().toString();
-            ctx.getSource().sendFeedback(new TranslationTextComponent("ccl.commands.killall.success.line", RED + name + RESET + " x " + AQUA + count), false);
+            ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.killall.success.line", RED + name + RESET + " x " + AQUA + count), false);
             total += count;
         }
         if (order.size() == 0) {
-            ctx.getSource().sendFeedback(new TranslationTextComponent("ccl.commands.killall.fail"), false);
+            ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.killall.fail"), false);
         } else if (order.size() > 1) {
-            ctx.getSource().sendFeedback(new TranslationTextComponent("ccl.commands.killall.success", AQUA.toString() + total + RESET), false);
+            ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.killall.success", AQUA.toString() + total + RESET), false);
         }
         return total;
     }

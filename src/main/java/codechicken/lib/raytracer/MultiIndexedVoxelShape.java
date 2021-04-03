@@ -42,23 +42,23 @@ public class MultiIndexedVoxelShape extends VoxelShape {
      * @param shapes The sub-components.
      */
     public MultiIndexedVoxelShape(VoxelShape merged, ImmutableSet<IndexedVoxelShape> shapes) {
-        super(merged.part);
+        super(merged.shape);
         this.merged = merged;
         this.shapes = shapes;
     }
 
     @Override
-    public DoubleList getValues(Direction.Axis axis) {
-        return merged.getValues(axis);
+    public DoubleList getCoords(Direction.Axis axis) {
+        return merged.getCoords(axis);
     }
 
     @Nullable
     @Override
-    public VoxelShapeRayTraceResult rayTrace(Vector3d start, Vector3d end, BlockPos pos) {
+    public VoxelShapeRayTraceResult clip(Vector3d start, Vector3d end, BlockPos pos) {
         VoxelShapeRayTraceResult closest = null;
         double dist = Double.MAX_VALUE;
         for (IndexedVoxelShape shape : shapes) {
-            VoxelShapeRayTraceResult hit = shape.rayTrace(start, end, pos);
+            VoxelShapeRayTraceResult hit = shape.clip(start, end, pos);
             if (hit != null && dist >= hit.dist) {
                 closest = hit;
                 dist = hit.dist;

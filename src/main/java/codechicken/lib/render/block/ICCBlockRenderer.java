@@ -63,10 +63,10 @@ public interface ICCBlockRenderer {
     default void renderBreaking(BlockState state, BlockPos pos, IBlockDisplayReader world, MatrixStack mStack, IVertexBuilder builder, IModelData data) {
         CCRenderState ccrs = CCRenderState.instance();
         ccrs.overlay = OverlayTexture.NO_OVERLAY;
-        ccrs.brightness = WorldRenderer.getPackedLightmapCoords(world, state, pos);
-        mStack.push();
+        ccrs.brightness = WorldRenderer.getLightColor(world, state, pos);
+        mStack.pushPose();
         renderBlock(state, pos, world, mStack, builder, new Random(), data);
-        mStack.pop();
+        mStack.popPose();
     }
     //endregion
 

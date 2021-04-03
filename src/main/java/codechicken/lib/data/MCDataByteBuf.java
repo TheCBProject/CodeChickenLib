@@ -46,7 +46,7 @@ public class MCDataByteBuf implements MCDataInput, MCDataOutput {
         if (!(tag instanceof ByteArrayNBT)) {
             throw new IllegalArgumentException("Expected ByteArrayNBT, got: " + tag.getClass().getSimpleName());
         }
-        return new MCDataByteBuf(Unpooled.copiedBuffer(((ByteArrayNBT) tag).getByteArray()));
+        return new MCDataByteBuf(Unpooled.copiedBuffer(((ByteArrayNBT) tag).getAsByteArray()));
     }
 
     public CompoundNBT writeToNBT(CompoundNBT tag, String key) {
@@ -64,7 +64,7 @@ public class MCDataByteBuf implements MCDataInput, MCDataOutput {
 
     @OnlyIn (Dist.CLIENT)
     public static MCDataByteBuf fromTilePacket(SUpdateTileEntityPacket tilePacket) {
-        return fromTag(tilePacket.getNbtCompound().get("data"));
+        return fromTag(tilePacket.getTag().get("data"));
     }
     //@formatter:off
     @Override public byte readByte() { return buf.readByte(); }

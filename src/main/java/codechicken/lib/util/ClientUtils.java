@@ -8,7 +8,7 @@ import net.minecraft.world.World;
 public class ClientUtils extends CommonUtils {
 
     public static World getWorld() {
-        return Minecraft.getInstance().world;
+        return Minecraft.getInstance().level;
     }
 
     public static boolean inWorld() {
@@ -25,7 +25,7 @@ public class ClientUtils extends CommonUtils {
 
     public static String getServerIP() {
         try {
-            NetworkManager networkManager = Minecraft.getInstance().getConnection().getNetworkManager();
+            NetworkManager networkManager = Minecraft.getInstance().getConnection().getConnection();
             String s = networkManager.getRemoteAddress().toString();
             s = s.substring(s.indexOf("/") + 1);
             return s;
