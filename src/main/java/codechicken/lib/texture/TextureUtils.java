@@ -2,6 +2,9 @@ package codechicken.lib.texture;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourARGB;
+import codechicken.lib.colour.ColourRGBA;
+import codechicken.lib.internal.hook.ICCAtlasSprite;
+import codechicken.lib.texture.IProceduralTextureCallback.ITextureAccessor;
 import codechicken.lib.util.ResourceUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.block.BlockState;
@@ -18,6 +21,8 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -28,11 +33,70 @@ import java.util.Random;
 public class TextureUtils {
 
     /**
+     * Creates a texture accessor for the given texture. Result should be cached.
+     *
+     * @param texture The texture to access.
+     * @return A new {@link ITextureAccessor} instance.
+     */
+    @Nonnull
+    public static ITextureAccessor createAccessor(@Nonnull TextureAtlasSprite texture) {
+        return new ITextureAccessor() {
+            @Override
+            public void setPixel(int x, int y, @Nonnull Colour colour) {
+                final int abgr = (colour.a << 24) | (colour.b << 16) | (colour.g << 8) | colour.r; // Someone dun fucked up..
+                texture.mainImage[0].setPixelRGBA(x, y, abgr);
+            }
+
+            @Nonnull
+            @Override
+            public Colour getPixel(int x, int y) {
+                final int abgr = texture.mainImage[0].getPixelRGBA(x, y); // Seriously..
+                final byte r = (byte)(abgr & 0xFF);
+                final byte g = (byte)((abgr >> 8) & 0xFF);
+                final byte b = (byte)((abgr >> 16) & 0xFF);
+                final byte a = (byte)((abgr >> 24) & 0xFF);
+                return new ColourRGBA(r, g, b, a);
+            }
+        };
+    }
+
+    /**
+     * Sets the procedural callback of the given texture.
+     * If either parameter is null, this function just returns.
+     *
+     * @param texture The texture to set the callback for.
+     * @param callback The callback.
+     */
+    public static void setProceduralCallback(@Nullable TextureAtlasSprite texture, @Nullable IProceduralTextureCallback callback) {
+        if(texture == null || callback == null) {
+            return;
+        }
+
+        ((ICCAtlasSprite)texture).setProceduralCallback(callback);
+    }
+
+    /**
+     * Retrieves the procedural callback of the given texture.
+     * If the texture is null, the resulting callback is also null.
+     *
+     * @param texture The texture to get the callback from.
+     * @return The callback of the given texture or null.
+     */
+    @Nullable
+    public static IProceduralTextureCallback getProceduralCallback(@Nullable TextureAtlasSprite texture) {
+        if(texture == null) {
+            return null;
+        }
+
+        return ((ICCAtlasSprite)texture).getProceduralCallback();
+    }
+
+    /**
      * @return an array of ARGB pixel data
      */
     public static int[] loadTextureData(ResourceLocation resource) {
         BufferedImage img = loadBufferedImage(resource);
-        if (img == null) {
+        if(img == null) {
             return new int[0];
         }
         int w = img.getWidth();
@@ -45,7 +109,7 @@ public class TextureUtils {
     public static Colour[] loadTextureColours(ResourceLocation resource) {
         int[] idata = loadTextureData(resource);
         Colour[] data = new Colour[idata.length];
-        for (int i = 0; i < data.length; i++) {
+        for(int i = 0; i < data.length; i++) {
             data[i] = new ColourARGB(idata[i]);
         }
         return data;
@@ -54,7 +118,8 @@ public class TextureUtils {
     public static BufferedImage loadBufferedImage(ResourceLocation textureFile) {
         try {
             return loadBufferedImage(ResourceUtils.getResourceAsStream(textureFile));
-        } catch (Exception e) {
+        }
+        catch(Exception e) {
             System.err.println("Failed to load texture file: " + textureFile);
             e.printStackTrace();
         }
@@ -102,13 +167,14 @@ public class TextureUtils {
     public static void prepareTexture(int target, int texture, int min_mag_filter, int wrap) {
         GlStateManager._texParameter(target, GL11.GL_TEXTURE_MIN_FILTER, min_mag_filter);
         GlStateManager._texParameter(target, GL11.GL_TEXTURE_MAG_FILTER, min_mag_filter);
-        if (target == GL11.GL_TEXTURE_2D) {
+        if(target == GL11.GL_TEXTURE_2D) {
             GlStateManager._bindTexture(target);
-        } else {
+        }
+        else {
             GL11.glBindTexture(target, texture);
         }
 
-        switch (target) {
+        switch(target) {
             case GL12.GL_TEXTURE_3D:
                 GlStateManager._texParameter(target, GL12.GL_TEXTURE_WRAP_R, wrap);
             case GL11.GL_TEXTURE_2D:
@@ -222,10 +288,10 @@ public class TextureUtils {
     public static TextureAtlasSprite[] getSideIconsForBlock(BlockState state) {
         TextureAtlasSprite[] sideSprites = new TextureAtlasSprite[6];
         TextureAtlasSprite missingSprite = getMissingSprite();
-        for (int i = 0; i < 6; i++) {
+        for(int i = 0; i < 6; i++) {
             TextureAtlasSprite[] sprites = getIconsForBlock(state, i);
             TextureAtlasSprite sideSprite = missingSprite;
-            if (sprites.length != 0) {
+            if(sprites.length != 0) {
                 sideSprite = sprites[0];
             }
             sideSprites[i] = sideSprite;
@@ -241,11 +307,11 @@ public class TextureUtils {
     @Deprecated
     public static TextureAtlasSprite[] getIconsForBlock(BlockState state, Direction side) {
         IBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
-        if (model != null) {
+        if(model != null) {
             List<BakedQuad> quads = model.getQuads(state, side, new Random(0));
-            if (quads != null && quads.size() > 0) {
+            if(quads != null && quads.size() > 0) {
                 TextureAtlasSprite[] sprites = new TextureAtlasSprite[quads.size()];
-                for (int i = 0; i < quads.size(); i++) {
+                for(int i = 0; i < quads.size(); i++) {
                     sprites[i] = quads.get(i).getSprite();
                 }
                 return sprites;
@@ -257,7 +323,7 @@ public class TextureUtils {
     @Deprecated
     public static TextureAtlasSprite getParticleIconForBlock(BlockState state) {
         IBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
-        if (model != null) {
+        if(model != null) {
             return model.getParticleIcon();
         }
         return null;
