@@ -140,6 +140,20 @@ public abstract class Colour implements Copyable<Colour> {
         return this;
     }
 
+    /**
+     * Flips a color between ABGR and RGBA.
+     *
+     * @param colour The input either ABGR or RGBA.
+     * @return The flipped color.
+     */
+    public static int flipABGR(int colour) {
+        int a = (colour >> 24) & 0xFF;
+        int b = (colour >> 16) & 0xFF;
+        int c = (colour >> 8) & 0xFF;
+        int d = colour & 0xFF;
+        return (d & 0xFF) << 24 | (c & 0xFF) << 16 | (b & 0xFF) << 8 | (a & 0xFF);
+    }
+
     public static int[] unpack(int colour) {
         return new int[] { (colour >> 24) & 0xFF, (colour >> 16) & 0xFF, (colour >> 8) & 0xFF, colour & 0xFF };
     }
