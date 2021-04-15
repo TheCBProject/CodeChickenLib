@@ -104,7 +104,6 @@ public class SpriteRegistryHelper {
 
         @Override
         public void registerProceduralSprite(ResourceLocation loc, Consumer<ProceduralTexture> cycleFunc, Consumer<TextureAtlasSprite> onReady) {
-            if (proceduralTextures.containsKey(loc)) throw new IllegalArgumentException("Procedural texture already registered.");
             registerSprite(loc, onReady);
             proceduralTextures.put(loc, cycleFunc);
         }
