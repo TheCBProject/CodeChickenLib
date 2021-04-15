@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -39,7 +40,7 @@ public class SpriteRegistryHelper {
 
     /**
      * Adds an IIconRegister for the given basePath.
-     * The base path should be that returned by {@link AtlasTexture#getTextureLocation()}
+     * The base path should be that returned by {@link AtlasTexture#location()}
      * Some known vanilla defaults are provided above.
      *
      * @param basePath     The base path for the Atlas.
@@ -76,21 +77,36 @@ public class SpriteRegistryHelper {
         registrar.processPre(event::addSprite);
     }
 
+    @SubscribeEvent (priority = EventPriority.HIGHEST)
+    public void onTextureStitchPostFirst(TextureStitchEvent.Post event) {
+        AtlasTexture atlas = event.getMap();
+        AtlasRegistrarImpl registrar = getRegistrar(atlas);
+        registrar.processPost(atlas);
+    }
+
     @SubscribeEvent
     public void onTextureStitchPost(TextureStitchEvent.Post event) {
         AtlasTexture atlas = event.getMap();
         AtlasRegistrarImpl registrar = getRegistrar(atlas);
-        registrar.processPost(atlas);
+        registrar.processPostFirst(atlas);
     }
 
     private static final class AtlasRegistrarImpl implements AtlasRegistrar {
 
         private final Multimap<ResourceLocation, Consumer<TextureAtlasSprite>> sprites = HashMultimap.create();
         private final List<Consumer<AtlasTexture>> postCallbacks = new ArrayList<>();
+        private final Map<ResourceLocation, Consumer<ProceduralTexture>> proceduralTextures = new HashMap<>();
 
         @Override
         public void registerSprite(ResourceLocation loc, Consumer<TextureAtlasSprite> onReady) {
             sprites.put(loc, onReady);
+        }
+
+        @Override
+        public void registerProceduralSprite(ResourceLocation loc, Consumer<ProceduralTexture> cycleFunc, Consumer<TextureAtlasSprite> onReady) {
+            if (proceduralTextures.containsKey(loc)) throw new IllegalArgumentException("Procedural texture already registered.");
+            registerSprite(loc, onReady);
+            proceduralTextures.put(loc, cycleFunc);
         }
 
         @Override
@@ -100,6 +116,15 @@ public class SpriteRegistryHelper {
 
         private void processPre(Consumer<ResourceLocation> register) {
             sprites.keySet().forEach(register);
+        }
+
+        private void processPostFirst(AtlasTexture atlas) {
+            for (Map.Entry<ResourceLocation, Consumer<ProceduralTexture>> entry : proceduralTextures.entrySet()) {
+                ResourceLocation name = entry.getKey();
+                ProceduralTexture texture = new ProceduralTexture(atlas, atlas.getSprite(name), entry.getValue());
+                atlas.animatedTextures.add(texture);
+                atlas.texturesByName.put(name, texture);
+            }
         }
 
         private void processPost(AtlasTexture atlas) {
