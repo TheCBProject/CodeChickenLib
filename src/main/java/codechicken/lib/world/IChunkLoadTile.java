@@ -1,5 +1,7 @@
 package codechicken.lib.world;
 
+import net.minecraft.world.chunk.Chunk;
+
 /**
  * Provides a callback for tile entities when a chunk is loaded, as an alternative to validate when the chunk hasn't been added to the world.
  * To hook all world join/seperate events. Use this, TileEntity.validate with a worldObj.blockExists check, TileEntity.onChunkUnload and TileEntity.invalidate
@@ -8,5 +10,10 @@ package codechicken.lib.world;
  */
 public interface IChunkLoadTile {
 
+    @Deprecated //TODO remove in 1.17
     void onChunkLoad();
+
+    default void onChunkLoad(Chunk chunk) {
+        onChunkLoad();
+    }
 }
