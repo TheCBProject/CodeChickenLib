@@ -144,7 +144,7 @@ publishing {
     repositories {
         if (System.getenv('MAVEN_PASS')) {
             maven {
-                url "https://maven-upload.covers1624.net/"
+                url "https://nexus.covers1624.net/repository/maven-releases/"
                 credentials {
                     username 'covers1624'
                     password System.getenv('MAVEN_PASS')
