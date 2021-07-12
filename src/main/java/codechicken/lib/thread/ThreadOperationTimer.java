@@ -5,6 +5,7 @@ import com.google.common.base.Objects;
 /**
  * Used to control how long a thread can run for before a TimeoutException is thrown.
  */
+@Deprecated // Remove in 1.17
 public class ThreadOperationTimer extends Thread {
 
     public static class TimeoutException extends RuntimeException {
@@ -54,7 +55,8 @@ public class ThreadOperationTimer extends Thread {
         while (thread.isAlive()) {
             synchronized (this) {
                 if (operation != null && System.currentTimeMillis() - opTime > limit) {
-                    thread.stop(new TimeoutException("Operation took too long", operation));
+                    thread.stop();
+                    throw new TimeoutException("Operation took too long", operation);
                 }
             }
             try {

@@ -4,6 +4,7 @@ package codechicken.lib.thread;
  * Provides an abstract way to have a task run and restart if needed whilst still operating.
  * It is recommended to implement
  */
+@Deprecated // Remove in 1.17
 public abstract class RestartableTask {
 
     public final String name;

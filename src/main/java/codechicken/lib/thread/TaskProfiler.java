@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+@Deprecated // Remove in 1.17
 public class TaskProfiler {
 
     public static class ProfilerResult {

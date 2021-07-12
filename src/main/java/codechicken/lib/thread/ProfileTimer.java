@@ -1,5 +1,6 @@
 package codechicken.lib.thread;
 
+@Deprecated // Remove in 1.17
 public class ProfileTimer {
 
     public double decay;
