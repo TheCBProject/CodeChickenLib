@@ -1,6 +1,5 @@
 package codechicken.lib.internal.command.admin;
 
-import codechicken.lib.util.SneakyUtils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -9,16 +8,19 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.monster.IMob;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.server.ServerChunkProvider;
 import net.minecraft.world.server.ServerWorld;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static codechicken.lib.internal.command.EntityTypeArgument.entityType;
 import static codechicken.lib.internal.command.EntityTypeArgument.getEntityType;
@@ -39,56 +41,62 @@ public class KillAllCommand {
                         .then(argument("entity", entityType())
                                 .executes(ctx -> {
                                     EntityType<?> entityType = getEntityType(ctx, "entity");
-                                    return killallForce(ctx, e -> Objects.equals(e.getType(), entityType));
+                                    return killallForce(ctx, entityType, e -> Objects.equals(e.getType(), entityType));
                                 })
                         )
-                        .executes(ctx -> killallForce(ctx, e -> e instanceof IMob))
+                        .executes(ctx -> killallForce(ctx, null, e -> e instanceof IMob))
                         .then(literal("gracefully")
                                 .then(argument("entity", entityType())
                                         .executes(ctx -> {
                                             EntityType<?> entityType = getEntityType(ctx, "entity");
-                                            return killAllGracefully(ctx, e -> Objects.equals(e.getType(), entityType));
+                                            return killAllGracefully(ctx, entityType, e -> Objects.equals(e.getType(), entityType));
                                         })
                                 )
-                                .executes(ctx -> killAllGracefully(ctx, e -> e instanceof IMob))
+                                .executes(ctx -> killAllGracefully(ctx, null, e -> e instanceof IMob))
                         )
                 )
         );
     }
 
-    private static int killAllGracefully(CommandContext<CommandSource> ctx, Predicate<Entity> predicate) {
-        return killEntities(ctx, predicate, Entity::kill);
+    private static int killAllGracefully(CommandContext<CommandSource> ctx, @Nullable EntityType<?> type, Predicate<Entity> predicate) {
+        return killEntities(ctx, type, predicate, Entity::kill);
     }
 
-    private static int killallForce(CommandContext<CommandSource> ctx, Predicate<Entity> predicate) {
+    private static int killallForce(CommandContext<CommandSource> ctx, @Nullable EntityType<?> type, Predicate<Entity> predicate) {
         CommandSource source = ctx.getSource();
         ServerWorld world = source.getLevel();
-        return killEntities(ctx, predicate, world::despawn);
+        return killEntities(ctx, type, predicate, world::despawn);
     }
 
-    private static int killEntities(CommandContext<CommandSource> ctx, Predicate<Entity> predicate, Consumer<Entity> killFunc) {
+    private static int killEntities(CommandContext<CommandSource> ctx, @Nullable EntityType<?> type, Predicate<Entity> predicate, Consumer<Entity> killFunc) {
+        if (type == EntityType.PLAYER) {
+            ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.killall.fail.player").withStyle(TextFormatting.RED), false);
+            return 0;
+        }
         CommandSource source = ctx.getSource();
         ServerWorld world = source.getLevel();
         ServerChunkProvider provider = world.getChunkSource();
         Object2IntMap<EntityType<?>> counts = new Object2IntOpenHashMap<>();
         counts.defaultReturnValue(0);
-        world.getEntities()
+        List<Entity> entities = world.getEntities()
                 .filter(Objects::nonNull)
                 .filter(predicate)
                 .filter(e -> provider.hasChunk(floor(e.getX()) >> 4, floor(e.getZ()) >> 4))
-                .forEach(e -> {
-                    killFunc.accept(e);
-                    int count = counts.getInt(e.getType());
-                    counts.put(e.getType(), count + 1);
-                });
+                .collect(Collectors.toList());
+
+        entities.forEach(e -> {
+            killFunc.accept(e);
+            int count = counts.getInt(e.getType());
+            counts.put(e.getType(), count + 1);
+        });
 
         List<EntityType<?>> order = new ArrayList<>(counts.keySet());
         order.sort(Comparator.comparingInt(counts::getInt));
 
         int total = 0;
-        for (EntityType<?> type : order) {
-            int count = counts.getInt(type);
-            String name = type.getRegistryName().toString();
+        for (EntityType<?> t : order) {
+            int count = counts.getInt(t);
+            String name = t.getRegistryName().toString();
             ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.killall.success.line", RED + name + RESET + " x " + AQUA + count), false);
             total += count;
         }

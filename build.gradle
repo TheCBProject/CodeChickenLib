@@ -19,7 +19,6 @@ plugins {
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: "org.spongepowered.mixin"
-apply from: "gradle/scripts/langcheck.gradle"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 

@@ -1,0 +1,11 @@
+{
+  "ccl.commands.count.fail": "Found no entities.",
+  "ccl.commands.count.total": "Found %s entities.",
+  "ccl.commands.gc.after": "After:",
+  "ccl.commands.gc.before": "Before:",
+  "ccl.commands.gc.performing": "Performing GC..",
+  "ccl.commands.killall.fail": "Found no entities.",
+  "ccl.commands.killall.fail.player": "You cannot kill players with this command.",
+  "ccl.commands.killall.success": "Killed %s entities.",
+  "ccl.commands.killall.success.line": "Killed %s"
+}

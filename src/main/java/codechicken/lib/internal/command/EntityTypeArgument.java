@@ -1,6 +1,5 @@
 package codechicken.lib.internal.command;
 
-import codechicken.lib.CodeChickenLib;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
@@ -12,7 +11,6 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.command.arguments.ArgumentTypes;
 import net.minecraft.command.arguments.IArgumentSerializer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.network.PacketBuffer;

@@ -1,5 +1,6 @@
 package codechicken.lib.internal;
 
+import codechicken.lib.datagen.LanguageProvider;
 import codechicken.lib.util.CCLTags;
 import net.minecraft.block.Blocks;
 import net.minecraft.data.BlockTagsProvider;
@@ -27,6 +28,9 @@ public class DataGenerators {
             BlockTags blockTagsProvider = new BlockTags(gen, files);
             gen.addProvider(blockTagsProvider);
             gen.addProvider(new ItemTags(gen, blockTagsProvider, files));
+        }
+        if (event.includeClient() || event.includeServer()) {
+            gen.addProvider(new LangUS(gen, LanguageProvider.getDist(event)));
         }
     }
 
@@ -125,6 +129,26 @@ public class DataGenerators {
         @Override
         public String getName() {
             return "CodeChickenLib Item tags.";
+        }
+    }
+
+    public static class LangUS extends LanguageProvider {
+
+        public LangUS(DataGenerator gen, Side side) {
+            super(gen, MOD_ID, "en_us", side);
+        }
+
+        @Override
+        protected void addTranslations() {
+            addServer("ccl.commands.gc.before", "Before:");
+            addServer("ccl.commands.gc.performing", "Performing GC..");
+            addServer("ccl.commands.gc.after", "After:");
+            addServer("ccl.commands.killall.fail", "Found no entities.");
+            addServer("ccl.commands.killall.fail.player", "You cannot kill players with this command.");
+            addServer("ccl.commands.killall.success", "Killed %s entities.");
+            addServer("ccl.commands.killall.success.line", "Killed %s");
+            addServer("ccl.commands.count.fail", "Found no entities.");
+            addServer("ccl.commands.count.total", "Found %s entities.");
         }
     }
 }
