@@ -12,6 +12,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fluids.FluidStack;
@@ -798,6 +799,19 @@ public interface MCDataOutput {
         writeSignedVarInt(vec.getX());
         writeSignedVarInt(vec.getY());
         writeSignedVarInt(vec.getZ());
+        return this;
+    }
+
+    /**
+     * Writes a {@link Vector3f} to the stream.
+     *
+     * @param vec The {@link Vector3f}.
+     * @return The same stream.
+     */
+    default MCDataOutput writeVec3f(Vector3f vec) {
+        writeFloat(vec.x());
+        writeFloat(vec.y());
+        writeFloat(vec.z());
         return this;
     }
 

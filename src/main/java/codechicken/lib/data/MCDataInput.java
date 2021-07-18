@@ -16,6 +16,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
@@ -566,6 +567,15 @@ public interface MCDataInput {
      */
     default Vector3d readVec3d() {
         return new Vector3d(readDouble(), readDouble(), readDouble());
+    }
+
+    /**
+     * Reads a {@link Vector3f} from the stream.
+     *
+     * @return The {@link Vector3f}.
+     */
+    default Vector3f readVec3f() {
+        return new Vector3f(readFloat(), readFloat(), readFloat());
     }
 
     /**
