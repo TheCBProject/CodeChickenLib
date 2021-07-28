@@ -30,8 +30,6 @@ import java.util.List;
 public class RenderUtils {
 
     private static final Vector3[] vectors = new Vector3[8];
-    private static net.minecraft.client.renderer.entity.ItemRenderer uniformRenderItem;
-    private static boolean hasInitRenderItem;
 
     @Deprecated
     private static ItemEntity entityItem;
@@ -45,21 +43,12 @@ public class RenderUtils {
         entityItem.bobOffs = 0;
     }
 
-    @Deprecated
-    private static void loadItemRenderer() {
-        if (!hasInitRenderItem) {
-            Minecraft minecraft = Minecraft.getInstance();
-            uniformRenderItem = new net.minecraft.client.renderer.entity.ItemRenderer(minecraft.getEntityRenderDispatcher(), minecraft.getItemRenderer());
-            hasInitRenderItem = true;
-        }
-    }
-
     public static RenderType getFluidRenderType() {
-        return RenderType.create("ccl:fluid_render", DefaultVertexFormats.POSITION_COLOR_TEX, GL11.GL_QUADS, 256, RenderType.State.builder()//
-                .setTextureState(RenderType.BLOCK_SHEET)//
-                .setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY)//
-                .setTexturingState(new RenderState.TexturingState("disable_lighting", RenderSystem::disableLighting, SneakyUtils::none))//
-                .createCompositeState(false)//
+        return RenderType.create("ccl:fluid_render", DefaultVertexFormats.POSITION_COLOR_TEX, GL11.GL_QUADS, 256, RenderType.State.builder()
+                .setTextureState(RenderType.BLOCK_SHEET)
+                .setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY)
+                .setTexturingState(new RenderState.TexturingState("disable_lighting", RenderSystem::disableLighting, SneakyUtils.none()))
+                .createCompositeState(false)
         );
     }
 
@@ -252,27 +241,6 @@ public class RenderUtils {
     public static Matrix4 getMatrix(Vector3 translation, Rotation rotation, double scale) {
         return getMatrix(new Matrix4(), translation, rotation, scale);
     }
-
-    //    /**
-    //     * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately
-    //     */
-    //    public static void renderItemUniform(ItemStack item) {
-    //        renderItemUniform(item, 0);
-    //    }
-
-    //    /*
-    //     * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately
-    //     *
-    //     * @param spin The spin angle of the item around the y axis in degrees
-    //     */
-    //    public static void renderItemUniform(ItemStack item, double spin) {
-    //        loadItemRenderer();
-    //
-    //        GlStateManager.color4f(1, 1, 1, 1);
-    //
-    //        entityItem.setItem(item);
-    //        uniformRenderItem.doRender(entityItem, 0, 0.06, 0, 0, (float) (spin * 9 / Math.PI));
-    //    }
 
     public static float getPearlBob(double time) {
         return (float) Math.sin(time / 25 * 3.141593) * 0.1F;
