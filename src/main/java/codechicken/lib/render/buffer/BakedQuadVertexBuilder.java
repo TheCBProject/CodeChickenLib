@@ -7,9 +7,11 @@ import com.mojang.blaze3d.vertex.IVertexConsumer;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +27,7 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
     private final int glMode;
     private final int vSize;
 
+    private VertexFormat format = DefaultVertexFormats.BLOCK;
     private Quad current;
     private int vertex;
 
@@ -44,6 +47,10 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
         quadList.clear();
         current = null;
         vertex = 0;
+    }
+
+    public void setFormat(@Nonnull VertexFormat format) {
+        this.format = format;
     }
 
     @Override
@@ -132,7 +139,7 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
 
     private void checkNewQuad() {
         if (current == null) {
-            current = new Quad(CachedFormat.lookup(DefaultVertexFormats.BLOCK));
+            current = new Quad(CachedFormat.lookup(format));
         }
     }
 }
