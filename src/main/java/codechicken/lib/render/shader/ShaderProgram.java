@@ -32,7 +32,7 @@ public class ShaderProgram implements ISelectiveResourceReloadListener {
     private boolean bound;
 
     public ShaderProgram(Collection<ShaderObject> shaders) {
-        this(shaders, e -> {});
+        this(shaders, e -> { });
     }
 
     public ShaderProgram(Collection<ShaderObject> shaders, Consumer<UniformCache> cacheCallback) {
@@ -67,6 +67,7 @@ public class ShaderProgram implements ISelectiveResourceReloadListener {
      * @return The {@link UniformCache}.
      */
     public UniformCache pushCache() {
+        compile();
         UniformCache cache = uniformCache.pushCache();
         cacheCallback.accept(cache);
         return cache;
@@ -87,10 +88,10 @@ public class ShaderProgram implements ISelectiveResourceReloadListener {
 
     /**
      * Forces the ShaderProgram to compile and link.
-     *
+     * <p>
      * This will happen automatically when calling {@link #use()}, however,
      * it may be required to call this ahead of time in some cases.
-     *
+     * <p>
      * Be sure to only call this when you have GL context.
      */
     public void compile() {
@@ -145,5 +146,6 @@ public class ShaderProgram implements ISelectiveResourceReloadListener {
                 ((ISelectiveResourceReloadListener) shader).onResourceManagerReload(resourceManager, resourcePredicate);
             }
         }
+        compile();
     }
 }
