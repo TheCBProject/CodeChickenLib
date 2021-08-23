@@ -80,6 +80,20 @@ public class ShaderProgram implements ISelectiveResourceReloadListener {
         if (bound) {
             throw new IllegalStateException("Already bound.");
         }
+        compile();
+        GL20.glUseProgram(programId);
+        bound = true;
+    }
+
+    /**
+     * Forces the ShaderProgram to compile and link.
+     *
+     * This will happen automatically when calling {@link #use()}, however,
+     * it may be required to call this ahead of time in some cases.
+     *
+     * Be sure to only call this when you have GL context.
+     */
+    public void compile() {
         if (programId == -1 || shaders.stream().anyMatch(ShaderObject::isDirty)) {
             shaders.forEach(ShaderObject::alloc);
             if (programId == -1) {
@@ -96,8 +110,6 @@ public class ShaderProgram implements ISelectiveResourceReloadListener {
             shaders.forEach(shader -> shader.onLink(programId));
             uniformCache.onLink();
         }
-        GL20.glUseProgram(programId);
-        bound = true;
     }
 
     /**
