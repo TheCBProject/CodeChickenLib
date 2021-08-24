@@ -265,14 +265,20 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
      * @return The BakedQuad.
      */
     public BakedQuad bake() {
-        if (format.format != DefaultVertexFormats.BLOCK) {
-            throw new IllegalStateException("Unable to bake this quad to the specified format. " + format.format);
-        }
         int[] packedData = new int[format.format.getVertexSize()];
         for (int v = 0; v < 4; v++) {
             for (int e = 0; e < format.elementCount; e++) {
                 LightUtil.pack(vertices[v].raw[e], packedData, format.format, v, e);
             }
+        }
+
+        return makeQuad(packedData);
+    }
+
+    // Broken out as a stub for mixins to target easier.
+    private BakedQuad makeQuad(int[] packedData) {
+        if (format.format != DefaultVertexFormats.BLOCK) {
+            throw new IllegalStateException("Unable to bake this quad to the specified format. " + format.format);
         }
         return new BakedQuad(packedData, tintIndex, orientation, sprite, diffuseLighting);
     }
@@ -280,7 +286,6 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
     /**
      * A simple vertex format.
      */
-    //TODO Move this to use Vector3 and so on?
     public static class Vertex {
 
         public CachedFormat format;

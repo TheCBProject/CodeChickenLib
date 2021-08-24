@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.IVertexConsumer;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import org.lwjgl.opengl.GL11;
 
@@ -25,6 +26,7 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
     private final int glMode;
     private final int vSize;
 
+    private CachedFormat format = CachedFormat.lookup(DefaultVertexFormats.BLOCK);
     private Quad current;
     private int vertex;
 
@@ -38,6 +40,16 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
         }
         this.glMode = glMode;
         vSize = glMode == GL11.GL_QUADS ? 4 : 3;
+    }
+
+    // Provided for interop with other mods that may provide different quad formats.
+    public void setFormat(VertexFormat format) {
+        setFormat(CachedFormat.lookup(format));
+    }
+
+    // Provided for interop with other mods that may provide different quad formats.
+    public void setFormat(CachedFormat format) {
+        this.format = format;
     }
 
     public void reset() {
@@ -54,6 +66,8 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
 
     @Override
     public IVertexBuilder vertex(double x, double y, double z) {
+        if (!format.hasPosition) return this;
+
         checkNewQuad();
         current.vertices[vertex].vec[0] = (float) x;
         current.vertices[vertex].vec[1] = (float) y;
@@ -63,6 +77,8 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
 
     @Override
     public IVertexBuilder color(int red, int green, int blue, int alpha) {
+        if (!format.hasColor) return this;
+
         checkNewQuad();
         current.vertices[vertex].color[0] = red / 255F;
         current.vertices[vertex].color[1] = green / 255F;
@@ -73,6 +89,8 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
 
     @Override
     public IVertexBuilder uv(float u, float v) {
+        if (!format.hasUV) return this;
+
         checkNewQuad();
         current.vertices[vertex].uv[0] = u;
         current.vertices[vertex].uv[1] = v;
@@ -81,6 +99,8 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
 
     @Override
     public IVertexBuilder overlayCoords(int u, int v) {
+        if (!format.hasOverlay) return this;
+
         checkNewQuad();
         current.vertices[vertex].overlay[0] = u / (float) 0xF0;
         current.vertices[vertex].overlay[1] = v / (float) 0xF0;
@@ -89,6 +109,8 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
 
     @Override
     public IVertexBuilder uv2(int u, int v) {
+        if (!format.hasLightMap) return this;
+
         checkNewQuad();
         current.vertices[vertex].lightmap[0] = u / (float) 0xF0;
         current.vertices[vertex].lightmap[1] = v / (float) 0xF0;
@@ -97,6 +119,8 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
 
     @Override
     public IVertexBuilder normal(float x, float y, float z) {
+        if (!format.hasNormal) return this;
+
         checkNewQuad();
         current.vertices[vertex].normal[0] = x;
         current.vertices[vertex].normal[1] = y;
@@ -132,7 +156,7 @@ public class BakedQuadVertexBuilder implements IVertexBuilder, ISpriteAwareVerte
 
     private void checkNewQuad() {
         if (current == null) {
-            current = new Quad(CachedFormat.lookup(DefaultVertexFormats.BLOCK));
+            current = new Quad(format);
         }
     }
 }
