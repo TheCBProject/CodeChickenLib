@@ -1,24 +1,40 @@
+apply plugin: 'idea'
+
+idea {
+    module {
+        inheritOutputDirs = true
+    }
+}
+
 buildscript {
     repositories {
         jcenter()
         maven {
             name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+            url = "https://files.minecraftforge.net/maven"
         }
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+        maven {
+            url = 'https://repo.spongepowered.org/maven'
+        }
+        mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'signing'
 
 group = "codechicken" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "CodeChickenLib"
 
-targetCompatibility = "1.8"
-sourceCompatibility = "1.8"
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 // Define properties file
 ext.configFile = file "build.properties"
@@ -30,19 +46,37 @@ configFile.withReader {
     project.ext.config = new ConfigSlurper().parse prop
 }
 
-version = "${project.config.mod_version}." + (System.getenv("BUILD_NUMBER") ?: "1")
+config.mod_version = "${config.mod_version}." + (System.getenv("BUILD_NUMBER") ?: "1")
+version = "${config.mc_version}-${config.mod_version}"
 
 println config.mc_version + "-" + config.forge_version
 // Setup the forge minecraft plugin data. Specify the preferred forge/minecraft version here
 minecraft {
-    version = config.mc_version + "-" + config.forge_version
-    mappings = config.mappings
-    runDir = "run"
-    replace '${mod_version}', project.config.mod_version
-    makeObfSourceJar = false
+    mappings channel: 'snapshot', version: '20171003-1.12'
+
+    accessTransformer = file('src/main/resources/META-INF/ccl_at.cfg')
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            mods { codechickenlib { source sourceSets.main } }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            mods { codechickenlib { source sourceSets.main } }
+        }
+
+        data {
+            workingDirectory project.file('run')
+            args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/')
+            mods { codechickenlib { source sourceSets.main } }
+        }
+    }
 }
 
 dependencies {
+    minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
     testCompile 'junit:junit:4.12'
 }
 
@@ -54,10 +88,8 @@ processResources {
         include 'mcmod.info'
         expand 'version': project.version, 'mc_version': project.config.mc_version
     }
-    rename '(.+_at.cfg)', 'META-INF/$1'
 }
 
-version = "${project.minecraft.version}-${project.version}"
 def commonManifest = {
     attributes 'FMLAT': 'ccl_at.cfg'
 }
@@ -66,6 +98,7 @@ jar {
     classifier = 'universal'
     manifest commonManifest
 }
+jar.finalizedBy('reobfJar')
 
 task deobfJar(type: Jar) {
     from sourceSets.main.output
@@ -79,11 +112,10 @@ task srcJar(type: Jar) {
     manifest commonManifest
 }
 
-task signJar(type: SignJar, dependsOn: reobfJar) {
-    onlyIf { // Skip the task if our secret data isn't available
-        project.hasProperty('keyStore')
-    }
 
+signing {
+    required { project.hasProperty("keyStore") }
+    sign configurations.archives
     if (project.hasProperty('keyStore')) {
         keyStore = project.keyStore // This needs to be a path to the keystore file
         alias = project.keyStoreAlias
@@ -94,7 +126,7 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
     }
 }
 
-build.dependsOn signJar
+build.dependsOn signArchives
 
 // Tell the artifact system about our extra jars
 artifacts {
