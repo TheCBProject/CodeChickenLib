@@ -58,6 +58,7 @@ public abstract class AbstractShaderObject implements ShaderObject {
             if (GL20.glGetShaderi(shaderId, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
                 throw new RuntimeException("ShaderProgram linkage failure. \n" + GL20.glGetShaderInfoLog(shaderId));
             }
+            dirty = false;
         }
     }
 
