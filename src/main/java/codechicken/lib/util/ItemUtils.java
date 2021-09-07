@@ -171,7 +171,7 @@ public class ItemUtils {
      */
     public static int compareItemStack(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
         int itemStack1ID = Item.getId(stack1.getItem());
-        int itemStack2ID = Item.getId(stack1.getItem());
+        int itemStack2ID = Item.getId(stack2.getItem());
         return itemStack1ID != itemStack2ID ? itemStack1ID - itemStack2ID : (stack1.getDamageValue() == stack2.getDamageValue() ? 0 : stack1.getDamageValue() - stack2.getDamageValue());
     }
 
