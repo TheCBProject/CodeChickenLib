@@ -16,7 +16,11 @@ import net.minecraftforge.client.model.data.IModelData;
 import java.util.Random;
 
 /**
+ * Capable of rendering Blocks and Fluids directly to the chunk buffer.
+ * <p>
  * Created by covers1624 on 8/09/2016.
+ *
+ * @see BlockRenderingRegistry
  */
 public interface ICCBlockRenderer {
 

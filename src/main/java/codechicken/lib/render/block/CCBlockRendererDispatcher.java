@@ -27,7 +27,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -55,9 +54,9 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
     @Override
     public boolean renderModel(BlockState state, BlockPos pos, IBlockDisplayReader world, MatrixStack stack, IVertexBuilder builder, boolean checkSides, Random rand, IModelData modelData) {
         try {
-            Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleBlock(world, pos, state)).findFirst();
-            if (renderOpt.isPresent()) {
-                return renderOpt.get().renderBlock(state, pos, world, stack, builder, rand, modelData);
+            ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(state.getBlock(), e -> e.canHandleBlock(world, pos, state));
+            if (renderer != null) {
+                return renderer.renderBlock(state, pos, world, stack, builder, rand, modelData);
             }
         } catch (Throwable t) {
             if (ProxyClient.catchBlockRenderExceptions) {
@@ -83,9 +82,9 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
     //Block Damage
     @Override
     public void renderBlockDamage(BlockState state, BlockPos pos, IBlockDisplayReader world, MatrixStack matrixStackIn, IVertexBuilder vertexBuilderIn, IModelData data) {
-        Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleBlock(world, pos, state)).findFirst();
-        if (renderOpt.isPresent()) {
-            renderOpt.get().renderBreaking(state, pos, world, matrixStackIn, vertexBuilderIn, data);
+        ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(state.getBlock(), e -> e.canHandleBlock(world, pos, state));
+        if (renderer != null) {
+            renderer.renderBreaking(state, pos, world, matrixStackIn, vertexBuilderIn, data);
         } else {
             parentDispatcher.renderBlockDamage(state, pos, world, matrixStackIn, vertexBuilderIn, data);
         }
@@ -94,21 +93,19 @@ public class CCBlockRendererDispatcher extends BlockRendererDispatcher {
     //Fluids
     @Override
     public boolean renderLiquid(BlockPos pos, IBlockDisplayReader world, IVertexBuilder builder, FluidState state) {
-        Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleFluid(world, pos, state)).findFirst();
-        //noinspection OptionalIsPresent
-        if (renderOpt.isPresent()) {
-            return renderOpt.get().renderFluid(pos, world, builder, state);
-        } else {
-            return parentDispatcher.renderLiquid(pos, world, builder, state);
+        ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(state.getType(), e -> e.canHandleFluid(world, pos, state));
+        if (renderer != null) {
+            return renderer.renderFluid(pos, world, builder, state);
         }
+        return parentDispatcher.renderLiquid(pos, world, builder, state);
     }
 
     //From an entity
     @Override
     public void renderBlock(BlockState blockStateIn, MatrixStack matrixStackIn, IRenderTypeBuffer bufferTypeIn, int combinedLightIn, int combinedOverlayIn, IModelData modelData) {
-        Optional<ICCBlockRenderer> renderOpt = BlockRenderingRegistry.getBlockRenderers().stream().filter(e -> e.canHandleEntity(blockStateIn)).findFirst();
-        if (renderOpt.isPresent()) {
-            renderOpt.get().renderEntity(blockStateIn, matrixStackIn, bufferTypeIn, combinedLightIn, combinedOverlayIn, modelData);
+        ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(blockStateIn.getBlock(), e -> e.canHandleEntity(blockStateIn));
+        if (renderer != null) {
+            renderer.renderEntity(blockStateIn, matrixStackIn, bufferTypeIn, combinedLightIn, combinedOverlayIn, modelData);
         } else {
             parentDispatcher.renderBlock(blockStateIn, matrixStackIn, bufferTypeIn, combinedLightIn, combinedOverlayIn, modelData);
         }
