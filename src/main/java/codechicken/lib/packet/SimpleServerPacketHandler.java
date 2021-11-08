@@ -14,10 +14,11 @@ import static codechicken.lib.packet.ICustomPacketHandler.IServerPacketHandler;
  */
 public class SimpleServerPacketHandler implements IServerPacketHandler {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private static final Int2ObjectMap<IServerPacketHandler> handlers = new Int2ObjectArrayMap<>();
 
+    // TODO 1.17, Change to protected.
     public void addHandler(int id, IServerPacketHandler handler) {
         if (handlers.containsKey(id)) {
             throw new IllegalArgumentException("Handler already registered for ID: " + id);
@@ -31,7 +32,7 @@ public class SimpleServerPacketHandler implements IServerPacketHandler {
         if (h != null) {
             h.handlePacket(packet, sender, handler);
         } else {
-            logger.warn("Received unknown packet on channel '{}' with descriptor '{}'.", packet.getChannel(), packet.getType());
+            LOGGER.warn("Received unknown packet on channel '{}' with descriptor '{}'.", packet.getChannel(), packet.getType());
         }
     }
 }

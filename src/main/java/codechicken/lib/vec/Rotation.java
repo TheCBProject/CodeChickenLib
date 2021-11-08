@@ -13,8 +13,8 @@ public class Rotation extends Transformation {
     /**
      * Clockwise pi/2 about y looking down
      */
-    public static Transformation[] quarterRotations = new Transformation[] {//
-            new RedundantTransformation(),//
+    public static Transformation[] quarterRotations = new Transformation[] {
+            new RedundantTransformation(),
             new VariableTransformation(new Matrix4(0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1)) {
                 @Override
                 public void apply(Vector3 vec) {
@@ -28,7 +28,7 @@ public class Rotation extends Transformation {
                 public Transformation inverse() {
                     return quarterRotations[3];
                 }
-            },//
+            },
             new VariableTransformation(new Matrix4(-1, 0, 0, 0, 0, 1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)) {
                 @Override
                 public void apply(Vector3 vec) {
@@ -40,7 +40,7 @@ public class Rotation extends Transformation {
                 public Transformation inverse() {
                     return this;
                 }
-            },//
+            },
             new VariableTransformation(new Matrix4(0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 0, 1)) {
                 @Override
                 public void apply(Vector3 vec) {
@@ -54,11 +54,11 @@ public class Rotation extends Transformation {
                 public Transformation inverse() {
                     return quarterRotations[1];
                 }
-            }//
+            }
     };
 
-    public static Transformation[] sideRotations = new Transformation[] {//
-            new RedundantTransformation(),//
+    public static Transformation[] sideRotations = new Transformation[] {
+            new RedundantTransformation(),
             new VariableTransformation(new Matrix4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)) {
                 @Override
                 public void apply(Vector3 vec) {
@@ -70,7 +70,7 @@ public class Rotation extends Transformation {
                 public Transformation inverse() {
                     return this;
                 }
-            },//
+            },
             new VariableTransformation(new Matrix4(1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1)) {
                 @Override
                 public void apply(Vector3 vec) {
@@ -84,7 +84,7 @@ public class Rotation extends Transformation {
                 public Transformation inverse() {
                     return sideRotations[3];
                 }
-            },//
+            },
             new VariableTransformation(new Matrix4(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1)) {
                 @Override
                 public void apply(Vector3 vec) {
@@ -98,7 +98,7 @@ public class Rotation extends Transformation {
                 public Transformation inverse() {
                     return sideRotations[2];
                 }
-            },//
+            },
             new VariableTransformation(new Matrix4(0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)) {
                 @Override
                 public void apply(Vector3 vec) {
@@ -112,7 +112,7 @@ public class Rotation extends Transformation {
                 public Transformation inverse() {
                     return sideRotations[5];
                 }
-            },//
+            },
             new VariableTransformation(new Matrix4(0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)) {
                 @Override
                 public void apply(Vector3 vec) {
@@ -126,37 +126,37 @@ public class Rotation extends Transformation {
                 public Transformation inverse() {
                     return sideRotations[4];
                 }
-            }//
+            }
     };
 
-    public static Vector3[] axes = new Vector3[] {//
-            new Vector3(0, -1, 0),//
-            new Vector3(0, 1, 0),//
-            new Vector3(0, 0, -1),//
-            new Vector3(0, 0, 1),//
-            new Vector3(-1, 0, 0),//
-            new Vector3(1, 0, 0)//
+    public static Vector3[] axes = new Vector3[] {
+            new Vector3(0, -1, 0),
+            new Vector3(0, 1, 0),
+            new Vector3(0, 0, -1),
+            new Vector3(0, 0, 1),
+            new Vector3(-1, 0, 0),
+            new Vector3(1, 0, 0)
     };
 
-    public static int[] sideRotMap = new int[] {//
-            3, 4, 2, 5,//
-            3, 5, 2, 4,//
-            1, 5, 0, 4,//
-            1, 4, 0, 5,//
-            1, 2, 0, 3,//
-            1, 3, 0, 2//
+    public static int[] sideRotMap = new int[] {
+            3, 4, 2, 5,
+            3, 5, 2, 4,
+            1, 5, 0, 4,
+            1, 4, 0, 5,
+            1, 2, 0, 3,
+            1, 3, 0, 2
     };
 
-    public static int[] rotSideMap = new int[] {//
-            -1, -1, 2, 0,//
-            1, 3, -1, -1,//
-            2, 0, 3, 1,//
-            2, 0, -1, -1,//
-            3, 1, 2, 0,//
-            -1, -1, 1, 3,//
-            2, 0, 1, 3,//
-            -1, -1, 2, 0,//
-            3, 1, -1, -1 //
+    public static int[] rotSideMap = new int[] {
+            -1, -1, 2, 0,
+            1, 3, -1, -1,
+            2, 0, 3, 1,
+            2, 0, -1, -1,
+            3, 1, 2, 0,
+            -1, -1, 1, 3,
+            2, 0, 1, 3,
+            -1, -1, 2, 0,
+            3, 1, -1, -1
     };
 
     /**

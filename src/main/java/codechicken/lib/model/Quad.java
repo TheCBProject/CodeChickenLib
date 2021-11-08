@@ -149,11 +149,12 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
      * @return The same helper.
      */
     public InterpHelper resetInterp(InterpHelper helper, int s) {
-        helper.reset( //
-                vertices[0].dx(s), vertices[0].dy(s), //
-                vertices[1].dx(s), vertices[1].dy(s), //
-                vertices[2].dx(s), vertices[2].dy(s), //
-                vertices[3].dx(s), vertices[3].dy(s));
+        helper.reset(
+                vertices[0].dx(s), vertices[0].dy(s),
+                vertices[1].dx(s), vertices[1].dy(s),
+                vertices[2].dx(s), vertices[2].dy(s),
+                vertices[3].dx(s), vertices[3].dy(s)
+        );
         return helper;
     }
 
@@ -468,10 +469,6 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
             color = null;
             uv = null;
             lightmap = null;
-
-            // for (float[] f : raw) {
-            // Arrays.fill(f, 0F);
-            // }
 
             preProcess();
         }

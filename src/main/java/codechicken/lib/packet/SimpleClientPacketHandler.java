@@ -14,10 +14,11 @@ import static codechicken.lib.packet.ICustomPacketHandler.IClientPacketHandler;
  */
 public class SimpleClientPacketHandler implements IClientPacketHandler {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private static final Int2ObjectMap<IClientPacketHandler> handlers = new Int2ObjectArrayMap<>();
 
+    // TODO 1.17, Change to protected.
     public void addHandler(int id, IClientPacketHandler handler) {
         if (handlers.containsKey(id)) {
             throw new IllegalArgumentException("Handler already registered for ID: " + id);
@@ -31,7 +32,7 @@ public class SimpleClientPacketHandler implements IClientPacketHandler {
         if (h != null) {
             h.handlePacket(packet, mc, handler);
         } else {
-            logger.warn("Received unknown packet on channel '{}' with descriptor '{}'.", packet.getChannel(), packet.getType());
+            LOGGER.warn("Received unknown packet on channel '{}' with descriptor '{}'.", packet.getChannel(), packet.getType());
         }
     }
 }
