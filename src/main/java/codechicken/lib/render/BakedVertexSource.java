@@ -34,7 +34,7 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
 
     private int vertexIndex = -1;
     private Vertex5[] vertices = new Vertex5[0];
-    private Object[][] attributes = new Object[0][0];
+    private Object[] attributes = new Object[0];
     private TextureAtlasSprite[] sprites = new TextureAtlasSprite[0];
 
     private BakedVertexSource() {
@@ -64,10 +64,16 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
 
     @Override
     public void prepareVertex(CCRenderState ccrs) {
+        ccrs.sprite = sprites[ccrs.vertexIndex];
     }
 
     public void reset() {
+        reset(CachedFormat.lookup(DefaultVertexFormats.BLOCK));
+    }
+
+    public void reset(CachedFormat format) {
         vertexIndex = -1;
+        unpacker.reset(format);
     }
 
     public int availableVertices() {
@@ -91,6 +97,8 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
             getAttr(LightCoordAttribute.attributeKey)[v].compute(vertex5.vec, normal);
 
             getAttr(ColourAttribute.attributeKey)[v] = Colour.packRGBA(vertex.color);
+
+            sprites[v] = unpacker.sprite;
         }
     }
 
@@ -104,23 +112,26 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
     private void ensureSpace(int numVertices) {
         //If we don't have enough, or are full, expand.
         if (vertices.length <= numVertices) {
+            int prevLen = vertices.length;
             int fillStart = vertexIndex == -1 ? 0 : vertexIndex;
             vertices = Arrays.copyOf(vertices, numVertices);
             fill(vertices, fillStart, numVertices, Vertex5::new);
             for (int aIdx = 0; aIdx < attributes.length; aIdx++) {
-                Object[] attr = attributes[aIdx];
+                Object attr = attributes[aIdx];
                 AttributeKey<?> key = AttributeKeyRegistry.getAttributeKey(aIdx);
                 if (attr == null) {
-                    attr = unsafeCast(key.newArray(numVertices));
+                    attr = key.newArray(numVertices);
                 } else {
-                    attr = Arrays.copyOf(attr, numVertices);
+                    Object newAttr = key.newArray(numVertices);
+                    //noinspection SuspiciousSystemArraycopy
+                    System.arraycopy(attr, 0, newAttr, 0, prevLen);
                 }
                 attributes[aIdx] = attr;
                 //Fill non primitive vertex attributes with new things.
                 if (key == NormalAttribute.attributeKey) {
-                    fill(attr, fillStart, numVertices, Vector3::new);
+                    fill((Object[]) attr, fillStart, numVertices, Vector3::new);
                 } else if (key == LightCoordAttribute.attributeKey) {
-                    fill(attr, fillStart, numVertices, LC::new);
+                    fill((Object[]) attr, fillStart, numVertices, LC::new);
                 }
             }
             sprites = Arrays.copyOf(sprites, numVertices);
