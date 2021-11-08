@@ -21,6 +21,7 @@ package codechicken.lib.model.pipeline.transformers;
 import codechicken.lib.model.Quad.Vertex;
 import codechicken.lib.model.pipeline.IPipelineElementFactory;
 import codechicken.lib.model.pipeline.QuadTransformer;
+import codechicken.lib.vec.Cuboid6;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 
@@ -34,7 +35,7 @@ public class QuadClamper extends QuadTransformer {
 
     public static IPipelineElementFactory<QuadClamper> FACTORY = QuadClamper::new;
 
-    private AxisAlignedBB clampBounds;
+    private final Cuboid6 clampBounds = new Cuboid6();
 
     QuadClamper() {
         super();
@@ -42,11 +43,20 @@ public class QuadClamper extends QuadTransformer {
 
     public QuadClamper(IVertexConsumer parent, AxisAlignedBB bounds) {
         super(parent);
-        clampBounds = bounds;
+        clampBounds.set(bounds);
+    }
+
+    public QuadClamper(IVertexConsumer parent, Cuboid6 bounds) {
+        super(parent);
+        clampBounds.set(bounds);
     }
 
     public void setClampBounds(AxisAlignedBB bounds) {
-        clampBounds = bounds;
+        clampBounds.set(bounds);
+    }
+
+    public void setClampBounds(Cuboid6 bounds) {
+        clampBounds.set(bounds);
     }
 
     @Override

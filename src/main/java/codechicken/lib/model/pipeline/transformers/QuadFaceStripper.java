@@ -21,6 +21,7 @@ package codechicken.lib.model.pipeline.transformers;
 import codechicken.lib.model.Quad.Vertex;
 import codechicken.lib.model.pipeline.IPipelineElementFactory;
 import codechicken.lib.model.pipeline.QuadTransformer;
+import codechicken.lib.vec.Cuboid6;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
@@ -37,7 +38,7 @@ public class QuadFaceStripper extends QuadTransformer {
 
     public static final IPipelineElementFactory<QuadFaceStripper> FACTORY = QuadFaceStripper::new;
 
-    private AxisAlignedBB bounds;
+    private final Cuboid6 bounds = new Cuboid6();
     private int mask;
 
     QuadFaceStripper() {
@@ -46,7 +47,7 @@ public class QuadFaceStripper extends QuadTransformer {
 
     public QuadFaceStripper(IVertexConsumer parent, AxisAlignedBB bounds, int mask) {
         super(parent);
-        this.bounds = bounds;
+        this.bounds.set(bounds);
         this.mask = mask;
     }
 
@@ -57,13 +58,20 @@ public class QuadFaceStripper extends QuadTransformer {
      *
      * @param bounds The bounds.
      */
+    public void setBounds(Cuboid6 bounds) {
+        this.bounds.set(bounds);
+    }
+
+    /**
+     * Overload of {@link #setBounds(Cuboid6)} for {@link AxisAlignedBB}.
+     */
     public void setBounds(AxisAlignedBB bounds) {
-        this.bounds = bounds;
+        this.bounds.set(bounds);
     }
 
     /**
      * The mask to strip edges.
-     * This is an opt in system,
+     * This is an opt-in system,
      * the mask is simple 'mask = (1 << side)'.
      *
      * @param mask The mask.
@@ -83,7 +91,7 @@ public class QuadFaceStripper extends QuadTransformer {
             Vertex[] vertices = quad.vertices;
             switch (quad.orientation.getAxis()) {
                 case X: {
-                    float bound = (float) (dir == POSITIVE ? bounds.maxX : bounds.minX);
+                    float bound = (float) (dir == POSITIVE ? bounds.max.x : bounds.min.x);
                     float x1 = vertices[0].vec[0];
                     float x2 = vertices[1].vec[0];
                     float x3 = vertices[2].vec[0];
@@ -91,7 +99,7 @@ public class QuadFaceStripper extends QuadTransformer {
                     return x1 != x2 || x2 != x3 || x3 != x4 || x4 != bound;
                 }
                 case Y: {
-                    float bound = (float) (dir == POSITIVE ? bounds.maxY : bounds.minY);
+                    float bound = (float) (dir == POSITIVE ? bounds.max.y : bounds.min.y);
                     float y1 = vertices[0].vec[1];
                     float y2 = vertices[1].vec[1];
                     float y3 = vertices[2].vec[1];
@@ -99,7 +107,7 @@ public class QuadFaceStripper extends QuadTransformer {
                     return y1 != y2 || y2 != y3 || y3 != y4 || y4 != bound;
                 }
                 case Z: {
-                    float bound = (float) (dir == POSITIVE ? bounds.maxZ : bounds.minZ);
+                    float bound = (float) (dir == POSITIVE ? bounds.max.z : bounds.min.z);
                     float z1 = vertices[0].vec[2];
                     float z2 = vertices[1].vec[2];
                     float z3 = vertices[2].vec[2];

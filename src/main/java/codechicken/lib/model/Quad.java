@@ -19,6 +19,7 @@
 package codechicken.lib.model;
 
 import codechicken.lib.math.InterpHelper;
+import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -55,6 +56,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
     private final Vector3 v1 = new Vector3();
     private final Vector3 v2 = new Vector3();
     private final Vector3 t = new Vector3();
+    private final Cuboid6 c = new Cuboid6();
 
     /**
      * Use this if you reset the quad each time you use it.
@@ -164,11 +166,20 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
      * @param bb The box.
      */
     public void clamp(AxisAlignedBB bb) {
+        clamp(c.set(bb));
+    }
+
+    /**
+     * Clamps the Quad inside the box.
+     *
+     * @param cuboid The box.
+     */
+    public void clamp(Cuboid6 cuboid) {
         for (Vertex vertex : vertices) {
             float[] vec = vertex.vec;
-            vec[0] = (float) MathHelper.clamp(vec[0], bb.minX, bb.maxX);
-            vec[1] = (float) MathHelper.clamp(vec[1], bb.minY, bb.maxY);
-            vec[2] = (float) MathHelper.clamp(vec[2], bb.minZ, bb.maxZ);
+            vec[0] = (float) MathHelper.clamp(vec[0], cuboid.min.x, cuboid.max.x);
+            vec[1] = (float) MathHelper.clamp(vec[1], cuboid.min.y, cuboid.max.y);
+            vec[2] = (float) MathHelper.clamp(vec[2], cuboid.min.z, cuboid.max.z);
         }
         calculateOrientation(true);
     }
