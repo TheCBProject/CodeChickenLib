@@ -86,6 +86,10 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return set(c.min.x, c.min.y, c.min.z, c.max.x, c.max.y, c.max.z);
     }
 
+    public Cuboid6 set(AxisAlignedBB bb) {
+        return set(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.maxY, bb.maxZ);
+    }
+
     public Cuboid6 add(double dx, double dy, double dz) {
         min.add(dx, dy, dz);
         max.add(dx, dy, dz);
