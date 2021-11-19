@@ -46,8 +46,10 @@ public abstract class AbstractShaderObject implements ShaderObject {
 
     @Override
     public void alloc() {
-        if (dirty || shaderId == -1) {
-            if (shaderId == -1) {
+        final boolean hasInvalidId = shaderId == -1;
+
+        if (dirty || hasInvalidId) {
+            if (hasInvalidId) {
                 shaderId = GL20.glCreateShader(type.getGLCode());
                 if (shaderId == 0) {
                     throw new RuntimeException("Allocation of ShaderObject failed.");

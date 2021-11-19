@@ -6,6 +6,7 @@ import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraftforge.resource.VanillaResourceType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,7 +46,10 @@ public class AssetShaderObject extends AbstractShaderObject implements ISelectiv
 
     @Override
     public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
-        source = null;
-        dirty = true;
+        if(resourcePredicate.test(VanillaResourceType.SHADERS)) {
+            source = null;
+            dirty = true;
+        }
     }
+
 }

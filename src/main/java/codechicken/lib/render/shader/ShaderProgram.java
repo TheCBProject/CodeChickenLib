@@ -4,6 +4,7 @@ import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
 import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraftforge.resource.VanillaResourceType;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
@@ -19,7 +20,7 @@ import java.util.function.Predicate;
  * You probably want {@link ShaderProgramBuilder} to construct a ShaderProgram.
  * it should be noted, that a ShaderProgram is a {@link ISelectiveResourceReloadListener},
  * its recommended that you ensure this is registered to {@link IReloadableResourceManager}
- * to ensure {@link ShaderObject}s are re loaded properly when Resources are relaoded.
+ * to ensure {@link ShaderObject}s are re loaded properly when Resources are reloaded.
  * <p>
  * Created by covers1624 on 24/5/20.
  */
@@ -146,6 +147,8 @@ public class ShaderProgram implements ISelectiveResourceReloadListener {
                 ((ISelectiveResourceReloadListener) shader).onResourceManagerReload(resourceManager, resourcePredicate);
             }
         }
-        compile();
+        if(resourcePredicate.test(VanillaResourceType.SHADERS)) {
+            compile();
+        }
     }
 }
