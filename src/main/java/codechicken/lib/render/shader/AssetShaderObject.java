@@ -6,6 +6,8 @@ import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
  * Created by covers1624 on 24/5/20.
  */
 public class AssetShaderObject extends AbstractShaderObject implements ISelectiveResourceReloadListener {
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private final ResourceLocation asset;
     private String source;
@@ -36,7 +40,7 @@ public class AssetShaderObject extends AbstractShaderObject implements ISelectiv
                     source = reader.lines().collect(Collectors.joining("\n"));
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Failed to read shader source.", e);
             }
         }
 
@@ -48,4 +52,5 @@ public class AssetShaderObject extends AbstractShaderObject implements ISelectiv
         source = null;
         dirty = true;
     }
+
 }
