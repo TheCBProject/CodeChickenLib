@@ -4,7 +4,6 @@ import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
 import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
-import net.minecraftforge.resource.VanillaResourceType;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
@@ -147,8 +146,6 @@ public class ShaderProgram implements ISelectiveResourceReloadListener {
                 ((ISelectiveResourceReloadListener) shader).onResourceManagerReload(resourceManager, resourcePredicate);
             }
         }
-        if(resourcePredicate.test(VanillaResourceType.SHADERS)) {
-            compile();
-        }
+        compile();
     }
 }
