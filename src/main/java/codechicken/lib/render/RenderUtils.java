@@ -5,7 +5,6 @@ import codechicken.lib.util.SneakyUtils;
 import codechicken.lib.vec.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderState;
@@ -13,11 +12,9 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.RenderMaterial;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
@@ -31,16 +28,10 @@ public class RenderUtils {
 
     private static final Vector3[] vectors = new Vector3[8];
 
-    @Deprecated
-    private static ItemEntity entityItem;
-
     static {
         for (int i = 0; i < vectors.length; i++) {
             vectors[i] = new Vector3();
         }
-
-        entityItem = new ItemEntity(EntityType.ITEM, null);
-        entityItem.bobOffs = 0;
     }
 
     public static RenderType getFluidRenderType() {
