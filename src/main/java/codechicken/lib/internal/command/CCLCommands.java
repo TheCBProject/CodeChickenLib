@@ -3,6 +3,7 @@ package codechicken.lib.internal.command;
 import codechicken.lib.internal.command.admin.CountCommand;
 import codechicken.lib.internal.command.admin.KillAllCommand;
 import codechicken.lib.internal.command.admin.MiscCommands;
+import codechicken.lib.internal.command.dev.DevCommands;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.arguments.ArgumentTypes;
@@ -24,6 +25,7 @@ public class CCLCommands {
         CountCommand.register(dispatcher);
         KillAllCommand.register(dispatcher);
         MiscCommands.register(dispatcher);
+        DevCommands.register(dispatcher);
     }
 
 }
