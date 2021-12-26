@@ -4,47 +4,61 @@ import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties.P
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.TransformUtils;
-import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.IModelTransform;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.math.vector.TransformationMatrix;
+
+import javax.annotation.Nullable;
 
 /**
- * TODO GuiLight.Side stuff IBakedModel.usesBlockLight
  * Created by covers1624 on 19/11/2016.
  */
+// TODO 1.18, Make all constructors private and force the use of the Builder.
 public class ModelProperties implements Copyable<ModelProperties> {
 
-    public static final ModelProperties DEFAULT_ITEM = new ModelProperties(true, false);
-    public static final ModelProperties DEFAULT_BLOCK = new ModelProperties(true, true);
+    public static final ModelProperties DEFAULT_ITEM = ModelProperties.builder()
+            .withAO(true)
+            .build();
+    public static final ModelProperties DEFAULT_BLOCK = ModelProperties.builder()
+            .withAO(true)
+            .withGui3D(true)
+            .withUsesBlockLight(true)
+            .build();
 
     private final boolean isAO;
     private final boolean isGui3D;
     private final boolean isBuiltInRenderer;
+    private final boolean usesBlockLight;
+
+    @Nullable
     private TextureAtlasSprite particle;
 
     public ModelProperties(boolean isAO, boolean isGui3D) {
         this(isAO, isGui3D, false, null);
     }
 
-    public ModelProperties(ModelProperties properties, TextureAtlasSprite sprite) {
-        this(properties.isAmbientOcclusion(), properties.isGui3d(), properties.isBuiltInRenderer(), sprite);
+    public ModelProperties(boolean isAO, boolean isGui3D, TextureAtlasSprite sprite) {
+        this(isAO, isGui3D, false, false, sprite);
     }
 
-    public ModelProperties(boolean isAO, boolean isGui3D, TextureAtlasSprite sprite) {
-        this(isAO, isGui3D, false, sprite);
+    @Deprecated // Use function with usesBlockLight parameter.
+    public ModelProperties(boolean isAO, boolean isGui3D, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
+        this(isAO, isGui3D, isBuiltInRenderer, false, particle);
     }
 
     public ModelProperties(ModelProperties properties) {
-        this(properties.isAO, properties.isGui3D, properties.isBuiltInRenderer, properties.particle);
+        this(properties, properties.getParticleTexture());
     }
 
-    public ModelProperties(boolean isAO, boolean isGui3D, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
+    public ModelProperties(ModelProperties properties, TextureAtlasSprite sprite) {
+        this(properties.isAmbientOcclusion(), properties.isGui3d(), properties.usesBlockLight(), properties.isBuiltInRenderer(), sprite);
+    }
+
+    public ModelProperties(boolean isAO, boolean isGui3D, boolean usesBlockLight, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
         this.isAO = isAO;
         this.isGui3D = isGui3D;
         this.isBuiltInRenderer = isBuiltInRenderer;
+        this.usesBlockLight = usesBlockLight;
         this.particle = particle;
     }
 
@@ -62,6 +76,10 @@ public class ModelProperties implements Copyable<ModelProperties> {
 
     public boolean isBuiltInRenderer() {
         return isBuiltInRenderer;
+    }
+
+    public boolean usesBlockLight() {
+        return usesBlockLight;
     }
 
     public TextureAtlasSprite getParticleTexture() {
@@ -86,8 +104,14 @@ public class ModelProperties implements Copyable<ModelProperties> {
      */
     public static class PerspectiveProperties extends ModelProperties {
 
-        public static final PerspectiveProperties DEFAULT_ITEM = new PerspectiveProperties(TransformUtils.DEFAULT_ITEM, true, false);
-        public static final PerspectiveProperties DEFAULT_BLOCK = new PerspectiveProperties(TransformUtils.DEFAULT_BLOCK, true, true);
+        public static final PerspectiveProperties DEFAULT_ITEM = ModelProperties.builder()
+                .copyFrom(ModelProperties.DEFAULT_ITEM)
+                .withTransforms(TransformUtils.DEFAULT_ITEM)
+                .build();
+        public static final PerspectiveProperties DEFAULT_BLOCK = ModelProperties.builder()
+                .copyFrom(ModelProperties.DEFAULT_BLOCK)
+                .withTransforms(TransformUtils.DEFAULT_BLOCK)
+                .build();
 
         private final IModelTransform transforms;
 
@@ -95,8 +119,13 @@ public class ModelProperties implements Copyable<ModelProperties> {
             this(transforms, isAO, isGui3D, false, null);
         }
 
+        @Deprecated // Use constructor with usesBlockLight parameter.`
         public PerspectiveProperties(IModelTransform transforms, boolean isAO, boolean isGui3D, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
-            this(transforms, new ModelProperties(isAO, isGui3D, isBuiltInRenderer, particle));
+            this(transforms, isAO, isGui3D, false, isBuiltInRenderer, particle);
+        }
+
+        public PerspectiveProperties(IModelTransform transforms, boolean isAO, boolean isGui3D, boolean usesBlockLight, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
+            this(transforms, new ModelProperties(isAO, isGui3D, usesBlockLight, isBuiltInRenderer, particle));
         }
 
         public PerspectiveProperties(PerspectiveProperties properties) {
@@ -122,7 +151,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
             private IModelTransform transforms;
 
             protected PerspectiveBuilder(Builder builder) {
-                super(builder.isAO, builder.isAO, builder.isBuiltInRenderer, builder.particle);
+                super(builder.isAO, builder.isAO, builder.usesBlockLight, builder.isBuiltInRenderer, builder.particle);
             }
 
             @Override
@@ -143,21 +172,29 @@ public class ModelProperties implements Copyable<ModelProperties> {
         private boolean isAO;
         private boolean isGui3D;
         private boolean isBuiltInRenderer;
+        private boolean usesBlockLight;
         private TextureAtlasSprite particle;
 
         protected Builder() {
         }
 
-        protected Builder(boolean ao, boolean gui3D, boolean builtInRenderer, TextureAtlasSprite sprite) {
-            isAO = ao;
-            isGui3D = gui3D;
-            isBuiltInRenderer = builtInRenderer;
-            particle = sprite;
+        @Deprecated // Use constructor with usesBlockLight parameter.
+        protected Builder(boolean isAO, boolean isGui3D, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
+            this(isAO, isGui3D, false, isBuiltInRenderer, particle);
+        }
+
+        protected Builder(boolean isAO, boolean isGui3D, boolean usesBlockLight, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
+            this.isAO = isAO;
+            this.isGui3D = isGui3D;
+            this.usesBlockLight = usesBlockLight;
+            this.isBuiltInRenderer = isBuiltInRenderer;
+            this.particle = particle;
         }
 
         public Builder copyFrom(IBakedModel model) {
             isAO = model.useAmbientOcclusion();
             isGui3D = model.isGui3d();
+            usesBlockLight = model.usesBlockLight();
             isBuiltInRenderer = model.isCustomRenderer();
             particle = model.getParticleIcon();
             return this;
@@ -171,13 +208,18 @@ public class ModelProperties implements Copyable<ModelProperties> {
             return this;
         }
 
-        public Builder withAO(boolean ao) {
-            isAO = ao;
+        public Builder withAO(boolean isAO) {
+            this.isAO = isAO;
             return this;
         }
 
-        public Builder withGui3D(boolean gui3D) {
-            isGui3D = gui3D;
+        public Builder withGui3D(boolean isGui3D) {
+            this.isGui3D = isGui3D;
+            return this;
+        }
+
+        public Builder withUsesBlockLight(boolean usesBlockLight) {
+            this.usesBlockLight = usesBlockLight;
             return this;
         }
 

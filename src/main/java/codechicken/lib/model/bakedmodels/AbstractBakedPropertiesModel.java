@@ -4,7 +4,6 @@ import codechicken.lib.model.CachedFormat;
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import codechicken.lib.render.particle.IModelParticleProvider;
 import codechicken.lib.vec.Vector3;
-import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.model.BakedQuad;
@@ -16,17 +15,13 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraft.world.IBlockReader;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -57,7 +52,7 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
 
     @Override
     public boolean usesBlockLight() {
-        return false;//TODO What?
+        return properties.usesBlockLight();
     }
 
     @Override
@@ -66,7 +61,7 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
     }
 
     protected List<BakedQuad> getAllQuads(BlockState state, IModelData modelData) {
-        List<BakedQuad> allQuads = new ArrayList<>();
+        List<BakedQuad> allQuads = new LinkedList<>();
         allQuads.addAll(getQuads(state, null, new Random(0), modelData));
         for (Direction face : Direction.BY_3D_DATA) {
             allQuads.addAll(getQuads(state, face, new Random(0), modelData));
@@ -77,11 +72,11 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
     @Override
     public Set<TextureAtlasSprite> getHitEffects(@Nonnull BlockRayTraceResult traceResult, BlockState state, IBlockReader world, BlockPos pos, IModelData modelData) {
         Vector3 vec = new Vector3(traceResult.getLocation()).subtract(traceResult.getBlockPos());
-        return getAllQuads(state, modelData).stream()//
-                .filter(quad -> quad.getDirection() == traceResult.getDirection())//
-                .filter(quad -> checkDepth(quad, vec, traceResult.getDirection()))//
-                .map(BakedQuad::getSprite)//
-                .collect(Collectors.toSet());//
+        return getAllQuads(state, modelData).stream()
+                .filter(quad -> quad.getDirection() == traceResult.getDirection())
+                .filter(quad -> checkDepth(quad, vec, traceResult.getDirection()))
+                .map(BakedQuad::getSprite)
+                .collect(Collectors.toSet());
     }
 
     protected boolean checkDepth(BakedQuad quad, Vector3 hit, Direction hitFace) {
