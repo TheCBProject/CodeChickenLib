@@ -272,6 +272,14 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
     }
 
     /**
+     * Rewind this Quad without completely resetting it.
+     */
+    public void rewind() {
+        vertexIndex = 0;
+        full = false;
+    }
+
+    /**
      * Bakes this Quad to a BakedQuad.
      *
      * @return The BakedQuad.

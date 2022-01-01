@@ -13,6 +13,7 @@ import codechicken.lib.render.pipeline.attribute.LightCoordAttribute;
 import codechicken.lib.render.pipeline.attribute.NormalAttribute;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
+import com.google.common.annotations.VisibleForTesting;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -32,12 +33,13 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
 
     private final Quad unpacker = new Quad(CachedFormat.lookup(DefaultVertexFormats.BLOCK));
 
-    private int vertexIndex = -1;
+    private int vertexIndex = 0;
     private Vertex5[] vertices = new Vertex5[0];
     private Object[] attributes = new Object[0];
     private TextureAtlasSprite[] sprites = new TextureAtlasSprite[0];
 
-    private BakedVertexSource() {
+    @VisibleForTesting
+    BakedVertexSource() {
         ensureAttr(AttributeKeyRegistry.numAttributes() - 1);
         ensureSpace(24); //Ensure enough space for a full standard block model.
     }
@@ -72,18 +74,15 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
     }
 
     public void reset(CachedFormat format) {
-        vertexIndex = -1;
+        vertexIndex = 0;
         unpacker.reset(format);
     }
 
     public int availableVertices() {
-        return vertexIndex + 1;
+        return vertexIndex;
     }
 
     private void onFull() {
-        if (vertexIndex == -1) {
-            vertexIndex = 0;
-        }
         ensureSpace(availableVertices() + 4);
         for (int i = 0; i < 4; i++) {
             int v = vertexIndex++;
@@ -100,6 +99,7 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
 
             sprites[v] = unpacker.sprite;
         }
+        unpacker.rewind();
     }
 
     private void ensureAttr(int aIdx) {
@@ -109,11 +109,12 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
     }
 
     //Expands array storage.
-    private void ensureSpace(int numVertices) {
+    @VisibleForTesting
+    void ensureSpace(int numVertices) {
         //If we don't have enough, or are full, expand.
-        if (vertices.length <= numVertices) {
+        if (vertices.length < numVertices) {
             int prevLen = vertices.length;
-            int fillStart = vertexIndex == -1 ? 0 : vertexIndex;
+            int fillStart = vertexIndex;
             vertices = Arrays.copyOf(vertices, numVertices);
             fill(vertices, fillStart, numVertices, Vertex5::new);
             for (int aIdx = 0; aIdx < attributes.length; aIdx++) {
@@ -125,6 +126,7 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
                     Object newAttr = key.newArray(numVertices);
                     //noinspection SuspiciousSystemArraycopy
                     System.arraycopy(attr, 0, newAttr, 0, prevLen);
+                    attr = newAttr;
                 }
                 attributes[aIdx] = attr;
                 //Fill non primitive vertex attributes with new things.

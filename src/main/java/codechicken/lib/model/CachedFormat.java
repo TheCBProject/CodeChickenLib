@@ -34,8 +34,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CachedFormat {
 
+    // TODO 1.18, Make private.
     public static final Map<VertexFormat, CachedFormat> formatCache = new ConcurrentHashMap<>();
-    private static final CachedFormat BLOCK = new CachedFormat(DefaultVertexFormats.BLOCK);
+    public static final CachedFormat BLOCK = new CachedFormat(DefaultVertexFormats.BLOCK);
 
     /**
      * Lookup or create the CachedFormat for a given VertexFormat.
