@@ -47,7 +47,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
     }
 
     public ModelProperties(ModelProperties properties) {
-        this(properties, properties.getParticleTexture());
+        this(properties, properties.particle);
     }
 
     public ModelProperties(ModelProperties properties, TextureAtlasSprite sprite) {
