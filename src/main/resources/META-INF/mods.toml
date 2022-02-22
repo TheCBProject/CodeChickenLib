@@ -9,7 +9,7 @@ license="GNU Lesser General Public License v2.1"
 	version="${version}"
 
 	updateJSONURL="https://version-check.covers1624.net/check/?mod=CodeChickenLib&mc=${mc_version}"
-	displayURL="http://chickenbones.net/Pages/links.html"
+	displayURL="https://www.curseforge.com/minecraft/mc-mods/codechicken-lib-1-8"
 	authors="ChickenBones, covers1624"
 	description='''
 CodeChickenLib is a library of systems to help make various aspects of minecraft modding easier.
