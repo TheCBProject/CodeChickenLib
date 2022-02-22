@@ -439,7 +439,7 @@ public class ShaderUniformCache implements UniformCache {
                             default: throw new IllegalStateException("Invalid size for Float type." + type.getSize());
                         }
                         break;
-                    case D_MATRIX:
+                    case MATRIX:
                         switch (type) {
                             case MAT2: GL20.glUniformMatrix2fv  (getLocation(), transpose, cache); break;
                             case MAT3: GL20.glUniformMatrix3fv  (getLocation(), transpose, cache); break;
@@ -493,7 +493,7 @@ public class ShaderUniformCache implements UniformCache {
                             default: throw new IllegalStateException("Invalid size for Double type." + type.getSize());
                         }
                         break;
-                    case MATRIX:
+                    case D_MATRIX:
                         switch (type) {
                             case D_MAT2:   GL40.glUniformMatrix2dv  (getLocation(), transpose, cache); break;
                             case D_MAT3:   GL40.glUniformMatrix3dv  (getLocation(), transpose, cache); break;
