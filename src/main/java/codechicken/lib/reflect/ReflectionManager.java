@@ -4,6 +4,7 @@ import org.objectweb.asm.Type;
 
 import java.lang.reflect.*;
 
+@Deprecated // TODO Remove in 1.17
 public class ReflectionManager {
 
     private static Field modifiersField;

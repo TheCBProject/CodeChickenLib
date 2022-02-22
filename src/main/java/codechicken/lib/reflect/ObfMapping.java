@@ -8,6 +8,7 @@ import org.objectweb.asm.commons.Remapper;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
+@Deprecated // TODO Remove in 1.17
 public class ObfMapping {
 
     public static Remapper remapper = new FMLRemapper();
