@@ -21,9 +21,9 @@ package codechicken.lib.model.pipeline;
 import codechicken.lib.model.CachedFormat;
 import codechicken.lib.model.ISmartVertexConsumer;
 import codechicken.lib.model.Quad;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 

@@ -1,3 +1,4 @@
+/*
 package codechicken.lib.inventory.container;
 
 import codechicken.lib.packet.PacketCustom;
@@ -215,21 +216,27 @@ public abstract class ContainerExtended extends Container implements IContainerL
         }
     }
 
-    /**
+    */
+/**
      * May be called from a client packet handler to handle additional info
-     */
+     *//*
+
     public void handleOutputPacket(PacketCustom packet) {
     }
 
-    /**
+    */
+/**
      * May be called from a server packet handler to handle additional info
-     */
+     *//*
+
     public void handleInputPacket(PacketCustom packet) {
     }
 
-    /**
+    */
+/**
      * May be called from a server packet handler to handle client input
-     */
+     *//*
+
     public void handleGuiChange(int ID, int value) {
     }
 
@@ -239,3 +246,4 @@ public abstract class ContainerExtended extends Container implements IContainerL
         }
     }
 }
+*/

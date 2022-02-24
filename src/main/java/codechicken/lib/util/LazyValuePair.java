@@ -1,6 +1,6 @@
 package codechicken.lib.util;
 
-import net.minecraft.util.LazyValue;
+import net.minecraft.util.LazyLoadedValue;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.function.Function;
@@ -11,11 +11,11 @@ import java.util.function.Function;
 public class LazyValuePair<K, V> extends Pair<K, V> {
 
     private final K key;
-    private final LazyValue<V> value;
+    private final LazyLoadedValue<V> value;
 
     public LazyValuePair(K key, Function<K, V> func) {
         this.key = key;
-        value = new LazyValue<>(() -> func.apply(key));
+        value = new LazyLoadedValue<>(() -> func.apply(key));
     }
 
     public static <K, V> LazyValuePair<K, V> of(K key, Function<K, V> func) {

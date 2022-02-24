@@ -1,8 +1,8 @@
 package codechicken.lib.math;
 
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 
 public class MathHelper {
 
@@ -12,28 +12,20 @@ public class MathHelper {
     public static final double torad = 0.017453292519943;
     public static final double sqrt2 = 1.414213562373095;
 
-    @Deprecated //1.17, No replacement, don't use a sin table.
     public static double[] SIN_TABLE = new double[65536];
 
     static {
         for (int i = 0; i < 65536; ++i) {
             SIN_TABLE[i] = Math.sin(i / 65536D * 2 * Math.PI);
         }
-
-        SIN_TABLE[0] = 0;
-        SIN_TABLE[16384] = 1;
-        SIN_TABLE[32768] = 0;
-        SIN_TABLE[49152] = 1;
     }
 
-    @Deprecated //1.17, Use Math.sin
     public static double sin(double d) {
-        return Math.sin(d);
+        return SIN_TABLE[(int) ((float) d * 10430.378F) & 65535];
     }
 
-    @Deprecated //1.17, Use Math.cos
     public static double cos(double d) {
-        return Math.cos(d);
+        return SIN_TABLE[(int) ((float) d * 10430.378F + 16384.0F) & 65535];
     }
 
     /**
@@ -245,27 +237,31 @@ public class MathHelper {
     }
 
     public static int floor(double d) {
-        return net.minecraft.util.math.MathHelper.floor(d);
+        int i = (int) d;
+        return d < (double) i ? i - 1 : i;
     }
 
-    public static int floor(float d) {
-        return net.minecraft.util.math.MathHelper.floor(d);
+    public static int floor(float f) {
+        int i = (int) f;
+        return f < (float) i ? i - 1 : i;
     }
 
     public static int ceil(double d) {
-        return net.minecraft.util.math.MathHelper.ceil(d);
+        int i = (int) d;
+        return d > (double) i ? i + 1 : i;
     }
 
-    public static int ceil(float d) {
-        return net.minecraft.util.math.MathHelper.ceil(d);
+    public static int ceil(float f) {
+        int i = (int) f;
+        return f > (float) i ? i + 1 : i;
     }
 
     public static float sqrt(float f) {
-        return net.minecraft.util.math.MathHelper.sqrt(f);
+        return (float) Math.sqrt(f);
     }
 
     public static float sqrt(double f) {
-        return net.minecraft.util.math.MathHelper.sqrt(f);
+        return (float) Math.sqrt(f);
     }
 
     public static int roundAway(double d) {
@@ -280,11 +276,11 @@ public class MathHelper {
         return Double.compare(a, b);
     }
 
-    public static BlockPos min(Vector3i pos1, Vector3i pos2) {
+    public static BlockPos min(Vec3i pos1, Vec3i pos2) {
         return new BlockPos(Math.min(pos1.getX(), pos2.getX()), Math.min(pos1.getY(), pos2.getY()), Math.min(pos1.getZ(), pos2.getZ()));
     }
 
-    public static BlockPos max(Vector3i pos1, Vector3i pos2) {
+    public static BlockPos max(Vec3i pos1, Vec3i pos2) {
         return new BlockPos(Math.max(pos1.getX(), pos2.getX()), Math.max(pos1.getY(), pos2.getY()), Math.max(pos1.getZ(), pos2.getZ()));
     }
 

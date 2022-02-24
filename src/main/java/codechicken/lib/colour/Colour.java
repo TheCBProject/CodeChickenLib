@@ -2,9 +2,6 @@ package codechicken.lib.colour;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import static java.lang.Math.max;
 
@@ -27,16 +24,6 @@ public abstract class Colour implements Copyable<Colour> {
         g = colour.g;
         b = colour.b;
         a = colour.a;
-    }
-
-    @OnlyIn (Dist.CLIENT)
-    public void glColour() {
-        RenderSystem.color4f((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, (a & 0xFF) / 255F);
-    }
-
-    @OnlyIn (Dist.CLIENT)
-    public void glColour(int a) {
-        RenderSystem.color4f((r & 0xFF) / 255F, (g & 0xFF) / 255F, (b & 0xFF) / 255F, a / 255F);
     }
 
     public abstract int pack();

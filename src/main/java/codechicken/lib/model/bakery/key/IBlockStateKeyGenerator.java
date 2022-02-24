@@ -1,6 +1,6 @@
 package codechicken.lib.model.bakery.key;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.IModelData;
 
 /**

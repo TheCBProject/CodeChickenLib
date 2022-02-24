@@ -2,18 +2,18 @@ package codechicken.lib.internal.command.admin;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.command.CommandSource;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
-import static net.minecraft.command.Commands.literal;
+import static net.minecraft.commands.Commands.literal;
 
 /**
  * Created by covers1624 on 27/11/20.
  */
 public class MiscCommands {
 
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("ccl")
                 .then(literal("meminfo")
                         .requires(e -> e.hasPermission(4))
@@ -22,11 +22,11 @@ public class MiscCommands {
                 .then(literal("gc")
                         .requires(e -> e.hasPermission(4))
                         .executes(ctx -> {
-                            ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.gc.before"), true);
+                            ctx.getSource().sendSuccess(new TranslatableComponent("ccl.commands.gc.before"), true);
                             printMemInfo(ctx, true);
-                            ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.gc.performing"), true);
+                            ctx.getSource().sendSuccess(new TranslatableComponent("ccl.commands.gc.performing"), true);
                             System.gc();
-                            ctx.getSource().sendSuccess(new TranslationTextComponent("ccl.commands.gc.after"), true);
+                            ctx.getSource().sendSuccess(new TranslatableComponent("ccl.commands.gc.after"), true);
                             printMemInfo(ctx, true);
                             return 0;
                         })
@@ -34,11 +34,11 @@ public class MiscCommands {
         );
     }
 
-    private static int printMemInfo(CommandContext<CommandSource> ctx) {
+    private static int printMemInfo(CommandContext<CommandSourceStack> ctx) {
         return printMemInfo(ctx, false);
     }
 
-    private static int printMemInfo(CommandContext<CommandSource> ctx, boolean indent) {
+    private static int printMemInfo(CommandContext<CommandSourceStack> ctx, boolean indent) {
         long max = Runtime.getRuntime().maxMemory();
         long total = Runtime.getRuntime().totalMemory();
         long free = Runtime.getRuntime().freeMemory();
@@ -49,8 +49,8 @@ public class MiscCommands {
             mem = " " + mem;
             allocated = " " + allocated;
         }
-        ctx.getSource().sendSuccess(new StringTextComponent(mem), true);
-        ctx.getSource().sendSuccess(new StringTextComponent(allocated), true);
+        ctx.getSource().sendSuccess(new TextComponent(mem), true);
+        ctx.getSource().sendSuccess(new TextComponent(allocated), true);
         return 0;
     }
 

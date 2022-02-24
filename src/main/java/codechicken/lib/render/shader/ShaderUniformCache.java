@@ -2,10 +2,10 @@ package codechicken.lib.render.shader;
 
 import codechicken.lib.util.Copyable;
 import codechicken.lib.vec.Matrix4;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Matrix4f;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.GL20;
@@ -253,30 +253,30 @@ public class ShaderUniformCache implements UniformCache {
     }
 
     private static double[] toArrayD(Matrix3f matrix) {
-        return new double[] {//
-                matrix.m00,//
-                matrix.m01,//
-                matrix.m02,//
-                matrix.m10,//
-                matrix.m11,//
-                matrix.m12,//
-                matrix.m20,//
-                matrix.m21,//
-                matrix.m22 //
+        return new double[] {
+                matrix.m00,
+                matrix.m01,
+                matrix.m02,
+                matrix.m10,
+                matrix.m11,
+                matrix.m12,
+                matrix.m20,
+                matrix.m21,
+                matrix.m22
         };
     }
 
     private static float[] toArrayF(Matrix3f matrix) {
-        return new float[] {//
-                matrix.m00,//
-                matrix.m01,//
-                matrix.m02,//
-                matrix.m10,//
-                matrix.m11,//
-                matrix.m12,//
-                matrix.m20,//
-                matrix.m21,//
-                matrix.m22 //
+        return new float[] {
+                matrix.m00,
+                matrix.m01,
+                matrix.m02,
+                matrix.m10,
+                matrix.m11,
+                matrix.m12,
+                matrix.m20,
+                matrix.m21,
+                matrix.m22
         };
     }
 

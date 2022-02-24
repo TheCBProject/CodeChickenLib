@@ -1,6 +1,6 @@
 package codechicken.lib.model.bakery.key;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Created by covers1624 on 2/11/2016.

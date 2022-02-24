@@ -18,9 +18,9 @@
 
 package codechicken.lib.model;
 
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 
 import java.util.List;
 import java.util.Map;
@@ -34,9 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CachedFormat {
 
-    // TODO 1.18, Make private.
-    public static final Map<VertexFormat, CachedFormat> formatCache = new ConcurrentHashMap<>();
-    public static final CachedFormat BLOCK = new CachedFormat(DefaultVertexFormats.BLOCK);
+    private static final Map<VertexFormat, CachedFormat> formatCache = new ConcurrentHashMap<>();
+    public static final CachedFormat BLOCK = new CachedFormat(DefaultVertexFormat.BLOCK);
 
     /**
      * Lookup or create the CachedFormat for a given VertexFormat.
@@ -46,39 +45,54 @@ public class CachedFormat {
      */
     public static CachedFormat lookup(VertexFormat format) {
         //Hotwire the common one.
-        if (format == DefaultVertexFormats.BLOCK) {
+        if (format == DefaultVertexFormat.BLOCK) {
             return BLOCK;
         }
         return formatCache.computeIfAbsent(format, CachedFormat::new);
     }
 
-    public VertexFormat format;
+    public final VertexFormat format;
 
-    public boolean hasPosition;
-    public boolean hasNormal;
-    public boolean hasColor;
-    public boolean hasUV;
-    public boolean hasOverlay;
-    public boolean hasLightMap;
+    public final boolean hasPosition;
+    public final boolean hasNormal;
+    public final boolean hasColor;
+    public final boolean hasUV;
+    public final boolean hasOverlay;
+    public final boolean hasLightMap;
 
-    public int positionIndex = -1;
-    public int normalIndex = -1;
-    public int colorIndex = -1;
-    public int uvIndex = -1;
-    public int overlayIndex = -1;
-    public int lightMapIndex = -1;
+    public final int positionIndex;
+    public final int normalIndex;
+    public final int colorIndex;
+    public final int uvIndex;
+    public final int overlayIndex;
+    public final int lightMapIndex;
 
-    public int elementCount;
+    public final int elementCount;
 
     /**
      * Caches the vertex format element indexes for efficiency.
      *
      * @param format The format.
      */
-    public CachedFormat(VertexFormat format) {
+    private CachedFormat(VertexFormat format) {
         this.format = format;
         List<VertexFormatElement> elements = format.getElements();
         elementCount = elements.size();
+
+        boolean hasPosition = false;
+        boolean hasNormal = false;
+        boolean hasColor = false;
+        boolean hasUV = false;
+        boolean hasOverlay = false;
+        boolean hasLightMap = false;
+
+        int positionIndex = -1;
+        int normalIndex = -1;
+        int colorIndex = -1;
+        int uvIndex = -1;
+        int overlayIndex = -1;
+        int lightMapIndex = -1;
+
         for (int i = 0; i < elementCount; i++) {
             VertexFormatElement element = elements.get(i);
             switch (element.getUsage()) {
@@ -105,31 +119,45 @@ public class CachedFormat {
                     break;
                 case UV:
                     switch (element.getIndex()) {
-                        case 0:
+                        case 0 -> {
                             if (hasUV) {
                                 throw new IllegalStateException("Found 2 UV elements..");
                             }
                             hasUV = true;
                             uvIndex = i;
-                            break;
-                        case 1:
+                        }
+                        case 1 -> {
                             if (hasOverlay) {
                                 throw new IllegalStateException("Found 2 Overlay elements..");
                             }
                             hasOverlay = true;
                             overlayIndex = i;
-                            break;
-                        case 2:
+                        }
+                        case 2 -> {
                             if (hasLightMap) {
                                 throw new IllegalStateException("Found 2 LightMap elements..");
                             }
                             hasLightMap = true;
                             lightMapIndex = i;
-                            break;
+                        }
                     }
                     break;
             }
         }
+
+        this.hasPosition = hasPosition;
+        this.hasNormal = hasNormal;
+        this.hasColor = hasColor;
+        this.hasUV = hasUV;
+        this.hasOverlay = hasOverlay;
+        this.hasLightMap = hasLightMap;
+
+        this.positionIndex = positionIndex;
+        this.normalIndex = normalIndex;
+        this.colorIndex = colorIndex;
+        this.uvIndex = uvIndex;
+        this.overlayIndex = overlayIndex;
+        this.lightMapIndex = lightMapIndex;
     }
 
     @Override
@@ -137,15 +165,14 @@ public class CachedFormat {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof CachedFormat)) {
+        if (!(obj instanceof CachedFormat other)) {
             return false;
         }
-        CachedFormat other = (CachedFormat) obj;
-        return other.elementCount == elementCount && //
-                other.positionIndex == positionIndex && //
-                other.normalIndex == normalIndex && //
-                other.colorIndex == colorIndex && //
-                other.uvIndex == uvIndex && //
+        return other.elementCount == elementCount &&
+                other.positionIndex == positionIndex &&
+                other.normalIndex == normalIndex &&
+                other.colorIndex == colorIndex &&
+                other.uvIndex == uvIndex &&
                 other.lightMapIndex == lightMapIndex;
     }
 

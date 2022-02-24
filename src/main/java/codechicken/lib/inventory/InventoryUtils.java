@@ -2,30 +2,25 @@ package codechicken.lib.inventory;
 
 import codechicken.lib.util.ItemUtils;
 import com.google.common.base.Objects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NumberNBT;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NumericTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 
 public class InventoryUtils {
 
-    @CapabilityInject (IItemHandler.class)
-    public static final Capability<IItemHandler> ITEM_HANDLER = null;
-
     /**
      * Static default implementation for IInventory method
      */
     @Nonnull
-    public static ItemStack decrStackSize(IInventory inv, int slot, int size) {
+    public static ItemStack decrStackSize(Container inv, int slot, int size) {
         ItemStack item = inv.getItem(slot);
 
         if (!item.isEmpty()) {
@@ -50,7 +45,7 @@ public class InventoryUtils {
     /**
      * Static default implementation for IInventory method
      */
-    public static ItemStack removeStackFromSlot(IInventory inv, int slot) {
+    public static ItemStack removeStackFromSlot(Container inv, int slot) {
         ItemStack stack = inv.getItem(slot);
         inv.setItem(slot, ItemStack.EMPTY);
         return stack;
@@ -85,17 +80,17 @@ public class InventoryUtils {
     /**
      * NBT item saving function
      */
-    public static ListNBT writeItemStacksToTag(ItemStack[] items) {
+    public static ListTag writeItemStacksToTag(ItemStack[] items) {
         return writeItemStacksToTag(items, 64);
     }
 
     /**
      * NBT item saving function with support for stack sizes > 32K
      */
-    public static ListNBT writeItemStacksToTag(ItemStack[] items, int maxQuantity) {
-        ListNBT tagList = new ListNBT();
+    public static ListTag writeItemStacksToTag(ItemStack[] items, int maxQuantity) {
+        ListTag tagList = new ListTag();
         for (int i = 0; i < items.length; i++) {
-            CompoundNBT tag = new CompoundNBT();
+            CompoundTag tag = new CompoundTag();
             tag.putShort("Slot", (short) i);
             items[i].save(tag);
 
@@ -113,14 +108,14 @@ public class InventoryUtils {
     /**
      * NBT item loading function with support for stack sizes > 32K
      */
-    public static void readItemStacksFromTag(ItemStack[] items, ListNBT tagList) {
+    public static void readItemStacksFromTag(ItemStack[] items, ListTag tagList) {
         for (int i = 0; i < tagList.size(); i++) {
-            CompoundNBT tag = tagList.getCompound(i);
+            CompoundTag tag = tagList.getCompound(i);
             int b = tag.getShort("Slot");
             items[b] = ItemStack.of(tag);
-            INBT quant = tag.get("Quantity");
-            if (quant instanceof NumberNBT) {
-                items[b].setCount(((NumberNBT) quant).getAsInt());
+            Tag quantTag = tag.get("Quantity");
+            if (quantTag instanceof NumericTag quant) {
+                items[b].setCount(quant.getAsInt());
             }
         }
     }
@@ -138,7 +133,7 @@ public class InventoryUtils {
         return quantity;
     }
 
-    public static int getInsertibleQuantity(IInventory inv, @Nonnull ItemStack stack) {
+    public static int getInsertibleQuantity(Container inv, @Nonnull ItemStack stack) {
         return getInsertibleQuantity(new InventoryRange(inv), stack);
     }
 
@@ -152,7 +147,7 @@ public class InventoryUtils {
         return Math.min(fit, stack.getCount());
     }
 
-    public static int fitStackInSlot(IInventory inv, int slot, @Nonnull ItemStack stack) {
+    public static int fitStackInSlot(Container inv, int slot, @Nonnull ItemStack stack) {
         return fitStackInSlot(new InventoryRange(inv), slot, stack);
     }
 
@@ -193,7 +188,7 @@ public class InventoryUtils {
         return stack.getCount();
     }
 
-    public static int insertItem(IInventory inv, @Nonnull ItemStack stack, boolean simulate) {
+    public static int insertItem(Container inv, @Nonnull ItemStack stack, boolean simulate) {
         return insertItem(new InventoryRange(inv), stack, simulate);
     }
 
@@ -209,7 +204,7 @@ public class InventoryUtils {
         return stack;
     }
 
-    public static ItemStack getExtractableStack(IInventory inv, int slot) {
+    public static ItemStack getExtractableStack(Container inv, int slot) {
         return getExtractableStack(new InventoryRange(inv), slot);
     }
 
@@ -228,7 +223,7 @@ public class InventoryUtils {
     /**
      * Consumes one item from slot in inv with support for containers.
      */
-    public static void consumeItem(IInventory inv, int slot) {
+    public static void consumeItem(Container inv, int slot) {
         ItemStack stack = inv.getItem(slot);
         Item item = stack.getItem();
         if (item.hasContainerItem(stack)) {
@@ -242,7 +237,7 @@ public class InventoryUtils {
     /**
      * Gets the size of the stack in a slot. Returns 0 on empty stacks
      */
-    public static int stackSize(IInventory inv, int slot) {
+    public static int stackSize(Container inv, int slot) {
         ItemStack stack = inv.getItem(slot);
         return stack.isEmpty() ? 0 : stack.getCount();
     }
@@ -250,7 +245,7 @@ public class InventoryUtils {
     /**
      * Drops all items from inv using removeStackFromSlot
      */
-    public static void dropOnClose(PlayerEntity player, IInventory inv) {
+    public static void dropOnClose(Player player, Container inv) {
         for (int i = 0; i < inv.getContainerSize(); i++) {
             ItemStack stack = inv.removeItemNoUpdate(i);
             if (!stack.isEmpty()) {
@@ -325,184 +320,4 @@ public class InventoryUtils {
         }
         return quantity;
     }
-    //
-    //    //region hasItemHandler_Raw
-    //
-    //    /**
-    //     * Checks if only the capability exists on the tile for the specified face.
-    //     * Overloaded methods delegate to this in the end.
-    //     *
-    //     * @param tile The tile.
-    //     * @param face The face.
-    //     * @return If the tile has the cap.
-    //     */
-    //    public static boolean hasItemHandler_Raw(TileEntity tile, EnumFacing face) {
-    //        return tile != null && tile.hasCapability(ITEM_HANDLER, face);
-    //    }
-    //
-    //    public static boolean hasItemHandler_Raw(TileEntity tile, int face) {
-    //        return hasItemHandler_Raw(tile, EnumFacing.VALUES[face]);
-    //    }
-    //
-    //    public static boolean hasItemHandler_Raw(IBlockAccess world, BlockPos pos, EnumFacing face) {
-    //        return hasItemHandler_Raw(world.getTileEntity(pos), face);
-    //    }
-    //
-    //    public static boolean hasItemHandler_Raw(IBlockAccess world, BlockPos pos, int face) {
-    //        return hasItemHandler_Raw(world.getTileEntity(pos), face);
-    //    }
-    //    //endregion
-    //
-    //    //region hasItemHandler
-    //
-    //    /**
-    //     * Checks if the capability exists on the tile for the specified face,
-    //     * Or if the tile is an instance of the Legacy, IInventory or ISidedInventory.
-    //     * Overloaded methods delegate to this in the end.
-    //     *
-    //     * @param tile The tile.
-    //     * @param face The face.
-    //     * @return If the tile has the cap, or uses legacy interfaces.
-    //     */
-    //    public static boolean hasItemHandler(TileEntity tile, EnumFacing face) {
-    //        return hasItemHandler_Raw(tile, face) || tile instanceof IInventory || tile instanceof ISidedInventory;
-    //    }
-    //
-    //    public static boolean hasItemHandler(TileEntity tile, int face) {
-    //        return hasItemHandler(tile, EnumFacing.VALUES[face]);
-    //    }
-    //
-    //    public static boolean hasItemHandler(IBlockAccess world, BlockPos pos, EnumFacing face) {
-    //        return hasItemHandler(world.getTileEntity(pos), face);
-    //    }
-    //
-    //    public static boolean hasItemHandler(IBlockAccess world, BlockPos pos, int face) {
-    //        return hasItemHandler(world.getTileEntity(pos), face);
-    //    }
-    //    //endregion
-    //
-    //    //region getItemHandler_Raw
-    //
-    //    /**
-    //     * Grabs the IItemHandler capability for the tile,
-    //     * Will wrap if the cap doesnt exist, If you care about only interacting with the cap,
-    //     * Then use {@link #hasItemHandler_Raw} to check if the tile only has the cap before calling.
-    //     *
-    //     * @param tile The tile.
-    //     * @param face The face.
-    //     * @return The handler, wrapped if the tile uses legacy interfaces and no cap.
-    //     */
-    //    public static IItemHandler getItemHandler_Raw(TileEntity tile, EnumFacing face) {
-    //        if (hasItemHandler(tile, face)) {
-    //            if (hasItemHandler_Raw(tile, face)) {
-    //                return tile.getCapability(ITEM_HANDLER, face);
-    //            } else {
-    //                if (tile instanceof ISidedInventory && face != null) {
-    //                    return new SidedInvWrapper((ISidedInventory) tile, face);
-    //                } else {
-    //                    return new InvWrapper((IInventory) tile);
-    //                }
-    //            }
-    //        }
-    //        return null;
-    //    }
-    //
-    //    public static IItemHandler getItemHandler_Raw(TileEntity tile, int face) {
-    //        return getItemHandler_Raw(tile, EnumFacing.VALUES[face]);
-    //    }
-    //
-    //    public static IItemHandler getItemHandler_Raw(IBlockAccess world, BlockPos pos, EnumFacing face) {
-    //        return getItemHandler_Raw(world.getTileEntity(pos), face);
-    //    }
-    //
-    //    public static IItemHandler getItemHandler_Raw(IBlockAccess world, BlockPos pos, int face) {
-    //        return getItemHandler_Raw(world.getTileEntity(pos), face);
-    //    }
-    //    //endregion
-    //
-    //    //region getItemHandlerOr
-    //
-    //    /**
-    //     * Grabs the IItemHandler capability for the tile or the default if none.
-    //     * This method guards against tiles specifying a cap exists and returning null,
-    //     * in that case the default is returned.
-    //     *
-    //     * @param tile     The tile.
-    //     * @param face     The face.
-    //     * @param _default The default.
-    //     * @return The handler or default.
-    //     */
-    //    public static IItemHandler getItemHandlerOr(TileEntity tile, EnumFacing face, IItemHandler _default) {
-    //        IItemHandler handler = hasItemHandler(tile, face) ? getItemHandler_Raw(tile, face) : null;
-    //        return handler != null ? handler : _default;
-    //    }
-    //
-    //    public static IItemHandler getItemHandlerOr(TileEntity tile, int face, IItemHandler _default) {
-    //        return hasItemHandler(tile, face) ? getItemHandler_Raw(tile, face) : _default;
-    //    }
-    //
-    //    public static IItemHandler getItemHandlerOr(IBlockAccess world, BlockPos pos, EnumFacing face, IItemHandler _default) {
-    //        return getItemHandlerOr(world.getTileEntity(pos), face, _default);
-    //    }
-    //
-    //    public static IItemHandler getItemHandlerOr(IBlockAccess world, BlockPos pos, int face, IItemHandler _default) {
-    //        return getItemHandlerOr(world.getTileEntity(pos), face, _default);
-    //    }
-    //    //endregion
-    //
-    //    //region getItemHandler
-    //
-    //    /**
-    //     * Grabs the IITemHandler capability for the tile or null if none.
-    //     * Overloaded methods delegate to this in the end.
-    //     *
-    //     * @param tile The tile.
-    //     * @param face The face.
-    //     * @return The handler or null.
-    //     */
-    //    public static IItemHandler getItemHandler(TileEntity tile, EnumFacing face) {
-    //        return getItemHandlerOr(tile, face, null);
-    //    }
-    //
-    //    public static IItemHandler getItemHandler(TileEntity tile, int face) {
-    //        return getItemHandlerOr(tile, face, null);
-    //    }
-    //
-    //    public static IItemHandler getItemHandler(IBlockAccess world, BlockPos pos, EnumFacing face) {
-    //        return getItemHandlerOr(world, pos, face, null);
-    //    }
-    //
-    //    public static IItemHandler getItemHandler(IBlockAccess world, BlockPos pos, int face) {
-    //        return getItemHandlerOr(world, pos, face, null);
-    //    }
-    //    //endregion
-    //
-    //    //region getItemHandlerOrEmpty
-    //
-    //    /**
-    //     * Grabs the IITemHandler capability for the tile or EmptyHandler.INSTANCE if none.
-    //     * This method guards against tiles specify a cap exists and returning null,
-    //     * in that case the empty handler is returned.
-    //     * Overloaded methods delegate to this in the end.
-    //     *
-    //     * @param tile The tile.
-    //     * @param face The face.
-    //     * @return The handler or EmptyHandler.INSTANCE.
-    //     */
-    //    public static IItemHandler getItemHandlerOrEmpty(TileEntity tile, EnumFacing face) {
-    //        return getItemHandlerOr(tile, face, EmptyHandler.INSTANCE);
-    //    }
-    //
-    //    public static IItemHandler getItemHandlerOrEmpty(TileEntity tile, int face) {
-    //        return getItemHandlerOr(tile, face, EmptyHandler.INSTANCE);
-    //    }
-    //
-    //    public static IItemHandler getItemHandlerOrEmpty(IBlockAccess world, BlockPos pos, EnumFacing face) {
-    //        return getItemHandlerOr(world.getTileEntity(pos), face, EmptyHandler.INSTANCE);
-    //    }
-    //
-    //    public static IItemHandler getItemHandlerOrEmpty(IBlockAccess world, BlockPos pos, int face) {
-    //        return getItemHandlerOr(world.getTileEntity(pos), face, EmptyHandler.INSTANCE);
-    //    }
-    //    //endregion
 }

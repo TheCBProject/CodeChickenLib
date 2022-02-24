@@ -4,30 +4,33 @@ import codechicken.lib.model.CachedFormat;
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import codechicken.lib.render.particle.IModelParticleProvider;
 import codechicken.lib.vec.Vector3;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.IModelTransform;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Created by covers1624 on 1/02/2017.
  */
-public abstract class AbstractBakedPropertiesModel implements IModelParticleProvider, IBakedModel {
+public abstract class AbstractBakedPropertiesModel implements IModelParticleProvider, BakedModel {
 
     protected final ModelProperties properties;
 
@@ -70,7 +73,7 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
     }
 
     @Override
-    public Set<TextureAtlasSprite> getHitEffects(@Nonnull BlockRayTraceResult traceResult, BlockState state, IBlockReader world, BlockPos pos, IModelData modelData) {
+    public Set<TextureAtlasSprite> getHitEffects(@Nonnull BlockHitResult traceResult, BlockState state, BlockAndTintGetter world, BlockPos pos, IModelData modelData) {
         Vector3 vec = new Vector3(traceResult.getLocation()).subtract(traceResult.getBlockPos());
         return getAllQuads(state, modelData).stream()
                 .filter(quad -> quad.getDirection() == traceResult.getDirection())
@@ -81,7 +84,7 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
 
     protected boolean checkDepth(BakedQuad quad, Vector3 hit, Direction hitFace) {
         int[] quadData = quad.getVertices();
-        CachedFormat format = CachedFormat.lookup(DefaultVertexFormats.BLOCK);
+        CachedFormat format = CachedFormat.lookup(DefaultVertexFormat.BLOCK);
 
         Vector3 posVec = new Vector3();
         float[] pos = new float[4];
@@ -107,7 +110,7 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
     }
 
     @Override
-    public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, IBlockReader world, BlockPos pos, IModelData data) {
+    public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, BlockAndTintGetter world, BlockPos pos, IModelData data) {
         return getAllQuads(state, data).stream().map(BakedQuad::getSprite).collect(Collectors.toSet());
     }
 
@@ -117,9 +120,9 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
     }
 
     @Override
-    public IBakedModel handlePerspective(TransformType transformType, MatrixStack mat) {
+    public BakedModel handlePerspective(TransformType transformType, PoseStack mat) {
         if (properties instanceof PerspectiveProperties) {
-            IModelTransform transforms = ((PerspectiveProperties) properties).getTransforms();
+            ModelState transforms = ((PerspectiveProperties) properties).getTransforms();
             return PerspectiveMapWrapper.handlePerspective(this, transforms, transformType, mat);
         }
         return IModelParticleProvider.super.handlePerspective(transformType, mat);

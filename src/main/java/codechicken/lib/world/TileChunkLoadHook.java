@@ -1,15 +1,12 @@
 package codechicken.lib.world;
 
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkPrimerWrapper;
-import net.minecraft.world.chunk.IChunk;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ImposterProtoChunk;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-
-import java.util.Map;
 
 public class TileChunkLoadHook {
 
@@ -26,17 +23,17 @@ public class TileChunkLoadHook {
 
     @SubscribeEvent
     public void onChunkLoad(ChunkEvent.Load event) {
-        IChunk iChunk = event.getChunk();
-        Chunk chunk;
-        if (iChunk instanceof Chunk) {
-            chunk = (Chunk) iChunk;
-        } else if (iChunk instanceof ChunkPrimerWrapper) {
-            chunk = ((ChunkPrimerWrapper) iChunk).getWrapped();
+        ChunkAccess iChunk = event.getChunk();
+        LevelChunk chunk;
+        if (iChunk instanceof LevelChunk) {
+            chunk = (LevelChunk) iChunk;
+        } else if (iChunk instanceof ImposterProtoChunk) {
+            chunk = ((ImposterProtoChunk) iChunk).getWrapped();
         } else {
             return;
         }
 
-        for (TileEntity tile : chunk.getBlockEntities().values()) {
+        for (BlockEntity tile : chunk.getBlockEntities().values()) {
             if (tile instanceof IChunkLoadTile) {
                 ((IChunkLoadTile) tile).onChunkLoad(chunk);
             }

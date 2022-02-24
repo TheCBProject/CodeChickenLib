@@ -1,9 +1,8 @@
 package codechicken.lib.render.shader;
 
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.resources.IResourceManager;
-import net.minecraftforge.resource.IResourceType;
-import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
@@ -12,18 +11,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 /**
  * A ShaderProgram.
  * You probably want {@link ShaderProgramBuilder} to construct a ShaderProgram.
- * it should be noted, that a ShaderProgram is a {@link ISelectiveResourceReloadListener},
- * its recommended that you ensure this is registered to {@link IReloadableResourceManager}
+ * it should be noted, that a ShaderProgram is a {@link ResourceManagerReloadListener},
+ * its recommended that you ensure this is registered to {@link ReloadableResourceManager}
  * to ensure {@link ShaderObject}s are re loaded properly when Resources are reloaded.
  * <p>
  * Created by covers1624 on 24/5/20.
  */
-public class ShaderProgram implements ISelectiveResourceReloadListener {
+public class ShaderProgram implements ResourceManagerReloadListener {
 
     private final List<ShaderObject> shaders;
     private final Consumer<UniformCache> cacheCallback;
@@ -140,10 +138,10 @@ public class ShaderProgram implements ISelectiveResourceReloadListener {
     }
 
     @Override
-    public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
+    public void onResourceManagerReload(ResourceManager resourceManager) {
         for (ShaderObject shader : shaders) {
-            if (shader instanceof ISelectiveResourceReloadListener) {
-                ((ISelectiveResourceReloadListener) shader).onResourceManagerReload(resourceManager, resourcePredicate);
+            if (shader instanceof ResourceManagerReloadListener) {
+                ((ResourceManagerReloadListener) shader).onResourceManagerReload(resourceManager);
             }
         }
         compile();

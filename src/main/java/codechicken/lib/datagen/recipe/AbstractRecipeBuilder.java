@@ -3,16 +3,16 @@ package codechicken.lib.datagen.recipe;
 import com.google.gson.JsonObject;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.ICriterionInstance;
-import net.minecraft.advancements.IRequirementsStrategy;
-import net.minecraft.advancements.criterion.*;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.item.Item;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StringUtils;
+import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.advancements.RequirementsStrategy;
+import net.minecraft.advancements.critereon.*;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.ItemLike;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -27,17 +27,17 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
 
     protected final Throwable created = new Throwable("Created at");
     protected final Advancement.Builder advancementBuilder = Advancement.Builder.advancement();
-    protected final IRecipeSerializer<?> serializer;
+    protected final RecipeSerializer<?> serializer;
     protected final ResourceLocation id;
     protected final R result;
-    private final Set<IItemProvider> criteriaItems = new HashSet<>();
-    private final Set<ITag<Item>> criteriaTags = new HashSet<>();
+    private final Set<ItemLike> criteriaItems = new HashSet<>();
+    private final Set<Tag<Item>> criteriaTags = new HashSet<>();
     private int criteriaCounter = 0;
     protected boolean generateCriteria = false;
     protected boolean enableUnlocking = false;
     private String group;
 
-    protected AbstractRecipeBuilder(IRecipeSerializer<?> serializer, ResourceLocation id, R result) {
+    protected AbstractRecipeBuilder(RecipeSerializer<?> serializer, ResourceLocation id, R result) {
         this.serializer = serializer;
         this.id = id;
         this.result = result;
@@ -65,7 +65,7 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
         return getThis();
     }
 
-    public T addCriterion(String name, ICriterionInstance criterion) {
+    public T addCriterion(String name, CriterionTriggerInstance criterion) {
         if (!enableUnlocking) {
             throw new IllegalStateException("Recipe unlocking must be enabled with 'enableUnlocking'");
         }
@@ -79,13 +79,13 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     }
 
     @Override
-    public final IFinishedRecipe build() {
+    public final FinishedRecipe build() {
         validate();
         if (enableUnlocking) {
             advancementBuilder.parent(new ResourceLocation("recipes/root"))
                     .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
                     .rewards(AdvancementRewards.Builder.recipe(id))
-                    .requirements(IRequirementsStrategy.OR);
+                    .requirements(RequirementsStrategy.OR);
         }
         return _build();
     }
@@ -99,41 +99,41 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
 
     protected abstract AbstractFinishedRecipe _build();
 
-    protected void addAutoCriteria(IItemProvider item) {
+    protected void addAutoCriteria(ItemLike item) {
         if (generateCriteria && criteriaItems.add(item)) {
             addCriterion("has_ingredient_" + criteriaCounter++, hasItem(item));
         }
     }
 
-    protected void addAutoCriteria(ITag<Item> tag) {
+    protected void addAutoCriteria(Tag<Item> tag) {
         if (generateCriteria && criteriaTags.add(tag)) {
             addCriterion("has_ingredient_" + criteriaCounter++, hasItem(tag));
         }
     }
 
-    protected InventoryChangeTrigger.Instance hasItem(IItemProvider itemIn) {
+    protected InventoryChangeTrigger.TriggerInstance hasItem(ItemLike itemIn) {
         return this.hasItem(ItemPredicate.Builder.item().of(itemIn).build());
     }
 
-    protected InventoryChangeTrigger.Instance hasItem(ITag<Item> tagIn) {
+    protected InventoryChangeTrigger.TriggerInstance hasItem(Tag<Item> tagIn) {
         return this.hasItem(ItemPredicate.Builder.item().of(tagIn).build());
     }
 
-    protected InventoryChangeTrigger.Instance hasItem(ItemPredicate... predicates) {
-        return new InventoryChangeTrigger.Instance(EntityPredicate.AndPredicate.ANY, MinMaxBounds.IntBound.ANY, MinMaxBounds.IntBound.ANY, MinMaxBounds.IntBound.ANY, predicates);
+    protected InventoryChangeTrigger.TriggerInstance hasItem(ItemPredicate... predicates) {
+        return new InventoryChangeTrigger.TriggerInstance(EntityPredicate.Composite.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, predicates);
     }
 
-    public abstract class AbstractFinishedRecipe implements IFinishedRecipe {
+    public abstract class AbstractFinishedRecipe implements FinishedRecipe {
 
         @Override
         public void serializeRecipeData(JsonObject json) {
-            if (!StringUtils.isNullOrEmpty(group)) {
+            if (StringUtils.isNotEmpty(group)) {
                 json.addProperty("group", group);
             }
         }
 
         @Override
-        public IRecipeSerializer<?> getType() {
+        public RecipeSerializer<?> getType() {
             return serializer;
         }
 

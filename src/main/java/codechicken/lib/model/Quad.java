@@ -19,15 +19,15 @@
 package codechicken.lib.model;
 
 import codechicken.lib.math.InterpHelper;
+import codechicken.lib.math.MathHelper;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
-import net.minecraft.client.renderer.model.BakedQuad;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.IVertexProducer;
 import net.minecraftforge.client.model.pipeline.LightUtil;
@@ -165,7 +165,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
      *
      * @param bb The box.
      */
-    public void clamp(AxisAlignedBB bb) {
+    public void clamp(AABB bb) {
         clamp(c.set(bb));
     }
 
@@ -177,9 +177,9 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
     public void clamp(Cuboid6 cuboid) {
         for (Vertex vertex : vertices) {
             float[] vec = vertex.vec;
-            vec[0] = (float) MathHelper.clamp(vec[0], cuboid.min.x, cuboid.max.x);
-            vec[1] = (float) MathHelper.clamp(vec[1], cuboid.min.y, cuboid.max.y);
-            vec[2] = (float) MathHelper.clamp(vec[2], cuboid.min.z, cuboid.max.z);
+            vec[0] = (float) MathHelper.clip(vec[0], cuboid.min.x, cuboid.max.x);
+            vec[1] = (float) MathHelper.clip(vec[1], cuboid.min.y, cuboid.max.y);
+            vec[2] = (float) MathHelper.clip(vec[2], cuboid.min.z, cuboid.max.z);
         }
         calculateOrientation(true);
     }
@@ -297,7 +297,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
 
     // Broken out as a stub for mixins to target easier.
     private BakedQuad makeQuad(int[] packedData) {
-        if (format.format != DefaultVertexFormats.BLOCK) {
+        if (format.format != DefaultVertexFormat.BLOCK) {
             throw new IllegalStateException("Unable to bake this quad to the specified format. " + format.format);
         }
         return new BakedQuad(packedData, tintIndex, orientation, sprite, diffuseLighting);

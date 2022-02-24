@@ -1,9 +1,9 @@
 package codechicken.lib.inventory;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
@@ -12,21 +12,21 @@ import javax.annotation.Nonnull;
  */
 public class InventoryRange {
 
-    public IInventory inv;
+    public Container inv;
     public Direction face;
-    public ISidedInventory sidedInv;
+    public WorldlyContainer sidedInv;
     public int[] slots;
 
     @Deprecated// Use EnumFacing version.
-    public InventoryRange(IInventory inv, int side) {
+    public InventoryRange(Container inv, int side) {
         this(inv, Direction.BY_3D_DATA[side]);
     }
 
-    public InventoryRange(IInventory inv, Direction side) {
+    public InventoryRange(Container inv, Direction side) {
         this.inv = inv;
         this.face = side;
-        if (inv instanceof ISidedInventory) {
-            sidedInv = (ISidedInventory) inv;
+        if (inv instanceof WorldlyContainer) {
+            sidedInv = (WorldlyContainer) inv;
             slots = sidedInv.getSlotsForFace(face);
         } else {
             slots = new int[inv.getContainerSize()];
@@ -36,11 +36,11 @@ public class InventoryRange {
         }
     }
 
-    public InventoryRange(IInventory inv) {
+    public InventoryRange(Container inv) {
         this(inv, Direction.DOWN);
     }
 
-    public InventoryRange(IInventory inv, int fslot, int lslot) {
+    public InventoryRange(Container inv, int fslot, int lslot) {
         this.inv = inv;
         slots = new int[lslot - fslot];
         for (int i = 0; i < slots.length; i++) {
@@ -48,12 +48,12 @@ public class InventoryRange {
         }
     }
 
-    public InventoryRange(IInventory inv, InventoryRange access) {
+    public InventoryRange(Container inv, InventoryRange access) {
         this.inv = inv;
         this.slots = access.slots;
         this.face = access.face;
-        if (inv instanceof ISidedInventory) {
-            sidedInv = (ISidedInventory) inv;
+        if (inv instanceof WorldlyContainer) {
+            sidedInv = (WorldlyContainer) inv;
         }
     }
 

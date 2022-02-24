@@ -1,16 +1,16 @@
 package codechicken.lib.render.particle;
 
-import net.minecraft.client.particle.IParticleRenderType;
-import net.minecraft.client.particle.SpriteTexturedParticle;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.world.ClientWorld;
 
-public class CustomBreakingParticle extends SpriteTexturedParticle {
+public class CustomBreakingParticle extends TextureSheetParticle {
 
     private final float uo;
     private final float vo;
 
-    public CustomBreakingParticle(ClientWorld world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
+    public CustomBreakingParticle(ClientLevel world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
         super(world, x, y, z, dx, dy, dz);
         setSprite(icon);
         gravity = 1;
@@ -20,7 +20,7 @@ public class CustomBreakingParticle extends SpriteTexturedParticle {
         this.vo = this.random.nextFloat() * 3.0F;
     }
 
-    public static CustomBreakingParticle newLandingParticle(ClientWorld world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
+    public static CustomBreakingParticle newLandingParticle(ClientLevel world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
         CustomBreakingParticle particle = new CustomBreakingParticle(world, x, y, z, dx, dy, dz, icon);
         particle.xd = dx;
         particle.yd = dy;
@@ -28,8 +28,8 @@ public class CustomBreakingParticle extends SpriteTexturedParticle {
         return particle;
     }
 
-    public IParticleRenderType getRenderType() {
-        return IParticleRenderType.TERRAIN_SHEET;
+    public ParticleRenderType getRenderType() {
+        return ParticleRenderType.TERRAIN_SHEET;
     }
 
     protected float getU0() {

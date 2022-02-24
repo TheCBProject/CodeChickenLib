@@ -2,10 +2,10 @@ package codechicken.lib.raytracer;
 
 import com.google.common.collect.ImmutableSet;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 
@@ -54,7 +54,7 @@ public class MultiIndexedVoxelShape extends VoxelShape {
 
     @Nullable
     @Override
-    public VoxelShapeRayTraceResult clip(Vector3d start, Vector3d end, BlockPos pos) {
+    public VoxelShapeRayTraceResult clip(Vec3 start, Vec3 end, BlockPos pos) {
         VoxelShapeRayTraceResult closest = null;
         double dist = Double.MAX_VALUE;
         for (IndexedVoxelShape shape : shapes) {

@@ -4,8 +4,8 @@ import codechicken.lib.config.ConfigSyncManager;
 import codechicken.lib.packet.ICustomPacketHandler;
 import codechicken.lib.packet.PacketCustom;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.login.IClientLoginNetHandler;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.protocol.login.ClientLoginPacketListener;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -23,12 +23,9 @@ public class LoginPacketHandler implements ICustomPacketHandler.ILoginPacketHand
     }
 
     @Override
-    public void handleLoginPacket(PacketCustom packet, Minecraft mc, IClientLoginNetHandler handler, NetworkEvent.Context context) {
+    public void handleLoginPacket(PacketCustom packet, Minecraft mc, ClientLoginPacketListener handler, NetworkEvent.Context context) {
         switch (packet.getType()) {
-            case L_CONFIG_SYNC: {
-                ConfigSyncManager.readSyncPacket(packet);
-                break;
-            }
+            case L_CONFIG_SYNC -> ConfigSyncManager.readSyncPacket(packet);
         }
     }
 }

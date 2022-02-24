@@ -1,7 +1,7 @@
 package codechicken.lib.datagen.recipe;
 
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Consumer;
 
@@ -12,10 +12,10 @@ public interface RecipeBuilder {
 
     ResourceLocation getId();
 
-    IFinishedRecipe build();
+    FinishedRecipe build();
 
     //Compat with vanilla's Recipe Provider.
-    default void build(Consumer<IFinishedRecipe> consumer) {
+    default void build(Consumer<FinishedRecipe> consumer) {
         consumer.accept(build());
     }
 

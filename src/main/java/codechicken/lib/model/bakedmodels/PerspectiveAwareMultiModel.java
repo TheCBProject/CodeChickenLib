@@ -1,11 +1,11 @@
 package codechicken.lib.model.bakedmodels;
 
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.util.Direction;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
 
@@ -18,10 +18,10 @@ import java.util.Random;
  */
 public class PerspectiveAwareMultiModel extends AbstractBakedPropertiesModel {
 
-    private final IBakedModel baseModel;
-    private final List<IBakedModel> subModels;
+    private final BakedModel baseModel;
+    private final List<BakedModel> subModels;
 
-    public PerspectiveAwareMultiModel(IBakedModel baseModel, List<IBakedModel> subModels, PerspectiveProperties properties) {
+    public PerspectiveAwareMultiModel(BakedModel baseModel, List<BakedModel> subModels, PerspectiveProperties properties) {
         super(properties);
         this.baseModel = baseModel;
         this.subModels = subModels;
@@ -38,14 +38,14 @@ public class PerspectiveAwareMultiModel extends AbstractBakedPropertiesModel {
         if (baseModel != null) {
             quads.addAll(baseModel.getQuads(state, side, rand, data));
         }
-        for (IBakedModel subModel : subModels) {
+        for (BakedModel subModel : subModels) {
             quads.addAll(subModel.getQuads(state, side, rand, data));
         }
         return quads;
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
-        return ItemOverrideList.EMPTY;
+    public ItemOverrides getOverrides() {
+        return ItemOverrides.EMPTY;
     }
 }

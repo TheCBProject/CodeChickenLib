@@ -2,11 +2,11 @@ package codechicken.lib.model.bakedmodels;
 
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.util.Direction;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.IModelData;
 
 import java.util.Collections;
@@ -48,7 +48,7 @@ public class PerspectiveAwareLayeredModel extends AbstractPerspectiveLayeredMode
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
-        return ItemOverrideList.EMPTY;
+    public ItemOverrides getOverrides() {
+        return ItemOverrides.EMPTY;
     }
 }

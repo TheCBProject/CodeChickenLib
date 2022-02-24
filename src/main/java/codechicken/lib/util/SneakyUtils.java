@@ -12,10 +12,10 @@ import java.util.function.Supplier;
  */
 public class SneakyUtils {
 
-    private static final Runnable NULL_RUNNABLE = () -> {};
+    private static final Runnable NULL_RUNNABLE = () -> { };
     private static final Callable<Object> NULL_CALLABLE = () -> null;
     private static final Supplier<Object> NULL_SUPPLIER = () -> null;
-    private static final Consumer<Object> NULL_CONSUMER = e -> {};
+    private static final Consumer<Object> NULL_CONSUMER = e -> { };
 
     public static Runnable none() {
         return NULL_RUNNABLE;

@@ -21,13 +21,13 @@ package codechicken.lib.model.pipeline.transformers;
 import codechicken.lib.model.Quad.Vertex;
 import codechicken.lib.model.pipeline.IPipelineElementFactory;
 import codechicken.lib.model.pipeline.QuadTransformer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.AxisDirection;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.AxisDirection;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.phys.AABB;
 
-import static net.minecraft.util.Direction.AxisDirection.NEGATIVE;
-import static net.minecraft.util.Direction.AxisDirection.POSITIVE;
+import static net.minecraft.core.Direction.AxisDirection.NEGATIVE;
+import static net.minecraft.core.Direction.AxisDirection.POSITIVE;
 
 /**
  * This transformer is a little complicated.
@@ -58,11 +58,12 @@ public class QuadCornerKicker extends QuadTransformer {
 
             // Around X axis, DUNS.
             { 0, 1, 2, 3 }, //
-            { 0, 1, 2, 3 } };
+            { 0, 1, 2, 3 }
+    };
 
     private int mySide;
     private int facadeMask;
-    private AxisAlignedBB box;
+    private AABB box;
     private double thickness;
 
     QuadCornerKicker() {
@@ -95,7 +96,7 @@ public class QuadCornerKicker extends QuadTransformer {
      *
      * @param box The BoundingBox.
      */
-    public void setBox(AxisAlignedBB box) {
+    public void setBox(AABB box) {
         this.box = box;
     }
 
@@ -122,7 +123,7 @@ public class QuadCornerKicker extends QuadTransformer {
                             float y = vertex.vec[1];
                             float z = vertex.vec[2];
                             if (epsComp(x, corner.pX(box)) && epsComp(y, corner.pY(box)) && epsComp(z, corner.pZ(box))) {
-                                Vector3i vec = Direction.BY_3D_DATA[hoz].getNormal();
+                                Vec3i vec = Direction.BY_3D_DATA[hoz].getNormal();
                                 x -= vec.getX() * thickness;
                                 y -= vec.getY() * thickness;
                                 z -= vec.getZ() * thickness;
@@ -179,15 +180,15 @@ public class QuadCornerKicker extends QuadTransformer {
             return values()[sideMask[sideA] | sideMask[sideB] | sideMask[sideC]];
         }
 
-        public float pX(AxisAlignedBB box) {
+        public float pX(AABB box) {
             return (float) (xAxis == NEGATIVE ? box.minX : box.maxX);
         }
 
-        public float pY(AxisAlignedBB box) {
+        public float pY(AABB box) {
             return (float) (yAxis == NEGATIVE ? box.minY : box.maxY);
         }
 
-        public float pZ(AxisAlignedBB box) {
+        public float pZ(AABB box) {
             return (float) (zAxis == NEGATIVE ? box.minZ : box.maxZ);
         }
     }

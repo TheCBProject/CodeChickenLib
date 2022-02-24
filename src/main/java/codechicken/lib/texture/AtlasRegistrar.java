@@ -1,8 +1,8 @@
 package codechicken.lib.texture;
 
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Consumer;
 
@@ -27,7 +27,7 @@ public interface AtlasRegistrar {
      * @param cycleFunc The callback for updating the texture data dynamically.
      * @param onReady   The callback for the sprite being ready.
      */
-    void registerProceduralSprite(ResourceLocation loc, Consumer<ProceduralTexture> cycleFunc, Consumer<TextureAtlasSprite> onReady);
+//    void registerProceduralSprite(ResourceLocation loc, Consumer<ProceduralTexture> cycleFunc, Consumer<TextureAtlasSprite> onReady);
 
     /**
      * Same as above, just takes a String for the ResourceLocation instead.
@@ -50,5 +50,5 @@ public interface AtlasRegistrar {
         });
     }
 
-    void postRegister(Consumer<AtlasTexture> func);
+    void postRegister(Consumer<TextureAtlas> func);
 }

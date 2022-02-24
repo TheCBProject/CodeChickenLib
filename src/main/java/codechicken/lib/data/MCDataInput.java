@@ -2,24 +2,24 @@ package codechicken.lib.data;
 
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
+import com.mojang.math.Vector3f;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.EncoderException;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTSizeTracker;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.*;
 
@@ -552,21 +552,21 @@ public interface MCDataInput {
     }
 
     /**
-     * Reads a {@link Vector3i} from the stream.
+     * Reads a {@link Vec3i} from the stream.
      *
-     * @return The {@link Vector3i}.
+     * @return The {@link Vec3i}.
      */
-    default Vector3i readVec3i() {
+    default Vec3i readVec3i() {
         return readPos();
     }
 
     /**
-     * Reads a {@link Vector3d} from the stream.
+     * Reads a {@link Vec3} from the stream.
      *
-     * @return The {@link Vector3d}.
+     * @return The {@link Vec3}.
      */
-    default Vector3d readVec3d() {
-        return new Vector3d(readDouble(), readDouble(), readDouble());
+    default Vec3 readVec3d() {
+        return new Vec3(readDouble(), readDouble(), readDouble());
     }
 
     /**
@@ -579,17 +579,17 @@ public interface MCDataInput {
     }
 
     /**
-     * Reads a {@link CompoundNBT} from the stream.
+     * Reads a {@link CompoundTag} from the stream.
      *
-     * @return The {@link CompoundNBT}.
+     * @return The {@link CompoundTag}.
      */
     @Nullable
-    default CompoundNBT readCompoundNBT() {
+    default CompoundTag readCompoundNBT() {
         if (!readBoolean()) {
             return null;
         } else {
             try {
-                return CompressedStreamTools.read(toDataInput(), new NBTSizeTracker(2097152L));
+                return NbtIo.read(toDataInput(), new NbtAccounter(2097152L));
             } catch (IOException e) {
                 throw new EncoderException("Failed to read CompoundNBT from stream.", e);
             }
@@ -626,7 +626,7 @@ public interface MCDataInput {
         } else {
             Fluid fluid = readRegistryIdUnsafe(ForgeRegistries.FLUIDS);
             int amount = readVarInt();
-            CompoundNBT tag = readCompoundNBT();
+            CompoundTag tag = readCompoundNBT();
             if (fluid == Fluids.EMPTY) {
                 return FluidStack.EMPTY;
             }
@@ -635,12 +635,12 @@ public interface MCDataInput {
     }
 
     /**
-     * Reads an {@link ITextComponent} from the stream.
+     * Reads an {@link Component} from the stream.
      *
-     * @return The {@link ITextComponent}.
+     * @return The {@link Component}.
      */
-    default IFormattableTextComponent readTextComponent() {
-        return ITextComponent.Serializer.fromJson(readString());
+    default MutableComponent readTextComponent() {
+        return Component.Serializer.fromJson(readString());
     }
 
     /**

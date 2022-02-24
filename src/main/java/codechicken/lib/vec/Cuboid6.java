@@ -2,13 +2,13 @@ package codechicken.lib.vec;
 
 import codechicken.lib.raytracer.VoxelShapeCache;
 import codechicken.lib.util.Copyable;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -30,17 +30,17 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         this.max = max;
     }
 
-    public Cuboid6(Vector3i min, Vector3i max) {
+    public Cuboid6(Vec3i min, Vec3i max) {
         this.min = Vector3.fromVec3i(min);
         this.max = Vector3.fromVec3i(max);
     }
 
-    public Cuboid6(AxisAlignedBB aabb) {
+    public Cuboid6(AABB aabb) {
         min = new Vector3(aabb.minX, aabb.minY, aabb.minZ);
         max = new Vector3(aabb.maxX, aabb.maxY, aabb.maxZ);
     }
 
-    public Cuboid6(CompoundNBT tag) {
+    public Cuboid6(CompoundTag tag) {
         this(Vector3.fromNBT(tag.getCompound("min")), Vector3.fromNBT(tag.getCompound("max")));
     }
 
@@ -54,17 +54,17 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         max = new Vector3(maxx, maxy, maxz);
     }
 
-    public AxisAlignedBB aabb() {
-        return new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
+    public AABB aabb() {
+        return new AABB(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
     public VoxelShape shape() {
         return VoxelShapeCache.getShape(this);
     }
 
-    public CompoundNBT writeToNBT(CompoundNBT tag) {
-        tag.put("min", min.writeToNBT(new CompoundNBT()));
-        tag.put("max", max.writeToNBT(new CompoundNBT()));
+    public CompoundTag writeToNBT(CompoundTag tag) {
+        tag.put("min", min.writeToNBT(new CompoundTag()));
+        tag.put("max", max.writeToNBT(new CompoundTag()));
         return tag;
     }
 
@@ -78,7 +78,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return set(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
-    public Cuboid6 set(Vector3i min, Vector3i max) {
+    public Cuboid6 set(Vec3i min, Vec3i max) {
         return set(min.getX(), min.getY(), min.getZ(), max.getX(), max.getY(), max.getZ());
     }
 
@@ -86,7 +86,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return set(c.min.x, c.min.y, c.min.z, c.max.x, c.max.y, c.max.z);
     }
 
-    public Cuboid6 set(AxisAlignedBB bb) {
+    public Cuboid6 set(AABB bb) {
         return set(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.maxY, bb.maxZ);
     }
 
@@ -104,7 +104,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return add(vec.x, vec.y, vec.z);
     }
 
-    public Cuboid6 add(Vector3i vec) {
+    public Cuboid6 add(Vec3i vec) {
         return add(vec.getX(), vec.getY(), vec.getZ());
     }
 
@@ -126,11 +126,11 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return subtract(vec.x, vec.y, vec.z);
     }
 
-    public Cuboid6 subtract(Vector3i vec) {
+    public Cuboid6 subtract(Vec3i vec) {
         return subtract(vec.getX(), vec.getY(), vec.getZ());
     }
 
-    public Cuboid6 subtract(Vector3d vec) {
+    public Cuboid6 subtract(Vec3 vec) {
         return subtract(vec.x, vec.y, vec.z);
     }
 
@@ -154,12 +154,8 @@ public class Cuboid6 implements Copyable<Cuboid6> {
 
     public Cuboid6 expandSide(Direction side, int amount) {
         switch (side.getAxisDirection()) {
-            case NEGATIVE:
-                min.add(Vector3.fromVec3i(side.getNormal()).multiply(amount));
-                break;
-            case POSITIVE:
-                max.add(Vector3.fromVec3i(side.getNormal()).multiply(amount));
-                break;
+            case NEGATIVE -> min.add(Vector3.fromVec3i(side.getNormal()).multiply(amount));
+            case POSITIVE -> max.add(Vector3.fromVec3i(side.getNormal()).multiply(amount));
         }
         return this;
     }
@@ -230,33 +226,23 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     }
 
     public double getSideSize(Direction side) {
-        switch (side.getAxis()) {
-            case X:
-                return (max.x - min.x) + 1;
-            case Y:
-                return (max.y - min.y) + 1;
-            case Z:
-                return (max.z - min.z) + 1;
-        }
-        return 0;
+        return switch (side.getAxis()) {
+            case X -> (max.x - min.x) + 1;
+            case Y -> (max.y - min.y) + 1;
+            case Z -> (max.z - min.z) + 1;
+        };
     }
 
     public double getSide(int side) {
-        switch (side) {
-            case 0:
-                return min.y;
-            case 1:
-                return max.y;
-            case 2:
-                return min.z;
-            case 3:
-                return max.z;
-            case 4:
-                return min.x;
-            case 5:
-                return max.x;
-        }
-        return 0;
+        return switch (side) {
+            case 0 -> min.y;
+            case 1 -> max.y;
+            case 2 -> min.z;
+            case 3 -> max.z;
+            case 4 -> min.x;
+            case 5 -> max.x;
+            default -> 0;
+        };
     }
 
     public double getSide(Direction side) {
@@ -265,24 +251,12 @@ public class Cuboid6 implements Copyable<Cuboid6> {
 
     public Cuboid6 setSide(int side, double d) {
         switch (side) {
-            case 0:
-                min.y = d;
-                break;
-            case 1:
-                max.y = d;
-                break;
-            case 2:
-                min.z = d;
-                break;
-            case 3:
-                max.z = d;
-                break;
-            case 4:
-                min.x = d;
-                break;
-            case 5:
-                max.x = d;
-                break;
+            case 0 -> min.y = d;
+            case 1 -> max.y = d;
+            case 2 -> min.z = d;
+            case 3 -> max.z = d;
+            case 4 -> min.x = d;
+            case 5 -> max.x = d;
         }
         return this;
     }

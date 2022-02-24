@@ -15,21 +15,20 @@ import codechicken.lib.util.ResourceUtils;
 import codechicken.lib.util.TransformUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.resource.VanillaResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,22 +49,26 @@ public class ModelBakery {
     private static final boolean FORCE_BLOCK_REBAKE = Boolean.parseBoolean(System.getProperty("ccl.debugForceBlockModelRebake"));
     private static final boolean FORCE_ITEM_REBAKE = Boolean.parseBoolean(System.getProperty("ccl.debugForceItemModelRebake"));
 
-    private static final Cache<String, IBakedModel> keyModelCache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
+    private static final Cache<String, BakedModel> keyModelCache = CacheBuilder.newBuilder().expireAfterAccess(30, TimeUnit.MINUTES).build();
+
+    private static final ModelProperties DEFAULT = ModelProperties.builder()
+            .withAO(true)
+            .withGui3D(true)
+            .build();
+    private static final PerspectiveProperties DEFAULT_PERSPECTIVE = DEFAULT.toBuilder()
+            .withTransforms(TransformUtils.DEFAULT_BLOCK)
+            .build();
 
     private static final Map<Item, IItemStackKeyGenerator> itemKeyGeneratorMap = Collections.synchronizedMap(new HashMap<>());
     private static final Map<Block, IBlockStateKeyGenerator> blockKeyGeneratorMap = Collections.synchronizedMap(new HashMap<>());
-    private static IBakedModel missingModel;
+    private static BakedModel missingModel;
 
     public static final IBlockStateKeyGenerator defaultBlockKeyGenerator = (state, data) -> state.toString();
 
     public static final IItemStackKeyGenerator defaultItemKeyGenerator = stack -> stack.getItem().getRegistryName().toString() + "|" + stack.getDamageValue();
 
     public static void init() {
-        ResourceUtils.registerReloadListener((resourceManager, p) -> {
-            if (p.test(VanillaResourceType.MODELS)) {
-                nukeModelCache();
-            }
-        });
+        ResourceUtils.registerReloadListener(e -> nukeModelCache());
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ModelBakery::onModelBake);
     }
 
@@ -101,8 +104,8 @@ public class ModelBakery {
         itemKeyGeneratorMap.put(item, generator);
     }
 
-    public static IBakedModel getCachedItemModel(ItemStack stack) {
-        IBakedModel model;
+    public static BakedModel getCachedItemModel(ItemStack stack) {
+        BakedModel model;
         IItemStackKeyGenerator generator = getKeyGenerator(stack.getItem());
         String key = generator.generateKey(stack);
         model = keyModelCache.getIfPresent(key);
@@ -121,7 +124,7 @@ public class ModelBakery {
 
     }
 
-    public static IBakedModel generateItemModel(ItemStack stack) {
+    public static BakedModel generateItemModel(ItemStack stack) {
         Item item = stack.getItem();
         if (item instanceof IBakeryProvider) {
 
@@ -145,11 +148,11 @@ public class ModelBakery {
         return missingModel;
     }
 
-    public static IBakedModel getCachedModel(BlockState state, IModelData data) {
+    public static BakedModel getCachedModel(BlockState state, IModelData data) {
         if (state == null) {
             return missingModel;
         }
-        IBakedModel model;
+        BakedModel model;
         IBlockStateKeyGenerator keyGenerator = getKeyGenerator(state.getBlock());
         String key = keyGenerator.generateKey(state, data);
         model = keyModelCache.getIfPresent(key);
@@ -167,7 +170,7 @@ public class ModelBakery {
         return model;
     }
 
-    public static IBakedModel generateModel(BlockState state, IModelData data) {
+    public static BakedModel generateModel(BlockState state, IModelData data) {
         if (state.getBlock() instanceof IBakeryProvider) {
             IBlockBakery bakery = (IBlockBakery) ((IBakeryProvider) state.getBlock()).getBakery();
             if (bakery instanceof ISimpleBlockBakery) {
@@ -183,15 +186,14 @@ public class ModelBakery {
 
                     faceQuads.put(face, quads);
                 }
-                ModelProperties properties = new ModelProperties(true, true, null);
-                return new PerspectiveAwareBakedModel(faceQuads, generalQuads, TransformUtils.DEFAULT_BLOCK, properties);
+                return new PerspectiveAwareBakedModel(faceQuads, generalQuads, TransformUtils.DEFAULT_BLOCK, DEFAULT);
             }
             if (bakery instanceof ILayeredBlockBakery) {
                 ILayeredBlockBakery layeredBakery = (ILayeredBlockBakery) bakery;
                 Map<RenderType, Map<Direction, List<BakedQuad>>> layerFaceQuadMap = new HashMap<>();
                 Map<RenderType, List<BakedQuad>> layerGeneralQuads = new HashMap<>();
                 for (RenderType layer : RenderType.chunkBufferLayers()) {
-                    if (RenderTypeLookup.canRenderInLayer(state, layer)) {
+                    if (ItemBlockRenderTypes.canRenderInLayer(state, layer)) {
                         LinkedList<BakedQuad> quads = new LinkedList<>();
                         quads.addAll(layeredBakery.bakeLayerFace(null, layer, state, data));
                         layerGeneralQuads.put(layer, quads);
@@ -199,7 +201,7 @@ public class ModelBakery {
                 }
 
                 for (RenderType layer : RenderType.chunkBufferLayers()) {
-                    if (RenderTypeLookup.canRenderInLayer(state, layer)) {
+                    if (ItemBlockRenderTypes.canRenderInLayer(state, layer)) {
                         Map<Direction, List<BakedQuad>> faceQuadMap = new HashMap<>();
                         for (Direction face : Direction.BY_3D_DATA) {
                             List<BakedQuad> quads = new LinkedList<>();
@@ -209,8 +211,7 @@ public class ModelBakery {
                         layerFaceQuadMap.put(layer, faceQuadMap);
                     }
                 }
-                ModelProperties properties = new ModelProperties(true, true, null);
-                return new PerspectiveAwareLayeredModel(layerFaceQuadMap, layerGeneralQuads, new PerspectiveProperties(TransformUtils.DEFAULT_BLOCK, properties), RenderType.solid());
+                return new PerspectiveAwareLayeredModel(layerFaceQuadMap, layerGeneralQuads, DEFAULT_PERSPECTIVE, RenderType.solid());
             }
         }
         return missingModel;

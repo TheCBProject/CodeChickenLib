@@ -2,7 +2,7 @@ package codechicken.lib.render.shader;
 
 import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.shader.ShaderObject.ShaderType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;

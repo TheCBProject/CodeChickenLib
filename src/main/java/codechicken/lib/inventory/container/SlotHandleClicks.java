@@ -1,3 +1,4 @@
+/*
 package codechicken.lib.inventory.container;
 
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,3 +15,4 @@ public abstract class SlotHandleClicks extends Slot {
 
     public abstract ItemStack slotClick(ContainerExtended container, PlayerEntity player, int button, ClickType clickType);
 }
+*/

@@ -2,9 +2,9 @@ package codechicken.lib.model;
 
 import codechicken.lib.util.ArrayUtils;
 import codechicken.lib.util.LambdaUtils;
-import net.minecraft.client.renderer.model.BakedQuad;
+import com.mojang.math.Transformation;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraftforge.client.model.ItemLayerModel;
 
 import java.util.LinkedList;
@@ -16,10 +16,10 @@ import java.util.List;
 public class ItemQuadBakery {
 
     public static List<BakedQuad> bakeItem(TextureAtlasSprite... sprites) {
-        return bakeItem(TransformationMatrix.identity(), sprites);
+        return bakeItem(Transformation.identity(), sprites);
     }
 
-    public static List<BakedQuad> bakeItem(TransformationMatrix transform, TextureAtlasSprite... sprites) {
+    public static List<BakedQuad> bakeItem(Transformation transform, TextureAtlasSprite... sprites) {
 
         LambdaUtils.checkArgument(sprites, "Sprites must not be Null or empty!", ArrayUtils::isNullOrContainsNull);
 

@@ -1,31 +1,29 @@
 package codechicken.lib.inventory.container;
 
 import codechicken.lib.data.MCDataInput;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-
-import net.minecraft.inventory.container.ContainerType.IFactory;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 
 /**
  * Created by covers1624 on 28/10/19.
  */
-public interface ICCLContainerType<T extends Container> {
+public interface ICCLContainerType<T extends AbstractContainerMenu> {
 
-    static <T extends Container> ContainerType<T> create(ICCLContainerFactory<T> factory) {
+    static <T extends AbstractContainerMenu> MenuType<T> create(ICCLContainerFactory<T> factory) {
         return new CCLContainerType<>(factory);
     }
 
-    T create(int windowId, PlayerInventory inventory, MCDataInput packet);
+    T create(int windowId, Inventory inventory, MCDataInput packet);
 
-    class CCLContainerType<T extends Container> extends ContainerType<T> implements ICCLContainerType<T> {
+    class CCLContainerType<T extends AbstractContainerMenu> extends MenuType<T> implements ICCLContainerType<T> {
 
-        public CCLContainerType(IFactory<T> factory) {
+        public CCLContainerType(MenuType.MenuSupplier<T> factory) {
             super(factory);
         }
 
         @Override
-        public T create(int windowId, PlayerInventory inventory, MCDataInput packet) {
+        public T create(int windowId, Inventory inventory, MCDataInput packet) {
             if (constructor instanceof ICCLContainerFactory) {
                 return ((ICCLContainerFactory<T>) constructor).create(windowId, inventory, packet);
             }

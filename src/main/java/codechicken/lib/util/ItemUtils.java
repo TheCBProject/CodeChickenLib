@@ -1,19 +1,18 @@
 package codechicken.lib.util;
 
 import codechicken.lib.vec.Vector3;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -26,7 +25,7 @@ import java.util.function.Predicate;
 public class ItemUtils {
 
     public static boolean isPlayerHolding(LivingEntity entity, Predicate<Item> predicate) {
-        for (Hand hand : Hand.values()) {
+        for (InteractionHand hand : InteractionHand.values()) {
             ItemStack stack = entity.getItemInHand(hand);
             if (!stack.isEmpty()) {
                 if (predicate.test(stack.getItem())) {
@@ -37,12 +36,12 @@ public class ItemUtils {
         return false;
     }
 
-    public static boolean isPlayerHoldingSomething(PlayerEntity player) {
+    public static boolean isPlayerHoldingSomething(Player player) {
         return !player.getMainHandItem().isEmpty() || !player.getOffhandItem().isEmpty();
     }
 
     @Nonnull
-    public static ItemStack getHeldStack(PlayerEntity player) {
+    public static ItemStack getHeldStack(Player player) {
         ItemStack stack = player.getMainHandItem();
         if (stack.isEmpty()) {
             stack = player.getOffhandItem();
@@ -53,10 +52,10 @@ public class ItemUtils {
     /**
      * Drops an item with basic default random velocity.
      */
-    public static void dropItem(ItemStack stack, World world, Vector3 dropLocation) {
-        ItemEntity item = new ItemEntity(world, dropLocation.x, dropLocation.y, dropLocation.z, stack);
-        item.setDeltaMovement(world.random.nextGaussian() * 0.05, world.random.nextGaussian() * 0.05 + 0.2F, world.random.nextGaussian() * 0.05);
-        world.addFreshEntity(item);
+    public static void dropItem(ItemStack stack, Level level, Vector3 dropLocation) {
+        ItemEntity item = new ItemEntity(level, dropLocation.x, dropLocation.y, dropLocation.z, stack);
+        item.setDeltaMovement(level.random.nextGaussian() * 0.05, level.random.nextGaussian() * 0.05 + 0.2F, level.random.nextGaussian() * 0.05);
+        level.addFreshEntity(item);
     }
 
     /**
@@ -67,7 +66,7 @@ public class ItemUtils {
      * @param stack    ItemStack to drop.
      * @param velocity The velocity to add.
      */
-    public static void dropItem(World world, BlockPos pos, @Nonnull ItemStack stack, double velocity) {
+    public static void dropItem(Level world, BlockPos pos, @Nonnull ItemStack stack, double velocity) {
         double xVelocity = world.random.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
         double yVelocity = world.random.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
         double zVelocity = world.random.nextFloat() * velocity + (1.0D - velocity) * 0.5D;
@@ -83,7 +82,7 @@ public class ItemUtils {
      * @param pos   Location to drop item.
      * @param stack ItemStack to drop.
      */
-    public static void dropItem(World world, BlockPos pos, @Nonnull ItemStack stack) {
+    public static void dropItem(Level world, BlockPos pos, @Nonnull ItemStack stack) {
         dropItem(world, pos, stack, 0.7D);
     }
 
@@ -94,7 +93,7 @@ public class ItemUtils {
      * @param pos       Position to drop item.
      * @param inventory IInventory to drop.
      */
-    public static void dropInventory(World world, BlockPos pos, IInventory inventory) {
+    public static void dropInventory(Level world, BlockPos pos, Container inventory) {
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack stack = inventory.getItem(i);
             if (!stack.isEmpty() && stack.getCount() > 0) {
@@ -128,10 +127,10 @@ public class ItemUtils {
      * @param stack Stack to spawn.
      * @param dir   Direction to shoot.
      */
-    public static void ejectItem(World world, BlockPos pos, @Nonnull ItemStack stack, Direction dir) {
+    public static void ejectItem(Level world, BlockPos pos, @Nonnull ItemStack stack, Direction dir) {
         pos.relative(dir);
         ItemEntity entity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-        entity.setDeltaMovement(Vector3d.atLowerCornerOf(dir.getNormal()).scale(0.3));
+        entity.setDeltaMovement(Vec3.atLowerCornerOf(dir.getNormal()).scale(0.3));
         entity.setPickUpDelay(10);
         world.addFreshEntity(entity);
     }
@@ -144,22 +143,10 @@ public class ItemUtils {
      * @param stacks Stack to spawn.
      * @param dir    Direction to shoot.
      */
-    public static void ejectItems(World world, BlockPos pos, List<ItemStack> stacks, Direction dir) {
+    public static void ejectItems(Level world, BlockPos pos, List<ItemStack> stacks, Direction dir) {
         for (ItemStack stack : stacks) {
             ejectItem(world, pos, stack, dir);
         }
-    }
-
-    /**
-     * Gets the burn time for a given ItemStack.
-     * Will return 0 if there is no burn time on the item.
-     *
-     * @param itemStack Stack to get Burn time on.
-     * @return Burn time for the Stack.
-     */
-    @Deprecated
-    public static int getBurnTime(@Nonnull ItemStack itemStack) {
-        return ForgeHooks.getBurnTime(itemStack);
     }
 
     /**

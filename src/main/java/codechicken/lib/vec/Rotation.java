@@ -1,8 +1,8 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -183,7 +183,7 @@ public class Rotation extends Transformation {
      * @param side   The side of the block being placed on
      * @return The rotation for the face == side^1
      */
-    public static int getSidedRotation(PlayerEntity player, int side) {
+    public static int getSidedRotation(Player player, int side) {
         Vector3 look = new Vector3(player.getViewVector(1));
         double max = 0;
         int maxr = 0;

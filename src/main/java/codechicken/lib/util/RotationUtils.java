@@ -1,9 +1,9 @@
 package codechicken.lib.util;
 
 import codechicken.lib.math.MathHelper;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.LivingEntity;
 
 /**
  * Contains a bunch of stuff to do with rotation.
@@ -18,7 +18,7 @@ public class RotationUtils {
      * @return Direction placed.
      */
     public static Direction getPlacedRotationHorizontal(LivingEntity entity) {
-        int facing = MathHelper.floor((entity.yRot * 4F) / 360F + 0.5D) & 3;
+        int facing = MathHelper.floor((entity.getYRot() * 4F) / 360F + 0.5D) & 3;
         return entityRotationToSide(facing).getOpposite();
     }
 
@@ -30,7 +30,7 @@ public class RotationUtils {
      * @return Direction placed.
      */
     public static Direction getPlacedRotation(BlockPos pos, LivingEntity entity) {
-        int entityRotation = (int) Math.floor(entity.yRot * 4.0F / 360.0F + 0.5D) & 3;
+        int entityRotation = (int) Math.floor(entity.getYRot() * 4.0F / 360.0F + 0.5D) & 3;
         if (Math.abs(entity.getX() - pos.getX()) < 2.0D && Math.abs(entity.getZ() - pos.getZ()) < 2.0D) {
 
             double eyeDistance = entity.getY() + 1.82D - pos.getY();

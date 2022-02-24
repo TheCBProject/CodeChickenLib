@@ -1,9 +1,9 @@
 package codechicken.lib.inventory;
 
 import codechicken.lib.util.ArrayUtils;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -11,13 +11,13 @@ import java.util.Objects;
 /**
  * Creates a copy of an IInventory for extended simulation
  */
-public class InventoryCopy implements IInventory {
+public class InventoryCopy implements Container {
 
     public boolean[] accessible;
     public ItemStack[] items;
-    public IInventory inv;
+    public Container inv;
 
-    public InventoryCopy(IInventory inv) {
+    public InventoryCopy(Container inv) {
         items = new ItemStack[inv.getContainerSize()];
         ArrayUtils.fillArray(items, ItemStack.EMPTY, (Objects::isNull));
         accessible = new boolean[inv.getContainerSize()];
@@ -85,7 +85,7 @@ public class InventoryCopy implements IInventory {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         return true;
     }
 
@@ -104,45 +104,14 @@ public class InventoryCopy implements IInventory {
     }
 
     @Override
-    public void startOpen(PlayerEntity player) {
+    public void startOpen(Player player) {
     }
 
     @Override
-    public void stopOpen(PlayerEntity player) {
+    public void stopOpen(Player player) {
     }
-
-    //    @Override
-    //    public int getField(int id) {
-    //        return 0;
-    //    }
-    //
-    //    @Override
-    //    public void setField(int id, int value) {
-    //    }
-    //
-    //    @Override
-    //    public int getFieldCount() {
-    //        return 0;
-    //    }
 
     @Override
     public void clearContent() {
     }
-
-    //    @Override
-    //    @Nonnull
-    //    public String getName() {
-    //        return "copy";
-    //    }
-    //
-    //    @Override
-    //    public boolean hasCustomName() {
-    //        return true;
-    //    }
-    //
-    //    @Override
-    //    @Nonnull
-    //    public ITextComponent getDisplayName() {
-    //        return new TextComponentString(getName());
-    //    }
 }

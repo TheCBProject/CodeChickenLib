@@ -6,13 +6,13 @@ import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.chars.CharOpenHashSet;
 import it.unimi.dsi.fastutil.chars.CharSet;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.ItemLike;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,19 +29,19 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
     private final List<String> patternLines = new ArrayList<>();
     private final Char2ObjectMap<Ingredient> keys = new Char2ObjectOpenHashMap<>();
 
-    protected ShapedRecipeBuilder(IRecipeSerializer<?> serializer, ResourceLocation id, ItemStack result) {
+    protected ShapedRecipeBuilder(RecipeSerializer<?> serializer, ResourceLocation id, ItemStack result) {
         super(serializer, id, result);
     }
 
-    public static ShapedRecipeBuilder builder(IItemProvider result) {
+    public static ShapedRecipeBuilder builder(ItemLike result) {
         return builder(result, 1);
     }
 
-    public static ShapedRecipeBuilder builder(IItemProvider result, int count) {
+    public static ShapedRecipeBuilder builder(ItemLike result, int count) {
         return builder(new ItemStack(result, count));
     }
 
-    public static ShapedRecipeBuilder builder(IItemProvider result, int count, ResourceLocation id) {
+    public static ShapedRecipeBuilder builder(ItemLike result, int count, ResourceLocation id) {
         return builder(new ItemStack(result, count), id);
     }
 
@@ -50,15 +50,15 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
     }
 
     public static ShapedRecipeBuilder builder(ItemStack result, ResourceLocation id) {
-        return new ShapedRecipeBuilder(IRecipeSerializer.SHAPED_RECIPE, id, result);
+        return new ShapedRecipeBuilder(RecipeSerializer.SHAPED_RECIPE, id, result);
     }
 
-    public ShapedRecipeBuilder key(char key, ITag<Item> item) {
+    public ShapedRecipeBuilder key(char key, Tag<Item> item) {
         addAutoCriteria(item);
         return keyInternal(key, Ingredient.of(item));
     }
 
-    public ShapedRecipeBuilder key(char key, IItemProvider item) {
+    public ShapedRecipeBuilder key(char key, ItemLike item) {
         addAutoCriteria(item);
         return keyInternal(key, Ingredient.of(item));
     }

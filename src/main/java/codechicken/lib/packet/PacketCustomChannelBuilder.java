@@ -5,18 +5,18 @@ import codechicken.lib.packet.ICustomPacketHandler.ILoginPacketHandler;
 import codechicken.lib.packet.ICustomPacketHandler.IServerPacketHandler;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.login.ClientLoginNetHandler;
-import net.minecraft.client.network.play.ClientPlayNetHandler;
-import net.minecraft.network.INetHandler;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.ServerPlayNetHandler;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.PacketListener;
+import net.minecraft.network.protocol.login.ClientLoginPacketListener;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.network.NetworkEvent;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.event.EventNetworkChannel;
+import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.event.EventNetworkChannel;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -185,10 +185,9 @@ public class PacketCustomChannelBuilder {
             }
             PacketCustom packet = new PacketCustom(event.getPayload());
             NetworkEvent.Context ctx = event.getSource().get();
-            INetHandler netHandler = ctx.getNetworkManager().getPacketListener();
+            PacketListener netHandler = ctx.getNetworkManager().getPacketListener();
             ctx.setPacketHandled(true);
-            if (netHandler instanceof ClientPlayNetHandler) {
-                ClientPlayNetHandler nh = (ClientPlayNetHandler) netHandler;
+            if (netHandler instanceof ClientPacketListener nh) {
                 ctx.enqueueWork(() -> packetHandler.handlePacket(packet, Minecraft.getInstance(), nh));
             }
         }
@@ -209,10 +208,9 @@ public class PacketCustomChannelBuilder {
         public void onServerPayload(NetworkEvent.ClientCustomPayloadEvent event) {
             PacketCustom packet = new PacketCustom(event.getPayload());
             NetworkEvent.Context ctx = event.getSource().get();
-            INetHandler netHandler = ctx.getNetworkManager().getPacketListener();
+            PacketListener netHandler = ctx.getNetworkManager().getPacketListener();
             ctx.setPacketHandled(true);
-            if (netHandler instanceof ServerPlayNetHandler) {
-                ServerPlayNetHandler nh = (ServerPlayNetHandler) netHandler;
+            if (netHandler instanceof ServerGamePacketListenerImpl nh) {
                 ctx.enqueueWork(() -> packetHandler.handlePacket(packet, nh.player, nh));
             }
         }
@@ -241,13 +239,12 @@ public class PacketCustomChannelBuilder {
         public void onClientPayload(NetworkEvent.LoginPayloadEvent event) {
             PacketCustom packet = new PacketCustom(event.getPayload());
             NetworkEvent.Context ctx = event.getSource().get();
-            INetHandler netHandler = ctx.getNetworkManager().getPacketListener();
+            PacketListener netHandler = ctx.getNetworkManager().getPacketListener();
             ctx.setPacketHandled(true);
-            if (netHandler instanceof ClientLoginNetHandler) {
-                ClientLoginNetHandler nh = (ClientLoginNetHandler) netHandler;
+            if (netHandler instanceof ClientLoginPacketListener nh) {
                 packetHandler.handleLoginPacket(packet, Minecraft.getInstance(), nh, ctx);
                 //For _some_ reason sending this response packet in FML is private. So just spoof the packet :D
-                ctx.getPacketDispatcher().sendPacket(new ResourceLocation("fml:handshake"), new PacketBuffer(Unpooled.buffer().writeByte(99)));
+                ctx.getPacketDispatcher().sendPacket(new ResourceLocation("fml:handshake"), new FriendlyByteBuf(Unpooled.buffer().writeByte(99)));
             }
         }
     }

@@ -3,8 +3,8 @@ package codechicken.lib.render;
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.model.CachedFormat;
-import codechicken.lib.render.buffer.ISpriteAwareVertexBuilder;
-import codechicken.lib.render.buffer.TransformingVertexBuilder;
+import codechicken.lib.render.buffer.ISpriteAwareVertexConsumer;
+import codechicken.lib.render.buffer.TransformingVertexConsumer;
 import codechicken.lib.render.lighting.LC;
 import codechicken.lib.render.lighting.LightMatrix;
 import codechicken.lib.render.lighting.PlanarLightModel;
@@ -17,17 +17,15 @@ import codechicken.lib.vec.Matrix4;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraftforge.fluids.FluidStack;
 
 /**
@@ -53,7 +51,7 @@ public class CCRenderState {
     public int lastVertexIndex;
     public int vertexIndex;
     public CCRenderPipeline pipeline;
-    public IVertexBuilder r;
+    public VertexConsumer r;
     public VertexFormat fmt;
     public CachedFormat cFmt;
 
@@ -96,15 +94,15 @@ public class CCRenderState {
     }
 
     /**
-     * Bind this {@link CCRenderState} instance to the {@link Tessellator} buffer
+     * Bind this {@link CCRenderState} instance to the {@link Tesselator} buffer
      * and prepare to start drawing vertices for the given <code>mode</code> and {@link VertexFormat}.
      *
-     * @param mode   The GL integer mode. E.g: GL_QUADS, GL_TRIANGLES, and so on.
+     * @param mode   The Draw Mode.
      * @param format The {@link VertexFormat}.
-     * @return The {@link BufferBuilder} instance from {@link Tessellator}.
+     * @return The {@link BufferBuilder} instance from {@link Tesselator}.
      */
-    public BufferBuilder startDrawing(int mode, VertexFormat format) {
-        BufferBuilder r = Tessellator.getInstance().getBuilder();
+    public BufferBuilder startDrawing(VertexFormat.Mode mode, VertexFormat format) {
+        BufferBuilder r = Tesselator.getInstance().getBuilder();
         r.begin(mode, format);
         bind(r);
         return r;
@@ -114,12 +112,12 @@ public class CCRenderState {
      * Bind this {@link CCRenderState} instance to the given {@link BufferBuilder}
      * and prepare to start drawing vertices for the given <code>mode</code> and {@link VertexFormat}.
      *
-     * @param mode   The GL integer mode. E.g: GL_QUADS, GL_TRIANGLES, and so on.
+     * @param mode   The Draw Mode.
      * @param format The {@link VertexFormat}.
      * @param buffer The {@link BufferBuilder} to bind to.
      * @return The same {@link BufferBuilder} that was passed in.
      */
-    public BufferBuilder startDrawing(int mode, VertexFormat format, BufferBuilder buffer) {
+    public BufferBuilder startDrawing(VertexFormat.Mode mode, VertexFormat format, BufferBuilder buffer) {
         buffer.begin(mode, format);
         bind(buffer);
         return buffer;
@@ -135,12 +133,12 @@ public class CCRenderState {
     }
 
     /**
-     * Bind this {@link CCRenderState} to the given {@link IVertexBuilder} and {@link VertexFormat}.
+     * Bind this {@link CCRenderState} to the given {@link VertexConsumer} and {@link VertexFormat}.
      *
-     * @param consumer The {@link IVertexBuilder} to bind to.
-     * @param format   The {@link VertexFormat} of the {@link IVertexBuilder}.
+     * @param consumer The {@link VertexConsumer} to bind to.
+     * @param format   The {@link VertexFormat} of the {@link VertexConsumer}.
      */
-    public void bind(IVertexBuilder consumer, VertexFormat format) {
+    public void bind(VertexConsumer consumer, VertexFormat format) {
         r = consumer;
         fmt = format;
         cFmt = CachedFormat.lookup(format);
@@ -150,10 +148,10 @@ public class CCRenderState {
      * Bind this {@link CCRenderState} to the given {@link RenderType}.
      *
      * @param renderType The {@link RenderType} to bind to.
-     * @param getter     The {@link IRenderTypeBuffer} instance.
+     * @param source     The {@link MultiBufferSource} instance.
      */
-    public void bind(RenderType renderType, IRenderTypeBuffer getter) {
-        bind(getter.getBuffer(renderType), renderType.format());
+    public void bind(RenderType renderType, MultiBufferSource source) {
+        bind(source.getBuffer(renderType), renderType.format());
     }
 
     /**
@@ -161,11 +159,11 @@ public class CCRenderState {
      * the given MatrixStack.
      *
      * @param renderType The {@link RenderType} to bind to.
-     * @param getter     The {@link IRenderTypeBuffer} instance.
-     * @param mStack     The {@link MatrixStack} to apply.
+     * @param source     The {@link MultiBufferSource} instance.
+     * @param mStack     The {@link PoseStack} to apply.
      */
-    public void bind(RenderType renderType, IRenderTypeBuffer getter, MatrixStack mStack) {
-        bind(new TransformingVertexBuilder(getter.getBuffer(renderType), mStack), renderType.format());
+    public void bind(RenderType renderType, MultiBufferSource source, PoseStack mStack) {
+        bind(new TransformingVertexConsumer(source.getBuffer(renderType), mStack), renderType.format());
     }
 
     /**
@@ -173,11 +171,11 @@ public class CCRenderState {
      * the given MatrixStack.
      *
      * @param renderType The {@link RenderType} to bind to.
-     * @param getter     The {@link IRenderTypeBuffer} instance.
+     * @param getter     The {@link MultiBufferSource} instance.
      * @param mat        The {@link Matrix4} to apply.
      */
-    public void bind(RenderType renderType, IRenderTypeBuffer getter, Matrix4 mat) {
-        bind(new TransformingVertexBuilder(getter.getBuffer(renderType), mat), renderType.format());
+    public void bind(RenderType renderType, MultiBufferSource getter, Matrix4 mat) {
+        bind(new TransformingVertexConsumer(getter.getBuffer(renderType), mat), renderType.format());
     }
 
     /**
@@ -190,7 +188,7 @@ public class CCRenderState {
         colour = baseColour = alphaOverride = -1;
     }
 
-    public void preRenderWorld(IBlockDisplayReader world, BlockPos pos) {
+    public void preRenderWorld(BlockAndTintGetter world, BlockPos pos) {
         this.reset();
         this.colour = 0xFFFFFFFF;
         this.setBrightness(world, pos);
@@ -247,8 +245,8 @@ public class CCRenderState {
     }
 
     public void writeVert() {
-        if (r instanceof ISpriteAwareVertexBuilder) {
-            ((ISpriteAwareVertexBuilder) r).sprite(sprite);
+        if (r instanceof ISpriteAwareVertexConsumer) {
+            ((ISpriteAwareVertexConsumer) r).sprite(sprite);
         }
         ImmutableList<VertexFormatElement> elements = fmt.getElements();
         for (int e = 0; e < elements.size(); e++) {
@@ -260,15 +258,9 @@ public class CCRenderState {
                 case UV:
                     int idx = fmte.getIndex();
                     switch (idx) {
-                        case 0:
-                            r.uv((float) vert.uv.u, (float) vert.uv.v);
-                            break;
-                        case 1:
-                            r.overlayCoords(overlay);
-                            break;
-                        case 2:
-                            r.uv2(brightness);
-                            break;
+                        case 0 -> r.uv((float) vert.uv.u, (float) vert.uv.v);
+                        case 1 -> r.overlayCoords(overlay);
+                        case 2 -> r.uv2(brightness);
                     }
                     break;
                 case COLOR:
@@ -291,13 +283,8 @@ public class CCRenderState {
         r.endVertex();
     }
 
-    @Deprecated
-    public void pushColour() {
-        GlStateManager._color4f((colour >>> 24) / 255F, (colour >> 16 & 0xFF) / 255F, (colour >> 8 & 0xFF) / 255F, (alphaOverride >= 0 ? alphaOverride : colour & 0xFF) / 255F);
-    }
-
-    public void setBrightness(IBlockDisplayReader world, BlockPos pos) {
-        brightness = WorldRenderer.getLightColor(world, world.getBlockState(pos), pos);
+    public void setBrightness(BlockAndTintGetter world, BlockPos pos) {
+        brightness = LevelRenderer.getLightColor(world, world.getBlockState(pos), pos);
     }
 
     public void setBrightness(Entity entity, float frameDelta) {
@@ -320,7 +307,7 @@ public class CCRenderState {
         return new ColourRGBA(colour);
     }
 
-    public IVertexBuilder getConsumer() {
+    public VertexConsumer getConsumer() {
         return r;
     }
 
@@ -329,6 +316,6 @@ public class CCRenderState {
     }
 
     public void draw() {
-        Tessellator.getInstance().end();
+        Tesselator.getInstance().end();
     }
 }

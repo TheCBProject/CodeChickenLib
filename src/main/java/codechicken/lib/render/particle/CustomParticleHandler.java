@@ -5,24 +5,23 @@ import codechicken.lib.packet.PacketCustom;
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.client.renderer.BlockModelShapes;
-import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.ModelDataManager;
@@ -50,30 +49,30 @@ public class CustomParticleHandler {
      * @param numParticles The number of particles to spawn.
      * @return Always true for this, basically just return the result of this method inside {@link Block#addLandingEffects}
      */
-    public static boolean handleLandingEffects(ServerWorld world, BlockPos pos, LivingEntity entity, int numParticles) {
+    public static boolean handleLandingEffects(ServerLevel world, BlockPos pos, LivingEntity entity, int numParticles) {
         PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, C_ADD_LANDING_EFFECTS);
         packet.writePos(pos);
         packet.writeVector(Vector3.fromEntity(entity));
         packet.writeVarInt(numParticles);
-        packet.sendToPlayer((ServerPlayerEntity) entity);
+        packet.sendToPlayer((ServerPlayer) entity);
         return true;
     }
 
     @OnlyIn (Dist.CLIENT)
-    public static boolean handleRunningEffects(World world, BlockPos pos, BlockState state, Entity entity) {
+    public static boolean handleRunningEffects(Level world, BlockPos pos, BlockState state, Entity entity) {
         //Spoof a raytrace from the feet.
-        BlockRayTraceResult traceResult = new BlockRayTraceResult(entity.position().add(0, 1, 0), Direction.UP, pos, false);
-        BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
-        IBakedModel model = modelShapes.getBlockModel(state);
+        BlockHitResult traceResult = new BlockHitResult(entity.position().add(0, 1, 0), Direction.UP, pos, false);
+        BlockModelShaper modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
+        BakedModel model = modelShapes.getBlockModel(state);
         if (model instanceof IModelParticleProvider) {
             IModelData modelData = ModelDataManager.getModelData(world, pos);
-            ParticleManager particleManager = Minecraft.getInstance().particleEngine;
+            ParticleEngine particleManager = Minecraft.getInstance().particleEngine;
             List<TextureAtlasSprite> sprites = new ArrayList<>(((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos, modelData));
             TextureAtlasSprite rolledSprite = sprites.get(world.random.nextInt(sprites.size()));
             double x = entity.getX() + (world.random.nextFloat() - 0.5D) * entity.getBbWidth();
             double y = entity.getBoundingBox().minY + 0.1D;
             double z = entity.getZ() + (world.random.nextFloat() - 0.5D) * entity.getBbWidth();
-            particleManager.add(new CustomBreakingParticle((ClientWorld) world, x, y, z, -entity.getDeltaMovement().x * 4.0D, 1.5D, -entity.getDeltaMovement().z * 4.0D, rolledSprite));
+            particleManager.add(new CustomBreakingParticle((ClientLevel) world, x, y, z, -entity.getDeltaMovement().x * 4.0D, 1.5D, -entity.getDeltaMovement().z * 4.0D, rolledSprite));
             return true;
         }
 
@@ -85,19 +84,18 @@ public class CustomParticleHandler {
      * Provided the model bound is an instance of IModelParticleProvider, you will have landing particles just handled for you.
      * Use the default PerspectiveModel implementations in CCL, Hit effects will be polled from your model based on your bounding box hit.
      *
-     * @param state   The state.
-     * @param world   The world.
-     * @param traceResult     The trace result.
-     * @param manager The ParticleManager.
+     * @param state       The state.
+     * @param world       The world.
+     * @param traceResult The trace result.
+     * @param manager     The ParticleManager.
      * @return True if particles were added, basically just return the result of this method inside {@link Block#addLandingEffects}
      */
     @OnlyIn (Dist.CLIENT)
-    public static boolean handleHitEffects(BlockState state, World world, RayTraceResult traceResult, ParticleManager manager) {
-        if (traceResult instanceof BlockRayTraceResult) {
-            BlockRayTraceResult hit = (BlockRayTraceResult) traceResult;
+    public static boolean handleHitEffects(BlockState state, Level world, HitResult traceResult, ParticleEngine manager) {
+        if (traceResult instanceof BlockHitResult hit) {
             BlockPos pos = hit.getBlockPos();
-            BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
-            IBakedModel model = modelShapes.getBlockModel(state);
+            BlockModelShaper modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
+            BakedModel model = modelShapes.getBlockModel(state);
             if (model instanceof IModelParticleProvider) {
                 IModelData modelData = ModelDataManager.getModelData(world, pos);
                 Cuboid6 bounds;
@@ -127,9 +125,9 @@ public class CustomParticleHandler {
      * @return True if particles were added, basically just return the result of this method inside {@link Block#addHitEffects}
      */
     @OnlyIn (Dist.CLIENT)
-    public static boolean handleDestroyEffects(World world, BlockPos pos, BlockState state, ParticleManager manager) {
-        BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
-        IBakedModel model = modelShapes.getBlockModel(state);
+    public static boolean handleDestroyEffects(Level world, BlockPos pos, BlockState state, ParticleEngine manager) {
+        BlockModelShaper modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
+        BakedModel model = modelShapes.getBlockModel(state);
         if (model instanceof IModelParticleProvider) {
             IModelData modelData = ModelDataManager.getModelData(world, pos);
             Cuboid6 bounds = new Cuboid6(state.getShape(world, pos).bounds());
@@ -140,13 +138,13 @@ public class CustomParticleHandler {
     }
 
     @OnlyIn (Dist.CLIENT)
-    public static void addLandingEffects(World world, BlockPos pos, BlockState state, Vector3 entityPos, int numParticles) {
+    public static void addLandingEffects(Level world, BlockPos pos, BlockState state, Vector3 entityPos, int numParticles) {
         //Spoof a raytrace from the feet.
-        BlockRayTraceResult traceResult = new BlockRayTraceResult(new Vector3d(entityPos.x, pos.getY() + 1, entityPos.z), Direction.UP, pos, false);
-        ParticleManager manager = Minecraft.getInstance().particleEngine;
+        BlockHitResult traceResult = new BlockHitResult(new Vec3(entityPos.x, pos.getY() + 1, entityPos.z), Direction.UP, pos, false);
+        ParticleEngine manager = Minecraft.getInstance().particleEngine;
         Random randy = new Random();
-        BlockModelShapes modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
-        IBakedModel model = modelShapes.getBlockModel(state);
+        BlockModelShaper modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
+        BakedModel model = modelShapes.getBlockModel(state);
         if (model instanceof IModelParticleProvider) {
             IModelData modelData = ModelDataManager.getModelData(world, pos);
             List<TextureAtlasSprite> sprites = new ArrayList<>(((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos, modelData));
@@ -157,14 +155,14 @@ public class CustomParticleHandler {
                     double mX = randy.nextGaussian() * speed;
                     double mY = randy.nextGaussian() * speed;
                     double mZ = randy.nextGaussian() * speed;
-                    manager.add(CustomBreakingParticle.newLandingParticle((ClientWorld) world, entityPos.x, entityPos.y, entityPos.z, mX, mY, mZ, sprites.get(randy.nextInt(sprites.size()))));
+                    manager.add(CustomBreakingParticle.newLandingParticle((ClientLevel) world, entityPos.x, entityPos.y, entityPos.z, mX, mY, mZ, sprites.get(randy.nextInt(sprites.size()))));
                 }
             }
         }
     }
 
     @OnlyIn (Dist.CLIENT)
-    public static void addBlockHitEffects(World world, Cuboid6 bounds, Direction side, TextureAtlasSprite icon, ParticleManager particleManager) {
+    public static void addBlockHitEffects(Level world, Cuboid6 bounds, Direction side, TextureAtlasSprite icon, ParticleEngine particleManager) {
         float border = 0.1F;
         Vector3 diff = bounds.max.copy().subtract(bounds.min).add(-2 * border);
         diff.x *= world.random.nextDouble();
@@ -191,11 +189,11 @@ public class CustomParticleHandler {
             diff.x = bounds.max.x + border;
         }
 
-        particleManager.add(new CustomBreakingParticle((ClientWorld) world, pos.x, pos.y, pos.z, 0, 0, 0, icon).setPower(0.2F).scale(0.6F));
+        particleManager.add(new CustomBreakingParticle((ClientLevel) world, pos.x, pos.y, pos.z, 0, 0, 0, icon).setPower(0.2F).scale(0.6F));
     }
 
     @OnlyIn (Dist.CLIENT)
-    public static void addBlockDestroyEffects(World world, Cuboid6 bounds, List<TextureAtlasSprite> icons, ParticleManager particleManager) {
+    public static void addBlockDestroyEffects(Level world, Cuboid6 bounds, List<TextureAtlasSprite> icons, ParticleEngine particleManager) {
         Vector3 diff = bounds.max.copy().subtract(bounds.min);
         Vector3 center = bounds.min.copy().add(bounds.max).multiply(0.5);
         Vector3 density = diff.copy().multiply(4).ceil();
@@ -206,7 +204,7 @@ public class CustomParticleHandler {
                     double x = bounds.min.x + (i + 0.5) * diff.x / density.x;
                     double y = bounds.min.y + (j + 0.5) * diff.y / density.y;
                     double z = bounds.min.z + (k + 0.5) * diff.z / density.z;
-                    particleManager.add(new CustomBreakingParticle((ClientWorld) world, x, y, z, x - center.x, y - center.y, z - center.z, icons.get(world.random.nextInt(icons.size()))));
+                    particleManager.add(new CustomBreakingParticle((ClientLevel) world, x, y, z, x - center.x, y - center.y, z - center.z, icons.get(world.random.nextInt(icons.size()))));
                 }
             }
         }

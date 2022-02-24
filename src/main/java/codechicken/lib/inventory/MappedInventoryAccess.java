@@ -1,15 +1,15 @@
 package codechicken.lib.inventory;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MappedInventoryAccess implements IInventory {
+public class MappedInventoryAccess implements Container {
 
     public interface InventoryAccessor {
 
@@ -18,11 +18,11 @@ public class MappedInventoryAccess implements IInventory {
 
     public static final InventoryAccessor fullAccess = slot -> true;
 
-    private ArrayList<Integer> slotMap = new ArrayList<>();
-    private IInventory inv;
-    private ArrayList<InventoryAccessor> accessors = new ArrayList<>();
+    private final ArrayList<Integer> slotMap = new ArrayList<>();
+    private final Container inv;
+    private final ArrayList<InventoryAccessor> accessors = new ArrayList<>();
 
-    public MappedInventoryAccess(IInventory inv, InventoryAccessor... accessors) {
+    public MappedInventoryAccess(Container inv, InventoryAccessor... accessors) {
         this.inv = inv;
         Collections.addAll(this.accessors, accessors);
         reset();
@@ -86,7 +86,7 @@ public class MappedInventoryAccess implements IInventory {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         return inv.stillValid(player);
     }
 
@@ -101,51 +101,19 @@ public class MappedInventoryAccess implements IInventory {
     }
 
     @Override
-    public void startOpen(PlayerEntity player) {
+    public void startOpen(Player player) {
         inv.startOpen(player);
     }
 
     @Override
-    public void stopOpen(PlayerEntity player) {
+    public void stopOpen(Player player) {
         inv.stopOpen(player);
     }
-
-    //    @Override
-    //    public int getField(int id) {
-    //        return inv.getField(id);
-    //    }
-    //
-    //    @Override
-    //    public void setField(int id, int value) {
-    //        inv.setField(id, value);
-    //    }
-    //
-    //    @Override
-    //    public int getFieldCount() {
-    //        return inv.getFieldCount();
-    //    }
 
     @Override
     public void clearContent() {
         inv.clearContent();
     }
-
-    //    @Override
-    //    @Nonnull
-    //    public String getName() {
-    //        return inv.getName();
-    //    }
-    //
-    //    @Override
-    //    public boolean hasCustomName() {
-    //        return inv.hasCustomName();
-    //    }
-    //
-    //    @Override
-    //    @Nonnull
-    //    public ITextComponent getDisplayName() {
-    //        return inv.getDisplayName();
-    //    }
 
     public List<InventoryAccessor> accessors() {
         return accessors;

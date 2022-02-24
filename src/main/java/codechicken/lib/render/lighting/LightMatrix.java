@@ -3,11 +3,11 @@ package codechicken.lib.render.lighting;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Note that when using the class as a vertex transformer, the vertices are assumed to be within the BB (x, y, z) -> (x+1, y+1, z+1)
@@ -20,12 +20,12 @@ public class LightMatrix implements IVertexOperation {
     public float[][] ao = new float[13][4];
     public int[][] brightness = new int[13][4];
 
-    public IBlockDisplayReader access;
+    public BlockAndTintGetter access;
     public BlockPos pos = BlockPos.ZERO;
 
     private int sampled = 0;
-    private float[] aSamples = new float[27];
-    private int[] bSamples = new int[27];
+    private final float[] aSamples = new float[27];
+    private final int[] bSamples = new int[27];
 
     /**
      * The 9 positions in the sample array for each side, sides >= 6 are centered on sample 13 (the block itself)
@@ -81,7 +81,7 @@ public class LightMatrix implements IVertexOperation {
         System.out.println(Arrays.deepToString(ssamplem));
     }*/
 
-    public void locate(IBlockDisplayReader a, BlockPos bPos) {
+    public void locate(BlockAndTintGetter a, BlockPos bPos) {
         access = a;
         pos = bPos;
         computed = 0;
@@ -92,7 +92,7 @@ public class LightMatrix implements IVertexOperation {
         if ((sampled & 1 << i) == 0) {
             BlockPos bp = new BlockPos(pos.getX() + (i % 3) - 1, pos.getY() + (i / 9) - 1, pos.getZ() + (i / 3 % 3) - 1);
             BlockState b = access.getBlockState(bp);
-            bSamples[i] = WorldRenderer.getLightColor(access, bp);
+            bSamples[i] = LevelRenderer.getLightColor(access, bp);
             aSamples[i] = b.getShadeBrightness(access, bp);
             sampled |= 1 << i;
         }

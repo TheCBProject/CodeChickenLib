@@ -1,3 +1,4 @@
+/*
 package codechicken.lib.inventory.container;
 
 import codechicken.lib.inventory.InventoryUtils;
@@ -76,3 +77,4 @@ public class SlotDummy extends SlotHandleClicks {
         return false;
     }
 }
+*/

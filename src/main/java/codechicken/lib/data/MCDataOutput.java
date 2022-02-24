@@ -2,19 +2,19 @@ package codechicken.lib.data;
 
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
+import com.mojang.math.Vector3f;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.EncoderException;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.*;
 
@@ -790,12 +790,12 @@ public interface MCDataOutput {
     }
 
     /**
-     * Writes a {@link Vector3i} to the stream.
+     * Writes a {@link Vec3i} to the stream.
      *
-     * @param vec The {@link Vector3i}.
+     * @param vec The {@link Vec3i}.
      * @return The same stream.
      */
-    default MCDataOutput writeVec3i(Vector3i vec) {
+    default MCDataOutput writeVec3i(Vec3i vec) {
         writeSignedVarInt(vec.getX());
         writeSignedVarInt(vec.getY());
         writeSignedVarInt(vec.getZ());
@@ -816,12 +816,12 @@ public interface MCDataOutput {
     }
 
     /**
-     * Writes a {@link Vector3d} to the stream.
+     * Writes a {@link Vec3} to the stream.
      *
-     * @param vec The {@link Vector3d}.
+     * @param vec The {@link Vec3}.
      * @return The same stream.
      */
-    default MCDataOutput writeVec3d(Vector3d vec) {
+    default MCDataOutput writeVec3d(Vec3 vec) {
         writeDouble(vec.x);
         writeDouble(vec.y);
         writeDouble(vec.z);
@@ -829,18 +829,18 @@ public interface MCDataOutput {
     }
 
     /**
-     * Writes a {@link CompoundNBT} to the stream.
+     * Writes a {@link CompoundTag} to the stream.
      *
-     * @param tag The {@link CompoundNBT}.
+     * @param tag The {@link CompoundTag}.
      * @return The same stream.
      */
-    default MCDataOutput writeCompoundNBT(CompoundNBT tag) {
+    default MCDataOutput writeCompoundNBT(CompoundTag tag) {
         if (tag == null) {
             writeBoolean(false);
         } else {
             try {
                 writeBoolean(true);
-                CompressedStreamTools.write(tag, toDataOutput());
+                NbtIo.write(tag, toDataOutput());
             } catch (IOException e) {
                 throw new EncoderException("Failed to write CompoundNBT to stream.", e);
             }
@@ -883,7 +883,7 @@ public interface MCDataOutput {
             Item item = stack.getItem();
             writeRegistryIdUnsafe(ForgeRegistries.ITEMS, item);
             writeVarInt(stack.getCount());
-            CompoundNBT nbt = null;
+            CompoundTag nbt = null;
             if (item.canBeDepleted() || item.shouldOverrideMultiplayerNbt()) {
                 nbt = limitedTag ? stack.getShareTag() : stack.getTag();
             }
@@ -911,13 +911,13 @@ public interface MCDataOutput {
     }
 
     /**
-     * Writes a {@link ITextComponent} to the stream.
+     * Writes a {@link Component} to the stream.
      *
-     * @param component The {@link ITextComponent}.
+     * @param component The {@link Component}.
      * @return The same stream.
      */
-    default MCDataOutput writeTextComponent(ITextComponent component) {
-        return writeString(ITextComponent.Serializer.toJson(component), 262144);//32kb
+    default MCDataOutput writeTextComponent(Component component) {
+        return writeString(Component.Serializer.toJson(component), 262144);//32kb
     }
 
     /**

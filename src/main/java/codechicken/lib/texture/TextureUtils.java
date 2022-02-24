@@ -4,17 +4,17 @@ import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourARGB;
 import codechicken.lib.util.ResourceUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.texture.MissingTextureSprite;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.level.block.state.BlockState;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -66,38 +66,17 @@ public class TextureUtils {
         in.close();
         return img;
     }
-    //
-    //    public static void copySubImg(int[] fromTex, int fromWidth, int fromX, int fromY, int width, int height, int[] toTex, int toWidth, int toX, int toY) {
-    //        for (int y = 0; y < height; y++) {
-    //            for (int x = 0; x < width; x++) {
-    //                int fp = (y + fromY) * fromWidth + x + fromX;
-    //                int tp = (y + toX) * toWidth + x + toX;
-    //
-    //                toTex[tp] = fromTex[fp];
-    //            }
-    //        }
-    //    }
 
-    //    public static TextureAtlasSprite getBlankIcon(int size, AtlasTexture textureMap) {
-    //        String s = "blank_" + size;
-    //        TextureAtlasSprite icon = textureMap.getSprite(s);
-    //        if (icon == null) {
-    //            icon = new TextureSpecial(s).blank(size);
-    //            setTextureEntry(textureMap, icon);
-    //        }
-    //
-    //        return icon;
-    //    }
+    public static void copySubImg(int[] fromTex, int fromWidth, int fromX, int fromY, int width, int height, int[] toTex, int toWidth, int toX, int toY) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int fp = (y + fromY) * fromWidth + x + fromX;
+                int tp = (y + toX) * toWidth + x + toX;
 
-    //    public static TextureSpecial getTextureSpecial(AtlasTexture textureMap, String name) {
-    //        if (textureMap.getTextureExtry(name) != null) {
-    //            throw new IllegalStateException("Texture: " + name + " is already registered");
-    //        }
-    //
-    //        TextureSpecial icon = new TextureSpecial(name);
-    //        setTextureEntry(textureMap, icon);
-    //        return icon;
-    //    }
+                toTex[tp] = fromTex[fp];
+            }
+        }
+    }
 
     public static void prepareTexture(int target, int texture, int min_mag_filter, int wrap) {
         GlStateManager._texParameter(target, GL11.GL_TEXTURE_MIN_FILTER, min_mag_filter);
@@ -118,44 +97,16 @@ public class TextureUtils {
         }
     }
 
-    //    public static TextureDataHolder loadTexture(ResourceLocation resource) {
-    //        BufferedImage img = loadBufferedImage(resource);
-    //        if (img == null) {
-    //            throw new RuntimeException("Texture not found: " + resource);
-    //        }
-    //        return new TextureDataHolder(img);
-    //    }
-
-    //    /**
-    //     * Uses an empty placeholder texture to tell if the map has been reloaded since the last call to refresh texture and the texture with name needs to be reacquired to be valid
-    //     */
-    //    public static boolean refreshTexture(AtlasTexture atlas, String name) {
-    //        if (atlas.getAtlasSprite(name) == null) {
-    //            setTextureEntry(atlas, new PlaceholderTexture(name));
-    //            return true;
-    //        }
-    //        return false;
-    //    }
-    //
-    //    public static boolean setTextureEntry(AtlasTexture atlas, TextureAtlasSprite sprite) {
-    //        ResourceLocation name = sprite.getName();
-    //        if (!atlas.mapUploadedSprites.containsKey(name)) {
-    //            atlas.mapUploadedSprites.put(name, sprite);
-    //            return true;
-    //        }
-    //        return false;
-    //    }
-
     public static TextureManager getTextureManager() {
         return Minecraft.getInstance().getTextureManager();
     }
 
-    public static AtlasTexture getTextureMap() {
-        return Minecraft.getInstance().getModelManager().getAtlas(PlayerContainer.BLOCK_ATLAS);
+    public static TextureAtlas getTextureMap() {
+        return Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS);
     }
 
     public static TextureAtlasSprite getMissingSprite() {
-        return getTextureMap().getSprite(MissingTextureSprite.getLocation());
+        return getTextureMap().getSprite(MissingTextureAtlasSprite.getLocation());
     }
 
     public static TextureAtlasSprite getTexture(String location) {
@@ -182,42 +133,6 @@ public class TextureUtils {
         return getTexture(new ResourceLocation(location.getNamespace(), "items/" + location.getPath()));
     }
 
-    public static void changeTexture(String texture) {
-        changeTexture(new ResourceLocation(texture));
-    }
-
-    public static void changeTexture(ResourceLocation texture) {
-        getTextureManager().bind(texture);
-    }
-
-    public static void disableMipmap(String texture) {
-        disableMipmap(new ResourceLocation(texture));
-    }
-
-    public static void disableMipmap(ResourceLocation texture) {
-        getTextureManager().getTexture(texture).setBlurMipmap(false, false);
-    }
-
-    public static void restoreLastMipmap(String texture) {
-        restoreLastMipmap(new ResourceLocation(texture));
-    }
-
-    public static void restoreLastMipmap(ResourceLocation location) {
-        getTextureManager().getTexture(location).restoreLastBlurMipmap();
-    }
-
-    public static void bindBlockTexture() {
-        changeTexture(AtlasTexture.LOCATION_BLOCKS);
-    }
-
-    public static void dissableBlockMipmap() {
-        disableMipmap(AtlasTexture.LOCATION_BLOCKS);
-    }
-
-    public static void restoreBlockMipmap() {
-        restoreLastMipmap(AtlasTexture.LOCATION_BLOCKS);
-    }
-
     @Deprecated
     public static TextureAtlasSprite[] getSideIconsForBlock(BlockState state) {
         TextureAtlasSprite[] sideSprites = new TextureAtlasSprite[6];
@@ -240,7 +155,7 @@ public class TextureUtils {
 
     @Deprecated
     public static TextureAtlasSprite[] getIconsForBlock(BlockState state, Direction side) {
-        IBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
+        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
         if (model != null) {
             List<BakedQuad> quads = model.getQuads(state, side, new Random(0));
             if (quads != null && quads.size() > 0) {
@@ -256,7 +171,7 @@ public class TextureUtils {
 
     @Deprecated
     public static TextureAtlasSprite getParticleIconForBlock(BlockState state) {
-        IBakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
+        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
         if (model != null) {
             return model.getParticleIcon();
         }

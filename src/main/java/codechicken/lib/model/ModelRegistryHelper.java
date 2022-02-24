@@ -1,7 +1,7 @@
 package codechicken.lib.model;
 
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ModelRegistryHelper {
 
-    private final List<Pair<ModelResourceLocation, IBakedModel>> registerModels = new LinkedList<>();
+    private final List<Pair<ModelResourceLocation, BakedModel>> registerModels = new LinkedList<>();
     private final List<IModelBakeCallbackPre> modelBakePreCallbacks = new LinkedList<>();
     private final List<IModelBakeCallback> modelBakeCallbacks = new LinkedList<>();
 
@@ -34,7 +34,7 @@ public class ModelRegistryHelper {
         modelBakeCallbacks.add(callback);
     }
 
-    public void register(ModelResourceLocation location, IBakedModel model) {
+    public void register(ModelResourceLocation location, BakedModel model) {
         registerModels.add(new ImmutablePair<>(location, model));
     }
 
@@ -44,7 +44,7 @@ public class ModelRegistryHelper {
             callback.onModelBakePre(event);
         }
 
-        for (Pair<ModelResourceLocation, IBakedModel> pair : registerModels) {
+        for (Pair<ModelResourceLocation, BakedModel> pair : registerModels) {
             event.getModelRegistry().put(pair.getKey(), pair.getValue());
         }
 

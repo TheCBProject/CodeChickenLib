@@ -9,14 +9,14 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.command.arguments.IArgumentSerializer;
-import net.minecraft.entity.EntityType;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.synchronization.ArgumentSerializer;
+import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -30,7 +30,7 @@ public class EntityTypeArgument implements ArgumentType<EntityType<?>> {
 
     private static final Collection<String> EXAMPLES = ImmutableList.of("item", "minecraft:pig", "minecraft:wither");
     private static final DynamicCommandExceptionType MISSING = new DynamicCommandExceptionType(p ->//
-            new TranslationTextComponent(MOD_ID + ":argument.entity_type.invalid", p)//
+            new TranslatableComponent(MOD_ID + ":argument.entity_type.invalid", p)//
     );
 
     @Override
@@ -41,7 +41,7 @@ public class EntityTypeArgument implements ArgumentType<EntityType<?>> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        return ISuggestionProvider.suggestResource(Registry.ENTITY_TYPE.keySet().stream(), builder);
+        return SharedSuggestionProvider.suggestResource(Registry.ENTITY_TYPE.keySet().stream(), builder);
     }
 
     @Override
@@ -53,18 +53,18 @@ public class EntityTypeArgument implements ArgumentType<EntityType<?>> {
         return new EntityTypeArgument();
     }
 
-    public static EntityType<?> getEntityType(CommandContext<CommandSource> src, String name) {
+    public static EntityType<?> getEntityType(CommandContext<CommandSourceStack> src, String name) {
         return src.getArgument(name, EntityType.class);
     }
 
-    public static class Serializer implements IArgumentSerializer<EntityTypeArgument> {
+    public static class Serializer implements ArgumentSerializer<EntityTypeArgument> {
 
         @Override
-        public void serializeToNetwork(EntityTypeArgument argument, PacketBuffer buffer) {
+        public void serializeToNetwork(EntityTypeArgument argument, FriendlyByteBuf buffer) {
         }
 
         @Override
-        public EntityTypeArgument deserializeFromNetwork(PacketBuffer buffer) {
+        public EntityTypeArgument deserializeFromNetwork(FriendlyByteBuf buffer) {
             return new EntityTypeArgument();
         }
 

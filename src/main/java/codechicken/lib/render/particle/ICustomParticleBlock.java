@@ -1,15 +1,11 @@
 package codechicken.lib.render.particle;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.extensions.IForgeBlock;
 
 /**
@@ -20,26 +16,26 @@ import net.minecraftforge.common.extensions.IForgeBlock;
 public interface ICustomParticleBlock extends IForgeBlock {
 
     @Override
-    default boolean addLandingEffects(BlockState state1, ServerWorld worldserver, BlockPos pos, BlockState state2, LivingEntity entity, int numberOfParticles) {
+    default boolean addLandingEffects(BlockState state1, ServerLevel worldserver, BlockPos pos, BlockState state2, LivingEntity entity, int numberOfParticles) {
         CustomParticleHandler.handleLandingEffects(worldserver, pos, entity, numberOfParticles);
         return true;
     }
 
     @Override
-    @OnlyIn (Dist.CLIENT)
-    default boolean addRunningEffects(BlockState state, World world, BlockPos pos, Entity entity) {
+    default boolean addRunningEffects(BlockState state, Level world, BlockPos pos, Entity entity) {
         return world.isClientSide && CustomParticleHandler.handleRunningEffects(world, pos, state, entity);
     }
 
-    @Override
-    @OnlyIn (Dist.CLIENT)
-    default boolean addHitEffects(BlockState state, World worldObj, RayTraceResult target, ParticleManager manager) {
-        return CustomParticleHandler.handleHitEffects(state, worldObj, target, manager);
-    }
-
-    @Override
-    @OnlyIn (Dist.CLIENT)
-    default boolean addDestroyEffects(BlockState state, World world, BlockPos pos, ParticleManager manager) {
-        return CustomParticleHandler.handleDestroyEffects(world, pos, state, manager);
-    }
+    // TODO IBlockRenderProperties
+//    @Override
+//    @OnlyIn (Dist.CLIENT)
+//    default boolean addHitEffects(BlockState state, World worldObj, RayTraceResult target, ParticleManager manager) {
+//        return CustomParticleHandler.handleHitEffects(state, worldObj, target, manager);
+//    }
+//
+//    @Override
+//    @OnlyIn (Dist.CLIENT)
+//    default boolean addDestroyEffects(BlockState state, World world, BlockPos pos, ParticleManager manager) {
+//        return CustomParticleHandler.handleDestroyEffects(world, pos, state, manager);
+//    }
 }

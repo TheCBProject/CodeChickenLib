@@ -1,10 +1,10 @@
 package codechicken.lib.model.bakery.generation;
 
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

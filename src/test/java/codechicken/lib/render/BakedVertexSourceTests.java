@@ -2,7 +2,7 @@ package codechicken.lib.render;
 
 import codechicken.lib.model.CachedFormat;
 import codechicken.lib.model.Quad;
-import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

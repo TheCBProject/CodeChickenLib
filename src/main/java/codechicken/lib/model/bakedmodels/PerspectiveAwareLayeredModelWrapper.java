@@ -2,12 +2,12 @@ package codechicken.lib.model.bakedmodels;
 
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.util.Direction;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.IModelData;
 
 import java.util.Collections;
@@ -20,9 +20,9 @@ import java.util.Random;
  */
 public class PerspectiveAwareLayeredModelWrapper extends AbstractPerspectiveLayeredModel {
 
-    private final ImmutableMap<RenderType, IBakedModel> layerModelMap;
+    private final ImmutableMap<RenderType, BakedModel> layerModelMap;
 
-    public PerspectiveAwareLayeredModelWrapper(Map<RenderType, IBakedModel> layerModelMap, PerspectiveProperties properties) {
+    public PerspectiveAwareLayeredModelWrapper(Map<RenderType, BakedModel> layerModelMap, PerspectiveProperties properties) {
         super(properties);
         this.layerModelMap = ImmutableMap.copyOf(layerModelMap);
     }
@@ -36,7 +36,7 @@ public class PerspectiveAwareLayeredModelWrapper extends AbstractPerspectiveLaye
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
-        return ItemOverrideList.EMPTY;
+    public ItemOverrides getOverrides() {
+        return ItemOverrides.EMPTY;
     }
 }

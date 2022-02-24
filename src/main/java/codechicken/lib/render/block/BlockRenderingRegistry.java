@@ -1,9 +1,9 @@
 package codechicken.lib.render.block;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.fluid.Fluid;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.IRegistryDelegate;
@@ -34,7 +34,7 @@ public class BlockRenderingRegistry {
     public static void init() {
         if (!initialized) {
             Minecraft mc = Minecraft.getInstance();
-            BlockRendererDispatcher parentDispatcher = mc.getBlockRenderer();
+            BlockRenderDispatcher parentDispatcher = mc.getBlockRenderer();
             mc.blockRenderer = new CCBlockRendererDispatcher(parentDispatcher, mc.getBlockColors());
             initialized = true;
         }

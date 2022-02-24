@@ -1,16 +1,16 @@
 package codechicken.lib.render.block;
 
 import codechicken.lib.render.CCRenderState;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.client.model.data.IModelData;
 
 import java.util.Random;
@@ -34,24 +34,24 @@ public interface ICCBlockRenderer {
      * @param blockState The BlockState.
      * @return If you wish to render the BlockState.
      */
-    boolean canHandleBlock(IBlockDisplayReader world, BlockPos pos, BlockState blockState);
+    boolean canHandleBlock(BlockAndTintGetter world, BlockPos pos, BlockState blockState);
 
     /**
      * Called to render your block in world.
-     * You MUST use the provided {@link IVertexBuilder}.
+     * You MUST use the provided {@link VertexConsumer}.
      * THE BUFFER IS ALREADY DRAWING!
      * YOU MAY BE FIRED ON THE CHUNK BATCHING THREAD!
      *
      * @param state   Your state.
      * @param pos     Position.
      * @param world   World.
-     * @param mStack  The {@link MatrixStack}.
-     * @param builder The {@link IVertexBuilder} to add quads to.
+     * @param mStack  The {@link PoseStack}.
+     * @param builder The {@link VertexConsumer} to add quads to.
      * @param random  Position seeded Random for this block position.
      * @param data    Any ModelData.
      * @return If quads were added.
      */
-    boolean renderBlock(BlockState state, BlockPos pos, IBlockDisplayReader world, MatrixStack mStack, IVertexBuilder builder, Random random, IModelData data);
+    boolean renderBlock(BlockState state, BlockPos pos, BlockAndTintGetter world, PoseStack mStack, VertexConsumer builder, Random random, IModelData data);
 
     /**
      * Called when vanilla is rendering breaking texture over your block.
@@ -60,14 +60,14 @@ public interface ICCBlockRenderer {
      * @param state   Your state.
      * @param pos     Position.
      * @param world   World.
-     * @param mStack  The {@link MatrixStack}.
-     * @param builder The {@link IVertexBuilder} to add quads to.
+     * @param mStack  The {@link PoseStack}.
+     * @param builder The {@link VertexConsumer} to add quads to.
      * @param data    Any ModelData.
      */
-    default void renderBreaking(BlockState state, BlockPos pos, IBlockDisplayReader world, MatrixStack mStack, IVertexBuilder builder, IModelData data) {
+    default void renderBreaking(BlockState state, BlockPos pos, BlockAndTintGetter world, PoseStack mStack, VertexConsumer builder, IModelData data) {
         CCRenderState ccrs = CCRenderState.instance();
         ccrs.overlay = OverlayTexture.NO_OVERLAY;
-        ccrs.brightness = WorldRenderer.getLightColor(world, state, pos);
+        ccrs.brightness = LevelRenderer.getLightColor(world, state, pos);
         mStack.pushPose();
         renderBlock(state, pos, world, mStack, builder, new Random(), data);
         mStack.popPose();
@@ -92,13 +92,13 @@ public interface ICCBlockRenderer {
      * IronGolems, Enderman, Mooshroom, Minecarts, TNT.
      *
      * @param state         The BlockState to render.
-     * @param nStack        The {@link MatrixStack}.
-     * @param builder       The {@link IVertexBuilder}
+     * @param nStack        The {@link PoseStack}.
+     * @param builder       The {@link MultiBufferSource}
      * @param packedLight   The {@link LightTexture} packed coords.
      * @param packedOverlay The {@link OverlayTexture} packed coords.
      * @param data          Any ModelData.
      */
-    default void renderEntity(BlockState state, MatrixStack nStack, IRenderTypeBuffer builder, int packedLight, int packedOverlay, IModelData data) {
+    default void renderEntity(BlockState state, PoseStack nStack, MultiBufferSource builder, int packedLight, int packedOverlay, IModelData data) {
     }
     //endregion
 
@@ -112,23 +112,23 @@ public interface ICCBlockRenderer {
      * @param fluidState The IFluidState.
      * @return If you wish to render the IFluidState.
      */
-    default boolean canHandleFluid(IBlockDisplayReader world, BlockPos pos, FluidState fluidState) {
+    default boolean canHandleFluid(BlockAndTintGetter world, BlockPos pos, FluidState fluidState) {
         return false;
     }
 
     /**
      * Called to render your fluid in world.
-     * You MUST use the provided {@link IVertexBuilder}.
+     * You MUST use the provided {@link VertexConsumer}.
      * THE BUFFER IS ALREADY DRAWING!
      * YOU MAY BE FIRED ON THE CHUNK BATCHING THREAD!
      *
      * @param pos     Position.
      * @param world   World.
-     * @param builder The {@link IVertexBuilder}.
+     * @param builder The {@link VertexConsumer}.
      * @param state   The {@link FluidState}
      * @return If any quads were added.
      */
-    default boolean renderFluid(BlockPos pos, IBlockDisplayReader world, IVertexBuilder builder, FluidState state) {
+    default boolean renderFluid(BlockPos pos, BlockAndTintGetter world, VertexConsumer builder, FluidState state) {
         return false;
     }
     //endregion

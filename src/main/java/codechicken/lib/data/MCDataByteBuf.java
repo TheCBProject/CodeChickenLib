@@ -2,14 +2,10 @@ package codechicken.lib.data;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.nbt.ByteArrayNBT;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.nbt.ByteArrayTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.FriendlyByteBuf;
 
 /**
  * An {@link MCDataInput} and {@link MCDataOutput} implementation,
@@ -30,42 +26,43 @@ public class MCDataByteBuf implements MCDataInput, MCDataOutput {
     }
 
     /**
-     * Gets the underlying buffer as a {@link PacketBuffer}.
+     * Gets the underlying buffer as a {@link FriendlyByteBuf}.
      *
-     * @return The {@link PacketBuffer}.
+     * @return The {@link FriendlyByteBuf}.
      */
-    public PacketBuffer toPacketBuffer() {
-        return buf instanceof PacketBuffer ? (PacketBuffer) buf : new PacketBuffer(buf);
+    public FriendlyByteBuf toPacketBuffer() {
+        return buf instanceof FriendlyByteBuf ? (FriendlyByteBuf) buf : new FriendlyByteBuf(buf);
     }
 
-    public INBT toTag() {
-        return new ByteArrayNBT(buf.array());
+    public Tag toTag() {
+        return new ByteArrayTag(buf.array());
     }
 
-    public static MCDataByteBuf fromTag(INBT tag) {
-        if (!(tag instanceof ByteArrayNBT)) {
+    public static MCDataByteBuf fromTag(Tag tag) {
+        if (!(tag instanceof ByteArrayTag)) {
             throw new IllegalArgumentException("Expected ByteArrayNBT, got: " + tag.getClass().getSimpleName());
         }
-        return new MCDataByteBuf(Unpooled.copiedBuffer(((ByteArrayNBT) tag).getAsByteArray()));
+        return new MCDataByteBuf(Unpooled.copiedBuffer(((ByteArrayTag) tag).getAsByteArray()));
     }
 
-    public CompoundNBT writeToNBT(CompoundNBT tag, String key) {
+    public CompoundTag writeToNBT(CompoundTag tag, String key) {
         tag.put(key, toTag());
         return tag;
     }
 
-    public static MCDataByteBuf readFromNBT(CompoundNBT tag, String key) {
+    public static MCDataByteBuf readFromNBT(CompoundTag tag, String key) {
         return fromTag(tag.get(key));
     }
 
-    public SUpdateTileEntityPacket toTilePacket(BlockPos pos) {
-        return new SUpdateTileEntityPacket(pos, -6000, writeToNBT(new CompoundNBT(), "data"));
-    }
+//    public ClientboundBlockEntityDataPacket toTilePacket(BlockPos pos) {
+//        return new ClientboundBlockEntityDataPacket(pos, writeToNBT(new CompoundTag(), "data"));
+//    }
 
-    @OnlyIn (Dist.CLIENT)
-    public static MCDataByteBuf fromTilePacket(SUpdateTileEntityPacket tilePacket) {
-        return fromTag(tilePacket.getTag().get("data"));
-    }
+//    @OnlyIn (Dist.CLIENT)
+//    public static MCDataByteBuf fromTilePacket(SUpdateTileEntityPacket tilePacket) {
+//        return fromTag(tilePacket.getTag().get("data"));
+//    }
+
     //@formatter:off
     @Override public byte readByte() { return buf.readByte(); }
     @Override public short readUByte() { return buf.readUnsignedByte(); }

@@ -1,7 +1,7 @@
 package codechicken.lib.gui;
 
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.function.Supplier;
@@ -11,7 +11,7 @@ import java.util.function.Supplier;
  * <p>
  * Created by covers1624 on 7/11/2016.
  */
-public class SimpleItemGroup extends ItemGroup {
+public class SimpleItemGroup extends CreativeModeTab {
 
     private final Supplier<ItemStack> stackSupplier;
 

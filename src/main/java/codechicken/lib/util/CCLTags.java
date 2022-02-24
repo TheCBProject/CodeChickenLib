@@ -1,12 +1,10 @@
 package codechicken.lib.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.Tags;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.Tags.IOptionalNamedTag;
 
 /**
@@ -15,6 +13,7 @@ import net.minecraftforge.common.Tags.IOptionalNamedTag;
 public class CCLTags {
 
     public static class Blocks {
+
         public static IOptionalNamedTag<Block> WOOL = forge("wool");
         public static IOptionalNamedTag<Block> WOOL_WHITE = forge("wool/white");
         public static IOptionalNamedTag<Block> WOOL_ORANGE = forge("wool/orange");
@@ -39,6 +38,7 @@ public class CCLTags {
     }
 
     public static class Items {
+
         public static IOptionalNamedTag<Item> WOOL = forge("wool");
         public static IOptionalNamedTag<Item> WOOL_WHITE = forge("wool/white");
         public static IOptionalNamedTag<Item> WOOL_ORANGE = forge("wool/orange");

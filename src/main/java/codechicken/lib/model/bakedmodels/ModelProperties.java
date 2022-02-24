@@ -4,16 +4,15 @@ import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties.P
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.TransformUtils;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.IModelTransform;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelState;
 
 import javax.annotation.Nullable;
 
 /**
  * Created by covers1624 on 19/11/2016.
  */
-// TODO 1.18, Make all constructors private and force the use of the Builder.
 public class ModelProperties implements Copyable<ModelProperties> {
 
     public static final ModelProperties DEFAULT_ITEM = ModelProperties.builder()
@@ -33,28 +32,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
     @Nullable
     private TextureAtlasSprite particle;
 
-    public ModelProperties(boolean isAO, boolean isGui3D) {
-        this(isAO, isGui3D, false, null);
-    }
-
-    public ModelProperties(boolean isAO, boolean isGui3D, TextureAtlasSprite sprite) {
-        this(isAO, isGui3D, false, false, sprite);
-    }
-
-    @Deprecated // Use function with usesBlockLight parameter.
-    public ModelProperties(boolean isAO, boolean isGui3D, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
-        this(isAO, isGui3D, isBuiltInRenderer, false, particle);
-    }
-
-    public ModelProperties(ModelProperties properties) {
-        this(properties, properties.particle);
-    }
-
-    public ModelProperties(ModelProperties properties, TextureAtlasSprite sprite) {
-        this(properties.isAmbientOcclusion(), properties.isGui3d(), properties.usesBlockLight(), properties.isBuiltInRenderer(), sprite);
-    }
-
-    public ModelProperties(boolean isAO, boolean isGui3D, boolean usesBlockLight, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
+    private ModelProperties(boolean isAO, boolean isGui3D, boolean usesBlockLight, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
         this.isAO = isAO;
         this.isGui3D = isGui3D;
         this.isBuiltInRenderer = isBuiltInRenderer;
@@ -62,8 +40,16 @@ public class ModelProperties implements Copyable<ModelProperties> {
         this.particle = particle;
     }
 
-    public static ModelProperties createFromModel(IBakedModel model) {
-        return new ModelProperties(model.useAmbientOcclusion(), model.isGui3d(), model.isCustomRenderer(), model.getParticleIcon());
+    private ModelProperties(ModelProperties other) {
+        this.isAO = other.isAO;
+        this.isGui3D = other.isGui3D;
+        this.isBuiltInRenderer = other.isBuiltInRenderer;
+        this.usesBlockLight = other.usesBlockLight;
+        this.particle = other.particle;
+    }
+
+    public static ModelProperties fromModel(BakedModel model) {
+        return new ModelProperties(model.useAmbientOcclusion(), model.isGui3d(), model.usesBlockLight(), model.isCustomRenderer(), model.getParticleIcon());
     }
 
     public boolean isAmbientOcclusion() {
@@ -99,6 +85,10 @@ public class ModelProperties implements Copyable<ModelProperties> {
         return new Builder();
     }
 
+    public Builder toBuilder() {
+        return new Builder(this);
+    }
+
     /**
      * Created by covers1624 on 21/02/2017.
      */
@@ -113,31 +103,18 @@ public class ModelProperties implements Copyable<ModelProperties> {
                 .withTransforms(TransformUtils.DEFAULT_BLOCK)
                 .build();
 
-        private final IModelTransform transforms;
+        private final ModelState transforms;
 
-        public PerspectiveProperties(IModelTransform transforms, boolean isAO, boolean isGui3D) {
-            this(transforms, isAO, isGui3D, false, null);
-        }
-
-        @Deprecated // Use constructor with usesBlockLight parameter.`
-        public PerspectiveProperties(IModelTransform transforms, boolean isAO, boolean isGui3D, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
-            this(transforms, isAO, isGui3D, false, isBuiltInRenderer, particle);
-        }
-
-        public PerspectiveProperties(IModelTransform transforms, boolean isAO, boolean isGui3D, boolean usesBlockLight, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
-            this(transforms, new ModelProperties(isAO, isGui3D, usesBlockLight, isBuiltInRenderer, particle));
-        }
-
-        public PerspectiveProperties(PerspectiveProperties properties) {
+        private PerspectiveProperties(PerspectiveProperties properties) {
             this(properties.getTransforms(), properties);
         }
 
-        public PerspectiveProperties(IModelTransform transforms, ModelProperties properties) {
+        private PerspectiveProperties(ModelState transforms, ModelProperties properties) {
             super(properties);
             this.transforms = transforms;
         }
 
-        public IModelTransform getTransforms() {
+        public ModelState getTransforms() {
             return transforms;
         }
 
@@ -146,16 +123,26 @@ public class ModelProperties implements Copyable<ModelProperties> {
             return new PerspectiveProperties(this);
         }
 
+        @Override
+        public PerspectiveBuilder toBuilder() {
+            return new PerspectiveBuilder(this);
+        }
+
         public static class PerspectiveBuilder extends Builder {
 
-            private IModelTransform transforms;
+            private ModelState transforms;
+
+            protected PerspectiveBuilder(PerspectiveProperties properties) {
+                super(properties);
+                transforms = properties.transforms;
+            }
 
             protected PerspectiveBuilder(Builder builder) {
                 super(builder.isAO, builder.isAO, builder.usesBlockLight, builder.isBuiltInRenderer, builder.particle);
             }
 
             @Override
-            public PerspectiveBuilder withTransforms(IModelTransform transforms) {
+            public PerspectiveBuilder withTransforms(ModelState transforms) {
                 this.transforms = transforms;
                 return this;
             }
@@ -178,9 +165,12 @@ public class ModelProperties implements Copyable<ModelProperties> {
         protected Builder() {
         }
 
-        @Deprecated // Use constructor with usesBlockLight parameter.
-        protected Builder(boolean isAO, boolean isGui3D, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
-            this(isAO, isGui3D, false, isBuiltInRenderer, particle);
+        protected Builder(ModelProperties properties) {
+            isAO = properties.isAO;
+            isGui3D = properties.isGui3D;
+            usesBlockLight = properties.usesBlockLight;
+            isBuiltInRenderer = properties.isBuiltInRenderer;
+            particle = properties.particle;
         }
 
         protected Builder(boolean isAO, boolean isGui3D, boolean usesBlockLight, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
@@ -191,7 +181,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
             this.particle = particle;
         }
 
-        public Builder copyFrom(IBakedModel model) {
+        public Builder copyFrom(BakedModel model) {
             isAO = model.useAmbientOcclusion();
             isGui3D = model.isGui3d();
             usesBlockLight = model.usesBlockLight();
@@ -233,14 +223,14 @@ public class ModelProperties implements Copyable<ModelProperties> {
             return this;
         }
 
-        public PerspectiveBuilder withTransforms(IModelTransform transforms) {
+        public PerspectiveBuilder withTransforms(ModelState transforms) {
             PerspectiveBuilder builder = new PerspectiveBuilder(this);
             builder.withTransforms(transforms);
             return builder;
         }
 
         public ModelProperties build() {
-            return new ModelProperties(isAO, isGui3D, isBuiltInRenderer, particle);
+            return new ModelProperties(isAO, isGui3D, usesBlockLight, isBuiltInRenderer, particle);
         }
 
     }

@@ -1,13 +1,13 @@
 package codechicken.lib.packet;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.login.IClientLoginNetHandler;
-import net.minecraft.client.network.play.IClientPlayNetHandler;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.play.IServerPlayNetHandler;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.protocol.login.ClientLoginPacketListener;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -27,7 +27,7 @@ public interface ICustomPacketHandler {
          * @param handler The ClientPlayNetHandler.
          */
         @OnlyIn (Dist.CLIENT)
-        void handlePacket(PacketCustom packet, Minecraft mc, IClientPlayNetHandler handler);
+        void handlePacket(PacketCustom packet, Minecraft mc, ClientPacketListener handler);
     }
 
     interface IServerPacketHandler extends ICustomPacketHandler {
@@ -39,7 +39,7 @@ public interface ICustomPacketHandler {
          * @param sender  The player who sent the packet.
          * @param handler The ServerPlayNetHandler
          */
-        void handlePacket(PacketCustom packet, ServerPlayerEntity sender, IServerPlayNetHandler handler);
+        void handlePacket(PacketCustom packet, ServerPlayer sender, ServerGamePacketListenerImpl handler);
     }
 
     interface ILoginPacketHandler extends ICustomPacketHandler {
@@ -71,6 +71,6 @@ public interface ICustomPacketHandler {
          * @param context The network context.
          */
         @OnlyIn (Dist.CLIENT)
-        void handleLoginPacket(PacketCustom packet, Minecraft mc, IClientLoginNetHandler handler, NetworkEvent.Context context);
+        void handleLoginPacket(PacketCustom packet, Minecraft mc, ClientLoginPacketListener handler, NetworkEvent.Context context);
     }
 }

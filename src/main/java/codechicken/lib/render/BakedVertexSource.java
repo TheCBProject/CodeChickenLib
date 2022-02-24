@@ -14,10 +14,10 @@ import codechicken.lib.render.pipeline.attribute.NormalAttribute;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
 import com.google.common.annotations.VisibleForTesting;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -31,7 +31,7 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
 
     private static final ThreadLocal<BakedVertexSource> instances = ThreadLocal.withInitial(BakedVertexSource::new);
 
-    private final Quad unpacker = new Quad(CachedFormat.lookup(DefaultVertexFormats.BLOCK));
+    private final Quad unpacker = new Quad(CachedFormat.lookup(DefaultVertexFormat.BLOCK));
 
     private int vertexIndex = 0;
     private Vertex5[] vertices = new Vertex5[0];
@@ -70,7 +70,7 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
     }
 
     public void reset() {
-        reset(CachedFormat.lookup(DefaultVertexFormats.BLOCK));
+        reset(CachedFormat.lookup(DefaultVertexFormat.BLOCK));
     }
 
     public void reset(CachedFormat format) {
@@ -159,7 +159,7 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
     }
 
     //@formatter:off
-    @Override public VertexFormat getVertexFormat() { return DefaultVertexFormats.BLOCK; }
+    @Override public VertexFormat getVertexFormat() { return DefaultVertexFormat.BLOCK; }
     @Override public void setQuadTint(int tint) { unpacker.setQuadTint(tint); }
     @Override public void setQuadOrientation(Direction orientation) { unpacker.setQuadOrientation(orientation); }
     @Override public void setApplyDiffuseLighting(boolean diffuse) { unpacker.setApplyDiffuseLighting(diffuse); }

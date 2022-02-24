@@ -1,9 +1,9 @@
 package codechicken.lib.model.bakedmodels;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.util.Direction;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.IModelData;
@@ -37,7 +37,7 @@ public abstract class AbstractPerspectiveLayeredModel extends AbstractBakedPrope
 
     @Override
     public List<BakedQuad> getQuads(BlockState state, Direction side, Random rand, IModelData data) {
-        RenderType layer = MinecraftForgeClient.getRenderLayer();
+        RenderType layer = MinecraftForgeClient.getRenderType();
         if (layer == null) {
             layer = generalLayer;
         }

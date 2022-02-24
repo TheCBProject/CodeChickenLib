@@ -1,11 +1,10 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.util.Copyable;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.math.vector.Vector4f;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
+import com.mojang.math.Vector4f;
+import net.minecraft.core.Vec3i;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -66,7 +65,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         set(mat);
     }
 
-    public Matrix4(MatrixStack stack) {
+    public Matrix4(PoseStack stack) {
         set(stack);
     }
 
@@ -78,7 +77,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     }
 
     //region Translate, Scale, Transpose.
-    public Matrix4 translate(Vector3i pos) {
+    public Matrix4 translate(Vec3i pos) {
         return translate(pos.getX(), pos.getY(), pos.getZ());
     }
 
@@ -416,7 +415,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         return this;
     }
 
-    public Matrix4 set(MatrixStack stack) {
+    public Matrix4 set(PoseStack stack) {
         return set(stack.last().pose());
     }
 
@@ -558,13 +557,6 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         return this;
     }
 
-    @SuppressWarnings ("deprecation")
-    public void glApply() {
-        glBuf.put((float) m00).put((float) m10).put((float) m20).put((float) m30).put((float) m01).put((float) m11).put((float) m21).put((float) m31).put((float) m02).put((float) m12).put((float) m22).put((float) m32).put((float) m03).put((float) m13).put((float) m23).put((float) m33);
-        glBuf.flip();
-        GlStateManager._multMatrix(glBuf);
-    }
-
     @Override
     public Transformation inverse() {//TODO this should be done, even if it is a waste..
         throw new IrreversibleTransformationException(this);//Don't waste your cpu with matrix inverses
@@ -594,8 +586,7 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Matrix4) {
-            Matrix4 other = (Matrix4) obj;
+        if (obj instanceof Matrix4 other) {
             //@formatter:off
 			return     this.m00 == other.m00 && this.m01 == other.m01 && this.m02 == other.m02 && this.m03 == other.m03
 					&& this.m10 == other.m10 && this.m11 == other.m11 && this.m12 == other.m12 && this.m13 == other.m13

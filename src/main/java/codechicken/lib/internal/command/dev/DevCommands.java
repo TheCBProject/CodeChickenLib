@@ -2,19 +2,19 @@ package codechicken.lib.internal.command.dev;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.command.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.GameRules;
 
-import static net.minecraft.command.Commands.literal;
+import static net.minecraft.commands.Commands.literal;
 
 /**
  * Created by covers1624 on 11/12/21.
  */
 public class DevCommands {
 
-    public static void register(CommandDispatcher<CommandSource> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("ccl")
                 .then(literal("setup_dev_world")
                         .requires(e -> e.hasPermission(4))
@@ -23,12 +23,12 @@ public class DevCommands {
         );
     }
 
-    private static int setupWorld(CommandContext<CommandSource> ctx) {
-        CommandSource source = ctx.getSource();
+    private static int setupWorld(CommandContext<CommandSourceStack> ctx) {
+        CommandSourceStack source = ctx.getSource();
         MinecraftServer server = source.getServer();
         GameRules gameRules = server.getGameRules();
 
-        for (ServerWorld level : server.getAllLevels()) {
+        for (ServerLevel level : server.getAllLevels()) {
             level.setDayTime(6000);
         }
 

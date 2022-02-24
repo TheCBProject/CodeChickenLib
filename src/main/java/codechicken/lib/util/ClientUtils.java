@@ -2,12 +2,12 @@ package codechicken.lib.util;
 
 import codechicken.lib.render.CCRenderEventHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.world.World;
+import net.minecraft.network.Connection;
+import net.minecraft.world.level.Level;
 
 public class ClientUtils extends CommonUtils {
 
-    public static World getWorld() {
+    public static Level getWorld() {
         return Minecraft.getInstance().level;
     }
 
@@ -25,7 +25,7 @@ public class ClientUtils extends CommonUtils {
 
     public static String getServerIP() {
         try {
-            NetworkManager networkManager = Minecraft.getInstance().getConnection().getConnection();
+            Connection networkManager = Minecraft.getInstance().getConnection().getConnection();
             String s = networkManager.getRemoteAddress().toString();
             s = s.substring(s.indexOf("/") + 1);
             return s;
@@ -35,8 +35,4 @@ public class ClientUtils extends CommonUtils {
             throw new RuntimeException(e);
         }
     }
-
-//    public static String getWorldSaveName() {
-//        return Minecraft.getInstance().isSingleplayer() ? Minecraft.getInstance().getIntegratedServer().getFolderName() : null;
-//    }
 }

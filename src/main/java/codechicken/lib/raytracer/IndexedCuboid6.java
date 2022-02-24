@@ -3,8 +3,8 @@ package codechicken.lib.raytracer;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
 
 public class IndexedCuboid6 extends Cuboid6 {
 
@@ -15,7 +15,7 @@ public class IndexedCuboid6 extends Cuboid6 {
         this.data = data;
     }
 
-    public IndexedCuboid6(Object data, AxisAlignedBB box) {
+    public IndexedCuboid6(Object data, AABB box) {
         super(box);
         this.data = data;
     }
@@ -27,27 +27,14 @@ public class IndexedCuboid6 extends Cuboid6 {
         double dist = Double.MAX_VALUE;
 
         for (Direction face : Direction.BY_3D_DATA) {
-            Vector3 suspectHit = null;
-            switch (face) {
-                case DOWN:
-                    suspectHit = start.copy().XZintercept(end, min.y);
-                    break;
-                case UP:
-                    suspectHit = start.copy().XZintercept(end, max.y);
-                    break;
-                case NORTH:
-                    suspectHit = start.copy().XYintercept(end, min.z);
-                    break;
-                case SOUTH:
-                    suspectHit = start.copy().XYintercept(end, max.z);
-                    break;
-                case WEST:
-                    suspectHit = start.copy().YZintercept(end, min.x);
-                    break;
-                case EAST:
-                    suspectHit = start.copy().YZintercept(end, max.x);
-                    break;
-            }
+            Vector3 suspectHit = switch (face) {
+                case DOWN -> start.copy().XZintercept(end, min.y);
+                case UP -> start.copy().XZintercept(end, max.y);
+                case NORTH -> start.copy().XYintercept(end, min.z);
+                case SOUTH -> start.copy().XYintercept(end, max.z);
+                case WEST -> start.copy().YZintercept(end, min.x);
+                case EAST -> start.copy().YZintercept(end, max.x);
+            };
 
             if (suspectHit == null) {
                 continue;

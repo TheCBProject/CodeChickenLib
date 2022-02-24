@@ -1,7 +1,7 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.util.Copyable;
-import net.minecraft.util.math.vector.Quaternion;
+import com.mojang.math.Quaternion;
 
 import java.math.BigDecimal;
 import java.math.MathContext;

@@ -1,7 +1,7 @@
 package codechicken.lib.raytracer;
 
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -45,7 +45,7 @@ public class MergedVoxelShapeHolder<T> {
             shapeParts.clear();
             shapeParts.addAll(partCache);
             //Same as VoxelShapes.or(VoxelShapes.empty(), shapeParts.toArray()); Except we skip useless array creation.
-            VoxelShape merged = shapeParts.stream().reduce(VoxelShapes.empty(), VoxelShapes::or);
+            VoxelShape merged = shapeParts.stream().reduce(Shapes.empty(), Shapes::or);
             mergedShape = postProcess.apply(merged);
         }
 

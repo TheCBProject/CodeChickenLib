@@ -1,3 +1,4 @@
+/*
 package codechicken.lib.render.buffer;
 
 import codechicken.lib.vec.Matrix4;
@@ -17,6 +18,7 @@ import java.util.function.BiConsumer;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 
+*/
 /**
  * A RenderType that is backed by a VertexBufferObject.
  * This has a few unique limited applications, mainly related to Item rendering,
@@ -26,41 +28,48 @@ import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
  * - If LightMap support is required, it must be removed from the VertexFormat.
  * <p>
  * Created by covers1624 on 25/5/20.
- */
+ *//*
+
 public class VBORenderType extends DelegateRenderType {
 
     private final BiConsumer<VertexFormat, BufferBuilder> factory;
     private int bufferId = -1;
     private int count;
 
-    /**
+    */
+/**
      * Create a new VBORenderType, delegates render state setup
      * to the provided parent, also uses the parents VertexFormat.
      *
      * @param parent  The parent, for state setup and buffer VertexFormat.
      * @param factory The Factory used to fill the BufferBuilder with data.
-     */
+     *//*
+
     public VBORenderType(RenderType parent, BiConsumer<VertexFormat, BufferBuilder> factory) {
         this(parent, parent.format(), factory);
     }
 
-    /**
+    */
+/**
      * Create a new VBORenderType, delegates render state setup
      * to the provided parent, Uses the specified VertexFormat.
      *
      * @param parent       The parent, for state setup.
      * @param bufferFormat The VertexFormat to use.
      * @param factory      The Factory used to fill the BufferBuilder with data.
-     */
+     *//*
+
     public VBORenderType(RenderType parent, VertexFormat bufferFormat, BiConsumer<VertexFormat, BufferBuilder> factory) {
         super(parent, bufferFormat);
         this.factory = factory;
     }
 
-    /**
+    */
+/**
      * Can be called runtime to have the Buffer rebuilt,
      * doing so has very limited applications and is not recommended.
-     */
+     *//*
+
     public void rebuild() {
         if (bufferId == -1) {
             bufferId = GL15.glGenBuffers();
@@ -79,12 +88,14 @@ public class VBORenderType extends DelegateRenderType {
         GL15.glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    /**
-     * A soft clone of this VBORenderType, using the provided Matrix4.
-     *
-     * @param matrix The matrix.
-     * @return The soft clone.
-     */
+    */
+/**
+ * A soft clone of this VBORenderType, using the provided Matrix4.
+ *
+ * @param matrix The matrix.
+ * @return The soft clone.
+ *//*
+
     public MatrixVBORenderType withMatrix(Matrix4 matrix) {
         return new MatrixVBORenderType(this, matrix);
     }
@@ -125,24 +136,28 @@ public class VBORenderType extends DelegateRenderType {
             this.matrix = matrix.copy();
         }
 
-        /**
-         * Enables LightMap support.
-         *
-         * @param packedLight The PackedLightMap value.
-         * @return The same RenderType.
-         */
+        */
+/**
+ * Enables LightMap support.
+ *
+ * @param packedLight The PackedLightMap value.
+ * @return The same RenderType.
+ *//*
+
         public MatrixVBORenderType withLightMap(int packedLight) {
             hasLightMap = true;
             this.packedLight = packedLight;
             return this;
         }
 
-        /**
-         * An extra RenderState to be applied, may be a RenderType.
-         *
-         * @param state The state.
-         * @return The same RenderType.
-         */
+        */
+/**
+ * An extra RenderState to be applied, may be a RenderType.
+ *
+ * @param state The state.
+ * @return The same RenderType.
+ *//*
+
         public MatrixVBORenderType withState(RenderState state) {
             states.add(state);
             return this;
@@ -187,3 +202,4 @@ public class VBORenderType extends DelegateRenderType {
         }
     }
 }
+*/

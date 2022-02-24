@@ -3,15 +3,13 @@ package codechicken.lib.render;
 import codechicken.lib.vec.Quat;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.renderer.RenderState;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
+import net.minecraft.resources.ResourceLocation;
 
 import static codechicken.lib.math.MathHelper.phi;
-import static net.minecraft.client.renderer.RenderState.*;
 
 public class CCModelLibrary {
 
@@ -88,25 +86,19 @@ public class CCModelLibrary {
     }
 
     public static RenderType getIcos4RenderType(ResourceLocation texture, boolean lighting) {
-        return RenderType.create("icosahedron4", DefaultVertexFormats.BLOCK, GL11.GL_TRIANGLES, 256, makeIcosState(texture, lighting));
+        return RenderType.create("icosahedron4", DefaultVertexFormat.BLOCK, VertexFormat.Mode.TRIANGLES, 256, makeIcosState(texture, lighting));
     }
 
     public static RenderType getIcos7RenderType(ResourceLocation texture, boolean lighting) {
-        return RenderType.create("icosahedron7", DefaultVertexFormats.BLOCK, GL11.GL_QUADS, 256, makeIcosState(texture, lighting));
+        return RenderType.create("icosahedron7", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, makeIcosState(texture, lighting));
     }
 
-    public static RenderType.State makeIcosState(ResourceLocation texture, boolean lighting) {
-        return RenderType.State.builder()//
-                .setTextureState(new RenderState.TextureState(texture, false, false))//
-                .setTexturingState(new RenderState.TexturingState("icosahedron", () -> {
-                    if (!lighting) {
-                        RenderSystem.disableLighting();
-                    }
-                }, () -> {
-                }))//
-                .setTransparencyState(NO_TRANSPARENCY)//
-                .setDiffuseLightingState(DIFFUSE_LIGHTING)//
-                .setLightmapState(LIGHTMAP)//
+    public static RenderType.CompositeState makeIcosState(ResourceLocation texture, boolean lighting) {
+        return RenderType.CompositeState.builder()
+                .setShaderState(RenderStateShard.BLOCK_SHADER)
+                .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
+                .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
+                .setLightmapState(RenderStateShard.LIGHTMAP)
                 .createCompositeState(false);
     }
 

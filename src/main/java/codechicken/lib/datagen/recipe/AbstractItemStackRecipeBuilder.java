@@ -1,16 +1,16 @@
 package codechicken.lib.datagen.recipe;
 
 import com.google.gson.JsonObject;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 /**
  * Created by covers1624 on 28/12/20.
  */
 public abstract class AbstractItemStackRecipeBuilder<T extends AbstractRecipeBuilder<ItemStack, T>> extends AbstractRecipeBuilder<ItemStack, T> {
 
-    protected AbstractItemStackRecipeBuilder(IRecipeSerializer<?> serializer, ResourceLocation id, ItemStack result) {
+    protected AbstractItemStackRecipeBuilder(RecipeSerializer<?> serializer, ResourceLocation id, ItemStack result) {
         super(serializer, id, result);
     }
 

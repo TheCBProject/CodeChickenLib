@@ -5,8 +5,8 @@ import codechicken.lib.internal.command.admin.KillAllCommand;
 import codechicken.lib.internal.command.admin.MiscCommands;
 import codechicken.lib.internal.command.dev.DevCommands;
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.arguments.ArgumentTypes;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.synchronization.ArgumentTypes;
 import net.minecraftforge.event.RegisterCommandsEvent;
 
 import static codechicken.lib.CodeChickenLib.MOD_ID;
@@ -21,7 +21,7 @@ public class CCLCommands {
     }
 
     public static void registerCommands(RegisterCommandsEvent event) {
-        CommandDispatcher<CommandSource> dispatcher = event.getDispatcher();
+        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
         CountCommand.register(dispatcher);
         KillAllCommand.register(dispatcher);
         MiscCommands.register(dispatcher);

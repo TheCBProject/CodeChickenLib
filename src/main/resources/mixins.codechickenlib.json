@@ -4,9 +4,9 @@
     "package": "codechicken.lib.internal.mixin",
     "refmap": "mixins.codechickenlib.refmap.json",
     "target": "@env(DEFAULT)",
-    "compatibilityLevel": "JAVA_8",
+    "compatibilityLevel": "JAVA_17",
     "client": [
         "ItemRendererMixin",
-        "WorldRendererMixin"
+        "LevelRendererMixin"
     ]
 }

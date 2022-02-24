@@ -1,19 +1,19 @@
 package codechicken.lib.inventory.container;
 
 import codechicken.lib.data.MCDataInput;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 
 /**
  * Created by covers1624 on 28/10/19.
  */
-public interface ICCLContainerFactory<T extends Container> extends ContainerType.IFactory<T> {
+public interface ICCLContainerFactory<T extends AbstractContainerMenu> extends MenuType.MenuSupplier<T> {
 
-    T create(int windowId, PlayerInventory inventory, MCDataInput packet);
+    T create(int windowId, Inventory inventory, MCDataInput packet);
 
     @Override
-    default T create(int windowId, PlayerInventory inventory) {
+    default T create(int windowId, Inventory inventory) {
         return create(windowId, inventory, null);
     }
 }

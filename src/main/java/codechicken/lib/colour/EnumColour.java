@@ -3,10 +3,10 @@ package codechicken.lib.colour;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Created by covers1624 on 16/09/2016.
  */
-public enum EnumColour implements IStringSerializable {
+public enum EnumColour implements StringRepresentable {
 
     //@formatter:off
     WHITE     ("white",      "forge:dyes/white",      "forge:wool/white",      "item.minecraft.firework_star.white",       0xFFFFFF),
@@ -189,18 +189,18 @@ public enum EnumColour implements IStringSerializable {
     }
 
     public static EnumColour fromDyeStack(ItemStack stack) {
-        return stack.getItem().getTags().stream()//
-                .map(dyeTagLookup::get)//
-                .filter(Objects::nonNull)//
-                .findFirst()//
+        return stack.getItem().getTags().stream()
+                .map(dyeTagLookup::get)
+                .filter(Objects::nonNull)
+                .findFirst()
                 .orElse(null);
     }
 
     public static EnumColour fromWoolStack(ItemStack stack) {
-        return stack.getItem().getTags().stream()//
-                .map(woolTagLookup::get)//
-                .filter(Objects::nonNull)//
-                .findFirst()//
+        return stack.getItem().getTags().stream()
+                .map(woolTagLookup::get)
+                .filter(Objects::nonNull)
+                .findFirst()
                 .orElse(null);
     }
 

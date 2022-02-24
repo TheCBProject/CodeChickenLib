@@ -3,10 +3,10 @@ package codechicken.lib.render;
 import codechicken.lib.raytracer.CuboidRayTraceResult;
 import codechicken.lib.raytracer.VoxelShapeRayTraceResult;
 import codechicken.lib.vec.Matrix4;
-import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.DrawHighlightEvent;
+import net.minecraftforge.client.event.DrawSelectionEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -42,21 +42,19 @@ public class CCRenderEventHandler {
 
     @OnlyIn (Dist.CLIENT)
     @SubscribeEvent (priority = EventPriority.LOW)
-    public void onBlockHighlight(DrawHighlightEvent.HighlightBlock event) {
+    public void onBlockHighlight(DrawSelectionEvent.HighlightBlock event) {
         //We have found a CuboidRayTraceResult, Lets render it properly..
-        BlockRayTraceResult hit = event.getTarget();
-        if (hit instanceof CuboidRayTraceResult) {
-            CuboidRayTraceResult cuboidHit = (CuboidRayTraceResult) hit;
+        BlockHitResult hit = event.getTarget();
+        if (hit instanceof CuboidRayTraceResult cuboidHit) {
             event.setCanceled(true);
-            Matrix4 mat = new Matrix4(event.getMatrix());
+            Matrix4 mat = new Matrix4(event.getPoseStack());
             mat.translate(cuboidHit.getBlockPos());
-            RenderUtils.bufferHitbox(mat, event.getBuffers(), event.getInfo(), cuboidHit.cuboid6);
-        } else if (hit instanceof VoxelShapeRayTraceResult) {
-            VoxelShapeRayTraceResult voxelHit = (VoxelShapeRayTraceResult) hit;
+            RenderUtils.bufferHitbox(mat, event.getMultiBufferSource(), event.getCamera(), cuboidHit.cuboid6);
+        } else if (hit instanceof VoxelShapeRayTraceResult voxelHit) {
             event.setCanceled(true);
-            Matrix4 mat = new Matrix4(event.getMatrix());
+            Matrix4 mat = new Matrix4(event.getPoseStack());
             mat.translate(voxelHit.getBlockPos());
-            RenderUtils.bufferShapeHitBox(mat, event.getBuffers(), event.getInfo(), voxelHit.shape);
+            RenderUtils.bufferShapeHitBox(mat, event.getMultiBufferSource(), event.getCamera(), voxelHit.shape);
         }
     }
 }

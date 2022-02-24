@@ -1,23 +1,24 @@
 package codechicken.lib.inventory;
 
 import codechicken.lib.util.ArrayUtils;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
  * IInventory implementation which saves and loads from an NBT tag
  */
-public class InventoryNBT implements IInventory {
+public class InventoryNBT implements Container {
 
     protected ItemStack[] items;
-    protected CompoundNBT tag;
+    protected CompoundTag tag;
 
-    public InventoryNBT(int size, CompoundNBT tag) {
+    public InventoryNBT(int size, CompoundTag tag) {
         this.tag = tag;
         items = new ItemStack[size];
         ArrayUtils.fillArray(items, ItemStack.EMPTY, (Objects::isNull));
@@ -80,58 +81,25 @@ public class InventoryNBT implements IInventory {
 
     @Override
     public void clearContent() {
-        for (int i = 0; i < items.length; i++) {
-            items[i] = ItemStack.EMPTY;
-        }
+        Arrays.fill(items, ItemStack.EMPTY);
         setChanged();
     }
 
-    //    @Override
-    //    public int getField(int id) {
-    //        return 0;
-    //    }
-    //
-    //    @Override
-    //    public void setField(int id, int value) {
-    //    }
-    //
-    //    @Override
-    //    public int getFieldCount() {
-    //        return 0;
-    //    }
-
     @Override
-    public boolean stillValid(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         return true;
     }
 
     @Override
-    public void startOpen(PlayerEntity player) {
+    public void startOpen(Player player) {
     }
 
     @Override
-    public void stopOpen(PlayerEntity player) {
+    public void stopOpen(Player player) {
     }
 
     @Override
     public boolean canPlaceItem(int i, ItemStack itemstack) {
         return true;
     }
-
-    //    @Override
-    //    @Nonnull
-    //    public String getName() {
-    //        return "NBT";
-    //    }
-    //
-    //    @Override
-    //    public boolean hasCustomName() {
-    //        return true;
-    //    }
-    //
-    //    @Override
-    //    @Nonnull
-    //    public ITextComponent getDisplayName() {
-    //        return new TextComponentString(getName());
-    //    }
 }

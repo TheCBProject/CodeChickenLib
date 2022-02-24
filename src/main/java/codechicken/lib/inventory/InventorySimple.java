@@ -1,9 +1,9 @@
 package codechicken.lib.inventory;
 
 import codechicken.lib.util.ArrayUtils;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * Simple IInventory implementation with an array of items, name and maximum stack size
  */
-public class InventorySimple implements IInventory/*, ICapabilityProvider*/ {
+public class InventorySimple implements Container {
 
     public ItemStack[] items;
     public int limit;
@@ -93,7 +93,7 @@ public class InventorySimple implements IInventory/*, ICapabilityProvider*/ {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity player) {
+    public boolean stillValid(Player player) {
         return true;
     }
 
@@ -107,60 +107,15 @@ public class InventorySimple implements IInventory/*, ICapabilityProvider*/ {
     }
 
     @Override
-    public void startOpen(PlayerEntity player) {
+    public void startOpen(Player player) {
     }
 
     @Override
-    public void stopOpen(PlayerEntity player) {
+    public void stopOpen(Player player) {
     }
-
-    //    @Override
-    //    public int getField(int id) {
-    //        return 0;
-    //    }
-    //
-    //    @Override
-    //    public void setField(int id, int value) {
-    //    }
-    //
-    //    @Override
-    //    public int getFieldCount() {
-    //        return 0;
-    //    }
 
     @Override
     public void clearContent() {
         Arrays.fill(items, ItemStack.EMPTY);
     }
-
-    //    @Override
-    //    @Nonnull
-    //    public String getName() {
-    //        return name;
-    //    }
-    //
-    //    @Override
-    //    public boolean hasCustomName() {
-    //        return true;
-    //    }
-    //
-    //    @Override
-    //    @Nonnull
-    //    public ITextComponent getDisplayName() {
-    //        return new TextComponentString(getName());
-    //    }
-    //
-    //    @Override
-    //    public boolean hasCapability(@Nonnull Capability<?> capability, EnumFacing facing) {
-    //        return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
-    //    }
-    //
-    //    @SuppressWarnings ("unchecked")
-    //    @Override
-    //    public <T> T getCapability(@Nonnull Capability<T> capability, EnumFacing facing) {
-    //        if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-    //            return (T) new InvWrapper(this);
-    //        }
-    //        return null;
-    //    }
 }

@@ -1,11 +1,10 @@
 package codechicken.lib.render.shader;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.resource.IResourceType;
-import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
@@ -19,14 +18,13 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Collection;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 /**
  * Allows using pre-compiled shader binaries with {@link ShaderProgram}.
  * <p>
  * Created by KitsuneAlex on 18/11/21.
  */
-public class BinaryShaderObject extends NamedShaderObject implements ISelectiveResourceReloadListener {
+public class BinaryShaderObject extends NamedShaderObject implements ResourceManagerReloadListener {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -88,12 +86,12 @@ public class BinaryShaderObject extends NamedShaderObject implements ISelectiveR
     }
 
     @Override
-    public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
+    public void onResourceManagerReload(ResourceManager resourceManager) {
         dirty = true;
     }
 
     private byte[] getRawSource() {
-        try (IResource resource = Minecraft.getInstance().getResourceManager().getResource(asset)) {
+        try (Resource resource = Minecraft.getInstance().getResourceManager().getResource(asset)) {
             try (InputStream istream = resource.getInputStream()) {
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
                 byte[] buffer = new byte[1024];

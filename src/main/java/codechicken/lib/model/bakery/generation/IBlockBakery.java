@@ -1,8 +1,6 @@
 package codechicken.lib.model.bakery.generation;
 
 import codechicken.lib.model.bakery.ModelBakery;
-import net.minecraft.block.Block;
-import net.minecraft.util.math.BlockPos;
 
 /**
  * Created by covers1624 on 28/10/2016.

@@ -1,12 +1,11 @@
 package codechicken.lib.util;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.resources.IResource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -31,8 +30,8 @@ public class ResourceUtils {
      *
      * @return The resource manager.
      */
-    public static IReloadableResourceManager getResourceManager() {
-        return (IReloadableResourceManager) Minecraft.getInstance().getResourceManager();
+    public static ReloadableResourceManager getResourceManager() {
+        return (ReloadableResourceManager) Minecraft.getInstance().getResourceManager();
     }
 
     /**
@@ -42,7 +41,7 @@ public class ResourceUtils {
      * @return The gotten resource.
      * @throws IOException If the resource doesn't exist, or some other IO error occurred.
      */
-    public static IResource getResource(String location) throws IOException {
+    public static Resource getResource(String location) throws IOException {
         return getResource(new ResourceLocation(location));
     }
 
@@ -53,7 +52,7 @@ public class ResourceUtils {
      * @return The gotten resource.
      * @throws IOException If the resource doesn't exist, or some other IO error occurred.
      */
-    public static IResource getResource(ResourceLocation location) throws IOException {
+    public static Resource getResource(ResourceLocation location) throws IOException {
         return getResourceManager().getResource(location);
     }
 
@@ -62,28 +61,8 @@ public class ResourceUtils {
      *
      * @param reloadListener The listener.
      */
-    public static void registerReloadListener(ISelectiveResourceReloadListener reloadListener) {
+    public static void registerReloadListener(ResourceManagerReloadListener reloadListener) {
         getResourceManager().registerReloadListener(reloadListener);
     }
 
-    /**
-     * Attempts to create a file.
-     *
-     * @param file The file to create.
-     * @return The same file you passed in.
-     */
-    public static File ensureExists(File file) {
-        if (!file.exists()) {
-            try {
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdirs();
-                }
-                file.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException("Error whilst creating file!", e);
-            }
-        }
-
-        return file;
-    }
 }

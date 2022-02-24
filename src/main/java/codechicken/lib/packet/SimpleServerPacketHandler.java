@@ -2,8 +2,8 @@ package codechicken.lib.packet;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.play.IServerPlayNetHandler;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,8 +18,7 @@ public class SimpleServerPacketHandler implements IServerPacketHandler {
 
     private static final Int2ObjectMap<IServerPacketHandler> handlers = new Int2ObjectArrayMap<>();
 
-    // TODO 1.17, Change to protected.
-    public void addHandler(int id, IServerPacketHandler handler) {
+    protected void addHandler(int id, IServerPacketHandler handler) {
         if (handlers.containsKey(id)) {
             throw new IllegalArgumentException("Handler already registered for ID: " + id);
         }
@@ -27,7 +26,7 @@ public class SimpleServerPacketHandler implements IServerPacketHandler {
     }
 
     @Override
-    public void handlePacket(PacketCustom packet, ServerPlayerEntity sender, IServerPlayNetHandler handler) {
+    public void handlePacket(PacketCustom packet, ServerPlayer sender, ServerGamePacketListenerImpl handler) {
         IServerPacketHandler h = handlers.get(packet.getType());
         if (h != null) {
             h.handlePacket(packet, sender, handler);

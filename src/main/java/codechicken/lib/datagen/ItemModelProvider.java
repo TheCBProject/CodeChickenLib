@@ -1,11 +1,11 @@
 package codechicken.lib.datagen;
 
 import com.google.gson.JsonObject;
-import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.item.Item;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.model.generators.ItemModelBuilder;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.client.model.generators.ModelProvider;
@@ -28,11 +28,11 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
     }
 
     //region Location helpers
-    protected String name(IItemProvider item) {
+    protected String name(ItemLike item) {
         return item.asItem().getRegistryName().getPath();
     }
 
-    protected ResourceLocation itemTexture(IItemProvider item) {
+    protected ResourceLocation itemTexture(ItemLike item) {
         return itemTexture(item, "");
     }
 
@@ -40,7 +40,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         return itemTexture(item, "");
     }
 
-    protected ResourceLocation itemTexture(IItemProvider item, String folder) {
+    protected ResourceLocation itemTexture(ItemLike item, String folder) {
         String f = "";
         if (!StringUtils.isEmpty(folder)) {
             f = StringUtils.appendIfMissing(folder, "/");
@@ -74,7 +74,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
     //endregion
 
     //region Builder helpers.
-    protected ItemModelBuilder getBuilder(IItemProvider item) {
+    protected ItemModelBuilder getBuilder(ItemLike item) {
         return getBuilder(name(item));
     }
 
@@ -84,7 +84,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
     //endregion
 
     //region Simple builder
-    protected SimpleItemModelBuilder getSimple(IItemProvider item) {
+    protected SimpleItemModelBuilder getSimple(ItemLike item) {
         WrappedItemModelBuilder builder = (WrappedItemModelBuilder) getBuilder(item);
         if (builder.simpleBuilder == null) {
             builder.simpleBuilder = new SimpleItemModelBuilder(builder, item.asItem());
@@ -96,7 +96,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         return getSimple(item.get());
     }
 
-    protected SimpleItemModelBuilder generated(IItemProvider item) {
+    protected SimpleItemModelBuilder generated(ItemLike item) {
         return getSimple(item)
                 .parent(GENERATED);
     }
@@ -105,7 +105,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         return generated(item.get());
     }
 
-    protected SimpleItemModelBuilder handheld(IItemProvider item) {
+    protected SimpleItemModelBuilder handheld(ItemLike item) {
         return getSimple(item)
                 .parent(HANDHELD);
     }

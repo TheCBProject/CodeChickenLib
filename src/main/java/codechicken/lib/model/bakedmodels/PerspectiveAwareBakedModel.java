@@ -3,13 +3,11 @@ package codechicken.lib.model.bakedmodels;
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IModelTransform;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.TransformationMatrix;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 import java.util.Map;
@@ -23,16 +21,16 @@ public class PerspectiveAwareBakedModel extends AbstractBakedPropertiesModel {
     private final ImmutableMap<Direction, List<BakedQuad>> faceQuads;
     private final ImmutableList<BakedQuad> generalQuads;
 
-    public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, IModelTransform transforms, ModelProperties properties) {
+    public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, ModelState transforms, ModelProperties properties) {
         this(faceQuads, ImmutableList.of(), transforms, properties);
     }
 
-    public PerspectiveAwareBakedModel(List<BakedQuad> generalQuads, IModelTransform transforms, ModelProperties properties) {
+    public PerspectiveAwareBakedModel(List<BakedQuad> generalQuads, ModelState transforms, ModelProperties properties) {
         this(ImmutableMap.of(), generalQuads, transforms, properties);
     }
 
-    public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, IModelTransform transforms, ModelProperties properties) {
-        this(faceQuads, generalQuads, new PerspectiveProperties(transforms, properties));
+    public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, List<BakedQuad> generalQuads, ModelState transforms, ModelProperties properties) {
+        this(faceQuads, generalQuads, properties.toBuilder().withTransforms(transforms).build());
     }
 
     public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, PerspectiveProperties properties) {
@@ -62,7 +60,7 @@ public class PerspectiveAwareBakedModel extends AbstractBakedPropertiesModel {
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
-        return ItemOverrideList.EMPTY;
+    public ItemOverrides getOverrides() {
+        return ItemOverrides.EMPTY;
     }
 }

@@ -1,6 +1,6 @@
 package codechicken.lib.world;
 
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 /**
  * Provides a callback for tile entities when a chunk is loaded, as an alternative to validate when the chunk hasn't been added to the world.
@@ -10,10 +10,5 @@ import net.minecraft.world.chunk.Chunk;
  */
 public interface IChunkLoadTile {
 
-    @Deprecated //TODO remove in 1.17
-    void onChunkLoad();
-
-    default void onChunkLoad(Chunk chunk) {
-        onChunkLoad();
-    }
+    void onChunkLoad(LevelChunk chunk);
 }

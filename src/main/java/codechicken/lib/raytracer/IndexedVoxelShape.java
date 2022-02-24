@@ -1,12 +1,11 @@
 package codechicken.lib.raytracer;
 
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 
@@ -35,8 +34,8 @@ public class IndexedVoxelShape extends VoxelShape {
 
     @Nullable
     @Override
-    public VoxelShapeRayTraceResult clip(Vector3d start, Vector3d end, BlockPos pos) {
-        BlockRayTraceResult result = parent.clip(start, end, pos);
+    public VoxelShapeRayTraceResult clip(Vec3 start, Vec3 end, BlockPos pos) {
+        BlockHitResult result = parent.clip(start, end, pos);
         if (result == null) return null;
         double dist = result.getLocation().distanceToSqr(start);
         return new VoxelShapeRayTraceResult(result, this, dist);

@@ -1,7 +1,7 @@
 package codechicken.lib.util;
 
 import codechicken.lib.vec.Vector3;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 /**
  * Created by covers1624 on 4/10/2016.

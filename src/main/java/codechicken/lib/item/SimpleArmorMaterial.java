@@ -1,24 +1,24 @@
 package codechicken.lib.item;
 
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ArmorMaterial;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.LazyValue;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.ArmorMaterials;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.function.Supplier;
 
 /**
  * Created by covers1624 on 14/12/20.
  */
-public class SimpleArmorMaterial implements IArmorMaterial {
+public class SimpleArmorMaterial implements ArmorMaterial {
 
     private final int[] durability;
     private final int[] damageReduction;
     private final int enchantability;
     private final SoundEvent soundEvent;
-    private final LazyValue<Ingredient> repairMaterial;
+    private final LazyLoadedValue<Ingredient> repairMaterial;
     private final String textureName;
     private final float toughness;
     private final float knockbackResistance;
@@ -28,7 +28,7 @@ public class SimpleArmorMaterial implements IArmorMaterial {
         this.damageReduction = damageReduction;
         this.enchantability = enchantability;
         this.soundEvent = soundEvent;
-        this.repairMaterial = new LazyValue<>(repairMaterial);
+        this.repairMaterial = new LazyLoadedValue<>(repairMaterial);
         this.textureName = textureName;
         this.toughness = toughness;
         this.knockbackResistance = knockbackResistance;
@@ -39,12 +39,12 @@ public class SimpleArmorMaterial implements IArmorMaterial {
     }
 
     @Override
-    public int getDurabilityForSlot(EquipmentSlotType slot) {
+    public int getDurabilityForSlot(EquipmentSlot slot) {
         return durability[slot.getIndex()];
     }
 
     @Override
-    public int getDefenseForSlot(EquipmentSlotType slot) {
+    public int getDefenseForSlot(EquipmentSlot slot) {
         return damageReduction[slot.getIndex()];
     }
 
@@ -92,14 +92,14 @@ public class SimpleArmorMaterial implements IArmorMaterial {
         private Builder() {
         }
 
-        public Builder durability(EquipmentSlotType slot, int value) {
+        public Builder durability(EquipmentSlot slot, int value) {
             durability[slot.getIndex()] = value;
             return this;
         }
 
         public Builder durabilityFactor(int factor) {
             for (int i = 0; i < 4; i++) {
-                durability[i] = ArmorMaterial.HEALTH_PER_SLOT[i] * factor;
+                durability[i] = ArmorMaterials.HEALTH_PER_SLOT[i] * factor;
             }
             return this;
         }
@@ -109,7 +109,7 @@ public class SimpleArmorMaterial implements IArmorMaterial {
             return this;
         }
 
-        public Builder damageReduction(EquipmentSlotType slot, int value) {
+        public Builder damageReduction(EquipmentSlot slot, int value) {
             damageReduction[slot.getIndex()] = value;
             return this;
         }

@@ -1,17 +1,11 @@
 package codechicken.lib.fluid;
 
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 
 public class FluidUtils {
-
-    @CapabilityInject (IFluidHandler.class)
-    public static final Capability<IFluidHandler> FLUID_HANDLER = null;
 
     public static int B = FluidAttributes.BUCKET_VOLUME;
     public static FluidStack water = new FluidStack(Fluids.WATER, 1000);

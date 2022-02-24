@@ -22,11 +22,11 @@ import codechicken.lib.model.Quad.Vertex;
 import codechicken.lib.model.pipeline.IPipelineElementFactory;
 import codechicken.lib.model.pipeline.QuadTransformer;
 import codechicken.lib.vec.Cuboid6;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 
-import static net.minecraft.util.Direction.AxisDirection.POSITIVE;
+import static net.minecraft.core.Direction.AxisDirection.POSITIVE;
 
 /**
  * This transformer strips quads that are on faces.
@@ -45,7 +45,7 @@ public class QuadFaceStripper extends QuadTransformer {
         super();
     }
 
-    public QuadFaceStripper(IVertexConsumer parent, AxisAlignedBB bounds, int mask) {
+    public QuadFaceStripper(IVertexConsumer parent, AABB bounds, int mask) {
         super(parent);
         this.bounds.set(bounds);
         this.mask = mask;
@@ -63,9 +63,9 @@ public class QuadFaceStripper extends QuadTransformer {
     }
 
     /**
-     * Overload of {@link #setBounds(Cuboid6)} for {@link AxisAlignedBB}.
+     * Overload of {@link #setBounds(Cuboid6)} for {@link AABB}.
      */
-    public void setBounds(AxisAlignedBB bounds) {
+    public void setBounds(AABB bounds) {
         this.bounds.set(bounds);
     }
 
@@ -90,7 +90,7 @@ public class QuadFaceStripper extends QuadTransformer {
             Direction.AxisDirection dir = quad.orientation.getAxisDirection();
             Vertex[] vertices = quad.vertices;
             switch (quad.orientation.getAxis()) {
-                case X: {
+                case X -> {
                     float bound = (float) (dir == POSITIVE ? bounds.max.x : bounds.min.x);
                     float x1 = vertices[0].vec[0];
                     float x2 = vertices[1].vec[0];
@@ -98,7 +98,7 @@ public class QuadFaceStripper extends QuadTransformer {
                     float x4 = vertices[3].vec[0];
                     return x1 != x2 || x2 != x3 || x3 != x4 || x4 != bound;
                 }
-                case Y: {
+                case Y -> {
                     float bound = (float) (dir == POSITIVE ? bounds.max.y : bounds.min.y);
                     float y1 = vertices[0].vec[1];
                     float y2 = vertices[1].vec[1];
@@ -106,7 +106,7 @@ public class QuadFaceStripper extends QuadTransformer {
                     float y4 = vertices[3].vec[1];
                     return y1 != y2 || y2 != y3 || y3 != y4 || y4 != bound;
                 }
-                case Z: {
+                case Z -> {
                     float bound = (float) (dir == POSITIVE ? bounds.max.z : bounds.min.z);
                     float z1 = vertices[0].vec[2];
                     float z2 = vertices[1].vec[2];

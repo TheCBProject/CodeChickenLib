@@ -1,8 +1,8 @@
 package codechicken.lib.internal.network;
 
 import codechicken.lib.packet.PacketCustomChannelBuilder;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.event.EventNetworkChannel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.event.EventNetworkChannel;
 
 /**
  * Created by covers1624 on 28/10/19.

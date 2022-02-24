@@ -2,10 +2,10 @@ package codechicken.lib.render.lighting;
 
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockAndTintGetter;
 
 /**
  * Simple brightness model that only works for axis planar sides
@@ -15,14 +15,14 @@ public class SimpleBrightnessModel implements IVertexOperation {
     public static final int operationIndex = IVertexOperation.registerOperation();
     public static SimpleBrightnessModel instance = new SimpleBrightnessModel();
 
-    public IBlockDisplayReader access;
+    public BlockAndTintGetter access;
     public BlockPos pos = BlockPos.ZERO;
 
     private int sampled = 0;
     private int[] samples = new int[6];
     private BlockPos c = BlockPos.ZERO;
 
-    public void locate(IBlockDisplayReader a, BlockPos bPos) {
+    public void locate(BlockAndTintGetter a, BlockPos bPos) {
         access = a;
         pos = bPos;
         sampled = 0;
@@ -31,7 +31,7 @@ public class SimpleBrightnessModel implements IVertexOperation {
     public int sample(int side) {
         if ((sampled & 1 << side) == 0) {
             c = pos.relative(Direction.BY_3D_DATA[side]);
-            samples[side] = WorldRenderer.getLightColor(access, c);
+            samples[side] = LevelRenderer.getLightColor(access, c);
             sampled |= 1 << side;
         }
         return samples[side];

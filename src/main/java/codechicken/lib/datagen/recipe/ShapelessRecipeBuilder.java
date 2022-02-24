@@ -2,13 +2,13 @@ package codechicken.lib.datagen.recipe;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.tags.ITag;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.ItemLike;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,19 +24,19 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
 
     private final List<Ingredient> ingredients = new ArrayList<>();
 
-    protected ShapelessRecipeBuilder(IRecipeSerializer<?> serializer, ResourceLocation id, ItemStack result) {
+    protected ShapelessRecipeBuilder(RecipeSerializer<?> serializer, ResourceLocation id, ItemStack result) {
         super(serializer, id, result);
     }
 
-    public static ShapelessRecipeBuilder builder(IItemProvider result) {
+    public static ShapelessRecipeBuilder builder(ItemLike result) {
         return builder(result, 1);
     }
 
-    public static ShapelessRecipeBuilder builder(IItemProvider result, int count) {
+    public static ShapelessRecipeBuilder builder(ItemLike result, int count) {
         return builder(new ItemStack(result, count));
     }
 
-    public static ShapelessRecipeBuilder builder(IItemProvider result, int count, ResourceLocation id) {
+    public static ShapelessRecipeBuilder builder(ItemLike result, int count, ResourceLocation id) {
         return builder(new ItemStack(result, count), id);
     }
 
@@ -45,14 +45,14 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
     }
 
     public static ShapelessRecipeBuilder builder(ItemStack result, ResourceLocation id) {
-        return new ShapelessRecipeBuilder(IRecipeSerializer.SHAPELESS_RECIPE, id, result);
+        return new ShapelessRecipeBuilder(RecipeSerializer.SHAPELESS_RECIPE, id, result);
     }
 
-    public ShapelessRecipeBuilder addIngredient(ITag<Item> tag) {
+    public ShapelessRecipeBuilder addIngredient(Tag<Item> tag) {
         return addIngredient(tag, 1);
     }
 
-    public ShapelessRecipeBuilder addIngredient(ITag<Item> tag, int quantity) {
+    public ShapelessRecipeBuilder addIngredient(Tag<Item> tag, int quantity) {
         addAutoCriteria(tag);
         Ingredient ingredient = Ingredient.of(tag);
         for (int i = 0; i < quantity; ++i) {
@@ -61,11 +61,11 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
         return this;
     }
 
-    public ShapelessRecipeBuilder addIngredient(IItemProvider item) {
+    public ShapelessRecipeBuilder addIngredient(ItemLike item) {
         return addIngredient(item, 1);
     }
 
-    public ShapelessRecipeBuilder addIngredient(IItemProvider item, int quantity) {
+    public ShapelessRecipeBuilder addIngredient(ItemLike item, int quantity) {
         addAutoCriteria(item);
         Ingredient ingredient = Ingredient.of(item);
         for (int i = 0; i < quantity; ++i) {

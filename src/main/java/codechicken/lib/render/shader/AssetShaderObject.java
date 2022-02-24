@@ -1,11 +1,10 @@
 package codechicken.lib.render.shader;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.resource.IResourceType;
-import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,13 +13,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
  * Created by covers1624 on 24/5/20.
  */
-public class AssetShaderObject extends AbstractShaderObject implements ISelectiveResourceReloadListener {
+public class AssetShaderObject extends AbstractShaderObject implements ResourceManagerReloadListener {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -35,7 +33,7 @@ public class AssetShaderObject extends AbstractShaderObject implements ISelectiv
     @Override
     protected String getSource() {
         if (source == null) {
-            try (IResource resource = Minecraft.getInstance().getResourceManager().getResource(asset)) {
+            try (Resource resource = Minecraft.getInstance().getResourceManager().getResource(asset)) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
                     source = reader.lines().collect(Collectors.joining("\n"));
                 }
@@ -48,7 +46,7 @@ public class AssetShaderObject extends AbstractShaderObject implements ISelectiv
     }
 
     @Override
-    public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
+    public void onResourceManagerReload(ResourceManager resourceManager) {
         source = null;
         dirty = true;
     }

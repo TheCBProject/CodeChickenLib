@@ -1,8 +1,8 @@
 package codechicken.lib.texture;
 
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.data.IMetadataSectionSerializer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.server.packs.resources.Resource;
 
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
@@ -16,13 +16,13 @@ import java.io.InputStream;
  * Created by covers1624 on 2/11/2016.
  * TODO Document.
  */
-public class CustomIResource implements IResource {
+public class CustomIResource implements Resource {
 
     private ResourceLocation location;
     private InputStream stream;
-    private IResource wrapped;
+    private Resource wrapped;
 
-    public CustomIResource(ResourceLocation location, BufferedImage image, IResource wrapped) {
+    public CustomIResource(ResourceLocation location, BufferedImage image, Resource wrapped) {
         try {
             this.location = location;
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -45,9 +45,14 @@ public class CustomIResource implements IResource {
         return stream;
     }
 
+    @Override
+    public boolean hasMetadata() {
+        return wrapped.hasMetadata();
+    }
+
     @Nullable
     @Override
-    public <T> T getMetadata(IMetadataSectionSerializer<T> serializer) {
+    public <T> T getMetadata(MetadataSectionSerializer<T> serializer) {
         return wrapped.getMetadata(serializer);
     }
 

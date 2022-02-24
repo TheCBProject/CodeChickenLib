@@ -1,11 +1,11 @@
 package codechicken.lib.model.bakedmodels;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -15,11 +15,11 @@ import java.util.Random;
 /**
  * Created by covers1624 on 29/06/2017.
  */
-public class OverrideListModel implements IBakedModel {
+public class OverrideListModel implements BakedModel {
 
-    private final ItemOverrideList overrides;
+    private final ItemOverrides overrides;
 
-    public OverrideListModel(ItemOverrideList overrides) {
+    public OverrideListModel(ItemOverrides overrides) {
         this.overrides = overrides;
     }
 
@@ -54,7 +54,7 @@ public class OverrideListModel implements IBakedModel {
     }
 
     @Override
-    public ItemOverrideList getOverrides() {
+    public ItemOverrides getOverrides() {
         return overrides;
     }
 }

@@ -1,10 +1,13 @@
+/*
 package codechicken.lib.render.shader;
 
 import net.minecraft.client.renderer.RenderType;
 
+*/
 /**
  * Created by covers1624 on 24/5/20.
- */
+ *//*
+
 public class ShaderRenderType extends RenderType {
 
     private final RenderType parent;
@@ -49,3 +52,4 @@ public class ShaderRenderType extends RenderType {
         return System.identityHashCode(this);
     }
 }
+*/

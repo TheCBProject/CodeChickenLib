@@ -1,22 +1,22 @@
 package codechicken.lib.item;
 
-import net.minecraft.item.IItemTier;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.LazyValue;
+import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.function.Supplier;
 
 /**
  * Created by covers1624 on 14/12/20.
  */
-public class SimpleItemTier implements IItemTier {
+public class SimpleItemTier implements Tier {
 
     private final int maxUses;
     private final float efficiency;
     private final float attackDamage;
     private final int harvestLevel;
     private final int enchantability;
-    private final LazyValue<Ingredient> repairMaterial;
+    private final LazyLoadedValue<Ingredient> repairMaterial;
 
     public SimpleItemTier(int maxUses, float efficiency, float attackDamage, int harvestLevel, int enchantability, Supplier<Ingredient> repairMaterial) {
         this.maxUses = maxUses;
@@ -24,14 +24,14 @@ public class SimpleItemTier implements IItemTier {
         this.attackDamage = attackDamage;
         this.harvestLevel = harvestLevel;
         this.enchantability = enchantability;
-        this.repairMaterial = new LazyValue<>(repairMaterial);
+        this.repairMaterial = new LazyLoadedValue<>(repairMaterial);
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static Builder builder(IItemTier other) {
+    public static Builder builder(Tier other) {
         return builder().from(other);
     }
 
@@ -77,7 +77,7 @@ public class SimpleItemTier implements IItemTier {
         private Builder() {
         }
 
-        public Builder from(IItemTier other) {
+        public Builder from(Tier other) {
             maxUses(other.getUses());
             efficiency(other.getSpeed());
             attackDamage(other.getAttackDamageBonus());

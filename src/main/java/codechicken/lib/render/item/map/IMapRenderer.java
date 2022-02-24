@@ -1,6 +1,6 @@
 package codechicken.lib.render.item.map;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Used to handle rendering FirstPerson items the same as a map.

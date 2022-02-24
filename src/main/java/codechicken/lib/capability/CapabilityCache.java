@@ -3,11 +3,10 @@ package codechicken.lib.capability;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Object2IntPair;
 import com.google.common.collect.Iterables;
-import net.minecraft.block.Block;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullSupplier;
@@ -36,7 +35,7 @@ public class CapabilityCache {
     private final Map<Capability<?>, Object2IntPair<LazyOptional<?>>> selfCache = new HashMap<>();
     private final EnumMap<Direction, Map<Capability<?>, Object2IntPair<LazyOptional<?>>>> sideCache = new EnumMap<>(Direction.class);
 
-    private World world;
+    private Level world;
     private BlockPos pos;
 
     private int ticks;
@@ -45,7 +44,7 @@ public class CapabilityCache {
     public CapabilityCache() {
     }
 
-    public CapabilityCache(World world, BlockPos pos) {
+    public CapabilityCache(Level world, BlockPos pos) {
         this.world = world;
         this.pos = pos;
     }
@@ -74,7 +73,7 @@ public class CapabilityCache {
      * @param world The new world.
      * @param pos   The new pos.
      */
-    public void setWorldPos(World world, BlockPos pos) {
+    public void setWorldPos(Level world, BlockPos pos) {
         clear();
         this.world = world;
         this.pos = pos;
@@ -195,7 +194,7 @@ public class CapabilityCache {
     }
 
     private LazyOptional<?> requestCapability(Capability<?> capability, Direction to) {
-        TileEntity tile = world.getBlockEntity(pos.relative(to));
+        BlockEntity tile = world.getBlockEntity(pos.relative(to));
         Direction inverse = to == null ? null : to.getOpposite();
         if (tile != null) {
             return tile.getCapability(capability, inverse);
