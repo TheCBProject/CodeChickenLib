@@ -1,7 +1,6 @@
 package codechicken.lib.render;
 
-import codechicken.lib.raytracer.CuboidRayTraceResult;
-import codechicken.lib.raytracer.VoxelShapeRayTraceResult;
+import codechicken.lib.raytracer.VoxelShapeBlockHitResult;
 import codechicken.lib.vec.Matrix4;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,12 +44,7 @@ public class CCRenderEventHandler {
     public void onBlockHighlight(DrawSelectionEvent.HighlightBlock event) {
         //We have found a CuboidRayTraceResult, Lets render it properly..
         BlockHitResult hit = event.getTarget();
-        if (hit instanceof CuboidRayTraceResult cuboidHit) {
-            event.setCanceled(true);
-            Matrix4 mat = new Matrix4(event.getPoseStack());
-            mat.translate(cuboidHit.getBlockPos());
-            RenderUtils.bufferHitbox(mat, event.getMultiBufferSource(), event.getCamera(), cuboidHit.cuboid6);
-        } else if (hit instanceof VoxelShapeRayTraceResult voxelHit) {
+        if (hit instanceof VoxelShapeBlockHitResult voxelHit) {
             event.setCanceled(true);
             Matrix4 mat = new Matrix4(event.getPoseStack());
             mat.translate(voxelHit.getBlockPos());

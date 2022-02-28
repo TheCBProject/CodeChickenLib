@@ -13,37 +13,37 @@ import net.minecraft.world.phys.Vec3;
  * <p>
  * Created by covers1624 on 8/9/2016.
  */
-public class VoxelShapeRayTraceResult extends DistanceRayTraceResult {
+public class VoxelShapeBlockHitResult extends SubHitBlockHitResult {
 
     public IndexedVoxelShape shape;
 
-    public VoxelShapeRayTraceResult(BlockHitResult other, IndexedVoxelShape shape, double dist) {
+    public VoxelShapeBlockHitResult(BlockHitResult other, IndexedVoxelShape shape, double dist) {
         super(other.getLocation(), other.getDirection(), other.getBlockPos(), other.isInside(), shape.getData(), dist);
         this.shape = shape;
     }
 
-    public VoxelShapeRayTraceResult(Vector3 hit, Direction side, BlockPos pos, boolean isInside, IndexedVoxelShape shape, double dist) {
+    public VoxelShapeBlockHitResult(Vector3 hit, Direction side, BlockPos pos, boolean isInside, IndexedVoxelShape shape, double dist) {
         super(hit, side, pos, isInside, shape.getData(), dist);
         this.shape = shape;
     }
 
-    public VoxelShapeRayTraceResult(Vector3 hit, Direction side, boolean isInside, IndexedVoxelShape shape, double dist) {
+    public VoxelShapeBlockHitResult(Vector3 hit, Direction side, boolean isInside, IndexedVoxelShape shape, double dist) {
         super(hit, side, BlockPos.ZERO, isInside, shape.getData(), dist);
         this.shape = shape;
     }
 
-    protected VoxelShapeRayTraceResult(boolean isMissIn, Vec3 hit, Direction side, BlockPos pos, boolean isInside, IndexedVoxelShape shape, double dist) {
+    protected VoxelShapeBlockHitResult(boolean isMissIn, Vec3 hit, Direction side, BlockPos pos, boolean isInside, IndexedVoxelShape shape, double dist) {
         super(isMissIn, hit, side, pos, isInside, shape.getData(), dist);
         this.shape = shape;
     }
 
     @Override
-    public DistanceRayTraceResult withDirection(Direction newFace) {
-        return new VoxelShapeRayTraceResult(getType() == Type.MISS, getLocation(), newFace, getBlockPos(), isInside(), shape, dist);
+    public SubHitBlockHitResult withDirection(Direction newFace) {
+        return new VoxelShapeBlockHitResult(getType() == Type.MISS, getLocation(), newFace, getBlockPos(), isInside(), shape, dist);
     }
 
-    public DistanceRayTraceResult getAsDistanceResult() {
-        return new DistanceRayTraceResult(getType() == Type.MISS, getLocation(), getDirection(), getBlockPos(), isInside(), hitInfo, dist);
+    public SubHitBlockHitResult getAsDistanceResult() {
+        return new SubHitBlockHitResult(getType() == Type.MISS, getLocation(), getDirection(), getBlockPos(), isInside(), hitInfo, dist);
     }
 
     @Override

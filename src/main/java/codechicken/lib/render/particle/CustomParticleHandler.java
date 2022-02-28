@@ -2,7 +2,7 @@ package codechicken.lib.render.particle;
 
 import codechicken.lib.internal.network.CCLNetwork;
 import codechicken.lib.packet.PacketCustom;
-import codechicken.lib.raytracer.CuboidRayTraceResult;
+import codechicken.lib.raytracer.VoxelShapeBlockHitResult;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.client.Minecraft;
@@ -98,11 +98,11 @@ public class CustomParticleHandler {
             BakedModel model = modelShapes.getBlockModel(state);
             if (model instanceof IModelParticleProvider) {
                 IModelData modelData = ModelDataManager.getModelData(world, pos);
-                Cuboid6 bounds;
-                if (hit instanceof CuboidRayTraceResult) {
-                    bounds = ((CuboidRayTraceResult) hit).cuboid6;
+                Cuboid6 bounds = new Cuboid6();
+                if (hit instanceof VoxelShapeBlockHitResult) {
+                    bounds.set(((VoxelShapeBlockHitResult) hit).shape.bounds());
                 } else {
-                    bounds = new Cuboid6(state.getShape(world, pos).bounds());
+                    bounds.set(state.getShape(world, pos).bounds());
                 }
                 bounds = bounds.copy().add(pos);
                 Set<TextureAtlasSprite> hitSprites = ((IModelParticleProvider) model).getHitEffects(hit, state, world, pos, modelData);

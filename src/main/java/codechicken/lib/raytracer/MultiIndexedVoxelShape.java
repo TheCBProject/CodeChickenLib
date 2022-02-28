@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 import static codechicken.lib.util.SneakyUtils.unsafeCast;
 
 /**
- * A VoxelShape implementation, produces a {@link VoxelShapeRayTraceResult} when ray traced.
+ * A VoxelShape implementation, produces a {@link VoxelShapeBlockHitResult} when ray traced.
  * Whilst similar to {@link IndexedVoxelShape}, will ray trace each sub-component provided, returning the closest.
  * <p>
  * The sub-component will have its outline automatically rendered appropriately.
@@ -54,11 +54,11 @@ public class MultiIndexedVoxelShape extends VoxelShape {
 
     @Nullable
     @Override
-    public VoxelShapeRayTraceResult clip(Vec3 start, Vec3 end, BlockPos pos) {
-        VoxelShapeRayTraceResult closest = null;
+    public VoxelShapeBlockHitResult clip(Vec3 start, Vec3 end, BlockPos pos) {
+        VoxelShapeBlockHitResult closest = null;
         double dist = Double.MAX_VALUE;
         for (IndexedVoxelShape shape : shapes) {
-            VoxelShapeRayTraceResult hit = shape.clip(start, end, pos);
+            VoxelShapeBlockHitResult hit = shape.clip(start, end, pos);
             if (hit != null && dist >= hit.dist) {
                 closest = hit;
                 dist = hit.dist;

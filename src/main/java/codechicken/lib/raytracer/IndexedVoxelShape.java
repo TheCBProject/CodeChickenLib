@@ -10,7 +10,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nullable;
 
 /**
- * A VoxelShape implementation, produces a {@link VoxelShapeRayTraceResult} when ray traced.
+ * A VoxelShape implementation, produces a {@link VoxelShapeBlockHitResult} when ray traced.
  * {@link IndexedVoxelShape#data} will be passed through to {@link RayTraceResult#hitInfo} and
  * to {@link RayTraceResult#subHit} if its an integer.
  * <p>
@@ -34,11 +34,11 @@ public class IndexedVoxelShape extends VoxelShape {
 
     @Nullable
     @Override
-    public VoxelShapeRayTraceResult clip(Vec3 start, Vec3 end, BlockPos pos) {
+    public VoxelShapeBlockHitResult clip(Vec3 start, Vec3 end, BlockPos pos) {
         BlockHitResult result = parent.clip(start, end, pos);
         if (result == null) return null;
         double dist = result.getLocation().distanceToSqr(start);
-        return new VoxelShapeRayTraceResult(result, this, dist);
+        return new VoxelShapeBlockHitResult(result, this, dist);
     }
 
     public Object getData() {
