@@ -32,7 +32,7 @@ import java.nio.*;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-import static codechicken.lib.util.SneakyUtils.unsafeCast;
+import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 /**
  * Provides the ability to read various datas from some sort of data stream.

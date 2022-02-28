@@ -15,7 +15,7 @@ import org.lwjgl.opengl.GL40;
 
 import java.util.*;
 
-import static codechicken.lib.util.SneakyUtils.unsafeCast;
+import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 /**
  * Created by covers1624 on 24/5/20.

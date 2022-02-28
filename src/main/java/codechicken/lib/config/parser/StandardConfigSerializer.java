@@ -2,10 +2,10 @@ package codechicken.lib.config.parser;
 
 import codechicken.lib.config.ConfigTag;
 import codechicken.lib.config.ConfigTagImpl;
-import codechicken.lib.util.SneakyUtils;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.covers1624.quack.util.SneakyUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

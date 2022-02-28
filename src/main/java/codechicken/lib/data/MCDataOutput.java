@@ -28,8 +28,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static codechicken.lib.data.DataUtils.checkLen;
-import static codechicken.lib.util.SneakyUtils.unsafeCast;
 import static java.text.MessageFormat.format;
+import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 /**
  * Provides the ability to write various datas to some sort of data stream.

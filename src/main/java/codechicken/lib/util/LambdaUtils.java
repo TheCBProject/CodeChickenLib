@@ -1,5 +1,7 @@
 package codechicken.lib.util;
 
+import net.covers1624.quack.util.SneakyUtils.ThrowingRunnable;
+
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;

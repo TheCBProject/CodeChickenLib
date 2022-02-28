@@ -106,6 +106,9 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
+
+    implementation 'net.covers1624:Quack:0.4.1.48'
+
     testCompile 'junit:junit:4.12'
 }
 

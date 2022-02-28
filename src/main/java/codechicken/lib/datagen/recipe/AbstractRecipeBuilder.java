@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 
-import static codechicken.lib.util.SneakyUtils.unsafeCast;
+import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 /**
  * Created by covers1624 on 28/12/20.

@@ -1,8 +1,8 @@
 package codechicken.lib.capability;
 
 import codechicken.lib.math.MathHelper;
-import codechicken.lib.util.Object2IntPair;
 import com.google.common.collect.Iterables;
+import net.covers1624.quack.collection.Object2IntPair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;

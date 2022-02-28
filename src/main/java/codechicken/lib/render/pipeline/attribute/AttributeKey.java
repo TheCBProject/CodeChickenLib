@@ -3,7 +3,7 @@ package codechicken.lib.render.pipeline.attribute;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.render.pipeline.IVertexSource;
 import codechicken.lib.render.pipeline.VertexAttribute;
-import codechicken.lib.util.SneakyUtils;
+import net.covers1624.quack.util.SneakyUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -9,12 +9,12 @@ import codechicken.lib.render.pipeline.attribute.*;
 import codechicken.lib.render.pipeline.attribute.AttributeKey.AttributeKeyRegistry;
 import codechicken.lib.util.ArrayUtils;
 import codechicken.lib.util.Copyable;
-import codechicken.lib.util.SneakyUtils;
 import codechicken.lib.util.VectorUtils;
 import codechicken.lib.vec.*;
 import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.uv.UVTransformation;
 import codechicken.lib.vec.uv.UVTranslation;
+import net.covers1624.quack.util.SneakyUtils;
 
 import java.util.*;
 

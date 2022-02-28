@@ -22,7 +22,7 @@ import net.minecraft.core.Direction;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
-import static codechicken.lib.util.SneakyUtils.unsafeCast;
+import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 /**
  * Created by covers1624 on 12/5/20.

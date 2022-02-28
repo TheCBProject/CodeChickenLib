@@ -9,7 +9,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 
-import static codechicken.lib.util.SneakyUtils.unsafeCast;
+import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 /**
  * A VoxelShape implementation, produces a {@link VoxelShapeBlockHitResult} when ray traced.
