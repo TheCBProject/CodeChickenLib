@@ -10,33 +10,13 @@ import java.util.Objects;
 /**
  * Created by covers1624 on 24/5/20.
  */
-public abstract class AbstractShaderObject implements ShaderObject {
+public abstract class AbstractShaderObject extends NamedShaderObject {
 
-    private final String name;
-    private final ShaderType type;
-    private final ImmutableList<Uniform> uniforms;
     protected int shaderId = -1;
     protected boolean dirty;
 
     protected AbstractShaderObject(String name, ShaderType type, Collection<Uniform> uniforms) {
-        this.name = Objects.requireNonNull(name);
-        this.type = Objects.requireNonNull(type);
-        this.uniforms = ImmutableList.copyOf(uniforms);
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public ShaderType getShaderType() {
-        return type;
-    }
-
-    @Override
-    public ImmutableList<Uniform> getUniforms() {
-        return uniforms;
+        super(name, type, uniforms);
     }
 
     @Override
@@ -48,7 +28,7 @@ public abstract class AbstractShaderObject implements ShaderObject {
     public void alloc() {
         if (dirty || shaderId == -1) {
             if (shaderId == -1) {
-                shaderId = GL20.glCreateShader(type.getGLCode());
+                shaderId = GL20.glCreateShader(getShaderType().getGLCode());
                 if (shaderId == 0) {
                     throw new RuntimeException("Allocation of ShaderObject failed.");
                 }

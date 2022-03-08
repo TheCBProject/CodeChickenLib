@@ -1,6 +1,5 @@
 package codechicken.lib.render.shader;
 
-import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
@@ -27,44 +26,24 @@ import java.util.function.Predicate;
  * <p>
  * Created by KitsuneAlex on 18/11/21.
  */
-public class BinaryShaderObject implements ShaderObject, ISelectiveResourceReloadListener {
+public class BinaryShaderObject extends NamedShaderObject implements ISelectiveResourceReloadListener {
 
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private final String name;
     private final ResourceLocation asset;
-    private final ShaderType type;
     private final BinaryType binaryType;
     private final String entryPoint;
-    private final ImmutableList<Uniform> uniforms;
     private final ShaderConstantCache constantCache = new ShaderConstantCache();
     private final Consumer<ConstantCache> specializationCallback;
     private boolean dirty = false;
     private int shaderId = -1;
 
     public BinaryShaderObject(String name, ResourceLocation asset, ShaderType type, BinaryType binaryType, String entryPoint, Collection<Uniform> uniforms, Consumer<ConstantCache> specializationCallback) {
-        this.name = name;
+        super(name, type, uniforms);
         this.asset = asset;
-        this.type = type;
         this.binaryType = binaryType;
         this.entryPoint = entryPoint;
-        this.uniforms = ImmutableList.copyOf(uniforms);
         this.specializationCallback = specializationCallback;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public ShaderType getShaderType() {
-        return type;
-    }
-
-    @Override
-    public ImmutableList<Uniform> getUniforms() {
-        return uniforms;
     }
 
     @Override
@@ -76,7 +55,7 @@ public class BinaryShaderObject implements ShaderObject, ISelectiveResourceReloa
     public void alloc() {
         if (dirty || shaderId == -1) {
             if (shaderId == -1) {
-                shaderId = GL20.glCreateShader(type.getGLCode());
+                shaderId = GL20.glCreateShader(getShaderType().getGLCode());
                 if (shaderId == 0) {
                     throw new IllegalStateException("Allocation of ShaderObject failed.");
                 }
