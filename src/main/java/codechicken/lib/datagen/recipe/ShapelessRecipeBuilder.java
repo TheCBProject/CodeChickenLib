@@ -3,7 +3,7 @@ package codechicken.lib.datagen.recipe;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -48,11 +48,11 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
         return new ShapelessRecipeBuilder(RecipeSerializer.SHAPELESS_RECIPE, id, result);
     }
 
-    public ShapelessRecipeBuilder addIngredient(Tag<Item> tag) {
+    public ShapelessRecipeBuilder addIngredient(TagKey<Item> tag) {
         return addIngredient(tag, 1);
     }
 
-    public ShapelessRecipeBuilder addIngredient(Tag<Item> tag, int quantity) {
+    public ShapelessRecipeBuilder addIngredient(TagKey<Item> tag, int quantity) {
         addAutoCriteria(tag);
         Ingredient ingredient = Ingredient.of(tag);
         for (int i = 0; i < quantity; ++i) {

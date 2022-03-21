@@ -5,8 +5,10 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -189,18 +191,24 @@ public enum EnumColour implements StringRepresentable {
     }
 
     public static EnumColour fromDyeStack(ItemStack stack) {
-        return stack.getItem().getTags().stream()
-                .map(dyeTagLookup::get)
-                .filter(Objects::nonNull)
-                .findFirst()
+        return ForgeRegistries.ITEMS.getHolder(stack.getItem())
+                .flatMap(e -> e.getTagKeys()
+                        .map(TagKey::location)
+                        .map(dyeTagLookup::get)
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                )
                 .orElse(null);
     }
 
     public static EnumColour fromWoolStack(ItemStack stack) {
-        return stack.getItem().getTags().stream()
-                .map(woolTagLookup::get)
-                .filter(Objects::nonNull)
-                .findFirst()
+        return ForgeRegistries.ITEMS.getHolder(stack.getItem())
+                .flatMap(e -> e.getTagKeys()
+                        .map(TagKey::location)
+                        .map(woolTagLookup::get)
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                )
                 .orElse(null);
     }
 

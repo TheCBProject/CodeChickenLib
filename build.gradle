@@ -6,7 +6,7 @@ buildscript {
         maven { url = "https://repo.spongepowered.org/maven" }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.+'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
@@ -14,13 +14,14 @@ buildscript {
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
     id "net.covers1624.signing" version '1.1.4'
 }
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: "org.spongepowered.mixin"
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 group = 'codechicken'
 archivesBaseName = 'CodeChickenLib'
@@ -81,21 +82,21 @@ mixin {
     add(sourceSets.main, "mixins.codechickenlib.refmap.json")
 }
 
-processResources { task ->
+processResources {
     inputs.property 'mod_version', config.mod_version
     inputs.property 'mc_version', config.mc_version
 
-    from(sourceSets.main.resources.srcDirs) { spec ->
-        spec.include 'META-INF/mods.toml'
-        task.doFirst {
-            spec.expand 'version': config.mod_version,
-                    'mc_version': config.mc_version,
-                    'forge_version': config.forge_version
-        }
+    filesMatching('META-INF/mods.toml') {
+        expand 'file': ['jarVersion': config.mod_version],
+                'mc_version': config.mc_version,
+                'forge_version': config.forge_version,
+                'lang_version': config.forge_version.split('\\.')[0]
     }
 }
 
 configurations {
+    shadow
+    implementation.extendsFrom shadow
     annotationProcessor.extendsFrom minecraft
 }
 
@@ -107,16 +108,21 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
 
-    implementation 'net.covers1624:Quack:0.4.1.48'
+    shadow 'net.covers1624:Quack:0.4.1.49'
 
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
+}
+
+reobf {
+    shadowJar {}
+    jar { enabled = false } // Disable jar.
 }
 
 signing {
     if (!signProps.isEmpty()) {
         jars {
-            sign jar
-            after 'reobfJar'
+            sign shadowJar
+            after 'reobfShadowJar'
 
             keyStore = signProps.keyStore
             alias = signProps.alias
@@ -132,15 +138,18 @@ def commonManifest = {
     attributes 'Specification-Version': "1"
     attributes 'Implementation-Title': archivesBaseName
     attributes 'Implementation-Vendor': 'covers1624'
-    attributes 'Implementation-Version': version
+    attributes 'Implementation-Version': config.mod_version
     attributes 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
     attributes 'MixinConfigs': 'mixins.codechickenlib.json'
 }
 
-jar {
-    finalizedBy 'reobfJar'
+jar.enabled = false
+shadowJar {
+    finalizedBy 'reobfShadowJar'
     classifier = 'universal'
     manifest commonManifest
+
+    configurations = [project.configurations.shadow]
     from file("LICENSE")
 }
 
@@ -148,14 +157,6 @@ task srcJar(type: Jar) {
     build.dependsOn it
     from sourceSets.main.allSource
     classifier = 'sources'
-    from file("LICENSE")
-}
-
-task deobfJar(type: Jar) {
-    build.dependsOn it
-    from sourceSets.main.output
-    classifier = 'deobf'
-    manifest commonManifest
     from file("LICENSE")
 }
 
@@ -176,24 +177,21 @@ publishing {
             groupId project.group
             artifactId project.archivesBaseName
             version project.version
-            artifact jar
+            artifact shadowJar
             artifact srcJar
-            artifact deobfJar
 
             pom {
                 name = archivesBaseName
                 description = archivesBaseName
-                //The publish plugin doesnt like GString's here apparently..
-                url = "https://github.com/TheCBProject/${archivesBaseName}".toString()
+                url = "https://github.com/TheCBProject/${archivesBaseName}"
                 scm {
-                    url = "https://github.com/TheCBProject/${archivesBaseName}".toString()
-                    connection = "scm:git:git://github.com/TheCBProject/${archivesBaseName}.git".toString()
-                    connection = "scm:git:git@github.com:TheCBProject/${archivesBaseName}.git".toString()
+                    url = "https://github.com/TheCBProject/${archivesBaseName}"
+                    connection = "scm:git:git@github.com:TheCBProject/${archivesBaseName}.git"
                 }
 
                 issueManagement {
                     system = 'github'
-                    url = "https://github.com/TheCBProject/${archivesBaseName}/issues".toString()
+                    url = "https://github.com/TheCBProject/${archivesBaseName}/issues"
                 }
                 licenses {
                     license {

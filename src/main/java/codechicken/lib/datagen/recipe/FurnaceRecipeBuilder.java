@@ -3,6 +3,7 @@ package codechicken.lib.datagen.recipe;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -118,7 +119,7 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
     //endregion
 
-    public FurnaceRecipeBuilder ingredient(Tag<Item> tag) {
+    public FurnaceRecipeBuilder ingredient(TagKey<Item> tag) {
         addAutoCriteria(tag);
         this.ingredient = Ingredient.of(tag);
         return this;

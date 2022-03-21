@@ -46,7 +46,6 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
         parentDispatcher = parent;
         this.modelRenderer = parent.modelRenderer;
         this.liquidBlockRenderer = parent.liquidBlockRenderer;
-        this.blockModelShaper = parent.blockModelShaper;
     }
 
     //In world.
@@ -91,12 +90,12 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
 
     //Fluids
     @Override
-    public boolean renderLiquid(BlockPos pos, BlockAndTintGetter world, VertexConsumer builder, FluidState state) {
-        ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(state.getType(), e -> e.canHandleFluid(world, pos, state));
+    public boolean renderLiquid(BlockPos pos, BlockAndTintGetter world, VertexConsumer builder, BlockState blockState, FluidState fluidState) {
+        ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(fluidState.getType(), e -> e.canHandleFluid(world, pos, blockState, fluidState));
         if (renderer != null) {
-            return renderer.renderFluid(pos, world, builder, state);
+            return renderer.renderFluid(pos, world, builder, blockState, fluidState);
         }
-        return parentDispatcher.renderLiquid(pos, world, builder, state);
+        return parentDispatcher.renderLiquid(pos, world, builder, blockState, fluidState);
     }
 
     //From an entity

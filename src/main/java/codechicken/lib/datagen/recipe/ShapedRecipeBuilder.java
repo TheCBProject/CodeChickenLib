@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.chars.CharOpenHashSet;
 import it.unimi.dsi.fastutil.chars.CharSet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -53,7 +54,7 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
         return new ShapedRecipeBuilder(RecipeSerializer.SHAPED_RECIPE, id, result);
     }
 
-    public ShapedRecipeBuilder key(char key, Tag<Item> item) {
+    public ShapedRecipeBuilder key(char key, TagKey<Item> item) {
         addAutoCriteria(item);
         return keyInternal(key, Ingredient.of(item));
     }

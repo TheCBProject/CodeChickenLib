@@ -10,6 +10,7 @@ import net.minecraft.data.HashCache;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
@@ -146,7 +147,7 @@ public abstract class RecipeProvider implements DataProvider {
         return hasItem(ItemPredicate.Builder.item().of(itemIn).build());
     }
 
-    protected InventoryChangeTrigger.TriggerInstance hasItem(Tag<Item> tagIn) {
+    protected InventoryChangeTrigger.TriggerInstance hasItem(TagKey<Item> tagIn) {
         return hasItem(ItemPredicate.Builder.item().of(tagIn).build());
     }
 

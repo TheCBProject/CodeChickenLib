@@ -109,10 +109,11 @@ public interface ICCBlockRenderer {
      *
      * @param world      The world.
      * @param pos        The pos.
-     * @param fluidState The IFluidState.
-     * @return If you wish to render the IFluidState.
+     * @param blockState The {@link BlockState}
+     * @param fluidState The {@link FluidState}.
+     * @return If you wish to render the {@link FluidState}.
      */
-    default boolean canHandleFluid(BlockAndTintGetter world, BlockPos pos, FluidState fluidState) {
+    default boolean canHandleFluid(BlockAndTintGetter world, BlockPos pos, BlockState blockState, FluidState fluidState) {
         return false;
     }
 
@@ -122,13 +123,14 @@ public interface ICCBlockRenderer {
      * THE BUFFER IS ALREADY DRAWING!
      * YOU MAY BE FIRED ON THE CHUNK BATCHING THREAD!
      *
-     * @param pos     Position.
-     * @param world   World.
-     * @param builder The {@link VertexConsumer}.
-     * @param state   The {@link FluidState}
+     * @param pos        Position.
+     * @param world      World.
+     * @param builder    The {@link VertexConsumer}.
+     * @param blockState The {@link BlockState}
+     * @param fluidState The {@link FluidState}
      * @return If any quads were added.
      */
-    default boolean renderFluid(BlockPos pos, BlockAndTintGetter world, VertexConsumer builder, FluidState state) {
+    default boolean renderFluid(BlockPos pos, BlockAndTintGetter world, VertexConsumer builder, BlockState blockState, FluidState fluidState) {
         return false;
     }
     //endregion

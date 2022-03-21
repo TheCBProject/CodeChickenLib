@@ -170,14 +170,4 @@ public class ItemUtils {
     public static boolean areStacksSameType(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
         return !stack1.isEmpty() && !stack2.isEmpty() && (stack1.getItem() == stack2.getItem() && (stack2.getDamageValue() == stack1.getDamageValue()) && ItemStack.tagMatches(stack2, stack1));
     }
-
-    public static boolean tagsMatch(Item item1, Item item2) {
-        Set<ResourceLocation> tag1 = item1.getTags();
-        Set<ResourceLocation> tag2 = item2.getTags();
-        return tag1.stream().anyMatch(tag2::contains);
-    }
-
-    public static boolean areStacksSameOrTagged(ItemStack stack1, ItemStack stack2) {
-        return areStacksSameType(stack1, stack2) || tagsMatch(stack1.getItem(), stack2.getItem());
-    }
 }
