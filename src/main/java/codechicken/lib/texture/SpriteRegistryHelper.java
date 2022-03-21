@@ -95,18 +95,18 @@ public class SpriteRegistryHelper {
 
         private final Multimap<ResourceLocation, Consumer<TextureAtlasSprite>> sprites = HashMultimap.create();
         private final List<Consumer<TextureAtlas>> postCallbacks = new ArrayList<>();
-//        private final Map<ResourceLocation, Consumer<ProceduralTexture>> proceduralTextures = new HashMap<>();
+        private final Map<ResourceLocation, Consumer<ProceduralTexture>> proceduralTextures = new HashMap<>();
 
         @Override
         public void registerSprite(ResourceLocation loc, Consumer<TextureAtlasSprite> onReady) {
             sprites.put(loc, onReady);
         }
 
-//        @Override
-//        public void registerProceduralSprite(ResourceLocation loc, Consumer<ProceduralTexture> cycleFunc, Consumer<TextureAtlasSprite> onReady) {
-//            registerSprite(loc, onReady);
-//            proceduralTextures.put(loc, cycleFunc);
-//        }
+        @Override
+        public void registerProceduralSprite(ResourceLocation loc, Consumer<ProceduralTexture> cycleFunc, Consumer<TextureAtlasSprite> onReady) {
+            registerSprite(loc, onReady);
+            proceduralTextures.put(loc, cycleFunc);
+        }
 
         @Override
         public void postRegister(Consumer<TextureAtlas> func) {
@@ -118,12 +118,12 @@ public class SpriteRegistryHelper {
         }
 
         private void processPostFirst(TextureAtlas atlas) {
-//            for (Map.Entry<ResourceLocation, Consumer<ProceduralTexture>> entry : proceduralTextures.entrySet()) {
-//                ResourceLocation name = entry.getKey();
-//                ProceduralTexture texture = new ProceduralTexture(atlas, atlas.getSprite(name), entry.getValue());
-//                atlas.animatedTextures.add(texture);
-//                atlas.texturesByName.put(name, texture);
-//            }
+            for (Map.Entry<ResourceLocation, Consumer<ProceduralTexture>> entry : proceduralTextures.entrySet()) {
+                ResourceLocation name = entry.getKey();
+                ProceduralTexture texture = new ProceduralTexture(atlas, atlas.getSprite(name), entry.getValue());
+                atlas.animatedTextures.add(texture);
+                atlas.texturesByName.put(name, texture);
+            }
         }
 
         private void processPost(TextureAtlas atlas) {

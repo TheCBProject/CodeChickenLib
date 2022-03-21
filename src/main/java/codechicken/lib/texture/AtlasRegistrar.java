@@ -27,7 +27,7 @@ public interface AtlasRegistrar {
      * @param cycleFunc The callback for updating the texture data dynamically.
      * @param onReady   The callback for the sprite being ready.
      */
-//    void registerProceduralSprite(ResourceLocation loc, Consumer<ProceduralTexture> cycleFunc, Consumer<TextureAtlasSprite> onReady);
+    void registerProceduralSprite(ResourceLocation loc, Consumer<ProceduralTexture> cycleFunc, Consumer<TextureAtlasSprite> onReady);
 
     /**
      * Same as above, just takes a String for the ResourceLocation instead.
