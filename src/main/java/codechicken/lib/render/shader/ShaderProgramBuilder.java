@@ -9,14 +9,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static net.covers1624.quack.util.SneakyUtils.nullCons;
+
 /**
  * Created by covers1624 on 24/5/20.
  */
 public class ShaderProgramBuilder {
 
-    private static final Consumer<UniformCache> NULL_CALLBACK = e -> { };
-
     private final Map<String, ShaderObject> shaders = new HashMap<>();
+    private final Map<String, Uniform> allUniforms = new HashMap<>();
     private Consumer<UniformCache> cacheCallback;
 
     private ShaderProgramBuilder() {
@@ -59,14 +60,14 @@ public class ShaderProgramBuilder {
     }
 
     public ShaderProgram build() {
-        return new ShaderProgram(shaders.values(), cacheCallback == null ? NULL_CALLBACK : cacheCallback);
+        return new ShaderProgram(shaders.values(), allUniforms.values(), cacheCallback == null ? nullCons() : cacheCallback);
     }
 
     /**
      * Created by covers1624 on 24/5/20.
      * Edited by KitsuneAlex on 18/11/21.
      */
-    public static class ShaderObjectBuilder {
+    public class ShaderObjectBuilder {
 
         protected final String name;
         protected final Map<String, Uniform> uniforms = new HashMap<>();
@@ -100,9 +101,15 @@ public class ShaderProgramBuilder {
         }
 
         public ShaderObjectBuilder uniform(String name, UniformType type) {
-            if (uniforms.containsKey(name)) throw new IllegalArgumentException("Duplicate uniform with name: " + name);
+            Uniform uniform = allUniforms.get(name);
+            if (uniform != null && uniform.type() != type) throw new IllegalArgumentException("Uniform with name '" + name + "' already exists with a different type: " + uniform.type());
+            if (!type.isSupported()) throw new UnsupportedOperationException("Uniform type '" + type + "' is not supported in this Environment.");
 
-            uniforms.put(name, new Uniform(name, type));
+            if (uniform == null) {
+                uniform = new Uniform(name, type);
+                allUniforms.put(name, uniform);
+            }
+            uniforms.put(name, uniform);
             return this;
         }
 
@@ -118,12 +125,11 @@ public class ShaderProgramBuilder {
     /**
      * Created by KitsuneAlex on 18/11/21.
      */
-    public static class BinaryShaderObjectBuilder extends ShaderObjectBuilder {
+    public class BinaryShaderObjectBuilder extends ShaderObjectBuilder {
 
-        private static final Consumer<ConstantCache> NULL_CALLBACK = c -> { };
         private BinaryType binaryType;
         private String entryPoint;
-        private Consumer<ConstantCache> specializationCallback = NULL_CALLBACK;
+        private Consumer<ConstantCache> specializationCallback = nullCons();
 
         private BinaryShaderObjectBuilder(String name) {
             super(name);
@@ -169,7 +175,7 @@ public class ShaderProgramBuilder {
             if (binaryType == null) throw new IllegalStateException("Binary type not set");
             if (entryPoint == null || entryPoint.isEmpty()) throw new IllegalStateException("Entry point not set.");
 
-            return new BinaryShaderObject(name, assetSource, type, binaryType, entryPoint, uniforms.values(), specializationCallback);
+            return new BinaryShaderObject(name, assetSource, type, binaryType, entryPoint, allUniforms.values(), specializationCallback);
         }
 
     }

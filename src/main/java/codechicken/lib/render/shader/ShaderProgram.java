@@ -1,14 +1,13 @@
 package codechicken.lib.render.shader;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -24,17 +23,15 @@ import java.util.function.Consumer;
 public class ShaderProgram implements ResourceManagerReloadListener {
 
     private final List<ShaderObject> shaders;
+    private final List<Uniform> uniforms;
     private final Consumer<UniformCache> cacheCallback;
     private final ShaderUniformCache uniformCache;
     private int programId = -1;
     private boolean bound;
 
-    public ShaderProgram(Collection<ShaderObject> shaders) {
-        this(shaders, e -> { });
-    }
-
-    public ShaderProgram(Collection<ShaderObject> shaders, Consumer<UniformCache> cacheCallback) {
-        this.shaders = new ArrayList<>(shaders);
+    ShaderProgram(Collection<ShaderObject> shaders, Collection<Uniform> uniforms, Consumer<UniformCache> cacheCallback) {
+        this.shaders = ImmutableList.copyOf(shaders);
+        this.uniforms = ImmutableList.copyOf(uniforms);
         this.cacheCallback = cacheCallback;
         this.uniformCache = new ShaderUniformCache(this);
     }
@@ -45,7 +42,26 @@ public class ShaderProgram implements ResourceManagerReloadListener {
      * @return The {@link ShaderObject}s.
      */
     public List<ShaderObject> getShaders() {
-        return Collections.unmodifiableList(shaders);
+        return shaders;
+    }
+
+    /**
+     * Get all {@link Uniform}s exposed by this shader.
+     *
+     * @return The uniforms.
+     */
+    public List<Uniform> getUniforms() {
+        return uniforms;
+    }
+
+    /**
+     * Get the {@link UniformCache} for updating/setting
+     * uniforms for the current {@link ShaderProgram}.
+     *
+     * @return The {@link UniformCache}.
+     */
+    public UniformCache getUniformCache() {
+        return uniformCache;
     }
 
     /**
@@ -59,19 +75,6 @@ public class ShaderProgram implements ResourceManagerReloadListener {
     }
 
     /**
-     * Allocates a new {@link UniformCache} for this {@link ShaderProgram},
-     * Must be returned with {@link #popCache} to have uniform changes applied.
-     *
-     * @return The {@link UniformCache}.
-     */
-    public UniformCache pushCache() {
-        compile();
-        UniformCache cache = uniformCache.pushCache();
-        cacheCallback.accept(cache);
-        return cache;
-    }
-
-    /**
      * Binds this shader for use, Lazily allocates, links
      * and compiles all {@link ShaderObject}s.
      */
@@ -81,6 +84,7 @@ public class ShaderProgram implements ResourceManagerReloadListener {
         }
         compile();
         GL20.glUseProgram(programId);
+        cacheCallback.accept(uniformCache);
         bound = true;
     }
 
@@ -93,37 +97,27 @@ public class ShaderProgram implements ResourceManagerReloadListener {
      * Be sure to only call this when you have GL context.
      */
     public void compile() {
-        if (programId == -1 || shaders.stream().anyMatch(ShaderObject::isDirty)) {
-            shaders.forEach(ShaderObject::alloc);
-            if (programId == -1) {
-                programId = GL20.glCreateProgram();
-                if (programId == 0) {
-                    throw new IllegalStateException("Allocation of ShaderProgram has failed.");
-                }
-                shaders.forEach(shader -> GL20.glAttachShader(programId, shader.getShaderID()));
-            }
-            GL20.glLinkProgram(programId);
-            if (GL20.glGetProgrami(programId, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
-                throw new RuntimeException("ShaderProgram linkage failure. \n" + GL20.glGetProgramInfoLog(programId));
-            }
-            shaders.forEach(shader -> shader.onLink(programId));
-            uniformCache.onLink();
-        }
-    }
+        if (programId != -1 && shaders.stream().noneMatch(ShaderObject::isDirty)) return;
 
-    /**
-     * Pops the {@link UniformCache} onto the shader.
-     * Must be called after {@link #use()} is called.
-     * It is expected that the provided {@link UniformCache} will NOT
-     * be used after this call, as it will be returned back to a pool.
-     *
-     * @param cache The {@link UniformCache}.
-     */
-    public void popCache(UniformCache cache) {
-        if (!bound) {
-            throw new IllegalStateException("Not bound");
+        for (ShaderObject shaderObject : shaders) {
+            shaderObject.alloc();
         }
-        uniformCache.popApply((ShaderUniformCache) cache);
+
+        if (programId == -1) {
+            programId = GL20.glCreateProgram();
+            if (programId == 0) {
+                throw new IllegalStateException("Allocation of ShaderProgram has failed.");
+            }
+            shaders.forEach(shader -> GL20.glAttachShader(programId, shader.getShaderID()));
+        }
+        GL20.glLinkProgram(programId);
+        if (GL20.glGetProgrami(programId, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
+            throw new RuntimeException("ShaderProgram linkage failure. \n" + GL20.glGetProgramInfoLog(programId));
+        }
+        for (ShaderObject shader : shaders) {
+            shader.onLink(programId);
+        }
+        uniformCache.onLink();
     }
 
     /**
