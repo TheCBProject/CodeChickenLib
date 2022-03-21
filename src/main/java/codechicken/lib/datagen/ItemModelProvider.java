@@ -11,7 +11,11 @@ import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.client.model.generators.ModelProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -19,6 +23,8 @@ import java.util.function.Supplier;
  * Created by covers1624 on 15/10/20.
  */
 public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> {
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     protected static final ModelFile.UncheckedModelFile GENERATED = new ModelFile.UncheckedModelFile("item/generated");
     protected static final ModelFile.UncheckedModelFile HANDHELD = new ModelFile.UncheckedModelFile("item/handheld");
@@ -117,7 +123,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
     protected void simpleItemBlock(Block block) {
         getSimple(block)
                 .parent(new ModelFile.UncheckedModelFile(modLoc("block/" + name(block))))
-                .texture(null);
+                .noTexture();
     }
     //endregion
 
@@ -125,10 +131,12 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
 
         private final ItemModelBuilder builder;
         private final Item item;
+        private final Map<String, ResourceLocation> layers = new HashMap<>();
         private ModelFile parent;
-        private ResourceLocation texture;
         private boolean noTexture = false;
         private String folder = "";
+
+        private boolean built = false;
 
         protected SimpleItemModelBuilder(ItemModelBuilder builder, Item item) {
             this.builder = builder;
@@ -141,34 +149,45 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         }
 
         public SimpleItemModelBuilder texture(ResourceLocation texture) {
-            this.texture = texture;
-            this.noTexture = texture == null;
-            if (!StringUtils.isEmpty(folder)) {
-                throw new IllegalArgumentException("Adding texture would ignore existing folder.");
+            if (texture == null) throw new IllegalStateException("Use '.noTexture()' instead of '.texture(null)'");
+            return texture("layer0", texture);
+        }
+
+        public SimpleItemModelBuilder texture(String layer, ResourceLocation texture) {
+            if (noTexture) throw new IllegalStateException("Unable to set texture. NoTexture set.");
+            if (!StringUtils.isEmpty(folder)) throw new IllegalArgumentException("Adding texture would ignore existing folder.");
+
+            ResourceLocation existing = layers.put(layer, Objects.requireNonNull(texture));
+            if (existing != null) {
+                LOGGER.warn("Overwriting layer '{}' texture '{}' with '{}'", layer, existing, texture);
             }
             return this;
         }
 
         public SimpleItemModelBuilder folder(String folder) {
+            if (!layers.isEmpty()) throw new IllegalStateException("Textures set, folder would be ignored.");
+            if (noTexture) throw new IllegalStateException("No Texture set, folder would be ignored.");
+
             this.folder = Objects.requireNonNull(folder);
-            if (texture != null && !noTexture) {
-                throw new IllegalArgumentException("Folder would be ignored, remove parameter");
-            }
             return this;
         }
 
-        private boolean built = false;
+        public SimpleItemModelBuilder noTexture() {
+            if (!layers.isEmpty()) throw new IllegalStateException("Setting No Texture would ignore textures.");
+            if (!StringUtils.isEmpty(folder)) throw new IllegalArgumentException("Setting No Texture would ignore existing folder.");
+            this.noTexture = true;
+            return this;
+        }
 
         private void build() {
             if (!built) {
-                ResourceLocation texture = this.texture;
-                if (texture == null && !noTexture) {
-                    texture = itemTexture(item, folder);
-                }
-
                 builder.parent(parent);
-                if (texture != null) {
-                    builder.texture("layer0", texture);
+                if (!noTexture) {
+                    if (layers.isEmpty()) {
+                        builder.texture("layer0", itemTexture(item, folder));
+                    } else {
+                        layers.forEach(builder::texture);
+                    }
                 }
                 built = true;
             }
