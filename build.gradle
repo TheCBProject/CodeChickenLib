@@ -108,7 +108,7 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
 
-    shadow 'net.covers1624:Quack:0.4.1.49'
+    shadow 'net.covers1624:Quack:0.4.1.50'
 
     testImplementation 'junit:junit:4.12'
 }
