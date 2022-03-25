@@ -34,9 +34,8 @@ public class CodeChickenLib {
     public CodeChickenLib() {
         proxy = DistExecutor.safeRunForDist(() -> ProxyClient::new, () -> Proxy::new);
         FMLJavaModLoadingContext.get().getModEventBus().register(this);
-        MinecraftForge.EVENT_BUS.addListener(CCLCommands::registerCommands);
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> OpenGLUtils::init);
-        CCLCommands.registerArguments();
+        CCLCommands.init();
     }
 
     @SubscribeEvent
