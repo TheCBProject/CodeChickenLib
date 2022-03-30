@@ -5,14 +5,12 @@ import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 /**
  * Created by covers1624 on 4/24/20.
  */
-public class TransformingVertexConsumer implements ISpriteAwareVertexConsumer {
+public class TransformingVertexConsumer extends DelegatingVertexConsumer {
 
-    private final VertexConsumer delegate;
     private final Transformation transform;
     private final Vector3 storage = new Vector3();
 
@@ -21,7 +19,7 @@ public class TransformingVertexConsumer implements ISpriteAwareVertexConsumer {
     }
 
     public TransformingVertexConsumer(VertexConsumer delegate, Transformation transform) {
-        this.delegate = delegate;
+        super(delegate);
         this.transform = transform;
     }
 
@@ -29,61 +27,13 @@ public class TransformingVertexConsumer implements ISpriteAwareVertexConsumer {
     public VertexConsumer vertex(double x, double y, double z) {
         storage.set(x, y, z);
         transform.apply(storage);
-        delegate.vertex(storage.x, storage.y, storage.z);
-        return this;
-    }
-
-    @Override
-    public VertexConsumer color(int red, int green, int blue, int alpha) {
-        delegate.color(red, green, blue, alpha);
-        return this;
-    }
-
-    @Override
-    public VertexConsumer uv(float u, float v) {
-        delegate.uv(u, v);
-        return this;
-    }
-
-    @Override
-    public VertexConsumer overlayCoords(int u, int v) {
-        delegate.overlayCoords(u, v);
-        return this;
-    }
-
-    @Override
-    public VertexConsumer uv2(int u, int v) {
-        delegate.uv2(u, v);
-        return this;
+        return super.vertex(storage.x, storage.y, storage.z);
     }
 
     @Override
     public VertexConsumer normal(float x, float y, float z) {
         storage.set(x, y, z);
         transform.applyN(storage);
-        delegate.normal((float) storage.x, (float) storage.y, (float) storage.z);
-        return this;
-    }
-
-    @Override
-    public void endVertex() {
-        delegate.endVertex();
-    }
-
-    @Override
-    public void defaultColor(int r, int g, int b, int a) {
-        delegate.defaultColor(r, g, b, a);
-    }
-
-    @Override
-    public void unsetDefaultColor() {
-        delegate.unsetDefaultColor();
-    }
-
-    @Override
-    public void sprite(TextureAtlasSprite sprite) {
-        if (delegate instanceof ISpriteAwareVertexConsumer) {
-            ((ISpriteAwareVertexConsumer) delegate).sprite(sprite);
-        }
+        return delegate.normal((float) storage.x, (float) storage.y, (float) storage.z);
     }
 }
