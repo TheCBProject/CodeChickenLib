@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Transformation;
 import com.mojang.math.Vector3f;
+import net.minecraft.client.renderer.block.model.ItemTransform;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraftforge.client.model.SimpleModelState;
@@ -23,6 +25,7 @@ public class TransformUtils {
 
     private static final Transformation flipX = new Transformation(null, null, new Vector3f(-1, 1, 1), null);
 
+    public static final ModelState IDENTITY = new SimpleModelState(ImmutableMap.of());
     public static final ModelState DEFAULT_BLOCK;
     public static final ModelState DEFAULT_ITEM;
     public static final ModelState DEFAULT_TOOL;
@@ -125,6 +128,13 @@ public class TransformUtils {
         return new Transformation(transform, new Quaternion(rotation.x(), rotation.y(), rotation.z(), true), scale, null);
     }
 
+    @SuppressWarnings ("deprecation")
+    public static Transformation create(ItemTransform transform) {
+        if (ItemTransform.NO_TRANSFORM.equals(transform)) return Transformation.identity();
+
+        return create(transform.translation, transform.rotation, transform.scale);
+    }
+
     /**
      * Flips the transform for the left hand.
      *
@@ -133,5 +143,18 @@ public class TransformUtils {
      */
     public static Transformation flipLeft(Transformation transform) {
         return flipX.compose(transform).compose(flipX);
+    }
+
+    @SuppressWarnings ("deprecation")
+    public static ModelState stateFromItemTransforms(ItemTransforms itemTransforms) {
+        if (itemTransforms == ItemTransforms.NO_TRANSFORMS) return IDENTITY;
+
+        ImmutableMap.Builder<ItemTransforms.TransformType, Transformation> map = ImmutableMap.builder();
+
+        for (TransformType value : TransformType.values()) {
+            map.put(value, create(itemTransforms.getTransform(value)));
+        }
+
+        return new SimpleModelState(map.build());
     }
 }
