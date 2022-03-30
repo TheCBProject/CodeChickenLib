@@ -13,10 +13,13 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -93,7 +96,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
     protected SimpleItemModelBuilder getSimple(ItemLike item) {
         WrappedItemModelBuilder builder = (WrappedItemModelBuilder) getBuilder(item);
         if (builder.simpleBuilder == null) {
-            builder.simpleBuilder = new SimpleItemModelBuilder(builder, item.asItem());
+            builder.simpleBuilder = new SimpleItemModelBuilder(this, builder, item.asItem());
         }
         return builder.simpleBuilder;
     }
@@ -127,8 +130,13 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
     }
     //endregion
 
-    public class SimpleItemModelBuilder {
+    private ExistingFileHelper getExistingFileHelper() {
+        return existingFileHelper;
+    }
 
+    public static class SimpleItemModelBuilder {
+
+        private final ItemModelProvider provider;
         private final ItemModelBuilder builder;
         private final Item item;
         private final Map<String, ResourceLocation> layers = new HashMap<>();
@@ -136,9 +144,13 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         private boolean noTexture = false;
         private String folder = "";
 
+        @Nullable
+        private CustomLoaderBuilder loader;
+
         private boolean built = false;
 
-        protected SimpleItemModelBuilder(ItemModelBuilder builder, Item item) {
+        private SimpleItemModelBuilder(ItemModelProvider provider, ItemModelBuilder builder, Item item) {
+            this.provider = provider;
             this.builder = builder;
             this.item = item;
         }
@@ -179,15 +191,26 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
             return this;
         }
 
+        public <L extends CustomLoaderBuilder> L customLoader(Function<SimpleItemModelBuilder, L> factory) {
+            if (loader != null) throw new IllegalStateException("Loader already set!");
+
+            L loader = factory.apply(this);
+            this.loader = loader;
+            return loader;
+        }
+
         private void build() {
             if (!built) {
                 builder.parent(parent);
                 if (!noTexture) {
                     if (layers.isEmpty()) {
-                        builder.texture("layer0", itemTexture(item, folder));
+                        builder.texture("layer0", provider.itemTexture(item, folder));
                     } else {
                         layers.forEach(builder::texture);
                     }
+                }
+                if (loader != null) {
+                    loader.build(builder);
                 }
                 built = true;
             }
@@ -206,8 +229,52 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         public JsonObject toJson() {
             if (simpleBuilder != null) {
                 simpleBuilder.build();
+                if (simpleBuilder.loader != null) {
+                    return simpleBuilder.loader.toJson(super.toJson());
+                }
             }
             return super.toJson();
+        }
+    }
+
+    public static class CustomLoaderBuilder {
+
+        protected final ResourceLocation loaderId;
+        protected final SimpleItemModelBuilder parent;
+        protected final ExistingFileHelper existingFileHelper;
+        protected final Map<String, Boolean> visibility = new LinkedHashMap<>();
+
+        protected CustomLoaderBuilder(ResourceLocation loaderId, SimpleItemModelBuilder parent) {
+            this.loaderId = loaderId;
+            this.parent = parent;
+            existingFileHelper = parent.provider.getExistingFileHelper();
+        }
+
+        public CustomLoaderBuilder visibility(String partName, boolean show) {
+            this.visibility.put(partName, show);
+            return this;
+        }
+
+        public SimpleItemModelBuilder end() {
+            return parent;
+        }
+
+        protected void build(ItemModelBuilder builder) {
+        }
+
+        protected JsonObject toJson(JsonObject json) {
+            json.addProperty("loader", loaderId.toString());
+
+            if (!visibility.isEmpty()) {
+                JsonObject visibilityObj = new JsonObject();
+
+                for (Map.Entry<String, Boolean> entry : visibility.entrySet()) {
+                    visibilityObj.addProperty(entry.getKey(), entry.getValue());
+                }
+                json.add("visibility", visibilityObj);
+            }
+
+            return json;
         }
     }
 }
