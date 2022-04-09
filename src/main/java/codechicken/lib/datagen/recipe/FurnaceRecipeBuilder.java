@@ -119,6 +119,28 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
     //endregion
 
+    //region Custom
+    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result) {
+        return custom(serializer, result, 1);
+    }
+
+    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result, int count) {
+        return custom(serializer, new ItemStack(result, count));
+    }
+
+    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) {
+        return custom(serializer, new ItemStack(result, count), id);
+    }
+
+    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result) {
+        return custom(serializer, result, result.getItem().getRegistryName());
+    }
+
+    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) {
+        return new FurnaceRecipeBuilder(serializer, id, result);
+    }
+    //endregion
+
     public FurnaceRecipeBuilder ingredient(TagKey<Item> tag) {
         addAutoCriteria(tag);
         this.ingredient = Ingredient.of(tag);
