@@ -31,15 +31,15 @@ public interface ShaderObject {
     ShaderType getShaderType();
 
     /**
-     * Gets all {@link Uniform}s this shader exposes.
+     * Gets all {@link UniformPair}s this shader exposes.
      * It is expected that a {@link ShaderObject} will not
      * dynamically change the uniforms it exposes over its
      * lifetime. Doing so is not enforced, but will break
      * the Uniform pipeline.
      *
-     * @return The {@link Uniform}s.
+     * @return The {@link UniformPair}s.
      */
-    ImmutableList<Uniform> getUniforms();
+    ImmutableList<UniformPair> getUniforms();
 
     /**
      * Checks if this shader is dirty and requires re-compiling.

@@ -12,9 +12,9 @@ public abstract class NamedShaderObject implements ShaderObject {
 
     private final String name;
     private final ShaderType type;
-    private final ImmutableList<Uniform> uniforms;
+    private final ImmutableList<UniformPair> uniforms;
 
-    protected NamedShaderObject(String name, ShaderType type, Collection<Uniform> uniforms) {
+    protected NamedShaderObject(String name, ShaderType type, Collection<UniformPair> uniforms) {
         this.name = Objects.requireNonNull(name);
         this.type = Objects.requireNonNull(type);
         this.uniforms = ImmutableList.copyOf(uniforms);
@@ -31,7 +31,7 @@ public abstract class NamedShaderObject implements ShaderObject {
     }
 
     @Override
-    public ImmutableList<Uniform> getUniforms() {
+    public ImmutableList<UniformPair> getUniforms() {
         return uniforms;
     }
 }

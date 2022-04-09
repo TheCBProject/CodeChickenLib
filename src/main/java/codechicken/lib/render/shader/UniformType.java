@@ -1,7 +1,10 @@
 package codechicken.lib.render.shader;
 
 import codechicken.lib.render.OpenGLUtils;
+import com.mojang.blaze3d.shaders.Uniform;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
 import java.util.function.BooleanSupplier;
 
 /**
@@ -58,7 +61,10 @@ public enum UniformType {
     D_MAT4x3(Carrier.D_MATRIX, () -> OpenGLUtils.openGL40, 4 * 3);
     //@formatter:on
 
+    public static final UniformType[] VALUES = values();
+
     private final Carrier carrier;
+    @Nullable
     private BooleanSupplier func;
     private final int size;
 
@@ -86,12 +92,48 @@ public enum UniformType {
         return isSupported;
     }
 
+    public int getVanillaType() {
+        return switch (this) {
+            case INT, U_INT -> Uniform.UT_INT1;
+            case FLOAT -> Uniform.UT_FLOAT1;
+            case VEC2 -> Uniform.UT_FLOAT2;
+            case I_VEC2, U_VEC2, B_VEC2 -> Uniform.UT_INT2;
+            case VEC3 -> Uniform.UT_FLOAT3;
+            case I_VEC3, U_VEC3, B_VEC3 -> Uniform.UT_INT3;
+            case VEC4 -> Uniform.UT_FLOAT4;
+            case I_VEC4, U_VEC4, B_VEC4 -> Uniform.UT_INT4;
+            case MAT2 -> Uniform.UT_MAT2;
+            case MAT3 -> Uniform.UT_MAT3;
+            case MAT4 -> Uniform.UT_MAT4;
+            default -> -1;
+        };
+    }
+
+    @Nullable
+    public static UniformType parse(String s) {
+        s = s.toLowerCase(Locale.ROOT);
+
+        // Handle vanilla Matrix names
+        switch (s) {
+            case "matrix2x2" -> { return MAT2; }
+            case "matrix3x3" -> { return MAT3; }
+            case "matrix4x4" -> { return MAT4; }
+        }
+        for (UniformType value : VALUES) {
+            String n = value.name().toLowerCase(Locale.ROOT);
+            if (n.equals(s)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
     public enum Carrier {
         INT,
         U_INT,
         FLOAT,
         DOUBLE,
         MATRIX,
-        D_MATRIX;
+        D_MATRIX
     }
 }

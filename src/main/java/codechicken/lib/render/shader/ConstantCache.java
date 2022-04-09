@@ -4,10 +4,6 @@ package codechicken.lib.render.shader;
  * Provides methods to mutate specilization constants
  * before the shader is specialized.
  * <p>
- * Note that in contrast to {@link UniformCache}, the methods
- * contained within this class are <b>not</b> named after their
- * OpenGL counterparts.
- * <p>
  * Created by KitsuneAlex on 19/11/21.
  */
 public interface ConstantCache {

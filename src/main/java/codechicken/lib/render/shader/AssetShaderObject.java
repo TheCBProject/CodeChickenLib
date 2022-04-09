@@ -5,6 +5,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -17,9 +18,10 @@ public class AssetShaderObject extends AbstractShaderObject implements ResourceM
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final ResourceLocation asset;
+    @Nullable
     private String source;
 
-    public AssetShaderObject(String name, ShaderType type, Collection<Uniform> uniforms, ResourceLocation asset) {
+    public AssetShaderObject(String name, ShaderType type, Collection<UniformPair> uniforms, ResourceLocation asset) {
         super(name, type, uniforms);
         this.asset = Objects.requireNonNull(asset);
     }
@@ -27,7 +29,7 @@ public class AssetShaderObject extends AbstractShaderObject implements ResourceM
     @Override
     protected String getSource() {
         if (source == null) {
-            source = new GlslProcessor(asset).process();
+            source = new GlslProcessor(asset).process().processedSource();
         }
 
         return source;

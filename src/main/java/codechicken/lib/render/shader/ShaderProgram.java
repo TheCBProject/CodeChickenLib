@@ -1,18 +1,25 @@
 package codechicken.lib.render.shader;
 
 import com.google.common.collect.ImmutableList;
+import net.covers1624.quack.collection.StreamableIterable;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.Map;
 
 /**
  * A ShaderProgram.
+ * <p>
+ * As of 1.18.2, you will probably want to use {@link CCShaderInstance} instead as an extension
+ * to Vanilla's {@link ShaderInstance}.
+ * <p>
  * You probably want {@link ShaderProgramBuilder} to construct a ShaderProgram.
  * it should be noted, that a ShaderProgram is a {@link ResourceManagerReloadListener},
  * its recommended that you ensure this is registered to {@link ReloadableResourceManager}
@@ -23,17 +30,17 @@ import java.util.function.Consumer;
 public class ShaderProgram implements ResourceManagerReloadListener {
 
     private final List<ShaderObject> shaders;
-    private final List<Uniform> uniforms;
-    private final Consumer<UniformCache> cacheCallback;
-    private final ShaderUniformCache uniformCache;
+    private final Map<String, CCUniform> uniforms;
+    @Nullable
+    private final Runnable applyCallback;
     private int programId = -1;
     private boolean bound;
 
-    ShaderProgram(Collection<ShaderObject> shaders, Collection<Uniform> uniforms, Consumer<UniformCache> cacheCallback) {
+    ShaderProgram(Collection<ShaderObject> shaders, Collection<UniformPair> uniforms, @Nullable Runnable applyCallback) {
         this.shaders = ImmutableList.copyOf(shaders);
-        this.uniforms = ImmutableList.copyOf(uniforms);
-        this.cacheCallback = cacheCallback;
-        this.uniformCache = new ShaderUniformCache(this);
+        this.uniforms = StreamableIterable.of(uniforms)
+                .toImmutableMap(UniformPair::name, e -> CCUniform.makeUniform(e.name(), e.type(), null));
+        this.applyCallback = applyCallback;
     }
 
     /**
@@ -46,22 +53,23 @@ public class ShaderProgram implements ResourceManagerReloadListener {
     }
 
     /**
-     * Get all {@link Uniform}s exposed by this shader.
+     * Get all {@link UniformPair}s exposed by this shader.
      *
      * @return The uniforms.
      */
-    public List<Uniform> getUniforms() {
+    public Map<String, CCUniform> getUniforms() {
         return uniforms;
     }
 
     /**
-     * Get the {@link UniformCache} for updating/setting
-     * uniforms for the current {@link ShaderProgram}.
+     * Get a {@link CCUniform} from this {@link ShaderProgram}.
      *
-     * @return The {@link UniformCache}.
+     * @param name The name of the Uniform.
+     * @return the {@link CCUniform}.
      */
-    public UniformCache getUniformCache() {
-        return uniformCache;
+    @Nullable
+    public CCUniform getUniform(String name) {
+        return uniforms.get(name);
     }
 
     /**
@@ -84,7 +92,9 @@ public class ShaderProgram implements ResourceManagerReloadListener {
         }
         compile();
         GL20.glUseProgram(programId);
-        cacheCallback.accept(uniformCache);
+        if (applyCallback != null) {
+            applyCallback.run();
+        }
         bound = true;
     }
 
@@ -117,7 +127,9 @@ public class ShaderProgram implements ResourceManagerReloadListener {
         for (ShaderObject shader : shaders) {
             shader.onLink(programId);
         }
-        uniformCache.onLink();
+        for (CCUniform value : uniforms.values()) {
+            value.setLocation(GL20.glGetUniformLocation(programId, value.getName()));
+        }
     }
 
     /**

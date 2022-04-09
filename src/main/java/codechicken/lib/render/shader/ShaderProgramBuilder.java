@@ -2,7 +2,9 @@ package codechicken.lib.render.shader;
 
 import codechicken.lib.render.OpenGLUtils;
 import codechicken.lib.render.shader.ShaderObject.ShaderType;
+import net.covers1624.quack.util.SneakyUtils;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +19,9 @@ import static net.covers1624.quack.util.SneakyUtils.nullCons;
 public class ShaderProgramBuilder {
 
     private final Map<String, ShaderObject> shaders = new HashMap<>();
-    private final Map<String, Uniform> allUniforms = new HashMap<>();
-    private Consumer<UniformCache> cacheCallback;
+    private final Map<String, UniformPair> allUniforms = new HashMap<>();
+    @Nullable
+    private Runnable applyCallback;
 
     private ShaderProgramBuilder() {
     }
@@ -50,17 +53,17 @@ public class ShaderProgramBuilder {
         return this;
     }
 
-    public ShaderProgramBuilder whenUsed(Consumer<UniformCache> callback) {
-        if (cacheCallback == null) {
-            cacheCallback = callback;
+    public ShaderProgramBuilder whenUsed(Runnable callback) {
+        if (applyCallback == null) {
+            applyCallback = callback;
         } else {
-            cacheCallback = cacheCallback.andThen(callback);
+            applyCallback = SneakyUtils.concat(applyCallback, callback);
         }
         return this;
     }
 
     public ShaderProgram build() {
-        return new ShaderProgram(shaders.values(), allUniforms.values(), cacheCallback == null ? nullCons() : cacheCallback);
+        return new ShaderProgram(shaders.values(), allUniforms.values(), applyCallback);
     }
 
     /**
@@ -70,9 +73,12 @@ public class ShaderProgramBuilder {
     public class ShaderObjectBuilder {
 
         protected final String name;
-        protected final Map<String, Uniform> uniforms = new HashMap<>();
+        protected final Map<String, UniformPair> uniforms = new HashMap<>();
+        @Nullable
         protected ShaderType type;
+        @Nullable
         protected String simpleSource;
+        @Nullable
         protected ResourceLocation assetSource;
 
         private ShaderObjectBuilder(String name) {
@@ -87,26 +93,26 @@ public class ShaderProgramBuilder {
         }
 
         public ShaderObjectBuilder source(String source) {
-            if (this.simpleSource != null || assetSource != null) throw new IllegalArgumentException("Source already set.");
+            if (simpleSource != null || assetSource != null) throw new IllegalArgumentException("Source already set.");
 
-            this.simpleSource = Objects.requireNonNull(source);
+            simpleSource = Objects.requireNonNull(source);
             return this;
         }
 
         public ShaderObjectBuilder source(ResourceLocation asset) {
-            if (assetSource != null || this.simpleSource != null) throw new IllegalArgumentException("Source already set.");
+            if (assetSource != null || simpleSource != null) throw new IllegalArgumentException("Source already set.");
 
-            this.assetSource = Objects.requireNonNull(asset);
+            assetSource = Objects.requireNonNull(asset);
             return this;
         }
 
         public ShaderObjectBuilder uniform(String name, UniformType type) {
-            Uniform uniform = allUniforms.get(name);
+            UniformPair uniform = allUniforms.get(name);
             if (uniform != null && uniform.type() != type) throw new IllegalArgumentException("Uniform with name '" + name + "' already exists with a different type: " + uniform.type());
             if (!type.isSupported()) throw new UnsupportedOperationException("Uniform type '" + type + "' is not supported in this Environment.");
 
             if (uniform == null) {
-                uniform = new Uniform(name, type);
+                uniform = new UniformPair(name, type);
                 allUniforms.put(name, uniform);
             }
             uniforms.put(name, uniform);
@@ -127,7 +133,9 @@ public class ShaderProgramBuilder {
      */
     public class BinaryShaderObjectBuilder extends ShaderObjectBuilder {
 
+        @Nullable
         private BinaryType binaryType;
+        @Nullable
         private String entryPoint;
         private Consumer<ConstantCache> specializationCallback = nullCons();
 
@@ -172,6 +180,7 @@ public class ShaderProgramBuilder {
         @Override
         protected ShaderObject build() {
             if (type == null) throw new IllegalStateException("Type not set.");
+            if (assetSource == null) throw new IllegalStateException("AssetSource not set.");
             if (binaryType == null) throw new IllegalStateException("Binary type not set");
             if (entryPoint == null || entryPoint.isEmpty()) throw new IllegalStateException("Entry point not set.");
 

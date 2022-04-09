@@ -1,11 +1,9 @@
 package codechicken.lib.render.shader;
 
-import com.google.common.collect.ImmutableList;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
 import java.util.Collection;
-import java.util.Objects;
 
 /**
  * Created by covers1624 on 24/5/20.
@@ -15,7 +13,7 @@ public abstract class AbstractShaderObject extends NamedShaderObject {
     protected int shaderId = -1;
     protected boolean dirty;
 
-    protected AbstractShaderObject(String name, ShaderType type, Collection<Uniform> uniforms) {
+    protected AbstractShaderObject(String name, ShaderType type, Collection<UniformPair> uniforms) {
         super(name, type, uniforms);
     }
 

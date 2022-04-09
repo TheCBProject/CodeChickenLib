@@ -36,7 +36,7 @@ public class BinaryShaderObject extends NamedShaderObject implements ResourceMan
     private boolean dirty = false;
     private int shaderId = -1;
 
-    public BinaryShaderObject(String name, ResourceLocation asset, ShaderType type, BinaryType binaryType, String entryPoint, Collection<Uniform> uniforms, Consumer<ConstantCache> specializationCallback) {
+    public BinaryShaderObject(String name, ResourceLocation asset, ShaderType type, BinaryType binaryType, String entryPoint, Collection<UniformPair> uniforms, Consumer<ConstantCache> specializationCallback) {
         super(name, type, uniforms);
         this.asset = asset;
         this.binaryType = binaryType;

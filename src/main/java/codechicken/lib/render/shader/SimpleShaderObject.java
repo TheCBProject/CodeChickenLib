@@ -9,7 +9,7 @@ public class SimpleShaderObject extends AbstractShaderObject {
 
     private final String source;
 
-    protected SimpleShaderObject(String name, ShaderType type, Collection<Uniform> uniforms, String source) {
+    protected SimpleShaderObject(String name, ShaderType type, Collection<UniformPair> uniforms, String source) {
         super(name, type, uniforms);
         this.source = source;
     }

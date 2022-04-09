@@ -9,6 +9,7 @@ import net.covers1624.quack.sort.TopologicalSort;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceProvider;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,31 +38,43 @@ public class GlslProcessor {
     // Matches #moj_import with <> or ""
     private static final Pattern IMPORT_PATTERN = Pattern.compile("^#moj_import (?>(?><(.*)>)|(?>\"(.*)\"))$");
 
+    private final ResourceProvider resourceProvider;
     private final ResourceLocation shader;
+
     private final Map<ResourceLocation, ProcessorEntry> processorLookup = new HashMap<>();
     private final LinkedList<ProcessorEntry> newProcessors = new LinkedList<>();
 
     public GlslProcessor(ResourceLocation shader) {
+        this(Minecraft.getInstance().getResourceManager(), shader);
+    }
+
+    public GlslProcessor(ResourceProvider resourceProvider, ResourceLocation shader) {
+        this.resourceProvider = resourceProvider;
         this.shader = shader;
         newProcessors.add(processorLookup.computeIfAbsent(shader, ProcessorEntry::new));
     }
 
-    public String process() {
+    public ProcessedShader process() {
         ProcessorEntry mainEntry = newProcessors.peek();
         String mainVersion = Objects.requireNonNull(mainEntry.version, "Main Shader '" + shader + "' in chain requires #version.");
 
         if (mainEntry.includes.isEmpty()) {
-            return String.join("\n", mainEntry.lines);
+            return new ProcessedShader(
+                    shader,
+                    mainEntry.sourceName,
+                    List.of(shader),
+                    String.join("\n", mainEntry.lines)
+            );
         }
 
         MutableGraph<ResourceLocation> graph = GraphBuilder.directed().build();
         while (!newProcessors.isEmpty()) {
             ProcessorEntry entry = newProcessors.pop();
             if (entry.version != null && !entry.version.equals(mainVersion)) {
-                LOGGER.warn("Shader chain {} -> {} version discrepency. Main Shader: {}, Included Shader: {}. This shader may not compile.", shader, entry.resource, mainVersion, entry.version);
+                LOGGER.warn("Shader chain {} -> {} version discrepency. Main Shader: {}, Included Shader: {}. This shader may not compile.", shader, entry.shader, mainVersion, entry.version);
             }
             for (ResourceLocation include : entry.includes) {
-                graph.putEdge(include, entry.resource);
+                graph.putEdge(include, entry.shader);
                 if (!processorLookup.containsKey(include)) {
                     newProcessors.add(processorLookup.computeIfAbsent(include, ProcessorEntry::new));
                 }
@@ -85,21 +98,41 @@ public class GlslProcessor {
             }
         }
 
-        return String.join("\n", outputLines);
+        return new ProcessedShader(
+                shader,
+                mainEntry.sourceName,
+                List.copyOf(order),
+                String.join("\n", outputLines)
+        );
     }
 
-    private static class ProcessorEntry {
+    public static record ProcessedShader(
+            ResourceLocation shader,
+            String sourceName,
+            List<ResourceLocation> order,
+            String processedSource) {
+    }
 
-        private final ResourceLocation resource;
+    private class ProcessorEntry {
+
+        private final ResourceLocation shader;
+        private final String sourceName;
         private final List<String> lines;
         private final List<ResourceLocation> includes;
         @Nullable
         private final String version;
         private final IntSet linesToComment;
 
-        private ProcessorEntry(ResourceLocation resource) {
-            this.resource = resource;
-            lines = loadResource(resource);
+        private ProcessorEntry(ResourceLocation shader) {
+            this.shader = shader;
+            try (Resource resource = resourceProvider.getResource(shader)) {
+                sourceName = resource.getSourceName();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+                    lines = reader.lines().toList();
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException("Unable to read asset '" + shader + "'.", ex);
+            }
             linesToComment = new IntOpenHashSet();
             includes = extractIncludes(lines, linesToComment);
             version = extractVersion(lines, linesToComment);
@@ -139,16 +172,6 @@ public class GlslProcessor {
                 }
             }
             return null;
-        }
-
-        private static List<String> loadResource(ResourceLocation location) {
-            try (Resource resource = Minecraft.getInstance().getResourceManager().getResource(location)) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
-                    return reader.lines().toList();
-                }
-            } catch (IOException ex) {
-                throw new RuntimeException("Unable to read asset '" + location + "'.", ex);
-            }
         }
     }
 
