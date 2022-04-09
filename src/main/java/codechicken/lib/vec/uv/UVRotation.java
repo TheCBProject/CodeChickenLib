@@ -1,6 +1,7 @@
 package codechicken.lib.vec.uv;
 
 import codechicken.lib.math.MathHelper;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -17,6 +18,10 @@ public class UVRotation extends UVTransformation {
         this.angle = angle;
     }
 
+    public UVRotation(UVRotation other) {
+        this(other.angle);
+    }
+
     @Override
     public void apply(UV uv) {
         double c = Math.cos(angle);
@@ -31,6 +36,7 @@ public class UVRotation extends UVTransformation {
         return new UVRotation(-angle);
     }
 
+    @Nullable
     @Override
     public UVTransformation merge(UVTransformation next) {
         if (next instanceof UVRotation) {
@@ -49,5 +55,10 @@ public class UVRotation extends UVTransformation {
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
         return "UVRotation(" + new BigDecimal(angle, cont) + ")";
+    }
+
+    @Override
+    public UVRotation copy() {
+        return new UVRotation(this);
     }
 }

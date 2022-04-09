@@ -62,10 +62,12 @@ public class Vertex5 implements Copyable<Vertex5> {
         this(vertex5.vec.copy(), vertex5.uv.copy());
     }
 
+    @Override
     public Vertex5 copy() {
         return new Vertex5(this);
     }
 
+    @Override
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
         return "Vertex: (" + new BigDecimal(vec.x, cont) + ", " + new BigDecimal(vec.y, cont) + ", " + new BigDecimal(vec.z, cont) + ") " + "(" + new BigDecimal(uv.u, cont) + ", " + new BigDecimal(uv.v, cont) + ") (" + uv.tex + ")";

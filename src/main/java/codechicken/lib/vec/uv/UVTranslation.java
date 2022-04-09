@@ -16,6 +16,10 @@ public class UVTranslation extends UVTransformation {
         dv = v;
     }
 
+    public UVTranslation(UVTranslation other) {
+        this(other.du, other.dv);
+    }
+
     @Override
     public void apply(UV uv) {
         uv.u += du;
@@ -34,8 +38,7 @@ public class UVTranslation extends UVTransformation {
 
     @Override
     public UVTransformation merge(UVTransformation next) {
-        if (next instanceof UVTranslation) {
-            UVTranslation t = (UVTranslation) next;
+        if (next instanceof UVTranslation t) {
             return new UVTranslation(du + t.du, dv + t.dv);
         }
 
@@ -51,5 +54,10 @@ public class UVTranslation extends UVTransformation {
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
         return "UVTranslation(" + new BigDecimal(du, cont) + ", " + new BigDecimal(dv, cont) + ")";
+    }
+
+    @Override
+    public UVTranslation copy() {
+        return new UVTranslation(this);
     }
 }

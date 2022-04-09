@@ -20,6 +20,10 @@ public class Scale extends Transformation {
         this(new Vector3(x, y, z));
     }
 
+    public Scale(Scale scale) {
+        this(scale.factor.copy());
+    }
+
     @Override
     public void apply(Vector3 vec) {
         vec.multiply(factor);
@@ -57,5 +61,10 @@ public class Scale extends Transformation {
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
         return "Scale(" + new BigDecimal(factor.x, cont) + ", " + new BigDecimal(factor.y, cont) + ", " + new BigDecimal(factor.z, cont) + ")";
+    }
+
+    @Override
+    public Scale copy() {
+        return new Scale(this);
     }
 }

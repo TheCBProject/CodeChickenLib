@@ -24,6 +24,10 @@ public class Translation extends Transformation {
         this(new Vector3(x, y, z));
     }
 
+    public Translation(Translation trans) {
+        this(trans.vec.copy());
+    }
+
     @Override
     public void apply(Vector3 vec) {
         vec.add(this.vec);
@@ -43,12 +47,6 @@ public class Translation extends Transformation {
         return this;
     }
 
-    //    @Override
-    //    @OnlyIn (Dist.CLIENT)
-    //    public void glApply() {
-    //        GlStateManager.translated(vec.x, vec.y, vec.z);
-    //    }
-
     @Override
     public Transformation inverse() {
         return new Translation(-vec.x, -vec.y, -vec.z);
@@ -56,8 +54,8 @@ public class Translation extends Transformation {
 
     @Override
     public Transformation merge(Transformation next) {
-        if (next instanceof Translation) {
-            return new Translation(vec.copy().add(((Translation) next).vec));
+        if (next instanceof Translation t) {
+            return new Translation(vec.copy().add(t.vec));
         }
 
         return null;
@@ -72,5 +70,10 @@ public class Translation extends Transformation {
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
         return "Translation(" + new BigDecimal(vec.x, cont) + ", " + new BigDecimal(vec.y, cont) + ", " + new BigDecimal(vec.z, cont) + ")";
+    }
+
+    @Override
+    public Translation copy() {
+        return new Translation(this);
     }
 }

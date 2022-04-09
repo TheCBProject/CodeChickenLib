@@ -1,6 +1,8 @@
 package codechicken.lib.vec;
 
-public class Rectangle4i {
+import codechicken.lib.util.Copyable;
+
+public class Rectangle4i implements Copyable<Rectangle4i> {
 
     public int x;
     public int y;
@@ -15,6 +17,10 @@ public class Rectangle4i {
         this.y = y;
         this.w = w;
         this.h = h;
+    }
+
+    public Rectangle4i(Rectangle4i other) {
+        this(other.x, other.y, other.w, other.h);
     }
 
     public int x1() {
@@ -93,5 +99,10 @@ public class Rectangle4i {
 
     public int area() {
         return w * h;
+    }
+
+    @Override
+    public Rectangle4i copy() {
+        return new Rectangle4i(this);
     }
 }

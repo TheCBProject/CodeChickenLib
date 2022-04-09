@@ -1,12 +1,15 @@
 package codechicken.lib.vec;
 
+import codechicken.lib.util.Copyable;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Abstract supertype for any VectorN transformation
  *
  * @param <Vector>         The vector type
  * @param <Transformation> The transformation type
  */
-public abstract class ITransformation<Vector, Transformation extends ITransformation> {
+public abstract class ITransformation<Vector, Transformation extends ITransformation<Vector, Transformation>> implements Copyable<Transformation> {
 
     /**
      * Applies this transformation to vec
@@ -28,6 +31,7 @@ public abstract class ITransformation<Vector, Transformation extends ITransforma
     /**
      * Returns a simplified transformation that performs this, followed by next. If such a transformation does not exist, returns null
      */
+    @Nullable
     public Transformation merge(Transformation next) {
         return null;
     }
@@ -39,7 +43,16 @@ public abstract class ITransformation<Vector, Transformation extends ITransforma
         return false;
     }
 
-    public abstract Transformation inverse();
+    /**
+     * Attempts to invert the Transformation.
+     * <p>
+     * The transformations inverse may be itself, or the transform
+     * may not have an inverse. In that case a {@link IrreversibleTransformationException} is thrown.
+     *
+     * @return The inverse transform.
+     * @throws IrreversibleTransformationException If the transform does not have an inverse.
+     */
+    public abstract Transformation inverse() throws IrreversibleTransformationException;
 
     /**
      * Scala ++ operator

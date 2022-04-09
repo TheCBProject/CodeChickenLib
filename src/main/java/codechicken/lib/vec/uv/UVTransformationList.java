@@ -1,7 +1,9 @@
 package codechicken.lib.vec.uv;
 
+import codechicken.lib.util.Copyable;
+import net.covers1624.quack.collection.StreamableIterable;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class UVTransformationList extends UVTransformation {
 
@@ -15,6 +17,14 @@ public class UVTransformationList extends UVTransformation {
                 transformations.add(t);
             }
         }
+
+        compact();
+    }
+
+    public UVTransformationList(UVTransformationList other) {
+        transformations = StreamableIterable.of(other.transformations)
+                .map(Copyable::copy)
+                .toList();
 
         compact();
     }
@@ -59,10 +69,8 @@ public class UVTransformationList extends UVTransformation {
 
     private void compact() {
         ArrayList<UVTransformation> newList = new ArrayList<>(transformations.size());
-        Iterator<UVTransformation> iterator = transformations.iterator();
         UVTransformation prev = null;
-        while (iterator.hasNext()) {
-            UVTransformation t = iterator.next();
+        for (UVTransformation t : transformations) {
             if (t.isRedundant()) {
                 continue;
             }
@@ -104,10 +112,15 @@ public class UVTransformationList extends UVTransformation {
 
     @Override
     public String toString() {
-        String s = "";
+        StringBuilder s = new StringBuilder();
         for (UVTransformation t : transformations) {
-            s += "\n" + t.toString();
+            s.append("\n").append(t.toString());
         }
-        return s.trim();
+        return s.toString().trim();
+    }
+
+    @Override
+    public UVTransformation copy() {
+        return new UVTransformationList(this);
     }
 }

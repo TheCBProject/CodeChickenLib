@@ -2,9 +2,9 @@ package codechicken.lib.vec;
 
 public class IrreversibleTransformationException extends RuntimeException {
 
-    public ITransformation t;
+    public ITransformation<?, ?> t;
 
-    public IrreversibleTransformationException(ITransformation t) {
+    public IrreversibleTransformationException(ITransformation<?, ?> t) {
         this.t = t;
     }
 

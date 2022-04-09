@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -374,6 +375,7 @@ public class Vector3 implements Copyable<Vector3> {
         return Math.acos(copy().normalize().dotProduct(vec.copy().normalize()));
     }
 
+    @Nullable
     public Vector3 YZintercept(Vector3 end, double px) {
         double dx = end.x - x;
         double dy = end.y - y;
@@ -398,6 +400,7 @@ public class Vector3 implements Copyable<Vector3> {
         return this;
     }
 
+    @Nullable
     public Vector3 XZintercept(Vector3 end, double py) {
         double dx = end.x - x;
         double dy = end.y - y;
@@ -422,6 +425,7 @@ public class Vector3 implements Copyable<Vector3> {
         return this;
     }
 
+    @Nullable
     public Vector3 XYintercept(Vector3 end, double pz) {
         double dx = end.x - x;
         double dy = end.y - y;
@@ -471,20 +475,10 @@ public class Vector3 implements Copyable<Vector3> {
 
     public Vector3 setSide(int s, double v) {
         switch (s) {
-            case 0:
-            case 1:
-                y = v;
-                break;
-            case 2:
-            case 3:
-                z = v;
-                break;
-            case 4:
-            case 5:
-                x = v;
-                break;
-            default:
-                throw new IndexOutOfBoundsException("Switch Falloff");
+            case 0, 1 -> y = v;
+            case 2, 3 -> z = v;
+            case 4, 5 -> x = v;
+            default -> throw new IndexOutOfBoundsException("Switch Falloff");
         }
         return this;
     }
@@ -521,10 +515,12 @@ public class Vector3 implements Copyable<Vector3> {
         return MathHelper.between(x - 1E-5, v.x, x + 1E-5) && MathHelper.between(y - 1E-5, v.y, y + 1E-5) && MathHelper.between(z - 1E-5, v.z, z + 1E-5);
     }
 
+    @Override
     public Vector3 copy() {
         return new Vector3(this);
     }
 
+    @Override
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
         return "Vector3(" + new BigDecimal(x, cont) + ", " + new BigDecimal(y, cont) + ", " + new BigDecimal(z, cont) + ")";

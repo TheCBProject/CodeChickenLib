@@ -79,7 +79,7 @@ public class OBJParser {
      */
     public static Map<String, CCModel> parseModels(InputStream input, int vertexMode, Transformation coordSystem) throws IOException {
         if (coordSystem == null) {
-            coordSystem = new RedundantTransformation();
+            coordSystem = RedundantTransformation.INSTANCE;
         }
         int vp = vertexMode == 7 ? 4 : 3;
 

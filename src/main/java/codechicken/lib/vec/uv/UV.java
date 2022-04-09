@@ -52,6 +52,7 @@ public class UV implements Copyable<UV> {
         return set(fa[0], fa[1]);
     }
 
+    @Override
     public UV copy() {
         return new UV(this);
     }
@@ -80,10 +81,9 @@ public class UV implements Copyable<UV> {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof UV)) {
+        if (!(o instanceof UV uv)) {
             return false;
         }
-        UV uv = (UV) o;
         return u == uv.u && v == uv.v;
     }
 }

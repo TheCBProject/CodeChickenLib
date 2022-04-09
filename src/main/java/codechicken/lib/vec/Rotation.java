@@ -3,6 +3,7 @@ package codechicken.lib.vec;
 import codechicken.lib.math.MathHelper;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -14,7 +15,7 @@ public class Rotation extends Transformation {
      * Clockwise pi/2 about y looking down
      */
     public static Transformation[] quarterRotations = new Transformation[] {
-            new RedundantTransformation(),
+            RedundantTransformation.INSTANCE,
             new VariableTransformation(new Matrix4(0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1)) {
                 @Override
                 public void apply(Vector3 vec) {
@@ -58,7 +59,7 @@ public class Rotation extends Transformation {
     };
 
     public static Transformation[] sideRotations = new Transformation[] {
-            new RedundantTransformation(),
+            RedundantTransformation.INSTANCE,
             new VariableTransformation(new Matrix4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1)) {
                 @Override
                 public void apply(Vector3 vec) {
@@ -226,6 +227,7 @@ public class Rotation extends Transformation {
     public double angle;
     public Vector3 axis;
 
+    @Nullable
     private Quat quat;
 
     public Rotation(double angle, Vector3 axis) {
@@ -247,6 +249,14 @@ public class Rotation extends Transformation {
             double sa = Math.sin(angle * 0.5);
             axis = new Vector3(quat.x / sa, quat.y / sa, quat.z / sa);
         }
+    }
+
+    public Rotation(Rotation rot) {
+        if (rot.quat != null) {
+            quat = rot.quat.copy();
+        }
+        angle = rot.angle;
+        axis = rot.axis.copy();
     }
 
     @Override
@@ -282,8 +292,7 @@ public class Rotation extends Transformation {
 
     @Override
     public Transformation merge(Transformation next) {
-        if (next instanceof Rotation) {
-            Rotation r = (Rotation) next;
+        if (next instanceof Rotation r) {
             if (r.axis.equalsT(axis)) {
                 return new Rotation(angle + r.angle, axis);
             }
@@ -303,5 +312,10 @@ public class Rotation extends Transformation {
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
         return "Rotation(" + new BigDecimal(angle, cont) + ", " + new BigDecimal(axis.x, cont) + ", " + new BigDecimal(axis.y, cont) + ", " + new BigDecimal(axis.z, cont) + ")";
+    }
+
+    @Override
+    public Rotation copy() {
+        return new Rotation(this);
     }
 }

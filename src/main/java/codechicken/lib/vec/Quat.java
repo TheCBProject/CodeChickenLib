@@ -125,6 +125,7 @@ public class Quat implements Copyable<Quat> {
         return this;
     }
 
+    @Override
     public Quat copy() {
         return new Quat(this);
     }
@@ -139,6 +140,7 @@ public class Quat implements Copyable<Quat> {
         vec.z = d3 * s - d * z - d1 * y + d2 * x;
     }
 
+    @Override
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
         return "Quat(" + new BigDecimal(s, cont) + ", " + new BigDecimal(x, cont) + ", " + new BigDecimal(y, cont) + ", " + new BigDecimal(z, cont) + ")";

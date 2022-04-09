@@ -2,6 +2,11 @@ package codechicken.lib.vec;
 
 public class RedundantTransformation extends Transformation {
 
+    public static final RedundantTransformation INSTANCE = new RedundantTransformation();
+
+    private RedundantTransformation() {
+    }
+
     @Override
     public void apply(Vector3 vec) {
     }
@@ -37,5 +42,10 @@ public class RedundantTransformation extends Transformation {
     @Override
     public String toString() {
         return "Nothing()";
+    }
+
+    @Override
+    public RedundantTransformation copy() {
+        return this;
     }
 }

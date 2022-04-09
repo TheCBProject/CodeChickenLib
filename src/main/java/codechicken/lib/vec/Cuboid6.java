@@ -297,10 +297,12 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         return min.equalsT(c.min) && max.equalsT(c.max);
     }
 
+    @Override
     public Cuboid6 copy() {
         return new Cuboid6(this);
     }
 
+    @Override
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
         return "Cuboid: (" + new BigDecimal(min.x, cont) + ", " + new BigDecimal(min.y, cont) + ", " + new BigDecimal(min.z, cont) + ") -> (" + new BigDecimal(max.x, cont) + ", " + new BigDecimal(max.y, cont) + ", " + new BigDecimal(max.z, cont) + ")";

@@ -18,6 +18,10 @@ public class UVScale extends UVTransformation {
         this(d, d);
     }
 
+    public UVScale(UVScale other) {
+        this(other.su, other.sv);
+    }
+
     @Override
     public void apply(UV uv) {
         uv.u *= su;
@@ -33,5 +37,10 @@ public class UVScale extends UVTransformation {
     public String toString() {
         MathContext cont = new MathContext(4, RoundingMode.HALF_UP);
         return "UVScale(" + new BigDecimal(su, cont) + ", " + new BigDecimal(sv, cont) + ")";
+    }
+
+    @Override
+    public UVScale copy() {
+        return new UVScale(this);
     }
 }

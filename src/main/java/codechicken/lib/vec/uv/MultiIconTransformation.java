@@ -3,14 +3,21 @@ package codechicken.lib.vec.uv;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.vec.IrreversibleTransformationException;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import org.jetbrains.annotations.Nullable;
 
 public class MultiIconTransformation extends UVTransformation {
 
     public TextureAtlasSprite[] icons;
+    @Nullable
     private TextureAtlasSprite icon;
 
     public MultiIconTransformation(TextureAtlasSprite... icons) {
         this.icons = icons;
+    }
+
+    public MultiIconTransformation(MultiIconTransformation other) {
+        this(other.icons.clone());
+        icon = null; // Redundant but shuts Intellij up.
     }
 
     @Override
@@ -29,5 +36,10 @@ public class MultiIconTransformation extends UVTransformation {
     @Override
     public UVTransformation inverse() {
         throw new IrreversibleTransformationException(this);
+    }
+
+    @Override
+    public MultiIconTransformation copy() {
+        return new MultiIconTransformation(this);
     }
 }

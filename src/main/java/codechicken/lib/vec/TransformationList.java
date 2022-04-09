@@ -1,5 +1,9 @@
 package codechicken.lib.vec;
 
+import codechicken.lib.util.Copyable;
+import net.covers1624.quack.collection.StreamableIterable;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -8,6 +12,7 @@ import java.util.List;
 public class TransformationList extends Transformation {
 
     private ArrayList<Transformation> transformations = new ArrayList<>();
+    @Nullable
     private Matrix4 mat;
 
     public TransformationList(Transformation... transforms) {
@@ -24,6 +29,13 @@ public class TransformationList extends Transformation {
         }
 
         compact();
+    }
+
+    public TransformationList(TransformationList other) {
+        transformations = StreamableIterable.of(other.transformations)
+                .map(Copyable::copy)
+                .toList();
+        mat = other.mat;
     }
 
     public Matrix4 compile() {
@@ -166,5 +178,10 @@ public class TransformationList extends Transformation {
             s.append("\n").append(t.toString());
         }
         return s.toString().trim();
+    }
+
+    @Override
+    public TransformationList copy() {
+        return new TransformationList(this);
     }
 }
