@@ -13,8 +13,6 @@ import java.nio.*;
 
 public class Matrix4 extends Transformation implements Copyable<Matrix4> {
 
-    private static final FloatBuffer glBuf = ByteBuffer.allocateDirect(16 * 8).order(ByteOrder.nativeOrder()).asFloatBuffer();
-
     //m<row><column>
     public double m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33;
 
@@ -333,20 +331,20 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
 
     public Matrix4 set(float[] matrix) {
         m00 = matrix[0];
-        m01 = matrix[1];
-        m02 = matrix[2];
-        m03 = matrix[3];
-        m10 = matrix[4];
+        m10 = matrix[1];
+        m20 = matrix[2];
+        m30 = matrix[3];
+        m01 = matrix[4];
         m11 = matrix[5];
-        m12 = matrix[6];
-        m13 = matrix[7];
-        m20 = matrix[8];
-        m21 = matrix[9];
+        m21 = matrix[6];
+        m31 = matrix[7];
+        m02 = matrix[8];
+        m12 = matrix[9];
         m22 = matrix[10];
-        m23 = matrix[11];
-        m30 = matrix[12];
-        m31 = matrix[13];
-        m32 = matrix[14];
+        m32 = matrix[11];
+        m03 = matrix[12];
+        m13 = matrix[13];
+        m23 = matrix[14];
         m33 = matrix[15];
 
         return this;
@@ -354,20 +352,20 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
 
     public Matrix4 set(double[] matrix) {
         m00 = matrix[0];
-        m01 = matrix[1];
-        m02 = matrix[2];
-        m03 = matrix[3];
-        m10 = matrix[4];
+        m10 = matrix[1];
+        m20 = matrix[2];
+        m30 = matrix[3];
+        m01 = matrix[4];
         m11 = matrix[5];
-        m12 = matrix[6];
-        m13 = matrix[7];
-        m20 = matrix[8];
-        m21 = matrix[9];
+        m21 = matrix[6];
+        m31 = matrix[7];
+        m02 = matrix[8];
+        m12 = matrix[9];
         m22 = matrix[10];
-        m23 = matrix[11];
-        m30 = matrix[12];
-        m31 = matrix[13];
-        m32 = matrix[14];
+        m32 = matrix[11];
+        m03 = matrix[12];
+        m13 = matrix[13];
+        m23 = matrix[14];
         m33 = matrix[15];
 
         return this;
@@ -375,20 +373,20 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
 
     public Matrix4 set(FloatBuffer buffer) {
         m00 = buffer.get();
-        m01 = buffer.get();
-        m02 = buffer.get();
-        m03 = buffer.get();
         m10 = buffer.get();
-        m11 = buffer.get();
-        m12 = buffer.get();
-        m13 = buffer.get();
         m20 = buffer.get();
-        m21 = buffer.get();
-        m22 = buffer.get();
-        m23 = buffer.get();
         m30 = buffer.get();
+        m01 = buffer.get();
+        m11 = buffer.get();
+        m21 = buffer.get();
         m31 = buffer.get();
+        m02 = buffer.get();
+        m12 = buffer.get();
+        m22 = buffer.get();
         m32 = buffer.get();
+        m03 = buffer.get();
+        m13 = buffer.get();
+        m23 = buffer.get();
         m33 = buffer.get();
 
         return this;
@@ -396,20 +394,20 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
 
     public Matrix4 set(DoubleBuffer buffer) {
         m00 = buffer.get();
-        m01 = buffer.get();
-        m02 = buffer.get();
-        m03 = buffer.get();
         m10 = buffer.get();
-        m11 = buffer.get();
-        m12 = buffer.get();
-        m13 = buffer.get();
         m20 = buffer.get();
-        m21 = buffer.get();
-        m22 = buffer.get();
-        m23 = buffer.get();
         m30 = buffer.get();
+        m01 = buffer.get();
+        m11 = buffer.get();
+        m21 = buffer.get();
         m31 = buffer.get();
+        m02 = buffer.get();
+        m12 = buffer.get();
+        m22 = buffer.get();
         m32 = buffer.get();
+        m03 = buffer.get();
+        m13 = buffer.get();
+        m23 = buffer.get();
         m33 = buffer.get();
 
         return this;
@@ -448,20 +446,20 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     public float[] toArrayF() {
         float[] matrix = new float[16];
         matrix[0] = (float) m00;
-        matrix[1] = (float) m01;
-        matrix[2] = (float) m02;
-        matrix[3] = (float) m03;
-        matrix[4] = (float) m10;
+        matrix[1] = (float) m10;
+        matrix[2] = (float) m20;
+        matrix[3] = (float) m30;
+        matrix[4] = (float) m01;
         matrix[5] = (float) m11;
-        matrix[6] = (float) m12;
-        matrix[7] = (float) m13;
-        matrix[8] = (float) m20;
-        matrix[9] = (float) m21;
+        matrix[6] = (float) m21;
+        matrix[7] = (float) m31;
+        matrix[8] = (float) m02;
+        matrix[9] = (float) m12;
         matrix[10] = (float) m22;
-        matrix[11] = (float) m23;
-        matrix[12] = (float) m30;
-        matrix[13] = (float) m31;
-        matrix[14] = (float) m32;
+        matrix[11] = (float) m32;
+        matrix[12] = (float) m03;
+        matrix[13] = (float) m13;
+        matrix[14] = (float) m23;
         matrix[15] = (float) m33;
 
         return matrix;
@@ -470,43 +468,49 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
     public double[] toArrayD() {
         double[] matrix = new double[16];
         matrix[0] = m00;
-        matrix[1] = m01;
-        matrix[2] = m02;
-        matrix[3] = m03;
-        matrix[4] = m10;
+        matrix[1] = m10;
+        matrix[2] = m20;
+        matrix[3] = m30;
+        matrix[4] = m01;
         matrix[5] = m11;
-        matrix[6] = m12;
-        matrix[7] = m13;
-        matrix[8] = m20;
-        matrix[9] = m21;
+        matrix[6] = m21;
+        matrix[7] = m31;
+        matrix[8] = m02;
+        matrix[9] = m12;
         matrix[10] = m22;
-        matrix[11] = m23;
-        matrix[12] = m30;
-        matrix[13] = m31;
-        matrix[14] = m32;
+        matrix[11] = m32;
+        matrix[12] = m03;
+        matrix[13] = m13;
+        matrix[14] = m23;
         matrix[15] = m33;
 
         return matrix;
     }
 
     public FloatBuffer toFloatBuffer() {
-        FloatBuffer buff = ByteBuffer.allocateDirect(16 * 8).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        FloatBuffer buff = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        save(buff);
+        return buff.flip();
+    }
+
+    public void save(FloatBuffer buff) {
         buff.put((float) m00).put((float) m10).put((float) m20).put((float) m30);
         buff.put((float) m01).put((float) m11).put((float) m21).put((float) m31);
         buff.put((float) m02).put((float) m12).put((float) m22).put((float) m32);
         buff.put((float) m03).put((float) m13).put((float) m23).put((float) m33);
-        buff.flip();
-        return buff;
     }
 
     public DoubleBuffer toDoubleBuffer() {
         DoubleBuffer buff = ByteBuffer.allocateDirect(16 * 8).order(ByteOrder.nativeOrder()).asDoubleBuffer();
+        save(buff);
+        return buff.flip();
+    }
+
+    public void save(DoubleBuffer buff) {
         buff.put(m00).put(m10).put(m20).put(m30);
         buff.put(m01).put(m11).put(m21).put(m31);
         buff.put(m02).put(m12).put(m22).put(m32);
         buff.put(m03).put(m13).put(m23).put(m33);
-        buff.flip();
-        return buff;
     }
 
     public Matrix4f toMatrix4f() {
