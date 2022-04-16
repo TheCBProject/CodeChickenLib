@@ -6,6 +6,7 @@ import codechicken.lib.config.parser.ConfigFile;
 import codechicken.lib.config.parser.StandardConfigSerializer;
 import codechicken.lib.data.MCDataByteBuf;
 import io.netty.buffer.Unpooled;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Created by covers1624 on 16/06/18.
  */
-
+@Disabled
 public class ConfigTests {
 
     //Loads the config, saves it to a new file, loads it again, and compares the first loaded and the save-loaded.
