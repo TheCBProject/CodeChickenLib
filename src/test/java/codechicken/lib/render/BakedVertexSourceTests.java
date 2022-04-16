@@ -3,9 +3,9 @@ package codechicken.lib.render;
 import codechicken.lib.model.CachedFormat;
 import codechicken.lib.model.Quad;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Created by covers1624 on 1/1/22.

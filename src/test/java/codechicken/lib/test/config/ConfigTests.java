@@ -6,8 +6,7 @@ import codechicken.lib.config.parser.ConfigFile;
 import codechicken.lib.config.parser.StandardConfigSerializer;
 import codechicken.lib.data.MCDataByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +15,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Created by covers1624 on 16/06/18.
@@ -32,7 +34,7 @@ public class ConfigTests {
         copyTestFile(before);
         ConfigFile beforeCFile = new StandardConfigFile(before);
         ConfigTag beforeConfig = beforeCFile.load();
-        Assert.assertFalse(beforeCFile.didError());
+        assertFalse(beforeCFile.didError());
         StandardConfigSerializer.INSTANCE.save(after, beforeConfig);
         ConfigTag afterConfig = new StandardConfigFile(after).load();
         ensureSameRaw(beforeConfig, afterConfig);
@@ -82,7 +84,7 @@ public class ConfigTests {
     }
 
     //Copies the config, modifies it then ensures they are different.
-    @Test (expected = ConfigTestException.class)
+    @Test
     public void testCopyFail() throws Throwable {
         Path dir = Files.createTempDirectory("copy_test_fail");
         Path testFile = dir.resolve("test.cfg");
@@ -93,7 +95,7 @@ public class ConfigTests {
         ConfigTag tag1 = configB.getTag("Tag1");
         tag1.getTag("string").setString("nope");
         tag1.getTag("boolean_array").getBooleanList().clear();
-        ensureSameRaw(configA, configB);
+        assertThrows(ConfigTestException.class, () -> ensureSameRaw(configA, configB));
     }
 
     //Copies the config, modifies it, then 'resets' it with copyFrom, ensures they are the same.
@@ -112,7 +114,7 @@ public class ConfigTests {
     }
 
     //Copies the config, deletes a tag from it, copyFrom should fail.
-    @Test (expected = IllegalArgumentException.class)
+    @Test
     public void testCopyFromFail() throws Throwable {
         Path dir = Files.createTempDirectory("copy_from_fail_test");
         Path testFile = dir.resolve("test.cfg");
@@ -121,7 +123,7 @@ public class ConfigTests {
         ConfigTag configB = configA.copy();
         configA.deleteTag("Tag1");
         configB.copyFrom(configA);
-        ensureSameRaw(configA, configB);
+        assertThrows(ConfigTestException.class, () -> ensureSameRaw(configA, configB));
     }
 
     //Copes the config, writes the original to the stream, modifies the copy, reads stream to copy, ensures they are the same.
@@ -142,7 +144,7 @@ public class ConfigTests {
     }
 
     //Copes the config, writes the original to the stream, deletes a tag from the copy, read should fail.
-    @Test (expected = IllegalArgumentException.class)
+    @Test
     public void testWriteReadStreamFail() throws Throwable {
         Path dir = Files.createTempDirectory("write_read_stream_test_fail");
         Path testFile = dir.resolve("test.cfg");
@@ -153,7 +155,7 @@ public class ConfigTests {
         configA.write(byteStream);
         configB.deleteTag("Tag1");
         configB.read(byteStream);
-        ensureSameRaw(configA, configB);
+        assertThrows(ConfigTestException.class, () -> ensureSameRaw(configA, configB));
     }
 
     //Copes the config, modifies it, writes it to a stream, reads with readNetwork, ensures they are 'effectively' the same.
