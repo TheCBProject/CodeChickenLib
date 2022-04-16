@@ -22,10 +22,12 @@ public class ColourRGBA extends Colour {
         super(colour);
     }
 
+    @Override
     public int pack() {
         return pack(this);
     }
 
+    @Override
     public float[] packArray() {
         return new float[] { (r & 0xFF) / 255f, (g & 0xFF) / 255f, (b & 0xFF) / 255f, (a & 0xFF) / 255f };
     }

@@ -30,11 +30,6 @@ public abstract class Colour implements Copyable<Colour> {
 
     public abstract float[] packArray();
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "[0x" + Integer.toHexString(pack()).toUpperCase() + "]";
-    }
-
     public Colour add(Colour colour2) {
         a += colour2.a;
         r += colour2.r;
@@ -119,12 +114,24 @@ public abstract class Colour implements Copyable<Colour> {
         return set((int) (255 * r), (int) (255 * g), (int) (255 * b), (int) (255 * a));
     }
 
+    public Colour set(float r, float g, float b, float a) {
+        return set((int) (255F * r), (int) (255F * g), (int) (255F * b), (int) (255F * a));
+    }
+
     public Colour set(int r, int g, int b, int a) {
         this.r = (byte) r;
         this.g = (byte) g;
         this.b = (byte) b;
         this.a = (byte) a;
         return this;
+    }
+
+    public Colour set(double[] doubles) {
+        return set(doubles[0], doubles[1], doubles[2], doubles[3]);
+    }
+
+    public Colour set(float[] floats) {
+        return set(floats[0], floats[1], floats[2], floats[3]);
     }
 
     /**
@@ -191,5 +198,30 @@ public abstract class Colour implements Copyable<Colour> {
 
     public boolean equals(Colour colour) {
         return colour != null && rgba() == colour.rgba();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Colour colour)) return false;
+
+        if (r != colour.r) return false;
+        if (g != colour.g) return false;
+        if (b != colour.b) return false;
+        return a == colour.a;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = r;
+        result = 31 * result + (int) g;
+        result = 31 * result + (int) b;
+        result = 31 * result + (int) a;
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[0x" + Integer.toHexString(pack()).toUpperCase() + "]";
     }
 }

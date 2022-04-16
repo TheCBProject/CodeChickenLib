@@ -14,6 +14,7 @@ public class ColourARGB extends Colour {
         super(colour);
     }
 
+    @Override
     public ColourARGB copy() {
         return new ColourARGB(this);
     }
@@ -23,10 +24,12 @@ public class ColourARGB extends Colour {
         return set(new ColourARGB(colour));
     }
 
+    @Override
     public int pack() {
         return pack(this);
     }
 
+    @Override
     public float[] packArray() {
         return new float[] { (a & 0xFF) / 255f, (r & 0xFF) / 255f, (g & 0xFF) / 255f, (b & 0xFF) / 255f };
     }
