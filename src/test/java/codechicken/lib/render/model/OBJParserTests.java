@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -41,5 +42,15 @@ public class OBJParserTests {
         assertNotNull(model);
         ModelMaterial material = model.material();
         assertNotNull(material);
+    }
+
+    @Test
+    public void testMultiObject() {
+        Map<String, CCModel> modelMap = new OBJParser(new ResourceLocation("test:model/test_multi_object.obj"))
+                .provider(TestResourceProvider.INSTANCE)
+                .ignoreMtl()
+                .quads()
+                .parse();
+        assertEquals(2, modelMap.size());
     }
 }

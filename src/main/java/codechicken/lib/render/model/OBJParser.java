@@ -171,18 +171,17 @@ public class OBJParser {
                 case "f" -> {
                     if (polys == null) {
                         polys = new ArrayList<>();
+                        finishedName = name;
                     }
                     polys.addAll(parsePolys(splits[1], vertexMode));
                 }
                 case "g" -> {
-                    finishedName = name;
-                    modelFinished = true;
                     name = group = splits[1];
+                    modelFinished = true;
                 }
                 case "o" -> {
-                    finishedName = name;
-                    modelFinished = true;
                     name = (group != null ? group + "/" : "") + splits[1];
+                    modelFinished = true;
                 }
             }
 
