@@ -19,7 +19,8 @@ import java.util.*;
 public class OBJParser {
 
     private final ResourceLocation location;
-    private ResourceProvider provider = Minecraft.getInstance().getResourceManager();
+    @Nullable
+    private ResourceProvider provider;
     private VertexFormat.Mode vertexMode = VertexFormat.Mode.TRIANGLES;
     @Nullable
     private Transformation coordSystem;
@@ -105,6 +106,9 @@ public class OBJParser {
      * @return The parsed models.
      */
     public Map<String, CCModel> parse() {
+        if (provider == null) {
+            provider = Minecraft.getInstance().getResourceManager();
+        }
         return parse(provider, location, vertexMode, coordSystem, ignoreMtl);
     }
 
