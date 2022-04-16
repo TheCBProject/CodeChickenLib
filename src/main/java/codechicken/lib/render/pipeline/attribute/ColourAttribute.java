@@ -9,7 +9,7 @@ import codechicken.lib.render.pipeline.VertexAttribute;
  */
 public class ColourAttribute extends VertexAttribute<int[]> {
 
-    public static final AttributeKey<int[]> attributeKey = new AttributeKey<>("colour", int[]::new);
+    public static final AttributeKey<int[]> attributeKey = AttributeKey.create("colour", int[]::new);
 
     private int[] colourRef;
 
@@ -19,7 +19,7 @@ public class ColourAttribute extends VertexAttribute<int[]> {
 
     @Override
     public boolean load(CCRenderState ccrs) {
-        colourRef = ccrs.model.getAttributes(attributeKey);
+        colourRef = ccrs.model.getAttribute(attributeKey);
         return colourRef != null || !ccrs.model.hasAttribute(attributeKey);
     }
 

@@ -23,7 +23,7 @@ public class BlockRenderer {
         }
 
         @Override
-        public <T> T getAttributes(AttributeKey<T> attr) {
+        public <T> T getAttribute(AttributeKey<T> attr) {
             return LightCoordAttribute.attributeKey.equals(attr) && lcComputed ? (T) lightCoords : null;
         }
 
@@ -143,7 +143,7 @@ public class BlockRenderer {
         }
 
         @Override
-        public <T> T getAttributes(AttributeKey<T> attr) {
+        public <T> T getAttribute(AttributeKey<T> attr) {
             return LightCoordAttribute.attributeKey.equals(attr) ? (T) lightCoords : null;
         }
 

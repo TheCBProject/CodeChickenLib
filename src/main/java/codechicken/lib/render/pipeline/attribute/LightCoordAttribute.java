@@ -11,7 +11,7 @@ import codechicken.lib.vec.Vector3;
  */
 public class LightCoordAttribute extends VertexAttribute<LC[]> {
 
-    public static final AttributeKey<LC[]> attributeKey = new AttributeKey<>("light_coord", LC[]::new);
+    public static final AttributeKey<LC[]> attributeKey = AttributeKey.create("light_coord", LC[]::new);
 
     private final Vector3 vec = new Vector3();//for computation
     private final Vector3 pos = new Vector3();
@@ -24,7 +24,7 @@ public class LightCoordAttribute extends VertexAttribute<LC[]> {
 
     @Override
     public boolean load(CCRenderState ccrs) {
-        lcRef = ccrs.model.getAttributes(attributeKey);
+        lcRef = ccrs.model.getAttribute(attributeKey);
         if (ccrs.model.hasAttribute(attributeKey)) {
             return lcRef != null;
         }

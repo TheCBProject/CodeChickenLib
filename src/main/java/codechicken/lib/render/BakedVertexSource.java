@@ -54,7 +54,7 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
     }
 
     @Override
-    public <T> T getAttributes(AttributeKey<T> attr) {
+    public <T> T getAttribute(AttributeKey<T> attr) {
         ensureAttr(attr.attributeKeyIndex);
         return unsafeCast(attributes[attr.attributeKeyIndex]);
     }
@@ -121,9 +121,9 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
                 Object attr = attributes[aIdx];
                 AttributeKey<?> key = AttributeKeyRegistry.getAttributeKey(aIdx);
                 if (attr == null) {
-                    attr = key.newArray(numVertices);
+                    attr = key.createDefault(numVertices);
                 } else {
-                    Object newAttr = key.newArray(numVertices);
+                    Object newAttr = key.createDefault(numVertices);
                     //noinspection SuspiciousSystemArraycopy
                     System.arraycopy(attr, 0, newAttr, 0, prevLen);
                     attr = newAttr;

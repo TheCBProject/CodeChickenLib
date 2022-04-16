@@ -10,7 +10,7 @@ import codechicken.lib.vec.Vector3;
  */
 public class NormalAttribute extends VertexAttribute<Vector3[]> {
 
-    public static final AttributeKey<Vector3[]> attributeKey = new AttributeKey<>("normal", Vector3[]::new);
+    public static final AttributeKey<Vector3[]> attributeKey = AttributeKey.create("normal", Vector3[]::new);
 
     private Vector3[] normalRef;
 
@@ -20,7 +20,7 @@ public class NormalAttribute extends VertexAttribute<Vector3[]> {
 
     @Override
     public boolean load(CCRenderState ccrs) {
-        normalRef = ccrs.model.getAttributes(attributeKey);
+        normalRef = ccrs.model.getAttribute(attributeKey);
         if (ccrs.model.hasAttribute(attributeKey)) {
             return normalRef != null;
         }

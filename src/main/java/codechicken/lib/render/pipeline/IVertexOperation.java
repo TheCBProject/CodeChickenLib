@@ -28,7 +28,7 @@ public interface IVertexOperation {
 
     /**
      * Get the unique id representing this type of operation. Duplicate operation IDs within the pipeline may have unexpected results.
-     * ID shoulld be obtained from CCRenderState.registerOperation() and stored in a static variable
+     * ID should be obtained from CCRenderState.registerOperation() and stored in a static variable
      */
     int operationID();
 

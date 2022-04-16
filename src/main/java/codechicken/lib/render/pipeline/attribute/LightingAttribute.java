@@ -9,7 +9,7 @@ import codechicken.lib.render.pipeline.VertexAttribute;
  */
 public class LightingAttribute extends VertexAttribute<int[]> {
 
-    public static final AttributeKey<int[]> attributeKey = new AttributeKey<>("lighting", int[]::new);
+    public static final AttributeKey<int[]> attributeKey = AttributeKey.create("lighting", int[]::new);
 
     private int[] colourRef;
 
@@ -23,7 +23,7 @@ public class LightingAttribute extends VertexAttribute<int[]> {
             return false;
         }
 
-        colourRef = ccrs.model.getAttributes(attributeKey);
+        colourRef = ccrs.model.getAttribute(attributeKey);
         if (colourRef != null) {
             ccrs.pipeline.addDependency(ccrs.colourAttrib);
             return true;

@@ -1,0 +1,15 @@
+# Blender 3.1.0 MTL File: 'None'
+# www.blender.org
+
+newmtl Material
+Ns 360.000000
+Ka 0.700000 0.600000 0.500000
+map_Ka ka.png
+Kd 0.800000 0.700000 0.600000
+map_Kd kd.png
+Ks 0.800000 0.700000 0.600000
+map_Ks ks.png
+Ke 0.100000 0.200000 0.300000
+Ni 1.450000
+d 1.500000
+illum 5

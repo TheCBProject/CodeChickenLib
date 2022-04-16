@@ -60,7 +60,7 @@ public class RenderUtils {
     }
 
     public static CCModel makeFluidModel(Cuboid6 bound, TextureAtlasSprite tex, double res) {
-        CCModel model = CCModel.newModel(GL11.GL_QUADS);
+        CCModel model = CCModel.newModel(VertexFormat.Mode.QUADS);
         List<Vertex5> verts = new ArrayList<>();
         makeFluidCuboid(verts, bound, tex, res);
         model.verts = verts.toArray(new Vertex5[0]);

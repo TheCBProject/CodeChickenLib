@@ -2,6 +2,7 @@ package codechicken.lib.render;
 
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -23,7 +24,7 @@ public class ModelHelper {
      * @return The new model.
      */
     public static CCModel quadulate(CCModel inModel) {
-        if (inModel.vertexMode == 7) {
+        if (inModel.vertexMode == VertexFormat.Mode.QUADS) {
             throw new IllegalArgumentException("Cannot quadulate a quad model. Check if the model is triangles before calling this");
         }
         List<Vertex5> verts = new LinkedList<>();

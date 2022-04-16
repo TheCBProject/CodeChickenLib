@@ -45,8 +45,8 @@ public class CCModelLibrary {
             quat.rotate(vec);
         }
 
-        icosahedron4 = CCModel.newModel(4, 60);
-        icosahedron7 = CCModel.newModel(7, 80);
+        icosahedron4 = CCModel.newModel(VertexFormat.Mode.TRIANGLES, 60);
+        icosahedron7 = CCModel.newModel(VertexFormat.Mode.QUADS, 80);
 
         i = 0;
         //top

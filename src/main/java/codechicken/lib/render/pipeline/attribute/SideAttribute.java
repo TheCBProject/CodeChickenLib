@@ -9,7 +9,7 @@ import codechicken.lib.util.VectorUtils;
  */
 public class SideAttribute extends VertexAttribute<int[]> {
 
-    public static final AttributeKey<int[]> attributeKey = new AttributeKey<int[]>("side", int[]::new);
+    public static final AttributeKey<int[]> attributeKey = AttributeKey.create("side", int[]::new);
 
     private int[] sideRef;
 
@@ -19,7 +19,7 @@ public class SideAttribute extends VertexAttribute<int[]> {
 
     @Override
     public boolean load(CCRenderState ccrs) {
-        sideRef = ccrs.model.getAttributes(attributeKey);
+        sideRef = ccrs.model.getAttribute(attributeKey);
         if (ccrs.model.hasAttribute(attributeKey)) {
             return sideRef != null;
         }

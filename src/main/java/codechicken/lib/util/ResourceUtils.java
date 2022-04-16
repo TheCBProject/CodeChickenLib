@@ -5,9 +5,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
+import net.minecraft.server.packs.resources.ResourceProvider;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * Created by covers1624 on 11/07/2017.
@@ -63,6 +68,23 @@ public class ResourceUtils {
      */
     public static void registerReloadListener(ResourceManagerReloadListener reloadListener) {
         getResourceManager().registerReloadListener(reloadListener);
+    }
+
+    /**
+     * Loads the given {@link ResourceLocation} with the given {@link ResourceProvider} into
+     * a list of UTF-8 Strings.
+     *
+     * @param resourceProvider The {@link ResourceProvider}.
+     * @param loc The {@link ResourceLocation}.
+     * @return
+     */
+    public static List<String> loadResource(ResourceProvider resourceProvider, ResourceLocation loc) {
+        try (Resource resource = resourceProvider.getResource(loc);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+            return reader.lines().toList();
+        } catch (IOException ex) {
+            throw new RuntimeException("Failed to load MTL file: " + loc, ex);
+        }
     }
 
 }

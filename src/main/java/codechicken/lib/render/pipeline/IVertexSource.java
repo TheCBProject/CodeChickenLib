@@ -3,6 +3,7 @@ package codechicken.lib.render.pipeline;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.attribute.AttributeKey;
 import codechicken.lib.vec.Vertex5;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by covers1624 on 10/10/2016.
@@ -17,15 +18,21 @@ public interface IVertexSource {
     Vertex5[] getVertices();
 
     /**
-     * Gets an array of vertex attributes
+     * Gets an attribute from this {@link IVertexSource}.
      *
      * @param attr The vertex attribute to get
-     * @return An array, or null if not computed
+     * @return The {@code T} for the given {@link AttributeKey}
+     * or {@code null} of the Attribute does not exist.
      */
-    <T> T getAttributes(AttributeKey<T> attr);
+    @Nullable <T> T getAttribute(AttributeKey<T> attr);
 
     /**
-     * @return True if the specified attribute is provided by this model, either by returning an array from getAttributes or by setting the state in prepareVertex
+     * Returns {@code true} if the specified attribute is provided by this {@link IVertexSource}.
+     * <p>
+     * The {@link IVertexSource} will either return data from {@link #getAttribute(AttributeKey)}
+     * or set the state in {@link #prepareVertex(CCRenderState)}.
+     *
+     * @return {@code true} if the attribute exists.
      */
     boolean hasAttribute(AttributeKey<?> attr);
 

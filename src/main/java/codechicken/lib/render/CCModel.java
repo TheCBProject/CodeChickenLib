@@ -2,42 +2,48 @@ package codechicken.lib.render;
 
 import codechicken.lib.render.lighting.LC;
 import codechicken.lib.render.lighting.LightModel;
+import codechicken.lib.render.model.ModelMaterial;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.render.pipeline.IVertexSource;
-import codechicken.lib.render.pipeline.VertexAttribute;
 import codechicken.lib.render.pipeline.attribute.*;
 import codechicken.lib.render.pipeline.attribute.AttributeKey.AttributeKeyRegistry;
-import codechicken.lib.util.ArrayUtils;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.VectorUtils;
 import codechicken.lib.vec.*;
 import codechicken.lib.vec.uv.UV;
 import codechicken.lib.vec.uv.UVTransformation;
 import codechicken.lib.vec.uv.UVTranslation;
-import net.covers1624.quack.util.SneakyUtils;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 import static codechicken.lib.vec.Rotation.sideRotations;
+import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 public class CCModel implements IVertexSource, Copyable<CCModel> {
 
-    public final int vertexMode;
+    public final VertexFormat.Mode vertexMode;
     public final int vp;
     public Vertex5[] verts;
     public ArrayList<Object> attributes = new ArrayList<>();
 
-    protected CCModel(int vertexMode) {
-        if (vertexMode != 7 && vertexMode != 4) {
-            throw new IllegalArgumentException("Models must be GL_QUADS or GL_TRIANGLES");
+    protected CCModel(VertexFormat.Mode vertexMode) {
+        if (vertexMode != VertexFormat.Mode.QUADS && vertexMode != VertexFormat.Mode.TRIANGLES) {
+            throw new IllegalArgumentException("Models must be QUADS or TRIANGLES");
         }
 
         this.vertexMode = vertexMode;
-        vp = vertexMode == 7 ? 4 : 3;
+        vp = vertexMode == VertexFormat.Mode.QUADS ? 4 : 3;
     }
 
     public Vector3[] normals() {
-        return getAttributes(NormalAttribute.attributeKey);
+        return getAttribute(NormalAttribute.attributeKey);
+    }
+
+    @Nullable
+    public ModelMaterial material() {
+        return getAttribute(ModelMaterial.MATERIAL_KEY);
     }
 
     @Override
@@ -46,9 +52,9 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
     }
 
     @Override
-    public <T> T getAttributes(AttributeKey<T> attr) {
+    public <T> T getAttribute(AttributeKey<T> attr) {
         if (attr.attributeKeyIndex < attributes.size()) {
-            return SneakyUtils.unsafeCast(attributes.get(attr.attributeKeyIndex));
+            return unsafeCast(attributes.get(attr.attributeKeyIndex));
         }
         return null;
     }
@@ -62,15 +68,48 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
     public void prepareVertex(CCRenderState ccrs) {
     }
 
+    /**
+     * Gets an attribute.
+     * <p>
+     * If the model doesn't have this attribute, a new storage will be created
+     * and set.
+     *
+     * @param attr The attribute to get.
+     * @return The value.
+     */
     public <T> T getOrAllocate(AttributeKey<T> attr) {
-        T array = getAttributes(attr);
-        if (array == null) {
+        T value = getAttribute(attr);
+        if (value == null) {
+            allocateAttr(attr);
+            attributes.set(attr.attributeKeyIndex, value = attr.createDefault(verts.length));
+        }
+        return value;
+    }
+
+    /**
+     * Set an attribute.
+     *
+     * @param attr  The attribute to set.
+     * @param value The value to set.
+     */
+    public <T> void setAttribute(AttributeKey<T> attr, @Nullable T value) {
+        allocateAttr(attr);
+        attributes.set(attr.attributeKeyIndex, value);
+
+    }
+
+    /**
+     * Ensires the specified {@link AttributeKey}'s index
+     * is available in the {@link #attributes} list.
+     *
+     * @param attr The attribute key.
+     */
+    private void allocateAttr(AttributeKey<?> attr) {
+        if (attr.attributeKeyIndex >= attributes.size()) {
             while (attributes.size() <= attr.attributeKeyIndex) {
                 attributes.add(null);
             }
-            attributes.set(attr.attributeKeyIndex, array = attr.newArray(verts.length));
         }
-        return array;
     }
 
     /**
@@ -308,7 +347,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
      */
     public CCModel computeLighting(LightModel light) {
         Vector3[] normals = normals();
-        int[] colours = getAttributes(LightingAttribute.attributeKey);
+        int[] colours = getAttribute(LightingAttribute.attributeKey);
         if (colours == null) {
             colours = getOrAllocate(LightingAttribute.attributeKey);
             Arrays.fill(colours, -1);
@@ -407,7 +446,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
         verts = Arrays.copyOf(verts, newLen);
         for (int i = 0; i < attributes.size(); i++) {
             if (attributes.get(i) != null) {
-                attributes.set(i, VertexAttribute.copyOf(AttributeKeyRegistry.getAttributeKey(i), attributes.get(i), newLen));
+                attributes.set(i, AttributeKeyRegistry.getAttributeKey(i).copy(attributes.get(i), newLen));
             }
         }
 
@@ -443,25 +482,25 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
     }
 
     public static CCModel quadModel(int numVerts) {
-        return newModel(7, numVerts);
+        return newModel(VertexFormat.Mode.QUADS, numVerts);
     }
 
     public static CCModel triModel(int numVerts) {
-        return newModel(4, numVerts);
+        return newModel(VertexFormat.Mode.TRIANGLES, numVerts);
     }
 
-    public static CCModel newModel(int vertexMode, int numVerts) {
+    public static CCModel newModel(VertexFormat.Mode vertexMode, int numVerts) {
         CCModel model = newModel(vertexMode);
         model.verts = new Vertex5[numVerts];
         return model;
     }
 
-    public static CCModel newModel(int vertexMode) {
+    public static CCModel newModel(VertexFormat.Mode vertexMode) {
         return new CCModel(vertexMode);
     }
 
-    public static CCModel createModel(List<Vector3> verts, List<Vector3> uvs, List<Vector3> normals, int vertexMode, List<int[]> polys) {
-        int vp = vertexMode == 7 ? 4 : 3;
+    public static CCModel createModel(List<Vector3> verts, List<Vector3> uvs, List<Vector3> normals, VertexFormat.Mode vertexMode, List<int[]> polys) {
+        int vp = vertexMode == VertexFormat.Mode.QUADS ? 4 : 3;
         if (polys.size() < vp || polys.size() % vp != 0) {
             throw new IllegalArgumentException("Invalid number of vertices for model: " + polys.size());
         }
@@ -520,7 +559,17 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
     }
 
     /**
-     * Copies length vertices and normals
+     * Copies a range of vertices and attributes form one model to another.
+     * <p>
+     * This will deeply copy all vertex data and attributes.
+     * {@link ModelMaterial} attributes will only be copied to the destination model
+     * if the provided {@code srcpos} and {@code destpos} are {@code 0}.
+     *
+     * @param src     The source model.
+     * @param srcpos  The index in the source model to copy from.
+     * @param dst     The destination model.
+     * @param destpos The index in the destination model to copy to.
+     * @param length  The number of vertices to copy.
      */
     public static void copy(CCModel src, int srcpos, CCModel dst, int destpos, int length) {
         for (int k = 0; k < length; k++) {
@@ -529,7 +578,15 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
 
         for (int i = 0; i < src.attributes.size(); i++) {
             if (src.attributes.get(i) != null) {
-                ArrayUtils.arrayCopy(src.attributes.get(i), srcpos, dst.getOrAllocate(AttributeKeyRegistry.getAttributeKey(i)), destpos, length);
+                AttributeKey<?> key = AttributeKeyRegistry.getAttributeKey(i);
+                dst.allocateAttr(key);
+                dst.attributes.set(i, key.copyRange(
+                        unsafeCast(src.attributes.get(i)),
+                        srcpos,
+                        unsafeCast(dst.getOrAllocate(key)),
+                        destpos,
+                        length
+                ));
             }
         }
     }
@@ -592,7 +649,14 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
             dst.verts[di] = src.verts[si].copy();
             for (int a = 0; a < src.attributes.size(); a++) {
                 if (src.attributes.get(a) != null) {
-                    ArrayUtils.arrayCopy(src.attributes.get(a), si, dst.getOrAllocate(AttributeKeyRegistry.getAttributeKey(a)), di, 1);
+                    AttributeKey<?> key = AttributeKeyRegistry.getAttributeKey(a);
+                    dst.attributes.set(a, key.copyRange(
+                            unsafeCast(src.attributes.get(a)),
+                            si,
+                            unsafeCast(dst.getOrAllocate(key)),
+                            di,
+                            1
+                    ));
                 }
             }
 
@@ -672,15 +736,25 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
         return this;
     }
 
+    /**
+     * Combines the given models together.
+     * <p>
+     * This will deeply copy all vertices and attributes.
+     * The returned model will have the {@link ModelMaterial}
+     * of the first provided Model.
+     *
+     * @param models The Models.
+     * @return The combined model.
+     */
     public static CCModel combine(Collection<CCModel> models) {
         if (models.isEmpty()) {
             return null;
         }
 
         int numVerts = 0;
-        int vertexMode = -1;
+        VertexFormat.Mode vertexMode = null;
         for (CCModel model : models) {
-            if (vertexMode == -1) {
+            if (vertexMode == null) {
                 vertexMode = model.vertexMode;
             }
             if (vertexMode != model.vertexMode) {
@@ -706,6 +780,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
         return generateBackface(model, 0, model, verts.length, verts.length);
     }
 
+    @Override
     public CCModel copy() {
         CCModel model = newModel(vertexMode, verts.length);
         copy(this, 0, model, 0, verts.length);
@@ -729,24 +804,12 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
             Vertex5 vert = verts[k];
             Vector3 normal = normals()[k];
             switch (VectorUtils.findSide(normal)) {
-                case 0:
-                    vert.vec.y += offsets.min.y;
-                    break;
-                case 1:
-                    vert.vec.y += offsets.max.y;
-                    break;
-                case 2:
-                    vert.vec.z += offsets.min.z;
-                    break;
-                case 3:
-                    vert.vec.z += offsets.max.z;
-                    break;
-                case 4:
-                    vert.vec.x += offsets.min.x;
-                    break;
-                case 5:
-                    vert.vec.x += offsets.max.x;
-                    break;
+                case 0 -> vert.vec.y += offsets.min.y;
+                case 1 -> vert.vec.y += offsets.max.y;
+                case 2 -> vert.vec.z += offsets.min.z;
+                case 3 -> vert.vec.z += offsets.max.z;
+                case 4 -> vert.vec.x += offsets.min.x;
+                case 5 -> vert.vec.x += offsets.max.x;
             }
         }
         return this;
