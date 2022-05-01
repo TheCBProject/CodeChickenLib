@@ -65,5 +65,11 @@ public interface ConfigValue extends ConfigTag {
     Restriction getRestriction();
 
     @Override
+    ConfigValue setComment(String comment);
+
+    @Override
+    ConfigValue setComment(String... comment);
+
+    @Override
     ConfigValue setComment(List<String> comment);
 }

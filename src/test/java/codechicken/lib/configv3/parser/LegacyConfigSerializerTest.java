@@ -1,6 +1,7 @@
 package codechicken.lib.configv3.parser;
 
 import codechicken.lib.configv3.ConfigCategoryImpl;
+import codechicken.lib.configv3.ConfigFile;
 import codechicken.lib.test.config.ConfigTests;
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +32,19 @@ public class LegacyConfigSerializerTest {
 
         new LegacyConfigSerializer().save(dest, rootTag);
         // TODO Re-parse dest and compare to rootTag.
+    }
+
+    @Test
+    public void testThroughConfigFile() throws Throwable {
+        Path file = Files.createTempFile("temp", ".cfg");
+        file.toFile().deleteOnExit();
+        copyTestFile(file);
+
+        ConfigFile cFile = ConfigFile.builder("rootTag")
+                .path(file)
+                .load();
+
+        assertNotEquals(0, cFile.getChildren().size());
     }
 
     private static void copyTestFile(Path dst) throws Throwable {

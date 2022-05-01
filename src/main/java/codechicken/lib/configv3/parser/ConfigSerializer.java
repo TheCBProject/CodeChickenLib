@@ -10,6 +10,8 @@ import java.nio.file.Path;
  */
 public interface ConfigSerializer {
 
+    ConfigSerializer LEGACY = new LegacyConfigSerializer();
+
     void parse(Path file, ConfigCategoryImpl rootTag) throws IOException;
 
     void save(Path file, ConfigCategoryImpl tag) throws IOException;

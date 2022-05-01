@@ -113,5 +113,11 @@ public interface ConfigCategory extends ConfigTag {
     void clear();
 
     @Override
+    ConfigCategory setComment(String comment);
+
+    @Override
+    ConfigCategory setComment(String... comment);
+
+    @Override
     ConfigCategory setComment(List<String> comment);
 }
