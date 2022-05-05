@@ -119,10 +119,29 @@ public class ConfigCategoryImpl extends AbstractConfigTag<ConfigCategory> implem
     }
 
     @Override
+    public ConfigCategory syncTagToClient() {
+        for (AbstractConfigTag<?> child : tagMap.values()) {
+            child.syncTagToClient();
+        }
+
+        return super.syncTagToClient();
+    }
+
+    @Override
+    public boolean requiresClientSync() {
+        for (AbstractConfigTag<?> child : tagMap.values()) {
+            if (child.requiresClientSync()) {
+                return true;
+            }
+        }
+        return super.requiresClientSync();
+    }
+
+    @Override
     public void runSync(ConfigCallback.Reason reason) {
         super.runSync(reason);
-        for (AbstractConfigTag<?> value : tagMap.values()) {
-            value.runSync(reason);
+        for (AbstractConfigTag<?> child : tagMap.values()) {
+            child.runSync(reason);
         }
     }
 

@@ -62,6 +62,9 @@ public interface ConfigValueList extends ConfigTag {
 
     ConfigValueList setDefaultDoubles(List<Double> values);
 
+    @Override
+    ConfigValueList syncTagToClient();
+
     ConfigValueList onSync(ConfigCallback<ConfigValueList> callback);
 
     @Override

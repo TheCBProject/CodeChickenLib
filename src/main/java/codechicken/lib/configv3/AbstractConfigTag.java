@@ -18,11 +18,15 @@ public abstract class AbstractConfigTag<T extends ConfigTag> implements ConfigTa
     private final ConfigCategory parent;
     protected boolean dirty;
     protected List<String> comment = List.of();
+    protected boolean syncToClient = false;
     private final List<ConfigCallback<T>> onModifiedCallbacks = new LinkedList<>();
 
     protected AbstractConfigTag(String name, @Nullable ConfigCategoryImpl parent) {
         this.name = name;
         this.parent = parent;
+        if (parent != null && parent.syncToClient) {
+            syncToClient = true;
+        }
     }
 
     @Override
@@ -61,6 +65,18 @@ public abstract class AbstractConfigTag<T extends ConfigTag> implements ConfigTa
     public T onSync(ConfigCallback<T> callback) {
         onModifiedCallbacks.add(callback);
         return unsafeCast(this);
+    }
+
+    @Override
+    public T syncTagToClient() {
+        syncToClient = true;
+
+        return unsafeCast(this);
+    }
+
+    @Override
+    public boolean requiresClientSync() {
+        return syncToClient;
     }
 
     @Override

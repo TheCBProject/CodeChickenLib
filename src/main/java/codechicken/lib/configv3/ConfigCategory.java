@@ -112,6 +112,9 @@ public interface ConfigCategory extends ConfigTag {
      */
     void clear();
 
+    @Override
+    ConfigCategory syncTagToClient();
+
     ConfigCategory onSync(ConfigCallback<ConfigCategory> callback);
 
     @Override

@@ -648,6 +648,67 @@ public class ConfigV3Tests {
     }
 
     @Test
+    public void testRequiresClientSync() {
+        ConfigCategoryImpl root = new ConfigCategoryImpl("rootTag", null);
+
+        assertFalse(root.requiresClientSync());
+
+        {
+            ConfigCategory cat1 = root.getCategory("cat1");
+            assertFalse(root.requiresClientSync());
+            assertFalse(cat1.requiresClientSync());
+
+            ConfigValue sync1 = cat1.getValue("sync1").setString("ABC").syncTagToClient();
+            ConfigValue sync2 = cat1.getValue("sync2").setString("ABC").syncTagToClient();
+
+            assertTrue(root.requiresClientSync());
+            assertTrue(cat1.requiresClientSync());
+            assertTrue(sync1.requiresClientSync());
+            assertTrue(sync2.requiresClientSync());
+        }
+
+        {
+            ConfigCategory cat2 = root.getCategory("cat2").syncTagToClient();
+            ConfigValue sync3 = cat2.getValue("sync3").setString("ABC");
+            ConfigValue sync4 = cat2.getValue("sync4").setString("ABC");
+
+            assertTrue(root.requiresClientSync());
+            assertTrue(cat2.requiresClientSync());
+            assertTrue(sync3.requiresClientSync());
+            assertTrue(sync4.requiresClientSync());
+        }
+
+        {
+            ConfigCategory cat3 = root.getCategory("cat3");
+            ConfigValue sync5 = cat3.getValue("sync5").setString("ABC");
+            ConfigValue sync6 = cat3.getValue("sync6").setString("ABC");
+
+            assertTrue(root.requiresClientSync());
+            assertFalse(cat3.requiresClientSync());
+            assertFalse(sync5.requiresClientSync());
+            assertFalse(sync6.requiresClientSync());
+
+            cat3.syncTagToClient();
+
+            assertTrue(root.requiresClientSync());
+            assertTrue(cat3.requiresClientSync());
+            assertTrue(sync5.requiresClientSync());
+            assertTrue(sync6.requiresClientSync());
+        }
+
+        {
+            ConfigCategory cat4 = root.getCategory("cat4");
+            ConfigValue nosync1 = cat4.getValue("nosync1").setString("ABC");
+            ConfigValue nosync2 = cat4.getValue("nosync2").setString("ABC");
+
+            assertTrue(root.requiresClientSync());
+            assertFalse(cat4.requiresClientSync());
+            assertFalse(nosync1.requiresClientSync());
+            assertFalse(nosync2.requiresClientSync());
+        }
+    }
+
+    @Test
     public void testSyncCallbacks() {
         ConfigCategory root = new ConfigCategoryImpl("rootTag", null);
 

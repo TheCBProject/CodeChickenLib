@@ -69,6 +69,19 @@ public interface ConfigTag {
     List<String> getComment();
 
     /**
+     * Sets this tag as requiring syncing to the client.
+     * // TODO note how to register for this.
+     */
+    ConfigTag syncTagToClient();
+
+    /**
+     * Checks if this tag or any of its children require client sync.
+     *
+     * @return If client sync is required.
+     */
+    boolean requiresClientSync();
+
+    /**
      * Manually trigger all registered {@link ConfigCallback}'s in the tree.
      *
      * @see ConfigValueList#onSync(ConfigCallback)

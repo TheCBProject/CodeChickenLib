@@ -64,6 +64,9 @@ public interface ConfigValue extends ConfigTag {
     @Nullable
     Restriction getRestriction();
 
+    @Override
+    ConfigValue syncTagToClient();
+
     ConfigValue onSync(ConfigCallback<ConfigValue> callback);
 
     @Override
