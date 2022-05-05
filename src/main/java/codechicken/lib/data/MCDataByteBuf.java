@@ -54,15 +54,6 @@ public class MCDataByteBuf implements MCDataInput, MCDataOutput {
         return fromTag(tag.get(key));
     }
 
-//    public ClientboundBlockEntityDataPacket toTilePacket(BlockPos pos) {
-//        return new ClientboundBlockEntityDataPacket(pos, writeToNBT(new CompoundTag(), "data"));
-//    }
-
-//    @OnlyIn (Dist.CLIENT)
-//    public static MCDataByteBuf fromTilePacket(SUpdateTileEntityPacket tilePacket) {
-//        return fromTag(tilePacket.getTag().get("data"));
-//    }
-
     //@formatter:off
     @Override public byte readByte() { return buf.readByte(); }
     @Override public short readUByte() { return buf.readUnsignedByte(); }
