@@ -1,7 +1,6 @@
-package codechicken.lib.configv3.parser;
+package codechicken.lib.configv3;
 
-import codechicken.lib.configv3.ConfigCategoryImpl;
-import codechicken.lib.configv3.ConfigFile;
+import codechicken.lib.configv3.parser.LegacyConfigSerializer;
 import codechicken.lib.test.config.ConfigTests;
 import org.junit.jupiter.api.Test;
 
@@ -40,11 +39,11 @@ public class LegacyConfigSerializerTest {
         file.toFile().deleteOnExit();
         copyTestFile(file);
 
-        ConfigFile cFile = ConfigFile.builder("rootTag")
+        ConfigCategory config = new ConfigFile("rootTag")
                 .path(file)
                 .load();
 
-        assertNotEquals(0, cFile.getChildren().size());
+        assertNotEquals(0, config.getChildren().size());
     }
 
     private static void copyTestFile(Path dst) throws Throwable {
