@@ -1,5 +1,6 @@
 package codechicken.lib.configv3;
 
+import codechicken.lib.configv3.parser.ConfigSerializer;
 import codechicken.lib.configv3.parser.LegacyConfigSerializer;
 import codechicken.lib.test.config.ConfigTests;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by covers1624 on 21/4/22.
@@ -17,20 +19,24 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 public class LegacyConfigSerializerTest {
 
     @Test
-    public void testParse() throws Throwable {
-        Path file = Files.createTempFile("temp", ".cfg");
-        file.toFile().deleteOnExit();
-        copyTestFile(file);
+    public void testParseSerializeRondTrip() throws Throwable {
+        Path dir = Files.createTempDirectory("config_test");
+        dir.toFile().deleteOnExit();
 
-        Path dest = Files.createTempFile("temp", ".cfg");
-        dest.toFile().deleteOnExit();
+        Path initial = dir.resolve("initial.cfg");
+        Path written = dir.resolve("written.cfg");
+        copyTestFile(initial);
 
         ConfigCategoryImpl rootTag = new ConfigCategoryImpl("rootTag", null);
-        new LegacyConfigSerializer().parse(file, rootTag);
+        ConfigSerializer.LEGACY.parse(initial, rootTag);
         assertNotEquals(0, rootTag.getChildren().size());
 
-        new LegacyConfigSerializer().save(dest, rootTag);
-        // TODO Re-parse dest and compare to rootTag.
+        ConfigSerializer.LEGACY.save(written, rootTag);
+
+        ConfigCategoryImpl readRoot = new ConfigCategoryImpl("rootTag", null);
+        ConfigSerializer.LEGACY.parse(written, readRoot);
+
+        assertTrue(ConfigV3Tests.equals(rootTag, readRoot));
     }
 
     @Test

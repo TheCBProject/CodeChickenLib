@@ -173,14 +173,16 @@ public class LegacyConfigSerializer implements ConfigSerializer {
                 writeLine(writer, depth - 1, "}");
             }
         } else if (tag instanceof ConfigValue val) {
-            switch (val.getType()) {
-                case STRING -> writeLine(writer, depth, "%s:\"%s\"=\"%s\"", 'S', val.getName(), val.getString());
-                case BOOLEAN -> writeLine(writer, depth, "%s:\"%s\"=%s", 'B', val.getName(), val.getBoolean());
-                case INT -> writeLine(writer, depth, "%s:\"%s\"=%s", 'I', val.getName(), val.getInt());
-                case LONG -> writeLine(writer, depth, "%s:\"%s\"=%s", 'L', val.getName(), val.getLong());
-                case HEX -> writeLine(writer, depth, "%s:\"%s\"=%s", 'B', val.getName(), toString(val.getHex(), ValueType.HEX));
-                case DOUBLE -> writeLine(writer, depth, "%s:\"%s\"=%s", 'D', val.getName(), val.getDouble());
-            }
+            Object value = switch (val.getType()) {
+                case UNKNOWN -> throw new UnsupportedOperationException("Tried to serialize UNKNOWN tag.");
+                case STRING -> "\"" + val.getString() + "\"";
+                case BOOLEAN -> val.getBoolean();
+                case INT -> val.getInt();
+                case LONG -> val.getLong();
+                case HEX -> val.getHex();
+                case DOUBLE -> val.getDouble();
+            };
+            writeLine(writer, depth, "%s:\"%s\"=%s", charLookup.getChar(val.getType()), val.getName(), toString(value, val.getType()));
         } else if (tag instanceof ConfigValueList list) {
             List<?> lst = switch (list.getType()) {
                 case UNKNOWN -> throw new IllegalStateException("Unable to reach branch.");
