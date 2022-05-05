@@ -1,5 +1,6 @@
 package codechicken.lib.configv3;
 
+import codechicken.lib.configv3.ConfigCallback.Reason;
 import codechicken.lib.configv3.ConfigValueListImpl.StringList;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
@@ -644,6 +645,77 @@ public class ConfigV3Tests {
         list.setDefaultInts(List.of(1, 2, 3, 4));
         list.setValue(List.of("potato1", "potato2", "potato3", "potato4"));
         assertEquals(List.of(1, 2, 3, 4), list.getInts());
+    }
+
+    @Test
+    public void testSyncCallbacks() {
+        ConfigCategory root = new ConfigCategoryImpl("rootTag", null);
+
+        ConfigCategory cat = root.getCategory("cat1");
+        ConfigValueList list = cat.getValueList("list1");
+        ConfigValue val1 = cat.getValue("val1");
+
+        boolean[] wasCallbackFired = { false, false, false, false };
+        root.onSync((tag, reason) -> {
+            assertEquals(root, tag);
+            assertEquals(reason, Reason.MANUAL);
+            wasCallbackFired[0] = true;
+        });
+        cat.onSync((tag, reason) -> {
+            assertEquals(cat, tag);
+            assertEquals(reason, Reason.MANUAL);
+            wasCallbackFired[1] = true;
+        });
+        list.onSync((tag, reason) -> {
+            assertEquals(list, tag);
+            assertEquals(reason, Reason.MANUAL);
+            wasCallbackFired[2] = true;
+        });
+        val1.onSync((tag, reason) -> {
+            assertEquals(val1, tag);
+            assertEquals(reason, Reason.MANUAL);
+            wasCallbackFired[3] = true;
+        });
+        root.forceSync();
+
+        assertTrue(wasCallbackFired[0]);
+        assertTrue(wasCallbackFired[1]);
+        assertTrue(wasCallbackFired[2]);
+        assertTrue(wasCallbackFired[3]);
+    }
+
+    @Test
+    public void testSyncCallbacksPartial() {
+        ConfigCategory root = new ConfigCategoryImpl("rootTag", null);
+
+        ConfigCategory cat = root.getCategory("cat1");
+        ConfigValueList list = cat.getValueList("list1");
+        ConfigValue val1 = cat.getValue("val1");
+
+        boolean[] wasCallbackFired = { false, false, false };
+        root.onSync((tag, reason) -> {
+            fail("Callback should not have been fired.");
+        });
+        cat.onSync((tag, reason) -> {
+            assertEquals(cat, tag);
+            assertEquals(reason, Reason.MANUAL);
+            wasCallbackFired[0] = true;
+        });
+        list.onSync((tag, reason) -> {
+            assertEquals(list, tag);
+            assertEquals(reason, Reason.MANUAL);
+            wasCallbackFired[1] = true;
+        });
+        val1.onSync((tag, reason) -> {
+            assertEquals(val1, tag);
+            assertEquals(reason, Reason.MANUAL);
+            wasCallbackFired[2] = true;
+        });
+        cat.forceSync();
+
+        assertTrue(wasCallbackFired[0]);
+        assertTrue(wasCallbackFired[1]);
+        assertTrue(wasCallbackFired[2]);
     }
 
     private void assertIdentityConversion(Object object, ValueType type) {

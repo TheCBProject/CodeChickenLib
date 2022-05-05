@@ -62,6 +62,8 @@ public interface ConfigValueList extends ConfigTag {
 
     ConfigValueList setDefaultDoubles(List<Double> values);
 
+    ConfigValueList onSync(ConfigCallback<ConfigValueList> callback);
+
     @Override
     ConfigValueList setComment(String comment);
 

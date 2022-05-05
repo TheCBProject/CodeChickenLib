@@ -3,6 +3,7 @@ package codechicken.lib.configv3;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
@@ -17,6 +18,7 @@ public abstract class AbstractConfigTag<T extends ConfigTag> implements ConfigTa
     private final ConfigCategory parent;
     protected boolean dirty;
     protected List<String> comment = List.of();
+    private final List<ConfigCallback<T>> onModifiedCallbacks = new LinkedList<>();
 
     protected AbstractConfigTag(String name, @Nullable ConfigCategory parent) {
         this.name = name;
@@ -54,6 +56,22 @@ public abstract class AbstractConfigTag<T extends ConfigTag> implements ConfigTa
     @Override
     public final List<String> getComment() {
         return comment;
+    }
+
+    public T onSync(ConfigCallback<T> callback) {
+        onModifiedCallbacks.add(callback);
+        return unsafeCast(this);
+    }
+
+    @Override
+    public void forceSync() {
+        runSync(ConfigCallback.Reason.MANUAL);
+    }
+
+    public void runSync(ConfigCallback.Reason reason) {
+        for (ConfigCallback<T> callback : onModifiedCallbacks) {
+            callback.onSync(unsafeCast(this), reason);
+        }
     }
 
     @Override

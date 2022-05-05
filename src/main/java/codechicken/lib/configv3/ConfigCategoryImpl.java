@@ -122,6 +122,14 @@ public class ConfigCategoryImpl extends AbstractConfigTag<ConfigCategory> implem
     }
 
     @Override
+    public void runSync(ConfigCallback.Reason reason) {
+        super.runSync(reason);
+        for (AbstractConfigTag<?> value : tagMap.values()) {
+            value.runSync(reason);
+        }
+    }
+
+    @Override
     public boolean isDirty() {
         return super.isDirty() || StreamableIterable.of(getChildren()).anyMatch(ConfigTag::isDirty);
     }

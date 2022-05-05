@@ -112,6 +112,8 @@ public interface ConfigCategory extends ConfigTag {
      */
     void clear();
 
+    ConfigCategory onSync(ConfigCallback<ConfigCategory> callback);
+
     @Override
     ConfigCategory setComment(String comment);
 

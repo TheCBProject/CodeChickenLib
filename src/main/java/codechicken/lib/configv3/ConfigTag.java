@@ -69,6 +69,15 @@ public interface ConfigTag {
     List<String> getComment();
 
     /**
+     * Manually trigger all registered {@link ConfigCallback}'s in the tree.
+     *
+     * @see ConfigValueList#onSync(ConfigCallback)
+     * @see ConfigCategory#onSync(ConfigCallback)
+     * @see ConfigValue#onSync(ConfigCallback)
+     */
+    void forceSync();
+
+    /**
      * Saves the config to disk if any values have changed.
      * <p>
      * This does not save a specific {@link ConfigTag} this

@@ -42,14 +42,16 @@ public class ConfigFile implements ConfigCategory {
     @Override public ConfigValueList getValueList(String name) { return rootTag.getValueList(name); }
     @Nullable @Override public ConfigValueList findValueList(String name) { return rootTag.findValueList(name); }
     @Override public Collection<ConfigTag> getChildren() { return rootTag.getChildren(); }
-    @Override public ConfigCategory delete(String name) { return rootTag.delete(name); }
+    @Override public ConfigCategory delete(String name) { rootTag.delete(name); return this; }
     @Override public void clear() { rootTag.clear(); }
+    @Override public ConfigCategory onSync(ConfigCallback<ConfigCategory> callback) { rootTag.onSync(callback); return this; }
     @Override public String getName() { return rootTag.getName(); }
     @Nullable @Override public ConfigCategory getParent() { return rootTag.getParent(); }
-    @Override public ConfigCategory setComment(String comment) { return rootTag.setComment(comment); }
-    @Override public ConfigCategory setComment(String... comment) { return rootTag.setComment(comment); }
-    @Override public ConfigCategory setComment(List<String> comment) { return rootTag.setComment(comment); }
+    @Override public ConfigCategory setComment(String comment) { rootTag.setComment(comment); return this; }
+    @Override public ConfigCategory setComment(String... comment) { rootTag.setComment(comment); return this; }
+    @Override public ConfigCategory setComment(List<String> comment) { rootTag.setComment(comment); return this; }
     @Override public List<String> getComment() { return rootTag.getComment(); }
+    @Override public void forceSync() { rootTag.forceSync(); }
     @Override public boolean isDirty() { return rootTag.isDirty(); }
     @Override public void reset() { rootTag.reset(); }
     // @formatter:on
