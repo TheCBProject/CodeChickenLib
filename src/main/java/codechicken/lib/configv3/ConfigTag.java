@@ -115,4 +115,15 @@ public interface ConfigTag {
      * descendant values to their default.
      */
     void reset();
+
+    /**
+     * Creates a deep clone of this {@link ConfigTag}.
+     * <p>
+     * If this is called on a child tag, it will split from its parent.
+     * <p>
+     * Does not keep callbacks.
+     *
+     * @return The deep copied tag.
+     */
+    ConfigTag copy();
 }

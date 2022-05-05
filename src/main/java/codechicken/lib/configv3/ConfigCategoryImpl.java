@@ -3,10 +3,7 @@ package codechicken.lib.configv3;
 import net.covers1624.quack.collection.StreamableIterable;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
@@ -17,7 +14,7 @@ public class ConfigCategoryImpl extends AbstractConfigTag<ConfigCategory> implem
 
     private final Map<String, AbstractConfigTag<?>> tagMap = new LinkedHashMap<>();
 
-    public ConfigCategoryImpl(String name, @Nullable ConfigCategory parent) {
+    public ConfigCategoryImpl(String name, @Nullable ConfigCategoryImpl parent) {
         super(name, parent);
     }
 
@@ -140,5 +137,18 @@ public class ConfigCategoryImpl extends AbstractConfigTag<ConfigCategory> implem
         for (AbstractConfigTag<?> child : tagMap.values()) {
             child.clearDirty();
         }
+    }
+
+    @Override
+    public ConfigCategoryImpl copy(@Nullable ConfigCategoryImpl parent) {
+        ConfigCategoryImpl clone = new ConfigCategoryImpl(getName(), parent);
+        clone.setComment(List.copyOf(getComment()));
+        clone.syncToClient = syncToClient;
+
+        for (Map.Entry<String, AbstractConfigTag<?>> entry : tagMap.entrySet()) {
+            clone.tagMap.put(entry.getKey(), entry.getValue().copy(clone));
+        }
+
+        return clone;
     }
 }

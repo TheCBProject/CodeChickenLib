@@ -20,7 +20,7 @@ public abstract class AbstractConfigTag<T extends ConfigTag> implements ConfigTa
     protected List<String> comment = List.of();
     private final List<ConfigCallback<T>> onModifiedCallbacks = new LinkedList<>();
 
-    protected AbstractConfigTag(String name, @Nullable ConfigCategory parent) {
+    protected AbstractConfigTag(String name, @Nullable ConfigCategoryImpl parent) {
         this.name = name;
         this.parent = parent;
     }
@@ -83,4 +83,11 @@ public abstract class AbstractConfigTag<T extends ConfigTag> implements ConfigTa
     public void clearDirty() {
         dirty = false;
     }
+
+    @Override
+    public ConfigTag copy() {
+        return copy(null);
+    }
+
+    public abstract AbstractConfigTag<T> copy(@Nullable ConfigCategoryImpl parent);
 }

@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -23,7 +24,7 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     @Nullable
     private Restriction restriction;
 
-    public ConfigValueImpl(String name, ConfigCategory parent) {
+    public ConfigValueImpl(String name, @Nullable ConfigCategoryImpl parent) {
         super(name, parent);
     }
 
@@ -381,8 +382,20 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     public void reset() {
         if (defaultValue != null) {
             value = null;
-            // TODO set pending change counter for onChange callbacks?
+            dirty = true;
         }
+    }
+
+    @Override
+    public AbstractConfigTag<ConfigValue> copy(@Nullable ConfigCategoryImpl parent) {
+        ConfigValueImpl clone = new ConfigValueImpl(getName(), parent);
+        clone.comment = List.copyOf(comment);
+        clone.defaultValue = defaultValue;
+        clone.value = value;
+        clone.type = type;
+        clone.restriction = restriction;
+
+        return clone;
     }
 
     public ConfigValue setValue(Object value) {

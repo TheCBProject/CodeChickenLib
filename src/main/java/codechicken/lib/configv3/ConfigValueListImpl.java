@@ -37,7 +37,7 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
     private List<?> value = null;
     private ValueType type = ValueType.UNKNOWN;
 
-    public ConfigValueListImpl(String name, @Nullable ConfigCategory parent) {
+    public ConfigValueListImpl(String name, @Nullable ConfigCategoryImpl parent) {
         super(name, parent);
     }
 
@@ -266,8 +266,19 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
     public void reset() {
         if (defaultValue != null) {
             value = null;
-            // TODO set pending change counter for onChange callbacks?
+            dirty = true;
         }
+    }
+
+    @Override
+    public AbstractConfigTag<ConfigValueList> copy(@Nullable ConfigCategoryImpl parent) {
+        ConfigValueListImpl clone = new ConfigValueListImpl(getName(), parent);
+        clone.comment = List.copyOf(comment);
+        clone.defaultValue = defaultValue != null ? List.copyOf(defaultValue) : null;
+        clone.value = value != null ? List.copyOf(value) : null;
+        clone.type = type;
+
+        return clone;
     }
 
     public ConfigValueList setValue(List<?> value) {

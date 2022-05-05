@@ -718,6 +718,51 @@ public class ConfigV3Tests {
         assertTrue(wasCallbackFired[2]);
     }
 
+    @Test
+    public void testCopy() {
+        ConfigCategoryImpl root = new ConfigCategoryImpl("rootTag", null);
+
+        ConfigCategory valueCat = root.getCategory("valueCat");
+        ConfigValue val1 = valueCat.getValue("val1")
+                .setBoolean(true);
+
+        ConfigValue val2 = valueCat.getValue("val2")
+                .setString("Hello, World");
+
+        ConfigValue val3 = valueCat.getValue("val3")
+                .setInt(22);
+
+        ConfigValue val4 = valueCat.getValue("val4")
+                .setLong(44L);
+
+        ConfigValue val5 = valueCat.getValue("val5")
+                .setHex(0xFFFFFFFF);
+
+        ConfigValue val6 = valueCat.getValue("val6")
+                .setDouble(4.20);
+
+        ConfigCategory listCat = root.getCategory("listCat");
+        ConfigValueList list1 = listCat.getValueList("list1")
+                .setBooleans(new BooleanArrayList(List.of(true, false)));
+
+        ConfigValueList list2 = listCat.getValueList("list2")
+                .setStrings(List.of("Hello", "World"));
+
+        ConfigValueList list3 = listCat.getValueList("list3")
+                .setInts(new IntArrayList(List.of(22, 222)));
+
+        ConfigValueList list4 = listCat.getValueList("list4")
+                .setLongs(new LongArrayList(List.of(44L, 444L)));
+
+        ConfigValueList list5 = listCat.getValueList("list5")
+                .setHexs(new IntArrayList(List.of(0xFFFFFFFF, 0xFF00FF00)));
+
+        ConfigValueList list6 = listCat.getValueList("list6")
+                .setDoubles(new DoubleArrayList(List.of(4.20, 6.9)));
+
+        assertTrue(equals(root, root.copy()));
+    }
+
     private void assertIdentityConversion(Object object, ValueType type) {
         assertSame(object, ConfigValueImpl.convert(object, type));
     }
@@ -739,5 +784,65 @@ public class ConfigV3Tests {
     private void assertHasNoDefault(Executable executable) {
         IllegalStateException ex = assertThrows(IllegalStateException.class, executable);
         assertEquals("No default value is set.", ex.getMessage());
+    }
+
+    static boolean equals(ConfigTag a, ConfigTag b) {
+        if (a.getClass() != b.getClass()) return false;
+        if (!a.getDesc().equals(b.getDesc())) return false;
+        if (!a.getComment().equals(b.getComment())) return false;
+
+        if (a instanceof ConfigCategory) return equals((ConfigCategory) a, (ConfigCategory) b);
+        if (a instanceof ConfigValue) return equals((ConfigValue) a, (ConfigValue) b);
+        if (a instanceof ConfigValueList) return equals((ConfigValueList) a, (ConfigValueList) b);
+
+        throw new IllegalStateException("Nani");
+    }
+
+    private static boolean equals(ConfigCategory a, ConfigCategory b) {
+        if (a.getChildren().size() != b.getChildren().size()) return false;
+
+        List<ConfigTag> aChildren = List.copyOf(a.getChildren());
+        List<ConfigTag> bChildren = List.copyOf(b.getChildren());
+        for (int i = 0; i < aChildren.size(); i++) {
+            if (!equals(aChildren.get(i), bChildren.get(i))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean equals(ConfigValue a, ConfigValue b) {
+        if (a.getType() != b.getType()) return false;
+
+        // Tags must have types when being checked.
+        assertNotEquals(ValueType.UNKNOWN, a.getType());
+
+        return switch (a.getType()) {
+            case UNKNOWN -> false; // What?
+            case BOOLEAN -> a.getBoolean() == b.getBoolean();
+            case STRING -> a.getString().equals(b.getString());
+            case INT -> a.getInt() == b.getInt();
+            case LONG -> a.getLong() == b.getLong();
+            case HEX -> a.getHex() == b.getHex();
+            case DOUBLE -> a.getDouble() == b.getDouble();
+        };
+    }
+
+    private static boolean equals(ConfigValueList a, ConfigValueList b) {
+        if (a.getType() != b.getType()) return false;
+
+        // Tags must have types when being checked.
+        assertNotEquals(ValueType.UNKNOWN, a.getType());
+
+        return switch (a.getType()) {
+            case UNKNOWN -> false; // What?
+            case BOOLEAN -> a.getBooleans().equals(b.getBooleans());
+            case STRING -> a.getStrings().equals(b.getStrings());
+            case INT -> a.getInts().equals(b.getInts());
+            case LONG -> a.getLongs().equals(b.getLongs());
+            case HEX -> a.getHexs().equals(b.getHexs());
+            case DOUBLE -> a.getDoubles().equals(b.getDoubles());
+        };
     }
 }
