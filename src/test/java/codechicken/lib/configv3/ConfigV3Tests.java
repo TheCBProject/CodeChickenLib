@@ -757,9 +757,7 @@ public class ConfigV3Tests {
         ConfigValue val1 = cat.getValue("val1");
 
         boolean[] wasCallbackFired = { false, false, false };
-        root.onSync((tag, reason) -> {
-            fail("Callback should not have been fired.");
-        });
+        root.onSync((tag, reason) -> fail("Callback should not have been fired."));
         cat.onSync((tag, reason) -> {
             assertEquals(cat, tag);
             assertEquals(reason, Reason.MANUAL);
@@ -787,42 +785,20 @@ public class ConfigV3Tests {
         ConfigCategoryImpl root = new ConfigCategoryImpl("rootTag", null);
 
         ConfigCategory valueCat = root.getCategory("valueCat");
-        ConfigValue val1 = valueCat.getValue("val1")
-                .setBoolean(true);
-
-        ConfigValue val2 = valueCat.getValue("val2")
-                .setString("Hello, World");
-
-        ConfigValue val3 = valueCat.getValue("val3")
-                .setInt(22);
-
-        ConfigValue val4 = valueCat.getValue("val4")
-                .setLong(44L);
-
-        ConfigValue val5 = valueCat.getValue("val5")
-                .setHex(0xFFFFFFFF);
-
-        ConfigValue val6 = valueCat.getValue("val6")
-                .setDouble(4.20);
+        valueCat.getValue("val1").setBoolean(true);
+        valueCat.getValue("val2").setString("Hello, World");
+        valueCat.getValue("val3").setInt(22);
+        valueCat.getValue("val4").setLong(44L);
+        valueCat.getValue("val5").setHex(0xFFFFFFFF);
+        valueCat.getValue("val6").setDouble(4.20);
 
         ConfigCategory listCat = root.getCategory("listCat");
-        ConfigValueList list1 = listCat.getValueList("list1")
-                .setBooleans(new BooleanArrayList(List.of(true, false)));
-
-        ConfigValueList list2 = listCat.getValueList("list2")
-                .setStrings(List.of("Hello", "World"));
-
-        ConfigValueList list3 = listCat.getValueList("list3")
-                .setInts(new IntArrayList(List.of(22, 222)));
-
-        ConfigValueList list4 = listCat.getValueList("list4")
-                .setLongs(new LongArrayList(List.of(44L, 444L)));
-
-        ConfigValueList list5 = listCat.getValueList("list5")
-                .setHexs(new IntArrayList(List.of(0xFFFFFFFF, 0xFF00FF00)));
-
-        ConfigValueList list6 = listCat.getValueList("list6")
-                .setDoubles(new DoubleArrayList(List.of(4.20, 6.9)));
+        listCat.getValueList("list1").setBooleans(new BooleanArrayList(List.of(true, false)));
+        listCat.getValueList("list2").setStrings(List.of("Hello", "World"));
+        listCat.getValueList("list3").setInts(new IntArrayList(List.of(22, 222)));
+        listCat.getValueList("list4").setLongs(new LongArrayList(List.of(44L, 444L)));
+        listCat.getValueList("list5").setHexs(new IntArrayList(List.of(0xFFFFFFFF, 0xFF00FF00)));
+        listCat.getValueList("list6").setDoubles(new DoubleArrayList(List.of(4.20, 6.9)));
 
         assertTrue(equals(root, root.copy()));
     }
