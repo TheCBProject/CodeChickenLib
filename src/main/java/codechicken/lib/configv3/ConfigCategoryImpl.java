@@ -32,7 +32,7 @@ public class ConfigCategoryImpl extends AbstractConfigTag<ConfigCategory> implem
 
     @Nullable
     @Override
-    public ConfigTag findTag(String name) {
+    public AbstractConfigTag<?> findTag(String name) {
         return tagMap.get(name);
     }
 

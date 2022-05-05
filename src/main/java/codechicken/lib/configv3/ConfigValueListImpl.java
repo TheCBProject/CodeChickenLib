@@ -371,6 +371,20 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
         return this;
     }
 
+    public List<?> getRawValue() {
+        if (type == ValueType.UNKNOWN) {
+            throw new IllegalStateException("Tag does not have a type assigned yet.");
+        }
+
+        value = tryConvert(value, type);
+        if (value == null) {
+            if (defaultValue == null) throw new IllegalStateException("Default value not set.");
+            return defaultValue;
+        }
+
+        return value;
+    }
+
     public ConfigValueList setDefaultValue(List<?> value) {
         defaultValue = value;
         dirty = true;

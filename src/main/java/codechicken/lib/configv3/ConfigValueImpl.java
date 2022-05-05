@@ -11,7 +11,6 @@ import java.util.Locale;
 
 /**
  * TODO do we want to explode if someone tires to set a value when it is set from the network?
- * TODO, When a value is set from the network, currently that will be serialized in place of the _real_ value.
  * <p>
  * Created by covers1624 on 18/4/22.
  */
@@ -477,6 +476,21 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
         defaultValue = value;
         dirty = true;
         return this;
+    }
+
+    public Object getRawValue() {
+        if (type == ValueType.UNKNOWN) {
+            throw new IllegalStateException("Tag does not have a type assigned yet.");
+        }
+
+        value = tryConvert(value, type);
+        if (value == null) {
+            if (defaultValue == null)
+                throw new IllegalStateException("Default value not set.");
+            return defaultValue;
+        }
+
+        return value;
     }
 
     public void setKnownType(ValueType type) {

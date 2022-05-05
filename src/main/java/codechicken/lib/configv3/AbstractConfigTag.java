@@ -92,6 +92,11 @@ public abstract class AbstractConfigTag<T extends ConfigTag> implements ConfigTa
     }
 
     @Override
+    public boolean isNetworkTag() {
+        return networkSynthetic;
+    }
+
+    @Override
     public boolean isDirty() {
         return dirty;
     }

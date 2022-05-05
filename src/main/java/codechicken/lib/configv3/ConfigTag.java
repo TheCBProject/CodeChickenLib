@@ -93,6 +93,13 @@ public interface ConfigTag {
     void forceSync();
 
     /**
+     * Checks if this tags is a synthetic network tag.
+     *
+     * @return If the tag is synthetic.
+     */
+    boolean isNetworkTag();
+
+    /**
      * Saves the config to disk if any values have changed.
      * <p>
      * This does not save a specific {@link ConfigTag} this

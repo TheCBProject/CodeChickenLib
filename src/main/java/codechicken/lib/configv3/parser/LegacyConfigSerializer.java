@@ -149,7 +149,7 @@ public class LegacyConfigSerializer implements ConfigSerializer {
     }
 
     private void writeTag(ConfigTag tag, PrintWriter writer, int depth) {
-        if (tag instanceof ConfigCategory cat) {
+        if (tag instanceof ConfigCategoryImpl cat) {
             boolean isRootTag = depth == -1;
             if (!isRootTag) {
                 writeLine(writer, depth, "\"%s\" {", tag.getName());
@@ -157,6 +157,8 @@ public class LegacyConfigSerializer implements ConfigSerializer {
             depth++;
             boolean first = true;
             for (ConfigTag child : cat.getChildren()) {
+                if (child.isNetworkTag()) continue;
+
                 List<String> comment = child.getComment();
                 if (!comment.isEmpty()) {
                     for (String line : comment) {
@@ -172,27 +174,14 @@ public class LegacyConfigSerializer implements ConfigSerializer {
             if (!isRootTag) {
                 writeLine(writer, depth - 1, "}");
             }
-        } else if (tag instanceof ConfigValue val) {
-            Object value = switch (val.getType()) {
-                case UNKNOWN -> throw new UnsupportedOperationException("Tried to serialize UNKNOWN tag.");
-                case STRING -> "\"" + val.getString() + "\"";
-                case BOOLEAN -> val.getBoolean();
-                case INT -> val.getInt();
-                case LONG -> val.getLong();
-                case HEX -> val.getHex();
-                case DOUBLE -> val.getDouble();
-            };
+        } else if (tag instanceof ConfigValueImpl val) {
+            Object value = val.getRawValue();
+            if (val.getType() == ValueType.STRING) {
+                value = "\"" + value + "\"";
+            }
             writeLine(writer, depth, "%s:\"%s\"=%s", charLookup.getChar(val.getType()), val.getName(), toString(value, val.getType()));
-        } else if (tag instanceof ConfigValueList list) {
-            List<?> lst = switch (list.getType()) {
-                case UNKNOWN -> throw new IllegalStateException("Unable to reach branch.");
-                case BOOLEAN -> list.getBooleans();
-                case STRING -> list.getStrings();
-                case INT -> list.getInts();
-                case LONG -> list.getLongs();
-                case HEX -> list.getHexs();
-                case DOUBLE -> list.getDoubles();
-            };
+        } else if (tag instanceof ConfigValueListImpl list) {
+            List<?> lst = list.getRawValue();
             writeLine(writer, depth, "%s:\"%s\" <", charLookup.getChar(list.getType()), list.getName());
             for (Object e : lst) {
                 writeLine(writer, depth + 1, "%s", toString(e, list.getType()));

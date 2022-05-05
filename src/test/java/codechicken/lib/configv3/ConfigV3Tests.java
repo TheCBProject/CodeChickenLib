@@ -2,6 +2,7 @@ package codechicken.lib.configv3;
 
 import codechicken.lib.configv3.ConfigCallback.Reason;
 import codechicken.lib.configv3.ConfigValueListImpl.StringList;
+import codechicken.lib.configv3.parser.ConfigSerializer;
 import codechicken.lib.data.MCDataByteBuf;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -16,6 +17,8 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -1046,6 +1049,46 @@ public class ConfigV3Tests {
         assertEquals("Hello, World", val2.getString());
         assertNull(valueCat2.findTag("val2"));
         assertEquals(List.of("Hello", "World"), list2.getStrings());
+    }
+
+    // TODO, all Serializers need to test with this.
+    @Test
+    public void testConfigSaveWithNetworkSet() throws Throwable {
+        Path dir = Files.createTempDirectory("config_test");
+        dir.toFile().deleteOnExit();
+
+        Path config = dir.resolve("config.cfg");
+
+        ConfigCategoryImpl root = new ConfigCategoryImpl("rootTag", null);
+
+        ConfigCategory valueCat = root.getCategory("valueCat")
+                .syncTagToClient();
+        valueCat.getValue("val1").setString("World, Hello");
+        valueCat.getValue("val2").setInt(22);
+
+        ConfigCategory listCat = root.getCategory("listCat")
+                .syncTagToClient();
+        listCat.getValueList("list1").setStrings(List.of("World", "Hello"));
+
+        MCDataByteBuf buf = new MCDataByteBuf();
+        root.write(buf);
+
+        ConfigCategoryImpl root2 = new ConfigCategoryImpl("rootTag", null);
+        ConfigCategory valueCat2 = root2.getCategory("valueCat");
+        ConfigValue val2 = valueCat2.getValue("val1").setString("Hello, World");
+
+        ConfigCategory listCat2 = root2.getCategory("listCat");
+        ConfigValueList list2 = listCat2.getValueList("list1").setStrings(List.of("Hello", "World"));
+        root2.read(buf);
+
+        ConfigSerializer.LEGACY.save(config, root2);
+        root2.resetFromNetwork();
+
+        ConfigCategoryImpl root3 = new ConfigCategoryImpl("rootTag", null);
+
+        ConfigSerializer.LEGACY.parse(config, root3);
+
+        assertTrue(equals(root2, root3));
     }
 
     private void assertIdentityConversion(Object object, ValueType type) {
