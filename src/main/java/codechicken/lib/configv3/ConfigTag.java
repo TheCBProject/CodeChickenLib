@@ -1,5 +1,7 @@
 package codechicken.lib.configv3;
 
+import codechicken.lib.data.MCDataInput;
+import codechicken.lib.data.MCDataOutput;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -139,4 +141,36 @@ public interface ConfigTag {
      * @return The deep copied tag.
      */
     ConfigTag copy();
+
+    /**
+     * Write this tag to a {@link MCDataOutput}.
+     * Only categories and/or tags which have {@link #syncTagToClient()} set
+     * will be written.
+     *
+     * @param out The output stream.
+     */
+    void write(MCDataOutput out);
+
+    /**
+     * Read this tag from a {@link MCDataInput}.
+     * All tags and values will be read and inserted into the tree.
+     * <p>
+     * If a tag does not already exist, in the tree, one will be added and marked
+     * as 'network only'. // TODO method to query this.
+     * <p>
+     * All tags with a network value will be reset to default when {@link #resetFromNetwork()}
+     * is called, whilst any 'network only' tags will be deleted.
+     *
+     * @param in The input stream.
+     */
+    void read(MCDataInput in);
+
+    /**
+     * Resets all network tags back to their original value.
+     * <p>
+     * Whilst a tag is set from the network, it is effectively immutable and may not be set.
+     * <p>
+     * Any tags which are 'network only' are deleted during this operation.
+     */
+    void resetFromNetwork();
 }

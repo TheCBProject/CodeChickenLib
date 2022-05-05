@@ -1,5 +1,7 @@
 package codechicken.lib.configv3;
 
+import codechicken.lib.data.MCDataInput;
+import codechicken.lib.data.MCDataOutput;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import it.unimi.dsi.fastutil.booleans.BooleanLists;
@@ -25,6 +27,7 @@ import java.util.List;
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 /**
+ * TODO do we want to explode if someone tires to set a value when it is set from the network?
  * Created by covers1624 on 19/4/22.
  */
 public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> implements ConfigValueList {
@@ -35,6 +38,8 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
     private List<?> defaultValue = null;
     @Nullable
     private List<?> value = null;
+    @Nullable
+    private List<?> networkValue = null;
     private ValueType type = ValueType.UNKNOWN;
 
     public ConfigValueListImpl(String name, @Nullable ConfigCategoryImpl parent) {
@@ -51,6 +56,10 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
         if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tag does not have a type assigned yet.");
         if (type != ValueType.BOOLEAN) throw new IllegalStateException("Tag has incompatible type: " + type);
 
+        if (networkValue != null) {
+            return BooleanLists.unmodifiable(unsafeCast(networkValue));
+        }
+
         value = tryConvert(value, type);
         if (value == null) return getDefaultBooleans();
 
@@ -61,6 +70,10 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
     public List<String> getStrings() {
         if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tag does not have a type assigned yet.");
         if (type != ValueType.STRING) throw new IllegalStateException("Tag has incompatible type: " + type);
+
+        if (networkValue != null) {
+            return Collections.unmodifiableList(unsafeCast(networkValue));
+        }
 
         value = tryConvert(value, type);
         if (value == null) return getDefaultStrings();
@@ -73,6 +86,10 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
         if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tag does not have a type assigned yet.");
         if (type != ValueType.INT) throw new IllegalStateException("Tag has incompatible type: " + type);
 
+        if (networkValue != null) {
+            return IntLists.unmodifiable(unsafeCast(networkValue));
+        }
+
         value = tryConvert(value, type);
         if (value == null) return getDefaultInts();
 
@@ -83,6 +100,10 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
     public LongList getLongs() {
         if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tag does not have a type assigned yet.");
         if (type != ValueType.LONG) throw new IllegalStateException("Tag has incompatible type: " + type);
+
+        if (networkValue != null) {
+            return LongLists.unmodifiable(unsafeCast(networkValue));
+        }
 
         value = tryConvert(value, type);
         if (value == null) return getDefaultLongs();
@@ -95,6 +116,10 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
         if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tag does not have a type assigned yet.");
         if (type != ValueType.HEX) throw new IllegalStateException("Tag has incompatible type: " + type);
 
+        if (networkValue != null) {
+            return IntLists.unmodifiable(unsafeCast(networkValue));
+        }
+
         value = tryConvert(value, type);
         if (value == null) return getDefaultHexs();
 
@@ -105,6 +130,10 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
     public DoubleList getDoubles() {
         if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tag does not have a type assigned yet.");
         if (type != ValueType.DOUBLE) throw new IllegalStateException("Tag has incompatible type: " + type);
+
+        if (networkValue != null) {
+            return DoubleLists.unmodifiable(unsafeCast(networkValue));
+        }
 
         value = tryConvert(value, type);
         if (value == null) return getDefaultDoubles();
@@ -279,6 +308,58 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
         clone.type = type;
 
         return clone;
+    }
+
+    @Override
+    public void write(MCDataOutput out) {
+        if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tried to write UNKNOWN tag to network");
+        out.writeEnum(type);
+        switch (type) {
+            case STRING -> {
+                List<String> values = getStrings();
+                out.writeVarInt(values.size());
+                for (String s : values) {
+                    out.writeString(s);
+                }
+            }
+            case BOOLEAN -> out.writeBooleans(getBooleans().toBooleanArray());
+            case INT -> out.writeInts(getInts().toIntArray());
+            case LONG -> out.writeLongs(getLongs().toLongArray());
+            case HEX -> out.writeInts(getHexs().toIntArray());
+            case DOUBLE -> out.writeDoubles(getDoubles().toDoubleArray());
+        }
+    }
+
+    @Override
+    public void read(MCDataInput in) {
+        ValueType netType = in.readEnum(ValueType.class);
+        if (networkSynthetic) {
+            type = netType;
+        }
+        if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tried to read into an UNKNOWN tag from the network");
+        if (netType != type) throw new IllegalStateException("Tried to read a " + netType + " tag from the network into a " + type + " tag");
+
+        switch (type) {
+            case STRING -> networkValue = readStringList(in);
+            case BOOLEAN -> networkValue = new BooleanArrayList(in.readBooleans());
+            case INT, HEX -> networkValue = new IntArrayList(in.readInts());
+            case LONG -> networkValue = new LongArrayList(in.readLongs());
+            case DOUBLE -> networkValue = new DoubleArrayList(in.readDoubles());
+        }
+    }
+
+    @Override
+    public void resetFromNetwork() {
+        networkValue = null;
+    }
+
+    private List<String> readStringList(MCDataInput in) {
+        int len = in.readVarInt();
+        List<String> values = new ArrayList<>(len);
+        for (int i = 0; i < len; i++) {
+            values.add(in.readString());
+        }
+        return values;
     }
 
     public ConfigValueList setValue(List<?> value) {

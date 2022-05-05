@@ -1,5 +1,7 @@
 package codechicken.lib.configv3;
 
+import codechicken.lib.data.MCDataInput;
+import codechicken.lib.data.MCDataOutput;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +10,8 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * TODO, do we want to coerce values in getX methods?
+ * TODO do we want to explode if someone tires to set a value when it is set from the network?
+ * TODO, When a value is set from the network, currently that will be serialized in place of the _real_ value.
  * <p>
  * Created by covers1624 on 18/4/22.
  */
@@ -20,6 +23,8 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     private Object defaultValue = null;
     @Nullable
     private Object value = null;
+    @Nullable
+    private Object networkValue = null;
     private ValueType type = ValueType.UNKNOWN;
     @Nullable
     private Restriction restriction;
@@ -42,6 +47,10 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
             throw new IllegalStateException("Tag has incompatible type: " + type);
         }
 
+        if (networkValue != null) {
+            return (Boolean) networkValue;
+        }
+
         value = tryConvert(value, type);
         if (value == null) {
             return getDefaultBoolean();
@@ -57,6 +66,10 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
         }
         if (type != ValueType.STRING) {
             throw new IllegalStateException("Tag has incompatible type: " + type);
+        }
+
+        if (networkValue != null) {
+            return (String) networkValue;
         }
 
         value = tryConvert(value, type);
@@ -76,6 +89,10 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
             throw new IllegalStateException("Tag has incompatible type: " + type);
         }
 
+        if (networkValue != null) {
+            return (Integer) networkValue;
+        }
+
         value = tryConvert(value, type);
         if (value == null) {
             return getDefaultInt();
@@ -93,6 +110,10 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
             throw new IllegalStateException("Tag has incompatible type: " + type);
         }
 
+        if (networkValue != null) {
+            return (Long) networkValue;
+        }
+
         value = tryConvert(value, type);
         if (value == null) {
             return getDefaultLong();
@@ -107,6 +128,10 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
             throw new IllegalStateException("Tag does not have a type assigned yet.");
         }
         if (type != ValueType.HEX) throw new IllegalStateException("Tag has incompatible type: " + type);
+
+        if (networkValue != null) {
+            return (Integer) networkValue;
+        }
 
         value = tryConvert(value, type);
         if (value == null) {
@@ -123,6 +148,10 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
         }
         if (type != ValueType.DOUBLE) {
             throw new IllegalStateException("Tag has incompatible type: " + type);
+        }
+
+        if (networkValue != null) {
+            return (Double) networkValue;
         }
 
         value = tryConvert(value, type);
@@ -396,6 +425,43 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
         clone.restriction = restriction;
 
         return clone;
+    }
+
+    @Override
+    public void write(MCDataOutput out) {
+        if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tried to write UNKNOWN tag to network");
+        out.writeEnum(type);
+        switch (type) {
+            case BOOLEAN -> out.writeBoolean(getBoolean());
+            case STRING -> out.writeString(getString());
+            case INT -> out.writeInt(getInt()); // TODO varint? signedVarint?
+            case LONG -> out.writeLong(getLong()); // TODO varlong? signedVarlong?
+            case HEX -> out.writeInt(getHex()); // TODO varint? signedVarint?
+            case DOUBLE -> out.writeDouble(getDouble());
+        }
+    }
+
+    @Override
+    public void read(MCDataInput in) {
+        ValueType netType = in.readEnum(ValueType.class);
+        if (networkSynthetic) {
+            type = netType;
+        }
+        if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tried to read into an UNKNOWN tag from the network");
+        if (netType != type) throw new IllegalStateException("Tried to read a " + netType + " tag from the network into a " + type + " tag");
+
+        switch (type) {
+            case BOOLEAN -> networkValue = in.readBoolean();
+            case STRING -> networkValue = in.readString();
+            case INT, HEX -> networkValue = in.readInt();
+            case LONG -> networkValue = in.readLong();
+            case DOUBLE -> networkValue = in.readDouble();
+        }
+    }
+
+    @Override
+    public void resetFromNetwork() {
+        networkValue = null;
     }
 
     public ConfigValue setValue(Object value) {

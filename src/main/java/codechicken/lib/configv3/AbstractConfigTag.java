@@ -17,6 +17,7 @@ public abstract class AbstractConfigTag<T extends ConfigTag> implements ConfigTa
     @Nullable
     private final ConfigCategory parent;
     protected boolean dirty;
+    protected boolean networkSynthetic;
     protected List<String> comment = List.of();
     protected boolean syncToClient = false;
     private final List<ConfigCallback<T>> onModifiedCallbacks = new LinkedList<>();

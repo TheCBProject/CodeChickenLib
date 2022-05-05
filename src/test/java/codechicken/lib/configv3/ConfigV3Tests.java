@@ -2,6 +2,9 @@ package codechicken.lib.configv3;
 
 import codechicken.lib.configv3.ConfigCallback.Reason;
 import codechicken.lib.configv3.ConfigValueListImpl.StringList;
+import codechicken.lib.data.MCDataByteBuf;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -822,6 +825,251 @@ public class ConfigV3Tests {
                 .setDoubles(new DoubleArrayList(List.of(4.20, 6.9)));
 
         assertTrue(equals(root, root.copy()));
+    }
+
+    @Test
+    public void testTagCategoryRead() {
+        ByteBuf buffer = Unpooled.buffer();
+        MCDataByteBuf buf = new MCDataByteBuf(buffer);
+
+        IllegalStateException ex;
+        ConfigCategoryImpl rootTag = new ConfigCategoryImpl("rootTag", null);
+
+        { // Test unknown tag type explodes.
+
+            buf.writeVarInt(1);
+            buf.writeByte(ConfigCategoryImpl.NET_NO_TAG - 1);
+            buf.writeString("cat1");
+            ex = assertThrows(IllegalStateException.class, () -> rootTag.read(buf));
+            assertEquals("Unknown tag network type: " + (ConfigCategoryImpl.NET_NO_TAG - 1), ex.getMessage());
+
+        }
+
+        rootTag.clear();
+        buffer.readerIndex(0);
+        buffer.writerIndex(0);
+
+        { // Test NoTag does nothing on read.
+            buf.writeVarInt(1);
+            buf.writeByte(ConfigCategoryImpl.NET_NO_TAG);
+            rootTag.read(buf);
+            assertEquals(0, rootTag.getChildren().size());
+        }
+
+        rootTag.clear();
+        buffer.readerIndex(0);
+        buffer.writerIndex(0);
+
+        { // Test NET_CAT_TAG behaves as expected.
+            buf.writeVarInt(1);
+            buf.writeByte(ConfigCategoryImpl.NET_CAT_TAG);
+            buf.writeString("cat1");
+            buf.writeVarInt(0);
+            rootTag.read(buf);
+
+            // Should read and create synthetic tag.
+            ConfigCategoryImpl cat1 = rootTag.findCategory("cat1");
+            assertNotNull(cat1);
+            assertTrue(cat1.networkSynthetic);
+            assertEquals(0, cat1.getChildren().size());
+
+            rootTag.clear();
+            buffer.readerIndex(0);
+
+            // Should explode as we are trying to read into a non-category.
+            rootTag.getValue("cat1");
+            ex = assertThrows(IllegalStateException.class, () -> rootTag.read(buf));
+            assertEquals("Tried to read category into ConfigValueImpl", ex.getMessage());
+        }
+
+        rootTag.clear();
+        buffer.readerIndex(0);
+        buffer.writerIndex(0);
+
+        { // Test NET_VAL_TAG behaves as expected.
+            buf.writeVarInt(1);
+            buf.writeByte(ConfigCategoryImpl.NET_VAL_TAG);
+            buf.writeString("val1");
+            buf.writeEnum(ValueType.INT);
+            buf.writeInt(22);
+            rootTag.read(buf);
+
+            // Should read and create synthetic tag.
+            ConfigValueImpl val1 = rootTag.findValue("val1");
+            assertNotNull(val1);
+            assertTrue(val1.networkSynthetic);
+            assertEquals(22, val1.getInt());
+
+            rootTag.clear();
+            buffer.readerIndex(0);
+
+            // Should explode as we are trying to read into a non-value.
+            rootTag.getCategory("val1");
+            ex = assertThrows(IllegalStateException.class, () -> rootTag.read(buf));
+            assertEquals("Tried to read value into ConfigCategoryImpl", ex.getMessage());
+        }
+
+        rootTag.clear();
+        buffer.readerIndex(0);
+        buffer.writerIndex(0);
+
+        { // Test NET_VAL_LST behaves as expected.
+            buf.writeVarInt(1);
+            buf.writeByte(ConfigCategoryImpl.NET_VAL_LST);
+            buf.writeString("lst1");
+            buf.writeEnum(ValueType.INT);
+            buf.writeVarInt(2);
+            buf.writeInt(22);
+            buf.writeInt(44);
+            rootTag.read(buf);
+
+            // Should read and create synthetic tag.
+            ConfigValueListImpl lst1 = rootTag.findValueList("lst1");
+            assertNotNull(lst1);
+            assertTrue(lst1.networkSynthetic);
+            assertEquals(List.of(22, 44), lst1.getInts());
+
+            rootTag.clear();
+            buffer.readerIndex(0);
+
+            // Should explode as we are trying to read into a non-list.
+            rootTag.getCategory("lst1");
+            ex = assertThrows(IllegalStateException.class, () -> rootTag.read(buf));
+            assertEquals("Tried to read list into ConfigCategoryImpl", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void testTagValueRead() {
+        ByteBuf buffer = Unpooled.buffer();
+        MCDataByteBuf buf = new MCDataByteBuf(buffer);
+        buf.writeEnum(ValueType.INT);
+        buf.writeInt(22);
+
+        ConfigValueImpl value = new ConfigValueImpl("test", null);
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> value.write(buf));
+        assertEquals("Tried to write UNKNOWN tag to network", ex.getMessage());
+
+        ex = assertThrows(IllegalStateException.class, () -> value.read(buf));
+        assertEquals("Tried to read into an UNKNOWN tag from the network", ex.getMessage());
+
+        buffer.readerIndex(0);
+
+        value.setKnownType(ValueType.BOOLEAN);
+        ex = assertThrows(IllegalStateException.class, () -> value.read(buf));
+        assertEquals("Tried to read a INT tag from the network into a BOOLEAN tag", ex.getMessage());
+
+        buffer.readerIndex(0);
+
+        value.setKnownType(ValueType.INT);
+        value.read(buf);
+        assertEquals(22, value.getInt());
+
+        value.resetFromNetwork();
+        ex = assertThrows(IllegalStateException.class, value::getInt);
+        assertEquals("No default value is set.", ex.getMessage());
+    }
+
+    @Test
+    public void testTagValueListRead() {
+        ByteBuf buffer = Unpooled.buffer();
+        MCDataByteBuf buf = new MCDataByteBuf(buffer);
+        buf.writeEnum(ValueType.INT);
+        buf.writeVarInt(2);
+        buf.writeInt(22);
+        buf.writeInt(44);
+
+        ConfigValueListImpl value = new ConfigValueListImpl("test", null);
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> value.write(buf));
+        assertEquals("Tried to write UNKNOWN tag to network", ex.getMessage());
+
+        ex = assertThrows(IllegalStateException.class, () -> value.read(buf));
+        assertEquals("Tried to read into an UNKNOWN tag from the network", ex.getMessage());
+
+        buffer.readerIndex(0);
+
+        value.setKnownType(ValueType.BOOLEAN);
+        ex = assertThrows(IllegalStateException.class, () -> value.read(buf));
+        assertEquals("Tried to read a INT tag from the network into a BOOLEAN tag", ex.getMessage());
+
+        buffer.readerIndex(0);
+
+        value.setKnownType(ValueType.INT);
+        value.read(buf);
+        assertEquals(List.of(22, 44), value.getInts());
+
+        value.resetFromNetwork();
+        ex = assertThrows(IllegalStateException.class, value::getInts);
+        assertEquals("No default value is set.", ex.getMessage());
+    }
+
+    @Test
+    public void testReadWriteEquality() {
+        ConfigCategoryImpl root = new ConfigCategoryImpl("rootTag", null);
+        root.syncTagToClient();
+
+        ConfigCategory valueCat = root.getCategory("valueCat");
+        valueCat.getValue("val1").setBoolean(true);
+        valueCat.getValue("val2").setString("Hello, World");
+        valueCat.getValue("val3").setInt(22);
+        valueCat.getValue("val4").setLong(44L);
+        valueCat.getValue("val5").setHex(0xFFFFFFFF);
+        valueCat.getValue("val6").setDouble(4.20);
+
+        ConfigCategory listCat = root.getCategory("listCat");
+        listCat.getValueList("list1").setBooleans(new BooleanArrayList(List.of(true, false)));
+        listCat.getValueList("list2").setStrings(List.of("Hello", "World"));
+        listCat.getValueList("list3").setInts(new IntArrayList(List.of(22, 222)));
+        listCat.getValueList("list4").setLongs(new LongArrayList(List.of(44L, 444L)));
+        listCat.getValueList("list5").setHexs(new IntArrayList(List.of(0xFFFFFFFF, 0xFF00FF00)));
+        listCat.getValueList("list6").setDoubles(new DoubleArrayList(List.of(4.20, 6.9)));
+
+        MCDataByteBuf buf = new MCDataByteBuf();
+        root.write(buf);
+
+        ConfigCategoryImpl root2 = new ConfigCategoryImpl("rootTag", null);
+        root2.read(buf);
+
+        assertTrue(equals(root, root2));
+    }
+
+    @Test
+    public void testResetFormNetwork() {
+        ConfigCategoryImpl root = new ConfigCategoryImpl("rootTag", null);
+
+        ConfigCategory valueCat = root.getCategory("valueCat")
+                .syncTagToClient();
+        valueCat.getValue("val1").setString("World, Hello");
+        valueCat.getValue("val2").setInt(22);
+
+        ConfigCategory listCat = root.getCategory("listCat")
+                .syncTagToClient();
+        listCat.getValueList("list1").setStrings(List.of("World", "Hello"));
+
+        root.getValue("not_synced");
+
+        MCDataByteBuf buf = new MCDataByteBuf();
+        root.write(buf);
+
+        ConfigCategoryImpl root2 = new ConfigCategoryImpl("rootTag", null);
+        ConfigCategory valueCat2 = root2.getCategory("valueCat");
+        ConfigValue val2 = valueCat2.getValue("val1").setString("Hello, World");
+
+        ConfigCategory listCat2 = root2.getCategory("listCat");
+        ConfigValueList list2 = listCat2.getValueList("list1").setStrings(List.of("Hello", "World"));
+        root2.read(buf);
+
+        assertEquals("World, Hello", val2.getString());
+        assertNotNull(valueCat2.findTag("val2"));
+        assertEquals(22, valueCat2.getValue("val2").getInt());
+        assertEquals(List.of("World", "Hello"), list2.getStrings());
+        assertNull(root2.findTag("not_synced"));
+
+        root2.resetFromNetwork();
+
+        assertEquals("Hello, World", val2.getString());
+        assertNull(valueCat2.findTag("val2"));
+        assertEquals(List.of("Hello", "World"), list2.getStrings());
     }
 
     private void assertIdentityConversion(Object object, ValueType type) {
