@@ -85,15 +85,15 @@ public class CCModelLibrary {
         i++;
     }
 
-    public static RenderType getIcos4RenderType(ResourceLocation texture, boolean lighting) {
-        return RenderType.create("icosahedron4", DefaultVertexFormat.BLOCK, VertexFormat.Mode.TRIANGLES, 256, makeIcosState(texture, lighting));
+    public static RenderType getIcos4RenderType(ResourceLocation texture) {
+        return RenderType.create("icosahedron4", DefaultVertexFormat.BLOCK, VertexFormat.Mode.TRIANGLES, 256, makeIcosState(texture));
     }
 
-    public static RenderType getIcos7RenderType(ResourceLocation texture, boolean lighting) {
-        return RenderType.create("icosahedron7", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, makeIcosState(texture, lighting));
+    public static RenderType getIcos7RenderType(ResourceLocation texture) {
+        return RenderType.create("icosahedron7", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, makeIcosState(texture));
     }
 
-    public static RenderType.CompositeState makeIcosState(ResourceLocation texture, boolean lighting) {
+    public static RenderType.CompositeState makeIcosState(ResourceLocation texture) {
         return RenderType.CompositeState.builder()
                 .setShaderState(RenderStateShard.BLOCK_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
