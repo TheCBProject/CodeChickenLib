@@ -30,12 +30,6 @@ import java.util.*;
  */
 public class CCShaderInstance extends ShaderInstance {
 
-    private static final Map<Program.Type, Map<ResourceLocation, Program>> programCaches = Util.make(new HashMap<>(), e -> {
-        for (Program.Type value : Program.Type.values()) {
-            e.put(value, new HashMap<>());
-        }
-    });
-
     private final List<Runnable> applyCallbacks = new LinkedList<>();
 
     protected CCShaderInstance(ResourceProvider resourceProvider, ResourceLocation loc, VertexFormat format) throws IOException {
@@ -104,8 +98,8 @@ public class CCShaderInstance extends ShaderInstance {
 
     public Program compileProgram(ResourceProvider resourceProvider, Program.Type programType, ResourceLocation loc) throws IOException {
         ResourceLocation adjustedLoc = new ResourceLocation(loc.getNamespace(), "shaders/core/" + loc.getPath() + programType.getExtension());
-        Map<ResourceLocation, Program> cache = programCaches.get(programType);
-        Program program = cache.get(adjustedLoc);
+        String cacheString = "ccl__" + adjustedLoc;
+        Program program = programType.getPrograms().get(cacheString);
         if (program != null) return program;
 
         ProcessedShader processedShader = new GlslProcessor(resourceProvider, adjustedLoc).process();
@@ -117,14 +111,8 @@ public class CCShaderInstance extends ShaderInstance {
             String s1 = GL20.glGetShaderInfoLog(id);
             throw new IOException("Couldn't compile " + programType.getName() + " program (" + processedShader.sourceName() + ", " + adjustedLoc + ") : " + s1);
         }
-        program = new Program(programType, id, adjustedLoc.toString()) {
-            @Override
-            public void close() {
-                super.close();
-                cache.remove(adjustedLoc);
-            }
-        };
-        cache.put(adjustedLoc, program);
+        program = new Program(programType, id, cacheString);
+        programType.getPrograms().put(cacheString, program);
         return program;
     }
 
