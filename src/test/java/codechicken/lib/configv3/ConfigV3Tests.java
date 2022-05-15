@@ -509,19 +509,67 @@ public class ConfigV3Tests {
 
     @Test
     public void testRestrictions() {
+        // Test getRestriction
         ConfigCategoryImpl root = new ConfigCategoryImpl("rootTag", null);
-        ConfigValue val = root.getValue("val1");
+        ConfigValue val = root.getValue("val1")
+                .setInt(10);
         assertNull(val.getRestriction());
-        val.setInt(10);
-        val.setRestriction(Restriction.intRange(1, 20));
-        assertNotNull(val.getRestriction());
+        Restriction r = Restriction.intRange(1, 1);
+        val.setRestriction(r);
+        assertSame(r, val.getRestriction());
+        root.clear();
 
-        assertEquals("[ 1 ~ 20 ]", val.getRestriction().describe());
-        assertTrue(val.getRestriction().test(val));
-        val.setInt(0);
-        assertFalse(val.getRestriction().test(val));
-        val.setInt(20);
-        assertTrue(val.getRestriction().test(val));
+        // Test IntRange properly works
+        r = Restriction.intRange(1, 20);
+        assertEquals("[ 1 ~ 20 ]", r.describe());
+        assertTrue(r.test(ValueGetter.of(10, ValueType.INT)));
+        assertFalse(r.test(ValueGetter.of(0, ValueType.INT)));
+        assertTrue(r.test(ValueGetter.of(20, ValueType.INT)));
+
+        // Test DoubleRange properly works.
+        r = Restriction.doubleRange(4.20, 6.90);
+        assertEquals("[ 4.2 ~ 6.9 ]", r.describe());
+        assertTrue(r.test(ValueGetter.of(4.20, ValueType.DOUBLE)));
+        assertFalse(r.test(ValueGetter.of(0.0, ValueType.DOUBLE)));
+        assertTrue(r.test(ValueGetter.of(6.9, ValueType.DOUBLE)));
+
+        // Test defaults get tested against restriction when its added.
+        Throwable ex;
+        ex = assertThrows(IllegalStateException.class, () ->
+                root.getValue("val1")
+                        .setDefaultInt(3000)
+                        .setRestriction(Restriction.intRange(3, 5))
+        );
+        assertEquals("Default value is not accepted by Restriction.", ex.getMessage());
+
+        // Test the same, but in reverse, when the default gets added after.
+        ex = assertThrows(IllegalStateException.class, () ->
+                root.getValue("val2")
+                        .setRestriction(Restriction.intRange(3, 5))
+                        .setDefaultInt(3000)
+        );
+        assertEquals("Default value is not accepted by Restriction.", ex.getMessage());
+        root.clear();
+
+        // Test Double/IntRange explode when min > max
+        ex = assertThrows(IllegalArgumentException.class, () -> Restriction.intRange(300, 4));
+        assertEquals("Min cannot be larger than max.", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> Restriction.doubleRange(300, 4));
+        assertEquals("Min cannot be larger than max.", ex.getMessage());
+
+        // min == max should not explode. Although, I have no idea why you would do this as it makes it unchangeable...
+        assertNotNull(Restriction.intRange(3, 3));
+        assertNotNull(Restriction.doubleRange(3, 3));
+
+
+        // Test setting values with restrictions set.
+        val = root.getValue("val1")
+                .setDefaultValue(20)
+                .setInt(10)
+                .setRestriction(Restriction.intRange(1, 20));
+        assertEquals(10, val.getInt());
+        val.setInt(300);
+        assertEquals(20, val.getInt());
     }
 
     @Test

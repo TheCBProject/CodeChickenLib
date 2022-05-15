@@ -6,14 +6,14 @@ import java.util.function.Predicate;
 
 /**
  * Represents a restriction that can be applied to
- * a {@link ConfigValue} of a given type.
+ * a {@link ConfigValue} or {@link ConfigValueList}.
  * <p>
  * Created by covers1624 on 17/4/22.
  */
-public interface Restriction extends Predicate<ConfigValue> {
+public interface Restriction extends Predicate<ValueGetter> {
 
     @Override
-    boolean test(ConfigValue configValue);
+    boolean test(ValueGetter configValue);
 
     /**
      * Describe this {@link Restriction} for display.
@@ -22,18 +22,66 @@ public interface Restriction extends Predicate<ConfigValue> {
      */
     String describe();
 
+    /**
+     * Represents an Integer range restriction.
+     * The value must pass {@code min <= value <= max}
+     *
+     * @param min The minimum value. (inclusive)
+     * @param max The maximum value. (inclusive)
+     * @return The Restriction.
+     */
     static Restriction intRange(int min, int max) {
-        return new Restriction() {
-            @Override
-            public boolean test(ConfigValue configValue) {
-                return MathHelper.between(min, configValue.getInt(), max);
-            }
+        return new IntRange(min, max);
+    }
 
-            @Override
-            public String describe() {
-                return "[ " + min + " ~ " + max + " ]";
+    /**
+     * Represents a Double range restriction.
+     * The value must pass {@code min <= value <= max}
+     *
+     * @param min The minimum value. (inclusive)
+     * @param max The maximum value. (inclusive)
+     * @return The Restriction.
+     */
+    static Restriction doubleRange(double min, double max) {
+        return new DoubleRange(min, max);
+    }
+
+    record IntRange(int min, int max) implements Restriction {
+
+        public IntRange {
+            if (min > max) {
+                throw new IllegalArgumentException("Min cannot be larger than max.");
             }
-        };
+        }
+
+        @Override
+        public boolean test(ValueGetter configValue) {
+            return MathHelper.between(min, configValue.getInt(), max);
+        }
+
+        @Override
+        public String describe() {
+            return "[ " + min + " ~ " + max + " ]";
+        }
+    }
+
+    record DoubleRange(double min, double max) implements Restriction {
+
+        public DoubleRange {
+            if (min > max) {
+                throw new IllegalArgumentException("Min cannot be larger than max.");
+            }
+        }
+
+        @Override
+        public boolean test(ValueGetter configValue) {
+            return MathHelper.between(min, configValue.getDouble(), max);
+        }
+
+        @Override
+        public String describe() {
+            return "[ " + min + " ~ " + max + " ]";
+        }
     }
 
 }

@@ -397,6 +397,9 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     @Override
     public ConfigValue setRestriction(Restriction restriction) {
         this.restriction = restriction;
+        if (defaultValue != null && !restriction.test(ValueGetter.of(defaultValue, type))) {
+            throw new IllegalStateException("Default value is not accepted by Restriction.");
+        }
         return this;
     }
 
@@ -473,6 +476,9 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     }
 
     public ConfigValue setDefaultValue(Object value) {
+        if (restriction != null && !restriction.test(ValueGetter.of(value, type))) {
+            throw new IllegalStateException("Default value is not accepted by Restriction.");
+        }
         defaultValue = value;
         dirty = true;
         return this;
@@ -485,8 +491,9 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
 
         value = tryConvert(value, type);
         if (value == null) {
-            if (defaultValue == null)
+            if (defaultValue == null) {
                 throw new IllegalStateException("Default value not set.");
+            }
             return defaultValue;
         }
 
@@ -504,12 +511,18 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
         }
 
         try {
-            return convert(object, type);
+            object = convert(object, type);
         } catch (IllegalStateException ex) {
             LOGGER.warn("Failed to convert config tag {} to {}. Resetting to default.", getDesc(), type, ex);
             dirty = true;
             return null;
         }
+        if (restriction != null && !restriction.test(ValueGetter.of(object, type))) {
+            LOGGER.warn("Value violates restriction, Resetting to default. Tag {}, Value {}, Restriction {}", getDesc(), object, restriction.describe());
+            dirty = true;
+            return null;
+        }
+        return object;
     }
 
     static Object convert(Object object, ValueType type) {
