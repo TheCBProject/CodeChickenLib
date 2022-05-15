@@ -94,6 +94,10 @@ public interface ConfigTag {
 
     /**
      * Checks if this tags is a synthetic network tag.
+     * <p>
+     * Synthetic network tags will exist on the client
+     * when some form of dynamic config structure is synced to
+     * the client.
      *
      * @return If the tag is synthetic.
      */
@@ -162,8 +166,8 @@ public interface ConfigTag {
      * Read this tag from a {@link MCDataInput}.
      * All tags and values will be read and inserted into the tree.
      * <p>
-     * If a tag does not already exist, in the tree, one will be added and marked
-     * as 'network only'. // TODO method to query this.
+     * If a tag does not already exist in the tree, one will be added and marked
+     * as a 'network tag', {@link #isNetworkTag()}.
      * <p>
      * All tags with a network value will be reset to default when {@link #resetFromNetwork()}
      * is called, whilst any 'network only' tags will be deleted.
