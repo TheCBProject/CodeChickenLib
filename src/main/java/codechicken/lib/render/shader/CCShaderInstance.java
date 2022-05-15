@@ -87,30 +87,18 @@ public class CCShaderInstance extends ShaderInstance {
         if (!type.isSupported()) {
             throw new ChainedJsonException("Uniform type not supported by GL: " + type);
         }
+        CCUniform uniform = CCUniform.makeUniform(name, type, this);
         int count = GsonHelper.getAsInt(obj, "count");
-        float[] values = new float[Math.max(count, 16)];
+
         JsonArray jsonValues = GsonHelper.getAsJsonArray(obj, "values");
         if (jsonValues.size() != count && jsonValues.size() > 1) {
             throw new ChainedJsonException("Invalid amount of values specified (expected " + count + ", found " + jsonValues.size() + ")");
         }
-
-        int i = 0;
-        for (JsonElement jsonValue : jsonValues) {
-            try {
-                values[i++] = GsonHelper.convertToFloat(jsonValue, "value");
-            } catch (Exception ex) {
-                ChainedJsonException chainedjsonexception = ChainedJsonException.forException(ex);
-                chainedjsonexception.prependJsonKey("values[" + i + "]");
-                throw chainedjsonexception;
-            }
+        switch (type.getCarrier()) {
+            case INT, U_INT -> uniform.glUniformI(parseInts(count, jsonValues));
+            case FLOAT, MATRIX -> uniform.glUniformF(false, parseFloats(count, jsonValues));
+            case DOUBLE, D_MATRIX -> uniform.glUniformD(false, parseDoubles(count, jsonValues));
         }
-
-        if (count > 1 && jsonValues.size() == 1) {
-            Arrays.fill(values, 1, values.length, values[0]);
-        }
-
-        CCUniform uniform = CCUniform.makeUniform(name, type, this);
-        uniform.set(Arrays.copyOfRange(values, 0, count));
         uniforms.add(uniform);
     }
 
@@ -138,5 +126,65 @@ public class CCShaderInstance extends ShaderInstance {
         };
         cache.put(adjustedLoc, program);
         return program;
+    }
+
+    private static float[] parseFloats(int count, JsonArray jsonValues) throws ChainedJsonException {
+        int i = 0;
+        float[] values = new float[Math.max(count, 16)];
+        for (JsonElement jsonValue : jsonValues) {
+            try {
+                values[i++] = GsonHelper.convertToFloat(jsonValue, "value");
+            } catch (Exception ex) {
+                ChainedJsonException chainedjsonexception = ChainedJsonException.forException(ex);
+                chainedjsonexception.prependJsonKey("values[" + i + "]");
+                throw chainedjsonexception;
+            }
+        }
+
+        // If only one value is specified, copy to all in array.
+        if (count > 1 && jsonValues.size() == 1) {
+            Arrays.fill(values, 1, values.length, values[0]);
+        }
+        return Arrays.copyOfRange(values, 0, count);
+    }
+
+    private static int[] parseInts(int count, JsonArray jsonValues) throws ChainedJsonException {
+        int i = 0;
+        int[] values = new int[Math.max(count, 16)];
+        for (JsonElement jsonValue : jsonValues) {
+            try {
+                values[i++] = GsonHelper.convertToInt(jsonValue, "value");
+            } catch (Exception ex) {
+                ChainedJsonException chainedjsonexception = ChainedJsonException.forException(ex);
+                chainedjsonexception.prependJsonKey("values[" + i + "]");
+                throw chainedjsonexception;
+            }
+        }
+
+        // If only one value is specified, copy to all in array.
+        if (count > 1 && jsonValues.size() == 1) {
+            Arrays.fill(values, 1, values.length, values[0]);
+        }
+        return Arrays.copyOfRange(values, 0, count);
+    }
+
+    private static double[] parseDoubles(int count, JsonArray jsonValues) throws ChainedJsonException {
+        int i = 0;
+        double[] values = new double[Math.max(count, 16)];
+        for (JsonElement jsonValue : jsonValues) {
+            try {
+                values[i++] = GsonHelper.convertToDouble(jsonValue, "value");
+            } catch (Exception ex) {
+                ChainedJsonException chainedjsonexception = ChainedJsonException.forException(ex);
+                chainedjsonexception.prependJsonKey("values[" + i + "]");
+                throw chainedjsonexception;
+            }
+        }
+
+        // If only one value is specified, copy to all in array.
+        if (count > 1 && jsonValues.size() == 1) {
+            Arrays.fill(values, 1, values.length, values[0]);
+        }
+        return Arrays.copyOfRange(values, 0, count);
     }
 }
