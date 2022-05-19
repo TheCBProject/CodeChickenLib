@@ -2,6 +2,7 @@ package codechicken.lib.configv3;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -72,7 +73,8 @@ public interface ConfigTag {
 
     /**
      * Sets this tag as requiring syncing to the client.
-     * // TODO note how to register for this.
+     * <p>
+     * Register your root tag via {@link ConfigSyncManager#registerSync(ResourceLocation, ConfigTag)}.
      */
     ConfigTag syncTagToClient();
 
@@ -90,7 +92,19 @@ public interface ConfigTag {
      * @see ConfigCategory#onSync(ConfigCallback)
      * @see ConfigValue#onSync(ConfigCallback)
      */
-    void forceSync();
+    default void forceSync() {
+        runSync(ConfigCallback.Reason.MANUAL);
+    }
+
+    /**
+     * Triggers all registered {@link ConfigCallback}'s in the tree with
+     * the specified reason.
+     * <p>
+     * This method should probably not be called by anyone else.
+     *
+     * @param reason The reason.
+     */
+    void runSync(ConfigCallback.Reason reason);
 
     /**
      * Checks if this tags is a synthetic network tag.

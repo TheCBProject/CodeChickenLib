@@ -2,10 +2,12 @@ package codechicken.lib.internal.proxy;
 
 import codechicken.lib.CodeChickenLib;
 import codechicken.lib.config.ConfigTag;
+import codechicken.lib.configv3.ConfigSyncManager;
 import codechicken.lib.model.bakery.ModelBakery;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.BlockRenderingRegistry;
 import codechicken.lib.render.item.map.MapRenderRegistry;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
@@ -28,6 +30,7 @@ public class ProxyClient extends Proxy {
 
         MinecraftForge.EVENT_BUS.register(new MapRenderRegistry());
         //        ClientCommandHandler.instance.registerCommand(new CCLClientCommand());
+        MinecraftForge.EVENT_BUS.addListener(this::onClientDisconnected);
     }
 
     private void loadClientConfig() {
@@ -50,5 +53,9 @@ public class ProxyClient extends Proxy {
         messagePlayerOnRenderExceptionCaught = tag.setDefaultBoolean(true).getBoolean();
 
         clientTag.save();
+    }
+
+    private void onClientDisconnected(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+        ConfigSyncManager.onClientDisconnected();
     }
 }

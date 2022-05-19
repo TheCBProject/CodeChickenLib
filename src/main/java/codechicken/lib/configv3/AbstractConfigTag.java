@@ -81,10 +81,6 @@ public abstract class AbstractConfigTag<T extends ConfigTag> implements ConfigTa
     }
 
     @Override
-    public void forceSync() {
-        runSync(ConfigCallback.Reason.MANUAL);
-    }
-
     public void runSync(ConfigCallback.Reason reason) {
         for (ConfigCallback<T> callback : onModifiedCallbacks) {
             callback.onSync(unsafeCast(this), reason);
