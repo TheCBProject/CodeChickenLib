@@ -45,6 +45,7 @@ public class ConfigCategoryImpl extends AbstractConfigTag<ConfigCategory> implem
         if (tag == null) {
             tag = new ConfigCategoryImpl(name, this);
             tagMap.put(name, tag);
+            dirty = true;
         }
         return unsafeCast(tag);
     }
@@ -67,6 +68,7 @@ public class ConfigCategoryImpl extends AbstractConfigTag<ConfigCategory> implem
         if (tag == null) {
             tag = new ConfigValueImpl(name, this);
             tagMap.put(name, tag);
+            dirty = true;
         }
         return unsafeCast(tag);
     }
@@ -89,6 +91,7 @@ public class ConfigCategoryImpl extends AbstractConfigTag<ConfigCategory> implem
         if (tag == null) {
             tag = new ConfigValueListImpl(name, this);
             tagMap.put(name, tag);
+            dirty = true;
         }
         return unsafeCast(tag);
     }

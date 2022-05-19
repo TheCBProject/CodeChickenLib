@@ -483,7 +483,11 @@ public class ConfigV3Tests {
 
         ConfigCategory cat1 = root.getCategory("cat1");
         ConfigValue val1 = cat1.getValue("val1");
+        assertTrue(root.isDirty());
+        assertTrue(cat1.isDirty());
+        root.clearDirty();
         assertFalse(root.isDirty());
+        assertFalse(cat1.isDirty());
 
         val1.setString("Value 1");
 

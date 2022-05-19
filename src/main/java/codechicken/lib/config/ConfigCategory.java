@@ -112,17 +112,29 @@ public interface ConfigCategory extends ConfigTag {
      */
     void clear();
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     ConfigCategory syncTagToClient();
 
     ConfigCategory onSync(ConfigCallback<ConfigCategory> callback);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     ConfigCategory setComment(String comment);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     ConfigCategory setComment(String... comment);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     ConfigCategory setComment(List<String> comment);
 }
