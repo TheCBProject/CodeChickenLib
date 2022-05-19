@@ -69,7 +69,7 @@ public interface ConfigValue extends ConfigTag {
     long getLong();
 
     /**
-     * Gets the {@code int} value stored as a Hex string of this tag.
+     * Gets the {@code int} value stored as a Hex String of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
@@ -145,7 +145,7 @@ public interface ConfigValue extends ConfigTag {
     ConfigValue setLong(long value);
 
     /**
-     * Sets the {@code int} value represented as a hex string of this tag.
+     * Sets the {@code int} value represented as a hex String of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
@@ -219,7 +219,7 @@ public interface ConfigValue extends ConfigTag {
     long getDefaultLong();
 
     /**
-     * Gets the {@code int} value stored as a Hex string of this tag.
+     * Gets the default {@code int} value stored as a Hex String of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
@@ -295,7 +295,7 @@ public interface ConfigValue extends ConfigTag {
     ConfigValue setDefaultLong(long value);
 
     /**
-     * Sets the {@code int} value represented as a hex string of this tag.
+     * Sets the default {@code int} value represented as a hex String of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
@@ -325,6 +325,15 @@ public interface ConfigValue extends ConfigTag {
      * <p>
      * A restriction is just a {@link Predicate}, and can be used for anything,
      * but is most commonly used for int/float value ranges on tags.
+     * <p>
+     * If the restriction is violated, either by the tag being
+     * loaded from disk, or via a set method, it will be reset to default.
+     * <p>
+     * TODO, in the future, provide a function to choose what to do when a value
+     *  is invalid, allow the value to be altered (clamped), removed, or reset entirely to default.
+     * It is invalid for the restriction to not accept the tag's default value,
+     * if the restriction does not, it will throw an {@link IllegalArgumentException} either
+     * when the restriction is set, or the default is set, whichever comes last.
      * <p>
      * See {@link Restriction} for more information.
      *
