@@ -159,14 +159,15 @@ public class LegacyConfigSerializer implements ConfigSerializer {
             for (ConfigTag child : cat.getChildren()) {
                 if (child.isNetworkTag()) continue;
 
+                if (!first) {
+                    writer.println();
+                }
+
                 List<String> comment = child.getComment();
                 if (!comment.isEmpty()) {
                     for (String line : comment) {
                         writeLine(writer, depth, "# " + line);
                     }
-                }
-                if (!first) {
-                    writer.println();
                 }
                 first = false;
                 writeTag(child, writer, depth);
