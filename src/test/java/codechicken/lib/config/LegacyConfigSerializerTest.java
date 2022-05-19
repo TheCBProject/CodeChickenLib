@@ -1,7 +1,6 @@
 package codechicken.lib.config;
 
 import codechicken.lib.config.parser.ConfigSerializer;
-import codechicken.lib.test.config.ConfigTests;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
@@ -52,7 +51,7 @@ public class LegacyConfigSerializerTest {
     }
 
     private static void copyTestFile(Path dst) throws Throwable {
-        Path resource = Paths.get(ConfigTests.class.getResource("/test.cfg").toURI());
+        Path resource = Paths.get(LegacyConfigSerializerTest.class.getResource("/tests/legacy_serializer/test.cfg").toURI());
         Files.copy(resource, dst, StandardCopyOption.REPLACE_EXISTING);
     }
 }
