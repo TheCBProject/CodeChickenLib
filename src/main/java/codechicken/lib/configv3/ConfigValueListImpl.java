@@ -1,5 +1,6 @@
 package codechicken.lib.configv3;
 
+import codechicken.lib.configv3.ListRestriction.Failure;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
@@ -19,10 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
@@ -41,9 +39,18 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
     @Nullable
     private List<?> networkValue = null;
     private ValueType type = ValueType.UNKNOWN;
+    @Nullable
+    private ListRestriction restriction;
 
     public ConfigValueListImpl(String name, @Nullable ConfigCategoryImpl parent) {
         super(name, parent);
+    }
+
+    static ConfigValueList proxy(List<?> value, ValueType type) {
+        ConfigValueListImpl list = new ConfigValueListImpl("proxy", null);
+        list.setKnownType(type);
+        list.setValue(value);
+        return list;
     }
 
     @Override
@@ -292,6 +299,25 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
     }
 
     @Override
+    public ConfigValueList setRestriction(ListRestriction restriction) {
+        this.restriction = restriction;
+        if (defaultValue != null) {
+            Optional<Failure> failureOpt = restriction.test(proxy(defaultValue, type));
+            if (failureOpt.isPresent()) {
+                Failure failure = failureOpt.get();
+                throw new IllegalStateException("Default list value at index " + failure.index() + " with value " + failure.value() + " was not accepted by Restriction.");
+            }
+        }
+        return this;
+    }
+
+    @Nullable
+    @Override
+    public ListRestriction getRestriction() {
+        return restriction;
+    }
+
+    @Override
     public void reset() {
         if (defaultValue != null) {
             value = null;
@@ -386,6 +412,13 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
     }
 
     public ConfigValueList setDefaultValue(List<?> value) {
+        if (restriction != null) {
+            Optional<Failure> failureOpt = restriction.test(proxy(value, type));
+            if (failureOpt.isPresent()) {
+                Failure failure = failureOpt.get();
+                throw new IllegalStateException("Default list value at index " + failure.index() + " with value " + failure.value() + " was not accepted by Restriction.");
+            }
+        }
         defaultValue = value;
         dirty = true;
         return this;
@@ -400,12 +433,29 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
         if (list == null) return null;
 
         try {
-            return convert(list, type);
+            list = convert(list, type);
         } catch (IllegalStateException ex) {
-            LOGGER.warn("Failed to convert config list tag {} to {}. Resetting to default.", getDesc(), type, ex);
+            LOGGER.error("Failed to convert config list tag {} to {}. Resetting to default.", getDesc(), type, ex);
             dirty = true;
             return null;
         }
+        if (restriction != null) {
+            Optional<Failure> failureOpt = restriction.test(proxy(list, type));
+            if (failureOpt.isPresent()) {
+                Failure failure = failureOpt.get();
+                LOGGER.error(
+                        "List violates restriction. Resetting to default. Tag {}, Index {} Value {}, Restriction {}, All values, {}",
+                        getDesc(),
+                        failure.index(),
+                        failure.value(),
+                        restriction.describe(),
+                        list
+                );
+                dirty = true;
+                return null;
+            }
+        }
+        return list;
     }
 
     static List<?> convert(List<?> list, ValueType type) {

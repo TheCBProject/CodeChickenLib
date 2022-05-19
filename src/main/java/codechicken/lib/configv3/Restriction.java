@@ -5,15 +5,14 @@ import codechicken.lib.math.MathHelper;
 import java.util.function.Predicate;
 
 /**
- * Represents a restriction that can be applied to
- * a {@link ConfigValue} or {@link ConfigValueList}.
+ * Represents a restriction that can be applied to a {@link ConfigValue}.
  * <p>
  * Created by covers1624 on 17/4/22.
  */
-public interface Restriction extends Predicate<ValueGetter> {
+public interface Restriction extends Predicate<ConfigValue> {
 
     @Override
-    boolean test(ValueGetter configValue);
+    boolean test(ConfigValue configValue);
 
     /**
      * Describe this {@link Restriction} for display.
@@ -55,7 +54,7 @@ public interface Restriction extends Predicate<ValueGetter> {
         }
 
         @Override
-        public boolean test(ValueGetter configValue) {
+        public boolean test(ConfigValue configValue) {
             return MathHelper.between(min, configValue.getInt(), max);
         }
 
@@ -74,7 +73,7 @@ public interface Restriction extends Predicate<ValueGetter> {
         }
 
         @Override
-        public boolean test(ValueGetter configValue) {
+        public boolean test(ConfigValue configValue) {
             return MathHelper.between(min, configValue.getDouble(), max);
         }
 
@@ -83,5 +82,4 @@ public interface Restriction extends Predicate<ValueGetter> {
             return "[ " + min + " ~ " + max + " ]";
         }
     }
-
 }

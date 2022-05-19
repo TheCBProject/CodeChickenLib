@@ -20,6 +20,7 @@ import org.junit.jupiter.api.function.Executable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -511,8 +512,7 @@ public class ConfigV3Tests {
     public void testRestrictions() {
         // Test getRestriction
         ConfigCategoryImpl root = new ConfigCategoryImpl("rootTag", null);
-        ConfigValue val = root.getValue("val1")
-                .setInt(10);
+        ConfigValue val = root.getValue("val1");
         assertNull(val.getRestriction());
         Restriction r = Restriction.intRange(1, 1);
         val.setRestriction(r);
@@ -522,16 +522,16 @@ public class ConfigV3Tests {
         // Test IntRange properly works
         r = Restriction.intRange(1, 20);
         assertEquals("[ 1 ~ 20 ]", r.describe());
-        assertTrue(r.test(ValueGetter.of(10, ValueType.INT)));
-        assertFalse(r.test(ValueGetter.of(0, ValueType.INT)));
-        assertTrue(r.test(ValueGetter.of(20, ValueType.INT)));
+        assertTrue(r.test(ConfigValueImpl.proxy(10, ValueType.INT)));
+        assertFalse(r.test(ConfigValueImpl.proxy(0, ValueType.INT)));
+        assertTrue(r.test(ConfigValueImpl.proxy(20, ValueType.INT)));
 
         // Test DoubleRange properly works.
         r = Restriction.doubleRange(4.20, 6.90);
         assertEquals("[ 4.2 ~ 6.9 ]", r.describe());
-        assertTrue(r.test(ValueGetter.of(4.20, ValueType.DOUBLE)));
-        assertFalse(r.test(ValueGetter.of(0.0, ValueType.DOUBLE)));
-        assertTrue(r.test(ValueGetter.of(6.9, ValueType.DOUBLE)));
+        assertTrue(r.test(ConfigValueImpl.proxy(4.20, ValueType.DOUBLE)));
+        assertFalse(r.test(ConfigValueImpl.proxy(0.0, ValueType.DOUBLE)));
+        assertTrue(r.test(ConfigValueImpl.proxy(6.9, ValueType.DOUBLE)));
 
         // Test defaults get tested against restriction when its added.
         Throwable ex;
@@ -561,15 +561,83 @@ public class ConfigV3Tests {
         assertNotNull(Restriction.intRange(3, 3));
         assertNotNull(Restriction.doubleRange(3, 3));
 
-
         // Test setting values with restrictions set.
         val = root.getValue("val1")
-                .setDefaultValue(20)
+                .setDefaultInt(20)
                 .setInt(10)
                 .setRestriction(Restriction.intRange(1, 20));
         assertEquals(10, val.getInt());
         val.setInt(300);
         assertEquals(20, val.getInt());
+    }
+
+    @Test
+    public void testListRestrictions() {
+        // Test getRestriction
+        ConfigCategoryImpl root = new ConfigCategoryImpl("rootTag", null);
+        ConfigValueList val = root.getValueList("list1");
+        assertNull(val.getRestriction());
+        ListRestriction r = ListRestriction.intRange(1, 1);
+        val.setRestriction(r);
+        assertSame(r, val.getRestriction());
+        root.clear();
+
+        // Test IntRange properly works
+        r = ListRestriction.intRange(5, 20);
+        assertEquals("[ 5 ~ 20 ]", r.describe());
+        assertTrue(r.test(ConfigValueListImpl.proxy(IntList.of(10), ValueType.INT)).isEmpty());
+        assertFailure(2, 3, r.test(ConfigValueListImpl.proxy(IntList.of(5, 9, 3, 10), ValueType.INT)));
+        assertTrue(r.test(ConfigValueListImpl.proxy(IntList.of(20), ValueType.INT)).isEmpty());
+
+        // Test DoubleRange properly works.
+        r = ListRestriction.doubleRange(4.20, 6.90);
+        assertEquals("[ 4.2 ~ 6.9 ]", r.describe());
+        assertTrue(r.test(ConfigValueListImpl.proxy(DoubleList.of(4.20), ValueType.DOUBLE)).isEmpty());
+        assertFailure(2, 3.3D, r.test(ConfigValueListImpl.proxy(DoubleList.of(4.2, 6.9, 3.3, 5.5), ValueType.DOUBLE)));
+        assertTrue(r.test(ConfigValueListImpl.proxy(DoubleList.of(6.9), ValueType.DOUBLE)).isEmpty());
+
+        // Test defaults get tested against restriction when its added.
+        Throwable ex;
+        ex = assertThrows(IllegalStateException.class, () ->
+                root.getValueList("list1")
+                        .setDefaultInts(IntList.of(3000))
+                        .setRestriction(ListRestriction.intRange(3, 5))
+        );
+        assertEquals("Default list value at index 0 with value 3000 was not accepted by Restriction.", ex.getMessage());
+
+        // Test the same, but in reverse, when the default gets added after.
+        ex = assertThrows(IllegalStateException.class, () ->
+                root.getValueList("list2")
+                        .setRestriction(ListRestriction.intRange(3, 5))
+                        .setDefaultInts(IntList.of(3000))
+        );
+        assertEquals("Default list value at index 0 with value 3000 was not accepted by Restriction.", ex.getMessage());
+        root.clear();
+
+        // Test Double/IntRange explode when min > max
+        ex = assertThrows(IllegalArgumentException.class, () -> ListRestriction.intRange(300, 4));
+        assertEquals("Min cannot be larger than max.", ex.getMessage());
+        ex = assertThrows(IllegalArgumentException.class, () -> ListRestriction.doubleRange(300, 4));
+        assertEquals("Min cannot be larger than max.", ex.getMessage());
+
+        // min == max should not explode. Although, I have no idea why you would do this as it makes it unchangeable...
+        assertNotNull(ListRestriction.intRange(3, 3));
+        assertNotNull(ListRestriction.doubleRange(3, 3));
+
+        // Test setting values with restrictions set.
+        val = root.getValueList("list1")
+                .setDefaultInts(IntList.of(20, 10))
+                .setInts(IntList.of(10, 20))
+                .setRestriction(ListRestriction.intRange(1, 20));
+        assertEquals(IntList.of(10, 20), val.getInts());
+        val.setInts(List.of(10, 20, 300));
+        assertEquals(IntList.of(20, 10), val.getInts());
+    }
+
+    private void assertFailure(int expectedIndex, Object expectedValue, Optional<ListRestriction.Failure> failure) {
+        assertTrue(failure.isPresent());
+        assertEquals(expectedIndex, failure.get().index());
+        assertEquals(expectedValue, failure.get().value());
     }
 
     @Test

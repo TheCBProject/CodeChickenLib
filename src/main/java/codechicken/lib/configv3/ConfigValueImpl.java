@@ -32,6 +32,13 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
         super(name, parent);
     }
 
+    static ConfigValue proxy(Object value, ValueType type) {
+        ConfigValueImpl val = new ConfigValueImpl("proxy", null);
+        val.setKnownType(type);
+        val.setValue(value);
+        return val;
+    }
+
     @Override
     public ValueType getType() {
         return type;
@@ -397,7 +404,7 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     @Override
     public ConfigValue setRestriction(Restriction restriction) {
         this.restriction = restriction;
-        if (defaultValue != null && !restriction.test(ValueGetter.of(defaultValue, type))) {
+        if (defaultValue != null && !restriction.test(proxy(defaultValue, type))) {
             throw new IllegalStateException("Default value is not accepted by Restriction.");
         }
         return this;
@@ -476,7 +483,7 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     }
 
     public ConfigValue setDefaultValue(Object value) {
-        if (restriction != null && !restriction.test(ValueGetter.of(value, type))) {
+        if (restriction != null && !restriction.test(proxy(value, type))) {
             throw new IllegalStateException("Default value is not accepted by Restriction.");
         }
         defaultValue = value;
@@ -513,12 +520,12 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
         try {
             object = convert(object, type);
         } catch (IllegalStateException ex) {
-            LOGGER.warn("Failed to convert config tag {} to {}. Resetting to default.", getDesc(), type, ex);
+            LOGGER.error("Failed to convert config tag {} to {}. Resetting to default.", getDesc(), type, ex);
             dirty = true;
             return null;
         }
-        if (restriction != null && !restriction.test(ValueGetter.of(object, type))) {
-            LOGGER.warn("Value violates restriction, Resetting to default. Tag {}, Value {}, Restriction {}", getDesc(), object, restriction.describe());
+        if (restriction != null && !restriction.test(proxy(object, type))) {
+            LOGGER.error("Value violates restriction, Resetting to default. Tag {}, Value {}, Restriction {}", getDesc(), object, restriction.describe());
             dirty = true;
             return null;
         }
