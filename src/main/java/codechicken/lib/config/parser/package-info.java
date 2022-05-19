@@ -1,7 +1,7 @@
 @FieldsAreNonnullByDefault
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package codechicken.lib.configv3;
+package codechicken.lib.config.parser;
 
 import net.covers1624.quack.annotation.FieldsAreNonnullByDefault;
 import net.covers1624.quack.annotation.MethodsReturnNonnullByDefault;

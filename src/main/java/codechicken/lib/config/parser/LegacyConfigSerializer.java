@@ -1,6 +1,6 @@
-package codechicken.lib.configv3.parser;
+package codechicken.lib.config.parser;
 
-import codechicken.lib.configv3.*;
+import codechicken.lib.config.*;
 import it.unimi.dsi.fastutil.chars.Char2ObjectArrayMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2CharArrayMap;

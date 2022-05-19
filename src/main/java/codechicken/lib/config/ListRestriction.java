@@ -1,4 +1,4 @@
-package codechicken.lib.configv3;
+package codechicken.lib.config;
 
 import codechicken.lib.math.MathHelper;
 import it.unimi.dsi.fastutil.doubles.DoubleIterator;

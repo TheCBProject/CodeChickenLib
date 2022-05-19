@@ -1,8 +1,8 @@
-package codechicken.lib.configv3;
+package codechicken.lib.config;
 
-import codechicken.lib.configv3.ConfigCallback.Reason;
-import codechicken.lib.configv3.ConfigValueListImpl.StringList;
-import codechicken.lib.configv3.parser.ConfigSerializer;
+import codechicken.lib.config.ConfigCallback.Reason;
+import codechicken.lib.config.ConfigValueListImpl.StringList;
+import codechicken.lib.config.parser.ConfigSerializer;
 import codechicken.lib.data.MCDataByteBuf;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

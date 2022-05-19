@@ -1,4 +1,4 @@
-package codechicken.lib.configv3;
+package codechicken.lib.config;
 
 import org.jetbrains.annotations.Nullable;
 

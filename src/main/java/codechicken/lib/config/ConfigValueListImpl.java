@@ -1,6 +1,6 @@
-package codechicken.lib.configv3;
+package codechicken.lib.config;
 
-import codechicken.lib.configv3.ListRestriction.Failure;
+import codechicken.lib.config.ListRestriction.Failure;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;

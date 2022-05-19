@@ -1,6 +1,6 @@
-package codechicken.lib.configv3.parser;
+package codechicken.lib.config.parser;
 
-import codechicken.lib.configv3.ConfigCategoryImpl;
+import codechicken.lib.config.ConfigCategoryImpl;
 
 import java.io.IOException;
 import java.nio.file.Path;

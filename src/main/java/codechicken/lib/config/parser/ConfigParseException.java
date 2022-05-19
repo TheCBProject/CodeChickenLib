@@ -1,4 +1,4 @@
-package codechicken.lib.configv3.parser;
+package codechicken.lib.config.parser;
 
 import java.io.IOException;
 

@@ -1,7 +1,6 @@
-package codechicken.lib.configv3;
+package codechicken.lib.config;
 
-import codechicken.lib.configv3.parser.ConfigSerializer;
-import codechicken.lib.configv3.parser.LegacyConfigSerializer;
+import codechicken.lib.config.parser.ConfigSerializer;
 import codechicken.lib.test.config.ConfigTests;
 import org.junit.jupiter.api.Test;
 

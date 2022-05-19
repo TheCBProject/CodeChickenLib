@@ -1,28 +1,27 @@
-package codechicken.lib.configv3;
+package codechicken.lib.config;
 
-import it.unimi.dsi.fastutil.booleans.BooleanList;
-import it.unimi.dsi.fastutil.doubles.DoubleList;
-import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.longs.LongList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * Created by covers1624 on 18/4/22.
+ * Represents a {@link ConfigTag} with a value
+ * of a specific type.
+ * <p>
+ * Created by covers1624 on 17/4/22.
  */
-public interface ConfigValueList extends ConfigTag {
+public interface ConfigValue extends ConfigTag {
 
     /**
-     * Gets the type of the {@link ConfigValueList}.
+     * Gets the type of the {@link ConfigValue}.
      *
      * @return The {@link ValueType} of this tag.
      */
     ValueType getType();
 
     /**
-     * Gets the {@link BooleanList} values stored in this tag.
+     * Gets the {@code boolean} value of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
@@ -31,10 +30,10 @@ public interface ConfigValueList extends ConfigTag {
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#BOOLEAN},
      *                               or in the event of a missing value, no default is set.
      */
-    BooleanList getBooleans();
+    boolean getBoolean();
 
     /**
-     * Gets the {@link List} of {@link String} values stored in this tag.
+     * Gets the {@link String} value of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
@@ -43,10 +42,10 @@ public interface ConfigValueList extends ConfigTag {
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#STRING},
      *                               or in the event of a missing value, no default is set.
      */
-    List<String> getStrings();
+    String getString();
 
     /**
-     * Gets the {@link IntList} values stored in this tag.
+     * Gets the {@code int} value of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
@@ -55,10 +54,10 @@ public interface ConfigValueList extends ConfigTag {
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#INT},
      *                               or in the event of a missing value, no default is set.
      */
-    IntList getInts();
+    int getInt();
 
     /**
-     * Gets the {@link LongList} value stored in this tag.
+     * Gets the {@code long} value of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
@@ -67,10 +66,10 @@ public interface ConfigValueList extends ConfigTag {
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#LONG},
      *                               or in the event of a missing value, no default is set.
      */
-    LongList getLongs();
+    long getLong();
 
     /**
-     * Gets the {@link IntList} values stored as a Hex strings stored in this tag.
+     * Gets the {@code int} value stored as a Hex String of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
@@ -79,10 +78,10 @@ public interface ConfigValueList extends ConfigTag {
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#HEX},
      *                               or in the event of a missing value, no default is set.
      */
-    IntList getHexs();
+    int getHex();
 
     /**
-     * Gets the {@link DoubleList} values stored in this tag.
+     * Gets the {@code double} value of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
@@ -91,239 +90,238 @@ public interface ConfigValueList extends ConfigTag {
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#DOUBLE},
      *                               or in the event of a missing value, no default is set.
      */
-    DoubleList getDoubles();
+    double getDouble();
 
     /**
-     * Sets the {@link List} of {@link Boolean} values stored in this tag.
+     * Sets the {@code boolean} value of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
      *
-     * @param values The {@link List} of {@link Boolean} values.
-     * @return The same {@link ConfigValueList}.
+     * @param value The {@code boolean} value.
+     * @return The same {@link ConfigValue}.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#UNKNOWN}
      *                               or {@link ValueType#BOOLEAN}.
      */
-    ConfigValueList setBooleans(List<Boolean> values);
+    ConfigValue setBoolean(boolean value);
 
     /**
-     * Sets the {@link List} of {@link String} values stored in this tag.
+     * Sets the {@link String} value of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
      *
-     * @param values The {@link List} of {@link String} values.
-     * @return The same {@link ConfigValueList}.
+     * @param value The {@link String} value.
+     * @return The same {@link ConfigValue}.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#UNKNOWN}
      *                               or {@link ValueType#STRING}.
      */
-    ConfigValueList setStrings(List<String> values);
+    ConfigValue setString(String value);
 
     /**
-     * Sets the {@link List} of {@link Integer} values stored in this tag.
+     * Sets the {@code int} value of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
      *
-     * @param values The {@link List} of {@link Integer} values.
-     * @return The same {@link ConfigValueList}.
+     * @param value The {@code int} value.
+     * @return The same {@link ConfigValue}.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#UNKNOWN}
      *                               or {@link ValueType#INT}.
      */
-    ConfigValueList setInts(List<Integer> values);
+    ConfigValue setInt(int value);
 
     /**
-     * Sets the {@link List} of {@link Long} values stored in this tag.
+     * Sets the {@code long} value of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
      *
-     * @param values The {@link List} of {@link Long} values.
-     * @return The same {@link ConfigValueList}.
+     * @param value The {@code long} value.
+     * @return The same {@link ConfigValue}.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#UNKNOWN}
      *                               or {@link ValueType#LONG}.
      */
-    ConfigValueList setLongs(List<Long> values);
+    ConfigValue setLong(long value);
 
     /**
-     * Sets the {@link List} of {@link Integer} values represented as hex Strings stored in this tag.
+     * Sets the {@code int} value represented as a hex String of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
      *
-     * @param values The {@link List} of {@link Integer} values.
-     * @return The same {@link ConfigValueList}.
+     * @param value The {@code int} value.
+     * @return The same {@link ConfigValue}.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#UNKNOWN}
      *                               or {@link ValueType#HEX}.
      */
-    ConfigValueList setHexs(List<Integer> values);
+    ConfigValue setHex(int value);
 
     /**
-     * Sets the {@link List} of {@link Double} values stored in this tag.
+     * Sets the {@code double} value of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
      *
-     * @param values The {@link List} of {@link Double} values.
-     * @return The same {@link ConfigValueList}.
+     * @param value The {@code double} value.
+     * @return The same {@link ConfigValue}.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#UNKNOWN}
      *                               or {@link ValueType#DOUBLE}.
      */
-    ConfigValueList setDoubles(List<Double> values);
+    ConfigValue setDouble(double value);
 
     /**
-     * Gets the default {@link BooleanList} values stored in this tag.
+     * Gets the default {@code boolean} value of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
      *
-     * @return The default {@link BooleanList} values.
+     * @return The default boolean value.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#BOOLEAN},
      *                               or when no default is set.
      */
-    BooleanList getDefaultBooleans();
+    boolean getDefaultBoolean();
 
     /**
-     * Gets the default {@link List} of {@link String} values stored in this tag.
+     * Gets the default {@link String} value of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
      *
-     * @return The default {@link List} of {@link String} values.
+     * @return The default {@link String} value.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#STRING},
      *                               or when no default is set.
      */
-    List<String> getDefaultStrings();
+    String getDefaultString();
 
     /**
-     * Gets the default {@link IntList} values stored in this tag.
+     * Gets the default {@code int} value of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
      *
-     * @return The default {@link LongList} values.
+     * @return The default int value.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#INT},
      *                               or when no default is set.
      */
-    IntList getDefaultInts();
+    int getDefaultInt();
 
     /**
-     * Gets the default {@link LongList} values stored in this tag.
+     * Gets the default {@code long} value of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
      *
-     * @return The default {@link LongList} values.
+     * @return The default long value.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#LONG},
      *                               or when no default is set.
      */
-    LongList getDefaultLongs();
+    long getDefaultLong();
 
     /**
-     * Gets the default {@link IntList} values represented as Hex strings stored in this tag.
+     * Gets the default {@code int} value stored as a Hex String of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
      *
-     * @return The default {@link IntList} values.
+     * @return The default int value.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#HEX},
      *                               or when no default is set.
      */
-    IntList getDefaultHexs();
+    int getDefaultHex();
 
     /**
-     * Gets the default {@link DoubleList} values stored in this tag.
+     * Gets the default {@code double} value of this tag.
      * <p>
      * No attempt to convert between tag types is made,
      * this must be called on a tag which has a non {@link ValueType#UNKNOWN} type.
      *
-     * @return The default {@link DoubleList} values.
+     * @return The default double value.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#DOUBLE},
      *                               or when no default is set.
      */
-    DoubleList getDefaultDoubles();
+    double getDefaultDouble();
 
     /**
-     * Sets the default {@link List} of {@link Boolean} values stored in this tag.
+     * Sets the default {@code boolean} value of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
      *
-     * @param values The {@link List} of {@link Boolean} values.
-     * @return The same {@link ConfigValueList}.
+     * @param value The {@code boolean} value.
+     * @return The same {@link ConfigValue}.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#UNKNOWN}
      *                               or {@link ValueType#BOOLEAN}.
      */
-    ConfigValueList setDefaultBooleans(List<Boolean> values);
+    ConfigValue setDefaultBoolean(boolean value);
 
     /**
-     * Sets the default {@link List} of {@link String} values stored in this tag.
+     * Sets the default {@link String} value of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
      *
-     * @param values The {@link List} of {@link String} values.
-     * @return The same {@link ConfigValueList}.
+     * @param value The {@link String} value.
+     * @return The same {@link ConfigValue}.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#UNKNOWN}
      *                               or {@link ValueType#STRING}.
      */
-    ConfigValueList setDefaultStrings(List<String> values);
+    ConfigValue setDefaultString(String value);
 
     /**
-     * Sets the default {@link List} of {@link Integer} values stored in this tag.
+     * Sets the default {@code int} value of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
      *
-     * @param values The {@link List} of {@link Integer} values.
-     * @return The same {@link ConfigValueList}.
+     * @param value The {@code int} value.
+     * @return The same {@link ConfigValue}.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#UNKNOWN}
      *                               or {@link ValueType#INT}.
      */
-    ConfigValueList setDefaultInts(List<Integer> values);
+    ConfigValue setDefaultInt(int value);
 
     /**
-     * Sets the default {@link List} of {@link Long} values stored in this tag.
+     * Sets the default {@code long} value of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
      *
-     * @param values The {@link List} of {@link Long} values.
-     * @return The same {@link ConfigValueList}.
+     * @param value The {@code long} value.
+     * @return The same {@link ConfigValue}.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#UNKNOWN}
      *                               or {@link ValueType#LONG}.
      */
-    ConfigValueList setDefaultLongs(List<Long> values);
+    ConfigValue setDefaultLong(long value);
 
     /**
-     * Sets the default {@link List} of {@link Integer} values represented as hex Strings stored in this tag.
+     * Sets the default {@code int} value represented as a hex String of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
      *
-     * @param values The {@link List} of {@link Integer} values.
-     * @return The same {@link ConfigValueList}.
+     * @param value The {@code int} value.
+     * @return The same {@link ConfigValue}.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#UNKNOWN}
      *                               or {@link ValueType#HEX}.
      */
-    ConfigValueList setDefaultHexs(List<Integer> values);
+    ConfigValue setDefaultHex(int value);
 
     /**
-     * Sets the default {@link List} of {@link Double} values stored in this tag.
+     * Sets the default {@code double} value of this tag.
      * <p>
      * If the tag has an {@link ValueType#UNKNOWN} value type,
      * this function will set it appropriately.
      *
-     * @param values The {@link List} of {@link Double} values.
-     * @return The same {@link ConfigValueList}.
+     * @param value The {@code double} value.
+     * @return The same {@link ConfigValue}.
      * @throws IllegalStateException If the {@link #getType()} is not {@link ValueType#UNKNOWN}
      *                               or {@link ValueType#DOUBLE}.
      */
-    ConfigValueList setDefaultDoubles(List<Double> values);
+    ConfigValue setDefaultDouble(double value);
 
     /**
-     * // TODO Improve wording for lists.
-     * Set the {@link Restriction} for this {@link ConfigValueList}.
+     * Set the {@link Restriction} for this {@link ConfigValue}.
      * <p>
      * A restriction is just a {@link Predicate}, and can be used for anything,
      * but is most commonly used for int/float value ranges on tags.
@@ -333,7 +331,6 @@ public interface ConfigValueList extends ConfigTag {
      * <p>
      * TODO, in the future, provide a function to choose what to do when a value
      *  is invalid, allow the value to be altered (clamped), removed, or reset entirely to default.
-     * <p>
      * It is invalid for the restriction to not accept the tag's default value,
      * if the restriction does not, it will throw an {@link IllegalArgumentException} either
      * when the restriction is set, or the default is set, whichever comes last.
@@ -341,10 +338,10 @@ public interface ConfigValueList extends ConfigTag {
      * See {@link Restriction} for more information.
      *
      * @param restriction The restriction to set.
-     * @return The same {@link ConfigValueList}.
+     * @return The same {@link ConfigValue}.
      * @see Restriction
      */
-    ConfigValueList setRestriction(ListRestriction restriction);
+    ConfigValue setRestriction(Restriction restriction);
 
     /**
      * Gets the {@link Restriction} predicate for this tag.
@@ -352,13 +349,13 @@ public interface ConfigValueList extends ConfigTag {
      * @return The {@link Restriction}
      */
     @Nullable
-    ListRestriction getRestriction();
+    Restriction getRestriction();
 
     /**
      * {@inheritDoc}
      */
     @Override
-    ConfigValueList syncTagToClient();
+    ConfigValue syncTagToClient();
 
     /**
      * Called when this tag, or any children, are modified.
@@ -371,26 +368,26 @@ public interface ConfigValueList extends ConfigTag {
      * See {@link ConfigCallback} for more info.
      *
      * @param callback The {@link ConfigCallback}.
-     * @return The same {@link ConfigValueList}.
+     * @return The same {@link ConfigValue}.
      * @see ConfigCallback
      */
-    ConfigValueList onSync(ConfigCallback<ConfigValueList> callback);
+    ConfigValue onSync(ConfigCallback<ConfigValue> callback);
 
     /**
      * {@inheritDoc}
      */
     @Override
-    ConfigValueList setComment(String comment);
+    ConfigValue setComment(String comment);
 
     /**
      * {@inheritDoc}
      */
     @Override
-    ConfigValueList setComment(String... comment);
+    ConfigValue setComment(String... comment);
 
     /**
      * {@inheritDoc}
      */
     @Override
-    ConfigValueList setComment(List<String> comment);
+    ConfigValue setComment(List<String> comment);
 }

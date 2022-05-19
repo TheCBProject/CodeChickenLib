@@ -1,6 +1,6 @@
-package codechicken.lib.configv3;
+package codechicken.lib.config;
 
-import codechicken.lib.configv3.parser.ConfigSerializer;
+import codechicken.lib.config.parser.ConfigSerializer;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 

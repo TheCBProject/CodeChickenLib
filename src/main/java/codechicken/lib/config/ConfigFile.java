@@ -1,6 +1,6 @@
-package codechicken.lib.configv3;
+package codechicken.lib.config;
 
-import codechicken.lib.configv3.parser.ConfigSerializer;
+import codechicken.lib.config.parser.ConfigSerializer;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.NotImplementedException;

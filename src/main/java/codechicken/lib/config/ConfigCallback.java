@@ -1,4 +1,4 @@
-package codechicken.lib.configv3;
+package codechicken.lib.config;
 
 /**
  * Created by covers1624 on 2/5/22.
