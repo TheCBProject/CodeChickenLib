@@ -1,8 +1,9 @@
 package codechicken.lib.internal.proxy;
 
 import codechicken.lib.CodeChickenLib;
-import codechicken.lib.config.ConfigTag;
+import codechicken.lib.config.ConfigCategory;
 import codechicken.lib.config.ConfigSyncManager;
+import codechicken.lib.config.ConfigTag;
 import codechicken.lib.model.bakery.ModelBakery;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.BlockRenderingRegistry;
@@ -34,23 +35,25 @@ public class ProxyClient extends Proxy {
     }
 
     private void loadClientConfig() {
-        ConfigTag tag;
-        ConfigTag clientTag = CodeChickenLib.config.getTag("client");
-        clientTag.deleteTag("block_renderer_dispatcher_misc");
+        ConfigCategory clientTag = CodeChickenLib.config.getCategory("client");
+        clientTag.delete("block_renderer_dispatcher_misc");
+        clientTag.delete("catchItemRenderExceptions");
+        clientTag.delete("attemptRecoveryOnItemRenderException");
 
-        tag = clientTag.getTag("catchBlockRenderExceptions")//
-                .setComment(//
-                        "With this enabled, CCL will catch all exceptions thrown whilst rendering blocks.",//
-                        "If an exception is caught, the block will not be rendered."//
-                );
-        catchBlockRenderExceptions = tag.setDefaultBoolean(true).getBoolean();
-        tag = clientTag.getTag("catchItemRenderExceptions")//
-                .setComment(//
-                        "With this enabled, CCL will catch all exceptions thrown whilst rendering items.",//
-                        "By default CCL will only enhance the crash report, but with 'attemptRecoveryOnItemRenderException' enabled",//
-                        " CCL will attempt to recover after the exception."//
-                );
-        messagePlayerOnRenderExceptionCaught = tag.setDefaultBoolean(true).getBoolean();
+        catchBlockRenderExceptions = clientTag.getValue("catchBlockRenderExceptions")
+                .setComment(
+                        "With this enabled, CCL will catch all exceptions thrown whilst rendering blocks.",
+                        "If an exception is caught, the block will not be rendered."
+                )
+                .setDefaultBoolean(true)
+                .getBoolean();
+        messagePlayerOnRenderExceptionCaught = clientTag.getValue("messagePlayerOnRenderExceptionCaught")
+                .setComment(
+                        "With this enabled, CCL will message the player upon an exception from rendering blocks or items.",
+                        "Messages are Rate-Limited to one per 5 seconds in the event that the exception continues."
+                )
+                .setDefaultBoolean(true)
+                .getBoolean();
 
         clientTag.save();
     }

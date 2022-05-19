@@ -1,14 +1,14 @@
 package codechicken.lib;
 
+import codechicken.lib.config.ConfigCategory;
+import codechicken.lib.config.ConfigFile;
 import codechicken.lib.config.ConfigTag;
-import codechicken.lib.config.StandardConfigFile;
 import codechicken.lib.internal.command.CCLCommands;
 import codechicken.lib.internal.network.CCLNetwork;
 import codechicken.lib.internal.proxy.Proxy;
 import codechicken.lib.internal.proxy.ProxyClient;
 import codechicken.lib.render.OpenGLUtils;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -27,11 +27,14 @@ public class CodeChickenLib {
 
     public static final String MOD_ID = "codechickenlib";
 
-    public static ConfigTag config;
+    public static ConfigCategory config;
 
     public static Proxy proxy;
 
     public CodeChickenLib() {
+        config = new ConfigFile(MOD_ID)
+                .path(Paths.get("config/ccl.cfg"))
+                .load();
         proxy = DistExecutor.safeRunForDist(() -> ProxyClient::new, () -> Proxy::new);
         FMLJavaModLoadingContext.get().getModEventBus().register(this);
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> OpenGLUtils::init);
@@ -41,7 +44,6 @@ public class CodeChickenLib {
     @SubscribeEvent
     public void onCommonSetup(FMLCommonSetupEvent event) {
         proxy.commonSetup(event);
-        config = new StandardConfigFile(Paths.get("config/ccl.cfg")).load();
         CCLNetwork.init();
     }
 
