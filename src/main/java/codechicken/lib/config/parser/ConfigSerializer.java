@@ -15,6 +15,7 @@ public interface ConfigSerializer {
 
     ConfigSerializer LEGACY = new LegacyConfigSerializer();
     ConfigSerializer JSON = new JsonConfigSerializer();
+    ConfigSerializer TOML = new TomlConfigSerializer();
 
     void parse(Path file, ConfigCategoryImpl rootTag) throws IOException;
 

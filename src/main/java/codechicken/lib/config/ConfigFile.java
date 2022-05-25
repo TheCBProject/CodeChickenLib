@@ -125,7 +125,7 @@ public final class ConfigFile {
         return switch (ext) {
             case "cfg" -> ConfigSerializer.LEGACY;
             case "json" -> ConfigSerializer.JSON;
-            case "toml" -> throw new NotImplementedException();
+            case "toml" -> ConfigSerializer.TOML;
             default -> null;
         };
     }
