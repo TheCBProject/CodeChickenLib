@@ -121,9 +121,6 @@ public class LegacyConfigSerializer implements ConfigSerializer {
                     if (listLine == null) {
                         throw new EOFException("End of line reached whilst parsing list?");
                     }
-                    if (listLine.isEmpty() || line.startsWith("//") || line.startsWith("#")) {
-                        continue;
-                    }
                     if (listLine.startsWith(">")) {
                         break;
                     }
