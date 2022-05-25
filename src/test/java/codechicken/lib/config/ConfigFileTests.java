@@ -18,8 +18,8 @@ public class ConfigFileTests {
     @Test
     public void testPickForExtension() {
         assertEquals(ConfigSerializer.LEGACY, ConfigFile.pickForExtension(Path.of("test.cfg")));
+        assertEquals(ConfigSerializer.JSON, ConfigFile.pickForExtension(Path.of("test.json")));
         assertNull(ConfigFile.pickForExtension(Path.of("test.tar.gz")));
-        assertThrows(NotImplementedException.class, () -> ConfigFile.pickForExtension(Path.of("test.json")));
         assertThrows(NotImplementedException.class, () -> ConfigFile.pickForExtension(Path.of("test.toml")));
     }
 

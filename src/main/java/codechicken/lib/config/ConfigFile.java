@@ -124,7 +124,8 @@ public final class ConfigFile {
         String ext = FilenameUtils.getExtension(path.getFileName().toString());
         return switch (ext) {
             case "cfg" -> ConfigSerializer.LEGACY;
-            case "json", "toml" -> throw new NotImplementedException();
+            case "json" -> ConfigSerializer.JSON;
+            case "toml" -> throw new NotImplementedException();
             default -> null;
         };
     }

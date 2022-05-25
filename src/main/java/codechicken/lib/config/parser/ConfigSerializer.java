@@ -14,6 +14,7 @@ import java.nio.file.Path;
 public interface ConfigSerializer {
 
     ConfigSerializer LEGACY = new LegacyConfigSerializer();
+    ConfigSerializer JSON = new JsonConfigSerializer();
 
     void parse(Path file, ConfigCategoryImpl rootTag) throws IOException;
 
