@@ -47,7 +47,7 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     @Override
     public boolean getBoolean() {
         if (type == ValueType.UNKNOWN) {
-            throw new IllegalStateException("Tag does not have a type assigned yet.");
+            type = ValueType.BOOLEAN;
         }
         if (type != ValueType.BOOLEAN) {
             throw new IllegalStateException("Tag has incompatible type: " + type);
@@ -68,7 +68,7 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     @Override
     public String getString() {
         if (type == ValueType.UNKNOWN) {
-            throw new IllegalStateException("Tag does not have a type assigned yet.");
+            type = ValueType.STRING;
         }
         if (type != ValueType.STRING) {
             throw new IllegalStateException("Tag has incompatible type: " + type);
@@ -89,7 +89,7 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     @Override
     public int getInt() {
         if (type == ValueType.UNKNOWN) {
-            throw new IllegalStateException("Tag does not have a type assigned yet.");
+            type = ValueType.INT;
         }
         if (type != ValueType.INT) {
             throw new IllegalStateException("Tag has incompatible type: " + type);
@@ -110,7 +110,7 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     @Override
     public long getLong() {
         if (type == ValueType.UNKNOWN) {
-            throw new IllegalStateException("Tag does not have a type assigned yet.");
+            type = ValueType.LONG;
         }
         if (type != ValueType.LONG) {
             throw new IllegalStateException("Tag has incompatible type: " + type);
@@ -131,7 +131,7 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     @Override
     public int getHex() {
         if (type == ValueType.UNKNOWN) {
-            throw new IllegalStateException("Tag does not have a type assigned yet.");
+            type = ValueType.HEX;
         }
         if (type != ValueType.HEX) throw new IllegalStateException("Tag has incompatible type: " + type);
 
@@ -150,7 +150,7 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     @Override
     public double getDouble() {
         if (type == ValueType.UNKNOWN) {
-            throw new IllegalStateException("Tag does not have a type assigned yet.");
+            type = ValueType.DOUBLE;
         }
         if (type != ValueType.DOUBLE) {
             throw new IllegalStateException("Tag has incompatible type: " + type);

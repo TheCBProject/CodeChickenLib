@@ -60,7 +60,9 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
 
     @Override
     public BooleanList getBooleans() {
-        if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tag does not have a type assigned yet.");
+        if (type == ValueType.UNKNOWN) {
+            type = ValueType.BOOLEAN;
+        }
         if (type != ValueType.BOOLEAN) throw new IllegalStateException("Tag has incompatible type: " + type);
 
         if (networkValue != null) {
@@ -75,7 +77,9 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
 
     @Override
     public List<String> getStrings() {
-        if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tag does not have a type assigned yet.");
+        if (type == ValueType.UNKNOWN) {
+            type = ValueType.STRING;
+        }
         if (type != ValueType.STRING) throw new IllegalStateException("Tag has incompatible type: " + type);
 
         if (networkValue != null) {
@@ -90,7 +94,9 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
 
     @Override
     public IntList getInts() {
-        if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tag does not have a type assigned yet.");
+        if (type == ValueType.UNKNOWN) {
+            type = ValueType.INT;
+        }
         if (type != ValueType.INT) throw new IllegalStateException("Tag has incompatible type: " + type);
 
         if (networkValue != null) {
@@ -105,7 +111,9 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
 
     @Override
     public LongList getLongs() {
-        if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tag does not have a type assigned yet.");
+        if (type == ValueType.UNKNOWN) {
+            type = ValueType.LONG;
+        }
         if (type != ValueType.LONG) throw new IllegalStateException("Tag has incompatible type: " + type);
 
         if (networkValue != null) {
@@ -120,7 +128,9 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
 
     @Override
     public IntList getHexs() {
-        if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tag does not have a type assigned yet.");
+        if (type == ValueType.UNKNOWN) {
+            type = ValueType.HEX;
+        }
         if (type != ValueType.HEX) throw new IllegalStateException("Tag has incompatible type: " + type);
 
         if (networkValue != null) {
@@ -135,7 +145,9 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
 
     @Override
     public DoubleList getDoubles() {
-        if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tag does not have a type assigned yet.");
+        if (type == ValueType.UNKNOWN) {
+            type = ValueType.DOUBLE;
+        }
         if (type != ValueType.DOUBLE) throw new IllegalStateException("Tag has incompatible type: " + type);
 
         if (networkValue != null) {

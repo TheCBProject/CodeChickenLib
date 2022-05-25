@@ -140,12 +140,6 @@ public class ConfigV3Tests {
         ConfigCategoryImpl root = new ConfigCategoryImpl("rootTag", null);
         ConfigValue val1 = root.getValue("val1");
         assertEquals(ValueType.UNKNOWN, val1.getType());
-        assertTagTypeNotAssigned(val1::getBoolean);
-        assertTagTypeNotAssigned(val1::getString);
-        assertTagTypeNotAssigned(val1::getInt);
-        assertTagTypeNotAssigned(val1::getLong);
-        assertTagTypeNotAssigned(val1::getHex);
-        assertTagTypeNotAssigned(val1::getDouble);
 
         assertTagTypeNotAssigned(val1::getDefaultBoolean);
         assertTagTypeNotAssigned(val1::getDefaultString);
@@ -153,6 +147,13 @@ public class ConfigV3Tests {
         assertTagTypeNotAssigned(val1::getDefaultLong);
         assertTagTypeNotAssigned(val1::getDefaultHex);
         assertTagTypeNotAssigned(val1::getDefaultDouble);
+
+        assertHasNoDefault(root.getValue("val2")::getBoolean);
+        assertHasNoDefault(root.getValue("val3")::getString);
+        assertHasNoDefault(root.getValue("val4")::getInt);
+        assertHasNoDefault(root.getValue("val5")::getLong);
+        assertHasNoDefault(root.getValue("val6")::getHex);
+        assertHasNoDefault(root.getValue("val7")::getDouble);
     }
 
     @Test
@@ -160,12 +161,6 @@ public class ConfigV3Tests {
         ConfigCategoryImpl root = new ConfigCategoryImpl("rootTag", null);
         ConfigValueList list1 = root.getValueList("list1");
         assertEquals(ValueType.UNKNOWN, list1.getType());
-        assertTagTypeNotAssigned(list1::getBooleans);
-        assertTagTypeNotAssigned(list1::getStrings);
-        assertTagTypeNotAssigned(list1::getInts);
-        assertTagTypeNotAssigned(list1::getLongs);
-        assertTagTypeNotAssigned(list1::getHexs);
-        assertTagTypeNotAssigned(list1::getDoubles);
 
         assertTagTypeNotAssigned(list1::getDefaultBooleans);
         assertTagTypeNotAssigned(list1::getDefaultStrings);
@@ -173,6 +168,13 @@ public class ConfigV3Tests {
         assertTagTypeNotAssigned(list1::getDefaultLongs);
         assertTagTypeNotAssigned(list1::getDefaultHexs);
         assertTagTypeNotAssigned(list1::getDefaultDoubles);
+
+        assertHasNoDefault(root.getValueList("val2")::getBooleans);
+        assertHasNoDefault(root.getValueList("val3")::getStrings);
+        assertHasNoDefault(root.getValueList("val4")::getInts);
+        assertHasNoDefault(root.getValueList("val5")::getLongs);
+        assertHasNoDefault(root.getValueList("val6")::getHexs);
+        assertHasNoDefault(root.getValueList("val7")::getDoubles);
     }
 
     @Test
