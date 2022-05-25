@@ -17,6 +17,7 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import net.covers1624.quack.collection.StreamableIterable;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -415,8 +416,15 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
         }
 
         value = tryConvert(value, type);
+        return getRealRawValue();
+    }
+
+    @VisibleForTesting
+    List<?> getRealRawValue() {
         if (value == null) {
-            if (defaultValue == null) throw new IllegalStateException("Default value not set.");
+            if (defaultValue == null) {
+                throw new IllegalStateException("Default value not set.");
+            }
             return defaultValue;
         }
 

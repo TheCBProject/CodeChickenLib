@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
+ * Represents a serializer capable of reading the provided file into
+ * a tag tree.
+ * <p>
  * Created by covers1624 on 18/4/22.
  */
 public interface ConfigSerializer {
@@ -14,5 +17,5 @@ public interface ConfigSerializer {
 
     void parse(Path file, ConfigCategoryImpl rootTag) throws IOException;
 
-    void save(Path file, ConfigCategoryImpl tag) throws IOException;
+    void save(Path file, ConfigCategoryImpl rootTag) throws IOException;
 }

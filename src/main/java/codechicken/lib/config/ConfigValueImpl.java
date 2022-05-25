@@ -3,6 +3,7 @@ package codechicken.lib.config;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -497,13 +498,17 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
         }
 
         value = tryConvert(value, type);
+        return getRealRawValue();
+    }
+
+    @VisibleForTesting
+    Object getRealRawValue() {
         if (value == null) {
             if (defaultValue == null) {
                 throw new IllegalStateException("Default value not set.");
             }
             return defaultValue;
         }
-
         return value;
     }
 

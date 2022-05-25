@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -14,27 +15,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Created by covers1624 on 21/4/22.
  */
-public class LegacyConfigSerializerTest {
+public class LegacyConfigSerializerTest extends ConfigRoundTripTest {
 
     @Test
     public void testParseSerializeRondTrip() throws Throwable {
-        Path dir = Files.createTempDirectory("config_test");
+        Path dir = Files.createTempDirectory("legacy_test_");
         dir.toFile().deleteOnExit();
+        Path config = dir.resolve("config.cfg");
 
-        Path initial = dir.resolve("initial.cfg");
-        Path written = dir.resolve("written.cfg");
-        copyTestFile(initial);
+        ConfigCategoryImpl rootTag = generateTestTag(new Random());
+        ConfigSerializer.LEGACY.save(config, rootTag);
 
-        ConfigCategoryImpl rootTag = new ConfigCategoryImpl("rootTag", null);
-        ConfigSerializer.LEGACY.parse(initial, rootTag);
-        assertNotEquals(0, rootTag.getChildren().size());
+        ConfigCategoryImpl readTag = new ConfigCategoryImpl("rootTag", null);
+        ConfigSerializer.LEGACY.parse(config, readTag);
 
-        ConfigSerializer.LEGACY.save(written, rootTag);
-
-        ConfigCategoryImpl readRoot = new ConfigCategoryImpl("rootTag", null);
-        ConfigSerializer.LEGACY.parse(written, readRoot);
-
-        assertTrue(ConfigV3Tests.equals(rootTag, readRoot));
+        assertTagsParseSame(rootTag, readTag);
     }
 
     @Test

@@ -139,9 +139,9 @@ public class LegacyConfigSerializer implements ConfigSerializer {
     }
 
     @Override
-    public void save(Path file, ConfigCategoryImpl tag) throws IOException {
+    public void save(Path file, ConfigCategoryImpl rootTag) throws IOException {
         try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(IOUtils.makeParents(file)))) {
-            writeTag(tag, writer, -1);
+            writeTag(rootTag, writer, -1);
         }
     }
 
