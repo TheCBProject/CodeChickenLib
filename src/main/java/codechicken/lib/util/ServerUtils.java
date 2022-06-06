@@ -110,6 +110,7 @@ public class ServerUtils {
 
         packet.sendToPlayer(player);
         player.containerMenu = container;
+        player.initMenu(player.containerMenu);
         MinecraftForge.EVENT_BUS.post(new PlayerContainerEvent.Open(player, container));
     }
 }
