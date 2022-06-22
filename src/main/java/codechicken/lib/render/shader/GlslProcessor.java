@@ -125,9 +125,10 @@ public class GlslProcessor {
 
         private ProcessorEntry(ResourceLocation shader) {
             this.shader = shader;
-            try (Resource resource = resourceProvider.getResource(shader)) {
-                sourceName = resource.getSourceName();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+            try {
+                Resource resource = resourceProvider.getResourceOrThrow(shader);
+                sourceName = resource.sourcePackId();
+                try (BufferedReader reader = resource.openAsReader()) {
                     lines = reader.lines().toList();
                 }
             } catch (IOException ex) {

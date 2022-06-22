@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -49,9 +50,8 @@ public interface ICCBlockRenderer {
      * @param builder The {@link VertexConsumer} to add quads to.
      * @param random  Position seeded Random for this block position.
      * @param data    Any ModelData.
-     * @return If quads were added.
      */
-    boolean renderBlock(BlockState state, BlockPos pos, BlockAndTintGetter world, PoseStack mStack, VertexConsumer builder, Random random, IModelData data);
+    void renderBlock(BlockState state, BlockPos pos, BlockAndTintGetter world, PoseStack mStack, VertexConsumer builder, RandomSource random, IModelData data);
 
     /**
      * Called when vanilla is rendering breaking texture over your block.
@@ -69,7 +69,7 @@ public interface ICCBlockRenderer {
         ccrs.overlay = OverlayTexture.NO_OVERLAY;
         ccrs.brightness = LevelRenderer.getLightColor(world, state, pos);
         mStack.pushPose();
-        renderBlock(state, pos, world, mStack, builder, new Random(), data);
+        renderBlock(state, pos, world, mStack, builder, RandomSource.create(), data);
         mStack.popPose();
     }
     //endregion
@@ -98,8 +98,7 @@ public interface ICCBlockRenderer {
      * @param packedOverlay The {@link OverlayTexture} packed coords.
      * @param data          Any ModelData.
      */
-    default void renderEntity(BlockState state, PoseStack nStack, MultiBufferSource builder, int packedLight, int packedOverlay, IModelData data) {
-    }
+    default void renderEntity(BlockState state, PoseStack nStack, MultiBufferSource builder, int packedLight, int packedOverlay, IModelData data) { }
     //endregion
 
     //region Fluids
@@ -128,10 +127,7 @@ public interface ICCBlockRenderer {
      * @param builder    The {@link VertexConsumer}.
      * @param blockState The {@link BlockState}
      * @param fluidState The {@link FluidState}
-     * @return If any quads were added.
      */
-    default boolean renderFluid(BlockPos pos, BlockAndTintGetter world, VertexConsumer builder, BlockState blockState, FluidState fluidState) {
-        return false;
-    }
+    default void renderFluid(BlockPos pos, BlockAndTintGetter world, VertexConsumer builder, BlockState blockState, FluidState fluidState) { }
     //endregion
 }

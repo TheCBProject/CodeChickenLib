@@ -26,6 +26,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraftforge.client.RenderProperties;
 import net.minecraftforge.fluids.FluidStack;
 
 /**
@@ -296,7 +297,7 @@ public class CCRenderState {
     }
 
     public void setFluidColour(FluidStack fluidStack, int alpha) {
-        this.baseColour = fluidStack.getFluid().getAttributes().getColor(fluidStack) << 8 | alpha;
+        this.baseColour = RenderProperties.get(fluidStack.getFluid()).getColorTint(fluidStack) << 8 | alpha;
     }
 
     public void setColour(Colour colour) {

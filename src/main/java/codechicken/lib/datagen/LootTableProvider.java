@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import net.minecraft.advancements.critereon.EnchantmentPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
@@ -26,6 +27,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,7 +52,7 @@ public abstract class LootTableProvider implements DataProvider {
     }
 
     @Override
-    public void run(HashCache cache) {
+    public void run(CachedOutput cache) {
         tables.clear();
         Path out = dataGenerator.getOutputFolder();
 
@@ -73,7 +75,7 @@ public abstract class LootTableProvider implements DataProvider {
         tables.forEach((name, table) -> {
             Path output = getPath(out, name);
             try {
-                DataProvider.save(GSON, cache, LootTables.serialize(table), output);
+                DataProvider.saveStable(cache, LootTables.serialize(table), output);
             } catch (IOException e) {
                 logger.error("Couldn't save loot table {}", output, e);
             }
@@ -154,7 +156,7 @@ public abstract class LootTableProvider implements DataProvider {
         }
 
         protected void register(Block block, LootTable.Builder builder) {
-            register(block.getRegistryName(), builder);
+            register(ForgeRegistries.BLOCKS.getKey(block), builder);
         }
 
         protected void register(ResourceLocation name, LootTable.Builder builder) {

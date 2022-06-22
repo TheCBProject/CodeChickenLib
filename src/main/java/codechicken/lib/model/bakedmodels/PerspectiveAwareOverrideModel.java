@@ -4,6 +4,7 @@ import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
@@ -31,7 +32,7 @@ public class PerspectiveAwareOverrideModel extends AbstractBakedPropertiesModel 
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, Random rand) {
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand) {
         if (state == null && side == null) {
             return quads;
         }

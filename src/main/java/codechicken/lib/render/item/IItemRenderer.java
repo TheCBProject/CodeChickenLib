@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
@@ -58,7 +59,7 @@ public interface IItemRenderer extends BakedModel {
     //Useless methods for IItemRenderer.
     //@formatter:off
     @Override default boolean doesHandlePerspectives() { return true; }
-    @Override default List<BakedQuad> getQuads(BlockState state, Direction side, Random rand) { return Collections.emptyList(); }
+    @Override default List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand) { return Collections.emptyList(); }
     @Override default boolean isCustomRenderer() { return true; }
     @Override default TextureAtlasSprite getParticleIcon() { return TextureUtils.getMissingSprite(); }
     @Override default ItemOverrides getOverrides() { return ItemOverrides.EMPTY; }

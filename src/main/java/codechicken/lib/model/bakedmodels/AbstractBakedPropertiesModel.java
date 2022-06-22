@@ -13,6 +13,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -23,7 +24,6 @@ import net.minecraftforge.client.model.pipeline.LightUtil;
 import javax.annotation.Nonnull;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,9 +65,9 @@ public abstract class AbstractBakedPropertiesModel implements IModelParticleProv
 
     protected List<BakedQuad> getAllQuads(BlockState state, IModelData modelData) {
         List<BakedQuad> allQuads = new LinkedList<>();
-        allQuads.addAll(getQuads(state, null, new Random(0), modelData));
+        allQuads.addAll(getQuads(state, null, RandomSource.create(0), modelData));
         for (Direction face : Direction.BY_3D_DATA) {
-            allQuads.addAll(getQuads(state, face, new Random(0), modelData));
+            allQuads.addAll(getQuads(state, face, RandomSource.create(0), modelData));
         }
         return allQuads;
     }

@@ -3,8 +3,7 @@ package codechicken.lib.internal.command.admin;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import static net.minecraft.commands.Commands.literal;
 
@@ -22,11 +21,11 @@ public class MiscCommands {
                 .then(literal("gc")
                         .requires(e -> e.hasPermission(4))
                         .executes(ctx -> {
-                            ctx.getSource().sendSuccess(new TranslatableComponent("ccl.commands.gc.before"), true);
+                            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.gc.before"), true);
                             printMemInfo(ctx, true);
-                            ctx.getSource().sendSuccess(new TranslatableComponent("ccl.commands.gc.performing"), true);
+                            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.gc.performing"), true);
                             System.gc();
-                            ctx.getSource().sendSuccess(new TranslatableComponent("ccl.commands.gc.after"), true);
+                            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.gc.after"), true);
                             printMemInfo(ctx, true);
                             return 0;
                         })
@@ -49,8 +48,8 @@ public class MiscCommands {
             mem = " " + mem;
             allocated = " " + allocated;
         }
-        ctx.getSource().sendSuccess(new TextComponent(mem), true);
-        ctx.getSource().sendSuccess(new TextComponent(allocated), true);
+        ctx.getSource().sendSuccess(Component.literal(mem), true);
+        ctx.getSource().sendSuccess(Component.literal(allocated), true);
         return 0;
     }
 

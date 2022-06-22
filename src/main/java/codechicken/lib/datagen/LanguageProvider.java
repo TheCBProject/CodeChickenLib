@@ -2,6 +2,7 @@ package codechicken.lib.datagen;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
@@ -46,7 +47,7 @@ public abstract class LanguageProvider implements DataProvider {
     protected abstract void addTranslations();
 
     @Override
-    public void run(HashCache p_200398_1_) throws IOException {
+    public void run(CachedOutput p_200398_1_) throws IOException {
         addTranslations();
         if (distFilter.includeClient() && !client.isEmpty()) {
             save(p_200398_1_, client, gen.getOutputFolder().resolve("assets/" + modid + "/lang/" + locale + ".json"));
@@ -61,20 +62,8 @@ public abstract class LanguageProvider implements DataProvider {
         return modid + " Languages: " + locale;
     }
 
-    @SuppressWarnings ({ "deprecation" })
-    private void save(HashCache cache, Object object, Path target) throws IOException {
-        String data = GSON.toJson(object);
-        data = JavaUnicodeEscaper.outsideOf(0, 0x7f).translate(data); // Escape unicode after the fact so that it's not double escaped by GSON
-        String hash = DataProvider.SHA1.hashUnencodedChars(data).toString();
-        if (!Objects.equals(cache.getHash(target), hash) || !Files.exists(target)) {
-            Files.createDirectories(target.getParent());
-
-            try (BufferedWriter bufferedwriter = Files.newBufferedWriter(target)) {
-                bufferedwriter.write(data);
-            }
-        }
-
-        cache.putNew(target, hash);
+    private void save(CachedOutput cache, Object object, Path target) throws IOException {
+        DataProvider.saveStable(cache, GSON.toJsonTree(object), target);
     }
 
     //@formatter:off

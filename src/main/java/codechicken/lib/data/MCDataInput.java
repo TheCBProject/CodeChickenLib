@@ -21,7 +21,10 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.*;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegistryManager;
 
 import javax.annotation.Nullable;
 import java.io.DataInput;
@@ -607,7 +610,7 @@ public interface MCDataInput {
         if (!readBoolean()) {
             return ItemStack.EMPTY;
         } else {
-            Item item = readRegistryIdUnsafe(ForgeRegistries.ITEMS);
+            Item item = readRegistryIdDirect(ForgeRegistries.ITEMS);
             int count = readVarInt();
             ItemStack stack = new ItemStack(item, count);
             stack.readShareTag(readCompoundNBT());
@@ -624,7 +627,7 @@ public interface MCDataInput {
         if (!readBoolean()) {
             return FluidStack.EMPTY;
         } else {
-            Fluid fluid = readRegistryIdUnsafe(ForgeRegistries.FLUIDS);
+            Fluid fluid = readRegistryIdDirect(ForgeRegistries.FLUIDS);
             int amount = readVarInt();
             CompoundTag tag = readCompoundNBT();
             if (fluid == Fluids.EMPTY) {
@@ -644,29 +647,29 @@ public interface MCDataInput {
     }
 
     /**
-     * Reads an {@link IForgeRegistryEntry} from the stream in an 'unsafe' manner,
-     * See {@link MCDataOutput#writeRegistryIdUnsafe(IForgeRegistry, IForgeRegistryEntry)}
-     * for more information on its apparent 'unsafe'ness.
+     * Reads a registry object from the stream.
      *
      * @param registry The {@link IForgeRegistry} to load the entry from.
-     * @return The {@link IForgeRegistryEntry}.
+     * @return The registry object..
+     * @see MCDataOutput#writeRegistryIdDirect(IForgeRegistry, Object)
+     * @see MCDataOutput#writeRegistryIdDirect(IForgeRegistry, ResourceLocation)
      */
-    default <T extends IForgeRegistryEntry<T>> T readRegistryIdUnsafe(IForgeRegistry<T> registry) {
+    default <T> T readRegistryIdDirect(IForgeRegistry<T> registry) {
         ForgeRegistry<T> _registry = unsafeCast(registry);
         return _registry.getValue(readVarInt());
     }
 
     /**
-     * Reads an {@link IForgeRegistryEntry} from the stream.
-     * See {@link MCDataOutput#writeRegistryId(IForgeRegistryEntry)}
-     * for more information.
+     * Reads a registry object from the stream.
      *
-     * @return The {@link IForgeRegistryEntry}.
+     * @return The registry object.
+     * @see MCDataOutput#writeRegistryId(IForgeRegistry, Object)
+     * @see MCDataOutput#writeRegistryId(IForgeRegistry, ResourceLocation)
      */
-    default <T extends IForgeRegistryEntry<T>> T readRegistryId() {
+    default <T> T readRegistryId() {
         ResourceLocation rName = readResourceLocation();
         ForgeRegistry<T> registry = RegistryManager.ACTIVE.getRegistry(rName);
-        return readRegistryIdUnsafe(registry);
+        return readRegistryIdDirect(registry);
     }
     //endregion
 

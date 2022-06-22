@@ -4,10 +4,9 @@ import codechicken.lib.render.model.OBJParserTests;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import net.minecraft.server.packs.resources.SimpleResource;
 
-import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Simple singleton {@link ResourceProvider} instance for unit tests.
@@ -22,12 +21,7 @@ public class TestResourceProvider implements ResourceProvider {
     }
 
     @Override
-    public Resource getResource(ResourceLocation resource) throws IOException {
-        return new SimpleResource(
-                "test",
-                resource,
-                Objects.requireNonNull(OBJParserTests.class.getResourceAsStream("/" + resource.getPath()), "Resource " + resource + " doesnt exist."),
-                null
-        );
+    public Optional<Resource> getResource(ResourceLocation resource) {
+        return Optional.of(new Resource("test", () -> Objects.requireNonNull(OBJParserTests.class.getResourceAsStream("/" + resource.getPath()), "Resource " + resource + " doesnt exist.")));
     }
 }

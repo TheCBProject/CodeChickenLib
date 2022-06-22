@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -41,7 +42,7 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
     }
 
     public static ShapelessRecipeBuilder builder(ItemStack result) {
-        return builder(result, result.getItem().getRegistryName());
+        return builder(result, ForgeRegistries.ITEMS.getKey(result.getItem()));
     }
 
     public static ShapelessRecipeBuilder builder(ItemStack result, ResourceLocation id) {

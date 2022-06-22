@@ -7,26 +7,25 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static codechicken.lib.util.LambdaUtils.tryOrNull;
@@ -50,16 +49,17 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
 
     //In world.
     @Override
-    public boolean renderBatched(BlockState state, BlockPos pos, BlockAndTintGetter level, PoseStack stack, VertexConsumer builder, boolean checkSides, Random rand, IModelData modelData) {
+    public void renderBatched(BlockState state, BlockPos pos, BlockAndTintGetter level, PoseStack stack, VertexConsumer builder, boolean checkSides, RandomSource rand, IModelData modelData) {
         try {
             ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(state.getBlock(), e -> e.canHandleBlock(level, pos, state));
             if (renderer != null) {
-                return renderer.renderBlock(state, pos, level, stack, builder, rand, modelData);
+                renderer.renderBlock(state, pos, level, stack, builder, rand, modelData);
+                return;
             }
         } catch (Throwable t) {
             if (ProxyClient.catchBlockRenderExceptions) {
                 handleCaughtException(t, state, pos, level);
-                return false;
+                return;
             }
             CrashReport crashreport = CrashReport.forThrowable(t, "Tessellating CCL block in world");
             CrashReportCategory crashreportcategory = crashreport.addCategory("Block being tessellated");
@@ -67,11 +67,11 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
             throw new ReportedException(crashreport);
         }
         try {
-            return parentDispatcher.renderBatched(state, pos, level, stack, builder, checkSides, rand, modelData);
+            parentDispatcher.renderBatched(state, pos, level, stack, builder, checkSides, rand, modelData);
         } catch (Throwable t) {
             if (ProxyClient.catchBlockRenderExceptions) {
                 handleCaughtException(t, state, pos, level);
-                return false;
+                return;
             }
             throw t;
         }
@@ -90,12 +90,13 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
 
     //Fluids
     @Override
-    public boolean renderLiquid(BlockPos pos, BlockAndTintGetter world, VertexConsumer builder, BlockState blockState, FluidState fluidState) {
+    public void renderLiquid(BlockPos pos, BlockAndTintGetter world, VertexConsumer builder, BlockState blockState, FluidState fluidState) {
         ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(fluidState.getType(), e -> e.canHandleFluid(world, pos, blockState, fluidState));
         if (renderer != null) {
-            return renderer.renderFluid(pos, world, builder, blockState, fluidState);
+            renderer.renderFluid(pos, world, builder, blockState, fluidState);
+            return;
         }
-        return parentDispatcher.renderLiquid(pos, world, builder, blockState, fluidState);
+        parentDispatcher.renderLiquid(pos, world, builder, blockState, fluidState);
     }
 
     //From an entity
@@ -117,11 +118,11 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
         StringBuilder builder = new StringBuilder("\n CCL has caught an exception whilst rendering a block\n");
         builder.append("  BlockPos:      ").append(String.format("x:%s, y:%s, z:%s", pos.getX(), pos.getY(), pos.getZ())).append("\n");
         builder.append("  Block Class:   ").append(tryOrNull(() -> inBlock.getClass())).append("\n");
-        builder.append("  Registry Name: ").append(tryOrNull(() -> inBlock.getRegistryName())).append("\n");
+        builder.append("  Registry Name: ").append(tryOrNull(() -> ForgeRegistries.BLOCKS.getKey(inBlock))).append("\n");
         builder.append("  State:         ").append(inState).append("\n");
         builder.append(" Tile at position\n");
         builder.append("  Tile Class:    ").append(tryOrNull(() -> tile.getClass())).append("\n");
-        builder.append("  Tile Id:       ").append(tryOrNull(() -> BlockEntityType.getKey(tile.getType()))).append("\n");
+        builder.append("  Tile Id:       ").append(tryOrNull(() -> ForgeRegistries.BLOCK_ENTITIES.getKey(tile.getType()))).append("\n");
         builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.saveWithFullMetadata())).append("\n");
         builder.append("This functionality can be disabled in the CCL config file.\n");
         if (ProxyClient.messagePlayerOnRenderExceptionCaught) {
@@ -137,7 +138,7 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
             long time = System.nanoTime();
             if (TimeUnit.NANOSECONDS.toSeconds(time - lastTime) > 5) {
                 lastTime = time;
-                player.sendMessage(new TextComponent("CCL Caught an exception rendering a block. See the log for info."), Util.NIL_UUID);
+                player.sendSystemMessage(Component.literal("CCL Caught an exception rendering a block. See the log for info."));
             }
         }
     }

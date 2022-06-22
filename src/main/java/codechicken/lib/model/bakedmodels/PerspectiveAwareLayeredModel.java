@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.IModelData;
 
@@ -33,7 +34,7 @@ public class PerspectiveAwareLayeredModel extends AbstractPerspectiveLayeredMode
     }
 
     @Override
-    public List<BakedQuad> getLayerQuads(BlockState state, Direction side, RenderType layer, Random rand, IModelData data) {
+    public List<BakedQuad> getLayerQuads(BlockState state, Direction side, RenderType layer, RandomSource rand, IModelData data) {
         if (side == null) {
             if (layerGeneralQuads.containsKey(layer)) {
                 return layerGeneralQuads.get(layer);

@@ -41,7 +41,7 @@ public class ClientPacketHandler implements IClientPacketHandler {
 
     @SuppressWarnings ("unchecked")
     private void handleOpenContainer(PacketCustom packet, Minecraft mc) {
-        MenuType<?> rawType = packet.readRegistryIdUnsafe(ForgeRegistries.CONTAINERS);
+        MenuType<?> rawType = packet.readRegistryIdDirect(ForgeRegistries.CONTAINERS);
         int windowId = packet.readVarInt();
         Component name = packet.readTextComponent();
         if (rawType instanceof ICCLContainerType<?> type) {

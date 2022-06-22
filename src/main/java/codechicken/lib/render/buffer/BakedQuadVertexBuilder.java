@@ -4,13 +4,11 @@ import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.model.CachedFormat;
 import codechicken.lib.model.Quad;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,24 +22,41 @@ import java.util.stream.Collectors;
 public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVertexConsumer {
 
     private final List<Quad> quadList = new ArrayList<>();
-    private final int glMode;
+    private final VertexFormat.Mode mode;
     private final int vSize;
 
-    private CachedFormat format = CachedFormat.lookup(DefaultVertexFormat.BLOCK);
+    private CachedFormat format;
     private Colour defaultColour;
     private Quad current;
     private int vertex;
 
     public BakedQuadVertexBuilder() {
-        this(GL11.GL_QUADS);
+        this(VertexFormat.Mode.QUADS);
     }
 
-    public BakedQuadVertexBuilder(int glMode) {
-        if (glMode != GL11.GL_QUADS && glMode != GL11.GL_TRIANGLES) {
-            throw new IllegalArgumentException("Only GL_QUADS and GL_TRIANGLES supported. Got: " + glMode);
+    public BakedQuadVertexBuilder(VertexFormat format) {
+        this(format, VertexFormat.Mode.QUADS);
+    }
+
+    public BakedQuadVertexBuilder(CachedFormat format) {
+        this(format, VertexFormat.Mode.QUADS);
+    }
+
+    public BakedQuadVertexBuilder(VertexFormat.Mode mode) {
+        this(CachedFormat.BLOCK, mode);
+    }
+
+    public BakedQuadVertexBuilder(VertexFormat format, VertexFormat.Mode mode) {
+        this(CachedFormat.lookup(format), mode);
+    }
+
+    public BakedQuadVertexBuilder(CachedFormat format, VertexFormat.Mode mode) {
+        if (mode != VertexFormat.Mode.QUADS && mode != VertexFormat.Mode.TRIANGLES) {
+            throw new IllegalArgumentException("Only QUADS or TRIANGLES supported. Got: " + mode);
         }
-        this.glMode = glMode;
-        vSize = glMode == GL11.GL_QUADS ? 4 : 3;
+        this.mode = mode;
+        this.format = format;
+        vSize = mode.primitiveLength;
     }
 
     // Provided for interop with other mods that may provide different quad formats.
@@ -134,7 +149,7 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
     public void endVertex() {
         vertex++;
         if (vertex == vSize) {
-            if (glMode == GL11.GL_TRIANGLES) {
+            if (mode == VertexFormat.Mode.TRIANGLES) {
                 //Quadulate.
                 for (int e = 0; e < current.format.elementCount; e++) {
                     System.arraycopy(current.vertices[2].raw[e], 0, current.vertices[3].raw[e], 0, 4);
@@ -176,5 +191,10 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
         if (current == null) {
             current = new Quad(format);
         }
+    }
+
+    @Override
+    public VertexFormat getVertexFormat() {
+        return format.format;
     }
 }

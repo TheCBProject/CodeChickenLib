@@ -91,8 +91,9 @@ public class BinaryShaderObject extends NamedShaderObject implements ResourceMan
     }
 
     private byte[] getRawSource() {
-        try (Resource resource = Minecraft.getInstance().getResourceManager().getResource(asset)) {
-            try (InputStream istream = resource.getInputStream()) {
+        try {
+            Resource resource = Minecraft.getInstance().getResourceManager().getResourceOrThrow(asset);
+            try (InputStream istream = resource.open()) {
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
                 byte[] buffer = new byte[1024];
                 int read;

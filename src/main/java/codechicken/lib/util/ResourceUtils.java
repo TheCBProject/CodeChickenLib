@@ -10,8 +10,6 @@ import net.minecraft.server.packs.resources.ResourceProvider;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -27,7 +25,7 @@ public class ResourceUtils {
      * @throws IOException If the file is not found or some other IO error occurred.
      */
     public static InputStream getResourceAsStream(ResourceLocation resource) throws IOException {
-        return getResource(resource).getInputStream();
+        return getResource(resource).open();
     }
 
     /**
@@ -58,7 +56,7 @@ public class ResourceUtils {
      * @throws IOException If the resource doesn't exist, or some other IO error occurred.
      */
     public static Resource getResource(ResourceLocation location) throws IOException {
-        return getResourceManager().getResource(location);
+        return getResourceManager().getResourceOrThrow(location);
     }
 
     /**
@@ -75,13 +73,15 @@ public class ResourceUtils {
      * a list of UTF-8 Strings.
      *
      * @param resourceProvider The {@link ResourceProvider}.
-     * @param loc The {@link ResourceLocation}.
-     * @return
+     * @param loc              The {@link ResourceLocation}.
+     * @return The UTF-8 lines of the resource.
      */
     public static List<String> loadResource(ResourceProvider resourceProvider, ResourceLocation loc) {
-        try (Resource resource = resourceProvider.getResource(loc);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
-            return reader.lines().toList();
+        try {
+            Resource resource = resourceProvider.getResourceOrThrow(loc);
+            try (BufferedReader reader = resource.openAsReader()) {
+                return reader.lines().toList();
+            }
         } catch (IOException ex) {
             throw new RuntimeException("Failed to load MTL file: " + loc, ex);
         }

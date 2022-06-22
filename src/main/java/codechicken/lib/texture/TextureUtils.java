@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import org.lwjgl.opengl.GL11;
@@ -157,7 +158,7 @@ public class TextureUtils {
     public static TextureAtlasSprite[] getIconsForBlock(BlockState state, Direction side) {
         BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
         if (model != null) {
-            List<BakedQuad> quads = model.getQuads(state, side, new Random(0));
+            List<BakedQuad> quads = model.getQuads(state, side, RandomSource.create(0));
             if (quads != null && quads.size() > 0) {
                 TextureAtlasSprite[] sprites = new TextureAtlasSprite[quads.size()];
                 for (int i = 0; i < quads.size(); i++) {

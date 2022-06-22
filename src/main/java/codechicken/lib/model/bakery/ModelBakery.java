@@ -29,6 +29,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -65,7 +66,7 @@ public class ModelBakery {
 
     public static final IBlockStateKeyGenerator defaultBlockKeyGenerator = (state, data) -> state.toString();
 
-    public static final IItemStackKeyGenerator defaultItemKeyGenerator = stack -> stack.getItem().getRegistryName().toString() + "|" + stack.getDamageValue();
+    public static final IItemStackKeyGenerator defaultItemKeyGenerator = stack -> ForgeRegistries.ITEMS.getKey(stack.getItem()).toString() + "|" + stack.getDamageValue();
 
     public static void init() {
         ResourceUtils.registerReloadListener(e -> nukeModelCache());
@@ -92,14 +93,14 @@ public class ModelBakery {
 
     public static void registerBlockKeyGenerator(Block block, IBlockStateKeyGenerator generator) {
         if (blockKeyGeneratorMap.containsKey(block)) {
-            throw new IllegalArgumentException("Unable to register IBlockStateKeyGenerator as one is already registered for block:" + block.getRegistryName());
+            throw new IllegalArgumentException("Unable to register IBlockStateKeyGenerator as one is already registered for block:" + ForgeRegistries.BLOCKS.getKey(block));
         }
         blockKeyGeneratorMap.put(block, generator);
     }
 
     public static void registerItemKeyGenerator(Item item, IItemStackKeyGenerator generator) {
         if (itemKeyGeneratorMap.containsKey(item)) {
-            throw new IllegalArgumentException("Unable to register IItemStackKeyGenerator as one is already registered for item: " + item.getRegistryName());
+            throw new IllegalArgumentException("Unable to register IItemStackKeyGenerator as one is already registered for item: " + ForgeRegistries.ITEMS.getKey(item));
         }
         itemKeyGeneratorMap.put(item, generator);
     }

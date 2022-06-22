@@ -24,14 +24,10 @@ public class DataGenerators {
     public static void gatherDataGenerators(GatherDataEvent event) {
         DataGenerator gen = event.getGenerator();
         ExistingFileHelper files = event.getExistingFileHelper();
-        if (event.includeServer()) {
-            BlockTags blockTagsProvider = new BlockTags(gen, files);
-            gen.addProvider(blockTagsProvider);
-            gen.addProvider(new ItemTags(gen, blockTagsProvider, files));
-        }
-        if (event.includeClient() || event.includeServer()) {
-            gen.addProvider(new LangUS(gen, LanguageProvider.getDist(event)));
-        }
+        BlockTags blockTagsProvider = new BlockTags(gen, files);
+        gen.addProvider(event.includeServer(), blockTagsProvider);
+        gen.addProvider(event.includeServer(), new ItemTags(gen, blockTagsProvider, files));
+        gen.addProvider(event.includeClient() || event.includeServer(), new LangUS(gen, LanguageProvider.getDist(event)));
     }
 
     private static class BlockTags extends BlockTagsProvider {

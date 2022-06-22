@@ -5,11 +5,11 @@ import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -35,7 +35,7 @@ public class CountCommand {
                         .requires(e -> e.hasPermission(2))
                         .then(argument("entity", entityType())
                                 .executes(ctx -> {
-                                    EntityType<?> entityType = getEntityType(ctx, "entity");
+                                    EntityType<?> entityType = getEntityType(ctx, "entity").value();
                                     return countAllEntities(ctx, e -> e.equals(entityType));
                                 })
                         )
@@ -64,14 +64,14 @@ public class CountCommand {
         int total = 0;
         for (EntityType<?> type : order) {
             int count = counts.getInt(type);
-            String name = type.getRegistryName().toString();
-            ctx.getSource().sendSuccess(new TextComponent(GREEN + name + RESET + " x " + AQUA + count), false);
+            String name = ForgeRegistries.ENTITIES.getKey(type).toString();
+            ctx.getSource().sendSuccess(Component.literal(GREEN + name + RESET + " x " + AQUA + count), false);
             total += count;
         }
         if (order.size() == 0) {
-            ctx.getSource().sendSuccess(new TranslatableComponent("ccl.commands.count.fail"), false);
+            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.count.fail"), false);
         } else if (order.size() > 1) {
-            ctx.getSource().sendSuccess(new TranslatableComponent("ccl.commands.count.total", AQUA.toString() + total + RESET), false);
+            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.count.total", AQUA.toString() + total + RESET), false);
         }
 
         return total;

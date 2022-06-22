@@ -29,7 +29,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.nio.*;
@@ -232,9 +231,10 @@ public final class PacketCustom extends MCDataByteBuf {
     @Override public PacketCustom writeItemStack(ItemStack stack) { super.writeItemStack(stack); return this; }
     @Override public PacketCustom writeItemStack(ItemStack stack, boolean limitedTag) { super.writeItemStack(stack, limitedTag); return this; }
     @Override public PacketCustom writeTextComponent(Component component) { super.writeTextComponent(component); return this; }
-    @Override public <T extends IForgeRegistryEntry<T>> PacketCustom writeRegistryIdUnsafe(IForgeRegistry<T> registry, T entry) { super.writeRegistryIdUnsafe(registry, entry); return this; }
-    @Override public <T extends IForgeRegistryEntry<T>> PacketCustom writeRegistryIdUnsafe(IForgeRegistry<T> registry, ResourceLocation entry) { super.writeRegistryIdUnsafe(registry, entry); return this; }
-    @Override public <T extends IForgeRegistryEntry<T>> PacketCustom writeRegistryId(T entry) { super.writeRegistryId(entry); return this; }
+    @Override public <T> PacketCustom writeRegistryIdDirect(IForgeRegistry<T> registry, T entry) { super.writeRegistryIdDirect(registry, entry); return this; }
+    @Override public <T> PacketCustom writeRegistryIdDirect(IForgeRegistry<T> registry, ResourceLocation entry) { super.writeRegistryIdDirect(registry, entry); return this; }
+    @Override public <T> PacketCustom writeRegistryId(IForgeRegistry<T> registry, T entry) { super.writeRegistryId(registry, entry); return this; }
+    @Override public <T> PacketCustom writeRegistryId(IForgeRegistry<T> registry, ResourceLocation entry) { super.writeRegistryId(registry, entry); return this; }
     @Override public PacketCustom writeByteBuf(ByteBuf buf) { super.writeByteBuf(buf); return this; }
     @Override public PacketCustom append(ByteBuf buf) { super.append(buf); return this; }
     //@formatter:off

@@ -14,9 +14,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.client.IFluidTypeRenderProperties;
+import net.minecraftforge.client.RenderProperties;
 import net.minecraftforge.fluids.FluidStack;
-import org.lwjgl.opengl.GL11;
+import net.minecraftforge.fluids.FluidType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,15 +48,16 @@ public class RenderUtils {
             return;
         }
         int alpha = 255;
-        FluidAttributes attributes = stack.getFluid().getAttributes();
-        if (attributes.isGaseous(stack)) {
+        FluidType type = stack.getFluid().getFluidType();
+        if (type.isLighterThanAir()) {
             alpha = (int) (Math.pow(capacity, 0.4) * 255);
         } else {
             bound.max.y = bound.min.y + (bound.max.y - bound.min.y) * capacity;
         }
-        Material material = ForgeHooksClient.getBlockMaterial(attributes.getStillTexture(stack));
+        IFluidTypeRenderProperties props = RenderProperties.get(type);
+        Material material = ForgeHooksClient.getBlockMaterial(props.getStillTexture(stack));
         ccrs.bind(renderType, source);
-        ccrs.baseColour = attributes.getColor(stack) << 8 | alpha;
+        ccrs.baseColour = props.getColorTint(stack) << 8 | alpha;
         makeFluidModel(bound, material.sprite(), res).render(ccrs, mat);
     }
 

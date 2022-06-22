@@ -16,7 +16,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.*;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistry;
 
 import java.io.DataOutput;
 import java.io.DataOutputStream;
@@ -881,7 +883,7 @@ public interface MCDataOutput {
         } else {
             writeBoolean(true);
             Item item = stack.getItem();
-            writeRegistryIdUnsafe(ForgeRegistries.ITEMS, item);
+            writeRegistryIdDirect(ForgeRegistries.ITEMS, item);
             writeVarInt(stack.getCount());
             CompoundTag nbt = null;
             if (item.canBeDepleted() || item.shouldOverrideMultiplayerNbt()) {
@@ -903,7 +905,7 @@ public interface MCDataOutput {
             writeBoolean(false);
         } else {
             writeBoolean(true);
-            writeRegistryIdUnsafe(ForgeRegistries.FLUIDS, stack.getFluid());
+            writeRegistryIdDirect(ForgeRegistries.FLUIDS, stack.getFluid());
             writeVarInt(stack.getAmount());
             writeCompoundNBT(stack.getTag());
         }
@@ -921,58 +923,68 @@ public interface MCDataOutput {
     }
 
     /**
-     * Writes an {@link IForgeRegistryEntry} to the stream, in an 'unsafe' manner.
-     * Does little checking that the data is valid and just assumes its all good to go,
-     * but is in no means 'unsafe', simply put, use this to avoid a tiny bit of overhead,
-     * when you 100% know your {@link IForgeRegistryEntry} is valid and of the correct type.
+     * Writes a forge registry object's id to the stream.
+     * This method does not encode the Registry name to the packet, only
+     * the object's id.
      *
      * @param registry The registry that owns <code>entry</code>.
-     * @param entry    The {@link IForgeRegistryEntry} to write to the stream.
+     * @param entry    The object to write to the stream.
      * @return The same stream.
      */
-    default <T extends IForgeRegistryEntry<T>> MCDataOutput writeRegistryIdUnsafe(IForgeRegistry<T> registry, T entry) {
+    default <T> MCDataOutput writeRegistryIdDirect(IForgeRegistry<T> registry, T entry) {
         ForgeRegistry<T> r = unsafeCast(Objects.requireNonNull(registry));
         writeVarInt(r.getID(entry));
         return this;
     }
 
     /**
-     * Writes an {@link IForgeRegistryEntry} to the stream, in an 'unsafe' manner.
-     * Does little checking that the data is valid and just assumes its all good to go,
-     * but is in no means 'unsafe', simply put, use this to avoid a tiny bit of overhead,
-     * when you 100% know your {@link IForgeRegistryEntry} is valid and of the correct type.
+     * Writes the id associated with the given name to the stream.
+     * This method does not encode the Registry name to the packet, only
+     * the id.
      *
      * @param registry The registry that owns <code>entry</code>.
-     * @param entry    The {@link IForgeRegistryEntry} to write to the stream.
+     * @param entry    The name of the registry object to write.
      * @return The same stream.
      */
-    default <T extends IForgeRegistryEntry<T>> MCDataOutput writeRegistryIdUnsafe(IForgeRegistry<T> registry, ResourceLocation entry) {
+    default <T> MCDataOutput writeRegistryIdDirect(IForgeRegistry<T> registry, ResourceLocation entry) {
         ForgeRegistry<T> r = unsafeCast(Objects.requireNonNull(registry));
         writeVarInt(r.getID(entry));
         return this;
     }
 
     /**
-     * Write an arbitrary {@link IForgeRegistryEntry} to the stream.
-     * Does many sanity checks on the provided entry. Use this if you
-     * don't (for some reason), know the type / registry of your {@link IForgeRegistryEntry}.
+     * Writes the given object to the stream encoding both the
+     * registry name and object's id.
      *
-     * @param entry The {@link IForgeRegistryEntry} to write.
+     * @param registry The registry that owns <code>entry</code>.
+     * @param entry    The object to write to the stream.
      * @return The same stream.
      */
-    default <T extends IForgeRegistryEntry<T>> MCDataOutput writeRegistryId(T entry) {
-        Class<T> rType = Objects.requireNonNull(entry).getRegistryType();
-        ForgeRegistry<T> registry = unsafeCast(RegistryManager.ACTIVE.getRegistry(rType));
-        if (registry == null) {
-            throw new IllegalArgumentException(format("Unable to determine registry type of '{0}'", rType.getName()));
-        }
+    default <T> MCDataOutput writeRegistryId(IForgeRegistry<T> registry, T entry) {
         ResourceLocation rName = registry.getRegistryName();
         if (!registry.containsValue(entry)) {
-            Object s = entry.getRegistryName() != null ? entry.getRegistryName() : entry;
-            throw new IllegalArgumentException(format("Registry '{0}' does not contain entry '{1}'", rName, s));
+            throw new IllegalArgumentException(format("Registry '{0}' does not contain entry '{1}'", rName, entry));
         }
         writeResourceLocation(rName);
-        writeRegistryIdUnsafe(registry, entry);
+        writeRegistryIdDirect(registry, entry);
+        return null;
+    }
+
+    /**
+     * Writes the id associated with the given name to the stream
+     * encoding both the registry name and object's id.
+     *
+     * @param registry The registry that owns <code>entry</code>.
+     * @param entry    The name of the registry object to write.
+     * @return The same stream.
+     */
+    default <T> MCDataOutput writeRegistryId(IForgeRegistry<T> registry, ResourceLocation entry) {
+        ResourceLocation rName = registry.getRegistryName();
+        if (!registry.containsKey(entry)) {
+            throw new IllegalArgumentException(format("Registry '{0}' does not contain entry '{1}'", rName, entry));
+        }
+        writeResourceLocation(rName);
+        writeRegistryIdDirect(registry, entry);
         return null;
     }
     //endregion

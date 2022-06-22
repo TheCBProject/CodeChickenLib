@@ -1,6 +1,7 @@
 package codechicken.lib.render.buffer;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 /**
@@ -72,5 +73,10 @@ public abstract class DelegatingVertexConsumer implements ISpriteAwareVertexCons
     @Override
     public void unsetDefaultColor() {
         delegate.unsetDefaultColor();
+    }
+
+    @Override
+    public VertexFormat getVertexFormat() {
+        return delegate.getVertexFormat();
     }
 }
