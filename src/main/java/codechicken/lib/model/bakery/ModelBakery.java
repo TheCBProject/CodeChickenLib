@@ -6,8 +6,6 @@ import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
 import codechicken.lib.model.bakedmodels.PerspectiveAwareLayeredModel;
 import codechicken.lib.model.bakery.generation.IBlockBakery;
 import codechicken.lib.model.bakery.generation.IItemBakery;
-import codechicken.lib.model.bakery.generation.ILayeredBlockBakery;
-import codechicken.lib.model.bakery.generation.ISimpleBlockBakery;
 import codechicken.lib.model.bakery.key.IBlockStateKeyGenerator;
 import codechicken.lib.model.bakery.key.IItemStackKeyGenerator;
 import codechicken.lib.util.LogUtils;
@@ -15,7 +13,6 @@ import codechicken.lib.util.ResourceUtils;
 import codechicken.lib.util.TransformUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
@@ -26,8 +23,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.ChunkRenderTypeSet;
+import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
@@ -73,7 +71,7 @@ public class ModelBakery {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ModelBakery::onModelBake);
     }
 
-    private static void onModelBake(ModelBakeEvent event) {
+    private static void onModelBake(ModelEvent.BakingCompleted event) {
         missingModel = event.getModelManager().getMissingModel();
     }
 
@@ -127,29 +125,24 @@ public class ModelBakery {
 
     public static BakedModel generateItemModel(ItemStack stack) {
         Item item = stack.getItem();
-        if (item instanceof IBakeryProvider) {
+        if (item instanceof IBakeryProvider bakeryProvider) {
 
-            IItemBakery bakery = (IItemBakery) ((IBakeryProvider) item).getBakery();
+            IItemBakery bakery = (IItemBakery) bakeryProvider.getBakery();
 
-            List<BakedQuad> generalQuads = new LinkedList<>();
+            List<BakedQuad> unculledQuads = List.copyOf(bakery.bakeItemQuads(null, stack));
+
             Map<Direction, List<BakedQuad>> faceQuads = new HashMap<>();
-            generalQuads.addAll(bakery.bakeItemQuads(null, stack));
-
             for (Direction face : Direction.BY_3D_DATA) {
-                List<BakedQuad> quads = new LinkedList<>();
-
-                quads.addAll(bakery.bakeItemQuads(face, stack));
-
-                faceQuads.put(face, quads);
+                faceQuads.put(face, List.copyOf(bakery.bakeItemQuads(face, stack)));
             }
 
             PerspectiveProperties properties = bakery.getModelProperties(stack);
-            return new PerspectiveAwareBakedModel(faceQuads, generalQuads, properties);
+            return new PerspectiveAwareBakedModel(faceQuads, unculledQuads, properties);
         }
         return missingModel;
     }
 
-    public static BakedModel getCachedModel(BlockState state, IModelData data) {
+    public static BakedModel getCachedModel(BlockState state, ModelData data) {
         if (state == null) {
             return missingModel;
         }
@@ -171,49 +164,24 @@ public class ModelBakery {
         return model;
     }
 
-    public static BakedModel generateModel(BlockState state, IModelData data) {
-        if (state.getBlock() instanceof IBakeryProvider) {
-            IBlockBakery bakery = (IBlockBakery) ((IBakeryProvider) state.getBlock()).getBakery();
-            if (bakery instanceof ISimpleBlockBakery) {
-                ISimpleBlockBakery simpleBakery = (ISimpleBlockBakery) bakery;
-                List<BakedQuad> generalQuads = new LinkedList<>();
-                Map<Direction, List<BakedQuad>> faceQuads = new HashMap<>();
-                generalQuads.addAll(simpleBakery.bakeQuads(null, state, data));
+    public static BakedModel generateModel(BlockState state, ModelData data) {
+        if (state.getBlock() instanceof IBakeryProvider bakeryProvider) {
+            IBlockBakery bakery = (IBlockBakery) bakeryProvider.getBakery();
+            ChunkRenderTypeSet layers = bakery.getBlockRenderLayers();
 
+            Map<RenderType, List<BakedQuad>> unculledQuads = new HashMap<>();
+            Map<RenderType, Map<Direction, List<BakedQuad>>> culledQuads = new HashMap<>();
+            for (RenderType layer : layers) {
+                unculledQuads.put(layer, List.copyOf(bakery.bakeFace(null, layer, state, data)));
+
+                Map<Direction, List<BakedQuad>> faceQuadMap = new HashMap<>();
                 for (Direction face : Direction.BY_3D_DATA) {
-                    List<BakedQuad> quads = new LinkedList<>();
-
-                    quads.addAll(simpleBakery.bakeQuads(face, state, data));
-
-                    faceQuads.put(face, quads);
+                    faceQuadMap.put(face, List.copyOf(bakery.bakeFace(face, layer, state, data)));
                 }
-                return new PerspectiveAwareBakedModel(faceQuads, generalQuads, TransformUtils.DEFAULT_BLOCK, DEFAULT);
+                culledQuads.put(layer, faceQuadMap);
+
             }
-            if (bakery instanceof ILayeredBlockBakery) {
-                ILayeredBlockBakery layeredBakery = (ILayeredBlockBakery) bakery;
-                Map<RenderType, Map<Direction, List<BakedQuad>>> layerFaceQuadMap = new HashMap<>();
-                Map<RenderType, List<BakedQuad>> layerGeneralQuads = new HashMap<>();
-                for (RenderType layer : RenderType.chunkBufferLayers()) {
-                    if (ItemBlockRenderTypes.canRenderInLayer(state, layer)) {
-                        LinkedList<BakedQuad> quads = new LinkedList<>();
-                        quads.addAll(layeredBakery.bakeLayerFace(null, layer, state, data));
-                        layerGeneralQuads.put(layer, quads);
-                    }
-                }
-
-                for (RenderType layer : RenderType.chunkBufferLayers()) {
-                    if (ItemBlockRenderTypes.canRenderInLayer(state, layer)) {
-                        Map<Direction, List<BakedQuad>> faceQuadMap = new HashMap<>();
-                        for (Direction face : Direction.BY_3D_DATA) {
-                            List<BakedQuad> quads = new LinkedList<>();
-                            quads.addAll(layeredBakery.bakeLayerFace(face, layer, state, data));
-                            faceQuadMap.put(face, quads);
-                        }
-                        layerFaceQuadMap.put(layer, faceQuadMap);
-                    }
-                }
-                return new PerspectiveAwareLayeredModel(layerFaceQuadMap, layerGeneralQuads, DEFAULT_PERSPECTIVE, RenderType.solid());
-            }
+            return new PerspectiveAwareLayeredModel(culledQuads, unculledQuads, DEFAULT_PERSPECTIVE, RenderType.solid());
         }
         return missingModel;
     }

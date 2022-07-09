@@ -18,14 +18,25 @@
 
 package codechicken.lib.model;
 
-import net.minecraftforge.client.model.pipeline.IVertexConsumer;
+import codechicken.lib.util.VertexUtils;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Direction;
 
-/**
- * Marks a standard IVertexConsumer as compatible with {@link Quad}.
- *
- * @author covers1624
- */
-public interface ISmartVertexConsumer extends IVertexConsumer {
+public interface IVertexConsumer {
+
+    VertexFormat getVertexFormat();
+
+    void setQuadTint(int tint);
+
+    void setQuadOrientation(Direction orientation);
+
+    void setApplyDiffuseLighting(boolean diffuse);
+
+    void setTexture(TextureAtlasSprite texture);
+
+    void put(int element, float... data);
 
     /**
      * Assumes the data is already completely unpacked.
@@ -36,4 +47,8 @@ public interface ISmartVertexConsumer extends IVertexConsumer {
      * @param quad The quad to copy data from.
      */
     void put(Quad quad);
+
+    default void put(BakedQuad quad) {
+        VertexUtils.putQuad(this, quad);
+    }
 }

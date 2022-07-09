@@ -3,6 +3,7 @@ package codechicken.lib.model.bakery;
 import codechicken.lib.render.particle.IModelParticleProvider;
 import codechicken.lib.texture.TextureUtils;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -15,8 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.client.model.data.EmptyModelData;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 
 import javax.annotation.Nonnull;
 import java.util.Collections;
@@ -34,13 +34,13 @@ public class CCBakeryModel implements BakedModel, IModelParticleProvider {
 
     @Override
     public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand) {
-        return getQuads(state, side, rand, EmptyModelData.INSTANCE);
+        return getQuads(state, side, rand, ModelData.EMPTY, null);
     }
 
     @Nonnull
     @Override
-    public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand, IModelData extraData) {
-        return ModelBakery.getCachedModel(state, extraData).getQuads(state, side, rand, extraData);
+    public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand, ModelData modelData, RenderType layer) {
+        return ModelBakery.getCachedModel(state, modelData).getQuads(state, side, rand, modelData, layer);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class CCBakeryModel implements BakedModel, IModelParticleProvider {
     }
 
     @Override
-    public Set<TextureAtlasSprite> getHitEffects(BlockHitResult traceResult, BlockState state, BlockAndTintGetter world, BlockPos pos, IModelData data) {
+    public Set<TextureAtlasSprite> getHitEffects(BlockHitResult traceResult, BlockState state, BlockAndTintGetter world, BlockPos pos, ModelData data) {
         BakedModel model = ModelBakery.getCachedModel(state, data);
         if (model instanceof IModelParticleProvider) {
             return ((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos, data);
@@ -78,9 +78,8 @@ public class CCBakeryModel implements BakedModel, IModelParticleProvider {
     }
 
     @Override
-    public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, BlockAndTintGetter world, BlockPos pos, IModelData data) {
-        //TODO, Destroy may need IModelData
-        BakedModel model = ModelBakery.getCachedModel(state, EmptyModelData.INSTANCE);
+    public Set<TextureAtlasSprite> getDestroyEffects(BlockState state, BlockAndTintGetter world, BlockPos pos, ModelData data) {
+        BakedModel model = ModelBakery.getCachedModel(state, data);
         if (model instanceof IModelParticleProvider) {
             return ((IModelParticleProvider) model).getDestroyEffects(state, world, pos, data);
         }

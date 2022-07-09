@@ -2,7 +2,7 @@ package codechicken.lib.model;
 
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -39,13 +39,13 @@ public class ModelRegistryHelper {
     }
 
     @SubscribeEvent
-    public void onModelBake(ModelBakeEvent event) {
+    public void onModelBake(ModelEvent.BakingCompleted event) {
         for (IModelBakeCallbackPre callback : modelBakePreCallbacks) {
             callback.onModelBakePre(event);
         }
 
         for (Pair<ModelResourceLocation, BakedModel> pair : registerModels) {
-            event.getModelRegistry().put(pair.getKey(), pair.getValue());
+            event.getModels().put(pair.getKey(), pair.getValue());
         }
 
         for (IModelBakeCallback callback : modelBakeCallbacks) {
@@ -59,9 +59,9 @@ public class ModelRegistryHelper {
          * Called before CCL does anything to the ModelRegistry.
          * Useful for wrapped models, Use this in the constructor of the wrapped model.
          *
-         * @param modelRegistry The Model registry.
+         * @param event The Model event.
          */
-        void onModelBakePre(ModelBakeEvent event);
+        void onModelBakePre(ModelEvent.BakingCompleted event);
     }
 
     public interface IModelBakeCallback {
@@ -69,8 +69,8 @@ public class ModelRegistryHelper {
         /**
          * A Simple callback for model baking.
          *
-         * @param modelRegistry The Model registry.
+         * @param event The Model event.
          */
-        void onModelBake(ModelBakeEvent event);
+        void onModelBake(ModelEvent.BakingCompleted event);
     }
 }

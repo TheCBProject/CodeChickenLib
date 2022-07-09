@@ -19,17 +19,16 @@
 package codechicken.lib.model.pipeline;
 
 import codechicken.lib.model.CachedFormat;
-import codechicken.lib.model.ISmartVertexConsumer;
+import codechicken.lib.model.IVertexConsumer;
 import codechicken.lib.model.Quad;
 import codechicken.lib.model.pipeline.transformers.QuadReInterpolator;
-import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 
 /**
  * Anything implementing this may be used in the BakedPipeline.
  *
  * @author covers1624
  */
-public interface IPipelineConsumer extends ISmartVertexConsumer {
+public interface IPipelineConsumer extends IVertexConsumer {
 
     /**
      * The quad at the start of the transformation.

@@ -2,7 +2,7 @@ package codechicken.lib.render;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.model.CachedFormat;
-import codechicken.lib.model.ISmartVertexConsumer;
+import codechicken.lib.model.IVertexConsumer;
 import codechicken.lib.model.Quad;
 import codechicken.lib.render.lighting.LC;
 import codechicken.lib.render.pipeline.IVertexSource;
@@ -27,7 +27,7 @@ import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 /**
  * Created by covers1624 on 12/5/20.
  */
-public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
+public class BakedVertexSource implements IVertexSource, IVertexConsumer {
 
     private static final ThreadLocal<BakedVertexSource> instances = ThreadLocal.withInitial(BakedVertexSource::new);
 

@@ -1,12 +1,12 @@
 package codechicken.lib.model.bakedmodels;
 
+import codechicken.lib.model.PerspectiveModelState;
 import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties.PerspectiveBuilder;
 import codechicken.lib.texture.TextureUtils;
 import codechicken.lib.util.Copyable;
 import codechicken.lib.util.TransformUtils;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelState;
 
 import javax.annotation.Nullable;
 
@@ -103,18 +103,18 @@ public class ModelProperties implements Copyable<ModelProperties> {
                 .withTransforms(TransformUtils.DEFAULT_BLOCK)
                 .build();
 
-        private final ModelState transforms;
+        private final PerspectiveModelState transforms;
 
         private PerspectiveProperties(PerspectiveProperties properties) {
             this(properties.getTransforms(), properties);
         }
 
-        private PerspectiveProperties(ModelState transforms, ModelProperties properties) {
+        private PerspectiveProperties(PerspectiveModelState transforms, ModelProperties properties) {
             super(properties);
             this.transforms = transforms;
         }
 
-        public ModelState getTransforms() {
+        public PerspectiveModelState getTransforms() {
             return transforms;
         }
 
@@ -130,7 +130,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
 
         public static class PerspectiveBuilder extends Builder {
 
-            private ModelState transforms;
+            private PerspectiveModelState transforms;
 
             protected PerspectiveBuilder(PerspectiveProperties properties) {
                 super(properties);
@@ -142,7 +142,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
             }
 
             @Override
-            public PerspectiveBuilder withTransforms(ModelState transforms) {
+            public PerspectiveBuilder withTransforms(PerspectiveModelState transforms) {
                 this.transforms = transforms;
                 return this;
             }
@@ -223,7 +223,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
             return this;
         }
 
-        public PerspectiveBuilder withTransforms(ModelState transforms) {
+        public PerspectiveBuilder withTransforms(PerspectiveModelState transforms) {
             PerspectiveBuilder builder = new PerspectiveBuilder(this);
             builder.withTransforms(transforms);
             return builder;

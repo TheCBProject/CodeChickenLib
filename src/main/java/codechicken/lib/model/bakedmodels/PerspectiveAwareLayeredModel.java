@@ -8,44 +8,59 @@ import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.ChunkRenderTypeSet;
+import net.minecraftforge.client.model.data.ModelData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Created by covers1624 on 19/11/2016.
  */
-public class PerspectiveAwareLayeredModel extends AbstractPerspectiveLayeredModel {
+public class PerspectiveAwareLayeredModel extends AbstractBakedPropertiesModel {
 
-    private final ImmutableMap<RenderType, Map<Direction, List<BakedQuad>>> layerFaceQuadMap;
-    private final ImmutableMap<RenderType, List<BakedQuad>> layerGeneralQuads;
+    private final ImmutableMap<RenderType, List<BakedQuad>> unculledQuads;
+    private final ImmutableMap<RenderType, Map<Direction, List<BakedQuad>>> faceQuads;
+    private final RenderType generallayer;
+    private final ChunkRenderTypeSet chunkLayers;
 
-    public PerspectiveAwareLayeredModel(Map<RenderType, Map<Direction, List<BakedQuad>>> layerFaceQuadMap, PerspectiveProperties properties) {
-        this(layerFaceQuadMap, ImmutableMap.of(), properties, RenderType.solid());
+    public PerspectiveAwareLayeredModel(Map<RenderType, Map<Direction, List<BakedQuad>>> faceQuads, PerspectiveProperties properties) {
+        this(faceQuads, ImmutableMap.of(), properties, RenderType.solid());
     }
 
-    public PerspectiveAwareLayeredModel(Map<RenderType, Map<Direction, List<BakedQuad>>> layerFaceQuadMap, Map<RenderType, List<BakedQuad>> layerGeneralQuads, PerspectiveProperties properties, RenderType generallayer) {
-        super(properties, generallayer);
-        this.layerFaceQuadMap = ImmutableMap.copyOf(layerFaceQuadMap);
-        this.layerGeneralQuads = ImmutableMap.copyOf(layerGeneralQuads);
+    public PerspectiveAwareLayeredModel(Map<RenderType, Map<Direction, List<BakedQuad>>> faceQuads, Map<RenderType, List<BakedQuad>> unculledQuads, PerspectiveProperties properties, RenderType generallayer) {
+        super(properties);
+        this.faceQuads = ImmutableMap.copyOf(faceQuads);
+        this.unculledQuads = ImmutableMap.copyOf(unculledQuads);
+        this.generallayer = generallayer;
+        chunkLayers = ChunkRenderTypeSet.union(ChunkRenderTypeSet.of(faceQuads.keySet()), ChunkRenderTypeSet.of(unculledQuads.keySet()));
     }
 
     @Override
-    public List<BakedQuad> getLayerQuads(BlockState state, Direction side, RenderType layer, RandomSource rand, IModelData data) {
-        if (side == null) {
-            if (layerGeneralQuads.containsKey(layer)) {
-                return layerGeneralQuads.get(layer);
-            }
-        } else if (layerFaceQuadMap.containsKey(layer)) {
-            Map<Direction, List<BakedQuad>> faceQuadMap = layerFaceQuadMap.get(layer);
-            if (faceQuadMap.containsKey(side)) {
-                return faceQuadMap.get(side);
-            }
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand) {
+        return getQuads(state, side, rand, ModelData.EMPTY, null);
+    }
+
+    @Override
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData data, @Nullable RenderType layer) {
+        if (layer == null) {
+            layer = generallayer;
         }
-        return Collections.emptyList();
+        if (side == null) {
+            return unculledQuads.getOrDefault(layer, List.of());
+        }
+        Map<Direction, List<BakedQuad>> faceQuadMap = faceQuads.get(layer);
+        if (faceQuadMap != null) {
+            return faceQuadMap.getOrDefault(side, List.of());
+        }
+        return List.of();
+    }
+
+    @Override
+    public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
+        return chunkLayers;
     }
 
     @Override

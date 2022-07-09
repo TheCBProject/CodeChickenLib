@@ -41,31 +41,31 @@ public class BakedVertexSourceTests {
         assertEquals(0, source.availableVertices());
         assertEquals(24, source.getVertices().length);
 
-        quad.pipe(source);
+        source.put(quad);
         assertEquals(4, source.availableVertices());
         assertEquals(24, source.getVertices().length);
 
-        quad.pipe(source);
+        source.put(quad);
         assertEquals(8, source.availableVertices());
         assertEquals(24, source.getVertices().length);
 
-        quad.pipe(source);
+        source.put(quad);
         assertEquals(12, source.availableVertices());
         assertEquals(24, source.getVertices().length);
 
-        quad.pipe(source);
+        source.put(quad);
         assertEquals(16, source.availableVertices());
         assertEquals(24, source.getVertices().length);
 
-        quad.pipe(source);
+        source.put(quad);
         assertEquals(20, source.availableVertices());
         assertEquals(24, source.getVertices().length);
 
-        quad.pipe(source);
+        source.put(quad);
         assertEquals(24, source.availableVertices());
         assertEquals(24, source.getVertices().length);
 
-        quad.pipe(source);
+        source.put(quad);
         assertEquals(28, source.availableVertices());
         assertEquals(28, source.getVertices().length);
 

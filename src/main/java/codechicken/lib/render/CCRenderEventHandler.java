@@ -5,7 +5,7 @@ import codechicken.lib.vec.Matrix4;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.DrawSelectionEvent;
+import net.minecraftforge.client.event.RenderHighlightEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -41,7 +41,7 @@ public class CCRenderEventHandler {
 
     @OnlyIn (Dist.CLIENT)
     @SubscribeEvent (priority = EventPriority.LOW)
-    public void onBlockHighlight(DrawSelectionEvent.HighlightBlock event) {
+    public void onBlockHighlight(RenderHighlightEvent.Block event) {
         //We have found a CuboidRayTraceResult, Lets render it properly..
         BlockHitResult hit = event.getTarget();
         if (hit instanceof VoxelShapeBlockHitResult voxelHit) {

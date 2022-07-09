@@ -14,8 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.IFluidTypeRenderProperties;
-import net.minecraftforge.client.RenderProperties;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 
@@ -54,10 +53,10 @@ public class RenderUtils {
         } else {
             bound.max.y = bound.min.y + (bound.max.y - bound.min.y) * capacity;
         }
-        IFluidTypeRenderProperties props = RenderProperties.get(type);
+        IClientFluidTypeExtensions props = IClientFluidTypeExtensions.of(type);
         Material material = ForgeHooksClient.getBlockMaterial(props.getStillTexture(stack));
         ccrs.bind(renderType, source);
-        ccrs.baseColour = props.getColorTint(stack) << 8 | alpha;
+        ccrs.baseColour = props.getTintColor(stack) << 8 | alpha;
         makeFluidModel(bound, material.sprite(), res).render(ccrs, mat);
     }
 

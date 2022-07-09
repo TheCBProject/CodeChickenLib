@@ -18,12 +18,12 @@
 
 package codechicken.lib.model.pipeline.transformers;
 
+import codechicken.lib.model.IVertexConsumer;
 import codechicken.lib.model.Quad.Vertex;
 import codechicken.lib.model.pipeline.IPipelineElementFactory;
 import codechicken.lib.model.pipeline.QuadTransformer;
 import codechicken.lib.vec.Cuboid6;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 
 /**
  * This transformer simply clamps the vertices inside the provided box.

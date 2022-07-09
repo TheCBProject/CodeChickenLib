@@ -19,12 +19,11 @@
 package codechicken.lib.model.pipeline;
 
 import codechicken.lib.model.CachedFormat;
-import codechicken.lib.model.ISmartVertexConsumer;
+import codechicken.lib.model.IVertexConsumer;
 import codechicken.lib.model.Quad;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
@@ -35,7 +34,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
  *
  * @author covers1624
  */
-public abstract class QuadTransformer implements IVertexConsumer, ISmartVertexConsumer, IPipelineConsumer {
+public abstract class QuadTransformer implements IVertexConsumer, IPipelineConsumer {
 
     protected final Quad quad;
     protected CachedFormat format;

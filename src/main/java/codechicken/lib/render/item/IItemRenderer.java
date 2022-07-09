@@ -1,5 +1,6 @@
 package codechicken.lib.render.item;
 
+import codechicken.lib.model.PerspectiveModel;
 import codechicken.lib.texture.TextureUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.LightTexture;
@@ -9,19 +10,15 @@ import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.PerspectiveMapWrapper;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
-public interface IItemRenderer extends BakedModel {
+public interface IItemRenderer extends PerspectiveModel {
 
     /**
      * Called to render your item with complete control. Bypasses all vanilla rendering of your model.
@@ -35,30 +32,8 @@ public interface IItemRenderer extends BakedModel {
      */
     void renderItem(ItemStack stack, TransformType transformType, PoseStack mStack, MultiBufferSource source, int packedLight, int packedOverlay);
 
-    /**
-     * Gets the {@link ModelState} for this model used to describe
-     * the transformations of this Model in various states.
-     *
-     * @return The transforms.
-     */
-    ModelState getModelTransform();
-
-    /**
-     * Called to handle this model's perspective. Either use {@link #getModelTransform()}
-     * Or add to the {@link PoseStack} for the given {@link TransformType}.
-     *
-     * @param transformType Where we are handling perspective for.
-     * @param mat           The {@link PoseStack}.
-     * @return The same model.
-     */
-    @Override
-    default BakedModel handlePerspective(TransformType transformType, PoseStack mat) {
-        return PerspectiveMapWrapper.handlePerspective(this, getModelTransform(), transformType, mat);
-    }
-
     //Useless methods for IItemRenderer.
     //@formatter:off
-    @Override default boolean doesHandlePerspectives() { return true; }
     @Override default List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand) { return Collections.emptyList(); }
     @Override default boolean isCustomRenderer() { return true; }
     @Override default TextureAtlasSprite getParticleIcon() { return TextureUtils.getMissingSprite(); }

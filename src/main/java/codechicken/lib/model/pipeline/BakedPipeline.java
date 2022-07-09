@@ -19,13 +19,11 @@
 package codechicken.lib.model.pipeline;
 
 import codechicken.lib.model.CachedFormat;
-import codechicken.lib.model.ISmartVertexConsumer;
+import codechicken.lib.model.IVertexConsumer;
 import codechicken.lib.model.Quad;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
-import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -66,7 +64,7 @@ import java.util.stream.Collectors;
  *
  * @author covers1624
  */
-public class BakedPipeline implements ISmartVertexConsumer {
+public class BakedPipeline implements IVertexConsumer {
 
     private final PipelineElement<?>[] elements;
     private final Map<String, PipelineElement<?>> nameLookup;

@@ -1,7 +1,7 @@
 package codechicken.lib.model.bakery.key;
 
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 
 /**
  * Created by covers1624 on 26/11/2016.
@@ -19,6 +19,6 @@ public interface IBlockStateKeyGenerator {
      * @param state
      * @return
      */
-    String generateKey(BlockState state, IModelData modelData);
+    String generateKey(BlockState state, ModelData modelData);
 
 }

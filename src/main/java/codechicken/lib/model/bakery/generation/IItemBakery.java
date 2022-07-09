@@ -7,37 +7,33 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
+ * A bakery capable of generating quads for an {@link ItemStack}.
+ * <p>
+ * This is used for regular items and {@link BlockItem}s.
+ * <p>
  * Created by covers1624 on 12/02/2017.
- * This IS used for ItemBlocks and Items. For ItemBlock implementation, Implement IBakeryProvider on your block and return an instance of this class.
  */
 public interface IItemBakery extends IBakery {
 
     /**
-     * Used to actually generate quads for your ItemStack based on the face being requested.
-     * <p>
-     * Face may be null!
-     * Treat a null face as "general" quads, Item Rendering doesn't have any sense of "faces" this is more so a fall over
-     * of blocks having face quads. It is fine to have all your quads in the "general" face, but Recommended against for debugging.
+     * Used to generate quads for your {@link ItemStack}.
      *
      * @param face  The face quads are requested for.
      * @param stack The stack!
-     * @return The quads for the layer, May be an empty list. Never null.
+     * @return The quads.
      */
-    @Nonnull
     @OnlyIn (Dist.CLIENT)
     List<BakedQuad> bakeItemQuads(@Nullable Direction face, ItemStack stack);
 
     /**
-     * Using this allows you to change the way your model appears. You are able to override Gui3d and such.
-     * Including Transforms.
+     * Return the {@link PerspectiveProperties} for the generated model.
      *
-     * @return The properties to use for the model.
+     * @return The {@link PerspectiveProperties} to use.
      */
     @OnlyIn (Dist.CLIENT)
     default PerspectiveProperties getModelProperties(ItemStack stack) {

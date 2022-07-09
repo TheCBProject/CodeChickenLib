@@ -1,23 +1,22 @@
 package codechicken.lib.util;
 
+import codechicken.lib.model.PerspectiveModelState;
 import codechicken.lib.vec.Vector3;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Transformation;
-import com.mojang.math.Vector3f;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.*;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.resources.model.ModelState;
-import net.minecraftforge.client.model.SimpleModelState;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by covers1624 on 5/16/2016.
- * This is mostly just extracted from the ForgeBlockStateV1.
- * Credits to Rain Warrior.
+ * This is mostly just extracted from the ForgeBlockStateV1 in 1.10.
+ * Credits to Fry.
  * <p>
  * If you have an idea for another transform just make a pull request.
  */
@@ -25,12 +24,12 @@ public class TransformUtils {
 
     private static final Transformation flipX = new Transformation(null, null, new Vector3f(-1, 1, 1), null);
 
-    public static final ModelState IDENTITY = new SimpleModelState(ImmutableMap.of());
-    public static final ModelState DEFAULT_BLOCK;
-    public static final ModelState DEFAULT_ITEM;
-    public static final ModelState DEFAULT_TOOL;
-    public static final ModelState DEFAULT_BOW;
-    public static final ModelState DEFAULT_HANDHELD_ROD;
+    public static final PerspectiveModelState IDENTITY = PerspectiveModelState.IDENTITY;
+    public static final PerspectiveModelState DEFAULT_BLOCK;
+    public static final PerspectiveModelState DEFAULT_ITEM;
+    public static final PerspectiveModelState DEFAULT_TOOL;
+    public static final PerspectiveModelState DEFAULT_BOW;
+    public static final PerspectiveModelState DEFAULT_HANDHELD_ROD;
 
     static {
         Map<TransformType, Transformation> map;
@@ -47,7 +46,7 @@ public class TransformUtils {
         map.put(TransformType.THIRD_PERSON_LEFT_HAND,   flipLeft(thirdPerson));
         map.put(TransformType.FIRST_PERSON_RIGHT_HAND,  create(0F, 0F, 0F, 0F, 45F, 0F, 0.4F));
         map.put(TransformType.FIRST_PERSON_LEFT_HAND,   create(0F, 0F, 0F, 0F, 225F, 0F, 0.4F));
-        DEFAULT_BLOCK = new SimpleModelState(ImmutableMap.copyOf(map));
+        DEFAULT_BLOCK = new PerspectiveModelState(ImmutableMap.copyOf(map));
 
         map = new HashMap<>();
         thirdPerson =                                    create(   0F,  3F,   1F, 0F,  0F, 0F, 0.55F);
@@ -58,7 +57,7 @@ public class TransformUtils {
         map.put(TransformType.THIRD_PERSON_LEFT_HAND,    flipLeft(thirdPerson));
         map.put(TransformType.FIRST_PERSON_RIGHT_HAND,   firstPerson);
         map.put(TransformType.FIRST_PERSON_LEFT_HAND,    flipLeft(firstPerson));
-        DEFAULT_ITEM = new SimpleModelState(ImmutableMap.copyOf(map));
+        DEFAULT_ITEM = new PerspectiveModelState(ImmutableMap.copyOf(map));
 
         map = new HashMap<>();
         map.put(TransformType.GROUND,                   create(   0F,  2F,   0F, 0F,  0F, 0F, 0.5F));
@@ -67,7 +66,7 @@ public class TransformUtils {
         map.put(TransformType.THIRD_PERSON_LEFT_HAND,   create(   0F,  4F, 0.5F, 0F, 90F,-55,0.85F));
         map.put(TransformType.FIRST_PERSON_RIGHT_HAND,  create(1.13F,3.2F,1.13F, 0F,-90F, 25,0.68F));
         map.put(TransformType.FIRST_PERSON_LEFT_HAND,   create(1.13F,3.2F,1.13F, 0F, 90F,-25,0.68F));
-        DEFAULT_TOOL = new SimpleModelState(ImmutableMap.copyOf(map));
+        DEFAULT_TOOL = new PerspectiveModelState(ImmutableMap.copyOf(map));
 
         map = new HashMap<>();
         map.put(TransformType.GROUND,                   create(   0F,  2F,   0F,  0F,   0F,  0F, 0.5F));
@@ -76,7 +75,7 @@ public class TransformUtils {
         map.put(TransformType.THIRD_PERSON_LEFT_HAND,   create(  -1F, -2F, 2.5F,-80F,-280F, 40F, 0.9F));
         map.put(TransformType.FIRST_PERSON_RIGHT_HAND,  create(1.13F,3.2F,1.13F,  0F, -90F, 25F,0.68F));
         map.put(TransformType.FIRST_PERSON_LEFT_HAND,   create(1.13F,3.2F,1.13F,  0F,  90F,-25F,0.68F));
-        DEFAULT_BOW = new SimpleModelState(ImmutableMap.copyOf(map));
+        DEFAULT_BOW = new PerspectiveModelState(ImmutableMap.copyOf(map));
 
         map = new HashMap<>();
         map.put(TransformType.GROUND,                   create(0F, 2F,   0F, 0F,  0F,  0F, 0.5F));
@@ -84,7 +83,7 @@ public class TransformUtils {
         map.put(TransformType.THIRD_PERSON_LEFT_HAND,   create(0F,  4F,2.5F, 0F,-90F,-55F,0.85F));
         map.put(TransformType.FIRST_PERSON_RIGHT_HAND,  create(0F,1.6F,0.8F, 0F, 90F, 25F,0.68F));
         map.put(TransformType.FIRST_PERSON_LEFT_HAND,   create(0F,1.6F,0.8F, 0F,-90F,-25F,0.68F));
-        DEFAULT_HANDHELD_ROD = new SimpleModelState(ImmutableMap.copyOf(map));
+        DEFAULT_HANDHELD_ROD = new PerspectiveModelState(ImmutableMap.copyOf(map));
         //@formatter:on
     }
 
@@ -128,7 +127,6 @@ public class TransformUtils {
         return new Transformation(transform, new Quaternion(rotation.x(), rotation.y(), rotation.z(), true), scale, null);
     }
 
-    @SuppressWarnings ("deprecation")
     public static Transformation create(ItemTransform transform) {
         if (ItemTransform.NO_TRANSFORM.equals(transform)) return Transformation.identity();
 
@@ -138,14 +136,19 @@ public class TransformUtils {
     /**
      * Flips the transform for the left hand.
      *
-     * @param transform The right hand transform.
-     * @return The new left hand transform.
+     * @param transform The right-hand transform.
+     * @return The new left-hand transform.
      */
     public static Transformation flipLeft(Transformation transform) {
         return flipX.compose(transform).compose(flipX);
     }
 
-    @SuppressWarnings ("deprecation")
+    /**
+     * Decompose a vanilla {@link ItemTransforms} into a {@link PerspectiveModelState}.
+     *
+     * @param itemTransforms the {@link ItemTransforms} to decompose.
+     * @return The {@link PerspectiveModelState}
+     */
     public static ModelState stateFromItemTransforms(ItemTransforms itemTransforms) {
         if (itemTransforms == ItemTransforms.NO_TRANSFORMS) return IDENTITY;
 
@@ -155,6 +158,26 @@ public class TransformUtils {
             map.put(value, create(itemTransforms.getTransform(value)));
         }
 
-        return new SimpleModelState(map.build());
+        return new PerspectiveModelState(map.build());
+    }
+
+    /**
+     * Applies standard lefty flip to a {@link PoseStack}.
+     *
+     * @param pStack The {@link PoseStack} to apply to.
+     */
+    public static void applyLeftyFlip(PoseStack pStack) {
+        if (!pStack.clear()) {
+            Matrix4f tMat = pStack.last().pose();
+            Matrix3f nMat = pStack.last().normal();
+
+            tMat.multiplyBackward(flipX.getMatrix());
+            tMat.multiply(flipX.getMatrix());
+            nMat.multiplyBackward(flipX.getNormalMatrix());
+            nMat.mul(flipX.getNormalMatrix());
+
+            pStack.last().pose().multiply(tMat);
+            pStack.last().normal().mul(nMat);
+        }
     }
 }

@@ -20,6 +20,7 @@ package codechicken.lib.model;
 
 import codechicken.lib.math.InterpHelper;
 import codechicken.lib.math.MathHelper;
+import codechicken.lib.util.VertexUtils;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -28,16 +29,13 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.client.model.pipeline.IVertexConsumer;
-import net.minecraftforge.client.model.pipeline.IVertexProducer;
-import net.minecraftforge.client.model.pipeline.LightUtil;
 
 /**
  * A simple easy to manipulate quad format. Can be reset and then used on a different format.
  *
  * @author covers1624
  */
-public class Quad implements IVertexProducer, ISmartVertexConsumer {
+public class Quad implements IVertexProducer, IVertexConsumer {
 
     public CachedFormat format;
 
@@ -128,8 +126,8 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
 
     @Override
     public void pipe(IVertexConsumer consumer) {
-        if (consumer instanceof ISmartVertexConsumer) {
-            ((ISmartVertexConsumer) consumer).put(this);
+        if (consumer instanceof IVertexConsumer) {
+            ((IVertexConsumer) consumer).put(this);
         } else {
             consumer.setQuadTint(tintIndex);
             consumer.setQuadOrientation(orientation);
@@ -288,7 +286,7 @@ public class Quad implements IVertexProducer, ISmartVertexConsumer {
         int[] packedData = new int[format.format.getVertexSize()];
         for (int v = 0; v < 4; v++) {
             for (int e = 0; e < format.elementCount; e++) {
-                LightUtil.pack(vertices[v].raw[e], packedData, format.format, v, e);
+                VertexUtils.pack(vertices[v].raw[e], packedData, format.format, v, e);
             }
         }
 

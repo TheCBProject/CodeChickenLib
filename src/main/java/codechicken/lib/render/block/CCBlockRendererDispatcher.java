@@ -10,6 +10,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -20,7 +21,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
@@ -49,11 +50,11 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
 
     //In world.
     @Override
-    public void renderBatched(BlockState state, BlockPos pos, BlockAndTintGetter level, PoseStack stack, VertexConsumer builder, boolean checkSides, RandomSource rand, IModelData modelData) {
+    public void renderBatched(BlockState state, BlockPos pos, BlockAndTintGetter level, PoseStack stack, VertexConsumer builder, boolean checkSides, RandomSource rand, ModelData modelData, RenderType renderType) {
         try {
-            ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(state.getBlock(), e -> e.canHandleBlock(level, pos, state));
+            ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(state.getBlock(), e -> e.canHandleBlock(level, pos, state, renderType));
             if (renderer != null) {
-                renderer.renderBlock(state, pos, level, stack, builder, rand, modelData);
+                renderer.renderBlock(state, pos, level, stack, builder, rand, modelData, renderType);
                 return;
             }
         } catch (Throwable t) {
@@ -67,7 +68,7 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
             throw new ReportedException(crashreport);
         }
         try {
-            parentDispatcher.renderBatched(state, pos, level, stack, builder, checkSides, rand, modelData);
+            parentDispatcher.renderBatched(state, pos, level, stack, builder, checkSides, rand, modelData, renderType);
         } catch (Throwable t) {
             if (ProxyClient.catchBlockRenderExceptions) {
                 handleCaughtException(t, state, pos, level);
@@ -79,8 +80,8 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
 
     //Block Damage
     @Override
-    public void renderBreakingTexture(BlockState state, BlockPos pos, BlockAndTintGetter world, PoseStack matrixStackIn, VertexConsumer vertexBuilderIn, IModelData data) {
-        ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(state.getBlock(), e -> e.canHandleBlock(world, pos, state));
+    public void renderBreakingTexture(BlockState state, BlockPos pos, BlockAndTintGetter world, PoseStack matrixStackIn, VertexConsumer vertexBuilderIn, ModelData data) {
+        ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(state.getBlock(), e -> e.canHandleBlock(world, pos, state, null));
         if (renderer != null) {
             renderer.renderBreaking(state, pos, world, matrixStackIn, vertexBuilderIn, data);
         } else {
@@ -101,12 +102,12 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
 
     //From an entity
     @Override
-    public void renderSingleBlock(BlockState blockStateIn, PoseStack matrixStackIn, MultiBufferSource bufferTypeIn, int combinedLightIn, int combinedOverlayIn, IModelData modelData) {
+    public void renderSingleBlock(BlockState blockStateIn, PoseStack matrixStackIn, MultiBufferSource bufferTypeIn, int combinedLightIn, int combinedOverlayIn, ModelData modelData, RenderType renderType) {
         ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(blockStateIn.getBlock(), e -> e.canHandleEntity(blockStateIn));
         if (renderer != null) {
-            renderer.renderEntity(blockStateIn, matrixStackIn, bufferTypeIn, combinedLightIn, combinedOverlayIn, modelData);
+            renderer.renderEntity(blockStateIn, matrixStackIn, bufferTypeIn, combinedLightIn, combinedOverlayIn, modelData, renderType);
         } else {
-            parentDispatcher.renderSingleBlock(blockStateIn, matrixStackIn, bufferTypeIn, combinedLightIn, combinedOverlayIn, modelData);
+            parentDispatcher.renderSingleBlock(blockStateIn, matrixStackIn, bufferTypeIn, combinedLightIn, combinedOverlayIn, modelData, renderType);
         }
     }
 

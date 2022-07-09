@@ -8,14 +8,13 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Similar to {@link BakedQuadBuilder} except receives its data from a vanilla {@link VertexConsumer}.
+ * A {@link VertexConsumer} implementation to build {@link BakedQuad}s.
  * <p>
  * Created by covers1624 on 4/23/20.
  */
@@ -191,10 +190,5 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
         if (current == null) {
             current = new Quad(format);
         }
-    }
-
-    @Override
-    public VertexFormat getVertexFormat() {
-        return format.format;
     }
 }

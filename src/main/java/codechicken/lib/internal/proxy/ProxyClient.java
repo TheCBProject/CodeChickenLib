@@ -3,7 +3,6 @@ package codechicken.lib.internal.proxy;
 import codechicken.lib.CodeChickenLib;
 import codechicken.lib.config.ConfigCategory;
 import codechicken.lib.config.ConfigSyncManager;
-import codechicken.lib.config.ConfigTag;
 import codechicken.lib.model.bakery.ModelBakery;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.BlockRenderingRegistry;
@@ -58,7 +57,7 @@ public class ProxyClient extends Proxy {
         clientTag.save();
     }
 
-    private void onClientDisconnected(ClientPlayerNetworkEvent.LoggedOutEvent event) {
+    private void onClientDisconnected(ClientPlayerNetworkEvent.LoggingOut event) {
         ConfigSyncManager.onClientDisconnected();
     }
 }
