@@ -113,6 +113,11 @@ public enum UniformType {
         return null;
     }
 
+    @Deprecated
+    public boolean isSupported() {
+        return true;
+    }
+
     public enum Carrier {
         INT,
         U_INT,

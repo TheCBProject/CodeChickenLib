@@ -100,5 +100,10 @@ public interface ShaderObject {
         public int getGLCode() {
             return glCode;
         }
+
+        @Deprecated
+        public boolean isSupported() {
+            return true;
+        }
     }
 }
