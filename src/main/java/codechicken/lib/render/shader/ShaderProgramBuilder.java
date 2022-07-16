@@ -109,7 +109,6 @@ public class ShaderProgramBuilder {
         public ShaderObjectBuilder uniform(String name, UniformType type) {
             UniformPair uniform = allUniforms.get(name);
             if (uniform != null && uniform.type() != type) throw new IllegalArgumentException("Uniform with name '" + name + "' already exists with a different type: " + uniform.type());
-            if (!type.isSupported()) throw new UnsupportedOperationException("Uniform type '" + type + "' is not supported in this Environment.");
 
             if (uniform == null) {
                 uniform = new UniformPair(name, type);

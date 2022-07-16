@@ -2,13 +2,10 @@ package codechicken.lib;
 
 import codechicken.lib.config.ConfigCategory;
 import codechicken.lib.config.ConfigFile;
-import codechicken.lib.config.ConfigTag;
 import codechicken.lib.internal.command.CCLCommands;
 import codechicken.lib.internal.network.CCLNetwork;
 import codechicken.lib.internal.proxy.Proxy;
 import codechicken.lib.internal.proxy.ProxyClient;
-import codechicken.lib.render.OpenGLUtils;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -22,7 +19,7 @@ import java.nio.file.Paths;
 /**
  * Created by covers1624 on 12/10/2016.
  */
-@Mod (CodeChickenLib.MOD_ID)
+@Mod(CodeChickenLib.MOD_ID)
 public class CodeChickenLib {
 
     public static final String MOD_ID = "codechickenlib";
@@ -32,12 +29,9 @@ public class CodeChickenLib {
     public static Proxy proxy;
 
     public CodeChickenLib() {
-        config = new ConfigFile(MOD_ID)
-                .path(Paths.get("config/ccl.cfg"))
-                .load();
+        config = new ConfigFile(MOD_ID).path(Paths.get("config/ccl.cfg")).load();
         proxy = DistExecutor.safeRunForDist(() -> ProxyClient::new, () -> Proxy::new);
         FMLJavaModLoadingContext.get().getModEventBus().register(this);
-        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> OpenGLUtils::init);
         CCLCommands.init();
     }
 

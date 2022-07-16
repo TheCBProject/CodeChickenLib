@@ -1,14 +1,10 @@
 package codechicken.lib.render.shader;
 
-import codechicken.lib.render.OpenGLUtils;
 import com.google.common.collect.ImmutableList;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL40;
 import org.lwjgl.opengl.GL43;
-
-import java.util.Objects;
-import java.util.function.BooleanSupplier;
 
 /**
  * Created by covers1624 on 24/5/20.
@@ -79,13 +75,6 @@ public interface ShaderObject {
          * @return The code.
          */
         int getGLCode();
-
-        /**
-         * If this Shader Type is currently supported for the current GL context.
-         *
-         * @return If supported.
-         */
-        boolean isSupported();
     }
 
     /**
@@ -93,35 +82,23 @@ public interface ShaderObject {
      */
     enum StandardShaderType implements ShaderType {
         //@formatter:off
-        VERTEX      (GL20.GL_VERTEX_SHADER,          () -> OpenGLUtils.openGL20),
-        FRAGMENT    (GL20.GL_FRAGMENT_SHADER,        () -> OpenGLUtils.openGL20),
-        GEOMETRY    (GL32.GL_GEOMETRY_SHADER,        () -> OpenGLUtils.openGL32),
-        TESS_CONTROL(GL40.GL_TESS_CONTROL_SHADER,    () -> OpenGLUtils.openGL40),
-        TESS_EVAL   (GL40.GL_TESS_EVALUATION_SHADER, () -> OpenGLUtils.openGL40),
-        COMPUTE     (GL43.GL_COMPUTE_SHADER,         () -> OpenGLUtils.openGL43);
+        VERTEX      (GL20.GL_VERTEX_SHADER),
+        FRAGMENT    (GL20.GL_FRAGMENT_SHADER),
+        GEOMETRY    (GL32.GL_GEOMETRY_SHADER),
+        TESS_CONTROL(GL40.GL_TESS_CONTROL_SHADER),
+        TESS_EVAL   (GL40.GL_TESS_EVALUATION_SHADER),
+        COMPUTE     (GL43.GL_COMPUTE_SHADER);
         //@formatter:on
 
         private final int glCode;
-        private BooleanSupplier func;
-        private boolean isSupported;
 
-        StandardShaderType(int glCode, BooleanSupplier func) {
+        StandardShaderType(int glCode) {
             this.glCode = glCode;
-            this.func = Objects.requireNonNull(func);
         }
 
         @Override
         public int getGLCode() {
             return glCode;
-        }
-
-        @Override
-        public boolean isSupported() {
-            if (func != null) {
-                isSupported = func.getAsBoolean();
-                func = null;
-            }
-            return isSupported;
         }
     }
 }

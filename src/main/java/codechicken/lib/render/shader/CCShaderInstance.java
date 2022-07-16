@@ -78,9 +78,7 @@ public class CCShaderInstance extends ShaderInstance {
         if (type == null) {
             throw new ChainedJsonException("Invalid type '%s'. See UniformType enum. All vanilla types supported.".formatted(typeStr));
         }
-        if (!type.isSupported()) {
-            throw new ChainedJsonException("Uniform type not supported by GL: " + type);
-        }
+
         CCUniform uniform = CCUniform.makeUniform(name, type, this);
         int count = GsonHelper.getAsInt(obj, "count");
 
