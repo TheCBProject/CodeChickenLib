@@ -1,78 +1,71 @@
 package codechicken.lib.render.shader;
 
-import codechicken.lib.render.OpenGLUtils;
 import com.mojang.blaze3d.shaders.Uniform;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Locale;
-import java.util.function.BooleanSupplier;
 
 /**
  * Created by covers1624 on 24/5/20.
  */
 public enum UniformType {
     //@formatter:off
-    INT     (Carrier.INT,      () -> OpenGLUtils.openGL20, 1),
-    U_INT   (Carrier.U_INT,    () -> OpenGLUtils.openGL20, 1),
-    FLOAT   (Carrier.FLOAT,    () -> OpenGLUtils.openGL20, 1),
+    INT     (Carrier.INT,      1),
+    U_INT   (Carrier.U_INT,    1),
+    FLOAT   (Carrier.FLOAT,    1),
 
-    VEC2    (Carrier.FLOAT,    () -> OpenGLUtils.openGL20, 2),
-    I_VEC2  (Carrier.INT,      () -> OpenGLUtils.openGL20, 2),
-    U_VEC2  (Carrier.U_INT,    () -> OpenGLUtils.openGL20, 2),
-    B_VEC2  (Carrier.INT,      () -> OpenGLUtils.openGL20, 2),
+    VEC2    (Carrier.FLOAT,    2),
+    I_VEC2  (Carrier.INT,      2),
+    U_VEC2  (Carrier.U_INT,    2),
+    B_VEC2  (Carrier.INT,      2),
 
-    VEC3    (Carrier.FLOAT,    () -> OpenGLUtils.openGL20, 3),
-    I_VEC3  (Carrier.INT,      () -> OpenGLUtils.openGL20, 3),
-    U_VEC3  (Carrier.U_INT,    () -> OpenGLUtils.openGL20, 3),
-    B_VEC3  (Carrier.INT,      () -> OpenGLUtils.openGL20, 3),
+    VEC3    (Carrier.FLOAT,    3),
+    I_VEC3  (Carrier.INT,      3),
+    U_VEC3  (Carrier.U_INT,    3),
+    B_VEC3  (Carrier.INT,      3),
 
-    VEC4    (Carrier.FLOAT,    () -> OpenGLUtils.openGL20, 4),
-    I_VEC4  (Carrier.INT,      () -> OpenGLUtils.openGL20, 4),
-    U_VEC4  (Carrier.U_INT,    () -> OpenGLUtils.openGL20, 4),
-    B_VEC4  (Carrier.INT,      () -> OpenGLUtils.openGL20, 4),
+    VEC4    (Carrier.FLOAT,    4),
+    I_VEC4  (Carrier.INT,      4),
+    U_VEC4  (Carrier.U_INT,    4),
+    B_VEC4  (Carrier.INT,      4),
 
-    MAT2    (Carrier.MATRIX,   () -> OpenGLUtils.openGL20, 2 * 2),
-    MAT2x3  (Carrier.MATRIX,   () -> OpenGLUtils.openGL21, 2 * 3),
-    MAT2x4  (Carrier.MATRIX,   () -> OpenGLUtils.openGL21, 2 * 4),
+    MAT2    (Carrier.MATRIX,   2 * 2),
+    MAT2x3  (Carrier.MATRIX,   2 * 3),
+    MAT2x4  (Carrier.MATRIX,   2 * 4),
 
-    MAT3    (Carrier.MATRIX,   () -> OpenGLUtils.openGL20, 3 * 3),
-    MAT3x2  (Carrier.MATRIX,   () -> OpenGLUtils.openGL21, 3 * 2),
-    MAT3x4  (Carrier.MATRIX,   () -> OpenGLUtils.openGL21, 3 * 4),
+    MAT3    (Carrier.MATRIX,   3 * 3),
+    MAT3x2  (Carrier.MATRIX,   3 * 2),
+    MAT3x4  (Carrier.MATRIX,   3 * 4),
 
-    MAT4    (Carrier.MATRIX,   () -> OpenGLUtils.openGL20, 4 * 4),
-    MAT4x2  (Carrier.MATRIX,   () -> OpenGLUtils.openGL21, 4 * 2),
-    MAT4x3  (Carrier.MATRIX,   () -> OpenGLUtils.openGL21, 4 * 3),
+    MAT4    (Carrier.MATRIX,   4 * 4),
+    MAT4x2  (Carrier.MATRIX,   4 * 2),
+    MAT4x3  (Carrier.MATRIX,   4 * 3),
 
-    DOUBLE  (Carrier.DOUBLE,   () -> OpenGLUtils.openGL40, 1),
-    D_VEC2  (Carrier.DOUBLE,   () -> OpenGLUtils.openGL40, 2),
-    D_VEC3  (Carrier.DOUBLE,   () -> OpenGLUtils.openGL40, 3),
-    D_VEC4  (Carrier.DOUBLE,   () -> OpenGLUtils.openGL40, 4),
+    DOUBLE  (Carrier.DOUBLE,   1),
+    D_VEC2  (Carrier.DOUBLE,   2),
+    D_VEC3  (Carrier.DOUBLE,   3),
+    D_VEC4  (Carrier.DOUBLE,   4),
 
-    D_MAT2  (Carrier.D_MATRIX, () -> OpenGLUtils.openGL40, 2 * 2),
-    D_MAT2x3(Carrier.D_MATRIX, () -> OpenGLUtils.openGL40, 2 * 3),
-    D_MAT2x4(Carrier.D_MATRIX, () -> OpenGLUtils.openGL40, 2 * 4),
+    D_MAT2  (Carrier.D_MATRIX, 2 * 2),
+    D_MAT2x3(Carrier.D_MATRIX, 2 * 3),
+    D_MAT2x4(Carrier.D_MATRIX, 2 * 4),
 
-    D_MAT3  (Carrier.D_MATRIX, () -> OpenGLUtils.openGL40, 3 * 3),
-    D_MAT3x2(Carrier.D_MATRIX, () -> OpenGLUtils.openGL40, 3 * 2),
-    D_MAT3x4(Carrier.D_MATRIX, () -> OpenGLUtils.openGL40, 3 * 4),
+    D_MAT3  (Carrier.D_MATRIX, 3 * 3),
+    D_MAT3x2(Carrier.D_MATRIX, 3 * 2),
+    D_MAT3x4(Carrier.D_MATRIX, 3 * 4),
 
-    D_MAT4  (Carrier.D_MATRIX, () -> OpenGLUtils.openGL40, 4 * 4),
-    D_MAT4x2(Carrier.D_MATRIX, () -> OpenGLUtils.openGL40, 4 * 2),
-    D_MAT4x3(Carrier.D_MATRIX, () -> OpenGLUtils.openGL40, 4 * 3);
+    D_MAT4  (Carrier.D_MATRIX, 4 * 4),
+    D_MAT4x2(Carrier.D_MATRIX, 4 * 2),
+    D_MAT4x3(Carrier.D_MATRIX, 4 * 3);
     //@formatter:on
 
     public static final UniformType[] VALUES = values();
 
     private final Carrier carrier;
-    @Nullable
-    private BooleanSupplier func;
     private final int size;
 
-    private boolean isSupported;
-
-    UniformType(Carrier carrier, BooleanSupplier func, int size) {
+    UniformType(Carrier carrier, int size) {
         this.carrier = carrier;
-        this.func = func;
         this.size = size;
     }
 
@@ -82,14 +75,6 @@ public enum UniformType {
 
     public int getSize() {
         return size;
-    }
-
-    public boolean isSupported() {
-        if (func != null) {
-            isSupported = func.getAsBoolean();
-            func = null;
-        }
-        return isSupported;
     }
 
     public int getVanillaType() {
