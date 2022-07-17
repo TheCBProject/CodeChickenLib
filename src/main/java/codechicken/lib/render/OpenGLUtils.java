@@ -11,9 +11,8 @@ import java.util.function.BooleanSupplier;
 /**
  * Created by covers1624 on 20/06/2017.
  */
+@Deprecated (since = "1.18.2", forRemoval = true)
 public class OpenGLUtils {
-
-    private static final Logger logger = LogManager.getLogger();
 
     public static boolean openGL20;
     public static boolean openGL21;
@@ -37,14 +36,5 @@ public class OpenGLUtils {
             openGL45 = caps.OpenGL45;
             openGL46 = caps.OpenGL46;
         });
-    }
-
-    private static boolean tryGet(BooleanSupplier sup, String log) {
-        try {
-            return sup.getAsBoolean();
-        } catch (Throwable ignored) {
-            logger.info(log);
-            return false;
-        }
     }
 }
