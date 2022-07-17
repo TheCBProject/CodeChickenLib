@@ -3,6 +3,7 @@ package codechicken.lib.packet;
 import codechicken.lib.packet.ICustomPacketHandler.IClientPacketHandler;
 import codechicken.lib.packet.ICustomPacketHandler.ILoginPacketHandler;
 import codechicken.lib.packet.ICustomPacketHandler.IServerPacketHandler;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -17,9 +18,13 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.event.EventNetworkChannel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+import static net.covers1624.quack.util.SneakyUtils.trueP;
 
 /**
  * Used to build a network channel for use with {@link PacketCustom}.
@@ -29,15 +34,16 @@ import java.util.function.Supplier;
  */
 public class PacketCustomChannelBuilder {
 
+    private static final Logger LOGGER = LogManager.getLogger();
+
     private static final Supplier<String> CONST_1 = () -> "1";
-    private static final Predicate<String> TRUE = e -> true;
 
     private final NetworkRegistry.ChannelBuilder parent;
     private final ResourceLocation channelName;
 
     private Supplier<String> networkProtocolVersion = CONST_1;
-    private Predicate<String> clientAcceptedVersions = TRUE;
-    private Predicate<String> serverAcceptedVersions = TRUE;
+    private Predicate<String> clientAcceptedVersions = trueP();
+    private Predicate<String> serverAcceptedVersions = trueP();
 
     private IClientPacketHandler clientHandler;
     private IServerPacketHandler serverHandler;
@@ -148,10 +154,10 @@ public class PacketCustomChannelBuilder {
      * @return The underlying {@link EventNetworkChannel}
      */
     public synchronized EventNetworkChannel build() {
-        EventNetworkChannel channel = parent//
-                .networkProtocolVersion(networkProtocolVersion)//
-                .clientAcceptedVersions(clientAcceptedVersions)//
-                .serverAcceptedVersions(serverAcceptedVersions)//
+        EventNetworkChannel channel = parent
+                .networkProtocolVersion(networkProtocolVersion)
+                .clientAcceptedVersions(clientAcceptedVersions)
+                .serverAcceptedVersions(serverAcceptedVersions)
                 .eventNetworkChannel();
 
         if (clientHandler != null) {
@@ -168,9 +174,9 @@ public class PacketCustomChannelBuilder {
     }
 
     /**
-     * Default handler for Client received packets.
+     * Handler for Client received packets.
      */
-    public static class ClientHandler {
+    private class ClientHandler {
 
         private final IClientPacketHandler packetHandler;
 
@@ -183,20 +189,29 @@ public class PacketCustomChannelBuilder {
             if (event instanceof NetworkEvent.ServerCustomPayloadLoginEvent) {
                 return;
             }
-            PacketCustom packet = new PacketCustom(event.getPayload());
+            ByteBuf payload = event.getPayload().copy();
+            PacketCustom packet = new PacketCustom(payload);
             NetworkEvent.Context ctx = event.getSource().get();
             PacketListener netHandler = ctx.getNetworkManager().getPacketListener();
             ctx.setPacketHandled(true);
             if (netHandler instanceof ClientPacketListener nh) {
-                ctx.enqueueWork(() -> packetHandler.handlePacket(packet, Minecraft.getInstance(), nh));
+                ctx.enqueueWork(() -> {
+                    try {
+                        packetHandler.handlePacket(packet, Minecraft.getInstance(), nh);
+                    } catch (Throwable ex) {
+                        LOGGER.error("Error handling packet on channel {}.", channelName, ex);
+                    } finally {
+                        payload.release();
+                    }
+                });
             }
         }
     }
 
     /**
-     * Default handler for Server received packets.
+     * Handler for Server received packets.
      */
-    public static class ServerHandler {
+    private class ServerHandler {
 
         private final IServerPacketHandler packetHandler;
 
@@ -206,20 +221,29 @@ public class PacketCustomChannelBuilder {
 
         @SubscribeEvent
         public void onServerPayload(NetworkEvent.ClientCustomPayloadEvent event) {
-            PacketCustom packet = new PacketCustom(event.getPayload());
+            ByteBuf payload = event.getPayload().copy();
+            PacketCustom packet = new PacketCustom(payload);
             NetworkEvent.Context ctx = event.getSource().get();
             PacketListener netHandler = ctx.getNetworkManager().getPacketListener();
             ctx.setPacketHandled(true);
             if (netHandler instanceof ServerGamePacketListenerImpl nh) {
-                ctx.enqueueWork(() -> packetHandler.handlePacket(packet, nh.player, nh));
+                ctx.enqueueWork(() -> {
+                    try {
+                        packetHandler.handlePacket(packet, nh.player, nh);
+                    } catch (Throwable ex) {
+                        LOGGER.error("Error handling packet on channel {}.", channelName, ex);
+                    } finally {
+                        payload.release();
+                    }
+                });
             }
         }
     }
 
     /**
-     * Default handler for Login packets.
+     * Handler for Login packets.
      */
-    public static class LoginHandler {
+    private class LoginHandler {
 
         private final ILoginPacketHandler packetHandler;
 
@@ -237,14 +261,21 @@ public class PacketCustomChannelBuilder {
 
         @SubscribeEvent
         public void onClientPayload(NetworkEvent.LoginPayloadEvent event) {
-            PacketCustom packet = new PacketCustom(event.getPayload());
+            ByteBuf payload = event.getPayload().copy();
+            PacketCustom packet = new PacketCustom(payload);
             NetworkEvent.Context ctx = event.getSource().get();
             PacketListener netHandler = ctx.getNetworkManager().getPacketListener();
             ctx.setPacketHandled(true);
             if (netHandler instanceof ClientLoginPacketListener nh) {
-                packetHandler.handleLoginPacket(packet, Minecraft.getInstance(), nh, ctx);
-                //For _some_ reason sending this response packet in FML is private. So just spoof the packet :D
-                ctx.getPacketDispatcher().sendPacket(new ResourceLocation("fml:handshake"), new FriendlyByteBuf(Unpooled.buffer().writeByte(99)));
+                try {
+                    packetHandler.handleLoginPacket(packet, Minecraft.getInstance(), nh, ctx);
+                } catch (Throwable ex) {
+                    LOGGER.error("Error handling login packet on channel {}.", channelName, ex);
+                } finally {
+                    payload.release();
+                    //For _some_ reason sending this response packet in FML is private. So just spoof the packet :D
+                    ctx.getPacketDispatcher().sendPacket(new ResourceLocation("fml:handshake"), new FriendlyByteBuf(Unpooled.buffer().writeByte(99)));
+                }
             }
         }
     }
