@@ -41,12 +41,12 @@ public class ClientPacketHandler implements IClientPacketHandler {
 
     @SuppressWarnings ("unchecked")
     private void handleOpenContainer(PacketCustom packet, Minecraft mc) {
-        MenuType<?> rawType = packet.readRegistryIdDirect(ForgeRegistries.CONTAINERS);
+        MenuType<?> rawType = packet.readRegistryIdDirect(ForgeRegistries.MENU_TYPES);
         int windowId = packet.readVarInt();
         Component name = packet.readTextComponent();
         if (rawType instanceof ICCLContainerType<?> type) {
-            MenuScreens.getScreenFactory(rawType, mc, windowId, name)//
-                    .map(e -> (MenuScreens.ScreenConstructor<AbstractContainerMenu, ?>) e)//
+            MenuScreens.getScreenFactory(rawType, mc, windowId, name)
+                    .map(e -> (MenuScreens.ScreenConstructor<AbstractContainerMenu, ?>) e)
                     .ifPresent(screenFactory -> {
                         AbstractContainerMenu container = type.create(windowId, Minecraft.getInstance().player.getInventory(), packet);
                         Screen screen = screenFactory.create(container, mc.player.getInventory(), name);

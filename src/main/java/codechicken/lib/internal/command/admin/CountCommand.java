@@ -64,7 +64,7 @@ public class CountCommand {
         int total = 0;
         for (EntityType<?> type : order) {
             int count = counts.getInt(type);
-            String name = ForgeRegistries.ENTITIES.getKey(type).toString();
+            String name = ForgeRegistries.ENTITY_TYPES.getKey(type).toString();
             ctx.getSource().sendSuccess(Component.literal(GREEN + name + RESET + " x " + AQUA + count), false);
             total += count;
         }

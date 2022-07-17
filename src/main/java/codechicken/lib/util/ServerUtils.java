@@ -103,7 +103,7 @@ public class ServerUtils {
         MenuType<?> type = container.getType();
 
         PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, C_OPEN_CONTAINER);
-        packet.writeRegistryIdDirect(ForgeRegistries.CONTAINERS, type);
+        packet.writeRegistryIdDirect(ForgeRegistries.MENU_TYPES, type);
         packet.writeVarInt(containerId);
         packet.writeTextComponent(containerProvider.getDisplayName());
         packetConsumer.accept(packet);

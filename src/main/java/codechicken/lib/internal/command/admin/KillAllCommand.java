@@ -94,7 +94,7 @@ public class KillAllCommand {
         int total = 0;
         for (EntityType<?> t : order) {
             int count = counts.getInt(t);
-            String name = ForgeRegistries.ENTITIES.getKey(t).toString();
+            String name = ForgeRegistries.ENTITY_TYPES.getKey(t).toString();
             ctx.getSource().sendSuccess(Component.translatable("ccl.commands.killall.success.line", RED + name + RESET + " x " + AQUA + count), false);
             total += count;
         }

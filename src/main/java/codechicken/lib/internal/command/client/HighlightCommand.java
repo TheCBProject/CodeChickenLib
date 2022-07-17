@@ -125,7 +125,7 @@ public class HighlightCommand {
         builder.append("  State:         ").append(state).append("\n");
         builder.append("Tile at position\n");
         builder.append("  Tile Class:    ").append(tryOrNull(() -> tile.getClass())).append("\n");
-        builder.append("  Tile Id:       ").append(tryOrNull(() -> ForgeRegistries.BLOCK_ENTITIES.getKey(tile.getType()))).append("\n");
+        builder.append("  Tile Id:       ").append(tryOrNull(() -> ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType()))).append("\n");
         builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.saveWithoutMetadata())).append("\n");
         source.sendSuccess(Component.literal(builder.toString()), false);
 

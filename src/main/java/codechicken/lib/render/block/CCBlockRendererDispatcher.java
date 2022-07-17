@@ -123,7 +123,7 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
         builder.append("  State:         ").append(inState).append("\n");
         builder.append(" Tile at position\n");
         builder.append("  Tile Class:    ").append(tryOrNull(() -> tile.getClass())).append("\n");
-        builder.append("  Tile Id:       ").append(tryOrNull(() -> ForgeRegistries.BLOCK_ENTITIES.getKey(tile.getType()))).append("\n");
+        builder.append("  Tile Id:       ").append(tryOrNull(() -> ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType()))).append("\n");
         builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.saveWithFullMetadata())).append("\n");
         builder.append("This functionality can be disabled in the CCL config file.\n");
         if (ProxyClient.messagePlayerOnRenderExceptionCaught) {
