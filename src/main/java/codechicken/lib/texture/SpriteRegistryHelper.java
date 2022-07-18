@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -35,7 +34,8 @@ public class SpriteRegistryHelper {
     }
 
     public SpriteRegistryHelper(IEventBus eventBus) {
-        eventBus.register(this);
+        eventBus.addListener(this::onTextureStitchPre);
+        eventBus.addListener(this::onTextureStitchPost);
     }
 
     /**
@@ -69,43 +69,27 @@ public class SpriteRegistryHelper {
         return registrar;
     }
 
-    @SubscribeEvent
-    public void onTextureStitchPre(TextureStitchEvent.Pre event) {
+    private void onTextureStitchPre(TextureStitchEvent.Pre event) {
         TextureAtlas atlas = event.getAtlas();
         AtlasRegistrarImpl registrar = getRegistrar(atlas);
         iconRegisters.get(atlas.location()).forEach(e -> e.registerIcons(registrar));
         registrar.processPre(event::addSprite);
     }
 
-    @SubscribeEvent (priority = EventPriority.HIGHEST)
-    public void onTextureStitchPostFirst(TextureStitchEvent.Post event) {
+    private void onTextureStitchPost(TextureStitchEvent.Post event) {
         TextureAtlas atlas = event.getAtlas();
         AtlasRegistrarImpl registrar = getRegistrar(atlas);
         registrar.processPost(atlas);
-    }
-
-    @SubscribeEvent
-    public void onTextureStitchPost(TextureStitchEvent.Post event) {
-        TextureAtlas atlas = event.getAtlas();
-        AtlasRegistrarImpl registrar = getRegistrar(atlas);
-        registrar.processPostFirst(atlas);
     }
 
     private static final class AtlasRegistrarImpl implements AtlasRegistrar {
 
         private final Multimap<ResourceLocation, Consumer<TextureAtlasSprite>> sprites = HashMultimap.create();
         private final List<Consumer<TextureAtlas>> postCallbacks = new ArrayList<>();
-        private final Map<ResourceLocation, Consumer<ProceduralTexture>> proceduralTextures = new HashMap<>();
 
         @Override
         public void registerSprite(ResourceLocation loc, Consumer<TextureAtlasSprite> onReady) {
             sprites.put(loc, onReady);
-        }
-
-        @Override
-        public void registerProceduralSprite(ResourceLocation loc, Consumer<ProceduralTexture> cycleFunc, Consumer<TextureAtlasSprite> onReady) {
-            registerSprite(loc, onReady);
-            proceduralTextures.put(loc, cycleFunc);
         }
 
         @Override
@@ -115,15 +99,6 @@ public class SpriteRegistryHelper {
 
         private void processPre(Consumer<ResourceLocation> register) {
             sprites.keySet().forEach(register);
-        }
-
-        private void processPostFirst(TextureAtlas atlas) {
-            for (Map.Entry<ResourceLocation, Consumer<ProceduralTexture>> entry : proceduralTextures.entrySet()) {
-                ResourceLocation name = entry.getKey();
-                ProceduralTexture texture = new ProceduralTexture(atlas, atlas.getSprite(name), entry.getValue());
-                atlas.animatedTextures.add(texture);
-                atlas.texturesByName.put(name, texture);
-            }
         }
 
         private void processPost(TextureAtlas atlas) {
