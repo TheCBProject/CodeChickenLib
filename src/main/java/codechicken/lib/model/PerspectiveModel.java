@@ -2,6 +2,8 @@ package codechicken.lib.model;
 
 import codechicken.lib.util.TransformUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Transformation;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +30,18 @@ public interface PerspectiveModel extends BakedModel {
     default BakedModel applyTransform(ItemTransforms.TransformType transformType, PoseStack pStack, boolean leftFlip) {
         PerspectiveModelState modelState = getModelState();
         if (modelState != null) {
-            getModelState().getTransform(transformType).push(pStack);
+            Transformation transform = getModelState().getTransform(transformType);
+
+            Vector3f trans = transform.getTranslation();
+            pStack.translate(trans.x(), trans.y(), trans.z());
+
+            pStack.mulPose(transform.getLeftRotation());
+
+            Vector3f scale = transform.getScale();
+            pStack.scale(scale.x(), scale.y(), scale.z());
+
+            pStack.mulPose(transform.getRightRotation());
+
             if (leftFlip) {
                 TransformUtils.applyLeftyFlip(pStack);
             }
