@@ -97,6 +97,16 @@ public abstract class RecipeProvider implements DataProvider {
     protected FurnaceRecipeBuilder campfire(ItemLike result, int count, ResourceLocation id) { return builder(FurnaceRecipeBuilder.campfire(new ItemStack(result, count), id)); }
     protected FurnaceRecipeBuilder campfire(ItemStack result) { return builder(FurnaceRecipeBuilder.campfire(result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
     protected FurnaceRecipeBuilder campfire(ItemStack result, ResourceLocation id) { return builder(FurnaceRecipeBuilder.campfire(result, id)); }
+    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, ItemLike result) { return builder(ShapedRecipeBuilder.custom(serializer, result, 1)); }
+    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, ItemLike result, int count) { return builder(ShapedRecipeBuilder.custom(serializer, new ItemStack(result, count))); }
+    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) { return builder(ShapedRecipeBuilder.custom(serializer, new ItemStack(result, count), id)); }
+    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, ItemStack result) { return builder(ShapedRecipeBuilder.custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
+    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) { return builder(ShapedRecipeBuilder.custom(serializer, result, id)); }
+    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, ItemLike result) { return builder(ShapelessRecipeBuilder.custom(serializer, result, 1)); }
+    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, ItemLike result, int count) { return builder(ShapelessRecipeBuilder.custom(serializer, new ItemStack(result, count))); }
+    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) { return builder(ShapelessRecipeBuilder.custom(serializer, new ItemStack(result, count), id)); }
+    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, ItemStack result) { return builder(ShapelessRecipeBuilder.custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
+    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) { return builder(ShapelessRecipeBuilder.custom(serializer, result, id)); }
     protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemLike result) { return builder(FurnaceRecipeBuilder.custom(serializer, result, 1)); }
     protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemLike result, int count) { return builder(FurnaceRecipeBuilder.custom(serializer, new ItemStack(result, count))); }
     protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) { return builder(FurnaceRecipeBuilder.custom(serializer, new ItemStack(result, count), id)); }

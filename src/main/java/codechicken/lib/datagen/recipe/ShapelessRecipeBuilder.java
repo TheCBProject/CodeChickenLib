@@ -49,6 +49,28 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
         return new ShapelessRecipeBuilder(RecipeSerializer.SHAPELESS_RECIPE, id, result);
     }
 
+    // region Custom
+    public static ShapelessRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result) {
+        return custom(serializer, result, 1);
+    }
+
+    public static ShapelessRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result, int count) {
+        return custom(serializer, new ItemStack(result, count));
+    }
+
+    public static ShapelessRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) {
+        return custom(serializer, new ItemStack(result, count), id);
+    }
+
+    public static ShapelessRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result) {
+        return custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()));
+    }
+
+    public static ShapelessRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) {
+        return new ShapelessRecipeBuilder(serializer, id, result);
+    }
+    // endregion
+
     public ShapelessRecipeBuilder addIngredient(TagKey<Item> tag) {
         return addIngredient(tag, 1);
     }

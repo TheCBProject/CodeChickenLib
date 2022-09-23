@@ -54,6 +54,28 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
         return new ShapedRecipeBuilder(RecipeSerializer.SHAPED_RECIPE, id, result);
     }
 
+    // region Custom
+    public static ShapedRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result) {
+        return custom(serializer, result, 1);
+    }
+
+    public static ShapedRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result, int count) {
+        return custom(serializer, new ItemStack(result, count));
+    }
+
+    public static ShapedRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) {
+        return custom(serializer, new ItemStack(result, count), id);
+    }
+
+    public static ShapedRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result) {
+        return custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()));
+    }
+
+    public static ShapedRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) {
+        return new ShapedRecipeBuilder(serializer, id, result);
+    }
+    // endregion
+
     public ShapedRecipeBuilder key(char key, TagKey<Item> item) {
         addAutoCriteria(item);
         return keyInternal(key, Ingredient.of(item));
