@@ -1,5 +1,6 @@
 package codechicken.lib.datagen.recipe;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
@@ -12,11 +13,17 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.common.crafting.CraftingHelper;
+import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.minecraftforge.common.crafting.conditions.IConditionBuilder;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
@@ -27,6 +34,7 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
 
     protected final Throwable created = new Throwable("Created at");
     protected final Advancement.Builder advancementBuilder = Advancement.Builder.advancement();
+    protected final List<ICondition> conditions = new LinkedList<>();
     protected final RecipeSerializer<?> serializer;
     protected final ResourceLocation id;
     protected final R result;
@@ -48,6 +56,11 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     }
 
     protected abstract ResourceLocation getAdvancementId();
+
+    public T withCondition(Function<ConditionBuilder, ICondition> f) {
+        conditions.add(f.apply(ConditionBuilder.INSTANCE));
+        return getThis();
+    }
 
     public T enableUnlocking() {
         enableUnlocking = true;
@@ -94,7 +107,6 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
         if (enableUnlocking && advancementBuilder.getCriteria().isEmpty()) {
             throw new IllegalStateException("No way of obtaining recipe " + id, created);
         }
-
     }
 
     protected abstract AbstractFinishedRecipe _build();
@@ -127,6 +139,13 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
 
         @Override
         public void serializeRecipeData(JsonObject json) {
+            if (!conditions.isEmpty()) {
+                JsonArray conditionArray = new JsonArray();
+                for (ICondition condition : conditions) {
+                    conditionArray.add(CraftingHelper.serialize(condition));
+                }
+                json.add("conditions", conditionArray);
+            }
             if (StringUtils.isNotEmpty(group)) {
                 json.addProperty("group", group);
             }
