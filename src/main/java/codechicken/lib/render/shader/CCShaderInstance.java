@@ -79,8 +79,8 @@ public class CCShaderInstance extends ShaderInstance {
             throw new ChainedJsonException("Invalid type '%s'. See UniformType enum. All vanilla types supported.".formatted(typeStr));
         }
 
-        CCUniform uniform = CCUniform.makeUniform(name, type, this);
         int count = GsonHelper.getAsInt(obj, "count");
+        CCUniform uniform = CCUniform.makeUniform(name, type, count, this);
 
         JsonArray jsonValues = GsonHelper.getAsJsonArray(obj, "values");
         if (jsonValues.size() != count && jsonValues.size() > 1) {
