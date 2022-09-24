@@ -2,11 +2,11 @@ package codechicken.lib;
 
 import codechicken.lib.config.ConfigCategory;
 import codechicken.lib.config.ConfigFile;
-import codechicken.lib.config.ConfigTag;
 import codechicken.lib.internal.command.CCLCommands;
 import codechicken.lib.internal.network.CCLNetwork;
 import codechicken.lib.internal.proxy.Proxy;
 import codechicken.lib.internal.proxy.ProxyClient;
+import codechicken.lib.datagen.ConditionalIngredient;
 import codechicken.lib.render.OpenGLUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -39,6 +39,7 @@ public class CodeChickenLib {
         FMLJavaModLoadingContext.get().getModEventBus().register(this);
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> OpenGLUtils::init);
         CCLCommands.init();
+        ConditionalIngredient.Serializer.init();
     }
 
     @SubscribeEvent
