@@ -39,7 +39,7 @@ public class ShaderProgram implements ResourceManagerReloadListener {
     ShaderProgram(Collection<ShaderObject> shaders, Collection<UniformPair> uniforms, @Nullable Runnable applyCallback) {
         this.shaders = ImmutableList.copyOf(shaders);
         this.uniforms = StreamableIterable.of(uniforms)
-                .toImmutableMap(UniformPair::name, e -> CCUniform.makeUniform(e.name(), e.type(), 1, null)); // TODO dont specify count of 1 here.
+                .toImmutableMap(UniformPair::name, e -> CCUniform.makeUniform(e.name(), e.type(), e.type().getSize(), null)); // TODO dont specify count of 1 here.
         this.applyCallback = applyCallback;
     }
 
