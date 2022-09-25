@@ -80,6 +80,30 @@ public class CCShaderInstance extends ShaderInstance {
         }
 
         int count = GsonHelper.getAsInt(obj, "count");
+        // Hack for vanilla compat. Vanilla specifies 'float, count 4' for vec4, we need ot to be a vec4
+        switch (type) {
+            case FLOAT -> {
+                switch(count) {
+                    case 2 -> type = UniformType.VEC2;
+                    case 3 -> type = UniformType.VEC3;
+                    case 4 -> type = UniformType.VEC4;
+                }
+            }
+            case INT -> {
+                switch(count) {
+                    case 2 -> type = UniformType.I_VEC2;
+                    case 3 -> type = UniformType.I_VEC3;
+                    case 4 -> type = UniformType.I_VEC4;
+                }
+            }
+            case U_INT -> {
+                switch(count) {
+                    case 2 -> type = UniformType.U_VEC2;
+                    case 3 -> type = UniformType.U_VEC3;
+                    case 4 -> type = UniformType.U_VEC4;
+                }
+            }
+        }
         CCUniform uniform = CCUniform.makeUniform(name, type, count, this);
 
         JsonArray jsonValues = GsonHelper.getAsJsonArray(obj, "values");
