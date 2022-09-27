@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -96,6 +97,14 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
     //region Simple builder
     protected SimpleItemModelBuilder getSimple(ItemLike item) {
         WrappedItemModelBuilder builder = (WrappedItemModelBuilder) getBuilder(item);
+        if (builder.simpleBuilder == null) {
+            builder.simpleBuilder = new SimpleItemModelBuilder(this, builder, item.asItem());
+        }
+        return builder.simpleBuilder;
+    }
+
+    protected SimpleItemModelBuilder getSimple(ItemLike item, String name) {
+        WrappedItemModelBuilder builder = (WrappedItemModelBuilder) getBuilder(name);
         if (builder.simpleBuilder == null) {
             builder.simpleBuilder = new SimpleItemModelBuilder(this, builder, item.asItem());
         }
@@ -192,12 +201,23 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
             return this;
         }
 
+        public SimpleItemModelBuilder override(Consumer<OverrideBuilder> cons) {
+            ItemModelBuilder.OverrideBuilder forgeBuilder = builder.override();
+            OverrideBuilder builder = new OverrideBuilder(this, forgeBuilder);
+            cons.accept(builder);
+            return this;
+        }
+
         public <L extends CustomLoaderBuilder> L customLoader(Function<SimpleItemModelBuilder, L> factory) {
             if (loader != null) throw new IllegalStateException("Loader already set!");
 
             L loader = factory.apply(this);
             this.loader = loader;
             return loader;
+        }
+
+        public ModelFile getModel() {
+            return builder;
         }
 
         private void build() {
@@ -235,6 +255,29 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
                 }
             }
             return super.toJson();
+        }
+    }
+
+    public static class OverrideBuilder {
+
+        private final SimpleItemModelBuilder parent;
+        private final ItemModelBuilder.OverrideBuilder forgeBuilder;
+
+        public OverrideBuilder(SimpleItemModelBuilder parent, ItemModelBuilder.OverrideBuilder forgeBuilder) {
+            this.parent = parent;
+            this.forgeBuilder = forgeBuilder;
+        }
+
+        public OverrideBuilder model(String name, Consumer<SimpleItemModelBuilder> cons) {
+            SimpleItemModelBuilder model = parent.provider.getSimple(parent.item, name);
+            forgeBuilder.model(model.getModel());
+            cons.accept(model);
+            return this;
+        }
+
+        public OverrideBuilder predicate(ResourceLocation key, float value) {
+            forgeBuilder.predicate(key, value);
+            return this;
         }
     }
 

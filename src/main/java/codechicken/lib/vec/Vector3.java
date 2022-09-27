@@ -188,6 +188,7 @@ public class Vector3 implements Copyable<Vector3> {
         return add(vec.x, vec.y, vec.z);
     }
 
+    // TODO Move to use Vec3i
     public Vector3 add(BlockPos pos) {
         return add(pos.getX(), pos.getY(), pos.getZ());
     }

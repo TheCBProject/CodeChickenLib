@@ -109,6 +109,7 @@ public abstract class WrappedItemModel implements BakedModel {
      * @param fabulous      If fabulous is required. (not sure on this desc, might be inaccurate as its value in vanilla
      *                      is mixed with the aforementioned hardcoded edge cases.)
      */
+    // TODO this needs to be redesigned so other IItemRenderers can be used as override models.
     protected void renderWrapped(ItemStack stack, PoseStack pStack, MultiBufferSource buffers, int packedLight, int packedOverlay, boolean fabulous, Function<VertexConsumer, VertexConsumer> consOverride) {
         BakedModel model = wrapped.getOverrides().resolve(wrapped, stack, world, entity, 0);
 
