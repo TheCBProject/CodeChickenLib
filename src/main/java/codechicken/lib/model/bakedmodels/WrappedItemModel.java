@@ -21,6 +21,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.client.model.data.IModelData;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
@@ -62,7 +64,12 @@ public abstract class WrappedItemModel implements BakedModel {
 
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        return null;
+        return wrapped.getParticleIcon();
+    }
+
+    @Override
+    public TextureAtlasSprite getParticleIcon(@NotNull IModelData data) {
+        return wrapped.getParticleIcon(data);
     }
 
     @Override
