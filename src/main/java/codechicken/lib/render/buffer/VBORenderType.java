@@ -1,119 +1,89 @@
-/*
 package codechicken.lib.render.buffer;
 
-import codechicken.lib.vec.Matrix4;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.RenderState;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL15;
 
-import java.nio.ByteBuffer;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.function.BiConsumer;
 
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
+import static net.covers1624.quack.util.SneakyUtils.none;
 
-*/
 /**
- * A RenderType that is backed by a VertexBufferObject.
- * This has a few unique limited applications, mainly related to Item rendering,
- * although it _can_ be used for blocks.
- * Drawbacks:
- * - Doesn't support Overlay rendering. (block breaking)
- * - If LightMap support is required, it must be removed from the VertexFormat.
+ * A RenderType that is backed by a VertexBufferObject used for Instanced rendering.
  * <p>
  * Created by covers1624 on 25/5/20.
- *//*
-
-public class VBORenderType extends DelegateRenderType {
+ */
+public class VBORenderType extends DelegateRenderType implements AutoCloseable {
 
     private final BiConsumer<VertexFormat, BufferBuilder> factory;
-    private int bufferId = -1;
-    private int count;
+    private final VertexBuffer vertexBuffer = new VertexBuffer();
+    private final BufferBuilder builder;
+    private boolean dirty = true;
 
-    */
-/**
+    /**
      * Create a new VBORenderType, delegates render state setup
      * to the provided parent, also uses the parents VertexFormat.
      *
      * @param parent  The parent, for state setup and buffer VertexFormat.
      * @param factory The Factory used to fill the BufferBuilder with data.
-     *//*
-
+     */
     public VBORenderType(RenderType parent, BiConsumer<VertexFormat, BufferBuilder> factory) {
-        this(parent, parent.format(), factory);
-    }
-
-    */
-/**
-     * Create a new VBORenderType, delegates render state setup
-     * to the provided parent, Uses the specified VertexFormat.
-     *
-     * @param parent       The parent, for state setup.
-     * @param bufferFormat The VertexFormat to use.
-     * @param factory      The Factory used to fill the BufferBuilder with data.
-     *//*
-
-    public VBORenderType(RenderType parent, VertexFormat bufferFormat, BiConsumer<VertexFormat, BufferBuilder> factory) {
-        super(parent, bufferFormat);
+        super(parent, parent.format());
         this.factory = factory;
+        builder = new BufferBuilder(bufferSize());
     }
 
-    */
-/**
-     * Can be called runtime to have the Buffer rebuilt,
-     * doing so has very limited applications and is not recommended.
-     *//*
-
-    public void rebuild() {
-        if (bufferId == -1) {
-            bufferId = GL15.glGenBuffers();
-        }
-
-        BufferBuilder builder = new BufferBuilder(bufferSize());
-        builder.begin(mode(), format());
-        factory.accept(format(), builder);
-        builder.end();
-        Pair<BufferBuilder.DrawState, ByteBuffer> pair = builder.popNextBuffer();
-        ByteBuffer buffer = pair.getSecond();
-        count = buffer.remaining() / format().getVertexSize();
-
-        GL15.glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-        GL15.glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
-        GL15.glBindBuffer(GL_ARRAY_BUFFER, 0);
+    /**
+     * Marks this {@link VBORenderType} as needing to be re-built.
+     */
+    public void setDirty() {
+        dirty = true;
     }
 
-    */
-/**
- * A soft clone of this VBORenderType, using the provided Matrix4.
- *
- * @param matrix The matrix.
- * @return The soft clone.
- *//*
+    /**
+     * An extra {@link Runnable} to be applied before draw calls.
+     *
+     * @param action The action.
+     * @return The same {@link WithCallbacks}.
+     */
+    public WithCallbacks withCallback(Runnable action) {
+        return new WithCallbacks().withAction(action);
+    }
 
-    public MatrixVBORenderType withMatrix(Matrix4 matrix) {
-        return new MatrixVBORenderType(this, matrix);
+    /**
+     * An extra {@link RenderStateShard} to be applied.
+     *
+     * @param shard The {@link RenderStateShard}.
+     * @return The same {@link WithCallbacks}.
+     */
+    public WithCallbacks withState(RenderStateShard shard) {
+        return new WithCallbacks().withState(shard);
     }
 
     private void render() {
-        if (bufferId == -1) {
-            rebuild();
-        }
-        GL15.glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-        format().setupBufferState(0);
-        GL15.glDrawArrays(mode(), 0, count);
-        format().clearBufferState();
-        GL15.glBindBuffer(GL_ARRAY_BUFFER, 0);
+        rebuild();
+        this.vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+    }
+
+    private void rebuild() {
+        if (!dirty) return;
+        builder.begin(mode(), format());
+        factory.accept(format(), builder);
+        builder.end();
+        vertexBuffer.upload(builder);
+        builder.clear();
+        dirty = false;
     }
 
     @Override
     public void end(BufferBuilder buffer, int cameraX, int cameraY, int cameraZ) {
-        buffer.end();//We dont care about this, but we need to tell it to finish.
+        // End buffer and discard state, we don't operate like this.
+        buffer.end();
         buffer.popNextBuffer();
 
         setupRenderState();
@@ -121,85 +91,70 @@ public class VBORenderType extends DelegateRenderType {
         clearRenderState();
     }
 
-    public static class MatrixVBORenderType extends DelegateRenderType {
+    @Override
+    public void close() throws Exception {
+        vertexBuffer.close();
+    }
 
-        private final LinkedList<RenderState> states = new LinkedList<>();
-        private final VBORenderType parent;
-        private final Matrix4 matrix;
-        private boolean hasLightMap = false;
+    public class WithCallbacks extends DelegateRenderType {
 
-        private int packedLight;
+        private final List<RenderStateShard> shards = new LinkedList<>();
 
-        public MatrixVBORenderType(VBORenderType parent, Matrix4 matrix) {
-            super(parent);
-            this.parent = parent;
-            this.matrix = matrix.copy();
+        public WithCallbacks() {
+            super(VBORenderType.this);
         }
 
-        */
-/**
- * Enables LightMap support.
- *
- * @param packedLight The PackedLightMap value.
- * @return The same RenderType.
- *//*
-
-        public MatrixVBORenderType withLightMap(int packedLight) {
-            hasLightMap = true;
-            this.packedLight = packedLight;
-            return this;
+        /**
+         * An extra {@link Runnable} to be applied before draw calls.
+         *
+         * @param action The action.
+         * @return The same {@link WithCallbacks}.
+         */
+        public WithCallbacks withAction(Runnable action) {
+            return withState(new RenderStateShard("none", none(), none()) {
+                @Override
+                public void setupRenderState() {
+                    action.run();
+                }
+            });
         }
 
-        */
-/**
- * An extra RenderState to be applied, may be a RenderType.
- *
- * @param state The state.
- * @return The same RenderType.
- *//*
-
-        public MatrixVBORenderType withState(RenderState state) {
-            states.add(state);
+        /**
+         * An extra {@link RenderStateShard} to be applied.
+         *
+         * @param shard The {@link RenderStateShard}.
+         * @return The same {@link WithCallbacks}.
+         */
+        public WithCallbacks withState(RenderStateShard shard) {
+            shards.add(shard);
             return this;
         }
 
         @Override
         public void setupRenderState() {
             super.setupRenderState();
-            states.forEach(RenderState::setupRenderState);
-            RenderSystem.pushMatrix();
-            matrix.glApply();
-            if (hasLightMap) {
-                RenderSystem.glMultiTexCoord2f(GL13.GL_TEXTURE2, packedLight & 0xFFFF, packedLight >>> 16);
+            for (RenderStateShard state : shards) {
+                state.setupRenderState();
             }
         }
 
         @Override
         public void end(BufferBuilder buffer, int cameraX, int cameraY, int cameraZ) {
-            buffer.end();//We dont care about this, but we need to tell it to finish.
+            // End buffer and discard state, we don't operate like this.
+            buffer.end();
             buffer.popNextBuffer();
 
             setupRenderState();
-            parent.render();
+            render();
             clearRenderState();
         }
 
         @Override
         public void clearRenderState() {
-            RenderSystem.popMatrix();
-            states.forEach(RenderState::clearRenderState);
+            for (RenderStateShard state : shards) {
+                state.clearRenderState();
+            }
             super.clearRenderState();
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            return other == this;
-        }
-
-        @Override
-        public int hashCode() {
-            return System.identityHashCode(this);
         }
     }
 }
-*/

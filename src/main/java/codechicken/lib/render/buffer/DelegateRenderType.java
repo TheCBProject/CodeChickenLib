@@ -1,15 +1,12 @@
-/*
 package codechicken.lib.render.buffer;
 
-import net.minecraft.client.renderer.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.vertex.VertexFormat;
 
-*/
 /**
  * Created by covers1624 on 25/5/20.
- *//*
-
+ */
 public class DelegateRenderType extends RenderType {
 
     protected RenderType parent;
@@ -38,4 +35,3 @@ public class DelegateRenderType extends RenderType {
         parent.clearRenderState();
     }
 }
-*/
