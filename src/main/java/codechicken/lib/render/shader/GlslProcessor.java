@@ -5,6 +5,7 @@ import com.google.common.graph.MutableGraph;
 import com.mojang.blaze3d.preprocessor.GlslPreprocessor;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import net.covers1624.quack.io.IOUtils;
 import net.covers1624.quack.sort.TopologicalSort;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +20,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,6 +37,8 @@ import java.util.regex.Pattern;
 public class GlslProcessor {
 
     private static Logger LOGGER = LogManager.getLogger();
+
+    private static final boolean DEBUG = Boolean.getBoolean("ccl.glsl_processor.debug");
 
     private static final Pattern VERSION_PATTERN = Pattern.compile("^#version (.*)$");
     // Matches #moj_import with <> or ""
@@ -95,6 +101,18 @@ public class GlslProcessor {
                 } else {
                     outputLines.add(line);
                 }
+            }
+        }
+
+        if (DEBUG) {
+            Path out = Paths.get("glsl")
+                    .resolve("assets")
+                    .resolve(shader.getNamespace())
+                    .resolve(shader.getPath());
+            try {
+                Files.write(IOUtils.makeParents(out), outputLines, StandardCharsets.UTF_8);
+            } catch (IOException ex) {
+                LOGGER.error("Failed to write debug glsl output to {}", out);
             }
         }
 
