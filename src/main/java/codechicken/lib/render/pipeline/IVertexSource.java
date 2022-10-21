@@ -18,6 +18,18 @@ public interface IVertexSource {
     Vertex5[] getVertices();
 
     /**
+     * The number of vertices available in the model.
+     *
+     * By default, this method just returns the
+     * length of the @link #getVertices()} array.
+     *
+     * @return The number of vertices available.
+     */
+    default int getVertexCount() {
+        return getVertices().length;
+    }
+
+    /**
      * Gets an attribute from this {@link IVertexSource}.
      *
      * @param attr The vertex attribute to get

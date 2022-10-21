@@ -20,7 +20,7 @@ public class BakedVertexSourceTests {
     @Test
     public void testExpand() {
         BakedVertexSource source = new BakedVertexSource();
-        assertEquals(0, source.availableVertices());
+        assertEquals(0, source.getVertexCount());
         assertEquals(24, source.getVertices().length);
         source.ensureSpace(32);
         assertEquals(32, source.getVertices().length);
@@ -38,39 +38,39 @@ public class BakedVertexSourceTests {
 
         BakedVertexSource source = new BakedVertexSource();
         source.reset(CachedFormat.BLOCK);
-        assertEquals(0, source.availableVertices());
+        assertEquals(0, source.getVertexCount());
         assertEquals(24, source.getVertices().length);
 
         quad.pipe(source);
-        assertEquals(4, source.availableVertices());
+        assertEquals(4, source.getVertexCount());
         assertEquals(24, source.getVertices().length);
 
         quad.pipe(source);
-        assertEquals(8, source.availableVertices());
+        assertEquals(8, source.getVertexCount());
         assertEquals(24, source.getVertices().length);
 
         quad.pipe(source);
-        assertEquals(12, source.availableVertices());
+        assertEquals(12, source.getVertexCount());
         assertEquals(24, source.getVertices().length);
 
         quad.pipe(source);
-        assertEquals(16, source.availableVertices());
+        assertEquals(16, source.getVertexCount());
         assertEquals(24, source.getVertices().length);
 
         quad.pipe(source);
-        assertEquals(20, source.availableVertices());
+        assertEquals(20, source.getVertexCount());
         assertEquals(24, source.getVertices().length);
 
         quad.pipe(source);
-        assertEquals(24, source.availableVertices());
+        assertEquals(24, source.getVertexCount());
         assertEquals(24, source.getVertices().length);
 
         quad.pipe(source);
-        assertEquals(28, source.availableVertices());
+        assertEquals(28, source.getVertexCount());
         assertEquals(28, source.getVertices().length);
 
         source.reset(CachedFormat.BLOCK);
-        assertEquals(0, source.availableVertices());
+        assertEquals(0, source.getVertexCount());
         assertEquals(28, source.getVertices().length);
     }
 }

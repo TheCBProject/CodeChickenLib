@@ -54,6 +54,11 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
     }
 
     @Override
+    public int getVertexCount() {
+        return vertexIndex;
+    }
+
+    @Override
     public <T> T getAttribute(AttributeKey<T> attr) {
         ensureAttr(attr.attributeKeyIndex);
         return unsafeCast(attributes[attr.attributeKeyIndex]);
@@ -78,12 +83,14 @@ public class BakedVertexSource implements IVertexSource, ISmartVertexConsumer {
         unpacker.reset(format);
     }
 
+    // Use getVertexCount()
+    @Deprecated(forRemoval = true, since = "1.18.2")
     public int availableVertices() {
         return vertexIndex;
     }
 
     private void onFull() {
-        ensureSpace(availableVertices() + 4);
+        ensureSpace(getVertexCount() + 4);
         for (int i = 0; i < 4; i++) {
             int v = vertexIndex++;
             Quad.Vertex vertex = unpacker.vertices[i];
