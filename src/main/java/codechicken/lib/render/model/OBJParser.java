@@ -192,7 +192,7 @@ public class OBJParser {
                     builtModel.setAttribute(ModelMaterial.MATERIAL_KEY, material);
                     polys = null;
 
-                    builtModels.put(finishedName, builtModel);
+                    putBuiltModel(builtModels, finishedName, builtModel);
                 }
             }
         }
@@ -200,9 +200,19 @@ public class OBJParser {
             CCModel builtModel = CCModel.createModel(vs, vts, vns, vertexMode, polys);
             builtModel.setAttribute(ModelMaterial.MATERIAL_KEY, material);
 
-            builtModels.put(finishedName, builtModel);
+            putBuiltModel(builtModels, finishedName, builtModel);
         }
         return builtModels;
+    }
+
+    private static void putBuiltModel(Map<String, CCModel> builtModels, String name, CCModel model) {
+        int i = 0;
+        String originalName = name;
+        while (builtModels.containsKey(name)) {
+            name = originalName + i;
+            i++;
+        }
+        builtModels.put(name, model);
     }
 
     private static Vector3 parseUV(String s, int line) {
