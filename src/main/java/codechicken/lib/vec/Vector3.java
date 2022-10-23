@@ -295,6 +295,14 @@ public class Vector3 implements Copyable<Vector3> {
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
+    public double distanceSquared(Vector3 other) {
+        double dx = x - other.x;
+        double dy = y - other.y;
+        double dz = z - other.z;
+
+        return dx * dx + dy * dy + dz * dz;
+    }
+
     public double dotProduct(double x1, double y1, double z1) {
         return x1 * x + y1 * y + z1 * z;
     }
