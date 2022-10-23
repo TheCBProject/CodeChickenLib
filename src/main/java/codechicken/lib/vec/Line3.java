@@ -18,6 +18,10 @@ public class Line3 implements Copyable<Line3> {
         this(new Vector3(), new Vector3());
     }
 
+    public Line3(double x1, double y1, double z1, double x2, double y2, double z2) {
+        this(new Vector3(x1, y1, z1), new Vector3(x2, y2, z2));
+    }
+
     public Line3(Line3 other) {
         this(other.pt1.copy(), other.pt2.copy());
     }
