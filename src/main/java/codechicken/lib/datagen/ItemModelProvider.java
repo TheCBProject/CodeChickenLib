@@ -53,7 +53,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
     }
 
     protected ResourceLocation blockTexture(Block block) {
-        return itemTexture(block, "");
+        return blockTexture(block, "");
     }
 
     protected ResourceLocation blockTexture(Supplier<? extends Block> block) {
