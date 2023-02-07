@@ -6,6 +6,7 @@ import codechicken.lib.internal.command.CCLCommands;
 import codechicken.lib.internal.network.CCLNetwork;
 import codechicken.lib.internal.proxy.Proxy;
 import codechicken.lib.internal.proxy.ProxyClient;
+import codechicken.lib.datagen.ConditionalIngredient;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
@@ -36,6 +37,7 @@ public class CodeChickenLib {
         proxy = DistExecutor.safeRunForDist(() -> ProxyClient::new, () -> Proxy::new);
         FMLJavaModLoadingContext.get().getModEventBus().register(this);
         CCLCommands.init();
+        ConditionalIngredient.Serializer.init();
     }
 
     @SubscribeEvent
