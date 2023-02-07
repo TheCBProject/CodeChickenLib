@@ -213,7 +213,7 @@ public class CCRenderState {
     }
 
     public void setModel(IVertexSource source) {
-        setModel(source, 0, source.getVertices().length);
+        setModel(source, 0, source.getVertexCount());
     }
 
     public void setModel(IVertexSource source, int start, int end) {
