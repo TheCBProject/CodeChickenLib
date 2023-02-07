@@ -29,7 +29,7 @@ public class DevCommands {
         GameRules gameRules = server.getGameRules();
 
         for (ServerLevel level : server.getAllLevels()) {
-            level.setDayTime(6000);
+            level.setWeatherParameters(6000, 0, false, false);
         }
 
         gameRules.getRule(GameRules.RULE_DAYLIGHT)
