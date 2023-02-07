@@ -40,11 +40,12 @@ public abstract class CCUniform extends Uniform implements ICCUniform {
         }
     }
 
-    static CCUniform makeUniform(String name, UniformType type, @Nullable Shader parent) {
+    static CCUniform makeUniform(String name, UniformType type, int count, @Nullable Shader parent) {
+        if (count % type.getSize() != 0) throw new IllegalArgumentException("Expected count to be a multiple of the uniform type size: " + type.getSize());
         return switch (type.getCarrier()) {
-            case INT, U_INT -> new IntUniform(name, type, type.getSize(), parent);
-            case FLOAT, MATRIX -> new FloatUniform(name, type, type.getSize(), parent);
-            case DOUBLE, D_MATRIX -> new DoubleUniform(name, type, type.getSize(), parent);
+            case INT, U_INT -> new IntUniform(name, type, count, parent);
+            case FLOAT, MATRIX -> new FloatUniform(name, type, count, parent);
+            case DOUBLE, D_MATRIX -> new DoubleUniform(name, type, count, parent);
         };
     }
 
@@ -145,8 +146,8 @@ public abstract class CCUniform extends Uniform implements ICCUniform {
         public void set(T values, boolean transpose) {
             assert !transpose || type.getCarrier() == Carrier.MATRIX || type.getCarrier() == Carrier.D_MATRIX;
 
-            if (len(values) != type.getSize()) {
-                throw new IllegalArgumentException("Invalid size for uniform '%s', Expected: '%s', Got: '%s'.".formatted(getName(), type.getSize(), len(values)));
+            if (len(values) != getCount()) {
+                throw new IllegalArgumentException("Invalid size for uniform '%s', Expected: '%s', Got: '%s'.".formatted(getName(), getCount(), len(values)));
             }
 
             if (!equals(cache, values) || this.transpose != transpose) {
@@ -184,28 +185,16 @@ public abstract class CCUniform extends Uniform implements ICCUniform {
         public void flush() {
             assert cache != null;
 
-            switch (type.getCarrier()) {
-                //@formatter:off
-                case INT:
-                    switch (type.getSize()) {
-                        case 1 -> GL20.glUniform1i(getLocation(), cache[0]);
-                        case 2 -> GL20.glUniform2i(getLocation(), cache[0], cache[1]);
-                        case 3 -> GL20.glUniform3i(getLocation(), cache[0], cache[1], cache[2]);
-                        case 4 -> GL20.glUniform4i(getLocation(), cache[0], cache[1], cache[2], cache[3]);
-                        default -> throw new IllegalStateException("Invalid size for Int type." + type.getSize());
-                    }
-                    break;
-                case U_INT:
-                    switch (type.getSize()) {
-                        case 1 -> GL30.glUniform1ui(getLocation(), cache[0]);
-                        case 2 -> GL30.glUniform2ui(getLocation(), cache[0], cache[1]);
-                        case 3 -> GL30.glUniform3ui(getLocation(), cache[0], cache[1], cache[2]);
-                        case 4 -> GL30.glUniform4ui(getLocation(), cache[0], cache[1], cache[2], cache[3]);
-                        default -> throw new IllegalStateException("Invalid size for Int type." + type.getSize());
-                    }
-                    break;
-                default: throw new IllegalStateException("Invalid type for IntUniform: " + type.getCarrier());
-                    //@formatter:on
+            switch (type) {
+                case INT -> GL20.glUniform1iv(getLocation(), cache);
+                case U_INT -> GL30.glUniform1uiv(getLocation(), cache);
+                case I_VEC2, B_VEC2 -> GL20.glUniform2iv(getLocation(), cache);
+                case U_VEC2 -> GL30.glUniform2uiv(getLocation(), cache);
+                case I_VEC3, B_VEC3 -> GL20.glUniform3iv(getLocation(), cache);
+                case U_VEC3 -> GL30.glUniform3uiv(getLocation(), cache);
+                case I_VEC4, B_VEC4 -> GL20.glUniform4iv(getLocation(), cache);
+                case U_VEC4 -> GL30.glUniform4uiv(getLocation(), cache);
+                default -> throw new IllegalStateException("Unhandled uniform type for IntUniform: " + type);
             }
         }
 
@@ -227,33 +216,25 @@ public abstract class CCUniform extends Uniform implements ICCUniform {
         public void flush() {
             assert cache != null;
 
-            switch (type.getCarrier()) {
-                //@formatter:off
-                case FLOAT:
-                    switch (type.getSize()) {
-                        case 1 -> GL20.glUniform1f(getLocation(), cache[0]);
-                        case 2 -> GL20.glUniform2f(getLocation(), cache[0], cache[1]);
-                        case 3 -> GL20.glUniform3f(getLocation(), cache[0], cache[1], cache[2]);
-                        case 4 -> GL20.glUniform4f(getLocation(), cache[0], cache[1], cache[2], cache[3]);
-                        default -> throw new IllegalStateException("Invalid size for Float type." + type.getSize());
-                    }
-                    break;
-                case MATRIX:
-                    switch (type) {
-                        case MAT2 ->   GL20.glUniformMatrix2fv  (getLocation(), transpose, cache);
-                        case MAT3 ->   GL20.glUniformMatrix3fv  (getLocation(), transpose, cache);
-                        case MAT4 ->   GL20.glUniformMatrix4fv  (getLocation(), transpose, cache);
-                        case MAT2x3 -> GL21.glUniformMatrix2x3fv(getLocation(), transpose, cache);
-                        case MAT2x4 -> GL21.glUniformMatrix2x4fv(getLocation(), transpose, cache);
-                        case MAT3x2 -> GL21.glUniformMatrix3x2fv(getLocation(), transpose, cache);
-                        case MAT3x4 -> GL21.glUniformMatrix3x4fv(getLocation(), transpose, cache);
-                        case MAT4x2 -> GL21.glUniformMatrix4x2fv(getLocation(), transpose, cache);
-                        case MAT4x3 -> GL21.glUniformMatrix4x3fv(getLocation(), transpose, cache);
-                        default -> throw new IllegalStateException("Invalid Matrix type: " + type);
-                    }
-                    break;
-                default: throw new IllegalStateException("Invalid type for FloatUniform: " + type.getCarrier());
-                    //@formatter:on
+            switch (type) {
+                case FLOAT -> GL20.glUniform1fv(getLocation(), cache);
+                case VEC2 -> GL20.glUniform2fv(getLocation(), cache);
+                case VEC3 -> GL20.glUniform3fv(getLocation(), cache);
+                case VEC4 -> GL20.glUniform4fv(getLocation(), cache);
+
+                case MAT2 -> GL20.glUniformMatrix2fv  (getLocation(), transpose, cache);
+                case MAT2x3 -> GL21.glUniformMatrix2x3fv(getLocation(), transpose, cache);
+                case MAT2x4 -> GL21.glUniformMatrix2x4fv(getLocation(), transpose, cache);
+
+                case MAT3 -> GL20.glUniformMatrix3fv  (getLocation(), transpose, cache);
+                case MAT3x2 -> GL21.glUniformMatrix3x2fv(getLocation(), transpose, cache);
+                case MAT3x4 -> GL21.glUniformMatrix3x4fv(getLocation(), transpose, cache);
+
+                case MAT4 -> GL20.glUniformMatrix4fv  (getLocation(), transpose, cache);
+                case MAT4x2 -> GL21.glUniformMatrix4x2fv(getLocation(), transpose, cache);
+                case MAT4x3 -> GL21.glUniformMatrix4x3fv(getLocation(), transpose, cache);
+
+                default -> throw new IllegalStateException("Unhandled uniform type for FloatUniform: " + type);
             }
         }
 
@@ -275,33 +256,25 @@ public abstract class CCUniform extends Uniform implements ICCUniform {
         public void flush() {
             assert cache != null;
 
-            switch (type.getCarrier()) {
-                //@formatter:off
-                case DOUBLE:
-                    switch (type.getSize()) {
-                        case 1 -> GL40.glUniform1d(getLocation(), cache[0]);
-                        case 2 -> GL40.glUniform2d(getLocation(), cache[0], cache[1]);
-                        case 3 -> GL40.glUniform3d(getLocation(), cache[0], cache[1], cache[2]);
-                        case 4 -> GL40.glUniform4d(getLocation(), cache[0], cache[1], cache[2], cache[3]);
-                        default -> throw new IllegalStateException("Invalid size for Double type." + type.getSize());
-                    }
-                    break;
-                case D_MATRIX:
-                    switch (type) {
-                        case D_MAT2 ->   GL40.glUniformMatrix2dv  (getLocation(), transpose, cache);
-                        case D_MAT3 ->   GL40.glUniformMatrix3dv  (getLocation(), transpose, cache);
-                        case D_MAT4 ->   GL40.glUniformMatrix4dv  (getLocation(), transpose, cache);
-                        case D_MAT2x3 -> GL40.glUniformMatrix2x3dv(getLocation(), transpose, cache);
-                        case D_MAT2x4 -> GL40.glUniformMatrix2x4dv(getLocation(), transpose, cache);
-                        case D_MAT3x2 -> GL40.glUniformMatrix3x2dv(getLocation(), transpose, cache);
-                        case D_MAT3x4 -> GL40.glUniformMatrix3x4dv(getLocation(), transpose, cache);
-                        case D_MAT4x2 -> GL40.glUniformMatrix4x2dv(getLocation(), transpose, cache);
-                        case D_MAT4x3 -> GL40.glUniformMatrix4x3dv(getLocation(), transpose, cache);
-                        default -> throw new IllegalStateException("Invalid Matrix type: " + type);
-                    }
-                    break;
-                default: throw new IllegalStateException("Invalid type for DoubleUniform: " + type.getCarrier());
-                    //@formatter:on
+            switch (type) {
+                case DOUBLE -> GL40.glUniform1dv(getLocation(), cache);
+                case D_VEC2 -> GL40.glUniform2dv(getLocation(), cache);
+                case D_VEC3 -> GL40.glUniform3dv(getLocation(), cache);
+                case D_VEC4 -> GL40.glUniform4dv(getLocation(), cache);
+
+                case D_MAT2 -> GL40.glUniformMatrix2dv  (getLocation(), transpose, cache);
+                case D_MAT2x3 -> GL40.glUniformMatrix2x3dv(getLocation(), transpose, cache);
+                case D_MAT2x4 -> GL40.glUniformMatrix2x4dv(getLocation(), transpose, cache);
+
+                case D_MAT3 -> GL40.glUniformMatrix3dv  (getLocation(), transpose, cache);
+                case D_MAT3x2 -> GL40.glUniformMatrix3x2dv(getLocation(), transpose, cache);
+                case D_MAT3x4 -> GL40.glUniformMatrix3x4dv(getLocation(), transpose, cache);
+
+                case D_MAT4 -> GL40.glUniformMatrix4dv  (getLocation(), transpose, cache);
+                case D_MAT4x2 -> GL40.glUniformMatrix4x2dv(getLocation(), transpose, cache);
+                case D_MAT4x3 -> GL40.glUniformMatrix4x3dv(getLocation(), transpose, cache);
+
+                default -> throw new IllegalStateException("Unhandled uniform type for DoubleUniform: " + type);
             }
         }
 
