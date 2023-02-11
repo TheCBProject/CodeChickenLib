@@ -57,6 +57,10 @@ public abstract class LanguageProvider implements DataProvider {
         return modid + " Languages: " + locale;
     }
 
+    public String getLocale() {
+        return locale;
+    }
+
     private void save(CachedOutput cache, Object object, Path target) throws IOException {
         DataProvider.saveStable(cache, GSON.toJsonTree(object), target);
     }

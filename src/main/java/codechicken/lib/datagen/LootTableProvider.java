@@ -155,7 +155,7 @@ public abstract class LootTableProvider implements DataProvider {
             register(block, builder);
         }
 
-        protected void register(Block block, LootTable.Builder builder) {
+        public void register(Block block, LootTable.Builder builder) {
             register(ForgeRegistries.BLOCKS.getKey(block), builder);
         }
 
