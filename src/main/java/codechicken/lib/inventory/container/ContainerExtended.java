@@ -1,113 +1,83 @@
-/*
 package codechicken.lib.inventory.container;
 
 import codechicken.lib.packet.PacketCustom;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.*;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.core.NonNullList;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.*;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
-public abstract class ContainerExtended extends Container implements IContainerListener {
+public abstract class ContainerExtended extends AbstractContainerMenu {
 
-    public LinkedList<ServerPlayerEntity> playerCrafters = new LinkedList<>();
+    @Nullable
+    protected ServerPlayer player;
 
-    protected ContainerExtended(ContainerType<?> type, int id) {
+    protected ContainerExtended(MenuType<?> type, int id, Inventory inv) {
         super(type, id);
-        containerListeners.add(this);
-    }
-
-    @Override
-    public void addSlotListener(@Nonnull IContainerListener listener) {
-        if (listener instanceof ServerPlayerEntity) {
-            playerCrafters.add((ServerPlayerEntity) listener);
-            sendContainerAndContentsToPlayer(this, getItems(), Collections.singletonList((ServerPlayerEntity) listener));
-            broadcastChanges();
-        } else {
-            super.addSlotListener(listener);
+        if (inv.player instanceof ServerPlayer player) {
+            this.player = player;
         }
     }
 
     @Override
-    public void removeSlotListener(@Nonnull IContainerListener listener) {
-        if (listener instanceof ServerPlayerEntity) {
-            playerCrafters.remove(listener);
-        } else {
-            super.removeSlotListener(listener);
-        }
-    }
-
-    @Override
-    public void refreshContainer(@Nonnull Container container, @Nonnull NonNullList<ItemStack> list) {
-        sendContainerAndContentsToPlayer(container, list, playerCrafters);
-    }
-
-    public void sendContainerAndContentsToPlayer(Container container, NonNullList<ItemStack> list, List<ServerPlayerEntity> playerCrafters) {
-        LinkedList<ItemStack> largeStacks = new LinkedList<>();
-        for (int i = 0; i < list.size(); i++) {
-            ItemStack stack = list.get(i);
-            if (!stack.isEmpty() && stack.getCount() > Byte.MAX_VALUE) {
-                list.set(i, ItemStack.EMPTY);
-                largeStacks.add(stack);
-            } else {
-                largeStacks.add(ItemStack.EMPTY);
+    public void setSynchronizer(ContainerSynchronizer delegate) {
+        super.setSynchronizer(new ContainerSynchronizer() {
+            @Override
+            public void sendInitialData(AbstractContainerMenu container, NonNullList<ItemStack> stacks, ItemStack carried, int[] data) {
+                delegate.sendInitialData(container, stacks, carried, data);
+                if (player != null) {
+                    for (int i = 0; i < stacks.size(); i++) {
+                        ItemStack stack = stacks.get(i);
+                        if (stack.getCount() > Byte.MAX_VALUE) {
+                            sendLargeStack(stack, i, player);
+                        }
+                    }
+                }
             }
-        }
 
-        for (ServerPlayerEntity player : playerCrafters) {
-            player.refreshContainer(container, list);
-        }
-
-        for (int i = 0; i < largeStacks.size(); i++) {
-            ItemStack stack = largeStacks.get(i);
-            if (!stack.isEmpty()) {
-                sendLargeStack(stack, i, playerCrafters);
+            @Override
+            public void sendSlotChange(AbstractContainerMenu container, int slot, ItemStack stack) {
+                delegate.sendSlotChange(container, slot, stack);
+                if (stack.getCount() > Byte.MAX_VALUE) {
+                    sendLargeStack(stack, slot, player);
+                }
             }
-        }
-    }
 
-    public void sendLargeStack(ItemStack stack, int slot, List<ServerPlayerEntity> players) {
-    }
-
-    @Override
-    public void setContainerData(@Nonnull Container container, int i, int j) {
-        for (ServerPlayerEntity player : playerCrafters) {
-            player.setContainerData(container, i, j);
-        }
-    }
-
-    @Override
-    public void slotChanged(@Nonnull Container container, int slot, @Nonnull ItemStack stack) {
-        if (!stack.isEmpty() && stack.getCount() > Byte.MAX_VALUE) {
-            sendLargeStack(stack, slot, playerCrafters);
-        } else {
-            for (ServerPlayerEntity player : playerCrafters) {
-                player.slotChanged(container, slot, stack);
+            @Override
+            public void sendCarriedChange(AbstractContainerMenu container, ItemStack stack) {
+                delegate.sendCarriedChange(container, stack);
             }
-        }
+
+            @Override
+            public void sendDataChange(AbstractContainerMenu container, int slot, int data) {
+                delegate.sendDataChange(container, slot, data);
+            }
+        });
     }
 
-    @Nonnull
+    public void sendLargeStack(ItemStack stack, int slot, ServerPlayer player) {
+    }
+
     @Override
-    public ItemStack clicked(int slot, int dragType, @Nonnull ClickType clickType, @Nonnull PlayerEntity player) {
+    public void clicked(int slot, int dragType, ClickType clickType, Player player) {
         if (slot >= 0 && slot < slots.size()) {
             Slot actualSlot = getSlot(slot);
             if (actualSlot instanceof SlotHandleClicks) {
-                return ((SlotHandleClicks) actualSlot).slotClick(this, player, dragType, clickType);
+                ((SlotHandleClicks) actualSlot).slotClick(this, player, dragType, clickType);
+                return;
             }
         }
-        return super.clicked(slot, dragType, clickType, player);
+        super.clicked(slot, dragType, clickType, player);
     }
 
     @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nonnull PlayerEntity par1EntityPlayer, int slotIndex) {
+    public ItemStack quickMoveStack(@Nonnull Player player, int slotIndex) {
         ItemStack transferredStack = ItemStack.EMPTY;
         Slot slot = slots.get(slotIndex);
 
@@ -143,7 +113,7 @@ public abstract class ContainerExtended extends Container implements IContainerL
                 Slot slot = slots.get(slotIndex);
                 ItemStack slotStack = slot.getItem();
 
-                if (!slotStack.isEmpty() && consideredTheSameItem(stack, slotStack)) {
+                if (!slotStack.isEmpty() && ItemStack.isSameItemSameTags(stack, slotStack)) {
                     int totalStackSize = slotStack.getCount() + stack.getCount();
                     int maxStackSize = Math.min(stack.getMaxStackSize(), slot.getMaxStackSize());
                     if (totalStackSize <= maxStackSize) {
@@ -190,11 +160,11 @@ public abstract class ContainerExtended extends Container implements IContainerL
         return false;
     }
 
-    protected void bindPlayerInventory(PlayerInventory inventoryPlayer) {
+    protected void bindPlayerInventory(Inventory inventoryPlayer) {
         bindPlayerInventory(inventoryPlayer, 8, 84);
     }
 
-    protected void bindPlayerInventory(PlayerInventory inventoryPlayer, int x, int y) {
+    protected void bindPlayerInventory(Inventory inventoryPlayer, int x, int y) {
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 addSlot(new Slot(inventoryPlayer, col + row * 9 + 9, x + col * 18, y + row * 18));
@@ -206,44 +176,28 @@ public abstract class ContainerExtended extends Container implements IContainerL
     }
 
     @Override
-    public boolean stillValid(@Nonnull PlayerEntity var1) {
+    public boolean stillValid(@Nonnull Player var1) {
         return true;
     }
 
-    public void sendContainerPacket(PacketCustom packet) {
-        for (ServerPlayerEntity player : playerCrafters) {
-            packet.sendToPlayer(player);
-        }
-    }
-
-    */
-/**
+    /**
      * May be called from a client packet handler to handle additional info
-     *//*
+     */
 
     public void handleOutputPacket(PacketCustom packet) {
     }
 
-    */
-/**
+    /**
      * May be called from a server packet handler to handle additional info
-     *//*
+     */
 
     public void handleInputPacket(PacketCustom packet) {
     }
 
-    */
-/**
+    /**
      * May be called from a server packet handler to handle client input
-     *//*
+     */
 
     public void handleGuiChange(int ID, int value) {
     }
-
-    public void sendProgressBarUpdate(int barID, int value) {
-        for (IContainerListener crafting : containerListeners) {
-            crafting.setContainerData(this, barID, value);
-        }
-    }
 }
-*/
