@@ -1,12 +1,11 @@
-/*
 package codechicken.lib.inventory.container;
 
 import codechicken.lib.inventory.InventoryUtils;
 import codechicken.lib.util.ItemUtils;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
@@ -14,21 +13,20 @@ public class SlotDummy extends SlotHandleClicks {
 
     public final int stackLimit;
 
-    public SlotDummy(IInventory inv, int slot, int x, int y) {
+    public SlotDummy(Container inv, int slot, int x, int y) {
         this(inv, slot, x, y, 64);
     }
 
-    public SlotDummy(IInventory inv, int slot, int x, int y, int limit) {
+    public SlotDummy(Container inv, int slot, int x, int y, int limit) {
         super(inv, slot, x, y);
         stackLimit = limit;
     }
 
     @Override
-    public ItemStack slotClick(ContainerExtended container, PlayerEntity player, int button, ClickType clickType) {
-        ItemStack held = player.inventory.getCarried();
+    public void slotClick(ContainerExtended container, Player player, int button, ClickType clickType) {
+        ItemStack held = player.inventory.player.containerMenu.getCarried();
         boolean shift = clickType == ClickType.QUICK_MOVE;
         slotClick(held, button, shift);
-        return ItemStack.EMPTY;
     }
 
     public void slotClick(@Nonnull ItemStack held, int button, boolean shift) {
@@ -73,8 +71,7 @@ public class SlotDummy extends SlotHandleClicks {
     }
 
     @Override
-    public boolean mayPickup(PlayerEntity playerIn) {
+    public boolean mayPickup(Player playerIn) {
         return false;
     }
 }
-*/
