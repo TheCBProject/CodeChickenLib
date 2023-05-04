@@ -4,6 +4,7 @@ import codechicken.lib.internal.command.admin.CountCommand;
 import codechicken.lib.internal.command.admin.KillAllCommand;
 import codechicken.lib.internal.command.admin.MiscCommands;
 import codechicken.lib.internal.command.client.HighlightCommand;
+import codechicken.lib.internal.command.client.RenderItemToFileCommand;
 import codechicken.lib.internal.command.dev.DevCommands;
 import com.mojang.brigadier.CommandDispatcher;
 import net.covers1624.quack.util.CrashLock;
@@ -45,6 +46,7 @@ public class CCLCommands {
     private static void registerClientCommands(RegisterClientCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
         HighlightCommand.register(dispatcher);
+        RenderItemToFileCommand.register(dispatcher);
     }
 
 }
