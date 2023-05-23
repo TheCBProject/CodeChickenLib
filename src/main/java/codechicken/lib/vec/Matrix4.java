@@ -514,7 +514,24 @@ public class Matrix4 extends Transformation {
     }
 
     public Matrix4f toMatrix4f() {
-        return new Matrix4f(toArrayF());
+        Matrix4f mat = new Matrix4f();
+        mat.m00 = (float) m00;
+        mat.m01 = (float) m01;
+        mat.m02 = (float) m02;
+        mat.m03 = (float) m03;
+        mat.m10 = (float) m10;
+        mat.m11 = (float) m11;
+        mat.m12 = (float) m12;
+        mat.m13 = (float) m13;
+        mat.m20 = (float) m20;
+        mat.m21 = (float) m21;
+        mat.m22 = (float) m22;
+        mat.m23 = (float) m23;
+        mat.m30 = (float) m30;
+        mat.m31 = (float) m31;
+        mat.m32 = (float) m32;
+        mat.m33 = (float) m33;
+        return mat;
     }
 
     public static Vector3 gluProject(Vector3 obj, Matrix4 modelMatrix, Matrix4 projMatrix, IntBuffer viewport) {
