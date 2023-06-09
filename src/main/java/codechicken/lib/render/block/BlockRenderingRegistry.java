@@ -96,27 +96,29 @@ public class BlockRenderingRegistry {
 
     @Nullable
     static ICCBlockRenderer findFor(Block block, Predicate<ICCBlockRenderer> pred) {
-        ICCBlockRenderer found = blockRenderers.get(block.delegate);
-        if (found != null && pred.test(found)) return found;
-
         for (ICCBlockRenderer renderer : globalRenderers) {
             if (pred.test(renderer)) {
                 return renderer;
             }
         }
+
+        ICCBlockRenderer found = blockRenderers.get(block.delegate);
+        if (found != null && pred.test(found)) return found;
+
         return null;
     }
 
     @Nullable
     static ICCBlockRenderer findFor(Fluid fluid, Predicate<ICCBlockRenderer> pred) {
-        ICCBlockRenderer found = fluidRenderers.get(fluid.delegate);
-        if (found != null && pred.test(found)) return found;
-
         for (ICCBlockRenderer renderer : globalRenderers) {
             if (pred.test(renderer)) {
                 return renderer;
             }
         }
+
+        ICCBlockRenderer found = fluidRenderers.get(fluid.delegate);
+        if (found != null && pred.test(found)) return found;
+
         return null;
     }
 }
