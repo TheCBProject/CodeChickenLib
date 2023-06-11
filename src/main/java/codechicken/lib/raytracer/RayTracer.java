@@ -41,25 +41,16 @@ public class RayTracer {
         return baseTraceResult;
     }
 
-    private static double getBlockReachDistance_server(ServerPlayer player) {
-        return player.getAttribute(ForgeMod.REACH_DISTANCE.get()).getValue();
-    }
-
-    @OnlyIn (Dist.CLIENT)
-    private static double getBlockReachDistance_client() {
-        return Minecraft.getInstance().gameMode.getPickRange();
-    }
-
     public static BlockHitResult retrace(Player player) {
         return retrace(player, ClipContext.Block.OUTLINE);
     }
 
     public static BlockHitResult retrace(Player player, ClipContext.Block blockMode) {
-        return retrace(player, getBlockReachDistance(player), blockMode, ClipContext.Fluid.NONE);
+        return retrace(player, player.getReachDistance(), blockMode, ClipContext.Fluid.NONE);
     }
 
     public static BlockHitResult retrace(Player player, ClipContext.Block blockMode, ClipContext.Fluid fluidMode) {
-        return retrace(player, getBlockReachDistance(player), blockMode, fluidMode);
+        return retrace(player, player.getReachDistance(), blockMode, fluidMode);
     }
 
     public static BlockHitResult retrace(Player player, double reach, ClipContext.Block blockMode) {
@@ -81,15 +72,15 @@ public class RayTracer {
         return getCorrectedHeadVec(player);
     }
 
-    @Deprecated // Use attribute directly? avoid all this nonsense.
+    @Deprecated // Replace with player.getReachDistance()
     public static double getBlockReachDistance(Player player) {
-        return player.level.isClientSide ? getBlockReachDistance_client() : player instanceof ServerPlayer ? getBlockReachDistance_server((ServerPlayer) player) : 5D;
+        return player.getReachDistance();
     }
 
     public static Vec3 getEndVec(Player player) {
         Vec3 headVec = getCorrectedHeadVec(player);
         Vec3 lookVec = player.getViewVector(1.0F);
-        double reach = getBlockReachDistance(player);
+        double reach = player.getReachDistance();
         return headVec.add(lookVec.x * reach, lookVec.y * reach, lookVec.z * reach);
     }
 
