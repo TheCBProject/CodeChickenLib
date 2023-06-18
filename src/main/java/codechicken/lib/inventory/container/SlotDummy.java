@@ -24,7 +24,7 @@ public class SlotDummy extends SlotHandleClicks {
 
     @Override
     public void slotClick(ContainerExtended container, Player player, int button, ClickType clickType) {
-        ItemStack held = player.inventory.player.containerMenu.getCarried();
+        ItemStack held = player.getInventory().player.containerMenu.getCarried();
         boolean shift = clickType == ClickType.QUICK_MOVE;
         slotClick(held, button, shift);
     }
