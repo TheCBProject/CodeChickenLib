@@ -95,11 +95,10 @@ public class CCModelLibrary {
 
     public static RenderType.CompositeState makeIcosState(ResourceLocation texture) {
         return RenderType.CompositeState.builder()
-                .setShaderState(RenderStateShard.BLOCK_SHADER)
+                .setShaderState(RenderStateShard.RENDERTYPE_TRANSLUCENT_MOVING_BLOCK_SHADER) // TODO: ... | is this accurate? was RenderStateShard.BLOCK_SHADER before.
                 .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
                 .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
                 .setLightmapState(RenderStateShard.LIGHTMAP)
                 .createCompositeState(false);
     }
-
 }

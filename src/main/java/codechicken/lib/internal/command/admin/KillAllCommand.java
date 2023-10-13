@@ -67,9 +67,10 @@ public class KillAllCommand {
         return killEntities(ctx, type, predicate, Entity::discard);
     }
 
+    @SuppressWarnings("all")
     private static int killEntities(CommandContext<CommandSourceStack> ctx, @Nullable EntityType<?> type, Predicate<Entity> predicate, Consumer<Entity> killFunc) {
         if (type == EntityType.PLAYER) {
-            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.killall.fail.player").withStyle(RED), false);
+            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.killall.fail.player").withStyle(RED), false);
             return 0;
         }
         CommandSourceStack source = ctx.getSource();
@@ -95,13 +96,14 @@ public class KillAllCommand {
         for (EntityType<?> t : order) {
             int count = counts.getInt(t);
             String name = ForgeRegistries.ENTITY_TYPES.getKey(t).toString();
-            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.killall.success.line", RED + name + RESET + " x " + AQUA + count), false);
+            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.killall.success.line", RED + name + RESET + " x " + AQUA + count), false);
             total += count;
         }
         if (order.size() == 0) {
-            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.killall.fail"), false);
+            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.killall.fail"), false);
         } else if (order.size() > 1) {
-            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.killall.success", AQUA.toString() + total + RESET), false);
+            final int finalTotal = total;
+            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.killall.success", AQUA.toString() + finalTotal + RESET), false);
         }
         return total;
     }

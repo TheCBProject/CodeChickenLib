@@ -21,11 +21,11 @@ public class MiscCommands {
                 .then(literal("gc")
                         .requires(e -> e.hasPermission(4))
                         .executes(ctx -> {
-                            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.gc.before"), true);
+                            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.gc.before"), true);
                             printMemInfo(ctx, true);
-                            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.gc.performing"), true);
+                            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.gc.performing"), true);
                             System.gc();
-                            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.gc.after"), true);
+                            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.gc.after"), true);
                             printMemInfo(ctx, true);
                             return 0;
                         })
@@ -42,14 +42,8 @@ public class MiscCommands {
         long total = Runtime.getRuntime().totalMemory();
         long free = Runtime.getRuntime().freeMemory();
         long used = total - free;
-        String mem = String.format("Mem: % 2d%% %03d/%03dMB", used * 100L / max, bytesToMb(used), bytesToMb(max));
-        String allocated = String.format("Allocated: % 2d%% %03dMB", total * 100L / max, bytesToMb(total));
-        if (indent) {
-            mem = " " + mem;
-            allocated = " " + allocated;
-        }
-        ctx.getSource().sendSuccess(Component.literal(mem), true);
-        ctx.getSource().sendSuccess(Component.literal(allocated), true);
+        ctx.getSource().sendSuccess(() -> Component.literal((indent ? " " : "") + String.format("Mem: % 2d%% %03d/%03dMB", used * 100L / max, bytesToMb(used), bytesToMb(max))), true);
+        ctx.getSource().sendSuccess(() -> Component.literal((indent ? " " : "") + String.format("Allocated: % 2d%% %03dMB", total * 100L / max, bytesToMb(total))), true);
         return 0;
     }
 

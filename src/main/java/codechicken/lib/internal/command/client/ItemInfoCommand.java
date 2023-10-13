@@ -33,8 +33,9 @@ public class ItemInfoCommand {
         if (stack.isEmpty()) return 0;
 
         String tag = stack.hasTag() ? stack.getTag().toString() : "Item has no NBT.";
-        ctx.sendSuccess(Component.literal("Registry Name: " + ForgeRegistries.ITEMS.getKey(stack.getItem())), false);
-        ctx.sendSuccess(Component.literal("NBT          : " + tag), false);
+        final ItemStack finalStack = stack;
+        ctx.sendSuccess(() -> Component.literal("Registry Name: " + ForgeRegistries.ITEMS.getKey(finalStack.getItem())), false);
+        ctx.sendSuccess(() -> Component.literal("NBT          : " + tag), false);
         return 0;
     }
 }

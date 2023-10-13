@@ -5,7 +5,13 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
+import com.mojang.blaze3d.vertex.VertexSorting;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemDisplayContext;
+import org.joml.Matrix4f;
 import net.covers1624.quack.image.AnimatedGifEncoder;
 import net.covers1624.quack.io.IOUtils;
 import net.covers1624.quack.util.SneakyUtils;
@@ -43,12 +49,12 @@ public class ItemFileRenderer {
     private static final LinkedList<RenderTask> tasks = new LinkedList<>();
     private static final List<GifRenderTask> gifTasks = new LinkedList<>();
 
-    public static void addRenderTask(ItemStack stack, Path file, int resolution) {
-        tasks.add(new RenderTask(stack, file, resolution));
+    public static void addRenderTask(GuiGraphics context, ItemStack stack, Path file, int resolution) {
+        tasks.add(new RenderTask(context, stack, file, resolution));
     }
 
-    public static void addGifRenderTask(ItemStack stack, Path file, int resolution, int fps, int duration) {
-        gifTasks.add(new GifRenderTask(stack, file, resolution, fps, duration));
+    public static void addGifRenderTask(GuiGraphics context, ItemStack stack, Path file, int resolution, int fps, int duration) {
+        gifTasks.add(new GifRenderTask(context, stack, file, resolution, fps, duration));
     }
 
     public static void tick() {
@@ -60,7 +66,7 @@ public class ItemFileRenderer {
         if (tasks.isEmpty()) return;
 
         RenderTask task = tasks.pop();
-        takeItemScreenshot(task.stack, task.resolution, image -> {
+        takeItemScreenshot(task.context, task.stack, task.resolution, image -> {
             try {
                 image.writeToFile(IOUtils.makeParents(task.file));
             } catch (IOException ex) {
@@ -73,7 +79,7 @@ public class ItemFileRenderer {
         gifTasks.removeIf(GifRenderTask::render);
     }
 
-    private static void takeItemScreenshot(ItemStack stack, int res, Consumer<NativeImage> cons) {
+    private static void takeItemScreenshot(GuiGraphics context, ItemStack stack, int res, Consumer<NativeImage> cons) {
         Minecraft mc = Minecraft.getInstance();
         RenderTarget mainTarget = mc.getMainRenderTarget();
         PoseStack pStack = RenderSystem.getModelViewStack();
@@ -82,8 +88,8 @@ public class ItemFileRenderer {
             LOGGER.warn("Window is not at least 512x512 make it bigger! Your image is probably cropped a bit.");
         }
 
-        Matrix4f ortho = Matrix4f.orthographic(0, mainTarget.width * 16F / res, 0, mainTarget.height * 16F / res, -3000, 3000);
-        RenderSystem.setProjectionMatrix(ortho);
+        Matrix4f ortho = new Matrix4f().ortho(0, mainTarget.width * 16F / res, 0, mainTarget.height * 16F / res, -3000, 3000);
+        RenderSystem.setProjectionMatrix(ortho, VertexSorting.ORTHOGRAPHIC_Z);
 
         pStack.pushPose();
         pStack.setIdentity();
@@ -95,10 +101,11 @@ public class ItemFileRenderer {
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
         Lighting.setupFor3DItems();
-        RenderSystem.enableTexture();
+        // RenderSystem.enableTexture();
         RenderSystem.enableCull();
 
-        mc.getItemRenderer().renderGuiItem(stack, 0, 0);
+        context.renderItem(stack, 0, 0);
+        // mc.getItemRenderer().renderGuiItem(stack, 0, 0); TODO: ... | well... idk
 
         try (NativeImage fullScreenshot = new NativeImage(mainTarget.width, mainTarget.height, false);
              NativeImage subImage = new NativeImage(res, res, false)) {
@@ -114,11 +121,12 @@ public class ItemFileRenderer {
         mainTarget.unbindWrite();
     }
 
-    private record RenderTask(ItemStack stack, Path file, int resolution) {
+    private record RenderTask(GuiGraphics context, ItemStack stack, Path file, int resolution) {
     }
 
     private static final class GifRenderTask {
 
+        public final GuiGraphics context;
         public final ItemStack stack;
         public final Path file;
         private final int resolution;
@@ -131,7 +139,8 @@ public class ItemFileRenderer {
         public long startTime = -1;
         public long lastFrame;
 
-        private GifRenderTask(ItemStack stack, Path file, int resolution, int fps, int targetDuration) {
+        private GifRenderTask(GuiGraphics context, ItemStack stack, Path file, int resolution, int fps, int targetDuration) {
+            this.context = context;
             this.stack = stack;
             this.file = file;
             this.resolution = resolution;
@@ -155,7 +164,7 @@ public class ItemFileRenderer {
             // Wait more for next frame.
             if (lastFrame + frameDelay > currTime) return false;
             lastFrame = currTime;
-            takeItemScreenshot(stack, resolution, SneakyUtils.<NativeImage>sneak(e -> frames.add(e.asByteArray())));
+            takeItemScreenshot(context, stack, resolution, SneakyUtils.<NativeImage>sneak(e -> frames.add(e.asByteArray())));
             LOGGER.info("Captured gif frame {} / {}", frames.size(), ((targetDuration / 1000) * fps));
             return false;
         }

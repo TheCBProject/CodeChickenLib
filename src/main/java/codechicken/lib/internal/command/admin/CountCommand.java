@@ -65,13 +65,14 @@ public class CountCommand {
         for (EntityType<?> type : order) {
             int count = counts.getInt(type);
             String name = ForgeRegistries.ENTITY_TYPES.getKey(type).toString();
-            ctx.getSource().sendSuccess(Component.literal(GREEN + name + RESET + " x " + AQUA + count), false);
+            ctx.getSource().sendSuccess(() -> Component.literal(GREEN + name + RESET + " x " + AQUA + count), false);
             total += count;
         }
         if (order.size() == 0) {
-            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.count.fail"), false);
+            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.count.fail"), false);
         } else if (order.size() > 1) {
-            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.count.total", AQUA.toString() + total + RESET), false);
+            final int finalTotal = total;
+            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.count.total", AQUA.toString() + finalTotal + RESET), false);
         }
 
         return total;

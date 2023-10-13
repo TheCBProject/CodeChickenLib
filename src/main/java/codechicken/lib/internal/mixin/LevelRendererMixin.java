@@ -2,7 +2,7 @@ package codechicken.lib.internal.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
+import org.joml.Matrix4f;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;

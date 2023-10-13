@@ -3,6 +3,7 @@ package codechicken.lib.item;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.LazyLoadedValue;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -39,13 +40,13 @@ public class SimpleArmorMaterial implements ArmorMaterial {
     }
 
     @Override
-    public int getDurabilityForSlot(EquipmentSlot slot) {
-        return durability[slot.getIndex()];
+    public int getDurabilityForType(ArmorItem.Type type) {
+        return durability[type.getSlot().getIndex()];
     }
 
     @Override
-    public int getDefenseForSlot(EquipmentSlot slot) {
-        return damageReduction[slot.getIndex()];
+    public int getDefenseForType(ArmorItem.Type type) {
+        return damageReduction[type.getSlot().getIndex()];
     }
 
     @Override
@@ -97,9 +98,9 @@ public class SimpleArmorMaterial implements ArmorMaterial {
             return this;
         }
 
-        public Builder durabilityFactor(int factor) {
+        public Builder durabilityFactor(ArmorMaterials baseArmor, int factor) {
             for (int i = 0; i < 4; i++) {
-                durability[i] = ArmorMaterials.HEALTH_PER_SLOT[i] * factor;
+                durability[i] = baseArmor.getDurabilityForType(ArmorItem.Type.values()[i]) * factor;
             }
             return this;
         }

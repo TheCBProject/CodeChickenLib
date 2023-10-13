@@ -132,7 +132,7 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     }
 
     protected InventoryChangeTrigger.TriggerInstance hasItem(ItemPredicate... predicates) {
-        return new InventoryChangeTrigger.TriggerInstance(EntityPredicate.Composite.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, predicates);
+        return new InventoryChangeTrigger.TriggerInstance(ContextAwarePredicate.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, predicates);
     }
 
     public abstract class AbstractFinishedRecipe implements FinishedRecipe {

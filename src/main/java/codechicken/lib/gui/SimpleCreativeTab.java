@@ -15,14 +15,14 @@ public class SimpleCreativeTab extends CreativeModeTab {
 
     private final Supplier<ItemStack> stackSupplier;
 
-    public SimpleCreativeTab(String label, Supplier<ItemStack> stackSupplier) {
-        super(label);
+    public SimpleCreativeTab(CreativeModeTab.Builder builder, Supplier<ItemStack> stackSupplier) {
+        super(builder);
         this.stackSupplier = stackSupplier;
     }
 
     @Nonnull
     @Override
-    public ItemStack makeIcon() {
+    public ItemStack getIconItem() {
         return stackSupplier.get();
     }
 }

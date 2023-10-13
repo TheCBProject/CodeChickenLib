@@ -48,7 +48,7 @@ public class ServerUtils {
     }
 
     public static boolean isPlayerLoadingChunk(ServerPlayer player, ChunkPos chunk) {
-        return player.getLevel().getChunkSource().chunkMap.getPlayers(chunk, false).stream().anyMatch(e -> e.getId() == player.getId());
+        return player.chunkPosition().equals(chunk);
     }
 
     public static Path getSaveDirectory() {
@@ -92,7 +92,7 @@ public class ServerUtils {
     }
 
     public static void openContainer(ServerPlayer player, MenuProvider containerProvider, Consumer<MCDataOutput> packetConsumer) {
-        if (player.level.isClientSide()) {
+        if (player.level().isClientSide()) {
             return;
         }
         player.doCloseContainer();

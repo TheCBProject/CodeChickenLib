@@ -10,17 +10,18 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.common.util.ConcatenatedListView;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
@@ -118,7 +119,7 @@ public abstract class AbstractBakedPropertiesModel implements PerspectiveModel, 
     }
 
     @Override
-    public BakedModel applyTransform(TransformType transformType, PoseStack pStack, boolean leftFlip) {
+    public @NotNull BakedModel applyTransform(@NotNull ItemDisplayContext transformType, @NotNull PoseStack pStack, boolean leftFlip) {
         return PerspectiveModel.super.applyTransform(transformType, pStack, leftFlip);
     }
 }

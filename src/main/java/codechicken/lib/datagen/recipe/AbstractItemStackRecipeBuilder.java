@@ -16,15 +16,16 @@ public abstract class AbstractItemStackRecipeBuilder<T extends AbstractRecipeBui
     }
 
     @Override
+    @Deprecated // TODO: ... | fix lolw
     protected ResourceLocation getAdvancementId() {
-        return new ResourceLocation(id.getNamespace(), "recipes/" + this.result.getItem().getItemCategory().getRecipeFolderName() + "/" + id.getPath());
+        return null;
+        // return new ResourceLocation(id.getNamespace(), "recipes/" + this.result.getItem().getDescriptionId().getRecipeFolderName() + "/" + id.getPath());
     }
 
     @Override
     public abstract AbstractItemStackFinishedRecipe _build();
 
     public abstract class AbstractItemStackFinishedRecipe extends AbstractFinishedRecipe {
-
         @Override
         public void serializeRecipeData(JsonObject json) {
             super.serializeRecipeData(json);

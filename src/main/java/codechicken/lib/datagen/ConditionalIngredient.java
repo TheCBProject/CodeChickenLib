@@ -16,6 +16,7 @@ import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.IIngredientSerializer;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedList;
@@ -47,7 +48,7 @@ public class ConditionalIngredient extends AbstractIngredient {
     }
 
     @Override
-    public JsonElement toJson() {
+    public @NotNull JsonElement toJson() {
         JsonObject obj = new JsonObject();
         obj.addProperty("type", TYPE.toString());
         JsonArray conditions = new JsonArray();
@@ -63,14 +64,14 @@ public class ConditionalIngredient extends AbstractIngredient {
     }
 
     // @formatter:off
-    @Override public ItemStack[] getItems() { throw new UnsupportedOperationException("Exists for DataGeneration only."); }
+    @Override public ItemStack @NotNull [] getItems() { throw new UnsupportedOperationException("Exists for DataGeneration only."); }
     @Override public boolean isSimple() { throw new UnsupportedOperationException("Exists for DataGeneration only."); }
     @Override public IIngredientSerializer<? extends Ingredient> getSerializer() { throw new UnsupportedOperationException("Exists for DataGeneration only."); }
     // @formatter:on
 
     public static class Builder {
 
-        private List<ICondition> conditions = new LinkedList<>();
+        private final List<ICondition> conditions = new LinkedList<>();
         private Ingredient pass = null;
         private Ingredient fail = null;
 
@@ -121,11 +122,11 @@ public class ConditionalIngredient extends AbstractIngredient {
         public Ingredient parse(JsonObject json) {
             if (!CraftingHelper.processConditions(json, "conditions", conditionContext)) {
                 if (json.has("fail")) {
-                    return CraftingHelper.getIngredient(GsonHelper.getAsJsonObject(json, "fail"));
+                    return CraftingHelper.getIngredient(GsonHelper.getAsJsonObject(json, "fail"), true);
                 }
                 return Ingredient.EMPTY;
             }
-            return CraftingHelper.getIngredient(GsonHelper.getAsJsonObject(json, "pass"));
+            return CraftingHelper.getIngredient(GsonHelper.getAsJsonObject(json, "pass"), true);
         }
 
         // We don't operate like this, we always return a different ingredient.

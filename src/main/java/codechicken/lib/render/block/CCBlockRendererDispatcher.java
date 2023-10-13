@@ -50,7 +50,7 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
 
     //In world.
     @Override
-    public void renderBatched(BlockState state, BlockPos pos, BlockAndTintGetter level, PoseStack stack, VertexConsumer builder, boolean checkSides, RandomSource rand, ModelData modelData, RenderType renderType, boolean queryModelSpecificData) {
+    public void renderBatched(BlockState state, BlockPos pos, BlockAndTintGetter level, PoseStack stack, VertexConsumer builder, boolean checkSides, RandomSource rand, ModelData modelData, RenderType renderType) {
         try {
             ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(state.getBlock(), e -> e.canHandleBlock(level, pos, state, renderType));
             if (renderer != null) {
@@ -68,7 +68,7 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
             throw new ReportedException(crashreport);
         }
         try {
-            parentDispatcher.renderBatched(state, pos, level, stack, builder, checkSides, rand, modelData, renderType, queryModelSpecificData);
+            parentDispatcher.renderBatched(state, pos, level, stack, builder, checkSides, rand, modelData, renderType);
         } catch (Throwable t) {
             if (ProxyClient.catchBlockRenderExceptions) {
                 handleCaughtException(t, state, pos, level);
@@ -143,5 +143,4 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
             }
         }
     }
-
 }

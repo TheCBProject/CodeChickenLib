@@ -6,6 +6,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.CommandRuntimeException;
 import net.minecraft.commands.CommandSourceStack;
@@ -57,8 +58,10 @@ public class RenderItemToFileCommand {
         Path path = getPath(ctx, "png");
         ItemStack held = getHeldItem();
 
-        ctx.getSource().sendSuccess(Component.literal("Queued item render to file: " + path), false);
-        ItemFileRenderer.addRenderTask(held, path, resolution);
+        ctx.getSource().sendSuccess(() -> Component.literal("Queued item render to file: " + path), false);
+        final GuiGraphics context = new GuiGraphics(Minecraft.getInstance(), Minecraft.getInstance().renderBuffers().bufferSource());
+        ItemFileRenderer.addRenderTask(context, held, path, resolution);
+        context.flush();
         return 0;
     }
 
@@ -70,8 +73,10 @@ public class RenderItemToFileCommand {
         Path path = getPath(ctx, "gif");
         ItemStack held = getHeldItem();
 
-        src.sendSuccess(Component.literal("Queued item render to gif: " + path), false);
-        ItemFileRenderer.addGifRenderTask(held, path, resolution, fps, duration);
+        src.sendSuccess(() -> Component.literal("Queued item render to gif: " + path), false);
+        final GuiGraphics context = new GuiGraphics(Minecraft.getInstance(), Minecraft.getInstance().renderBuffers().bufferSource());
+        ItemFileRenderer.addGifRenderTask(context, held, path, resolution, fps, duration);
+        context.flush();
         return 0;
     }
 

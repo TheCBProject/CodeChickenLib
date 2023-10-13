@@ -9,14 +9,12 @@ import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTables;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
@@ -30,11 +28,13 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 /**
  * Created by covers1624 on 7/10/20.
@@ -52,34 +52,38 @@ public abstract class LootTableProvider implements DataProvider {
     }
 
     @Override
-    public void run(CachedOutput cache) {
-        tables.clear();
-        Path out = dataGenerator.getOutputFolder();
+    public @NotNull CompletableFuture<?> run(final @NotNull CachedOutput cache) {
+        return CompletableFuture.supplyAsync(() -> {
+            tables.clear();
+            Path out = dataGenerator.getPackOutput().getOutputFolder();
 
-        registerTables();
+            registerTables();
 
-        ValidationContext validator = new ValidationContext(LootContextParamSets.ALL_PARAMS, e -> null, tables::get);
+            /* TODO: ... | fix this
+            ValidationContext validator = new ValidationContext(LootContextParamSets.ALL_PARAMS, e -> null);
 
-        tables.forEach((name, table) -> {
-            LootTables.validate(validator, name, table);
-        });
-
-        Multimap<String, String> problems = validator.getProblems();
-        if (!problems.isEmpty()) {
-            logger.warn("Problems detected for LootTableGenerator: " + getName());
-            problems.forEach((name, table) -> {
-                logger.warn("Found validation problem in {}: {}", name, table);
+            tables.forEach((name, table) -> {
+                LootTables.validate(validator, name, table);
             });
-            throw new IllegalStateException("Failed to validate loot tables, see logs.");
-        }
-        tables.forEach((name, table) -> {
-            Path output = getPath(out, name);
-            try {
-                DataProvider.saveStable(cache, LootTables.serialize(table), output);
-            } catch (IOException e) {
-                logger.error("Couldn't save loot table {}", output, e);
+
+            Multimap<String, String> problems = validator.getProblems();
+            if (!problems.isEmpty()) {
+                logger.warn("Problems detected for LootTableGenerator: " + getName());
+                problems.forEach((name, table) -> {
+                    logger.warn("Found validation problem in {}: {}", name, table);
+                });
+                throw new IllegalStateException("Failed to validate loot tables, see logs.");
             }
-        });
+            tables.forEach((name, table) -> {
+                Path output = getPath(out, name);
+                try {
+                    DataProvider.saveStable(cache, new LootTable.Serializer().serialize(table), output);
+                } catch (IOException e) {
+                    logger.error("Couldn't save loot table {}", output, e);
+                }
+            });*/
+            return CompletableFuture.completedFuture(this);
+        }, Executors.newCachedThreadPool());
     }
 
     protected abstract void registerTables();

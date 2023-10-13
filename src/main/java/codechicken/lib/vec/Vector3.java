@@ -2,8 +2,6 @@ package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -11,13 +9,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 
 public class Vector3 implements Copyable<Vector3> {
-
     public static final Vector3 ZERO = new Vector3(0, 0, 0);
     public static final Vector3 CENTER = new Vector3(0.5, 0.5, 0.5);
     //@formatter:off
@@ -115,8 +114,12 @@ public class Vector3 implements Copyable<Vector3> {
         return new Vec3(x, y, z);
     }
 
+    /**
+     * @apiNote is rounded down to integers since 1.20!
+     * @return a block-pos
+     */
     public BlockPos pos() {
-        return new BlockPos(x, y, z);
+        return new BlockPos(MathHelper.roundAway(x), MathHelper.roundAway(y), MathHelper.roundAway(z));
     }
 
     public CompoundTag writeToNBT(CompoundTag tag) {
@@ -135,11 +138,11 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public double[] toArrayD() {
-        return new double[] { x, y, z };
+        return new double[]{x, y, z};
     }
 
     public float[] toArrayF() {
-        return new float[] { (float) x, (float) y, (float) z };
+        return new float[]{(float) x, (float) y, (float) z};
     }
 
     public Vector3 set(double x1, double y1, double z1) {
@@ -516,10 +519,9 @@ public class Vector3 implements Copyable<Vector3> {
         if (super.equals(o)) {
             return true;
         }
-        if (!(o instanceof Vector3)) {
+        if (!(o instanceof Vector3 v)) {
             return false;
         }
-        Vector3 v = (Vector3) o;
         return x == v.x && y == v.y && z == v.z;
     }
 

@@ -2,7 +2,7 @@ package codechicken.lib.data;
 
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
-import com.mojang.math.Vector3f;
+import org.joml.Vector3f;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.core.BlockPos;

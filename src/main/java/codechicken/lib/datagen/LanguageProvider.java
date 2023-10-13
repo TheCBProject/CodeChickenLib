@@ -12,11 +12,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.data.event.GatherDataEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 /**
@@ -39,21 +43,35 @@ public abstract class LanguageProvider implements DataProvider {
         this.distFilter = distFilter;
     }
 
+    public static Side getDist(GatherDataEvent event) {
+        if (event.includeServer() && event.includeClient()) return Side.BOTH;
+        if (event.includeServer()) return Side.SERVER;
+        if (event.includeClient()) return Side.CLIENT;
+        return Side.NONE;
+    }
+
     protected abstract void addTranslations();
 
     @Override
-    public void run(CachedOutput p_200398_1_) throws IOException {
-        addTranslations();
-        if (distFilter.includeClient() && !client.isEmpty()) {
-            save(p_200398_1_, client, gen.getOutputFolder().resolve("assets/" + modid + "/lang/" + locale + ".json"));
-        }
-        if (distFilter.includeServer() && !server.isEmpty()) {
-            save(p_200398_1_, server, gen.getOutputFolder().resolve("data/" + modid + "/lang/" + locale + ".json"));
-        }
+    public @NotNull CompletableFuture<?> run(final @NotNull CachedOutput cache) {
+        return CompletableFuture.supplyAsync(() -> {
+            addTranslations();
+            try {
+                if (distFilter.includeClient() && !client.isEmpty()) {
+                    save(cache, client, gen.getPackOutput().getOutputFolder().resolve("assets/" + modid + "/lang/" + locale + ".json"));
+                }
+                if (distFilter.includeServer() && !server.isEmpty()) {
+                    save(cache, server, gen.getPackOutput().getOutputFolder().resolve("data/" + modid + "/lang/" + locale + ".json"));
+                }
+            } catch (IOException exception) {
+                throw new CompletionException(exception);
+            }
+            return CompletableFuture.completedFuture(this);
+        }, Executors.newCachedThreadPool());
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return modid + " Languages: " + locale;
     }
 
@@ -67,18 +85,29 @@ public abstract class LanguageProvider implements DataProvider {
 
     //@formatter:off
     public void add(Block key, String name) { add(key.getDescriptionId(), name); }
+
     public void add(Item key, String name) { add(key.getDescriptionId(), name); }
+
     public void add(ItemStack key, String name) { add(key.getDescriptionId(), name); }
+
     public void add(Enchantment key, String name) { add(key.getDescriptionId(), name); }
+
     public void add(MobEffect key, String name) { add(key.getDescriptionId(), name); }
+
     public void add(EntityType<?> key, String name) { add(key.getDescriptionId(), name); }
+
     public void addBlock(Supplier<? extends Block> key, String name) { add(key.get().getDescriptionId(), name); }
+
     public void addItem(Supplier<? extends Item> key, String name) { add(key.get().getDescriptionId(), name); }
+
     public void addItemStack(Supplier<ItemStack> key, String name) { add(key.get().getDescriptionId(), name); }
+
     public void addEnchantment(Supplier<Enchantment> key, String name) { add(key.get().getDescriptionId(), name); }
+
     public void addEffect(Supplier<MobEffect> key, String name) { add(key.get().getDescriptionId(), name); }
-    public void addEntityType(Supplier<EntityType<?>> key, String name) { add(key.get().getDescriptionId(), name); }
     //@formatter:on
+
+    public void addEntityType(Supplier<EntityType<?>> key, String name) { add(key.get().getDescriptionId(), name); }
 
     public void add(String key, String name) {
         if (client.put(key, name) != null) {
@@ -91,13 +120,6 @@ public abstract class LanguageProvider implements DataProvider {
         if (server.put(key, name) != null) {
             throw new IllegalArgumentException("Duplicate translation key :" + key);
         }
-    }
-
-    public static Side getDist(GatherDataEvent event) {
-        if (event.includeServer() && event.includeClient()) return Side.BOTH;
-        if (event.includeServer()) return Side.SERVER;
-        if (event.includeClient()) return Side.CLIENT;
-        return Side.NONE;
     }
 
     public enum Side {

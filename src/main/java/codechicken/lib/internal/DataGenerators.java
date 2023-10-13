@@ -2,42 +2,47 @@ package codechicken.lib.internal;
 
 import codechicken.lib.datagen.LanguageProvider;
 import codechicken.lib.util.CCLTags;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.concurrent.CompletableFuture;
 
 import static codechicken.lib.CodeChickenLib.MOD_ID;
 
 /**
  * Created by covers1624 on 13/12/20.
  */
-@Mod.EventBusSubscriber (modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class DataGenerators {
 
     @SubscribeEvent
     public static void gatherDataGenerators(GatherDataEvent event) {
         DataGenerator gen = event.getGenerator();
+        CompletableFuture<HolderLookup.Provider> provider = event.getLookupProvider();
         ExistingFileHelper files = event.getExistingFileHelper();
-        BlockTags blockTagsProvider = new BlockTags(gen, files);
+        BlockTags blockTagsProvider = new BlockTags(gen, provider, files);
         gen.addProvider(event.includeServer(), blockTagsProvider);
-        gen.addProvider(event.includeServer(), new ItemTags(gen, blockTagsProvider, files));
+        gen.addProvider(event.includeServer(), new ItemTags(gen, provider, blockTagsProvider.contentsGetter(), files));
         gen.addProvider(event.includeClient() || event.includeServer(), new LangUS(gen, LanguageProvider.getDist(event)));
     }
 
     private static class BlockTags extends BlockTagsProvider {
-
-        public BlockTags(DataGenerator generatorIn, ExistingFileHelper files) {
-            super(generatorIn, MOD_ID, files);
+        public BlockTags(DataGenerator generatorIn, CompletableFuture<HolderLookup.Provider> provider, ExistingFileHelper files) {
+            super(generatorIn.getPackOutput(), provider, MOD_ID, files);
         }
 
         @Override
-        protected void addTags() {
+        protected void addTags(HolderLookup.Provider p_256380_) {
             tag(CCLTags.Blocks.WOOL)
                     .addTag(CCLTags.Blocks.WOOL_WHITE)
                     .addTag(CCLTags.Blocks.WOOL_ORANGE)
@@ -81,12 +86,12 @@ public class DataGenerators {
 
     private static class ItemTags extends ItemTagsProvider {
 
-        public ItemTags(DataGenerator generatorIn, BlockTags blockTagProvider, ExistingFileHelper files) {
-            super(generatorIn, blockTagProvider, MOD_ID, files);
+        public ItemTags(DataGenerator generatorIn, CompletableFuture<HolderLookup.Provider> provider, CompletableFuture<TagsProvider.TagLookup<Block>> blockTagProvider, ExistingFileHelper files) {
+            super(generatorIn.getPackOutput(), provider, blockTagProvider, MOD_ID, files);
         }
 
         @Override
-        protected void addTags() {
+        protected void addTags(HolderLookup.Provider p_256380_) {
             tag(CCLTags.Items.WOOL)
                     .addTag(CCLTags.Items.WOOL_WHITE)
                     .addTag(CCLTags.Items.WOOL_ORANGE)

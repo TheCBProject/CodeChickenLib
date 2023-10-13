@@ -35,7 +35,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
     protected static final ModelFile.UncheckedModelFile HANDHELD = new ModelFile.UncheckedModelFile("item/handheld");
 
     public ItemModelProvider(DataGenerator generator, String modid, ExistingFileHelper existingFileHelper) {
-        super(generator, modid, ITEM_FOLDER, WrappedItemModelBuilder::new, existingFileHelper);
+        super(generator.getPackOutput(), modid, ITEM_FOLDER, WrappedItemModelBuilder::new, existingFileHelper);
     }
 
     //region Location helpers

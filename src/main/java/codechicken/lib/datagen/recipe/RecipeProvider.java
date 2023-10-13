@@ -13,17 +13,21 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executors;
 
 /**
  * Created by covers1624 on 27/12/20.
@@ -41,19 +45,22 @@ public abstract class RecipeProvider implements DataProvider {
     }
 
     @Override
-    public final void run(CachedOutput cache) throws IOException {
-        Path path = generator.getOutputFolder();
-        registerRecipes();
-        for (Map.Entry<ResourceLocation, RecipeBuilder> entry : recipes.entrySet()) {
-            ResourceLocation id = entry.getKey();
-            FinishedRecipe finishedRecipe = entry.getValue().build();
-            saveRecipe(cache, finishedRecipe.serializeRecipe(), path.resolve("data/" + id.getNamespace() + "/recipes/" + id.getPath() + ".json"));
+    public @NotNull CompletableFuture<?> run(final @NotNull CachedOutput cache) {
+        return CompletableFuture.supplyAsync(() -> {
+            Path path = generator.getPackOutput().getOutputFolder();
+            registerRecipes();
+            for (Map.Entry<ResourceLocation, RecipeBuilder> entry : recipes.entrySet()) {
+                ResourceLocation id = entry.getKey();
+                FinishedRecipe finishedRecipe = entry.getValue().build();
+                saveRecipe(cache, finishedRecipe.serializeRecipe(), path.resolve("data/" + id.getNamespace() + "/recipes/" + id.getPath() + ".json"));
 
-            JsonObject advancement = finishedRecipe.serializeAdvancement();
-            if (advancement != null) {
-                saveRecipeAdvancement(cache, advancement, path.resolve("data/" + id.getNamespace() + "/advancements/" + id.getPath() + ".json"));
+                JsonObject advancement = finishedRecipe.serializeAdvancement();
+                if (advancement != null) {
+                    saveRecipeAdvancement(cache, advancement, path.resolve("data/" + id.getNamespace() + "/advancements/" + id.getPath() + ".json"));
+                }
             }
-        }
+            return CompletableFuture.completedFuture(this);
+        }, Executors.newCachedThreadPool());
     }
 
     protected abstract void registerRecipes();
@@ -112,29 +119,21 @@ public abstract class RecipeProvider implements DataProvider {
     protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) { return builder(FurnaceRecipeBuilder.custom(serializer, new ItemStack(result, count), id)); }
     protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemStack result) { return builder(FurnaceRecipeBuilder.custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
     protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) { return builder(FurnaceRecipeBuilder.custom(serializer, result, id)); }
-    protected SpecialRecipeBuilder special(SimpleRecipeSerializer<?> serializer, String id) { return builder(SpecialRecipeBuilder.builder(serializer, id)); }
-    protected SpecialRecipeBuilder special(SimpleRecipeSerializer<?> serializer, ResourceLocation id) { return builder(SpecialRecipeBuilder.builder(serializer, id)); }
+    protected SpecialRecipeBuilder special(SimpleCraftingRecipeSerializer<?> serializer, String id) { return builder(SpecialRecipeBuilder.builder(serializer, id)); }
+    protected SpecialRecipeBuilder special(SimpleCraftingRecipeSerializer<?> serializer, ResourceLocation id) { return builder(SpecialRecipeBuilder.builder(serializer, id)); }
     //@formatter:on
 
     private void saveRecipe(CachedOutput cache, JsonObject recipeJson, Path path) {
-        try {
-            DataProvider.saveStable(cache, recipeJson, path);
-        } catch (IOException e) {
-            logger.error("Couldn't save recipe {}", path, e);
-        }
+        DataProvider.saveStable(cache, recipeJson, path);
 
     }
 
     private void saveRecipeAdvancement(CachedOutput cache, JsonObject advancementJson, Path path) {
-        try {
-            DataProvider.saveStable(cache, advancementJson, path);
-        } catch (IOException e) {
-            logger.error("Couldn't save recipe advancement {}", path, e);
-        }
+        DataProvider.saveStable(cache, advancementJson, path);
     }
 
     protected EnterBlockTrigger.TriggerInstance enteredBlock(Block blockIn) {
-        return new EnterBlockTrigger.TriggerInstance(EntityPredicate.Composite.ANY, blockIn, StatePropertiesPredicate.ANY);
+        return new EnterBlockTrigger.TriggerInstance(ContextAwarePredicate.ANY, blockIn, StatePropertiesPredicate.ANY);
     }
 
     protected InventoryChangeTrigger.TriggerInstance hasItem(ItemLike itemIn) {
@@ -146,6 +145,6 @@ public abstract class RecipeProvider implements DataProvider {
     }
 
     protected InventoryChangeTrigger.TriggerInstance hasItem(ItemPredicate... predicates) {
-        return new InventoryChangeTrigger.TriggerInstance(EntityPredicate.Composite.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, predicates);
+        return new InventoryChangeTrigger.TriggerInstance(ContextAwarePredicate.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, predicates);
     }
 }

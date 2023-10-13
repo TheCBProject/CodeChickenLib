@@ -8,7 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.*;
@@ -34,7 +33,7 @@ public class SpriteRegistryHelper {
     }
 
     public SpriteRegistryHelper(IEventBus eventBus) {
-        eventBus.addListener(this::onTextureStitchPre);
+        // eventBus.addListener(this::onTextureStitchPre); TODO: ... | fix
         eventBus.addListener(this::onTextureStitchPost);
     }
 
@@ -69,12 +68,13 @@ public class SpriteRegistryHelper {
         return registrar;
     }
 
+    /** TODO: ... | too lazy to add smh :(
     private void onTextureStitchPre(TextureStitchEvent.Pre event) {
         TextureAtlas atlas = event.getAtlas();
         AtlasRegistrarImpl registrar = getRegistrar(atlas);
         iconRegisters.get(atlas.location()).forEach(e -> e.registerIcons(registrar));
         registrar.processPre(event::addSprite);
-    }
+    }*/
 
     private void onTextureStitchPost(TextureStitchEvent.Post event) {
         TextureAtlas atlas = event.getAtlas();

@@ -48,7 +48,7 @@ public abstract class WrappedItemModel implements BakedModel {
         @Override
         public BakedModel resolve(BakedModel originalModel, ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity entity, int seed) {
             WrappedItemModel.this.entity = entity;
-            WrappedItemModel.this.world = world == null ? entity == null ? null : (ClientLevel) entity.level : null;
+            WrappedItemModel.this.world = world == null ? entity == null ? null : (ClientLevel) entity.level() : null;
             return originalModel;
         }
     };

@@ -6,15 +6,15 @@ buildscript {
         maven { url = "https://repo.spongepowered.org/maven" }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:6.+'
+        classpath 'org.spongepowered:mixingradle:0.+'
     }
 }
 
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id "net.covers1624.signing" version '1.1.4'
 }
 
@@ -60,6 +60,7 @@ println "Using Forge: ${config.forge_version}, for Minecraft: ${config.mc_versio
 
 minecraft {
     mappings channel: 'official', version: config.mc_version
+    copyIdeResources = true
     accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
     runs {
         client {
@@ -110,8 +111,8 @@ dependencies {
 
     shadow 'net.covers1624:Quack:0.4.7.72'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
 }
 
 test {
@@ -151,7 +152,7 @@ def commonManifest = {
 jar.enabled = false
 shadowJar {
     finalizedBy 'reobfShadowJar'
-    classifier = 'universal'
+    archiveClassifier = 'universal'
     manifest commonManifest
 
     configurations = [project.configurations.shadow]
@@ -161,7 +162,7 @@ shadowJar {
 task srcJar(type: Jar) {
     build.dependsOn it
     from sourceSets.main.allSource
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from file("LICENSE")
 }
 
@@ -251,4 +252,3 @@ def resolve(module, chop = true, configuration = 'compile', errorMissing = true)
     }
     return version
 }
-

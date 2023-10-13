@@ -1,8 +1,8 @@
 package codechicken.lib.vec;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector4f;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import net.minecraft.core.Vec3i;
 
 import java.math.BigDecimal;
@@ -417,23 +417,22 @@ public class Matrix4 extends Transformation {
     }
 
     public Matrix4 set(Matrix4f mat) {
-        m00 = mat.m00;
-        m01 = mat.m01;
-        m02 = mat.m02;
-        m03 = mat.m03;
-        m10 = mat.m10;
-        m11 = mat.m11;
-        m12 = mat.m12;
-        m13 = mat.m13;
-        m20 = mat.m20;
-        m21 = mat.m21;
-        m22 = mat.m22;
-        m23 = mat.m23;
-        m30 = mat.m30;
-        m31 = mat.m31;
-        m32 = mat.m32;
-        m33 = mat.m33;
-
+        m00 = mat.m00();
+        m01 = mat.m01();
+        m02 = mat.m02();
+        m03 = mat.m03();
+        m10 = mat.m10();
+        m11 = mat.m11();
+        m12 = mat.m12();
+        m13 = mat.m13();
+        m20 = mat.m20();
+        m21 = mat.m21();
+        m22 = mat.m22();
+        m23 = mat.m23();
+        m30 = mat.m30();
+        m31 = mat.m31();
+        m32 = mat.m32();
+        m33 = mat.m33();
         return this;
     }
     //endregion
@@ -514,24 +513,12 @@ public class Matrix4 extends Transformation {
     }
 
     public Matrix4f toMatrix4f() {
-        Matrix4f mat = new Matrix4f();
-        mat.m00 = (float) m00;
-        mat.m01 = (float) m01;
-        mat.m02 = (float) m02;
-        mat.m03 = (float) m03;
-        mat.m10 = (float) m10;
-        mat.m11 = (float) m11;
-        mat.m12 = (float) m12;
-        mat.m13 = (float) m13;
-        mat.m20 = (float) m20;
-        mat.m21 = (float) m21;
-        mat.m22 = (float) m22;
-        mat.m23 = (float) m23;
-        mat.m30 = (float) m30;
-        mat.m31 = (float) m31;
-        mat.m32 = (float) m32;
-        mat.m33 = (float) m33;
-        return mat;
+        return new Matrix4f().set(new float[] {
+                (float) m00, (float) m01, (float) m02, (float) m03,
+                (float) m10, (float) m11, (float) m12, (float) m13,
+                (float) m20, (float) m21, (float) m22, (float) m23,
+                (float) m30, (float) m31, (float) m32, (float) m33,
+        });
     }
 
     public static Vector3 gluProject(Vector3 obj, Matrix4 modelMatrix, Matrix4 projMatrix, IntBuffer viewport) {
@@ -542,11 +529,11 @@ public class Matrix4 extends Transformation {
         if (o.w() == 0) {
             return Vector3.ZERO.copy();
         }
-        o.setW((1.0F / o.w()) * 0.5F);
+        o.w = ((1.0F / o.w()) * 0.5F);
 
-        o.setX(o.x() * o.w() + 0.5F);
-        o.setY(o.y() * o.w() + 0.5F);
-        o.setZ(o.z() * o.w() + 0.5F);
+        o.x = (o.x() * o.w() + 0.5F);
+        o.y = (o.y() * o.w() + 0.5F);
+        o.z = (o.z() * o.w() + 0.5F);
 
         Vector3 winPos = new Vector3();
         winPos.z = o.z();

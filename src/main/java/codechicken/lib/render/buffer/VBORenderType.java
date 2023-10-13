@@ -4,8 +4,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +23,7 @@ import static net.covers1624.quack.util.SneakyUtils.none;
 public class VBORenderType extends DelegateRenderType implements AutoCloseable {
 
     private final BiConsumer<VertexFormat, BufferBuilder> factory;
-    private final VertexBuffer vertexBuffer = new VertexBuffer();
+    private final VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
     private final BufferBuilder builder;
     private boolean dirty = true;
 
@@ -80,10 +82,9 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
     }
 
     @Override
-    public void end(BufferBuilder buffer, int cameraX, int cameraY, int cameraZ) {
+    public void end(@NotNull BufferBuilder bufferBuilder, @NotNull VertexSorting vertexSorting) {
         // End buffer and discard state, we don't operate like this.
-        buffer.endOrDiscardIfEmpty();
-
+        bufferBuilder.endOrDiscardIfEmpty();
         setupRenderState();
         render();
         clearRenderState();
@@ -137,10 +138,9 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
         }
 
         @Override
-        public void end(BufferBuilder buffer, int cameraX, int cameraY, int cameraZ) {
+        public void end(@NotNull BufferBuilder bufferBuilder, @NotNull VertexSorting vertexSorting) {
             // End buffer and discard state, we don't operate like this.
-            buffer.endOrDiscardIfEmpty();
-
+            bufferBuilder.endOrDiscardIfEmpty();
             setupRenderState();
             render();
             clearRenderState();

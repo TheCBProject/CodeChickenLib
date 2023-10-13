@@ -3,10 +3,10 @@ package codechicken.lib.render.shader;
 import codechicken.lib.render.shader.UniformType.Carrier;
 import com.mojang.blaze3d.shaders.Shader;
 import com.mojang.blaze3d.shaders.Uniform;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL20;
@@ -23,7 +23,6 @@ import java.util.Arrays;
  * Created by covers1624 on 8/4/22.
  */
 public abstract class CCUniform extends Uniform implements ICCUniform {
-
     protected final UniformType type;
 
     @SuppressWarnings ("ConstantConditions")

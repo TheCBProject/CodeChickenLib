@@ -7,7 +7,6 @@ import codechicken.lib.internal.network.CCLNetwork;
 import codechicken.lib.internal.proxy.Proxy;
 import codechicken.lib.internal.proxy.ProxyClient;
 import codechicken.lib.datagen.ConditionalIngredient;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -21,7 +20,11 @@ import java.nio.file.Paths;
 /**
  * Created by covers1624 on 12/10/2016.
  */
-@Mod (CodeChickenLib.MOD_ID)
+@Mod.EventBusSubscriber(
+        modid = CodeChickenLib.MOD_ID,
+        bus = Mod.EventBusSubscriber.Bus.MOD
+)
+@Mod(value = CodeChickenLib.MOD_ID)
 public class CodeChickenLib {
 
     public static final String MOD_ID = "codechickenlib";

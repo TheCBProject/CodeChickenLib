@@ -2,12 +2,17 @@ package codechicken.lib.render.buffer;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import net.minecraft.client.renderer.RenderType;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by covers1624 on 25/5/20.
  */
 public class DelegateRenderType extends RenderType {
+    // @formatter:off
+    private static final Runnable EMPTY_RUNNABLE = () -> {};
+    // @formatter:on
 
     protected RenderType parent;
 
@@ -16,13 +21,13 @@ public class DelegateRenderType extends RenderType {
     }
 
     public DelegateRenderType(RenderType parent, VertexFormat format) {
-        super(parent.name, format, parent.mode(), parent.bufferSize(), parent.affectsCrumbling(), parent.sortOnUpload, null, null);
+        super(parent.name, format, parent.mode(), parent.bufferSize(), parent.affectsCrumbling(), parent.sortOnUpload, EMPTY_RUNNABLE, EMPTY_RUNNABLE);
         this.parent = parent;
     }
 
     @Override
-    public void end(BufferBuilder p_228631_1_, int p_228631_2_, int p_228631_3_, int p_228631_4_) {
-        parent.end(p_228631_1_, p_228631_2_, p_228631_3_, p_228631_4_);
+    public void end(@NotNull BufferBuilder bufferBuilder, @NotNull VertexSorting vertexSorting) {
+        parent.end(bufferBuilder, vertexSorting);
     }
 
     @Override

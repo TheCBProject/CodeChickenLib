@@ -8,7 +8,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
  * Created by covers1624 on 30/10/19.
  */
 public class Proxy {
-
     public void commonSetup(FMLCommonSetupEvent event) {
     }
 
@@ -17,5 +16,4 @@ public class Proxy {
 
     public void serverSetup(FMLDedicatedServerSetupEvent event) {
     }
-
 }

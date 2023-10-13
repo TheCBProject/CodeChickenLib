@@ -1,11 +1,16 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.util.Copyable;
-import com.mojang.math.Quaternion;
+import net.covers1624.quack.util.SneakyUtils;
+import org.joml.Quaterniond;
+import org.joml.Quaterniondc;
+import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.function.Supplier;
 
 public class Quat implements Copyable<Quat> {
 
@@ -28,11 +33,18 @@ public class Quat implements Copyable<Quat> {
         s = quat.s;
     }
 
-    public Quat(Quaternion quat) {
-        x = quat.i();
-        y = quat.j();
-        z = quat.k();
-        s = quat.r();
+    public <V extends Quaternionfc> Quat(V quat) {
+        x = quat.x();
+        y = quat.y();
+        z = quat.z();
+        s = quat.w();
+    }
+
+    public <V extends Quaterniondc> Quat(V quat) {
+        x = quat.x();
+        y = quat.y();
+        z = quat.z();
+        s = quat.w();
     }
 
     public Quat(double d, double d1, double d2, double d3) {
@@ -104,8 +116,20 @@ public class Quat implements Copyable<Quat> {
         return this;
     }
 
-    public Quaternion toQuaternion() {
-        return new Quaternion((float) x, (float) y, (float) z, (float) s);
+    public <V extends Quaternionf> V toQuaternionF() {
+        return SneakyUtils.unsafeCast(this.toQuaternionF(Quaternionf::new));
+    }
+
+    public <V extends Quaternionf> V toQuaternionF(final Supplier<V> quaternion) {
+        return SneakyUtils.unsafeCast(quaternion.get().set((float) x, (float) y, (float) z, (float) s));
+    }
+
+    public <V extends Quaterniond> V toQuaternionD() {
+        return SneakyUtils.unsafeCast(this.toQuaternionD(Quaterniond::new));
+    }
+
+    public <V extends Quaterniond> V toQuaternionD(final Supplier<V> quaternion) {
+        return SneakyUtils.unsafeCast(quaternion.get().set(x, y, z, s));
     }
 
     public double mag() {
