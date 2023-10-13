@@ -16,4 +16,18 @@ include 'api'
 include 'services:webservice'
 */
 
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven {
+            name = 'NeoForged'
+            url = 'https://maven.neoforged.net/releases'
+        }
+        maven {
+            name = 'Sponge'
+            url = 'https://repo.spongepowered.org/maven'
+        }
+    }
+}
+
 rootProject.name = 'CodeChickenLib'
