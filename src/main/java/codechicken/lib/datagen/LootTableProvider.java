@@ -7,17 +7,13 @@ import net.minecraft.advancements.critereon.EnchantmentPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.HashCache;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTables;
-import net.minecraft.world.level.storage.loot.ValidationContext;
+import net.minecraft.world.level.storage.loot.*;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.ApplyBonusCount;
@@ -31,10 +27,12 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by covers1624 on 7/10/20.
@@ -44,25 +42,27 @@ public abstract class LootTableProvider implements DataProvider {
     private static final Logger logger = LogManager.getLogger();
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
-    private final DataGenerator dataGenerator;
+    private final PackOutput.PathProvider output;
     private final Map<ResourceLocation, LootTable> tables = new HashMap<>();
 
-    protected LootTableProvider(DataGenerator dataGenerator) {
-        this.dataGenerator = dataGenerator;
+    protected LootTableProvider(PackOutput.PathProvider output) {
+        this.output = output;
     }
 
     @Override
-    public void run(CachedOutput cache) {
+    public CompletableFuture<Void> run(CachedOutput cache) {
         tables.clear();
-        Path out = dataGenerator.getOutputFolder();
 
         registerTables();
 
-        ValidationContext validator = new ValidationContext(LootContextParamSets.ALL_PARAMS, e -> null, tables::get);
-
-        tables.forEach((name, table) -> {
-            LootTables.validate(validator, name, table);
+        ValidationContext validator = new ValidationContext(LootContextParamSets.ALL_PARAMS, new LootDataResolver() {
+            @Override
+            public <T> T getElement(LootDataId<T> pId) {
+                return null;
+            }
         });
+
+        tables.forEach((name, table) -> table.validate(validator));
 
         Multimap<String, String> problems = validator.getProblems();
         if (!problems.isEmpty()) {
@@ -72,14 +72,12 @@ public abstract class LootTableProvider implements DataProvider {
             });
             throw new IllegalStateException("Failed to validate loot tables, see logs.");
         }
+        List<CompletableFuture<?>> futures = new LinkedList<>();
         tables.forEach((name, table) -> {
-            Path output = getPath(out, name);
-            try {
-                DataProvider.saveStable(cache, LootTables.serialize(table), output);
-            } catch (IOException e) {
-                logger.error("Couldn't save loot table {}", output, e);
-            }
+            Path output = this.output.json(name);
+            futures.add(DataProvider.saveStable(cache, LootDataType.TABLE.parser().toJsonTree(table), output));
         });
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
     protected abstract void registerTables();
@@ -101,8 +99,8 @@ public abstract class LootTableProvider implements DataProvider {
         );
         protected static final LootItemCondition.Builder NO_SILK_TOUCH = SILK_TOUCH.invert();
 
-        protected BlockLootProvider(DataGenerator dataGenerator) {
-            super(dataGenerator);
+        protected BlockLootProvider(PackOutput.PathProvider output) {
+            super(output);
         }
 
         protected LootPool.Builder singleItem(ItemLike item) {

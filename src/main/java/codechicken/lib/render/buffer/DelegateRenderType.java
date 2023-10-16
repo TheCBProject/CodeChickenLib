@@ -2,6 +2,7 @@ package codechicken.lib.render.buffer;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import net.minecraft.client.renderer.RenderType;
 
 /**
@@ -21,8 +22,8 @@ public class DelegateRenderType extends RenderType {
     }
 
     @Override
-    public void end(BufferBuilder p_228631_1_, int p_228631_2_, int p_228631_3_, int p_228631_4_) {
-        parent.end(p_228631_1_, p_228631_2_, p_228631_3_, p_228631_4_);
+    public void end(BufferBuilder buffer, VertexSorting sorting) {
+        parent.end(buffer, sorting);
     }
 
     @Override

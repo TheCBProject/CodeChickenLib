@@ -4,27 +4,27 @@ import com.google.gson.JsonObject;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 
 /**
  * Created by covers1624 on 25/3/21.
  */
-public class SpecialRecipeBuilder implements RecipeBuilder {
+public class SpecialCraftingRecipeBuilder implements RecipeBuilder {
 
-    protected final SimpleRecipeSerializer<?> serializer;
+    protected final SimpleCraftingRecipeSerializer<?> serializer;
     protected final ResourceLocation id;
 
-    public SpecialRecipeBuilder(SimpleRecipeSerializer<?> serializer, ResourceLocation id) {
+    public SpecialCraftingRecipeBuilder(SimpleCraftingRecipeSerializer<?> serializer, ResourceLocation id) {
         this.serializer = serializer;
         this.id = id;
     }
 
-    public static SpecialRecipeBuilder builder(SimpleRecipeSerializer<?> serializer, String id) {
+    public static SpecialCraftingRecipeBuilder builder(SimpleCraftingRecipeSerializer<?> serializer, String id) {
         return builder(serializer, new ResourceLocation(id));
     }
 
-    public static SpecialRecipeBuilder builder(SimpleRecipeSerializer<?> serializer, ResourceLocation id) {
-        return new SpecialRecipeBuilder(serializer, id);
+    public static SpecialCraftingRecipeBuilder builder(SimpleCraftingRecipeSerializer<?> serializer, ResourceLocation id) {
+        return new SpecialCraftingRecipeBuilder(serializer, id);
     }
 
     @Override

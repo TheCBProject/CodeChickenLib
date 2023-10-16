@@ -1,9 +1,9 @@
 package codechicken.lib.block.component.data;
 
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.tags.BlockTagsProvider;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.common.data.BlockTagsProvider;
 import org.jetbrains.annotations.ApiStatus;
 
 /**

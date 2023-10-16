@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 /**
  * Created by covers1624 on 19/11/2016.
  */
+@Deprecated // These may go away unless there is sufficient need for generic implementations like these.
 public class ModelProperties implements Copyable<ModelProperties> {
 
     public static final ModelProperties DEFAULT_ITEM = ModelProperties.builder()

@@ -5,14 +5,16 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import net.covers1624.quack.image.AnimatedGifEncoder;
 import net.covers1624.quack.io.IOUtils;
 import net.covers1624.quack.util.SneakyUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import javax.imageio.ImageIO;
@@ -77,13 +79,15 @@ public class ItemFileRenderer {
         Minecraft mc = Minecraft.getInstance();
         RenderTarget mainTarget = mc.getMainRenderTarget();
         PoseStack pStack = RenderSystem.getModelViewStack();
+        GuiGraphics guiGraphics = new GuiGraphics(mc, mc.renderBuffers().bufferSource());
+
         if (mainTarget.width < res || mainTarget.height < res) {
             // TODO explode instead?
             LOGGER.warn("Window is not at least 512x512 make it bigger! Your image is probably cropped a bit.");
         }
 
-        Matrix4f ortho = Matrix4f.orthographic(0, mainTarget.width * 16F / res, 0, mainTarget.height * 16F / res, -3000, 3000);
-        RenderSystem.setProjectionMatrix(ortho);
+        Matrix4f ortho = new Matrix4f().setOrtho(0, mainTarget.width * 16F / res, mainTarget.height * 16F / res, 0, -3000, 3000);
+        RenderSystem.setProjectionMatrix(ortho, VertexSorting.ORTHOGRAPHIC_Z);
 
         pStack.pushPose();
         pStack.setIdentity();
@@ -95,10 +99,9 @@ public class ItemFileRenderer {
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 
         Lighting.setupFor3DItems();
-        RenderSystem.enableTexture();
         RenderSystem.enableCull();
 
-        mc.getItemRenderer().renderGuiItem(stack, 0, 0);
+        guiGraphics.renderItem(stack, 0, 0);
 
         try (NativeImage fullScreenshot = new NativeImage(mainTarget.width, mainTarget.height, false);
              NativeImage subImage = new NativeImage(res, res, false)) {

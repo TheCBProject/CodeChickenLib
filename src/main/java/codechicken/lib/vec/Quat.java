@@ -1,7 +1,8 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.util.Copyable;
-import com.mojang.math.Quaternion;
+import org.joml.Quaterniond;
+import org.joml.Quaternionf;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -28,11 +29,18 @@ public class Quat implements Copyable<Quat> {
         s = quat.s;
     }
 
-    public Quat(Quaternion quat) {
-        x = quat.i();
-        y = quat.j();
-        z = quat.k();
-        s = quat.r();
+    public Quat(Quaternionf quat) {
+        x = quat.x;
+        y = quat.y;
+        z = quat.z;
+        s = quat.w;
+    }
+
+    public Quat(Quaterniond quat) {
+        x = quat.x;
+        y = quat.y;
+        z = quat.z;
+        s = quat.w;
     }
 
     public Quat(double d, double d1, double d2, double d3) {
@@ -104,8 +112,12 @@ public class Quat implements Copyable<Quat> {
         return this;
     }
 
-    public Quaternion toQuaternion() {
-        return new Quaternion((float) x, (float) y, (float) z, (float) s);
+    public Quaternionf toQuaternionF() {
+        return new Quaternionf((float) x, (float) y, (float) z, (float) s);
+    }
+
+    public Quaterniond toQuaternionD() {
+        return new Quaterniond(x, y, z, s);
     }
 
     public double mag() {

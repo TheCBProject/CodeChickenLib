@@ -22,6 +22,6 @@ public class TestResourceProvider implements ResourceProvider {
 
     @Override
     public Optional<Resource> getResource(ResourceLocation resource) {
-        return Optional.of(new Resource("test", () -> Objects.requireNonNull(OBJParserTests.class.getResourceAsStream("/" + resource.getPath()), "Resource " + resource + " doesnt exist.")));
+        return Optional.of(new Resource(null, () -> Objects.requireNonNull(OBJParserTests.class.getResourceAsStream("/" + resource.getPath()), "Resource " + resource + " doesnt exist.")));
     }
 }

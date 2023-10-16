@@ -121,11 +121,11 @@ public class ConditionalIngredient extends AbstractIngredient {
         public Ingredient parse(JsonObject json) {
             if (!CraftingHelper.processConditions(json, "conditions", conditionContext)) {
                 if (json.has("fail")) {
-                    return CraftingHelper.getIngredient(GsonHelper.getAsJsonObject(json, "fail"));
+                    return CraftingHelper.getIngredient(GsonHelper.getAsJsonObject(json, "fail"), true);
                 }
                 return Ingredient.EMPTY;
             }
-            return CraftingHelper.getIngredient(GsonHelper.getAsJsonObject(json, "pass"));
+            return CraftingHelper.getIngredient(GsonHelper.getAsJsonObject(json, "pass"), false);
         }
 
         // We don't operate like this, we always return a different ingredient.

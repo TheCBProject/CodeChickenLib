@@ -2,6 +2,7 @@ package codechicken.lib.internal.command.admin;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 
@@ -12,7 +13,7 @@ import static net.minecraft.commands.Commands.literal;
  */
 public class MiscCommands {
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(literal("ccl")
                 .then(literal("meminfo")
                         .requires(e -> e.hasPermission(4))
@@ -21,11 +22,11 @@ public class MiscCommands {
                 .then(literal("gc")
                         .requires(e -> e.hasPermission(4))
                         .executes(ctx -> {
-                            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.gc.before"), true);
+                            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.gc.before"), true);
                             printMemInfo(ctx, true);
-                            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.gc.performing"), true);
+                            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.gc.performing"), true);
                             System.gc();
-                            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.gc.after"), true);
+                            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.gc.after"), true);
                             printMemInfo(ctx, true);
                             return 0;
                         })
@@ -48,8 +49,10 @@ public class MiscCommands {
             mem = " " + mem;
             allocated = " " + allocated;
         }
-        ctx.getSource().sendSuccess(Component.literal(mem), true);
-        ctx.getSource().sendSuccess(Component.literal(allocated), true);
+        String finalMem = mem;
+        String finalAllocated = allocated;
+        ctx.getSource().sendSuccess(() -> Component.literal(finalMem), true);
+        ctx.getSource().sendSuccess(() -> Component.literal(finalAllocated), true);
         return 0;
     }
 

@@ -5,55 +5,56 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by covers1624 on 27/12/20.
  */
 public abstract class RecipeProvider implements DataProvider {
 
-    private static final Logger logger = LogManager.getLogger();
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-
     private final Map<ResourceLocation, RecipeBuilder> recipes = new HashMap<>();
-    private final DataGenerator generator;
+    private final PackOutput output;
 
-    public RecipeProvider(DataGenerator generatorIn) {
-        this.generator = generatorIn;
+    public RecipeProvider(PackOutput output) {
+        this.output = output;
     }
 
     @Override
-    public final void run(CachedOutput cache) throws IOException {
-        Path path = generator.getOutputFolder();
+    public final CompletableFuture<Void> run(CachedOutput cache) {
+        Path path = output.getOutputFolder();
         registerRecipes();
+        List<CompletableFuture<?>> futures = new LinkedList<>();
         for (Map.Entry<ResourceLocation, RecipeBuilder> entry : recipes.entrySet()) {
             ResourceLocation id = entry.getKey();
             FinishedRecipe finishedRecipe = entry.getValue().build();
-            saveRecipe(cache, finishedRecipe.serializeRecipe(), path.resolve("data/" + id.getNamespace() + "/recipes/" + id.getPath() + ".json"));
+            futures.add(DataProvider.saveStable(cache, finishedRecipe.serializeRecipe(), path.resolve("data/" + id.getNamespace() + "/recipes/" + id.getPath() + ".json")));
 
             JsonObject advancement = finishedRecipe.serializeAdvancement();
             if (advancement != null) {
-                saveRecipeAdvancement(cache, advancement, path.resolve("data/" + id.getNamespace() + "/advancements/" + id.getPath() + ".json"));
+                futures.add(DataProvider.saveStable(cache, advancement, path.resolve("data/" + id.getNamespace() + "/advancements/" + id.getPath() + ".json")));
             }
         }
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
     protected abstract void registerRecipes();
@@ -112,29 +113,12 @@ public abstract class RecipeProvider implements DataProvider {
     protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) { return builder(FurnaceRecipeBuilder.custom(serializer, new ItemStack(result, count), id)); }
     protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemStack result) { return builder(FurnaceRecipeBuilder.custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
     protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) { return builder(FurnaceRecipeBuilder.custom(serializer, result, id)); }
-    protected SpecialRecipeBuilder special(SimpleRecipeSerializer<?> serializer, String id) { return builder(SpecialRecipeBuilder.builder(serializer, id)); }
-    protected SpecialRecipeBuilder special(SimpleRecipeSerializer<?> serializer, ResourceLocation id) { return builder(SpecialRecipeBuilder.builder(serializer, id)); }
+    protected SpecialCraftingRecipeBuilder special(SimpleCraftingRecipeSerializer<?> serializer, String id) { return builder(SpecialCraftingRecipeBuilder.builder(serializer, id)); }
+    protected SpecialCraftingRecipeBuilder special(SimpleCraftingRecipeSerializer<?> serializer, ResourceLocation id) { return builder(SpecialCraftingRecipeBuilder.builder(serializer, id)); }
     //@formatter:on
 
-    private void saveRecipe(CachedOutput cache, JsonObject recipeJson, Path path) {
-        try {
-            DataProvider.saveStable(cache, recipeJson, path);
-        } catch (IOException e) {
-            logger.error("Couldn't save recipe {}", path, e);
-        }
-
-    }
-
-    private void saveRecipeAdvancement(CachedOutput cache, JsonObject advancementJson, Path path) {
-        try {
-            DataProvider.saveStable(cache, advancementJson, path);
-        } catch (IOException e) {
-            logger.error("Couldn't save recipe advancement {}", path, e);
-        }
-    }
-
     protected EnterBlockTrigger.TriggerInstance enteredBlock(Block blockIn) {
-        return new EnterBlockTrigger.TriggerInstance(EntityPredicate.Composite.ANY, blockIn, StatePropertiesPredicate.ANY);
+        return new EnterBlockTrigger.TriggerInstance(ContextAwarePredicate.ANY, blockIn, StatePropertiesPredicate.ANY);
     }
 
     protected InventoryChangeTrigger.TriggerInstance hasItem(ItemLike itemIn) {
@@ -146,6 +130,6 @@ public abstract class RecipeProvider implements DataProvider {
     }
 
     protected InventoryChangeTrigger.TriggerInstance hasItem(ItemPredicate... predicates) {
-        return new InventoryChangeTrigger.TriggerInstance(EntityPredicate.Composite.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, predicates);
+        return new InventoryChangeTrigger.TriggerInstance(ContextAwarePredicate.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, predicates);
     }
 }

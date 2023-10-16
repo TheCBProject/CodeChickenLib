@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -26,15 +27,12 @@ public class ItemInfoCommand {
     private static int execute(CommandContext<CommandSourceStack> command) {
         CommandSourceStack ctx = command.getSource();
         Player player = command.getSource().getPlayer();
-        ItemStack stack = player.getMainHandItem();
-        if (stack.isEmpty()) {
-            stack = player.getOffhandItem();
-        }
+        ItemStack stack = player.hasItemInSlot(EquipmentSlot.MAINHAND) ? player.getMainHandItem() : player.getOffhandItem();
         if (stack.isEmpty()) return 0;
 
         String tag = stack.hasTag() ? stack.getTag().toString() : "Item has no NBT.";
-        ctx.sendSuccess(Component.literal("Registry Name: " + ForgeRegistries.ITEMS.getKey(stack.getItem())), false);
-        ctx.sendSuccess(Component.literal("NBT          : " + tag), false);
+        ctx.sendSuccess(() -> Component.literal("Registry Name: " + ForgeRegistries.ITEMS.getKey(stack.getItem())), false);
+        ctx.sendSuccess(() -> Component.literal("NBT          : " + tag), false);
         return 0;
     }
 }

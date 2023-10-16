@@ -1,7 +1,7 @@
 package codechicken.lib.render.block;
 
+import codechicken.lib.internal.ClientInit;
 import codechicken.lib.internal.ExceptionMessageEventHandler;
-import codechicken.lib.internal.proxy.ProxyClient;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.CrashReport;
@@ -50,7 +50,7 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
 
     //In world.
     @Override
-    public void renderBatched(BlockState state, BlockPos pos, BlockAndTintGetter level, PoseStack stack, VertexConsumer builder, boolean checkSides, RandomSource rand, ModelData modelData, RenderType renderType, boolean queryModelSpecificData) {
+    public void renderBatched(BlockState state, BlockPos pos, BlockAndTintGetter level, PoseStack stack, VertexConsumer builder, boolean checkSides, RandomSource rand, ModelData modelData, RenderType renderType) {
         try {
             ICCBlockRenderer renderer = BlockRenderingRegistry.findFor(state.getBlock(), e -> e.canHandleBlock(level, pos, state, renderType));
             if (renderer != null) {
@@ -58,7 +58,7 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
                 return;
             }
         } catch (Throwable t) {
-            if (ProxyClient.catchBlockRenderExceptions) {
+            if (ClientInit.catchBlockRenderExceptions) {
                 handleCaughtException(t, state, pos, level);
                 return;
             }
@@ -68,9 +68,9 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
             throw new ReportedException(crashreport);
         }
         try {
-            parentDispatcher.renderBatched(state, pos, level, stack, builder, checkSides, rand, modelData, renderType, queryModelSpecificData);
+            parentDispatcher.renderBatched(state, pos, level, stack, builder, checkSides, rand, modelData, renderType);
         } catch (Throwable t) {
-            if (ProxyClient.catchBlockRenderExceptions) {
+            if (ClientInit.catchBlockRenderExceptions) {
                 handleCaughtException(t, state, pos, level);
                 return;
             }
@@ -126,7 +126,7 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
         builder.append("  Tile Id:       ").append(tryOrNull(() -> ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType()))).append("\n");
         builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.saveWithFullMetadata())).append("\n");
         builder.append("This functionality can be disabled in the CCL config file.\n");
-        if (ProxyClient.messagePlayerOnRenderExceptionCaught) {
+        if (ClientInit.messagePlayerOnRenderExceptionCaught) {
             builder.append("You can also turn off player messages in the CCL config file.\n");
         }
         String logMessage = builder.toString();
@@ -135,7 +135,7 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
             logger.error(logMessage, t);
         }
         Player player = Minecraft.getInstance().player;
-        if (ProxyClient.messagePlayerOnRenderExceptionCaught && player != null) {
+        if (ClientInit.messagePlayerOnRenderExceptionCaught && player != null) {
             long time = System.nanoTime();
             if (TimeUnit.NANOSECONDS.toSeconds(time - lastTime) > 5) {
                 lastTime = time;

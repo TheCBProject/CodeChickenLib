@@ -3,10 +3,10 @@ package codechicken.lib.model;
 import codechicken.lib.util.TransformUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Transformation;
-import com.mojang.math.Vector3f;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.item.ItemDisplayContext;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 /**
  * A simple {@link BakedModel} implementation, with automatic handling of
@@ -27,10 +27,10 @@ public interface PerspectiveModel extends BakedModel {
     PerspectiveModelState getModelState();
 
     @Override
-    default BakedModel applyTransform(ItemTransforms.TransformType transformType, PoseStack pStack, boolean leftFlip) {
+    default BakedModel applyTransform(ItemDisplayContext context, PoseStack pStack, boolean leftFlip) {
         PerspectiveModelState modelState = getModelState();
         if (modelState != null) {
-            Transformation transform = getModelState().getTransform(transformType);
+            Transformation transform = getModelState().getTransform(context);
 
             Vector3f trans = transform.getTranslation();
             pStack.translate(trans.x(), trans.y(), trans.z());
@@ -47,6 +47,6 @@ public interface PerspectiveModel extends BakedModel {
             }
             return this;
         }
-        return BakedModel.super.applyTransform(transformType, pStack, leftFlip);
+        return BakedModel.super.applyTransform(context, pStack, leftFlip);
     }
 }

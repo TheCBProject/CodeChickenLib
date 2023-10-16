@@ -20,12 +20,6 @@ import net.minecraftforge.common.ForgeMod;
 
 public class RayTracer {
 
-
-    @Deprecated (forRemoval = true, since = "1.18.2") // Unnecessarily specific level type.
-    public static BlockHitResult retraceBlock(LevelReader level, Player player, BlockPos pos) {
-        return retraceBlock((BlockGetter) level, player, pos);
-    }
-
     public static BlockHitResult retraceBlock(BlockGetter level, Player player, BlockPos pos) {
         Vec3 startVec = getStartVec(player);
         Vec3 endVec = getEndVec(player);
@@ -42,7 +36,7 @@ public class RayTracer {
     }
 
     private static double getBlockReachDistance_server(ServerPlayer player) {
-        return player.getAttribute(ForgeMod.REACH_DISTANCE.get()).getValue();
+        return player.getAttribute(ForgeMod.BLOCK_REACH.get()).getValue();
     }
 
     @OnlyIn (Dist.CLIENT)
@@ -69,7 +63,7 @@ public class RayTracer {
     public static BlockHitResult retrace(Player player, double reach, ClipContext.Block blockMode, ClipContext.Fluid fluidMode) {
         Vec3 startVec = getStartVec(player);
         Vec3 endVec = getEndVec(player, reach);
-        return player.level.clip(new ClipContext(startVec, endVec, blockMode, fluidMode, player));
+        return player.level().clip(new ClipContext(startVec, endVec, blockMode, fluidMode, player));
     }
 
     public static Vec3 getCorrectedHeadVec(Player player) {
@@ -83,7 +77,7 @@ public class RayTracer {
 
     @Deprecated // Use attribute directly? avoid all this nonsense.
     public static double getBlockReachDistance(Player player) {
-        return player.level.isClientSide ? getBlockReachDistance_client() : player instanceof ServerPlayer ? getBlockReachDistance_server((ServerPlayer) player) : 5D;
+        return player.level().isClientSide ? getBlockReachDistance_client() : player instanceof ServerPlayer ? getBlockReachDistance_server((ServerPlayer) player) : 5D;
     }
 
     public static Vec3 getEndVec(Player player) {

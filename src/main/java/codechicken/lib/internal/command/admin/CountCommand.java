@@ -4,7 +4,10 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -17,8 +20,6 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
-import static codechicken.lib.internal.command.EntityTypeArgument.entityType;
-import static codechicken.lib.internal.command.EntityTypeArgument.getEntityType;
 import static codechicken.lib.math.MathHelper.floor;
 import static net.minecraft.ChatFormatting.*;
 import static net.minecraft.commands.Commands.argument;
@@ -29,13 +30,13 @@ import static net.minecraft.commands.Commands.literal;
  */
 public class CountCommand {
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(literal("ccl")
                 .then(literal("count")
                         .requires(e -> e.hasPermission(2))
-                        .then(argument("entity", entityType())
+                        .then(argument("entity", ResourceArgument.resource(context, Registries.ENTITY_TYPE))
                                 .executes(ctx -> {
-                                    EntityType<?> entityType = getEntityType(ctx, "entity").value();
+                                    EntityType<?> entityType = ResourceArgument.getEntityType(ctx, "entity").value();
                                     return countAllEntities(ctx, e -> e.equals(entityType));
                                 })
                         )
@@ -65,13 +66,14 @@ public class CountCommand {
         for (EntityType<?> type : order) {
             int count = counts.getInt(type);
             String name = ForgeRegistries.ENTITY_TYPES.getKey(type).toString();
-            ctx.getSource().sendSuccess(Component.literal(GREEN + name + RESET + " x " + AQUA + count), false);
+            ctx.getSource().sendSuccess(() -> Component.literal(GREEN + name + RESET + " x " + AQUA + count), false);
             total += count;
         }
         if (order.size() == 0) {
-            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.count.fail"), false);
+            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.count.fail"), false);
         } else if (order.size() > 1) {
-            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.count.total", AQUA.toString() + total + RESET), false);
+            int finalTotal = total;
+            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.count.total", AQUA.toString() + finalTotal + RESET), false);
         }
 
         return total;

@@ -3,8 +3,8 @@ package codechicken.lib.datagen;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -13,10 +13,12 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.data.event.GatherDataEvent;
 
-import java.io.IOException;
 import java.nio.file.Path;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
@@ -27,13 +29,13 @@ public abstract class LanguageProvider implements DataProvider {
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
     private final Map<String, String> client = new TreeMap<>();
     private final Map<String, String> server = new TreeMap<>();
-    private final DataGenerator gen;
+    private final PackOutput output;
     private final String modid;
     private final String locale;
     private final Side distFilter;
 
-    protected LanguageProvider(DataGenerator gen, String modid, String locale, Side distFilter) {
-        this.gen = gen;
+    protected LanguageProvider(PackOutput output, String modid, String locale, Side distFilter) {
+        this.output = output;
         this.modid = modid;
         this.locale = locale;
         this.distFilter = distFilter;
@@ -42,14 +44,16 @@ public abstract class LanguageProvider implements DataProvider {
     protected abstract void addTranslations();
 
     @Override
-    public void run(CachedOutput p_200398_1_) throws IOException {
+    public CompletableFuture<?> run(CachedOutput p_200398_1_) {
         addTranslations();
+        List<CompletableFuture<?>> futures = new LinkedList<>();
         if (distFilter.includeClient() && !client.isEmpty()) {
-            save(p_200398_1_, client, gen.getOutputFolder().resolve("assets/" + modid + "/lang/" + locale + ".json"));
+            futures.add(DataProvider.saveStable(p_200398_1_, GSON.toJsonTree(client), output.getOutputFolder(PackOutput.Target.RESOURCE_PACK).resolve(modid + "/lang/" + locale + ".json")));
         }
         if (distFilter.includeServer() && !server.isEmpty()) {
-            save(p_200398_1_, server, gen.getOutputFolder().resolve("data/" + modid + "/lang/" + locale + ".json"));
+            futures.add(DataProvider.saveStable(p_200398_1_, GSON.toJsonTree(server), output.getOutputFolder(PackOutput.Target.DATA_PACK).resolve(modid + "/lang/" + locale + ".json")));
         }
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
     @Override
@@ -61,7 +65,7 @@ public abstract class LanguageProvider implements DataProvider {
         return locale;
     }
 
-    private void save(CachedOutput cache, Object object, Path target) throws IOException {
+    private void save(CachedOutput cache, Object object, Path target) {
         DataProvider.saveStable(cache, GSON.toJsonTree(object), target);
     }
 

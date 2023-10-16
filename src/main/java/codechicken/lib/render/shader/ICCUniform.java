@@ -1,8 +1,8 @@
 package codechicken.lib.render.shader;
 
 import codechicken.lib.vec.Matrix4;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 
 /**
  * Created by covers1624 on 8/4/22.
@@ -178,70 +178,70 @@ public interface ICCUniform {
     private static float[] toArrayF(Matrix3f matrix) {
         return new float[] {
                 matrix.m00,
-                matrix.m10,
-                matrix.m20,
                 matrix.m01,
-                matrix.m11,
-                matrix.m21,
                 matrix.m02,
+                matrix.m10,
+                matrix.m11,
                 matrix.m12,
+                matrix.m20,
+                matrix.m21,
                 matrix.m22,
         };
     }
 
     private static float[] toArrayF(Matrix4f matrix) {
         return new float[] {
-                matrix.m00,
-                matrix.m10,
-                matrix.m20,
-                matrix.m30,
-                matrix.m01,
-                matrix.m11,
-                matrix.m21,
-                matrix.m31,
-                matrix.m02,
-                matrix.m12,
-                matrix.m22,
-                matrix.m32,
-                matrix.m03,
-                matrix.m13,
-                matrix.m23,
-                matrix.m33,
+                matrix.m00(),
+                matrix.m01(),
+                matrix.m02(),
+                matrix.m03(),
+                matrix.m10(),
+                matrix.m11(),
+                matrix.m12(),
+                matrix.m13(),
+                matrix.m20(),
+                matrix.m21(),
+                matrix.m22(),
+                matrix.m23(),
+                matrix.m30(),
+                matrix.m31(),
+                matrix.m32(),
+                matrix.m33(),
         };
     }
 
     private static double[] toArrayD(Matrix3f matrix) {
         return new double[] {
                 matrix.m00,
-                matrix.m10,
-                matrix.m20,
                 matrix.m01,
-                matrix.m11,
-                matrix.m21,
                 matrix.m02,
+                matrix.m10,
+                matrix.m11,
                 matrix.m12,
+                matrix.m20,
+                matrix.m21,
                 matrix.m22,
         };
     }
 
     private static double[] toArrayD(Matrix4f matrix) {
         return new double[] {
-                matrix.m00,
-                matrix.m10,
-                matrix.m20,
-                matrix.m30,
-                matrix.m01,
-                matrix.m11,
-                matrix.m21,
-                matrix.m31,
-                matrix.m02,
-                matrix.m12,
-                matrix.m22,
-                matrix.m32,
-                matrix.m03,
-                matrix.m13,
-                matrix.m23,
-                matrix.m33,
+                matrix.m00(),
+                matrix.m01(),
+                matrix.m02(),
+                matrix.m03(),
+                matrix.m10(),
+                matrix.m11(),
+                matrix.m12(),
+                matrix.m13(),
+                matrix.m20(),
+                matrix.m21(),
+                matrix.m22(),
+                matrix.m23(),
+                matrix.m30(),
+                matrix.m31(),
+                matrix.m32(),
+                matrix.m33(),
         };
     }
 }

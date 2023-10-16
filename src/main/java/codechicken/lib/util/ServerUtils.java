@@ -47,10 +47,6 @@ public class ServerUtils {
         return getServer().getPlayerList().getPlayers();
     }
 
-    public static boolean isPlayerLoadingChunk(ServerPlayer player, ChunkPos chunk) {
-        return player.getLevel().getChunkSource().chunkMap.getPlayers(chunk, false).stream().anyMatch(e -> e.getId() == player.getId());
-    }
-
     public static Path getSaveDirectory() {
         return getSaveDirectory(Level.OVERWORLD);
     }
@@ -92,7 +88,7 @@ public class ServerUtils {
     }
 
     public static void openContainer(ServerPlayer player, MenuProvider containerProvider, Consumer<MCDataOutput> packetConsumer) {
-        if (player.level.isClientSide()) {
+        if (player.level().isClientSide()) {
             return;
         }
         player.doCloseContainer();

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 
@@ -21,7 +22,7 @@ import static net.covers1624.quack.util.SneakyUtils.none;
 public class VBORenderType extends DelegateRenderType implements AutoCloseable {
 
     private final BiConsumer<VertexFormat, BufferBuilder> factory;
-    private final VertexBuffer vertexBuffer = new VertexBuffer();
+    private final VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
     private final BufferBuilder builder;
     private boolean dirty = true;
 
@@ -80,7 +81,7 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
     }
 
     @Override
-    public void end(BufferBuilder buffer, int cameraX, int cameraY, int cameraZ) {
+    public void end(BufferBuilder buffer, VertexSorting sorting) {
         // End buffer and discard state, we don't operate like this.
         buffer.endOrDiscardIfEmpty();
 
@@ -137,7 +138,7 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
         }
 
         @Override
-        public void end(BufferBuilder buffer, int cameraX, int cameraY, int cameraZ) {
+        public void end(BufferBuilder buffer, VertexSorting sorting) {
             // End buffer and discard state, we don't operate like this.
             buffer.endOrDiscardIfEmpty();
 

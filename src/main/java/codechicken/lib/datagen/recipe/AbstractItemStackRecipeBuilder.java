@@ -17,7 +17,7 @@ public abstract class AbstractItemStackRecipeBuilder<T extends AbstractRecipeBui
 
     @Override
     protected ResourceLocation getAdvancementId() {
-        return new ResourceLocation(id.getNamespace(), "recipes/" + this.result.getItem().getItemCategory().getRecipeFolderName() + "/" + id.getPath());
+        return new ResourceLocation(id.getNamespace(), "recipes/__advancement/" + id.getPath());
     }
 
     @Override

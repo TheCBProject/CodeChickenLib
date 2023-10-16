@@ -2,8 +2,6 @@ package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
@@ -11,6 +9,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -116,7 +116,7 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public BlockPos pos() {
-        return new BlockPos(x, y, z);
+        return new BlockPos(MathHelper.floor(x), MathHelper.floor(y), MathHelper.floor(z));
     }
 
     public CompoundTag writeToNBT(CompoundTag tag) {

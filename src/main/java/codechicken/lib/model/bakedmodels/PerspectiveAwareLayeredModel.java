@@ -19,6 +19,7 @@ import java.util.Map;
 /**
  * Created by covers1624 on 19/11/2016.
  */
+@Deprecated // These may go away unless there is sufficient need for generic implementations like these.
 public class PerspectiveAwareLayeredModel extends AbstractBakedPropertiesModel {
 
     private final ImmutableMap<RenderType, List<BakedQuad>> unculledQuads;

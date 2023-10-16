@@ -1,7 +1,8 @@
 package codechicken.lib.datagen;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -16,13 +17,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import static codechicken.lib.CodeChickenLib.MOD_ID;
 
 /**
  * Created by covers1624 on 15/10/20.
@@ -34,8 +34,8 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
     protected static final ModelFile.UncheckedModelFile GENERATED = new ModelFile.UncheckedModelFile("item/generated");
     protected static final ModelFile.UncheckedModelFile HANDHELD = new ModelFile.UncheckedModelFile("item/handheld");
 
-    public ItemModelProvider(DataGenerator generator, String modid, ExistingFileHelper existingFileHelper) {
-        super(generator, modid, ITEM_FOLDER, WrappedItemModelBuilder::new, existingFileHelper);
+    public ItemModelProvider(PackOutput output, String modid, ExistingFileHelper existingFileHelper) {
+        super(output, modid, ITEM_FOLDER, WrappedItemModelBuilder::new, existingFileHelper);
     }
 
     //region Location helpers
@@ -139,6 +139,12 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
                 .noTexture();
     }
     //endregion
+
+    private SimpleItemModelBuilder makeNested(ItemLike item) {
+        WrappedItemModelBuilder builder = (WrappedItemModelBuilder) nested();
+        builder.simpleBuilder = new SimpleItemModelBuilder(this, builder, item.asItem());
+        return builder.simpleBuilder;
+    }
 
     private ExistingFileHelper getExistingFileHelper() {
         return existingFileHelper;
@@ -317,6 +323,60 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
                 }
                 json.add("visibility", visibilityObj);
             }
+
+            return json;
+        }
+    }
+
+    public static class CompositeLoaderBuilder extends CustomLoaderBuilder {
+
+        private final Map<String, SimpleItemModelBuilder> children = new LinkedHashMap<>();
+        private final List<String> order = new ArrayList<>();
+
+        protected CompositeLoaderBuilder(ResourceLocation loader, SimpleItemModelBuilder parent) {
+            super(loader, parent);
+        }
+
+        public static CompositeLoaderBuilder forge(SimpleItemModelBuilder parent) {
+            return new CompositeLoaderBuilder(new ResourceLocation("forge", "composite"), parent);
+        }
+
+        public static CompositeLoaderBuilder ccl(SimpleItemModelBuilder parent) {
+            return new CompositeLoaderBuilder(new ResourceLocation(MOD_ID, "item_composite"), parent);
+        }
+
+        public CompositeLoaderBuilder nested(String name, Consumer<SimpleItemModelBuilder> cons) {
+            if (children.containsKey(name)) throw new IllegalArgumentException("Child with name " + name + " is already registered.");
+
+            SimpleItemModelBuilder nested = parent.provider.makeNested(parent.item);
+            cons.accept(nested);
+            children.put(name, nested);
+            order.add(name);
+            return this;
+        }
+
+        public CompositeLoaderBuilder order(String... names) {
+            for (String name : names) {
+                if (!children.containsKey(name)) {
+                    throw new IllegalArgumentException("Child with name " + name + " does not exist.");
+                }
+            }
+            order.clear();
+            Collections.addAll(order, names);
+            return this;
+        }
+
+        @Override
+        protected JsonObject toJson(JsonObject json) {
+            super.toJson(json);
+
+            JsonObject children = new JsonObject();
+            this.children.forEach((name, child) -> children.add(name, child.builder.toJson()));
+            json.add("children", children);
+
+            JsonArray order = new JsonArray();
+            this.order.forEach(order::add);
+            json.add("item_render_order", order);
 
             return json;
         }

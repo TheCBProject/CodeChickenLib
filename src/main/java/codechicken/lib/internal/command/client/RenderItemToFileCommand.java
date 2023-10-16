@@ -57,7 +57,7 @@ public class RenderItemToFileCommand {
         Path path = getPath(ctx, "png");
         ItemStack held = getHeldItem();
 
-        ctx.getSource().sendSuccess(Component.literal("Queued item render to file: " + path), false);
+        ctx.getSource().sendSuccess(() -> Component.literal("Queued item render to file: " + path), false);
         ItemFileRenderer.addRenderTask(held, path, resolution);
         return 0;
     }
@@ -70,7 +70,7 @@ public class RenderItemToFileCommand {
         Path path = getPath(ctx, "gif");
         ItemStack held = getHeldItem();
 
-        src.sendSuccess(Component.literal("Queued item render to gif: " + path), false);
+        src.sendSuccess(() -> Component.literal("Queued item render to gif: " + path), false);
         ItemFileRenderer.addGifRenderTask(held, path, resolution, fps, duration);
         return 0;
     }

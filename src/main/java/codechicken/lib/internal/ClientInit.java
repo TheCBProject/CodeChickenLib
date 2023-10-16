@@ -1,39 +1,47 @@
-package codechicken.lib.internal.proxy;
+package codechicken.lib.internal;
 
 import codechicken.lib.CodeChickenLib;
 import codechicken.lib.config.ConfigCategory;
 import codechicken.lib.config.ConfigSyncManager;
-import codechicken.lib.model.bakery.ModelBakery;
+import codechicken.lib.model.CompositeItemModel;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.BlockRenderingRegistry;
-import codechicken.lib.render.item.map.MapRenderRegistry;
+import net.covers1624.quack.util.CrashLock;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 /**
- * Created by covers1624 on 30/10/19.
+ * Created by covers1624 on 8/9/23.
  */
-public class ProxyClient extends Proxy {
+public class ClientInit {
+
+    private static final CrashLock LOCK = new CrashLock("Already Initialized.");
 
     public static boolean catchBlockRenderExceptions;
     public static boolean messagePlayerOnRenderExceptionCaught;
 
-    @Override
-    public void clientSetup(FMLClientSetupEvent event) {
+    public static void init() {
+        LOCK.lock();
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+
         loadClientConfig();
-        //OpenGLUtils.loadCaps();
-        //        CustomParticleHandler.init();
-        BlockRenderingRegistry.init();
-        ModelBakery.init();
         CCRenderEventHandler.init();
 
-        MinecraftForge.EVENT_BUS.register(new MapRenderRegistry());
-        //        ClientCommandHandler.instance.registerCommand(new CCLClientCommand());
-        MinecraftForge.EVENT_BUS.addListener(this::onClientDisconnected);
+        MinecraftForge.EVENT_BUS.addListener(ClientInit::onClientDisconnected);
+
+        bus.addListener(ClientInit::onClientSetup);
+        bus.addListener(ClientInit::onRegisterGeometryLoaders);
     }
 
-    private void loadClientConfig() {
+    private static void onClientSetup(FMLClientSetupEvent event) {
+        BlockRenderingRegistry.init();
+    }
+
+    private static void loadClientConfig() {
         ConfigCategory clientTag = CodeChickenLib.config.getCategory("client");
         clientTag.delete("block_renderer_dispatcher_misc");
         clientTag.delete("catchItemRenderExceptions");
@@ -57,7 +65,11 @@ public class ProxyClient extends Proxy {
         clientTag.save();
     }
 
-    private void onClientDisconnected(ClientPlayerNetworkEvent.LoggingOut event) {
+    private static void onClientDisconnected(ClientPlayerNetworkEvent.LoggingOut event) {
         ConfigSyncManager.onClientDisconnected();
+    }
+
+    private static void onRegisterGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
+        event.register("item_composite", new CompositeItemModel());
     }
 }

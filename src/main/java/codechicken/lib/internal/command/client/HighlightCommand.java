@@ -66,10 +66,10 @@ public class HighlightCommand {
     private static int setHighlight(CommandContext<CommandSourceStack> ctx, BlockPos pos) {
         CommandSourceStack source = ctx.getSource();
         if (HighlightHandler.highlight == null) {
-            source.sendSuccess(Component.literal("Set highlight at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()), false);
+            source.sendSuccess(() -> Component.literal("Set highlight at " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()), false);
         } else {
             BlockPos prev = HighlightHandler.highlight;
-            source.sendSuccess(Component.literal("Moved highlight from " + prev.getX() + ", " + prev.getY() + ", " + prev.getZ() + " to " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()), false);
+            source.sendSuccess(() -> Component.literal("Moved highlight from " + prev.getX() + ", " + prev.getY() + ", " + prev.getZ() + " to " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ()), false);
         }
         HighlightHandler.highlight = pos;
         return 0;
@@ -83,7 +83,7 @@ public class HighlightCommand {
         }
         HighlightHandler.highlight = null;
         HighlightHandler.useDepth = true;
-        source.sendSuccess(Component.literal("Highlight position cleared."), false);
+        source.sendSuccess(() -> Component.literal("Highlight position cleared."), false);
         return 0;
     }
 
@@ -97,9 +97,9 @@ public class HighlightCommand {
         HighlightHandler.useDepth = !HighlightHandler.useDepth;
 
         if (HighlightHandler.useDepth) {
-            source.sendSuccess(Component.literal("Enabled highlight depth."), false);
+            source.sendSuccess(() -> Component.literal("Enabled highlight depth."), false);
         } else {
-            source.sendSuccess(Component.literal("Disabled highlight depth."), false);
+            source.sendSuccess(() -> Component.literal("Disabled highlight depth."), false);
         }
         return 0;
     }
@@ -127,7 +127,7 @@ public class HighlightCommand {
         builder.append("  Tile Class:    ").append(tryOrNull(() -> tile.getClass())).append("\n");
         builder.append("  Tile Id:       ").append(tryOrNull(() -> ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType()))).append("\n");
         builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.saveWithoutMetadata())).append("\n");
-        source.sendSuccess(Component.literal(builder.toString()), false);
+        source.sendSuccess(() -> Component.literal(builder.toString()), false);
 
         return 0;
     }

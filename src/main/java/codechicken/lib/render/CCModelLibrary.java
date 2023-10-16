@@ -95,7 +95,7 @@ public class CCModelLibrary {
 
     public static RenderType.CompositeState makeIcosState(ResourceLocation texture) {
         return RenderType.CompositeState.builder()
-                .setShaderState(RenderStateShard.BLOCK_SHADER)
+                .setShaderState(RenderStateShard.RENDERTYPE_SOLID_SHADER) // TODO 1.20, this is probably wrong.
                 .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
                 .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
                 .setLightmapState(RenderStateShard.LIGHTMAP)

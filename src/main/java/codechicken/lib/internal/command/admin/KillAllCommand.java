@@ -4,9 +4,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.covers1624.quack.collection.StreamableIterable;
+import net.covers1624.quack.collection.FastStream;
+import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.Holder;
+import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -23,8 +25,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import static codechicken.lib.internal.command.EntityTypeArgument.entityType;
-import static codechicken.lib.internal.command.EntityTypeArgument.getEntityType;
 import static codechicken.lib.math.MathHelper.floor;
 import static net.minecraft.ChatFormatting.*;
 import static net.minecraft.commands.Commands.argument;
@@ -35,21 +35,21 @@ import static net.minecraft.commands.Commands.literal;
  */
 public class KillAllCommand {
 
-    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(literal("ccl")
                 .then(literal("killall")
                         .requires(e -> e.hasPermission(2))
-                        .then(argument("entity", entityType())
+                        .then(argument("entity", ResourceArgument.resource(context, Registries.ENTITY_TYPE))
                                 .executes(ctx -> {
-                                    EntityType<?> entityType = getEntityType(ctx, "entity").value();
+                                    EntityType<?> entityType = ResourceArgument.getEntityType(ctx, "entity").value();
                                     return killallForce(ctx, entityType, e -> Objects.equals(e.getType(), entityType));
                                 })
                         )
                         .executes(ctx -> killallForce(ctx, null, e -> e instanceof Enemy))
                         .then(literal("gracefully")
-                                .then(argument("entity", entityType())
+                                .then(argument("entity", ResourceArgument.resource(context, Registries.ENTITY_TYPE))
                                         .executes(ctx -> {
-                                            EntityType<?> entityType = getEntityType(ctx, "entity").value();
+                                            EntityType<?> entityType = ResourceArgument.getEntityType(ctx, "entity").value();
                                             return killAllGracefully(ctx, entityType, e -> Objects.equals(e.getType(), entityType));
                                         })
                                 )
@@ -69,7 +69,7 @@ public class KillAllCommand {
 
     private static int killEntities(CommandContext<CommandSourceStack> ctx, @Nullable EntityType<?> type, Predicate<Entity> predicate, Consumer<Entity> killFunc) {
         if (type == EntityType.PLAYER) {
-            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.killall.fail.player").withStyle(RED), false);
+            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.killall.fail.player").withStyle(RED), false);
             return 0;
         }
         CommandSourceStack source = ctx.getSource();
@@ -77,7 +77,7 @@ public class KillAllCommand {
         ServerChunkCache provider = world.getChunkSource();
         Object2IntMap<EntityType<?>> counts = new Object2IntOpenHashMap<>();
         counts.defaultReturnValue(0);
-        StreamableIterable<Entity> entities = StreamableIterable.of(world.getEntities().getAll())
+        FastStream<Entity> entities = FastStream.of(world.getEntities().getAll())
                 .filter(Objects::nonNull)
                 .filter(predicate)
                 .filter(e -> provider.hasChunk(floor(e.getX()) >> 4, floor(e.getZ()) >> 4));
@@ -95,13 +95,14 @@ public class KillAllCommand {
         for (EntityType<?> t : order) {
             int count = counts.getInt(t);
             String name = ForgeRegistries.ENTITY_TYPES.getKey(t).toString();
-            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.killall.success.line", RED + name + RESET + " x " + AQUA + count), false);
+            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.killall.success.line", RED + name + RESET + " x " + AQUA + count), false);
             total += count;
         }
         if (order.size() == 0) {
-            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.killall.fail"), false);
+            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.killall.fail"), false);
         } else if (order.size() > 1) {
-            ctx.getSource().sendSuccess(Component.translatable("ccl.commands.killall.success", AQUA.toString() + total + RESET), false);
+            int finalTotal = total;
+            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.killall.success", AQUA.toString() + finalTotal + RESET), false);
         }
         return total;
     }
