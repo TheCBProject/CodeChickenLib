@@ -8,14 +8,12 @@
 !gradlew
 !gradlew.bat
 !build.gradle
-!build.properties
 !gradle.properties
 !settings.gradle
 
 # Other Files.
 !LICENSE
 !README.md
-!.travis.yml
 
 # Include git important files
 !.gitmodules
@@ -24,5 +22,3 @@
 
 # Include Important Folders
 !src/
-!libs/
-!archive
