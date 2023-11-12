@@ -1,13 +1,20 @@
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'signing'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id "net.covers1624.signing" version '1.1.4'
+    id "net.covers1624.signing" version '1.1.4' apply false
     id 'net.neoforged.gradle' version '[6.0.18,6.2)'
     id 'org.spongepowered.mixin' version '0.7.+'
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    withSourcesJar()
+    withJavadocJar()
+}
 
 group = 'codechicken'
 archivesBaseName = 'CodeChickenLib'
@@ -18,25 +25,6 @@ file('build.properties').withReader {
     def prop = new Properties()
     prop.load(it)
     project.ext.config = new ConfigSlurper().parse prop
-}
-
-def signProps = [:]
-if (System.getenv("KEY_STORE")) {
-    println "Using Env variables for jar signing."
-    signProps['keyStore'] = System.getenv("KEY_STORE")
-    file(System.getenv("KEY_STORE_PROPS")).withReader {
-        def props = new Properties()
-        props.load(it)
-        signProps.putAll(props)
-    }
-} else if (project.hasProperty('keyStore')) {
-    println "Using Project properties for jar signing."
-    signProps['keyStore'] = project.getProperty('keyStore')
-    signProps['storePass'] = project.getProperty('keyStorePass')
-    signProps['alias'] = project.getProperty('keyStoreAlias')
-    signProps['keyPass'] = project.getProperty('keyStoreKeyPass')
-} else {
-    println 'No signing secrets found, build will not be signed.'
 }
 
 config.mod_version = "${config.mod_version}." + (System.getenv("BUILD_NUMBER") ?: "1")
@@ -109,20 +97,6 @@ reobf {
     jar { enabled = false } // Disable jar.
 }
 
-signing {
-    if (!signProps.isEmpty()) {
-        jars {
-            sign shadowJar
-            after 'reobfShadowJar'
-
-            keyStore = signProps.keyStore
-            alias = signProps.alias
-            storePass = signProps.storePass
-            keyPass = signProps.keyPass
-        }
-    }
-}
-
 def commonManifest = {
     attributes 'Specification-Title': archivesBaseName
     attributes 'Specification-Vendor': 'covers1624'
@@ -144,11 +118,34 @@ shadowJar {
     from file("LICENSE")
 }
 
-task srcJar(type: Jar) {
-    build.dependsOn it
-    from sourceSets.main.allSource
-    archiveClassifier = 'sources'
-    from file("LICENSE")
+def jarArchive = shadowJar
+if (System.getenv("KEY_STORE") || project.hasProperty('keyStore')) {
+    jarArchive = tasks.register("signShadowJar", net.covers1624.jarsign.jar.SignJarTask) {
+        dependsOn("shadowJar")
+        dependsOn("reobfShadowJar")
+
+        input = shadowJar.archiveFile.get().asFile
+        output = shadowJar.archiveFile.get().asFile
+        if (System.getenv("KEY_STORE")) {
+            keyStore = System.getenv("KEY_STORE")
+            file(System.getenv("KEY_STORE_PROPS")).withReader {
+                def props = new Properties()
+                props.load(it)
+                alias = props['alias']
+                storePass = props['storePass']
+                keyPass = props['keyPass']
+            }
+        } else {
+            keyStore = project.getProperty('keyStore')
+            alias = project.getProperty('keyStoreAlias')
+            storePass = project.getProperty('keyStorePass')
+            keyPass = project.getProperty('keyStoreKeyPass')
+        }
+    }
+}
+
+javadoc {
+    options.addBooleanOption("Xdoclint:none", true)
 }
 
 publishing {
@@ -168,8 +165,9 @@ publishing {
             groupId project.group
             artifactId project.archivesBaseName
             version project.version
-            artifact shadowJar
-            artifact srcJar
+            artifact jarArchive
+            artifact sourcesJar
+            artifact javadocJar
 
             pom {
                 name = archivesBaseName
@@ -206,6 +204,23 @@ publishing {
             }
         }
     }
+}
+
+signing {
+    if (System.getenv('GPG_PRIVATE_KEY')) {
+        useInMemoryPgpKeys(
+                new File(System.getenv('GPG_PRIVATE_KEY')).text,
+                System.getenv('GPG_PRIVATE_KEY_PASS')
+        )
+    } else if (project.hasProperty('gpgPrivateKey')) {
+        useInMemoryPgpKeys(
+                new File(project.getProperty('gpgPrivateKey')).text,
+                project.getProperty('gpgPrivateKeyPass')
+        )
+    } else {
+        return
+    }
+    sign publishing.publications.CodeChickenLib
 }
 
 /**
