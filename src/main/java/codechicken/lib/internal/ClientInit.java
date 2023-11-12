@@ -4,6 +4,7 @@ import codechicken.lib.CodeChickenLib;
 import codechicken.lib.config.ConfigCategory;
 import codechicken.lib.config.ConfigSyncManager;
 import codechicken.lib.model.CompositeItemModel;
+import codechicken.lib.model.ClassModelLoader;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.BlockRenderingRegistry;
 import net.covers1624.quack.util.CrashLock;
@@ -71,5 +72,6 @@ public class ClientInit {
 
     private static void onRegisterGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
         event.register("item_composite", new CompositeItemModel());
+        event.register("class", new ClassModelLoader());
     }
 }

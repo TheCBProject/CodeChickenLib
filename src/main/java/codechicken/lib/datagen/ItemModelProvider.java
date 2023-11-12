@@ -2,6 +2,7 @@ package codechicken.lib.datagen;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -17,6 +18,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -137,6 +140,18 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         getSimple(block)
                 .parent(new ModelFile.UncheckedModelFile(modLoc("block/" + name(block))))
                 .noTexture();
+    }
+
+    protected SimpleItemModelBuilder clazz(Supplier<? extends Item> item, Class<? extends BakedModel> clazz) {
+        return clazz(item.get(), clazz);
+    }
+
+    protected SimpleItemModelBuilder clazz(ItemLike item, Class<? extends BakedModel> clazz) {
+        return generated(item)
+                .noTexture()
+                .customLoader(ClassCustomLoaderBuilder::new)
+                .clazz(clazz)
+                .end();
     }
     //endregion
 
@@ -324,6 +339,35 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
                 json.add("visibility", visibilityObj);
             }
 
+            return json;
+        }
+    }
+
+    public static class ClassCustomLoaderBuilder extends CustomLoaderBuilder {
+
+        private @Nullable Class<? extends BakedModel> clazz;
+
+        protected ClassCustomLoaderBuilder(SimpleItemModelBuilder parent) {
+            super(new ResourceLocation(MOD_ID, "class"), parent);
+        }
+
+        public ClassCustomLoaderBuilder clazz(Class<? extends BakedModel> clazz) {
+            try {
+                Constructor<?> ctor = clazz.getConstructor();
+                if (!Modifier.isPublic(ctor.getModifiers())) {
+                    throw new IllegalArgumentException("Expected single no-args public constructor.");
+                }
+            } catch (NoSuchMethodException ex) {
+                throw new IllegalStateException("Expected single no-args public constructor.", ex);
+            }
+            this.clazz = clazz;
+            return this;
+        }
+
+        @Override
+        protected JsonObject toJson(JsonObject json) {
+            super.toJson(json);
+            json.addProperty("class", Objects.requireNonNull(clazz).getName());
             return json;
         }
     }
