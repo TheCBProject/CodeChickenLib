@@ -45,8 +45,8 @@ public abstract class LootTableProvider implements DataProvider {
     private final PackOutput.PathProvider output;
     private final Map<ResourceLocation, LootTable> tables = new HashMap<>();
 
-    protected LootTableProvider(PackOutput.PathProvider output) {
-        this.output = output;
+    protected LootTableProvider(PackOutput output) {
+        this.output = output.createPathProvider(PackOutput.Target.DATA_PACK, "loot_tables");
     }
 
     @Override
@@ -99,7 +99,7 @@ public abstract class LootTableProvider implements DataProvider {
         );
         protected static final LootItemCondition.Builder NO_SILK_TOUCH = SILK_TOUCH.invert();
 
-        protected BlockLootProvider(PackOutput.PathProvider output) {
+        protected BlockLootProvider(PackOutput output) {
             super(output);
         }
 
