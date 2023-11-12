@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * Created by covers1624 on 9/8/20.
  */
 @Mixin (ItemRenderer.class)
-public class ItemRendererMixin {
+abstract class ItemRendererMixin {
 
     @Inject (
             method = "render",
