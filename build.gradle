@@ -16,7 +16,7 @@ java {
     withJavadocJar()
 }
 
-group = 'codechicken'
+group = 'io.codechicken'
 archivesBaseName = 'CodeChickenLib'
 
 sourceSets.main.resources.srcDirs += "src/main/generated"
