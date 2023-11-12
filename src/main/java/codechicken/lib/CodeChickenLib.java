@@ -9,6 +9,7 @@ import codechicken.lib.internal.network.CCLNetwork;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLConfig;
 
 import java.nio.file.Paths;
 
@@ -17,6 +18,12 @@ import java.nio.file.Paths;
  */
 @Mod (CodeChickenLib.MOD_ID)
 public class CodeChickenLib {
+
+    static {
+        if (Boolean.getBoolean("ccl.noModUpdateChecking")) {
+            FMLConfig.updateConfig(FMLConfig.ConfigValue.VERSION_CHECK, false);
+        }
+    }
 
     public static final String MOD_ID = "codechickenlib";
 
