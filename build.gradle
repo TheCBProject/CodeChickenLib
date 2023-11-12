@@ -3,7 +3,6 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id "net.covers1624.signing" version '1.1.4' apply false
     id 'net.neoforged.gradle' version '[6.0.18,6.2)'
     id 'org.spongepowered.mixin' version '0.7.+'
 }
@@ -20,7 +19,6 @@ group = 'io.codechicken'
 archivesBaseName = 'CodeChickenLib'
 
 sourceSets.main.resources.srcDirs += "src/main/generated"
-
 
 mod_version = "${mod_version}." + (System.getenv("BUILD_NUMBER") ?: "1")
 version = "${mc_version}-${mod_version}"
@@ -106,6 +104,7 @@ def commonManifest = {
 jar.enabled = false
 shadowJar {
     finalizedBy 'reobfShadowJar'
+    finalizedBy 'signShadowJar'
     archiveClassifier = 'universal'
     manifest commonManifest
 
@@ -113,29 +112,32 @@ shadowJar {
     from file("LICENSE")
 }
 
-def jarArchive = shadowJar
-if (System.getenv("KEY_STORE") || project.hasProperty('keyStore')) {
-    jarArchive = tasks.register("signShadowJar", net.covers1624.jarsign.jar.SignJarTask) {
-        dependsOn("shadowJar")
-        dependsOn("reobfShadowJar")
+tasks.register("signShadowJar") {
+    dependsOn("shadowJar")
+    dependsOn("reobfShadowJar")
 
-        input = shadowJar.archiveFile.get().asFile
-        output = shadowJar.archiveFile.get().asFile
+    doFirst {
+        def args = [:]
+        args['jar'] = shadowJar.archiveFile.get().asFile
         if (System.getenv("KEY_STORE")) {
-            keyStore = System.getenv("KEY_STORE")
+            args['keyStore'] = System.getenv("KEY_STORE")
             file(System.getenv("KEY_STORE_PROPS")).withReader {
                 def props = new Properties()
                 props.load(it)
-                alias = props['alias']
-                storePass = props['storePass']
-                keyPass = props['keyPass']
+                args.addAll(props)
             }
+        } else if (project.hasProperty('keyStore')) {
+            args['keyStore'] = project.getProperty('keyStore')
+            args['alias'] = project.getProperty('keyStoreAlias')
+            args['storePass'] = project.getProperty('keyStorePass')
+            args['keyPass'] = project.getProperty('keyStoreKeyPass')
         } else {
-            keyStore = project.getProperty('keyStore')
-            alias = project.getProperty('keyStoreAlias')
-            storePass = project.getProperty('keyStorePass')
-            keyPass = project.getProperty('keyStoreKeyPass')
+            println "No signing properties."
+            state.setOutcome(org.gradle.api.internal.tasks.TaskExecutionOutcome.UP_TO_DATE)
+            didWork = false
+            return
         }
+        project.ant.invokeMethod('signjar', args)
     }
 }
 
@@ -160,7 +162,7 @@ publishing {
             groupId project.group
             artifactId project.archivesBaseName
             version project.version
-            artifact jarArchive
+            artifact shadowJar
             artifact sourcesJar
             artifact javadocJar
 

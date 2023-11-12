@@ -1,8 +1,6 @@
 # exclude all
 /*
 
-# Include important folders
-
 # Gradle stuff
 !gradle/
 !gradlew
