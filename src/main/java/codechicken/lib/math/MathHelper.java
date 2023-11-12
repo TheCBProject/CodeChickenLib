@@ -220,7 +220,7 @@ public class MathHelper {
     }
 
     /**
-     * @return min <= value <= max
+     * @return {@code min <= value <= max}
      */
     public static boolean between(double min, double value, double max) {
         return min <= value && value <= max;

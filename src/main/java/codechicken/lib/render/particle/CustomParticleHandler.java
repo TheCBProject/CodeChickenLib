@@ -18,12 +18,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
 import net.minecraftforge.client.model.data.ModelData;
 
 import java.util.ArrayList;
@@ -114,14 +116,14 @@ public class CustomParticleHandler {
     }
 
     /**
-     * {@link Block#addHitEffects}
+     * {@link IClientBlockExtensions#addHitEffects}
      * Provided the model bound is an instance of IModelParticleProvider, you will have landing particles just handled for you.
      * Use the default PerspectiveModel implementations inside CCL, Destroy effects will just be handled for you.
      *
      * @param world   The world.
      * @param pos     The position of the block.
      * @param manager The ParticleManager.
-     * @return True if particles were added, basically just return the result of this method inside {@link Block#addHitEffects}
+     * @return True if particles were added, basically just return the result of this method inside {@link IClientBlockExtensions#addHitEffects}
      */
     @OnlyIn (Dist.CLIENT)
     public static boolean handleDestroyEffects(Level world, BlockPos pos, BlockState state, ParticleEngine manager) {

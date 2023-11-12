@@ -155,7 +155,7 @@ public class RotationUtils {
     /**
      * Turns Entity rotation in to Direction.
      *
-     * @param rotation The entity rotation, Generally MathHelper.floor_double((entity.rotationYaw * 4F) / 360F + 0.5D) & 3;
+     * @param rotation The entity rotation, Generally {@code MathHelper.floor_double((entity.rotationYaw * 4F) / 360F + 0.5D) & 3};
      * @return The rotation in Direction.
      */
     public static Direction entityRotationToSide(int rotation) {

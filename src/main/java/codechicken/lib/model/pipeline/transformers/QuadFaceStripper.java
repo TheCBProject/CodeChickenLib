@@ -72,7 +72,7 @@ public class QuadFaceStripper extends QuadTransformer {
     /**
      * The mask to strip edges.
      * This is an opt-in system,
-     * the mask is simple 'mask = (1 << side)'.
+     * the mask is simple {@code mask = (1 << side)}
      *
      * @param mask The mask.
      */

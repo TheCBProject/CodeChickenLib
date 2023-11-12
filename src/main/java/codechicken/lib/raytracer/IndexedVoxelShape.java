@@ -11,8 +11,8 @@ import javax.annotation.Nullable;
 
 /**
  * A VoxelShape implementation, produces a {@link VoxelShapeBlockHitResult} when ray traced.
- * {@link IndexedVoxelShape#data} will be passed through to {@link RayTraceResult#hitInfo} and
- * to {@link RayTraceResult#subHit} if its an integer.
+ * {@link IndexedVoxelShape#data} will be passed through to {@link VoxelShapeBlockHitResult#hitInfo} and
+ * to {@link VoxelShapeBlockHitResult#subHit} if it's an integer.
  * <p>
  * Created by covers1624 on 5/12/20.
  */

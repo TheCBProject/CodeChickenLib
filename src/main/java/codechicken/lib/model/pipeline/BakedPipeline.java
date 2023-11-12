@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
  * Now you should disable / enable any optional elements that are needed, NOTE: Element states are reset when resetting
  * the pipeline.
  * Now you will need to call {@link #prepare(IVertexConsumer)} on the pipeline, here you will pass your collector,
- * usually this is some form of {@link BakedQuadBuilder}, or {@link Quad} can also pack things.
+ * usually {@link Quad}.
  * Now final step, simply pipe the quad you want to transform INTO the pipeline 'quad.pipe(pipeline)'
  * And that's it! hell, Pipe a pipeline into each other for all i care, the system is efficient enough that there
  * would be no performance penalty for doing so.

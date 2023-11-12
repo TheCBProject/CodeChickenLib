@@ -386,7 +386,7 @@ public interface MCDataOutput {
     /**
      * Writes a Variable length int.
      * Doesn't handle Signed ints well, they end up as 5 bytes,
-     * instead of 4, Use {@link #writeSignedVarInt} if you requires numbers <= -1
+     * instead of 4, Use {@link #writeSignedVarInt} if you require numbers {@code <= -1}
      *
      * @param i The int.
      * @return The same stream.
@@ -404,7 +404,7 @@ public interface MCDataOutput {
     /**
      * Writes a Variable length long.
      * Doesn't handle Signed longs well, they end up as 10 bytes,
-     * instead of 8, Use {@link #writeSignedVarLong} if you requires numbers <= -1
+     * instead of 8, Use {@link #writeSignedVarLong} if you require numbers {@code <= -1}
      *
      * @param l The long.
      * @return The same stream.
@@ -420,7 +420,7 @@ public interface MCDataOutput {
 
     /**
      * Writes a Signed Variable length int.
-     * Favourable for numbers <= -1
+     * Favourable for numbers {@code <= -1}
      *
      * @param i The int.
      * @return The same stream.
@@ -431,7 +431,7 @@ public interface MCDataOutput {
 
     /**
      * Writes a Signed Variable length long.
-     * Favourable for numbers <= -1
+     * Favourable for numbers {@code <= -1}
      *
      * @param i The long.
      * @return The same stream.
