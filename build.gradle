@@ -144,7 +144,7 @@ tasks.register("signShadowJar") {
             file(System.getenv("KEY_STORE_PROPS")).withReader {
                 def props = new Properties()
                 props.load(it)
-                args.addAll(props)
+                args.putAll(props)
             }
         } else if (project.hasProperty('keyStore')) {
             args['keyStore'] = project.getProperty('keyStore')
