@@ -1,3 +1,5 @@
+import groovy.json.JsonOutput
+
 plugins {
     id 'java'
     id 'maven-publish'
@@ -101,6 +103,24 @@ def commonManifest = {
     attributes 'MixinConfigs': 'mixins.codechickenlib.json'
 }
 
+def publishingMetadata = project.layout.buildDirectory.file("libs/$archivesBaseName-$version-publishing.json")
+def publishingMetadataTask = tasks.register("publishingMetadata") {
+    outputs.file(publishingMetadata)
+    doFirst {
+        publishingMetadata.get().asFile.text = JsonOutput.prettyPrint(JsonOutput.toJson([
+                [
+                        'displayName' : "CodeChicken Lib ${version}",
+                        'mcVersion'   : "${mc_version}",
+                        'version'     : "${mod_version}",
+                        'classifier'  : 'universal',
+                        'modLoader'   : 'neoforge',
+                        'curseforgeId': '242818',
+                        'modrinthId'  : '2gq0ALnz'
+                ]
+        ]))
+    }
+}
+
 jar.enabled = false
 shadowJar {
     finalizedBy 'reobfShadowJar'
@@ -165,6 +185,10 @@ publishing {
             artifact shadowJar
             artifact sourcesJar
             artifact javadocJar
+            artifact(publishingMetadata) {
+                builtBy publishingMetadataTask
+                classifier 'publishing'
+            }
 
             pom {
                 name = archivesBaseName
