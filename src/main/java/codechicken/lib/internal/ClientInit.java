@@ -3,6 +3,8 @@ package codechicken.lib.internal;
 import codechicken.lib.CodeChickenLib;
 import codechicken.lib.config.ConfigCategory;
 import codechicken.lib.config.ConfigSyncManager;
+import codechicken.lib.gui.modular.lib.CursorHelper;
+import codechicken.lib.gui.modular.sprite.CCGuiTextures;
 import codechicken.lib.model.CompositeItemModel;
 import codechicken.lib.model.ClassModelLoader;
 import codechicken.lib.render.CCRenderEventHandler;
@@ -10,6 +12,7 @@ import codechicken.lib.render.block.BlockRenderingRegistry;
 import net.covers1624.quack.util.CrashLock;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -36,6 +39,7 @@ public class ClientInit {
 
         bus.addListener(ClientInit::onClientSetup);
         bus.addListener(ClientInit::onRegisterGeometryLoaders);
+        bus.addListener(ClientInit::onResourceReload);
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {
@@ -73,5 +77,10 @@ public class ClientInit {
     private static void onRegisterGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
         event.register("item_composite", new CompositeItemModel());
         event.register("class", new ClassModelLoader());
+    }
+
+    public static void onResourceReload(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(CCGuiTextures.getAtlasHolder());
+        CursorHelper.onResourceReload();
     }
 }

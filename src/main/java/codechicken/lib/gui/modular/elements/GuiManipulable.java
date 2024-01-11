@@ -1,6 +1,7 @@
 package codechicken.lib.gui.modular.elements;
 
 import codechicken.lib.gui.modular.lib.ContentElement;
+import codechicken.lib.gui.modular.lib.CursorHelper;
 import codechicken.lib.gui.modular.lib.geometry.Constraint;
 import codechicken.lib.gui.modular.lib.geometry.GeoParam;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
@@ -42,7 +43,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     private boolean dragLeft = false;
     private boolean dragBottom = false;
     private boolean dragRight = false;
-    private ResourceLocation[] cursors = null;
+    private boolean enableCursors = false;
 
     //Made available for external position restraints
     public int xMin = 0;
@@ -128,8 +129,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     }
 
     public GuiManipulable addTopHandle(int handleSize) {
-//        if (topHandle != null) throw new IllegalStateException("Top handle already exists!");
-        this.topHandle/* = new GuiRectangle(contentElement)*/
+        this.topHandle
                 .constrain(TOP, match(contentElement.get(TOP)))
                 .constrain(LEFT, match(contentElement.get(LEFT)))
                 .constrain(RIGHT, match(contentElement.get(RIGHT)))
@@ -138,8 +138,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     }
 
     public GuiManipulable addBottomHandle(int handleSize) {
-//        if (bottomHandle != null) throw new IllegalStateException("Bottom handle already exists!");
-        this.bottomHandle/* = new GuiRectangle(contentElement)*/
+        this.bottomHandle
                 .constrain(BOTTOM, match(contentElement.get(BOTTOM)))
                 .constrain(LEFT, match(contentElement.get(LEFT)))
                 .constrain(RIGHT, match(contentElement.get(RIGHT)))
@@ -148,8 +147,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     }
 
     public GuiManipulable addLeftHandle(int handleSize) {
-//        if (leftHandle != null) throw new IllegalStateException("Left handle already exists!");
-        this.leftHandle/* = new GuiRectangle(contentElement)*/
+        this.leftHandle
                 .constrain(LEFT, match(contentElement.get(LEFT)))
                 .constrain(TOP, match(contentElement.get(TOP)))
                 .constrain(BOTTOM, match(contentElement.get(BOTTOM)))
@@ -158,8 +156,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     }
 
     public GuiManipulable addRightHandle(int handleSize) {
-//        if (rightHandle != null) throw new IllegalStateException("Left handle already exists!");
-        this.rightHandle /*= new GuiRectangle(contentElement)*/
+        this.rightHandle
                 .constrain(RIGHT, match(contentElement.get(RIGHT)))
                 .constrain(TOP, match(contentElement.get(TOP)))
                 .constrain(BOTTOM, match(contentElement.get(BOTTOM)))
@@ -168,8 +165,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     }
 
     public GuiManipulable addMoveHandle(int handleSize) {
-//        if (moveHandle != null) throw new IllegalStateException("Move handle already exists!");
-        this.moveHandle/* = new GuiRectangle(contentElement)*/
+        this.moveHandle
                 .constrain(TOP, match(contentElement.get(TOP)))
                 .constrain(LEFT, match(contentElement.get(LEFT)))
                 .constrain(RIGHT, match(contentElement.get(RIGHT)))
@@ -218,12 +214,10 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     }
 
     /**
-     * Set an array of 5 mouse cursor icons to be used when manipulating the gui element.
-     * These cursors are (in order) Drag (Any direction), Drag-Horizontal, Drag-Vertical, Drag-Corner (Top Right/Bottom Left), Drag-Corner (Top Left/Bottom Right)
+     * Enables rendering of custom mouse cursors when hovering over a draggable handle.
      */
-    public GuiManipulable setCursors(ResourceLocation[] cursors) {
-        if (cursors != null && cursors.length != 5) throw new IllegalStateException("Must provide 5 cursor icons, no more, no less. Found "+ cursors.length);
-        this.cursors = cursors;
+    public GuiManipulable enableCursors(boolean enableCursors) {
+        this.enableCursors = enableCursors;
         return this;
     }
 
@@ -261,7 +255,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
 
     @Override
     public void tick(double mouseX, double mouseY) {
-        if (cursors != null) {
+        if (enableCursors) {
             boolean posFlag = moveHandle != null && moveHandle.isMouseOver();
             boolean topFlag = topHandle != null && topHandle.isMouseOver();
             boolean leftFlag = leftHandle != null && leftHandle.isMouseOver();
@@ -271,15 +265,15 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
 
             if (any) {
                 if (posFlag) {
-                    getModularGui().setCursor(cursors[0]);
+                    getModularGui().setCursor(CursorHelper.DRAG);
                 } else if ((topFlag && leftFlag) || (bottomFlag && rightFlag)) {
-                    getModularGui().setCursor(cursors[4]);
+                    getModularGui().setCursor(CursorHelper.RESIZE_TLBR);
                 } else if ((topFlag && rightFlag) || (bottomFlag && leftFlag)) {
-                    getModularGui().setCursor(cursors[3]);
+                    getModularGui().setCursor(CursorHelper.RESIZE_TRBL);
                 } else if (topFlag || bottomFlag) {
-                    getModularGui().setCursor(cursors[2]);
+                    getModularGui().setCursor(CursorHelper.RESIZE_V);
                 } else {
-                    getModularGui().setCursor(cursors[1]);
+                    getModularGui().setCursor(CursorHelper.RESIZE_H);
                 }
             }
         }
@@ -294,8 +288,6 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
         dragYOffset = (int) (mouseY - yMin);
         isDragging = true;
         dragPos = true;
-        onStartMove(mouseX, mouseY);
-        onStartManipulation(mouseX, mouseY);
     }
 
     @Override
@@ -314,19 +306,11 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
             isDragging = true;
             if (posFlag) {
                 dragPos = true;
-                if (onStartMove(mouseX, mouseY)) {
-                    isDragging = false;
-                    return true;
-                }
             } else {
                 dragTop = topFlag;
                 dragLeft = leftFlag;
                 dragBottom = bottomFlag;
                 dragRight = rightFlag;
-                onStartResized(mouseX, mouseY);
-            }
-            if (onStartManipulation(mouseX, mouseY)) {
-                dragPos = dragTop = dragLeft = dragBottom = dragRight = false;
             }
             return true;
         }
@@ -346,7 +330,6 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
                 yMin += yMove;
                 yMax += yMove;
                 validatePosition();
-                validateMove(previous, (int) mouseX, (int) mouseY);
                 onMoved();
             } else {
                 Rectangle min = getMinSize();
@@ -378,7 +361,6 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
                 validatePosition();
                 onResized();
             }
-            onManipulated(mouseX, mouseY);
         }
         super.mouseMoved(mouseX, mouseY);
     }
@@ -387,12 +369,6 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     public boolean mouseReleased(double mouseX, double mouseY, int button, boolean consumed) {
         if (isDragging) {
             validatePosition();
-            if (dragPos) {
-                onFinishMove(mouseX, mouseY);
-            } else {
-                onFinishResized(mouseX, mouseY);
-            }
-            onFinishManipulation(mouseX, mouseY);
         }
         isDragging = dragPos = dragTop = dragLeft = dragBottom = dragRight = false;
         return super.mouseReleased(mouseX, mouseY, button, consumed);
@@ -417,28 +393,6 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
         if (onResizedCallback != null) {
             onResizedCallback.run();
         }
-    }
-
-    //TODO, In v2 these were made available for elements that extend GuiManipulable, In v3 i probably just want to add listener hooks.
-    protected void onManipulated(double mouseX, double mouseY) {}
-
-    protected boolean onStartManipulation(double mouseX, double mouseY) {
-        return false;
-    }
-
-    protected void onFinishManipulation(double mouseX, double mouseY) {}
-
-    protected boolean onStartMove(double mouseX, double mouseY) {
-        return false;
-    }
-
-    protected void onStartResized(double mouseX, double mouseY) {}
-
-    protected void onFinishMove(double mouseX, double mouseY) {}
-
-    protected void onFinishResized(double mouseX, double mouseY) {}
-
-    protected void validateMove(Rectangle previous, double mouseX, double mouseY) {
     }
 
     public interface PositionRestraint {

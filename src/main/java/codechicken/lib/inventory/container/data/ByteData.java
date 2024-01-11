@@ -1,5 +1,7 @@
-package codechicken.lib.gui.modular.lib.container.data;
+package codechicken.lib.inventory.container.data;
 
+import codechicken.lib.data.MCDataInput;
+import codechicken.lib.data.MCDataOutput;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.Tag;
@@ -8,7 +10,6 @@ import net.minecraft.network.FriendlyByteBuf;
 /**
  * Created by brandon3055 on 09/09/2023
  */
-@Deprecated //Not sure if this will stay in CCL
 public class ByteData extends AbstractDataStore<Byte> {
 
     public ByteData() {
@@ -20,12 +21,12 @@ public class ByteData extends AbstractDataStore<Byte> {
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
+    public void toBytes(MCDataOutput buf) {
         buf.writeByte(value);
     }
 
     @Override
-    public void fromBytes(FriendlyByteBuf buf) {
+    public void fromBytes(MCDataInput buf) {
         value = buf.readByte();
     }
 

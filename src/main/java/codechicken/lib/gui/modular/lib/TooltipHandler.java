@@ -1,6 +1,7 @@
 package codechicken.lib.gui.modular.lib;
 
 import codechicken.lib.gui.modular.elements.GuiElement;
+import net.covers1624.quack.util.SneakyUtils;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,7 +12,7 @@ import java.util.function.Supplier;
 /**
  * Created by brandon3055 on 01/09/2023
  */
-public interface ToolTipHandler<T extends ToolTipHandler<T>> {
+public interface TooltipHandler<T extends TooltipHandler<T>> {
 
     Supplier<List<Component>> getTooltip();
 
@@ -86,7 +87,7 @@ public interface ToolTipHandler<T extends ToolTipHandler<T>> {
     default T setTooltip(@Nullable Supplier<List<Component>> tooltip, int tooltipDelay) {
         setTooltip(tooltip);
         setTooltipDelay(tooltipDelay);
-        return (T) this;
+        return SneakyUtils.unsafeCast(this);
     }
 
     /**

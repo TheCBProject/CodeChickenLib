@@ -1,6 +1,9 @@
 package codechicken.lib.gui.modular.elements;
 
-import codechicken.lib.gui.modular.lib.*;
+import codechicken.lib.gui.modular.lib.Constraints;
+import codechicken.lib.gui.modular.lib.ContentElement;
+import codechicken.lib.gui.modular.lib.GuiRender;
+import codechicken.lib.gui.modular.lib.SliderState;
 import codechicken.lib.gui.modular.lib.geometry.Axis;
 import codechicken.lib.gui.modular.lib.geometry.Constraint;
 import codechicken.lib.gui.modular.lib.geometry.GeoParam;
@@ -173,7 +176,7 @@ public class GuiScrolling extends GuiElement<GuiScrolling> implements ContentEle
         }
     }
 
-    public static Assembly<? extends GuiElement<?>, GuiScrolling> simpleScrollWindow(@NotNull GuiParent<?> parent, boolean verticalScrollBar, boolean horizontalScrollBar) {
+    public static ScrollWindow simpleScrollWindow(@NotNull GuiParent<?> parent, boolean verticalScrollBar, boolean horizontalScrollBar) {
         GuiElement<?> container = new GuiElement<>(parent);
         GuiRectangle background = GuiRectangle.vanillaSlot(container)
                 .constrain(TOP, match(container.get(TOP)))
@@ -184,32 +187,33 @@ public class GuiScrolling extends GuiElement<GuiScrolling> implements ContentEle
         GuiScrolling scroll = new GuiScrolling(background);
         Constraints.bind(scroll, background, 1);
 
-        var result = new Assembly<>(container, scroll);
-
+        GuiSlider.ScrollBar verticalBar = null;
         if (verticalScrollBar) {
-            var bar = GuiSlider.vanillaScrollBar(container, Axis.Y);
-            bar.container
+            verticalBar = GuiSlider.vanillaScrollBar(container, Axis.Y);
+            verticalBar.container()
                     .constrain(TOP, match(container.get(TOP)))
                     .constrain(BOTTOM, relative(container.get(BOTTOM), horizontalScrollBar ? -10 : 0))
                     .constrain(RIGHT, match(container.get(RIGHT)))
                     .constrain(WIDTH, Constraint.literal(9));
-            bar.primary
+            verticalBar.slider()
                     .setSliderState(scroll.scrollState(Axis.Y))
                     .setScrollableElement(scroll);
-            result.addParts(bar.container, bar.primary, bar.getPart(0));
         }
+        GuiSlider.ScrollBar horizontalBar = null;
         if (horizontalScrollBar) {
-            var bar = GuiSlider.vanillaScrollBar(container, Axis.X);
-            bar.container
+            horizontalBar = GuiSlider.vanillaScrollBar(container, Axis.X);
+            horizontalBar.container()
                     .constrain(BOTTOM, match(container.get(BOTTOM)))
                     .constrain(LEFT, match(container.get(LEFT)))
                     .constrain(RIGHT, relative(container.get(RIGHT), verticalScrollBar ? -10 : 0))
                     .constrain(HEIGHT, Constraint.literal(9));
-            bar.primary
+            horizontalBar.slider()
                     .setSliderState(scroll.scrollState(Axis.X))
                     .setScrollableElement(scroll);
-            result.addParts(bar.container, bar.primary, bar.getPart(0));
         }
-        return result;
+        return new ScrollWindow(container, scroll, verticalBar, horizontalBar);
+    }
+
+    public record ScrollWindow(GuiElement<?> container, GuiScrolling scrolling, @Nullable GuiSlider.ScrollBar verticalBar, @Nullable GuiSlider.ScrollBar horizontalBar) {
     }
 }

@@ -1,5 +1,7 @@
-package codechicken.lib.gui.modular.lib.container.data;
+package codechicken.lib.inventory.container.data;
 
+import codechicken.lib.data.MCDataInput;
+import codechicken.lib.data.MCDataOutput;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -8,7 +10,6 @@ import net.minecraftforge.fluids.FluidStack;
 /**
  * Created by brandon3055 on 09/09/2023
  */
-@Deprecated //Not sure if this will stay in CCL
 public class FluidData extends AbstractDataStore<FluidStack> {
 
     public FluidData() {
@@ -26,13 +27,13 @@ public class FluidData extends AbstractDataStore<FluidStack> {
     }
 
     @Override
-    public void toBytes(FriendlyByteBuf buf) {
-        value.writeToPacket(buf);
+    public void toBytes(MCDataOutput buf) {
+        buf.writeFluidStack(value);
     }
 
     @Override
-    public void fromBytes(FriendlyByteBuf buf) {
-        value = FluidStack.readFromPacket(buf);
+    public void fromBytes(MCDataInput buf) {
+        value = buf.readFluidStack();
     }
 
     @Override

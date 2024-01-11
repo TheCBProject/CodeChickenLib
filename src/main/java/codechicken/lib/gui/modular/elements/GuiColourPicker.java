@@ -1,5 +1,6 @@
 package codechicken.lib.gui.modular.elements;
 
+import codechicken.lib.colour.Colour;
 import codechicken.lib.gui.modular.lib.*;
 import codechicken.lib.gui.modular.lib.geometry.Axis;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
@@ -25,52 +26,12 @@ public class GuiColourPicker extends GuiManipulable {
         super(parent);
     }
 
-    public GuiColourPicker setColourState(ColourState colourState) {
-        this.colourState = colourState;
-        return this;
-    }
-
-    public ColourState getState() {
-        return colourState;
-    }
-
-    public SliderState sliderStateAlpha() {
-        return SliderState.forSlider(() -> (double) colourState.alpha(), e -> colourState.setAlpha(e.floatValue()), () -> -1D / (Screen.hasShiftDown() ? 16 : 64));
-    }
-
-    public SliderState sliderStateRed() {
-        return SliderState.forSlider(() -> (double) colourState.red(), e -> colourState.setRed(e.floatValue()), () -> -1D / (Screen.hasShiftDown() ? 16 : 64));
-    }
-
-    public SliderState sliderStateGreen() {
-        return SliderState.forSlider(() -> (double) colourState.green(), e -> colourState.setGreen(e.floatValue()), () -> -1D / (Screen.hasShiftDown() ? 16 : 64));
-    }
-
-    public SliderState sliderStateBlue() {
-        return SliderState.forSlider(() -> (double) colourState.blue(), e -> colourState.setBlue(e.floatValue()), () -> -1D / (Screen.hasShiftDown() ? 16 : 64));
-    }
-
-    public TextState getTextState() {
-        return TextState.create(colourState::getHexColour, colourState::setHexColour);
-    }
-
-    public GuiButton getOkButton() {
-        return okButton;
-    }
-
-    /**
-     * If cancel button is disabled, ok button will automatically resize.
-     * */
-    public GuiButton getCancelButton() {
-        return cancelButton;
-    }
-
     public static GuiColourPicker create(GuiParent<?> guiParent, ColourState colourState) {
         return create(guiParent, colourState, true);
     }
 
     public static GuiColourPicker create(GuiParent<?> guiParent, ColourState colourState, boolean hasAlpha) {
-        int initialColour = colourState.get();
+        Colour initialColour = colourState.getColour();
         GuiColourPicker picker = new GuiColourPicker(guiParent.getModularGui().getRoot());
         picker.setOpaque(true);
         picker.setColourState(colourState);
@@ -80,11 +41,11 @@ public class GuiColourPicker extends GuiManipulable {
         Constraints.bind(background, picker.getContentElement());
 
         var hexField = GuiTextField.create(background, 0xFF000000, 0xFF505050, 0xe0e0e0);
-        hexField.primary
+        hexField.field()
                 .setTextState(picker.getTextState())
                 .setMaxLength(hasAlpha ? 8 : 6)
                 .setFilter(s -> s.isEmpty() || validHex(s));
-        hexField.container
+        hexField.container()
                 .setOpaque(true)
                 .constrain(HEIGHT, literal(12))
                 .constrain(TOP, relative(background.get(TOP), 4))
@@ -92,7 +53,7 @@ public class GuiColourPicker extends GuiManipulable {
                 .constrain(RIGHT, relative(background.get(RIGHT), -4));
 
         SliderBG slider = makeSlider(background, 0xFFFF0000, picker.sliderStateRed())
-                .constrain(TOP, relative(hexField.container.get(BOTTOM), 2));
+                .constrain(TOP, relative(hexField.container().get(BOTTOM), 2));
 
         slider = makeSlider(background, 0xFF00FF00, picker.sliderStateGreen())
                 .constrain(TOP, relative(slider.get(BOTTOM), 1));
@@ -104,7 +65,7 @@ public class GuiColourPicker extends GuiManipulable {
             slider = makeSlider(background, 0xFFFFFFFF, picker.sliderStateAlpha())
                     .constrain(TOP, relative(slider.get(BOTTOM), 1));
         } else {
-            colourState.setAlpha(0);
+            colourState.set(colourState.getColour().a(0));
         }
 
         ColourPreview preview = new ColourPreview(background, () -> hasAlpha ? colourState.get() : (colourState.get() | 0xFF000000))
@@ -194,7 +155,7 @@ public class GuiColourPicker extends GuiManipulable {
         }
 
         @Override
-        public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+        public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
             render.fill(xMin(), yMin(), xMin() + 1, yMax(), colour);
             render.fill(xMax() - 1, yMin(), xMax(), yMax(), colour);
             render.fill(xMin() + 1, yCenter() - 0.5, xMax() - 1, yCenter() + 0.5, colour);
@@ -216,7 +177,7 @@ public class GuiColourPicker extends GuiManipulable {
         }
 
         @Override
-        public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+        public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
             render.pushScissorRect(xMin(), yMin(), xSize(), ySize());
             for (int x = 0; xMin() + (x * 2) < xMax(); x++) {
                 for (int y = 0; yMin() + (y * 2) < yMax(); y++) {
@@ -227,6 +188,46 @@ public class GuiColourPicker extends GuiManipulable {
             render.popScissor();
             render.rect(getRectangle(), colour.get());
         }
+    }
+
+    public GuiColourPicker setColourState(ColourState colourState) {
+        this.colourState = colourState;
+        return this;
+    }
+
+    public ColourState getState() {
+        return colourState;
+    }
+
+    public SliderState sliderStateAlpha() {
+        return SliderState.forSlider(() -> (double) colourState.getColour().a(), e -> colourState.set(colourState.getColour().a(e.floatValue())), () -> -1D / (Screen.hasShiftDown() ? 16 : 64));
+    }
+
+    public SliderState sliderStateRed() {
+        return SliderState.forSlider(() -> (double) colourState.getColour().r(), e -> colourState.set(colourState.getColour().r(e.floatValue())), () -> -1D / (Screen.hasShiftDown() ? 16 : 64));
+    }
+
+    public SliderState sliderStateGreen() {
+        return SliderState.forSlider(() -> (double) colourState.getColour().g(), e -> colourState.set(colourState.getColour().g(e.floatValue())), () -> -1D / (Screen.hasShiftDown() ? 16 : 64));
+    }
+
+    public SliderState sliderStateBlue() {
+        return SliderState.forSlider(() -> (double) colourState.getColour().b(), e -> colourState.set(colourState.getColour().b(e.floatValue())), () -> -1D / (Screen.hasShiftDown() ? 16 : 64));
+    }
+
+    public TextState getTextState() {
+        return TextState.create(colourState::getHexColour, colourState::setHexColour);
+    }
+
+    public GuiButton getOkButton() {
+        return okButton;
+    }
+
+    /**
+     * If cancel button is disabled, ok button will automatically resize.
+     * */
+    public GuiButton getCancelButton() {
+        return cancelButton;
     }
 }
 

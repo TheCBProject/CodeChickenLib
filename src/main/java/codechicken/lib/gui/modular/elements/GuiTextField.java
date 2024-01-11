@@ -1,6 +1,5 @@
 package codechicken.lib.gui.modular.elements;
 
-import codechicken.lib.gui.modular.lib.Assembly;
 import codechicken.lib.gui.modular.lib.BackgroundRender;
 import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.TextState;
@@ -69,6 +68,24 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
 
     public GuiTextField(@NotNull GuiParent<?> parent) {
         super(parent);
+    }
+
+    /**
+     * Creates a simple text box with a simple bordered background.
+     * Using colours 0xFF000000, 0xFFFFFFFF, 0xE0E0E0 will get you a text box identical to the one in a command block
+     */
+    public static TextField create(GuiElement<?> parent, int backgroundColour, int borderColour, int textColour) {
+        GuiRectangle background = new GuiRectangle(parent)
+                .rectangle(backgroundColour, borderColour);
+
+        GuiTextField textField = new GuiTextField(background)
+                .setTextColor(textColour)
+                .constrain(TOP, Constraint.relative(background.get(TOP), 1))
+                .constrain(BOTTOM, Constraint.relative(background.get(BOTTOM), -1))
+                .constrain(LEFT, Constraint.relative(background.get(LEFT), 4))
+                .constrain(RIGHT, Constraint.relative(background.get(RIGHT), -4));
+
+        return new TextField(background, textField);
     }
 
     //=== Text field setup ===//
@@ -576,7 +593,7 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
     }
 
     @Override
-    public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
         String value = getValue();
         int colour = textColor.get();
 
@@ -638,22 +655,6 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
         tick++;
     }
 
-    /**
-     * Creates a simple text box with a simple bordered background.
-     * Using colours 0xFF000000, 0xFFFFFFFF, 0xE0E0E0 will get you a text box identical to the one in a command block
-     */
-    public static Assembly<GuiRectangle, GuiTextField> create(GuiElement<?> parent, int backgroundColour, int borderColour, int textColour) {
-        GuiRectangle background = new GuiRectangle(parent)
-                .rectangle(backgroundColour, borderColour);
-
-        GuiTextField textField = new GuiTextField(background)
-                .setTextColor(textColour)
-                .constrain(TOP, Constraint.relative(background.get(TOP), 1))
-                .constrain(BOTTOM, Constraint.relative(background.get(BOTTOM), -1))
-                .constrain(LEFT, Constraint.relative(background.get(LEFT), 4))
-                .constrain(RIGHT, Constraint.relative(background.get(RIGHT), -4));
-
-        return new Assembly<>(background, textField);
-    }
+    public record TextField(GuiRectangle container, GuiTextField field) {}
 }
 

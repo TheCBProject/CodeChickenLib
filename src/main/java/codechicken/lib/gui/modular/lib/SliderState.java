@@ -2,6 +2,7 @@ package codechicken.lib.gui.modular.lib;
 
 import codechicken.lib.gui.modular.lib.geometry.Axis;
 import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -60,24 +61,7 @@ public interface SliderState {
      * Useful for things like simple slide control elements.
      */
     static SliderState create(double speed) {
-        return new SliderState() {
-            double pos = 0;
-
-            @Override
-            public double getPos() {
-                return pos;
-            }
-
-            @Override
-            public void setPos(double pos) {
-                this.pos = pos;
-            }
-
-            @Override
-            public double scrollSpeed() {
-                return speed;
-            }
-        };
+        return create(speed, null);
     }
 
     /**
@@ -85,7 +69,7 @@ public interface SliderState {
      * And allows you to attach a change listener.
      * Useful for things like simple slide control elements.
      */
-    static SliderState create(double speed, Consumer<Double> changeListener) {
+    static SliderState create(double speed, @Nullable Consumer<Double> changeListener) {
         return new SliderState() {
             double pos = 0;
 
@@ -97,7 +81,9 @@ public interface SliderState {
             @Override
             public void setPos(double pos) {
                 this.pos = pos;
-                changeListener.accept(pos);
+                if (changeListener != null) {
+                    changeListener.accept(pos);
+                }
             }
 
             @Override

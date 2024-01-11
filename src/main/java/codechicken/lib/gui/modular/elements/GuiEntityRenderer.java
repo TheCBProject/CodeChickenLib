@@ -165,7 +165,7 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
     }
 
     @Override
-    public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
         if (invalidEntity) return;
 
         try {
@@ -261,61 +261,4 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
         render.pose().popPose();
         Lighting.setupFor3DItems();
     }
-
-//    public void renderEntityOnScreen(GuiRender render, int xPos, int yPos, int scale, float mouseX, float mouseY, LivingEntity entity, double rotation, boolean trackMouse, boolean drawName, double zOffset) {
-//        render.pose().pushPose();
-//        float lookX = trackMouse ? (float) Math.atan(mouseX / 40.0F) : 0;
-//        float lookY = trackMouse ? (float) Math.atan(mouseY / 40.0F) : 0;
-//
-//        if (drawName && entity instanceof RemotePlayer && Minecraft.getInstance().player != null) {
-//            entity.setPos(Minecraft.getInstance().player.getX(), Minecraft.getInstance().player.getY(), Minecraft.getInstance().player.getZ());
-//        } else if (entity instanceof RemotePlayer) {
-//            entity.setPos(0, -1000, 0);
-//        }
-//
-//        PoseStack posestack = RenderSystem.getModelViewStack();
-//        posestack.pushPose();
-//        posestack.translate(0, 0, 0);
-//        posestack.scale(1.0F, 1.0F, -1.0F);
-//        RenderSystem.applyModelViewMatrix();
-//
-//        PoseStack posestack1 = render.pose();
-//        posestack1.translate(xPos, yPos, zOffset);
-//        posestack1.scale((float) scale, (float) scale, (float) scale);
-//        Quaternionf quaternion = Axis.ZP.rotationDegrees(180.0F);
-//        posestack1.mulPose(quaternion);
-//        posestack1.mulPose(Axis.YP.rotationDegrees((float) rotation));
-//
-//        float lastYBodyRot = entity.yBodyRot;
-//        float lastYRot = entity.getYRot();
-//        float lastXRot = entity.getXRot();
-//        float lastYHeadRotO = entity.yHeadRotO;
-//        float lastYHeadRot = entity.yHeadRot;
-//
-//        entity.yBodyRot = 180.0F + lookX * 20.0F;
-//        entity.setYRot(180.0F + lookX * 40.0F);
-//        entity.setXRot(-lookY * 20.0F);
-//        entity.yHeadRot = entity.getYRot();
-//        entity.yHeadRotO = entity.getYRot();
-//
-//        Lighting.setupForEntityInInventory();
-//        EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-//        entityrenderdispatcher.setRenderShadow(false);
-//        MultiBufferSource.BufferSource buffers = render.buffers();
-//        RenderSystem.runAsFancy(() -> {
-//            entityrenderdispatcher.render(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, posestack1, buffers, 15728880);
-//        });
-//        buffers.endBatch();
-//        entityrenderdispatcher.setRenderShadow(true);
-//        entity.yBodyRot = lastYBodyRot;
-//        entity.setYRot(lastYRot);
-//        entity.setXRot(lastXRot);
-//        entity.yHeadRotO = lastYHeadRotO;
-//        entity.yHeadRot = lastYHeadRot;
-//        posestack.popPose();
-//        RenderSystem.applyModelViewMatrix();
-//        Lighting.setupFor3DItems();
-//
-//        render.pose().popPose();
-//    }
 }

@@ -1,6 +1,7 @@
 package codechicken.lib.gui.modular.lib;
 
 import codechicken.lib.gui.modular.elements.GuiTextField;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -17,22 +18,10 @@ public interface TextState {
     void setText(String text);
 
     static TextState simpleState(String defaultValue) {
-        return new TextState() {
-            private String value = defaultValue;
-
-            @Override
-            public String getText() {
-                return value;
-            }
-
-            @Override
-            public void setText(String text) {
-                this.value = text;
-            }
-        };
+        return simpleState(defaultValue, null);
     }
 
-    static TextState simpleState(String defaultValue, Consumer<String> changeListener) {
+    static TextState simpleState(String defaultValue, @Nullable Consumer<String> changeListener) {
         return new TextState() {
             private String value = defaultValue;
 
@@ -44,7 +33,9 @@ public interface TextState {
             @Override
             public void setText(String text) {
                 this.value = text;
-                changeListener.accept(value);
+                if (changeListener != null) {
+                    changeListener.accept(value);
+                }
             }
         };
     }

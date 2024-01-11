@@ -31,6 +31,46 @@ public class GuiRectangle extends GuiElement<GuiRectangle> implements Background
         super(parent);
     }
 
+    /**
+     * Creates a rectangle that mimics the appearance of a vanilla inventory slot.
+     * Uses shadedRect to create the 3D "inset" look.
+     */
+    public static GuiRectangle vanillaSlot(@NotNull GuiParent<?> parent) {
+        return new GuiRectangle(parent).shadedRect(0xFF373737, 0xFFffffff, 0xFF8b8b8b, 0xFF8b8b8b);
+    }
+
+    /**
+     * Creates a rectangle that mimics the appearance of a vanilla inventory slot, except inverted
+     * Uses shadedRect to create the 3D "popped out" appearance
+     */
+    public static GuiRectangle invertedSlot(@NotNull GuiParent<?> parent) {
+        return new GuiRectangle(parent).shadedRect(0xFFffffff, 0xFF373737, 0xFF8b8b8b, 0xFF8b8b8b);
+    }
+
+    /**
+     * Creates a rectangle similar in appearance to a vanilla button, but with no texture and no black border.
+     */
+    public static GuiRectangle planeButton(@NotNull GuiParent<?> parent) {
+        return new GuiRectangle(parent).shadedRect(0xFFaaaaaa, 0xFF545454, 0xFF6f6f6f);
+    }
+
+    public static GuiRectangle toolTipBackground(@NotNull GuiParent<?> parent) {
+        return toolTipBackground(parent, 0xF0100010, 0x505000FF, 0x5028007f);
+    }
+
+    public static GuiRectangle toolTipBackground(@NotNull GuiParent<?> parent, int backgroundColour, int borderColourTop, int borderColourBottom) {
+        return toolTipBackground(parent, backgroundColour, backgroundColour, borderColourTop, borderColourBottom);
+    }
+
+    public static GuiRectangle toolTipBackground(@NotNull GuiParent<?> parent, int backgroundColourTop, int backgroundColourBottom, int borderColourTop, int borderColourBottom) {
+        return new GuiRectangle(parent) {
+            @Override
+            public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+                render.toolTipBackground(xMin(), yMin(), xSize(), ySize(), backgroundColourTop, backgroundColourBottom, borderColourTop, borderColourBottom, false);
+            }
+        };
+    }
+
     public GuiRectangle border(int border) {
         return border(() -> border);
     }
@@ -113,53 +153,13 @@ public class GuiRectangle extends GuiElement<GuiRectangle> implements Background
     }
 
     @Override
-    public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
         if (shadeTopLeft != null && shadeBottomRight != null && shadeCorners != null) {
             render.shadedRect(getRectangle(), getBorderWidth(), shadeTopLeft.get(), shadeBottomRight.get(), shadeCorners.get(), fill == null ? 0 : fill.get());
-        } else if (border != null){
+        } else if (border != null) {
             render.borderRect(getRectangle(), getBorderWidth(), fill == null ? 0 : fill.get(), border.get());
         } else if (fill != null) {
             render.rect(getRectangle(), fill.get());
         }
-    }
-
-    /**
-     * Creates a rectangle that mimics the appearance of a vanilla inventory slot.
-     * Uses shadedRect to create the 3D "inset" look.
-     */
-    public static GuiRectangle vanillaSlot(@NotNull GuiParent<?> parent) {
-        return new GuiRectangle(parent).shadedRect(0xFF373737, 0xFFffffff, 0xFF8b8b8b, 0xFF8b8b8b);
-    }
-
-    /**
-     * Creates a rectangle that mimics the appearance of a vanilla inventory slot, except inverted
-     * Uses shadedRect to create the 3D "popped out" appearance
-     */
-    public static GuiRectangle invertedSlot(@NotNull GuiParent<?> parent) {
-        return new GuiRectangle(parent).shadedRect(0xFFffffff, 0xFF373737, 0xFF8b8b8b, 0xFF8b8b8b);
-    }
-
-    /**
-     * Creates a rectangle similar in appearance to a vanilla button, but with no texture and no black border.
-     */
-    public static GuiRectangle planeButton(@NotNull GuiParent<?> parent) {
-        return new GuiRectangle(parent).shadedRect(0xFFaaaaaa, 0xFF545454, 0xFF6f6f6f);
-    }
-
-    public static GuiRectangle toolTipBackground(@NotNull GuiParent<?> parent) {
-        return toolTipBackground(parent, 0xF0100010, 0x505000FF, 0x5028007f);
-    }
-
-    public static GuiRectangle toolTipBackground(@NotNull GuiParent<?> parent, int backgroundColour, int borderColourTop, int borderColourBottom) {
-        return toolTipBackground(parent, backgroundColour, backgroundColour, borderColourTop, borderColourBottom);
-    }
-
-    public static GuiRectangle toolTipBackground(@NotNull GuiParent<?> parent, int backgroundColourTop, int backgroundColourBottom, int borderColourTop, int borderColourBottom) {
-        return new GuiRectangle(parent) {
-            @Override
-            public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
-                render.toolTipBackground(xMin(), yMin(), xSize(), ySize(), backgroundColourTop, backgroundColourBottom, borderColourTop, borderColourBottom, false);
-            }
-        };
     }
 }

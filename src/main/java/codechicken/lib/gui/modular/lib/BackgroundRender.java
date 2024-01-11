@@ -12,7 +12,7 @@ public interface BackgroundRender {
 
     /**
      * Specifies the z depth of the background content.
-     * After {@link #renderBehind(GuiRender, double, double, float)} is called, the PoseStack will be translated by this amount in the z direction
+     * After {@link #renderBackground(GuiRender, double, double, float)} is called, the PoseStack will be translated by this amount in the z direction
      * before any assigned child elements are rendered.
      * Recommended minimum depth is 0.01 or 0.035 if this element renders text. (text shadows are rendered with a 0.03 offset)
      *
@@ -29,6 +29,6 @@ public interface BackgroundRender {
      *
      * @param render       Contains gui context information as well as essential render methods/utils including the PoseStack.
      */
-    void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks);
+    void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks);
 
 }

@@ -1,8 +1,8 @@
 package codechicken.lib.gui.modular.lib.container;
 
-import codechicken.lib.gui.modular.lib.container.data.AbstractDataStore;
+import codechicken.lib.data.MCDataInput;
+import codechicken.lib.inventory.container.data.AbstractDataStore;
 import codechicken.lib.inventory.container.modular.ModularGuiContainerMenu;
-import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.function.Supplier;
 
@@ -42,7 +42,7 @@ public class DataSync<T> {
         });
     }
 
-    public void handleSyncPacket(FriendlyByteBuf buf) {
+    public void handleSyncPacket(MCDataInput buf) {
         dataStore.fromBytes(buf);
     }
 }

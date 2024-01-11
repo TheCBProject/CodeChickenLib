@@ -98,7 +98,7 @@ public class GuiTexture extends GuiElement<GuiTexture> implements BackgroundRend
     }
 
     @Override
-    public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
         Material material = getMaterial();
         if (material == null) return;
         if (dynamicBorders != null) {

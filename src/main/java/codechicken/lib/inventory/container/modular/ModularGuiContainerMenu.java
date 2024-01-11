@@ -1,10 +1,15 @@
 package codechicken.lib.inventory.container.modular;
 
+import codechicken.lib.data.MCDataInput;
+import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.gui.modular.elements.GuiSlots;
 import codechicken.lib.gui.modular.lib.container.ContainerScreenAccess;
 import codechicken.lib.gui.modular.lib.container.DataSync;
 import codechicken.lib.gui.modular.lib.container.SlotGroup;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
+import codechicken.lib.internal.network.CCLNetwork;
+import codechicken.lib.packet.PacketCustom;
+import codechicken.lib.vec.Vector3;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -25,6 +30,8 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static codechicken.lib.internal.network.CCLNetwork.*;
+
 /**
  * The base abstract ContainerMenu for all modular gui containers.
  * <p>
@@ -38,8 +45,6 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
     public final Map<Slot, SlotGroup> slotGroupMap = new HashMap<>();
     public final Map<Integer, List<Slot>> zonedSlots = new HashMap<>();
     public final List<DataSync<?>> dataSyncs = new ArrayList<>();
-    private BiConsumer<ServerPlayer, Consumer<FriendlyByteBuf>> serverToClientPacketHandler;
-    private Consumer<Consumer<FriendlyByteBuf>> clientToServerPacketHandler;
 
     protected ModularGuiContainerMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory) {
         super(menuType, containerId);
@@ -91,73 +96,37 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
     }
 
     //=== Network ===//
-
-    /**
-     * Set the server to client packet handler.
-     * As polylib does not have its own network implementation, the implementor of ModularGuiContainerMenu must provide their own if
-     * they wish to use the network functionality built into ModularGuiContainerMenu.
-     * <p>
-     * An example imeplementation may look something like:
-     * <pre>
-     * setServerToClientPacketHandler((player, packetWriter) -> {
-     *     FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-     *     packetWriter.accept(buf);
-     *     MyNetwork.sendModularGuiMenuPacketToPlayer(player, buf);
-     * });
-     * </pre>
-     * Then, in your client side packet handler you would call {@link ModularGuiContainerMenu#handlePacketFromServer(Player, FriendlyByteBuf)}
-     * The player can be the client side player.
-     *
-     * <p>
-     * A server to client packet handler is required for the {@link DataSync} system to work.
-     */
-    public void setServerToClientPacketHandler(BiConsumer<ServerPlayer, Consumer<FriendlyByteBuf>> serverToClientPacketHandler) {
-        this.serverToClientPacketHandler = serverToClientPacketHandler;
-    }
-
-    /**
-     * This should be implemented similar to {@link #setServerToClientPacketHandler(BiConsumer)}
-     * The difference being this will be sending packets in the other direction.
-     */
-    public void setClientToServerPacketHandler(Consumer<Consumer<FriendlyByteBuf>> clientToServerPacketHandler) {
-        this.clientToServerPacketHandler = clientToServerPacketHandler;
-    }
-
     /**
      * Send a packet to the client side container.
-     * Requires a server to client packet handler to be installed via {@link #setServerToClientPacketHandler(BiConsumer)}
      *
      * @param packetId     message id, Can be any value from 0 to 254, 255 is used by the {@link DataSync} system.
      * @param packetWriter Use this callback to write your data to the packet.
      */
-    public void sendPacketToClient(int packetId, Consumer<FriendlyByteBuf> packetWriter) {
-        if (serverToClientPacketHandler != null && inventory.player instanceof ServerPlayer serverPlayer) {
-            serverToClientPacketHandler.accept(serverPlayer, buf -> {
-                buf.writeByte(containerId);
-                buf.writeByte((byte) packetId);
-                packetWriter.accept(buf);
-            });
+    public void sendPacketToClient(int packetId, Consumer<MCDataOutput> packetWriter) {
+        if (inventory.player instanceof ServerPlayer serverPlayer) {
+            PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, C_GUI_SYNC);
+            packet.writeByte(containerId);
+            packet.writeByte((byte) packetId);
+            packetWriter.accept(packet);
+            packet.sendToPlayer(serverPlayer);
         }
     }
 
     /**
      * Send a packet to the server side container.
-     * Requires a client to server packet handler to be installed via {@link #setClientToServerPacketHandler(Consumer)}
      *
      * @param packetId     message id, Can be any value from 0 to 255
      * @param packetWriter Use this callback to write your data to the packet.
      */
-    public void sendPacketToServer(int packetId, Consumer<FriendlyByteBuf> packetWriter) {
-        if (clientToServerPacketHandler != null) {
-            clientToServerPacketHandler.accept(buf -> {
-                buf.writeByte(containerId);
-                buf.writeByte((byte) packetId);
-                packetWriter.accept(buf);
-            });
-        }
+    public void sendPacketToServer(int packetId, Consumer<MCDataOutput> packetWriter) {
+        PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, S_GUI_SYNC);
+        packet.writeByte(containerId);
+        packet.writeByte((byte) packetId);
+        packetWriter.accept(packet);
+        packet.sendToServer();
     }
 
-    public static void handlePacketFromClient(Player player, FriendlyByteBuf packet) {
+    public static void handlePacketFromClient(Player player, MCDataInput packet) {
         int containerId = packet.readByte();
         int packetId = packet.readByte() & 0xFF;
         if (player.containerMenu instanceof ModularGuiContainerMenu menu && menu.containerId == containerId) {
@@ -167,13 +136,12 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
 
     /**
      * Override this in your container menu implementation in order to receive packets sent via {@link #sendPacketToServer(int, Consumer)}
-     * Requires a client to server packet handler to be installed via {@link #setClientToServerPacketHandler(Consumer)}
      */
-    public void handlePacketFromClient(Player player, int packetId, FriendlyByteBuf packet) {
+    public void handlePacketFromClient(Player player, int packetId, MCDataInput packet) {
 
     }
 
-    public static void handlePacketFromServer(Player player, FriendlyByteBuf packet) {
+    public static void handlePacketFromServer(Player player, MCDataInput packet) {
         int containerId = packet.readByte();
         int packetId = packet.readByte() & 0xFF;
         if (player.containerMenu instanceof ModularGuiContainerMenu menu && menu.containerId == containerId) {
@@ -183,11 +151,10 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
 
     /**
      * Override this in your container menu implementation in order to receive packets sent via {@link #sendPacketToServer(int, Consumer)}
-     * Requires a server to client packet handler to be installed via {@link #setServerToClientPacketHandler(BiConsumer)}
      * <p>
      * Don't forget to call super if you plan on using the {@link DataSync} system.
      */
-    public void handlePacketFromServer(Player player, int packetId, FriendlyByteBuf packet) {
+    public void handlePacketFromServer(Player player, int packetId, MCDataInput packet) {
         if (packetId == 255) {
             int index = packet.readByte() & 0xFF;
             if (dataSyncs.size() > index) {

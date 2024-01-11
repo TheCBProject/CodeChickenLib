@@ -208,7 +208,7 @@ public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
     }
 
     @Override
-    public void renderInFront(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderForeground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
         Component component = getText();
         if (component == null) return;
         Font font = render.font();
@@ -266,29 +266,3 @@ public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -54,8 +54,9 @@ public abstract class ConstrainedGeometry<T extends ConstrainedGeometry<T>> impl
     private AxisConfig yAxis = AxisConfig.NONE;
 
     //Permanently bound immutable position and rectangle elements.
-    private Position position = Position.create(this);
-    private Rectangle rectangle = Rectangle.create(this);
+    private final Position position = Position.create(this);
+    private final Rectangle rectangle = Rectangle.create(this);
+    private final Rectangle.Mutable childBounds = getRectangle().mutable();
 
     private boolean strictMode = false;
 
@@ -213,30 +214,6 @@ public abstract class ConstrainedGeometry<T extends ConstrainedGeometry<T>> impl
     }
 
     /**
-     * @param param The geometry parameter.
-     * @return The current value of the specified parameter.
-     */
-    @Override
-    public double getValue(GeoParam param) {
-        switch (param) {
-            case LEFT:
-                return xMin();
-            case RIGHT:
-                return xMax();
-            case WIDTH:
-                return xSize();
-            case TOP:
-                return yMin();
-            case BOTTOM:
-                return yMax();
-            case HEIGHT:
-                return ySize();
-            default:
-                throw new IllegalStateException("Param: \"" + param + "\" Shouldn't Exist! Someone has broken my code! Go yell at them!");
-        }
-    }
-
-    /**
      * @param param      The geometry parameter to be constrained.
      * @param constraint The constraint to apply
      * @return This Element.
@@ -376,8 +353,6 @@ public abstract class ConstrainedGeometry<T extends ConstrainedGeometry<T>> impl
         }
         return enclosingRect;
     }
-
-    private Rectangle.Mutable childBounds = getRectangle().mutable();
 
     /**
      * @return a rectangle, the bounds of which enclose all enabled child elements.

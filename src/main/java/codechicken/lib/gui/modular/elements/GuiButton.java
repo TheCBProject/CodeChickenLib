@@ -48,6 +48,106 @@ public class GuiButton extends GuiElement<GuiButton> {
     }
 
     /**
+     * Creates a new gui button that looks and acts exactly like a standard vanilla button.
+     */
+    public static GuiButton vanilla(@NotNull GuiParent<?> parent, @Nullable Component label, Runnable onClick) {
+        return vanilla(parent, label).onClick(onClick);
+    }
+
+    /**
+     * Creates a new gui button that looks and acts exactly like a standard vanilla button.
+     */
+    public static GuiButton vanilla(@NotNull GuiParent<?> parent, @Nullable Component label) {
+        GuiButton button = new GuiButton(parent);
+        GuiTexture texture = new GuiTexture(button, CCGuiTextures.getter(() -> button.toggleState() ? "dynamic/button_highlight" : "dynamic/button_vanilla"));
+        texture.dynamicTexture();
+        GuiRectangle highlight = new GuiRectangle(button).border(() -> button.hoverTime() > 0 ? 0xFFFFFFFF : 0);
+
+        Constraints.bind(texture, button);
+        Constraints.bind(highlight, button);
+
+        if (label != null) {
+            button.setLabel(new GuiText(button, label));
+            Constraints.bind(button.getLabel(), button, 0, 2, 0, 2);
+        }
+
+        return button;
+    }
+
+    /**
+     * Creates a vanilla button with a "press" animation.
+     */
+    public static GuiButton vanillaAnimated(@NotNull GuiParent<?> parent, Component label, Runnable onPress) {
+        return vanillaAnimated(parent, label == null ? null : () -> label, onPress);
+    }
+
+    /**
+     * Creates a vanilla button with a "press" animation.
+     */
+    public static GuiButton vanillaAnimated(@NotNull GuiParent<?> parent, @Nullable Supplier<Component> label, Runnable onPress) {
+        return vanillaAnimated(parent, label).onPress(onPress);
+    }
+
+    //TODO Could use a quad-sliced texture for this.
+
+    /**
+     * Creates a vanilla button with a "press" animation.
+     */
+    public static GuiButton vanillaAnimated(@NotNull GuiParent<?> parent, Component label) {
+        return vanillaAnimated(parent, label == null ? null : () -> label);
+    }
+
+    /**
+     * Creates a vanilla button with a "press" animation.
+     */
+    public static GuiButton vanillaAnimated(@NotNull GuiParent<?> parent, @Nullable Supplier<Component> label) {
+        GuiButton button = new GuiButton(parent);
+        GuiTexture texture = new GuiTexture(button, CCGuiTextures.getter(() -> button.toggleState() || button.isPressed() ? "dynamic/button_pressed" : "dynamic/button_vanilla"));
+        texture.dynamicTexture();
+        GuiRectangle highlight = new GuiRectangle(button).border(() -> button.isMouseOver() ? 0xFFFFFFFF : 0);
+
+        Constraints.bind(texture, button);
+        Constraints.bind(highlight, button);
+
+        if (label != null) {
+            button.setLabel(new GuiText(button, label)
+                    .constrain(TOP, Constraint.relative(button.get(TOP), () -> button.isPressed() ? -0.5D : 0.5D).precise())
+                    .constrain(LEFT, Constraint.relative(button.get(LEFT), () -> button.isPressed() ? 1.5D : 2.5D).precise())
+                    .constrain(WIDTH, Constraint.relative(button.get(WIDTH), -4))
+                    .constrain(HEIGHT, Constraint.match(button.get(HEIGHT)))
+            );
+        }
+
+        return button;
+    }
+
+    /**
+     * Super simple button that is just a coloured rectangle with a label.
+     */
+    public static GuiButton flatColourButton(@NotNull GuiParent<?> parent, @Nullable Supplier<Component> label, Function<Boolean, Integer> buttonColour) {
+        return flatColourButton(parent, label, buttonColour, null);
+    }
+
+    /**
+     * Super simple button that is just a coloured rectangle with a label.
+     */
+    public static GuiButton flatColourButton(@NotNull GuiParent<?> parent, @Nullable Supplier<Component> label, Function<Boolean, Integer> buttonColour, @Nullable Function<Boolean, Integer> borderColour) {
+        GuiButton button = new GuiButton(parent);
+        GuiRectangle background = new GuiRectangle(button)
+                .fill(() -> buttonColour.apply(button.isMouseOver() || button.toggleState() || button.isPressed()))
+                .border(borderColour == null ? null : () -> borderColour.apply(button.isMouseOver() || button.toggleState() || button.isPressed()));
+        Constraints.bind(background, button);
+
+        if (label != null) {
+            GuiText text = new GuiText(button, label);
+            button.setLabel(text);
+            Constraints.bind(text, button, 0, 2, 0, 2);
+        }
+
+        return button;
+    }
+
+    /**
      * When creating buttons with labels, use this method to store a reference to the label in the button fore easy retrival later.
      *
      * @param label The button label.
@@ -231,105 +331,5 @@ public class GuiButton extends GuiElement<GuiButton> {
         }
         pressed = false;
         return consumed;
-    }
-
-    /**
-     * Creates a new gui button that looks and acts exactly like a standard vanilla button.
-     */
-    public static GuiButton vanilla(@NotNull GuiParent<?> parent, @Nullable Component label, Runnable onClick) {
-        return vanilla(parent, label).onClick(onClick);
-    }
-
-    /**
-     * Creates a new gui button that looks and acts exactly like a standard vanilla button.
-     */
-    public static GuiButton vanilla(@NotNull GuiParent<?> parent, @Nullable Component label) {
-        GuiButton button = new GuiButton(parent);
-        GuiTexture texture = new GuiTexture(button, CCGuiTextures.getter(() -> button.toggleState() ? "dynamic/button_highlight" : "dynamic/button_vanilla"));
-        texture.dynamicTexture();
-        GuiRectangle highlight = new GuiRectangle(button).border(() -> button.hoverTime() > 0 ? 0xFFFFFFFF : 0);
-
-        Constraints.bind(texture, button);
-        Constraints.bind(highlight, button);
-
-        if (label != null) {
-            button.setLabel(new GuiText(button, label));
-            Constraints.bind(button.getLabel(), button, 0, 2, 0, 2);
-        }
-
-        return button;
-    }
-
-    /**
-     * Creates a vanilla button with a "press" animation.
-     */
-    public static GuiButton vanillaAnimated(@NotNull GuiParent<?> parent, Component label, Runnable onPress) {
-        return vanillaAnimated(parent, label == null ? null : () -> label, onPress);
-    }
-
-    /**
-     * Creates a vanilla button with a "press" animation.
-     */
-    public static GuiButton vanillaAnimated(@NotNull GuiParent<?> parent, @Nullable Supplier<Component> label, Runnable onPress) {
-        return vanillaAnimated(parent, label).onPress(onPress);
-    }
-
-    //TODO Could use a quad-sliced texture for this.
-
-    /**
-     * Creates a vanilla button with a "press" animation.
-     */
-    public static GuiButton vanillaAnimated(@NotNull GuiParent<?> parent, Component label) {
-        return vanillaAnimated(parent, label == null ? null : () -> label);
-    }
-
-    /**
-     * Creates a vanilla button with a "press" animation.
-     */
-    public static GuiButton vanillaAnimated(@NotNull GuiParent<?> parent, @Nullable Supplier<Component> label) {
-        GuiButton button = new GuiButton(parent);
-        GuiTexture texture = new GuiTexture(button, CCGuiTextures.getter(() -> button.toggleState() || button.isPressed() ? "dynamic/button_pressed" : "dynamic/button_vanilla"));
-        texture.dynamicTexture();
-        GuiRectangle highlight = new GuiRectangle(button).border(() -> button.isMouseOver() ? 0xFFFFFFFF : 0);
-
-        Constraints.bind(texture, button);
-        Constraints.bind(highlight, button);
-
-        if (label != null) {
-            button.setLabel(new GuiText(button, label)
-                    .constrain(TOP, Constraint.relative(button.get(TOP), () -> button.isPressed() ? -0.5D : 0.5D).precise())
-                    .constrain(LEFT, Constraint.relative(button.get(LEFT), () -> button.isPressed() ? 1.5D : 2.5D).precise())
-                    .constrain(WIDTH, Constraint.relative(button.get(WIDTH), -4))
-                    .constrain(HEIGHT, Constraint.match(button.get(HEIGHT)))
-            );
-        }
-
-        return button;
-    }
-
-    /**
-     * Super simple button that is just a coloured rectangle with a label.
-     */
-    public static GuiButton flatColourButton(@NotNull GuiParent<?> parent, @Nullable Supplier<Component> label, Function<Boolean, Integer> buttonColour) {
-        return flatColourButton(parent, label, buttonColour, null);
-    }
-
-    /**
-     * Super simple button that is just a coloured rectangle with a label.
-     */
-    public static GuiButton flatColourButton(@NotNull GuiParent<?> parent, @Nullable Supplier<Component> label, Function<Boolean, Integer> buttonColour, @Nullable Function<Boolean, Integer> borderColour) {
-        GuiButton button = new GuiButton(parent);
-        GuiRectangle background = new GuiRectangle(button)
-                .fill(() -> buttonColour.apply(button.isMouseOver() || button.toggleState() || button.isPressed()))
-                .border(borderColour == null ? null : () -> borderColour.apply(button.isMouseOver() || button.toggleState() || button.isPressed()));
-        Constraints.bind(background, button);
-
-        if (label != null) {
-            GuiText text = new GuiText(button, label);
-            button.setLabel(text);
-            Constraints.bind(text, button, 0, 2, 0, 2);
-        }
-
-        return button;
     }
 }

@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 /**
  * Created by brandon3055 on 04/07/2023
  */
-public abstract class ConstraintImpl<T extends ConstraintImpl<?>> implements Constraint {
+public abstract non-sealed class ConstraintImpl<T extends ConstraintImpl<?>> implements Constraint {
 
     protected boolean precise = false;
     protected Axis axis = null;

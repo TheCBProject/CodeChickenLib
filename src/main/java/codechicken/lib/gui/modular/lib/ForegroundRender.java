@@ -28,5 +28,5 @@ public interface ForegroundRender {
      *
      * @param render       Contains gui context information as well as essential render methods/utils including the PoseStack.
      */
-    void renderInFront(GuiRender render, double mouseX, double mouseY, float partialTicks);
+    void renderForeground(GuiRender render, double mouseX, double mouseY, float partialTicks);
 }

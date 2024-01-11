@@ -6,10 +6,10 @@ import java.util.Objects;
  * Created by brandon3055 on 28/08/2023
  */
 public final class Borders {
-    private double top;
-    private double left;
-    private double bottom;
-    private double right;
+    public double top;
+    public double left;
+    public double bottom;
+    public double right;
 
     public Borders(double top, double left, double bottom, double right) {
         this.top = top;
@@ -46,32 +46,32 @@ public final class Borders {
         return right;
     }
 
-    public Borders setTop(double top) {
+    public Borders top(double top) {
         this.top = top;
         return this;
     }
 
-    public Borders setLeft(double left) {
+    public Borders left(double left) {
         this.left = left;
         return this;
     }
 
-    public Borders setBottom(double bottom) {
+    public Borders bottom(double bottom) {
         this.bottom = bottom;
         return this;
     }
 
-    public Borders setRight(double right) {
+    public Borders right(double right) {
         this.right = right;
         return this;
     }
 
     public Borders setTopBottom(double topBottom) {
-        return setTop(topBottom).setBottom(topBottom);
+        return top(topBottom).bottom(topBottom);
     }
 
     public Borders setLeftRight(double leftRight) {
-        return setLeft(leftRight).setLeftRight(leftRight);
+        return left(leftRight).setLeftRight(leftRight);
     }
 
     public Borders setBorders(double borders) {

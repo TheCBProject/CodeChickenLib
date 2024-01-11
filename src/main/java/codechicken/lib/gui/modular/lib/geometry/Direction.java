@@ -9,6 +9,8 @@ public enum Direction {
     DOWN(Axis.Y),
     RIGHT(Axis.X);
 
+    private static Direction[] VALUES = values();
+
     private final Axis axis;
 
     Direction(Axis axis) {
@@ -25,11 +27,11 @@ public enum Direction {
     }
 
     public Direction rotateCW() {
-        return values()[(ordinal() + values().length - 1) % values().length];
+        return values()[(ordinal() + VALUES.length - 1) % VALUES.length];
     }
 
     public Direction rotateCCW() {
-        return values()[(ordinal() + 1) % values().length];
+        return values()[(ordinal() + 1) % VALUES.length];
     }
 
     public double rotationTo(Direction other) {

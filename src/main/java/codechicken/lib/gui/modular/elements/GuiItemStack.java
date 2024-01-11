@@ -96,7 +96,7 @@ public class GuiItemStack extends GuiElement<GuiItemStack> implements Background
     }
 
     @Override
-    public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
         ItemStack stack = this.stack.get();
         if (stack.isEmpty()) return;
 

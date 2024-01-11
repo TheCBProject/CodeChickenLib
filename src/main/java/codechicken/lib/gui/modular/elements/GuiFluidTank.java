@@ -1,14 +1,12 @@
 package codechicken.lib.gui.modular.elements;
 
-import codechicken.lib.fluid.FluidUtils;
-import codechicken.lib.util.FormatUtil;
-import codechicken.lib.gui.modular.lib.Assembly;
 import codechicken.lib.gui.modular.lib.BackgroundRender;
 import codechicken.lib.gui.modular.lib.Constraints;
 import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
-import codechicken.lib.gui.modular.sprite.Material;
 import codechicken.lib.gui.modular.sprite.CCGuiTextures;
+import codechicken.lib.gui.modular.sprite.Material;
+import codechicken.lib.util.FormatUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -17,11 +15,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,6 +51,16 @@ public class GuiFluidTank extends GuiElement<GuiFluidTank> implements Background
         super(parent);
         setTooltipDelay(0);
         setToolTipFormatter(defaultFormatter());
+    }
+
+    /**
+     * Creates a simple tank using a simple slot as a background to make it look nice.
+     */
+    public static FluidTank simpleTank(@NotNull GuiParent<?> parent) {
+        GuiRectangle container = GuiRectangle.vanillaSlot(parent);
+        GuiFluidTank energyBar = new GuiFluidTank(container);
+        Constraints.bind(energyBar, container, 1);
+        return new FluidTank(container, energyBar);
     }
 
     /**
@@ -132,7 +137,7 @@ public class GuiFluidTank extends GuiElement<GuiFluidTank> implements Background
     }
 
     @Override
-    public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
         FluidStack stack = getFluidStack();
         Material fluidMat = Material.fromSprite(getStillTexture(stack));
 
@@ -172,16 +177,6 @@ public class GuiFluidTank extends GuiElement<GuiFluidTank> implements Background
         else if (ySize / (capacity / 50000D) > 3) return ySize / (capacity / 50000D);
         else if (ySize / (capacity / 100000D) > 3) return ySize / (capacity / 100000D);
         return 0;
-    }
-
-    /**
-     * Creates a simple tank using a simple slot as a background to make it look nice.
-     */
-    public static Assembly<GuiRectangle, GuiFluidTank> simpleTank(@NotNull GuiParent<?> parent) {
-        GuiRectangle container = GuiRectangle.vanillaSlot(parent);
-        GuiFluidTank energyBar = new GuiFluidTank(container);
-        Constraints.bind(energyBar, container, 1);
-        return new Assembly<>(container, energyBar);
     }
 
     public static BiFunction<FluidStack, Long, List<Component>> defaultFormatter() {
@@ -253,4 +248,5 @@ public class GuiFluidTank extends GuiElement<GuiFluidTank> implements Background
         return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(texture);
     }
 
+    public record FluidTank(GuiRectangle container, GuiFluidTank tank) {}
 }

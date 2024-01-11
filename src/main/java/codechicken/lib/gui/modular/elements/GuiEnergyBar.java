@@ -1,12 +1,11 @@
 package codechicken.lib.gui.modular.elements;
 
-import codechicken.lib.gui.modular.sprite.CCGuiTextures;
-import codechicken.lib.gui.modular.sprite.Material;
-import codechicken.lib.gui.modular.lib.Assembly;
 import codechicken.lib.gui.modular.lib.BackgroundRender;
 import codechicken.lib.gui.modular.lib.Constraints;
 import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
+import codechicken.lib.gui.modular.sprite.CCGuiTextures;
+import codechicken.lib.gui.modular.sprite.Material;
 import codechicken.lib.util.FormatUtil;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -40,6 +39,50 @@ public class GuiEnergyBar extends GuiElement<GuiEnergyBar> implements Background
         super(parent);
         setTooltipDelay(0);
         setToolTipFormatter(defaultFormatter());
+    }
+
+    /**
+     * Creates a simple energy bar using a simple slot as a background to make it look nice.
+     */
+    public static EnergyBar simpleBar(@NotNull GuiParent<?> parent) {
+        GuiRectangle container = GuiRectangle.vanillaSlot(parent);
+        GuiEnergyBar energyBar = new GuiEnergyBar(container);
+        Constraints.bind(energyBar, container, 1);
+        return new EnergyBar(container, energyBar);
+    }
+
+    public static BiFunction<Long, Long, List<Component>> defaultFormatter() {
+        return (energy, capacity) -> {
+            List<Component> tooltip = new ArrayList<>();
+            tooltip.add(Component.translatable("energy_bar.polylib.energy_storage").withStyle(DARK_AQUA));
+            boolean shift = Screen.hasShiftDown();
+            tooltip.add(Component.translatable("energy_bar.polylib.capacity")
+                    .withStyle(GOLD)
+                    .append(" ")
+                    .append(Component.literal(shift ? FormatUtil.addCommas(capacity) : FormatUtil.formatNumber(capacity))
+                            .withStyle(GRAY)
+                            .append(" ")
+                            .append(Component.translatable("energy_bar.polylib.rf")
+                                    .withStyle(GRAY)
+                            )
+                    )
+            );
+            tooltip.add(Component.translatable("energy_bar.polylib.stored")
+                    .withStyle(GOLD)
+                    .append(" ")
+                    .append(Component.literal(shift ? FormatUtil.addCommas(energy) : FormatUtil.formatNumber(energy))
+                            .withStyle(GRAY)
+                    )
+                    .append(" ")
+                    .append(Component.translatable("energy_bar.polylib.rf")
+                            .withStyle(GRAY)
+                    )
+                    .append(Component.literal(String.format(" (%.2f%%)", ((double) energy / (double) capacity) * 100D))
+                            .withStyle(GRAY)
+                    )
+            );
+            return tooltip;
+        };
     }
 
     public GuiEnergyBar setEmptyTexture(Material emptyTexture) {
@@ -88,57 +131,13 @@ public class GuiEnergyBar extends GuiElement<GuiEnergyBar> implements Background
     }
 
     @Override
-    public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
-        float p = 1/128F;
+    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+        float p = 1 / 128F;
         float height = getCapacity() <= 0 ? 0 : (float) ySize() * (getEnergy() / (float) getCapacity());
         float texHeight = height * p;
         render.partialSprite(EMPTY.renderType(GuiRender::texColType), xMin(), yMin(), xMax(), yMax(), EMPTY.sprite(), 0F, 1F - (p * (float) ySize()), p * (float) xSize(), 1F, 0xFFFFFFFF);
         render.partialSprite(FULL.renderType(GuiRender::texColType), xMin(), yMin() + (ySize() - height), xMax(), yMax(), FULL.sprite(), 0F, 1F - texHeight, p * (float) xSize(), 1F, 0xFFFFFFFF);
     }
 
-    /**
-     * Creates a simple energy bar using a simple slot as a background to make it look nice.
-     */
-    public static Assembly<GuiRectangle, GuiEnergyBar> simpleBar(@NotNull GuiParent<?> parent) {
-        GuiRectangle container = GuiRectangle.vanillaSlot(parent);
-        GuiEnergyBar energyBar = new GuiEnergyBar(container);
-        Constraints.bind(energyBar, container, 1);
-        return new Assembly<>(container, energyBar);
-    }
-
-
-    public static BiFunction<Long, Long, List<Component>> defaultFormatter() {
-        return (energy, capacity) -> {
-            List<Component> tooltip = new ArrayList<>();
-            tooltip.add(Component.translatable("energy_bar.polylib.energy_storage").withStyle(DARK_AQUA));
-            boolean shift = Screen.hasShiftDown();
-            tooltip.add(Component.translatable("energy_bar.polylib.capacity")
-                    .withStyle(GOLD)
-                    .append(" ")
-                    .append(Component.literal(shift ? FormatUtil.addCommas(capacity) : FormatUtil.formatNumber(capacity))
-                            .withStyle(GRAY)
-                            .append(" ")
-                            .append(Component.translatable("energy_bar.polylib.rf")
-                                    .withStyle(GRAY)
-                            )
-                    )
-            );
-            tooltip.add(Component.translatable("energy_bar.polylib.stored")
-                    .withStyle(GOLD)
-                    .append(" ")
-                    .append(Component.literal(shift ? FormatUtil.addCommas(energy) : FormatUtil.formatNumber(energy))
-                            .withStyle(GRAY)
-                    )
-                    .append(" ")
-                    .append(Component.translatable("energy_bar.polylib.rf")
-                            .withStyle(GRAY)
-                    )
-                    .append(Component.literal(String.format(" (%.2f%%)", ((double) energy / (double) capacity) * 100D))
-                            .withStyle(GRAY)
-                    )
-            );
-            return tooltip;
-        };
-    }
-
+    public record EnergyBar(GuiRectangle container, GuiEnergyBar bar) {}
 }

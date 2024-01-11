@@ -1,10 +1,10 @@
 package codechicken.lib.gui.modular.lib.geometry;
 
-import com.google.common.annotations.Beta;
 import codechicken.lib.gui.modular.ModularGui;
 import codechicken.lib.gui.modular.elements.GuiElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -70,22 +70,14 @@ public interface GuiParent<T extends GuiParent<?>> {
      * @return The current value of the specified parameter.
      */
     default double getValue(GeoParam param) {
-        switch (param) {
-            case LEFT:
-                return xMin();
-            case RIGHT:
-                return xMax();
-            case WIDTH:
-                return xSize();
-            case TOP:
-                return yMin();
-            case BOTTOM:
-                return yMax();
-            case HEIGHT:
-                return ySize();
-            default:
-                throw new IllegalStateException("Param: \"" + param + "\" Shouldn't Exist! Someone has broken my code! Go yell at them!");
-        }
+        return switch (param) {
+            case LEFT -> xMin();
+            case RIGHT -> xMax();
+            case WIDTH -> xSize();
+            case TOP -> yMin();
+            case BOTTOM -> yMax();
+            case HEIGHT -> ySize();
+        };
     }
 
     /**
@@ -114,7 +106,7 @@ public interface GuiParent<T extends GuiParent<?>> {
      * @param createChild A consumer that is given this element to be used in the construction of the child element.
      * @return The parent element
      */
-    @Beta
+    @ApiStatus.Experimental
     @SuppressWarnings ("unchecked")
     default T addChild(Consumer<T> createChild) {
         createChild.accept((T) this);
@@ -184,20 +176,6 @@ public interface GuiParent<T extends GuiParent<?>> {
     default void onScreenInit(Minecraft mc, Font font, int screenWidth, int screenHeight) {
         getChildren().forEach(e -> e.onScreenInit(mc, font, screenWidth, screenHeight));
     }
-
-    //TODO, May still keep this, but i currently have a different focus system in mind that *may* be better
-//    /**
-//     * Not sure how much this will get used, if at all, but allows an element to be specified as the globally focused element.
-//     * This does not have any effect at all on the base functionality of Modular Gui, it is up to individual elements to choose how they handle focus.
-//     *
-//     * @param element the element to be set as the current focused element, or null to clear focused element.
-//     */
-//    void setFocused(@Nullable GuiElement<?> element);
-//
-//    /**
-//     * @return the current gloabally focused element, or null if no element is focused.
-//     */
-//    @Nullable GuiElement<?> getFocused();
 
     /**
      * Allows an element to override the {@link GuiElement#isMouseOver()} method of its children.

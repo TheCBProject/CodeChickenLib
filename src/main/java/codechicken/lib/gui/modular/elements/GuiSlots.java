@@ -1,6 +1,5 @@
 package codechicken.lib.gui.modular.elements;
 
-import codechicken.lib.gui.modular.lib.Assembly;
 import codechicken.lib.gui.modular.lib.BackgroundRender;
 import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.container.ContainerScreenAccess;
@@ -79,6 +78,101 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
         }
 
         updateSlots(parent.getModularGui().getRoot());
+    }
+
+    //=== Construction Helpers ===//
+
+    public static GuiSlots singleSlot(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup slots) {
+        return singleSlot(parent, screenAccess, slots, 0);
+    }
+
+    public static GuiSlots singleSlot(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup slots, int index) {
+        return new GuiSlots(parent, screenAccess, slots, index, 1, 1);
+    }
+
+    public static Player player(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots) {
+        return player(parent, screenAccess, mainSlots, hotBarSlots, 3);
+    }
+
+    public static Player player(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, int hotBarSpacing) {
+        int width = 18 * 9;
+        int height = 18 * 4 + hotBarSpacing;
+        GuiElement<?> container = new GuiElement<>(parent)
+                .setZStacking(false)
+                .constrain(WIDTH, Constraint.literal(width))
+                .constrain(HEIGHT, Constraint.literal(height));
+
+        GuiSlots main = new GuiSlots(container, screenAccess, mainSlots, 9)
+                .constrain(TOP, Constraint.midPoint(container.get(TOP), container.get(BOTTOM), height / -2D))
+                .constrain(LEFT, Constraint.midPoint(container.get(LEFT), container.get(RIGHT), width / -2D));
+
+        GuiSlots bar = new GuiSlots(container, screenAccess, hotBarSlots, 9)
+                .constrain(TOP, relative(main.get(BOTTOM), hotBarSpacing))
+                .constrain(LEFT, match(main.get(LEFT)));
+        return new Player(container, main, bar);
+    }
+
+    public static PlayerWithArmor playerWithArmor(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots) {
+        return playerWithArmor(parent, screenAccess, mainSlots, hotBarSlots, armorSlots, 3, true);
+    }
+
+    public static PlayerWithArmor playerWithArmor(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots, int groupSpacing, boolean slotIcons) {
+        int width = 18 * 10 + groupSpacing;
+        int height = 18 * 4 + groupSpacing;
+        GuiElement<?> container = new GuiElement<>(parent)
+                .setZStacking(false)
+                .constrain(WIDTH, Constraint.literal(width))
+                .constrain(HEIGHT, Constraint.literal(height));
+
+        GuiSlots armor = new GuiSlots(container, screenAccess, armorSlots, 1)
+                .setYSlotSpacing(groupSpacing / 3)
+                .setEmptyIcon(index -> slotIcons ? ARMOR_SLOTS[index] : null)
+                .constrain(TOP, Constraint.midPoint(container.get(TOP), container.get(BOTTOM), height / -2D))
+                .constrain(LEFT, Constraint.midPoint(container.get(LEFT), container.get(RIGHT), width / -2D));
+
+        GuiSlots main = new GuiSlots(container, screenAccess, mainSlots, 9)
+                .constrain(TOP, match(armor.get(TOP)))
+                .constrain(LEFT, relative(armor.get(RIGHT), groupSpacing));
+
+        GuiSlots bar = new GuiSlots(container, screenAccess, hotBarSlots, 9)
+                .constrain(TOP, relative(main.get(BOTTOM), groupSpacing))
+                .constrain(LEFT, match(main.get(LEFT)));
+
+        return new PlayerWithArmor(container, main, bar, armor);
+    }
+
+    public static PlayerAll playerAllSlots(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots, SlotGroup offhandSlots) {
+        return playerAllSlots(parent, screenAccess, mainSlots, hotBarSlots, armorSlots, offhandSlots, 3, true);
+    }
+
+    public static PlayerAll playerAllSlots(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots, SlotGroup offhandSlots, int groupSpacing, boolean slotIcons) {
+        int width = 18 * 11 + groupSpacing * 2;
+        int height = 18 * 4 + groupSpacing;
+        GuiElement<?> container = new GuiElement<>(parent)
+                .setZStacking(false)
+                .constrain(WIDTH, Constraint.literal(width))
+                .constrain(HEIGHT, Constraint.literal(height));
+
+        GuiSlots armor = new GuiSlots(container, screenAccess, armorSlots, 1)
+                .setYSlotSpacing(groupSpacing / 3)
+                .setEmptyIcon(index -> slotIcons ? ARMOR_SLOTS[index] : null)
+                .constrain(TOP, Constraint.midPoint(container.get(TOP), container.get(BOTTOM), height / -2D))
+                .constrain(LEFT, Constraint.midPoint(container.get(LEFT), container.get(RIGHT), width / -2D));
+
+        GuiSlots main = new GuiSlots(container, screenAccess, mainSlots, 9)
+                .constrain(TOP, match(armor.get(TOP)))
+                .constrain(LEFT, relative(armor.get(RIGHT), groupSpacing));
+
+        GuiSlots bar = new GuiSlots(container, screenAccess, hotBarSlots, 9)
+                .constrain(TOP, relative(main.get(BOTTOM), groupSpacing))
+                .constrain(LEFT, match(main.get(LEFT)));
+
+        GuiSlots offHand = new GuiSlots(container, screenAccess, offhandSlots, 1)
+                .setEmptyIcon(index -> slotIcons ? OFF_HAND_SLOT : null)
+                .constrain(TOP, match(bar.get(TOP)))
+                .constrain(LEFT, relative(bar.get(RIGHT), groupSpacing));
+
+        return new PlayerAll(container, main, bar, armor, offHand);
     }
 
     //=== Slots Setup ===//
@@ -172,7 +266,7 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
     }
 
     @Override
-    public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
         GuiElement<?> root = getModularGui().getRoot();
         updateSlots(root);
 
@@ -210,98 +304,9 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
         render.pose().popPose();
     }
 
-    //=== Construction Helpers ===//
+    public record Player(GuiElement<?> container, GuiSlots main, GuiSlots hotBar) {}
 
-    public static GuiSlots singleSlot(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup slots) {
-        return singleSlot(parent, screenAccess, slots, 0);
-    }
+    public record PlayerWithArmor(GuiElement<?> container, GuiSlots main, GuiSlots hotBar, GuiSlots armor) {}
 
-    public static GuiSlots singleSlot(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup slots, int index) {
-        return new GuiSlots(parent, screenAccess, slots, index, 1, 1);
-    }
-
-    public static Assembly<? extends GuiElement<?>, GuiSlots> player(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots) {
-        return player(parent, screenAccess, mainSlots, hotBarSlots, 3);
-    }
-
-    public static Assembly<? extends GuiElement<?>, GuiSlots> player(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, int hotBarSpacing) {
-        int width = 18 * 9;
-        int height = 18 * 4 + hotBarSpacing;
-        GuiElement<?> container = new GuiElement<>(parent)
-                .setZStacking(false)
-                .constrain(WIDTH, Constraint.literal(width))
-                .constrain(HEIGHT, Constraint.literal(height));
-
-        GuiSlots main = new GuiSlots(container, screenAccess, mainSlots, 9)
-                .constrain(TOP, Constraint.midPoint(container.get(TOP), container.get(BOTTOM), height / -2D))
-                .constrain(LEFT, Constraint.midPoint(container.get(LEFT), container.get(RIGHT), width / -2D));
-
-        GuiSlots bar = new GuiSlots(container, screenAccess, hotBarSlots, 9)
-                .constrain(TOP, relative(main.get(BOTTOM), hotBarSpacing))
-                .constrain(LEFT, match(main.get(LEFT)));
-        return new Assembly<>(container, main).addParts(bar);
-    }
-
-    public static Assembly<? extends GuiElement<?>, GuiSlots> playerWithArmor(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots) {
-        return playerWithArmor(parent, screenAccess, mainSlots, hotBarSlots, armorSlots, 3, true);
-    }
-
-    public static Assembly<? extends GuiElement<?>, GuiSlots> playerWithArmor(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots, int groupSpacing, boolean slotIcons) {
-        int width = 18 * 10 + groupSpacing;
-        int height = 18 * 4 + groupSpacing;
-        GuiElement<?> container = new GuiElement<>(parent)
-                .setZStacking(false)
-                .constrain(WIDTH, Constraint.literal(width))
-                .constrain(HEIGHT, Constraint.literal(height));
-
-        GuiSlots armor = new GuiSlots(container, screenAccess, armorSlots, 1)
-                .setYSlotSpacing(groupSpacing / 3)
-                .setEmptyIcon(index -> slotIcons ? ARMOR_SLOTS[index] : null)
-                .constrain(TOP, Constraint.midPoint(container.get(TOP), container.get(BOTTOM), height / -2D))
-                .constrain(LEFT, Constraint.midPoint(container.get(LEFT), container.get(RIGHT), width / -2D));
-
-        GuiSlots main = new GuiSlots(container, screenAccess, mainSlots, 9)
-                .constrain(TOP, match(armor.get(TOP)))
-                .constrain(LEFT, relative(armor.get(RIGHT), groupSpacing));
-
-        GuiSlots bar = new GuiSlots(container, screenAccess, hotBarSlots, 9)
-                .constrain(TOP, relative(main.get(BOTTOM), groupSpacing))
-                .constrain(LEFT, match(main.get(LEFT)));
-
-        return new Assembly<>(container, main).addParts(bar, armor);
-    }
-
-    public static Assembly<? extends GuiElement<?>, GuiSlots> playerAllSlots(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots, SlotGroup offhandSlots) {
-        return playerAllSlots(parent, screenAccess, mainSlots, hotBarSlots, armorSlots, offhandSlots, 3, true);
-    }
-
-    public static Assembly<? extends GuiElement<?>, GuiSlots> playerAllSlots(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots, SlotGroup offhandSlots, int groupSpacing, boolean slotIcons) {
-        int width = 18 * 11 + groupSpacing * 2;
-        int height = 18 * 4 + groupSpacing;
-        GuiElement<?> container = new GuiElement<>(parent)
-                .setZStacking(false)
-                .constrain(WIDTH, Constraint.literal(width))
-                .constrain(HEIGHT, Constraint.literal(height));
-
-        GuiSlots armor = new GuiSlots(container, screenAccess, armorSlots, 1)
-                .setYSlotSpacing(groupSpacing / 3)
-                .setEmptyIcon(index -> slotIcons ? ARMOR_SLOTS[index] : null)
-                .constrain(TOP, Constraint.midPoint(container.get(TOP), container.get(BOTTOM), height / -2D))
-                .constrain(LEFT, Constraint.midPoint(container.get(LEFT), container.get(RIGHT), width / -2D));
-
-        GuiSlots main = new GuiSlots(container, screenAccess, mainSlots, 9)
-                .constrain(TOP, match(armor.get(TOP)))
-                .constrain(LEFT, relative(armor.get(RIGHT), groupSpacing));
-
-        GuiSlots bar = new GuiSlots(container, screenAccess, hotBarSlots, 9)
-                .constrain(TOP, relative(main.get(BOTTOM), groupSpacing))
-                .constrain(LEFT, match(main.get(LEFT)));
-
-        GuiSlots offHand = new GuiSlots(container, screenAccess, offhandSlots, 1)
-                .setEmptyIcon(index -> slotIcons ? OFF_HAND_SLOT : null)
-                .constrain(TOP, match(bar.get(TOP)))
-                .constrain(LEFT, relative(bar.get(RIGHT), groupSpacing));
-
-        return new Assembly<>(container, main).addParts(bar, armor, offHand);
-    }
+    public record PlayerAll(GuiElement<?> container, GuiSlots main, GuiSlots hotBar, GuiSlots armor, GuiSlots offHand) {}
 }

@@ -5,14 +5,18 @@ import net.minecraft.client.renderer.texture.SpriteLoader;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Created by brandon3055 on 20/08/2023
@@ -50,12 +54,12 @@ public class ModAtlasHolder implements PreparableReloadListener, AutoCloseable {
     }
 
     @Override
-    public final @NotNull CompletableFuture<Void> reload(PreparationBarrier prepParrier, ResourceManager resourceManager, ProfilerFiller profiler, ProfilerFiller profiler2, Executor executor, Executor executor2) {
-        Objects.requireNonNull(prepParrier);
-        SpriteLoader spriteLoader = ModSpriteLoader.create(this.textureAtlas, modid);
-        return spriteLoader.loadAndStitch(resourceManager, this.atlasInfoLocation, 0, executor)
+    public final @NotNull CompletableFuture<Void> reload(PreparationBarrier prepBarrier, ResourceManager resourceManager, ProfilerFiller profiler, ProfilerFiller profiler2, Executor executor, Executor executor2) {
+        Objects.requireNonNull(prepBarrier);
+        SpriteLoader spriteLoader = SpriteLoader.create(this.textureAtlas);
+        return spriteLoader.loadAndStitch(new ModResourceManager(resourceManager, modid), this.atlasInfoLocation, 0, executor)
                 .thenCompose(SpriteLoader.Preparations::waitForUpload)
-                .thenCompose(prepParrier::wait)
+                .thenCompose(prepBarrier::wait)
                 .thenAcceptAsync((preparations) -> this.apply(preparations, profiler2), executor2);
     }
 
@@ -70,5 +74,28 @@ public class ModAtlasHolder implements PreparableReloadListener, AutoCloseable {
     @Override
     public void close() {
         this.textureAtlas.clearTextureData();
+    }
+
+    public static class ModResourceManager implements ResourceManager {
+        private final ResourceManager wrapped;
+        private final String modid;
+
+        public ModResourceManager(ResourceManager wrapped, String modid) {
+            this.wrapped = wrapped;
+            this.modid = modid;
+        }
+
+        @Override
+        public Map<ResourceLocation, Resource> listResources(String pPath, Predicate<ResourceLocation> pFilter) {
+            return wrapped.listResources(pPath, pFilter.and(e -> e.getNamespace().equals(modid)));
+        }
+
+        //@formatter:off
+        @Override public Set<String> getNamespaces() { return wrapped.getNamespaces(); }
+        @Override public List<Resource> getResourceStack(ResourceLocation pLocation) { return wrapped.getResourceStack(pLocation); }
+        @Override public Map<ResourceLocation, List<Resource>> listResourceStacks(String pPath, Predicate<ResourceLocation> pFilter) { return wrapped.listResourceStacks(pPath, pFilter); }
+        @Override public Stream<PackResources> listPacks() { return wrapped.listPacks(); }
+        @Override public Optional<Resource> getResource(ResourceLocation pLocation) { return wrapped.getResource(pLocation); }
+        //@formatter:on
     }
 }

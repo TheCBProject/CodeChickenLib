@@ -32,6 +32,90 @@ public class GuiDialog extends GuiElement<GuiDialog> {
     }
 
     /**
+     * Option dialog builder with pre-configured background and button builders.
+     *
+     * @param parent     Can be any gui element (Will just be used to get the root element)
+     * @param title      Sets a separate title that will be displayed above the main dialog text.  (Optional)
+     * @param dialogText The main dialog text.
+     * @param width      The dialog width, (Height will automatically adjust based on content.)
+     * @param options    The list of options for this dialog.
+     */
+    public static GuiDialog optionsDialog(@NotNull GuiParent<?> parent, @Nullable Component title, Component dialogText, int width, Option... options) {
+        return optionsDialog(parent, title, dialogText, GuiRectangle::toolTipBackground, GuiDialog::defaultButton, width, options);
+    }
+
+    /**
+     * Option dialog builder with pre-configured background and button builders.
+     *
+     * @param parent     Can be any gui element (Will just be used to get the root element)
+     * @param dialogText The main dialog text.
+     * @param width      The dialog width, (Height will automatically adjust based on content.)
+     * @param options    The list of options for this dialog.
+     */
+    public static GuiDialog optionsDialog(@NotNull GuiParent<?> parent, Component dialogText, int width, Option... options) {
+        return optionsDialog(parent, null, dialogText, width, options);
+    }
+
+    /**
+     * Creates a simple info dialog for displaying information to the user.
+     * The dialog has a single "Ok" button that will close the dialog
+     *
+     * @param parent     Can be any gui element (Will just be used to get the root element)
+     * @param title      Sets a separate title that will be displayed above the main dialog text.  (Optional)
+     * @param dialogText The main dialog text.
+     * @param width      The dialog width, (Height will automatically adjust based on content.)
+     */
+    public static GuiDialog infoDialog(@NotNull GuiParent<?> parent, @Nullable Component title, Component dialogText, int width, @Nullable Runnable okAction) {
+        return optionsDialog(parent, title, dialogText, width, neutral(Component.translatable("gui.ok"), okAction));
+    }
+
+    /**
+     * Creates a simple info dialog for displaying information to the user.
+     * The dialog has a single "Ok" button that will close the dialog
+     *
+     * @param parent     Can be any gui element (Will just be used to get the root element)
+     * @param title      Sets a separate title that will be displayed above the main dialog text.  (Optional)
+     * @param dialogText The main dialog text.
+     * @param width      The dialog width, (Height will automatically adjust based on content.)
+     */
+    public static GuiDialog infoDialog(@NotNull GuiParent<?> parent, @Nullable Component title, Component dialogText, int width) {
+        return infoDialog(parent, title, dialogText, width, null);
+    }
+
+    /**
+     * Creates a simple info dialog for displaying information to the user.
+     * The dialog has a single "Ok" button that will close the dialog
+     *
+     * @param parent     Can be any gui element (Will just be used to get the root element)
+     * @param dialogText The main dialog text.
+     * @param width      The dialog width, (Height will automatically adjust based on content.)
+     */
+    public static GuiDialog infoDialog(@NotNull GuiParent<?> parent, Component dialogText, int width) {
+        return infoDialog(parent, null, dialogText, width);
+    }
+
+    /**
+     * Create a green "Primary" button option.
+     */
+    public static Option primary(Component text, @Nullable Runnable action) {
+        return new Option(text, action, hovered -> hovered ? 0xFF44AA44 : 0xFF118811);
+    }
+
+    /**
+     * Create a grey "Neutral" button option.
+     */
+    public static Option neutral(Component text, @Nullable Runnable action) {
+        return new Option(text, action, hovered -> hovered ? 0xFF909090 : 0xFF505050);
+    }
+
+    /**
+     * Create a red "Caution" button option.
+     */
+    public static Option caution(Component text, @Nullable Runnable action) {
+        return new Option(text, action, hovered -> hovered ? 0xFFAA4444 : 0xFF881111);
+    }
+
+    /**
      * @param blockKeyInput Prevent keyboard inputs from being sent to the rest of the gui while this dialog is open.
      *                      Default: true.
      */
@@ -153,91 +237,5 @@ public class GuiDialog extends GuiElement<GuiDialog> {
         return button;
     }
 
-    /**
-     * Option dialog builder with pre-configured background and button builders.
-     *
-     * @param parent     Can be any gui element (Will just be used to get the root element)
-     * @param title      Sets a separate title that will be displayed above the main dialog text.  (Optional)
-     * @param dialogText The main dialog text.
-     * @param width      The dialog width, (Height will automatically adjust based on content.)
-     * @param options    The list of options for this dialog.
-     */
-    public static GuiDialog optionsDialog(@NotNull GuiParent<?> parent, @Nullable Component title, Component dialogText, int width, Option... options) {
-        return optionsDialog(parent, title, dialogText, GuiRectangle::toolTipBackground, GuiDialog::defaultButton, width, options);
-    }
-
-    /**
-     * Option dialog builder with pre-configured background and button builders.
-     *
-     * @param parent     Can be any gui element (Will just be used to get the root element)
-     * @param dialogText The main dialog text.
-     * @param width      The dialog width, (Height will automatically adjust based on content.)
-     * @param options    The list of options for this dialog.
-     */
-    public static GuiDialog optionsDialog(@NotNull GuiParent<?> parent, Component dialogText, int width, Option... options) {
-        return optionsDialog(parent, null, dialogText, width, options);
-    }
-
-    /**
-     * Creates a simple info dialog for displaying information to the user.
-     * The dialog has a single "Ok" button that will close the dialog
-     *
-     * @param parent     Can be any gui element (Will just be used to get the root element)
-     * @param title      Sets a separate title that will be displayed above the main dialog text.  (Optional)
-     * @param dialogText The main dialog text.
-     * @param width      The dialog width, (Height will automatically adjust based on content.)
-     */
-    public static GuiDialog infoDialog(@NotNull GuiParent<?> parent, @Nullable Component title, Component dialogText, int width, @Nullable Runnable okAction) {
-        return optionsDialog(parent, title, dialogText, width, neutral(Component.translatable("gui.ok"), okAction));
-    }
-
-    /**
-     * Creates a simple info dialog for displaying information to the user.
-     * The dialog has a single "Ok" button that will close the dialog
-     *
-     * @param parent     Can be any gui element (Will just be used to get the root element)
-     * @param title      Sets a separate title that will be displayed above the main dialog text.  (Optional)
-     * @param dialogText The main dialog text.
-     * @param width      The dialog width, (Height will automatically adjust based on content.)
-     */
-    public static GuiDialog infoDialog(@NotNull GuiParent<?> parent, @Nullable Component title, Component dialogText, int width) {
-        return infoDialog(parent, title, dialogText, width, null);
-    }
-
-    /**
-     * Creates a simple info dialog for displaying information to the user.
-     * The dialog has a single "Ok" button that will close the dialog
-     *
-     * @param parent     Can be any gui element (Will just be used to get the root element)
-     * @param dialogText The main dialog text.
-     * @param width      The dialog width, (Height will automatically adjust based on content.)
-     */
-    public static GuiDialog infoDialog(@NotNull GuiParent<?> parent, Component dialogText, int width) {
-        return infoDialog(parent, null, dialogText, width);
-    }
-
-    /**
-     * Create a green "Primary" button option.
-     */
-    public static Option primary(Component text, @Nullable Runnable action) {
-        return new Option(text, action, hovered -> hovered ? 0xFF44AA44 : 0xFF118811);
-    }
-
-    /**
-     * Create a grey "Neutral" button option.
-     */
-    public static Option neutral(Component text, @Nullable Runnable action) {
-        return new Option(text, action, hovered -> hovered ? 0xFF909090 : 0xFF505050);
-    }
-
-    /**
-     * Create a red "Caution" button option.
-     */
-    public static Option caution(Component text, @Nullable Runnable action) {
-        return new Option(text, action, hovered -> hovered ? 0xFFAA4444 : 0xFF881111);
-    }
-
-    public record Option(Component text, @Nullable Runnable action, Function<Boolean, Integer> colour) {
-
-    }
+    public record Option(Component text, @Nullable Runnable action, Function<Boolean, Integer> colour) {}
 }

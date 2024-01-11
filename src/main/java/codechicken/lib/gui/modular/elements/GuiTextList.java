@@ -147,7 +147,7 @@ public class GuiTextList extends GuiElement<GuiTextList> implements ForegroundRe
     }
 
     @Override
-    public void renderInFront(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderForeground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
         List<? extends Component> list = getText();
         if (list.isEmpty()) return;
         Font font = render.font();
@@ -171,29 +171,3 @@ public class GuiTextList extends GuiElement<GuiTextList> implements ForegroundRe
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

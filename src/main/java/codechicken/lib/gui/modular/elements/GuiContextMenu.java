@@ -36,6 +36,12 @@ public class GuiContextMenu extends GuiElement<GuiContextMenu> {
         super(gui.getRoot());
     }
 
+    public static GuiContextMenu tooltipStyleMenu(GuiParent<?> parent) {
+        GuiContextMenu menu = new GuiContextMenu(parent.getModularGui());
+        Constraints.bind(GuiRectangle.toolTipBackground(menu), menu);
+        return menu;
+    }
+
     public GuiContextMenu setCloseOnItemClicked(boolean closeOnItemClicked) {
         this.closeOnItemClicked = closeOnItemClicked;
         return this;
@@ -125,11 +131,5 @@ public class GuiContextMenu extends GuiElement<GuiContextMenu> {
         constrain(LEFT, dynamic(() -> Math.min(Math.max(x, 0), scaledScreenWidth() - xSize())));
         constrain(TOP, dynamic(() -> Math.min(Math.max(y, 0), scaledScreenHeight() - ySize())));
         return this;
-    }
-
-    public static GuiContextMenu tooltipStyleMenu(GuiParent<?> parent) {
-        GuiContextMenu menu = new GuiContextMenu(parent.getModularGui());
-        Constraints.bind(GuiRectangle.toolTipBackground(menu), menu);
-        return menu;
     }
 }

@@ -83,8 +83,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 
-    compileOnly(fg.deobf("mezz.jei:jei-${config.mc_version}-common-api:${config.jei_version}"))
-    compileOnly(fg.deobf("mezz.jei:jei-${config.mc_version}-forge-api:${config.jei_version}"))
+    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}"))
+    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}"))
 }
 
 test {

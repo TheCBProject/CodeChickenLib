@@ -91,7 +91,7 @@ public class GuiProgressIcon extends GuiElement<GuiProgressIcon> implements Back
     }
 
     @Override
-    public void renderBehind(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
         render.pose().pushPose();
 
         double width = direction.getAxis() == Axis.X ? xSize() : ySize();

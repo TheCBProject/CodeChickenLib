@@ -58,6 +58,29 @@ public class GuiSlider extends GuiElement<GuiSlider> {
     }
 
     /**
+     * Vanilla does not really seem to have a standard for its scroll bars,
+     * But this is something that should at least fit in to a typical vanilla gui.
+     */
+    public static ScrollBar vanillaScrollBar(GuiElement<?> parent, Axis axis) {
+        GuiRectangle background = GuiRectangle.vanillaSlot(parent);
+
+        GuiSlider slider = new GuiSlider(background, axis);
+        Constraints.bind(slider, background, 1);
+
+        slider.installSlider(GuiRectangle.planeButton(slider))
+                .bindSliderLength()
+                .bindSliderWidth();
+
+        GuiRectangle sliderHighlight = new GuiRectangle(slider.getSlider())
+                .fill(0x5000b6FF)
+                .setEnabled(() -> slider.getSlider().isMouseOver());
+
+        Constraints.bind(sliderHighlight, slider.getSlider());
+
+        return new ScrollBar(background, slider, sliderHighlight);
+    }
+
+    /**
      * Set the slider state used by this slider element.
      * The slider state is used to get and set the slider position.
      * It also controls scroll speed.
@@ -239,26 +262,5 @@ public class GuiSlider extends GuiElement<GuiSlider> {
         return false;
     }
 
-    /**
-     * Vanilla does not really seem to have a standard for its scroll bars,
-     * But this is something that should at least fit in to a typical vanilla gui.
-     */
-    public static Assembly<GuiRectangle, GuiSlider> vanillaScrollBar(GuiElement<?> parent, Axis axis) {
-        GuiRectangle background = GuiRectangle.vanillaSlot(parent);
-
-        GuiSlider slider = new GuiSlider(background, axis);
-        Constraints.bind(slider, background, 1);
-
-        slider.installSlider(GuiRectangle.planeButton(slider))
-                .bindSliderLength()
-                .bindSliderWidth();
-
-        GuiRectangle sliderHighlight = new GuiRectangle(slider.getSlider())
-                .fill(0x5000b6FF)
-                .setEnabled(() -> slider.getSlider().isMouseOver());
-
-        Constraints.bind(sliderHighlight, slider.getSlider());
-
-        return new Assembly<>(background, slider).addParts(sliderHighlight);
-    }
+    public record ScrollBar(GuiRectangle container, GuiSlider slider, GuiRectangle highlight) {}
 }

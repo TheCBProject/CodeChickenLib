@@ -71,7 +71,6 @@ public class ModularGuiContainer<T extends AbstractContainerMenu> extends Abstra
         imageWidth = (int) root.getValue(GeoParam.WIDTH);
         imageHeight = (int) root.getValue(GeoParam.HEIGHT);
 
-        modularGui.setVanillaSlotRendering(false);
         if (modularGui.renderBackground()) {
             renderBackground(graphics);
         }

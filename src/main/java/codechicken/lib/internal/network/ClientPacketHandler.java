@@ -1,6 +1,7 @@
 package codechicken.lib.internal.network;
 
 import codechicken.lib.inventory.container.ICCLContainerType;
+import codechicken.lib.inventory.container.modular.ModularGuiContainerMenu;
 import codechicken.lib.packet.ICustomPacketHandler.IClientPacketHandler;
 import codechicken.lib.packet.PacketCustom;
 import codechicken.lib.render.particle.CustomParticleHandler;
@@ -17,8 +18,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import static codechicken.lib.internal.network.CCLNetwork.C_ADD_LANDING_EFFECTS;
-import static codechicken.lib.internal.network.CCLNetwork.C_OPEN_CONTAINER;
+import static codechicken.lib.internal.network.CCLNetwork.*;
 
 /**
  * Created by covers1624 on 14/07/2017.
@@ -36,6 +36,7 @@ public class ClientPacketHandler implements IClientPacketHandler {
                 CustomParticleHandler.addLandingEffects(mc.level, pos, state, vec, numParticles);
             }
             case C_OPEN_CONTAINER -> handleOpenContainer(packet, mc);
+            case C_GUI_SYNC -> ModularGuiContainerMenu.handlePacketFromServer(mc.player, packet);
         }
     }
 

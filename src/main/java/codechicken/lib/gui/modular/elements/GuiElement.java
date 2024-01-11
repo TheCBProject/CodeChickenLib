@@ -8,6 +8,7 @@ import codechicken.lib.gui.modular.lib.geometry.ConstrainedGeometry;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import codechicken.lib.gui.modular.lib.geometry.Position;
 import codechicken.lib.gui.modular.lib.geometry.Rectangle;
+import net.covers1624.quack.util.SneakyUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -39,20 +40,19 @@ import java.util.function.Supplier;
  * <p>
  * Created by brandon3055 on 04/07/2023
  */
-@SuppressWarnings ("unchecked")
-public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> implements ElementEvents, ToolTipHandler<T> {
+public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> implements ElementEvents, TooltipHandler<T> {
 
     @NotNull
     private GuiParent<?> parent;
 
     private final List<GuiElement<?>> addedQueue = new ArrayList<>();
-    private final List<GuiElement<?>> addedFirstQueue = new ArrayList<>();
     private final List<GuiElement<?>> removeQueue = new ArrayList<>();
     private final List<GuiElement<?>> childElements = new ArrayList<>();
+    private final List<GuiElement<?>> childElementsUnmodifiable = Collections.unmodifiableList(childElements);
     public boolean initialized = false;
 
-    private Font font;
     private Minecraft mc;
+    private Font font;
     private int screenWidth;
     private int screenHeight;
 
@@ -83,18 +83,9 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
 
     //=== Child Element Handling ===//
 
-    /**
-     * When creating custom gui elements, use this method to add any required child elements.
-     * With ModularGui v3 it is technically possible to add children in the constructor,
-     * But that may not always be supported. This is the preferred method.
-     */
-    @Deprecated//I'm starting to just do everything in the element constructors.
-    protected void addChildElements() {
-    }
-
     @Override
     public List<GuiElement<?>> getChildren() {
-        return Collections.unmodifiableList(childElements);
+        return childElementsUnmodifiable;
     }
 
     /**
@@ -138,10 +129,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
     public void initElement(GuiParent<?> parent) {
         removed = false;
         updateScreenData(parent.mc(), parent.font(), parent.scaledScreenWidth(), parent.scaledScreenHeight());
-        if (!initialized) {
-            initialized = true;
-            addChildElements();
-        }
+        initialized = true;
     }
 
     @Override
@@ -210,12 +198,12 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
 
     public T setEnabled(boolean enabled) {
         this.enabled = () -> enabled;
-        return (T) this;
+        return SneakyUtils.unsafeCast(this);
     }
 
     public T setEnabled(@Nullable Supplier<Boolean> enabled) {
         this.enabled = enabled;
-        return (T) this;
+        return SneakyUtils.unsafeCast(this);
     }
 
     public boolean isEnabled() {
@@ -228,7 +216,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
 
     public T setEnableToolTip(Supplier<Boolean> enableToolTip) {
         this.enableToolTip = enableToolTip;
-        return (T) this;
+        return SneakyUtils.unsafeCast(this);
     }
 
     @Override
@@ -266,7 +254,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
      */
     public T setOpaque(boolean opaque) {
         this.opaque = opaque;
-        return (T) this;
+        return SneakyUtils.unsafeCast(this);
     }
 
     /**
@@ -299,7 +287,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
      */
     public T jeiExclude() {
         getModularGui().jeiExclude(this);
-        return (T) this;
+        return SneakyUtils.unsafeCast(this);
     }
 
     /**
@@ -307,7 +295,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
      */
     public T removeJEIExclude() {
         getModularGui().removeJEIExclude(this);
-        return (T) this;
+        return SneakyUtils.unsafeCast(this);
     }
 
     //=== Render / Update ===//
@@ -319,7 +307,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
      */
     public T setRenderCull(@Nullable Rectangle renderCull) {
         this.renderCull = renderCull;
-        return (T) this;
+        return SneakyUtils.unsafeCast(this);
     }
 
     /**
@@ -333,7 +321,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
      */
     public T setZStacking(boolean zStacking) {
         this.zStacking = zStacking;
-        return (T) this;
+        return SneakyUtils.unsafeCast(this);
     }
 
     public boolean zStacking() {
@@ -383,7 +371,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
         applyQueuedChildUpdates();
         if (this instanceof BackgroundRender bgr) {
             double depth = bgr.getBackgroundDepth();
-            bgr.renderBehind(render, mouseX, mouseY, partialTicks);
+            bgr.renderBackground(render, mouseX, mouseY, partialTicks);
             if (depth > 0) {
                 render.pose().translate(0, 0, depth);
             }
@@ -409,7 +397,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
 
         if (this instanceof ForegroundRender fgr) {
             double depth = fgr.getForegroundDepth();
-            fgr.renderInFront(render, mouseX, mouseY, partialTicks);
+            fgr.renderForeground(render, mouseX, mouseY, partialTicks);
             if (depth > 0) {
                 render.pose().translate(0, 0, depth);
             }
@@ -502,7 +490,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
     @Override
     public T setTooltipDelay(int tooltipDelay) {
         this.hoverTextDelay = tooltipDelay;
-        return (T) this;
+        return SneakyUtils.unsafeCast(this);
     }
 
     @Override
@@ -513,6 +501,6 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
     @Override
     public T setTooltip(@Nullable Supplier<List<Component>> tooltip) {
         this.toolTip = tooltip;
-        return (T) this;
+        return SneakyUtils.unsafeCast(this);
     }
 }

@@ -6,6 +6,7 @@ import codechicken.lib.gui.modular.lib.container.ContainerGuiProvider;
 import codechicken.lib.gui.modular.lib.geometry.Constraint;
 import codechicken.lib.gui.modular.lib.geometry.GeoParam;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
+import net.covers1624.quack.collection.FastStream;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
@@ -55,7 +56,6 @@ public class ModularGui implements GuiParent<ModularGui> {
     private Screen parentScreen;
 
     private Component guiTitle = Component.empty();
-    private GuiElement<?> focused;
     private ResourceLocation newCursor = null;
 
     private final Map<Slot, GuiElement<?>> slotHandlers = new HashMap<>();
@@ -492,17 +492,6 @@ public class ModularGui implements GuiParent<ModularGui> {
 
     //=== Other ===//
 
-//    @Override
-//    public void setFocused(@Nullable GuiElement<?> element) {
-//        focused = element;
-//    }
-//
-//    @Nullable
-//    @Override
-//    public GuiElement<?> getFocused() {
-//        return focused;
-//    }
-
     public double computeMouseX() {
         return mc.mouseHandler.xpos() * (double) mc.getWindow().getGuiScaledWidth() / (double) mc.getWindow().getScreenWidth();
     }
@@ -552,8 +541,8 @@ public class ModularGui implements GuiParent<ModularGui> {
         jeiExclusions.remove(element);
     }
 
-    public Stream<GuiElement<?>> getJeiExclusions() {
-        return jeiExclusions.stream().filter(GuiElement::isEnabled);
+    public FastStream<GuiElement<?>> getJeiExclusions() {
+        return FastStream.of(jeiExclusions).filter(GuiElement::isEnabled);
     }
 
     /**

@@ -35,7 +35,6 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor.ARGB32;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -236,14 +235,14 @@ public class GuiRender {
      */
     public void gradientFillV(RenderType type, double xMin, double yMin, double xMax, double yMax, int topColour, int bottomColour) {
         VertexConsumer buffer = buffers().getBuffer(type);
-        float sA = (float) ARGB32.alpha(topColour) / 255.0F;
-        float sR = (float) ARGB32.red(topColour) / 255.0F;
-        float sG = (float) ARGB32.green(topColour) / 255.0F;
-        float sB = (float) ARGB32.blue(topColour) / 255.0F;
-        float eA = (float) ARGB32.alpha(bottomColour) / 255.0F;
-        float eR = (float) ARGB32.red(bottomColour) / 255.0F;
-        float eG = (float) ARGB32.green(bottomColour) / 255.0F;
-        float eB = (float) ARGB32.blue(bottomColour) / 255.0F;
+        float sA = a(topColour) / 255.0F;
+        float sR = r(topColour) / 255.0F;
+        float sG = g(topColour) / 255.0F;
+        float sB = b(topColour) / 255.0F;
+        float eA = a(bottomColour) / 255.0F;
+        float eR = r(bottomColour) / 255.0F;
+        float eG = g(bottomColour) / 255.0F;
+        float eB = b(bottomColour) / 255.0F;
         Matrix4f mat = pose.last().pose();
         buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(eR, eG, eB, eA).endVertex(); //R-B
         buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(sR, sG, sB, sA).endVertex(); //R-T
@@ -264,14 +263,14 @@ public class GuiRender {
      */
     public void gradientFillH(RenderType type, double xMin, double yMin, double xMax, double yMax, int leftColour, int rightColour) {
         VertexConsumer buffer = buffers().getBuffer(type);
-        float sA = (float) ARGB32.alpha(leftColour) / 255.0F;
-        float sR = (float) ARGB32.red(leftColour) / 255.0F;
-        float sG = (float) ARGB32.green(leftColour) / 255.0F;
-        float sB = (float) ARGB32.blue(leftColour) / 255.0F;
-        float eA = (float) ARGB32.alpha(rightColour) / 255.0F;
-        float eR = (float) ARGB32.red(rightColour) / 255.0F;
-        float eG = (float) ARGB32.green(rightColour) / 255.0F;
-        float eB = (float) ARGB32.blue(rightColour) / 255.0F;
+        float sA = a(leftColour) / 255.0F;
+        float sR = r(leftColour) / 255.0F;
+        float sG = g(leftColour) / 255.0F;
+        float sB = b(leftColour) / 255.0F;
+        float eA = a(rightColour) / 255.0F;
+        float eR = r(rightColour) / 255.0F;
+        float eG = g(rightColour) / 255.0F;
+        float eB = b(rightColour) / 255.0F;
         Matrix4f mat = pose.last().pose();
         buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(eR, eG, eB, eA).endVertex(); //R-B
         buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(eR, eG, eB, eA).endVertex(); //R-T
@@ -1076,8 +1075,6 @@ public class GuiRender {
     }
 
     //Todo, This method can probably be made a lot more efficient.
-    // Also thinking a about a data generator to automatically stitch together these textures so there is no need to generate them dynamically.
-    // That would be a lot more efficient and more compatible with custom resource packs.
     private void dynamicTexInternal(Material material, int xPos, int yPos, int xSize, int ySize, int topBorder, int leftBorder, int bottomBorder, int rightBorder, float red, float green, float blue, float alpha) {
         TextureAtlasSprite sprite = material.sprite();
         VertexConsumer buffer = material.buffer(buffers, GuiRender::texColType);
@@ -1662,22 +1659,19 @@ public class GuiRender {
     }
 
     private static float r(int argb) {
-        return ARGB32.red(argb) / 255F;
+        return (argb >> 16 & 255) / 255F;
     }
 
     private static float g(int argb) {
-        return ARGB32.green(argb) / 255F;
-
+        return (argb >> 8 & 255) / 255F;
     }
 
     private static float b(int argb) {
-        return ARGB32.blue(argb) / 255F;
-
+        return (argb & 255) / 255F;
     }
 
     private static float a(int argb) {
-        return ARGB32.alpha(argb) / 255F;
-
+        return (argb >>> 24) / 255F;
     }
 
     //Render Type Builders

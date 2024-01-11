@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  *
  * @see ConstrainedGeometry
  */
-public interface Constraint {
+public sealed interface Constraint permits ConstraintImpl {
 
     /**
      * This method will return the current value of this constraint.
@@ -151,10 +151,4 @@ public interface Constraint {
     static ConstraintImpl.MidPointDynamic midPoint(GeoRef start, GeoRef end, Supplier<Double> offset) {
         return new ConstraintImpl.MidPointDynamic(start, end, offset);
     }
-
-    //TODO
-    // Between with offset
-    // Will att more as i start to use this system and figure out whats needed.
-    //
-
 }

@@ -37,25 +37,7 @@ public interface Position {
         return new Bound(parent);
     }
 
-    record Immutable(double xPos, double yPos) implements Position {
-        @Override
-        public double x() {
-            return xPos;
-        }
-
-        @Override
-        public double y() {
-            return yPos;
-        }
-
-        @Override
-        public String toString() {
-            return "Immutable{" +
-                    "x=" + x() +
-                    ", y=" + y() +
-                    '}';
-        }
-    }
+    record Immutable(@Override double x, @Override double y) implements Position { }
 
     record Bound(GuiParent<?> parent) implements Position {
         @Override
