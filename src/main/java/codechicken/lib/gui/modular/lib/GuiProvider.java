@@ -2,10 +2,11 @@ package codechicken.lib.gui.modular.lib;
 
 import codechicken.lib.gui.modular.ModularGui;
 import codechicken.lib.gui.modular.elements.GuiElement;
+import codechicken.lib.gui.modular.lib.container.ContainerGuiProvider;
 
 /**
  * This interface is used to build modular gui Screens.
- * For modular gui container screens use {@link codechicken.lib.gui.modular.lib.container.ContainerGuiProvider}
+ * For modular gui container screens use {@link ContainerGuiProvider}
  *
  * Created by brandon3055 on 19/08/2023
  */

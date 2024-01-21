@@ -12,7 +12,7 @@ import java.util.function.Supplier;
  * Created by brandon3055 on 09/09/2023
  */
 public class DataSync<T> {
-
+    public static final int PKT_SEND_CHANGES = 255;
     private final ModularGuiContainerMenu containerMenu;
     private final AbstractDataStore<T> dataStore;
     private final Supplier<T> valueGetter;
@@ -25,7 +25,7 @@ public class DataSync<T> {
     }
 
     public T get() {
-        return dataStore.getValue();
+        return dataStore.get();
     }
 
     /**
@@ -35,8 +35,8 @@ public class DataSync<T> {
         if (dataStore.isSameValue(valueGetter.get())) {
             return;
         }
-        dataStore.setValue(valueGetter.get());
-        containerMenu.sendPacketToClient(255, buf -> {
+        dataStore.set(valueGetter.get());
+        containerMenu.sendPacketToClient(PKT_SEND_CHANGES, buf -> {
             buf.writeByte((byte) containerMenu.dataSyncs.indexOf(this));
             dataStore.toBytes(buf);
         });

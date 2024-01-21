@@ -9,6 +9,7 @@ import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import net.covers1624.quack.collection.FastStream;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
@@ -204,7 +205,7 @@ public class ModularGui implements GuiParent<ModularGui> {
     /**
      * Create a new {@link GuiRender} for the current render call.
      *
-     * @param buffers BufferSource can be retried from {@link net.minecraft.client.gui.GuiGraphics}
+     * @param buffers BufferSource can be retried from {@link GuiGraphics}
      * @return A new {@link GuiRender} for the current render call.
      */
     public GuiRender createRender(MultiBufferSource.BufferSource buffers) {

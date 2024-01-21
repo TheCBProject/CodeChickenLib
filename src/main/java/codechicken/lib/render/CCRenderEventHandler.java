@@ -53,10 +53,4 @@ public class CCRenderEventHandler {
             RenderUtils.bufferShapeHitBox(mat, event.getMultiBufferSource(), event.getCamera(), voxelHit.shape);
         }
     }
-
-    @OnlyIn (Dist.CLIENT)
-    @SubscribeEvent (priority = EventPriority.LOW)
-    public void screenOpenEvent(ScreenEvent.Opening event) {
-        CursorHelper.resetCursor();
-    }
 }

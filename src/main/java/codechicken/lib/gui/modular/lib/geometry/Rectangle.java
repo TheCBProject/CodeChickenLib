@@ -154,7 +154,7 @@ public interface Rectangle {
      * Returns a new rectangle bound to the specified parent's geometry.
      */
     static Rectangle create(GuiParent<?> parent) {
-        return new Bound(Position.create(parent), parent);
+        return new Dynamic(Position.create(parent), parent::xSize, parent::ySize);
     }
 
     static Rectangle create(Position position, Supplier<Double> getWidth, Supplier<Double> getHeight) {
@@ -187,35 +187,6 @@ public interface Rectangle {
         @Override
         public String toString() {
             return "Immutable{" +
-                    "pos=" + pos() +
-                    ", width=" + width() +
-                    ", height=" + height() +
-                    '}';
-        }
-    }
-
-    /**
-     * Should not be created directly
-     */
-    record Bound(Position position, GuiParent<?> parent) implements Rectangle {
-        @Override
-        public Position pos() {
-            return position;
-        }
-
-        @Override
-        public double width() {
-            return parent.xSize();
-        }
-
-        @Override
-        public double height() {
-            return parent.ySize();
-        }
-
-        @Override
-        public String toString() {
-            return "Bound{" +
                     "pos=" + pos() +
                     ", width=" + width() +
                     ", height=" + height() +

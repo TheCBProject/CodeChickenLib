@@ -78,13 +78,11 @@ public class ModularGuiScreen extends Screen {
     }
 
     @Override
-    public void onClose() {
-        super.onClose();
+    public void removed() {
         modularGui.onGuiClose();
     }
 
     //=== Input Pass-though ===//
-    //TODO, We probably dont need to call super for most of these, If anyone tries adding vanilla components to these guis its probably going to break.
 
     @Override
     public void mouseMoved(double mouseX, double mouseY) {

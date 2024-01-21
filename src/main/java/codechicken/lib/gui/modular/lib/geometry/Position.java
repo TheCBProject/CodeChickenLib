@@ -34,30 +34,10 @@ public interface Position {
      * Creates a new position, bound to the specified parent's position.
      * */
     static Position create(GuiParent<?> parent) {
-        return new Bound(parent);
+        return new Dynamic(parent::xMin, parent::yMin);
     }
 
     record Immutable(@Override double x, @Override double y) implements Position { }
-
-    record Bound(GuiParent<?> parent) implements Position {
-        @Override
-        public double x() {
-            return parent.xMin();
-        }
-
-        @Override
-        public double y() {
-            return parent.yMin();
-        }
-
-        @Override
-        public String toString() {
-            return "Bound{" +
-                    "x=" + x() +
-                    ", y=" + y() +
-                    '}';
-        }
-    }
 
     record Dynamic(Supplier<Double> getX, Supplier<Double> getY) implements Position {
         @Override

@@ -3,7 +3,6 @@ package codechicken.lib.inventory.container.data;
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.Objects;
 
@@ -20,11 +19,11 @@ public abstract class AbstractDataStore<T> {
         this.value = defaultValue;
     }
 
-    public T getValue() {
+    public T get() {
         return value;
     }
 
-    public void setValue(T value) {
+    public void set(T value) {
         this.value = value;
         markDirty();
     }

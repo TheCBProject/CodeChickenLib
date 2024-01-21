@@ -1,6 +1,7 @@
 package codechicken.lib.gui.modular.lib.container;
 
 import codechicken.lib.gui.modular.ModularGui;
+import codechicken.lib.gui.modular.ModularGuiContainer;
 import codechicken.lib.gui.modular.lib.GuiProvider;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -26,7 +27,7 @@ public abstract class ContainerGuiProvider<T extends AbstractContainerMenu> impl
      * The given menu accessor should always be the parent screen unless your using some custom modular gui implementation.
      *
      * @param gui          The modular gui instance.
-     * @param screenAccess The screen access (This will be a gui class that extends {@link codechicken.lib.gui.modular.ModularGuiContainer}
+     * @param screenAccess The screen access (This will be a gui class that extends {@link ModularGuiContainer}
      */
     public abstract void buildGui(ModularGui gui, ContainerScreenAccess<T> screenAccess);
 }

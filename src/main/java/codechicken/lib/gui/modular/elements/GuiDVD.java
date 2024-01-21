@@ -93,7 +93,5 @@ public class GuiDVD extends GuiElement<GuiDVD> implements ContentElement<GuiElem
             velocity.y = velocity.y > 0 ? MathHelper.clip(velocity.y, 0.4, 0.6) : MathHelper.clip(velocity.y, -0.4, -0.6);
             velocity.normalize();
         }
-
-//        if (bounces == 2)
     }
 }

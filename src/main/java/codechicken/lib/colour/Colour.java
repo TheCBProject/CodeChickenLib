@@ -134,75 +134,75 @@ public abstract class Colour implements Copyable<Colour> {
         return set(floats[0], floats[1], floats[2], floats[3]);
     }
 
-    public Colour r(float r) {
+    public Colour rF(float r) {
         this.r = (byte) (255F * r);
         return this;
     }
 
-    public Colour g(float g) {
+    public Colour gF(float g) {
         this.g = (byte) (255F * g);
         return this;
     }
 
-    public Colour b(float b) {
+    public Colour bF(float b) {
         this.b = (byte) (255F * b);
         return this;
     }
 
-    public Colour a(float a) {
+    public Colour aF(float a) {
         this.a = (byte) (255F * a);
         return this;
     }
 
-    public Colour r(int r) {
+    public Colour rF(int r) {
         this.r = (byte) r;
         return this;
     }
 
-    public Colour g(int g) {
+    public Colour gF(int g) {
         this.g = (byte) g;
         return this;
     }
 
-    public Colour b(int b) {
+    public Colour bF(int b) {
         this.b = (byte) b;
         return this;
     }
 
-    public Colour a(int a) {
+    public Colour aF(int a) {
         this.a = (byte) a;
         return this;
     }
 
-    public float r() {
+    public float rF() {
         return r / 255F;
     }
 
-    public float g() {
+    public float gF() {
         return g / 255F;
     }
 
-    public float b() {
+    public float bF() {
         return b / 255F;
     }
 
-    public float a() {
+    public float aF() {
         return a / 255F;
     }
 
-    public float rI() {
+    public int r() {
         return r & 0xFF;
     }
 
-    public float gI() {
+    public int g() {
         return g & 0xFF;
     }
 
-    public float bI() {
+    public int b() {
         return b & 0xFF;
     }
 
-    public float aI() {
+    public int a() {
         return a & 0xFF;
     }
 

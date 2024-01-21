@@ -10,6 +10,9 @@ import codechicken.lib.model.ClassModelLoader;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.BlockRenderingRegistry;
 import net.covers1624.quack.util.CrashLock;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
@@ -81,6 +84,6 @@ public class ClientInit {
 
     public static void onResourceReload(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(CCGuiTextures.getAtlasHolder());
-        CursorHelper.onResourceReload();
+        event.registerReloadListener((ResourceManagerReloadListener) e -> CursorHelper.onResourceReload());
     }
 }

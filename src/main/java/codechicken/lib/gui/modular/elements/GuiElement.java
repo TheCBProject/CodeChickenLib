@@ -11,6 +11,7 @@ import codechicken.lib.gui.modular.lib.geometry.Rectangle;
 import net.covers1624.quack.util.SneakyUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,7 +34,7 @@ import java.util.function.Supplier;
  * This is then used to properly layer elements and child elements when they are rendered.
  * <tr>- Switch everything over to the new RenderType system. (This is mostly handled behind the scenes. You don't need to mess with it when creating a GUI)
  * <tr>- Consolidate all the various rendering helper methods into one convenient utility class.
- * The new {@link net.minecraft.client.gui.GuiGraphics} system showed me a good way to implement this.
+ * The new {@link GuiGraphics} system showed me a good way to implement this.
  * <tr>- Reduce the amount of ambiguity when building GUIs. (Whether I succeeded here is up for debate xD)
  * <tr>- Cut out a lot of random bloat that was never used in v2.
  * <p>
@@ -230,14 +231,6 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
     }
 
     /**
-     * @return True if the cursor is within the bounds of this element.
-     */
-    @Deprecated(forRemoval = true) //use #isMouseOver()
-    public boolean isMouseOver(double mouseX, double mouseY) {
-        return isMouseOver;//GuiRender.isInRect(xMin(), yMin(), xSize(), ySize(), mouseX, mouseY) && !blockMouseOver(this, mouseX, mouseY);
-    }
-
-    /**
      * @return True if the cursor is within the bounds of this element, and there is no opaque element above this one obstructing the cursor.
      */
     public boolean isMouseOver() {
@@ -263,14 +256,6 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
      */
     public int hoverTime() {
         return hoverTime;
-    }
-
-    /**
-     * Note, Due to this using hoverTime, there may be a 1 tick delay in the updating of this value.
-     */
-    @Deprecated(forRemoval = true) //use #isMouseOver()
-    public boolean hovered() {
-        return hoverTime > 0;
     }
 
     @Override

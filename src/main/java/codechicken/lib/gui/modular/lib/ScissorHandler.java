@@ -30,7 +30,7 @@ public class ScissorHandler {
     public void pushScissor(int x, int y, int width, int height) {
         int xMax = x + width;
         int yMax = y + height;
-        stack.addLast(new ScissorState(x, y, xMax, yMax, stack.peekLast()).apply());
+        stack.addLast(ScissorState.createState(x, y, xMax, yMax, stack.peekLast()).apply());
     }
 
     public void popScissor() {
@@ -46,36 +46,30 @@ public class ScissorHandler {
         }
     }
 
-    private static class ScissorState {
-        private int x;
-        private int y;
-        private int xMax;
-        private int yMax;
-
-        private ScissorState(int x, int y, int xMax, int yMax, ScissorState prevState) {
-            if (prevState != null) {
-                this.x = Math.max(prevState.x, x);
-                this.y = Math.max(prevState.y, y);
-                this.xMax = Math.min(prevState.xMax, xMax);
-                this.yMax = Math.min(prevState.yMax, yMax);
-                Minecraft mc = Minecraft.getInstance();
-                if (this.x < 0) this.x = 0;
-                if (this.y < 0) this.y = 0;
-                if (this.xMax > mc.getWindow().getScreenWidth()) this.xMax = mc.getWindow().getScreenWidth();
-                if (this.yMax > mc.getWindow().getScreenHeight()) this.yMax = mc.getWindow().getScreenHeight();
-                if (this.xMax < this.x) this.xMax = this.x;
-                if (this.yMax < this.y) this.yMax = this.y;
-            } else {
-                this.x = x;
-                this.y = y;
-                this.xMax = xMax;
-                this.yMax = yMax;
-            }
-        }
+    private record ScissorState(int x, int y, int xMax, int yMax) {
 
         private ScissorState apply() {
             RenderSystem.enableScissor(x, y, xMax - x, yMax - y);
             return this;
+        }
+
+        private static ScissorState createState(int newX, int newY, int newXMax, int newYMax, ScissorState prevState) {
+            if (prevState != null) {
+                int x = Math.max(prevState.x, newX);
+                int y = Math.max(prevState.y, newY);
+                int xMax = Math.min(prevState.xMax, newXMax);
+                int yMax = Math.min(prevState.yMax, newYMax);
+                Minecraft mc = Minecraft.getInstance();
+                if (x < 0) x = 0;
+                if (y < 0) y = 0;
+                if (xMax > mc.getWindow().getScreenWidth()) xMax = mc.getWindow().getScreenWidth();
+                if (yMax > mc.getWindow().getScreenHeight()) yMax = mc.getWindow().getScreenHeight();
+                if (xMax < x) xMax = x;
+                if (yMax < y) yMax = y;
+                return new ScissorState(x, y, xMax, yMax);
+            } else {
+                return new ScissorState(newX, newY, newXMax, newYMax);
+            }
         }
     }
 }

@@ -20,8 +20,7 @@ public class ModularSlot extends Slot {
     private Predicate<ItemStack> validator = stack -> true;
     private Function<ItemStack, Integer> stackLimit = stack -> Integer.MAX_VALUE;
     private BiPredicate<Player, ItemStack> canRemove = (player, stack) -> true;
-    private BiConsumer<ItemStack, ItemStack> onSet = (oldStack, newStack) -> {
-    };
+    private BiConsumer<ItemStack, ItemStack> onSet = (oldStack, newStack) -> {};
 
     public ModularSlot(Container container, int index) {
         this(container, index, 0, 0);

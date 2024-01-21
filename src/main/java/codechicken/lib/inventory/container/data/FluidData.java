@@ -21,7 +21,7 @@ public class FluidData extends AbstractDataStore<FluidStack> {
     }
 
     @Override
-    public void setValue(FluidStack value) {
+    public void set(FluidStack value) {
         this.value = value.copy();
         markDirty();
     }
