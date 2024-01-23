@@ -89,7 +89,6 @@ public interface Rectangle {
     /**
      * Returns a new rectangle, the bounds of which enclose all the input rectangles.
      *
-     * @param rect        Starting rectangle
      * @param combineWith Rectangles to combine with the start rectangle
      */
     default Rectangle combine(Rectangle... combineWith) {

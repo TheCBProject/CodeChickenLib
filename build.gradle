@@ -72,7 +72,7 @@ configurations {
 repositories {
     mavenLocal()
     maven { url "https://maven.covers1624.net/" }
-    maven { url "https://dvs1.progwml6.com/files/maven/" }
+    maven { url "https://maven.blamejared.com/" }
 }
 
 dependencies {
