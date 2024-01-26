@@ -15,6 +15,10 @@ public class CCLNetwork {
     //Client handled.
     public static final int C_ADD_LANDING_EFFECTS = 1;
     public static final int C_OPEN_CONTAINER = 10;
+    public static final int C_GUI_SYNC = 20;
+
+    //Server handled.
+    public static final int S_GUI_SYNC = 20;
 
     //Login handled.
     public static final int L_CONFIG_SYNC = 1;
@@ -22,8 +26,8 @@ public class CCLNetwork {
     public static void init() {
         netChannel = PacketCustomChannelBuilder.named(NET_CHANNEL)//
                 .assignClientHandler(() -> ClientPacketHandler::new)//
+                .assignServerHandler(() -> ServerPacketHandler::new)//
                 .assignLoginHandler(() -> LoginPacketHandler::new)//
                 .build();
     }
-
 }

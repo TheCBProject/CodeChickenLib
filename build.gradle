@@ -72,6 +72,7 @@ configurations {
 repositories {
     mavenLocal()
     maven { url "https://maven.covers1624.net/" }
+    maven { url "https://maven.blamejared.com/" }
 }
 
 dependencies {
@@ -81,6 +82,9 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}"))
+    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}"))
 }
 
 test {

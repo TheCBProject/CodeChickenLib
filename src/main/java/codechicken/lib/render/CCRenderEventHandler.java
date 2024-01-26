@@ -1,11 +1,13 @@
 package codechicken.lib.render;
 
+import codechicken.lib.gui.modular.lib.CursorHelper;
 import codechicken.lib.raytracer.VoxelShapeBlockHitResult;
 import codechicken.lib.vec.Matrix4;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderHighlightEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
