@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Created by covers1624 on 28/12/20.
@@ -44,6 +45,18 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
 
     public static ShapedRecipeBuilder builder(ItemLike result, int count, ResourceLocation id) {
         return builder(new ItemStack(result, count), id);
+    }
+
+    public static ShapedRecipeBuilder builder(Supplier<? extends ItemLike> result) {
+        return builder(result.get(), 1);
+    }
+
+    public static ShapedRecipeBuilder builder(Supplier<? extends ItemLike> result, int count) {
+        return builder(new ItemStack(result.get(), count));
+    }
+
+    public static ShapedRecipeBuilder builder(Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
+        return builder(new ItemStack(result.get(), count), id);
     }
 
     public static ShapedRecipeBuilder builder(ItemStack result) {
@@ -84,6 +97,11 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
     public ShapedRecipeBuilder key(char key, ItemLike item) {
         addAutoCriteria(item);
         return keyInternal(key, Ingredient.of(item));
+    }
+
+    public ShapedRecipeBuilder key(char key, Supplier<? extends ItemLike> item) {
+        addAutoCriteria(item.get());
+        return keyInternal(key, Ingredient.of(item.get()));
     }
 
     public ShapedRecipeBuilder key(char key, Ingredient ingredient) {

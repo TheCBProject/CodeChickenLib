@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Created by covers1624 on 28/12/20.
@@ -39,6 +40,18 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
 
     public static ShapelessRecipeBuilder builder(ItemLike result, int count, ResourceLocation id) {
         return builder(new ItemStack(result, count), id);
+    }
+
+    public static ShapelessRecipeBuilder builder(Supplier<? extends ItemLike> result) {
+        return builder(result.get(), 1);
+    }
+
+    public static ShapelessRecipeBuilder builder(Supplier<? extends ItemLike> result, int count) {
+        return builder(new ItemStack(result.get(), count));
+    }
+
+    public static ShapelessRecipeBuilder builder(Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
+        return builder(new ItemStack(result.get(), count), id);
     }
 
     public static ShapelessRecipeBuilder builder(ItemStack result) {
@@ -78,6 +91,19 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
     public ShapelessRecipeBuilder addIngredient(TagKey<Item> tag, int quantity) {
         addAutoCriteria(tag);
         Ingredient ingredient = Ingredient.of(tag);
+        for (int i = 0; i < quantity; ++i) {
+            ingredients.add(ingredient);
+        }
+        return this;
+    }
+
+    public ShapelessRecipeBuilder addIngredient(Supplier<? extends ItemLike> item) {
+        return addIngredient(item.get(), 1);
+    }
+
+    public ShapelessRecipeBuilder addIngredient(Supplier<? extends ItemLike> item, int quantity) {
+        addAutoCriteria(item.get());
+        Ingredient ingredient = Ingredient.of(item.get());
         for (int i = 0; i < quantity; ++i) {
             ingredients.add(ingredient);
         }

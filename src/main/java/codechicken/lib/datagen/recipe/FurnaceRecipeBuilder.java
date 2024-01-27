@@ -12,6 +12,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.function.Supplier;
+
 /**
  * Created by covers1624 on 28/12/20.
  */
@@ -40,6 +42,18 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
         return smelting(new ItemStack(result, count), id);
     }
 
+    public static FurnaceRecipeBuilder smelting(Supplier<? extends ItemLike> result) {
+        return smelting(result.get(), 1);
+    }
+
+    public static FurnaceRecipeBuilder smelting(Supplier<? extends ItemLike> result, int count) {
+        return smelting(new ItemStack(result.get(), count));
+    }
+
+    public static FurnaceRecipeBuilder smelting(Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
+        return smelting(new ItemStack(result.get(), count), id);
+    }
+
     public static FurnaceRecipeBuilder smelting(ItemStack result) {
         return smelting(result, ForgeRegistries.ITEMS.getKey(result.getItem()));
     }
@@ -61,6 +75,18 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
 
     public static FurnaceRecipeBuilder blasting(ItemLike result, int count, ResourceLocation id) {
         return blasting(new ItemStack(result, count), id);
+    }
+
+    public static FurnaceRecipeBuilder blasting(Supplier<? extends ItemLike> result) {
+        return blasting(result.get(), 1);
+    }
+
+    public static FurnaceRecipeBuilder blasting(Supplier<? extends ItemLike> result, int count) {
+        return blasting(new ItemStack(result.get(), count));
+    }
+
+    public static FurnaceRecipeBuilder blasting(Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
+        return blasting(new ItemStack(result.get(), count), id);
     }
 
     public static FurnaceRecipeBuilder blasting(ItemStack result) {
@@ -86,6 +112,18 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
         return smoking(new ItemStack(result, count), id);
     }
 
+    public static FurnaceRecipeBuilder smoking(Supplier<? extends ItemLike> result) {
+        return smoking(result.get(), 1);
+    }
+
+    public static FurnaceRecipeBuilder smoking(Supplier<? extends ItemLike> result, int count) {
+        return smoking(new ItemStack(result.get(), count));
+    }
+
+    public static FurnaceRecipeBuilder smoking(Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
+        return smoking(new ItemStack(result.get(), count), id);
+    }
+
     public static FurnaceRecipeBuilder smoking(ItemStack result) {
         return smoking(result, ForgeRegistries.ITEMS.getKey(result.getItem()));
     }
@@ -107,6 +145,18 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
 
     public static FurnaceRecipeBuilder campfire(ItemLike result, int count, ResourceLocation id) {
         return campfire(new ItemStack(result, count), id);
+    }
+
+    public static FurnaceRecipeBuilder campfire(Supplier<? extends ItemLike> result) {
+        return campfire(result.get(), 1);
+    }
+
+    public static FurnaceRecipeBuilder campfire(Supplier<? extends ItemLike> result, int count) {
+        return campfire(new ItemStack(result.get(), count));
+    }
+
+    public static FurnaceRecipeBuilder campfire(Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
+        return campfire(new ItemStack(result.get(), count), id);
     }
 
     public static FurnaceRecipeBuilder campfire(ItemStack result) {
@@ -132,6 +182,18 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
         return custom(serializer, new ItemStack(result, count), id);
     }
 
+    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result) {
+        return custom(serializer, result.get(), 1);
+    }
+
+    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result, int count) {
+        return custom(serializer, new ItemStack(result.get(), count));
+    }
+
+    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
+        return custom(serializer, new ItemStack(result.get(), count), id);
+    }
+
     public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result) {
         return custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()));
     }
@@ -150,6 +212,12 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     public FurnaceRecipeBuilder ingredient(ItemLike item) {
         addAutoCriteria(item);
         this.ingredient = Ingredient.of(item);
+        return this;
+    }
+
+    public FurnaceRecipeBuilder ingredient(Supplier<? extends ItemLike> item) {
+        addAutoCriteria(item.get());
+        this.ingredient = Ingredient.of(item.get());
         return this;
     }
 
