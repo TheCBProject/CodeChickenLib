@@ -235,14 +235,14 @@ public class GuiRender {
      */
     public void gradientFillV(RenderType type, double xMin, double yMin, double xMax, double yMax, int topColour, int bottomColour) {
         VertexConsumer buffer = buffers().getBuffer(type);
-        float sA = a(topColour) / 255.0F;
-        float sR = r(topColour) / 255.0F;
-        float sG = g(topColour) / 255.0F;
-        float sB = b(topColour) / 255.0F;
-        float eA = a(bottomColour) / 255.0F;
-        float eR = r(bottomColour) / 255.0F;
-        float eG = g(bottomColour) / 255.0F;
-        float eB = b(bottomColour) / 255.0F;
+        float sA = a(topColour);
+        float sR = r(topColour);
+        float sG = g(topColour);
+        float sB = b(topColour);
+        float eA = a(bottomColour);
+        float eR = r(bottomColour);
+        float eG = g(bottomColour);
+        float eB = b(bottomColour);
         Matrix4f mat = pose.last().pose();
         buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(eR, eG, eB, eA).endVertex(); //R-B
         buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(sR, sG, sB, sA).endVertex(); //R-T
@@ -263,14 +263,14 @@ public class GuiRender {
      */
     public void gradientFillH(RenderType type, double xMin, double yMin, double xMax, double yMax, int leftColour, int rightColour) {
         VertexConsumer buffer = buffers().getBuffer(type);
-        float sA = a(leftColour) / 255.0F;
-        float sR = r(leftColour) / 255.0F;
-        float sG = g(leftColour) / 255.0F;
-        float sB = b(leftColour) / 255.0F;
-        float eA = a(rightColour) / 255.0F;
-        float eR = r(rightColour) / 255.0F;
-        float eG = g(rightColour) / 255.0F;
-        float eB = b(rightColour) / 255.0F;
+        float sA = a(leftColour);
+        float sR = r(leftColour);
+        float sG = g(leftColour);
+        float sB = b(leftColour);
+        float eA = a(rightColour);
+        float eR = r(rightColour);
+        float eG = g(rightColour);
+        float eB = b(rightColour);
         Matrix4f mat = pose.last().pose();
         buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(eR, eG, eB, eA).endVertex(); //R-B
         buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(eR, eG, eB, eA).endVertex(); //R-T
