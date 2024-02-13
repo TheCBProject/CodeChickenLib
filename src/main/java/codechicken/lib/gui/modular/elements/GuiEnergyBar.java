@@ -54,27 +54,27 @@ public class GuiEnergyBar extends GuiElement<GuiEnergyBar> implements Background
     public static BiFunction<Long, Long, List<Component>> defaultFormatter() {
         return (energy, capacity) -> {
             List<Component> tooltip = new ArrayList<>();
-            tooltip.add(Component.translatable("energy_bar.polylib.energy_storage").withStyle(DARK_AQUA));
+            tooltip.add(Component.translatable("ccl.energy_bar.energy_storage").withStyle(DARK_AQUA));
             boolean shift = Screen.hasShiftDown();
-            tooltip.add(Component.translatable("energy_bar.polylib.capacity")
+            tooltip.add(Component.translatable("ccl.energy_bar.capacity")
                     .withStyle(GOLD)
                     .append(" ")
                     .append(Component.literal(shift ? FormatUtil.addCommas(capacity) : FormatUtil.formatNumber(capacity))
                             .withStyle(GRAY)
                             .append(" ")
-                            .append(Component.translatable("energy_bar.polylib.rf")
+                            .append(Component.translatable("ccl.energy_bar.rf")
                                     .withStyle(GRAY)
                             )
                     )
             );
-            tooltip.add(Component.translatable("energy_bar.polylib.stored")
+            tooltip.add(Component.translatable("ccl.energy_bar.stored")
                     .withStyle(GOLD)
                     .append(" ")
                     .append(Component.literal(shift ? FormatUtil.addCommas(energy) : FormatUtil.formatNumber(energy))
                             .withStyle(GRAY)
                     )
                     .append(" ")
-                    .append(Component.translatable("energy_bar.polylib.rf")
+                    .append(Component.translatable("ccl.energy_bar.rf")
                             .withStyle(GRAY)
                     )
                     .append(Component.literal(String.format(" (%.2f%%)", ((double) energy / (double) capacity) * 100D))

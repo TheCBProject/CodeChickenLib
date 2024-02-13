@@ -4,6 +4,9 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
+import net.minecraftforge.items.wrapper.InvWrapper;
 
 import java.util.function.*;
 
@@ -13,7 +16,7 @@ import java.util.function.*;
  * <p>
  * Created by brandon3055 on 10/09/2023
  */
-public class ModularSlot extends Slot {
+public class ModularSlot extends SlotItemHandler {
     private boolean canPlace = true;
     private boolean checkContainer = true;
     private Supplier<Boolean> enabled = () -> true;
@@ -23,11 +26,19 @@ public class ModularSlot extends Slot {
     private BiConsumer<ItemStack, ItemStack> onSet = (oldStack, newStack) -> {};
 
     public ModularSlot(Container container, int index) {
-        this(container, index, 0, 0);
+        this(new InvWrapper(container), index, 0, 0);
+    }
+
+    public ModularSlot(IItemHandler itemHandler, int index) {
+        this(itemHandler, index, 0, 0);
     }
 
     public ModularSlot(Container container, int index, int xPos, int yPos) {
-        super(container, index, xPos, yPos);
+        super(new InvWrapper(container), index, xPos, yPos);
+    }
+
+    public ModularSlot(IItemHandler itemHandler, int index, int xPos, int yPos) {
+        super(itemHandler, index, xPos, yPos);
     }
 
     /**

@@ -153,6 +153,16 @@ public class DataGenerators {
             addServer("ccl.commands.killall.success.line", "Killed %s");
             addServer("ccl.commands.count.fail", "Found no entities.");
             addServer("ccl.commands.count.total", "Found %s entities.");
+
+            addServer("ccl.energy_bar.energy_storage", "Energy Storage");
+            addServer("ccl.energy_bar.capacity", "Capacity:");
+            addServer("ccl.energy_bar.stored", "Stored:");
+            addServer("ccl.energy_bar.rf", "RF");
+            addServer("ccl.fluid_tank.fluid_storage", "Fluid Storage");
+            addServer("ccl.fluid_tank.capacity", "Capacity:");
+            addServer("ccl.fluid_tank.stored", "Stored:");
+            addServer("ccl.fluid_tank.mb", "mB");
+            addServer("ccl.fluid_tank.contains", "Contains:");
         }
     }
 }

@@ -182,9 +182,9 @@ public class GuiFluidTank extends GuiElement<GuiFluidTank> implements Background
     public static BiFunction<FluidStack, Long, List<Component>> defaultFormatter() {
         return (fluidStack, capacity) -> {
             List<Component> tooltip = new ArrayList<>();
-            tooltip.add(Component.translatable("fluid_tank.polylib.fluid_storage").withStyle(DARK_AQUA));
+            tooltip.add(Component.translatable("ccl.fluid_tank.fluid_storage").withStyle(DARK_AQUA));
             if (!fluidStack.isEmpty()) {
-                tooltip.add(Component.translatable("fluid_tank.polylib.contains")
+                tooltip.add(Component.translatable("ccl.fluid_tank.contains")
                         .withStyle(GOLD)
                         .append(" ")
                         .append(fluidStack.getDisplayName().copy()
@@ -195,25 +195,25 @@ public class GuiFluidTank extends GuiElement<GuiFluidTank> implements Background
                 );
             }
 
-            tooltip.add(Component.translatable("fluid_tank.polylib.capacity")
+            tooltip.add(Component.translatable("ccl.fluid_tank.capacity")
                     .withStyle(GOLD)
                     .append(" ")
                     .append(Component.literal(FormatUtil.addCommas(capacity))
                             .withStyle(GRAY)
                             .append(" ")
-                            .append(Component.translatable("fluid_tank.polylib.mb")
+                            .append(Component.translatable("ccl.fluid_tank.mb")
                                     .withStyle(GRAY)
                             )
                     )
             );
-            tooltip.add(Component.translatable("fluid_tank.polylib.stored")
+            tooltip.add(Component.translatable("ccl.fluid_tank.stored")
                     .withStyle(GOLD)
                     .append(" ")
                     .append(Component.literal(FormatUtil.addCommas(fluidStack.getAmount()))
                             .withStyle(GRAY)
                     )
                     .append(" ")
-                    .append(Component.translatable("fluid_tank.polylib.mb")
+                    .append(Component.translatable("ccl.fluid_tank.mb")
                             .withStyle(GRAY)
                     )
                     .append(Component.literal(String.format(" (%.2f%%)", ((double) fluidStack.getAmount() / (double) capacity) * 100D))
