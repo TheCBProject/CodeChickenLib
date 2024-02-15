@@ -62,6 +62,7 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
 
     private Supplier<Component> suggestion = null;
     private Supplier<Integer> suggestionColour = () -> 0x7f7f80;
+    private Supplier<Boolean> suggestionShadow = () -> true;
 
     private Predicate<String> filter = Objects::nonNull;
     private BiFunction<String, Integer, FormattedCharSequence> formatter = (string, pos) -> FormattedCharSequence.forward(string, Style.EMPTY);
@@ -162,8 +163,24 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
     /**
      * Set the colour of the suggestion text.
      */
-    public void setSuggestionColour(Supplier<Integer> suggestionColour) {
+    public GuiTextField setSuggestionColour(Supplier<Integer> suggestionColour) {
         this.suggestionColour = suggestionColour;
+        return this;
+    }
+
+    public GuiTextField setSuggestionColour(int suggestionColour) {
+        this.suggestionColour = () -> suggestionColour;
+        return this;
+    }
+
+    public GuiTextField setSuggestionShadow(Supplier<Boolean> suggestionShadow) {
+        this.suggestionShadow = suggestionShadow;
+        return this;
+    }
+
+    public GuiTextField setSuggestionShadow(boolean suggestionShadow) {
+        this.suggestionShadow = () -> suggestionShadow;
+        return this;
     }
 
     /**
@@ -630,7 +647,7 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
         }
 
         if (suggestion != null && value.isEmpty()) {
-            render.drawString(suggestion.get(), (float) (k1 - 1), (float) drawY, suggestionColour.get(), shadow.get());
+            render.drawString(suggestion.get(), (float) (k1 - 1), (float) drawY, suggestionColour.get(), suggestionShadow.get());
         }
 
         if (cursorBlink) {

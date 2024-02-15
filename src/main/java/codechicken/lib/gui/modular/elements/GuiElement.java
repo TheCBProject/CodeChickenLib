@@ -1,5 +1,6 @@
 package codechicken.lib.gui.modular.elements;
 
+import codechicken.lib.colour.ColourARGB;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import codechicken.lib.gui.modular.ModularGui;
@@ -13,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +22,7 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -67,6 +70,9 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
     private Supplier<Boolean> enableToolTip = () -> true;
     private Supplier<List<Component>> toolTip = null;
     private Rectangle renderCull = Rectangle.create(Position.create(0, 0), () -> (double) screenWidth, () -> (double) screenHeight);
+
+    private Consumer<ItemStack> jeiDropConsumer = null;
+    private boolean isJeiExcluded = false;
 
     /**
      * @param parent parent {@link GuiParent}.
@@ -263,24 +269,6 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
         return getClass().getSimpleName() + "{" +
                 "geometry=" + getRectangle() +
                 '}';
-    }
-
-    /**
-     * Add this element to the list of jei exclusions.
-     * Use this for any elements that render outside the normal gui bounds.
-     * This will ensure JEI does not try to render on top of these elements.
-     */
-    public T jeiExclude() {
-        getModularGui().jeiExclude(this);
-        return SneakyUtils.unsafeCast(this);
-    }
-
-    /**
-     * Remove this element from the list of jei exclusions.
-     */
-    public T removeJEIExclude() {
-        getModularGui().removeJEIExclude(this);
-        return SneakyUtils.unsafeCast(this);
     }
 
     //=== Render / Update ===//
@@ -487,5 +475,73 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
     public T setTooltip(@Nullable Supplier<List<Component>> tooltip) {
         this.toolTip = tooltip;
         return SneakyUtils.unsafeCast(this);
+    }
+
+    //=== JEI Integration ===//
+
+    /**
+     * Add this element to the list of jei exclusions.
+     * Use this for any elements that render outside the normal gui bounds.
+     * This will ensure JEI does not try to render on top of these elements.
+     */
+    public T jeiExclude() {
+        isJeiExcluded = true;
+        return SneakyUtils.unsafeCast(this);
+    }
+
+    public T setJeiExcluded(boolean jeiExcluded) {
+        isJeiExcluded = jeiExcluded;
+        return SneakyUtils.unsafeCast(this);
+    }
+
+    public boolean isJeiExcluded() {
+        return isJeiExcluded;
+    }
+
+    /**
+     * Allows you get notified when a player drags and drops an ItemStack from jai onto this element.
+     * If using the standard highlight then you should call this after adding any other required child elements to ensure the highlight is on top.
+     */
+    public T setJeiDropTarget(Consumer<ItemStack> onDrop, boolean installStandardHighlight) {
+        jeiDropConsumer = onDrop;
+        if (installStandardHighlight) {
+            GuiRectangle highlight = new GuiRectangle(this)
+                    .setEnabled(() -> getModularGui().getJeiHighlightTime() > 0)
+                    .fill(() -> ColourARGB.packARGB(0, 0xFF, 0, Math.min(getModularGui().getJeiHighlightTime() * 2, 0x50)));
+            Constraints.bind(highlight, this);
+        }
+        return SneakyUtils.unsafeCast(this);
+    }
+
+    public Consumer<ItemStack> getJeiDropConsumer() {
+        return jeiDropConsumer;
+    }
+
+    public boolean isJeiDropTarget() {
+        return jeiDropConsumer != null;
+    }
+
+    public List<GuiElement<?>> addJeiExclusions(List<GuiElement<?>> list) {
+        if (isJeiExcluded()) {
+            list.add(this);
+        }
+        for (GuiElement<?> child : childElements) {
+            if (child.isEnabled()) {
+                child.addJeiExclusions(list);
+            }
+        }
+        return list;
+    }
+
+    public List<GuiElement<?>> addJeiDropTargets(List<GuiElement<?>> list) {
+        if (isJeiDropTarget()) {
+            list.add(this);
+        }
+        for (GuiElement<?> child : childElements) {
+            if (child.isEnabled()) {
+                child.addJeiDropTargets(list);
+            }
+        }
+        return list;
     }
 }

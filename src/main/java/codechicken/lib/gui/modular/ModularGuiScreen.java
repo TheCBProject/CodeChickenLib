@@ -67,7 +67,7 @@ public class ModularGuiScreen extends Screen {
         if (modularGui.renderBackground()) {
             renderBackground(graphics);
         }
-        GuiRender render = modularGui.createRender(graphics.bufferSource());
+        GuiRender render = GuiRender.convert(graphics);
         modularGui.render(render, partialTicks);
         modularGui.renderOverlay(render, partialTicks);
     }

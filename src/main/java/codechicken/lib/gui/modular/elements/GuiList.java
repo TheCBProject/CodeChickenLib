@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 import static codechicken.lib.gui.modular.lib.geometry.Constraint.*;
 import static codechicken.lib.gui.modular.lib.geometry.GeoParam.*;
@@ -35,6 +36,7 @@ public class GuiList<E> extends GuiElement<GuiList<E>> {
      */
     public boolean enableScissor = true;
     private double yScrollPos = 0;
+    private double lastWidth = 0;
     private double contentHeight = 0;
     private double itemSpacing = 1;
     private boolean rebuild = true;
@@ -43,6 +45,7 @@ public class GuiList<E> extends GuiElement<GuiList<E>> {
     private final List<E> listContent = new ArrayList<>();
     private final Map<E, GuiElement<?>> elementMap = new HashMap<>();
     private final LinkedList<GuiElement<?>> visible = new LinkedList<>();
+    private Predicate<E> filter = e -> true;
 
     private BiFunction<GuiList<E>, E, ? extends GuiElement<?>> displayBuilder = (parent, e) -> {
         GuiText text = new GuiText(parent, () -> Component.literal(String.valueOf(e))).setWrap(true);
@@ -80,6 +83,11 @@ public class GuiList<E> extends GuiElement<GuiList<E>> {
 
     public GuiList<E> setDisplayBuilder(BiFunction<GuiList<E>, E, ? extends GuiElement<?>> displayBuilder) {
         this.displayBuilder = displayBuilder;
+        return this;
+    }
+
+    public GuiList<E> setFilter(Predicate<E> filter) {
+        this.filter = filter;
         return this;
     }
 
@@ -127,6 +135,10 @@ public class GuiList<E> extends GuiElement<GuiList<E>> {
 
     @Override
     public void tick(double mouseX, double mouseY) {
+        if (lastWidth != xSize()) {
+            lastWidth = xSize();
+            markDirty();
+        }
         if (rebuild) {
             rebuildElements();
         }
@@ -138,6 +150,7 @@ public class GuiList<E> extends GuiElement<GuiList<E>> {
         elementMap.clear();
 
         for (E item : listContent) {
+            if (!filter.test(item)) continue;
             GuiElement<?> next = displayBuilder.apply(this, item);
             next.constrain(LEFT, match(get(LEFT)));
             next.constrain(RIGHT, match(get(RIGHT)));

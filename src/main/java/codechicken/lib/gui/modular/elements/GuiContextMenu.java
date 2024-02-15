@@ -3,13 +3,9 @@ package codechicken.lib.gui.modular.elements;
 import codechicken.lib.gui.modular.ModularGui;
 import codechicken.lib.gui.modular.lib.Constraints;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
-import net.covers1624.quack.collection.FastStream;
 import net.minecraft.network.chat.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -26,14 +22,17 @@ import static codechicken.lib.gui.modular.lib.geometry.GeoParam.*;
 public class GuiContextMenu extends GuiElement<GuiContextMenu> {
 
     private BiFunction<GuiContextMenu, Supplier<Component>, GuiButton> buttonBuilder = (menu, label) -> GuiButton.flatColourButton(menu, label, hover -> hover ? 0xFF475b6a : 0xFF151515).constrain(HEIGHT, literal(12));
-    private final Map<Supplier<Component>, Runnable> options = new HashMap<>();
+    private final Map<Supplier<Component>, Runnable> options = new LinkedHashMap<>();
     private final Map<Supplier<Component>, Supplier<List<Component>>> tooltips = new HashMap<>();
     private final List<GuiButton> buttons = new ArrayList<>();
     private boolean closeOnItemClicked = true;
     private boolean closeOnOutsideClick = true;
+    private boolean actionOnClick = false;
 
     public GuiContextMenu(ModularGui gui) {
         super(gui.getRoot());
+        jeiExclude();
+        setOpaque(true);
     }
 
     public static GuiContextMenu tooltipStyleMenu(GuiParent<?> parent) {
@@ -49,6 +48,16 @@ public class GuiContextMenu extends GuiElement<GuiContextMenu> {
 
     public GuiContextMenu setCloseOnOutsideClick(boolean closeOnOutsideClick) {
         this.closeOnOutsideClick = closeOnOutsideClick;
+        return this;
+    }
+
+    /**
+     * By default, the option action fires on mouse button release (like pretty much any UI button in existence)
+     * Calling this will change that to action on mouse button press, (What minecraft uses for its buttons)
+     */
+    public GuiContextMenu actionOnClick() {
+        this.actionOnClick = true;
+        rebuildButtons();
         return this;
     }
 
@@ -87,16 +96,20 @@ public class GuiContextMenu extends GuiElement<GuiContextMenu> {
 
         //Menu options can be dynamic so the width constraint needs to be dynamic.
         //This is probably a little expensive, but its only while a context menu is open.
-        constrain(WIDTH, dynamic(() -> FastStream.of(options.keySet()).map(Supplier::get).intSum(font()::width) + 6D + 4D));
+        constrain(WIDTH, dynamic(() -> options.keySet().stream().mapToInt(e -> font().width(e.get())).max().orElse(0) + 6D + 4D));
 
         double height = 3;
         for (Supplier<Component> label : options.keySet()) {
             Runnable action = options.get(label);
             GuiButton button = buttonBuilder.apply(this, label)
-                    .onPress(action)
                     .constrain(TOP, relative(get(TOP), height))
                     .constrain(LEFT, relative(get(LEFT), 3))
                     .constrain(RIGHT, relative(get(RIGHT), -3));
+            if (actionOnClick) {
+                button.onClick(action);
+            } else {
+                button.onPress(action);
+            }
             if (tooltips.containsKey(label)) {
                 button.setTooltip(tooltips.get(label));
             }
@@ -111,15 +124,31 @@ public class GuiContextMenu extends GuiElement<GuiContextMenu> {
     public boolean mouseClicked(double mouseX, double mouseY, int button, boolean consumed) {
         consumed = super.mouseClicked(mouseX, mouseY, button, consumed);
         if (isMouseOver() || consumed) {
-            if (consumed && closeOnItemClicked) {
-                close();
+            if (actionOnClick) {
+                if (consumed && closeOnItemClicked) {
+                    close();
+                }
+                return true;
             }
-            return true;
         } else if (closeOnOutsideClick) {
             close();
             return true;
         }
 
+        return consumed;
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button, boolean consumed) {
+        consumed = super.mouseReleased(mouseX, mouseY, button, consumed);
+        if (isMouseOver() || consumed) {
+            if (!actionOnClick) {
+                if (consumed && closeOnItemClicked) {
+                    close();
+                }
+                return true;
+            }
+        }
         return consumed;
     }
 
