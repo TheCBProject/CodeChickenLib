@@ -226,6 +226,10 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
         return SneakyUtils.unsafeCast(this);
     }
 
+    public boolean isTooltipEnabled() {
+        return enableToolTip.get();
+    }
+
     @Override
     public boolean blockMouseOver(GuiElement<?> element, double mouseX, double mouseY) {
         return getParent().blockMouseOver(element, mouseX, mouseY);
@@ -410,8 +414,12 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
         return consumed || (showToolTip() && renderTooltip(render, mouseX, mouseY));
     }
 
-    private boolean showToolTip() {
-        return isMouseOver() && enableToolTip.get() && hoverTime() >= getTooltipDelay();
+    /**
+     * @return true if all conditions are bet for this element to be rendering its tool tip.
+     * Meaning mouse is over the element, hover time has elapsed and tooltip is enabled.
+     */
+    public boolean showToolTip() {
+        return isMouseOver() && isTooltipEnabled() && hoverTime() >= getTooltipDelay();
     }
 
     /**
