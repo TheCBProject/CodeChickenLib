@@ -204,7 +204,7 @@ public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
 
     @Override
     public double getForegroundDepth() {
-        return 0.035;
+        return 0.05;
     }
 
     @Override

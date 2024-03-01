@@ -160,7 +160,9 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
     @Override
     public double getBackgroundDepth() {
         Rectangle rect = getRectangle();
+        if (invalidEntity || entity == null) return 0.01;
         float scale = (float) (force2dSize ? (Math.min(rect.height() / entity.getBbHeight(), rect.width() / entity.getBbWidth())) : rect.height() / entity.getBbHeight());
+        if (Float.isInfinite(scale)) scale = 1;
         return scale * 2;
     }
 
@@ -182,6 +184,11 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
                     } else {
                         renderEntityInInventoryWithRotation(render, xPos, yPos, scale, rotation, living);
                     }
+                } else {
+                    Quaternionf quaternionf = new Quaternionf().rotateZ((float)Math.PI);
+                    Quaternionf quaternionf1 = Axis.YP.rotationDegrees(rotation);
+                    quaternionf.mul(quaternionf1);
+                    renderEntityInInventory(render, xPos, yPos, scale, quaternionf, quaternionf1, entity);
                 }
             }
         } catch (Throwable e) {
@@ -242,7 +249,7 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
         living.yHeadRot = f6;
     }
 
-    public static void renderEntityInInventory(GuiRender render, double pX, double pY, double pScale, Quaternionf quat, @Nullable Quaternionf pCameraOrientation, LivingEntity pEntity) {
+    public static void renderEntityInInventory(GuiRender render, double pX, double pY, double pScale, Quaternionf quat, @Nullable Quaternionf pCameraOrientation, Entity pEntity) {
         render.pose().pushPose();
         render.pose().translate(pX, pY, 50.0D);
         render.pose().mulPoseMatrix((new Matrix4f()).scaling((float)pScale, (float)pScale, (float)(-pScale)));

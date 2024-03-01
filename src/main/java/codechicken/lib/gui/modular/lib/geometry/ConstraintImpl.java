@@ -160,7 +160,7 @@ public abstract non-sealed class ConstraintImpl<T extends ConstraintImpl<?>> imp
 
         @Override
         protected double getImpl() {
-            return start.get() + (end.get() - start.get()) * getPos();
+            return start.get() + ((end.get() - start.get()) * getPos());
         }
 
         public double getPos() {
@@ -202,7 +202,7 @@ public abstract non-sealed class ConstraintImpl<T extends ConstraintImpl<?>> imp
 
         @Override
         protected double getImpl() {
-            return start.get() + (end.get() - start.get()) * getPos();
+            return start.get() + ((end.get() - start.get()) * getPos());
         }
 
         public double getPos() {

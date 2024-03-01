@@ -92,7 +92,7 @@ public class GuiItemStack extends GuiElement<GuiItemStack> implements Background
 
     @Override
     public double getBackgroundDepth() {
-        return getStackSize();
+        return getStackSize() * 2;
     }
 
     @Override

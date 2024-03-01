@@ -106,7 +106,7 @@ public class ModularSlot extends SlotItemHandler {
 
     @Override
     public boolean mayPlace(ItemStack itemStack) {
-        return canPlace && validator.test(itemStack) && (!checkContainer || container.canPlaceItem(getContainerSlot(), itemStack));
+        return canPlace && validator.test(itemStack) && (!checkContainer || getItemHandler().isItemValid(getContainerSlot(), itemStack));
     }
 
     @Override
