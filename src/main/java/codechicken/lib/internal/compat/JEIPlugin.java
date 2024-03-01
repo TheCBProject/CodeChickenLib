@@ -1,4 +1,4 @@
-package codechicken.lib.compat;
+package codechicken.lib.internal.compat;
 
 import codechicken.lib.CodeChickenLib;
 import codechicken.lib.gui.modular.ModularGui;
