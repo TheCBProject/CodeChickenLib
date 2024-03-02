@@ -14,7 +14,6 @@ public class LightCoordAttribute extends VertexAttribute<LC[]> {
     public static final AttributeKey<LC[]> attributeKey = AttributeKey.create("light_coord", LC[]::new);
 
     private final Vector3 vec = new Vector3();//for computation
-    private final Vector3 pos = new Vector3();
 
     private LC[] lcRef;
 
@@ -29,7 +28,6 @@ public class LightCoordAttribute extends VertexAttribute<LC[]> {
             return lcRef != null;
         }
 
-        pos.set(ccrs.lightMatrix.pos);
         ccrs.pipeline.addDependency(ccrs.sideAttrib);
         ccrs.pipeline.addRequirement(Transformation.operationIndex);
         return true;
@@ -40,7 +38,7 @@ public class LightCoordAttribute extends VertexAttribute<LC[]> {
         if (lcRef != null) {
             ccrs.lc.set(lcRef[ccrs.vertexIndex]);
         } else {
-            ccrs.lc.compute(vec.set(ccrs.vert.vec).subtract(pos), ccrs.side);
+            ccrs.lc.compute(vec.set(ccrs.vert.vec), ccrs.side);
         }
     }
 }
