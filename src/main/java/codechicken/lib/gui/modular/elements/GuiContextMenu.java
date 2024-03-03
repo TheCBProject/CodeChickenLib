@@ -28,6 +28,7 @@ public class GuiContextMenu extends GuiElement<GuiContextMenu> {
     private boolean closeOnItemClicked = true;
     private boolean closeOnOutsideClick = true;
     private boolean actionOnClick = false;
+    private boolean pressed = false;
 
     public GuiContextMenu(ModularGui gui) {
         super(gui.getRoot());
@@ -123,6 +124,7 @@ public class GuiContextMenu extends GuiElement<GuiContextMenu> {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button, boolean consumed) {
         consumed = super.mouseClicked(mouseX, mouseY, button, consumed);
+        pressed = isMouseOver();
         if (isMouseOver() || consumed) {
             if (actionOnClick) {
                 if (consumed && closeOnItemClicked) {
@@ -143,12 +145,14 @@ public class GuiContextMenu extends GuiElement<GuiContextMenu> {
         consumed = super.mouseReleased(mouseX, mouseY, button, consumed);
         if (isMouseOver() || consumed) {
             if (!actionOnClick) {
-                if (consumed && closeOnItemClicked) {
+                if (consumed && closeOnItemClicked && pressed) {
                     close();
                 }
+                pressed = false;
                 return true;
             }
         }
+        pressed = false;
         return consumed;
     }
 
