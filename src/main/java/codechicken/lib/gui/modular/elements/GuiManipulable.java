@@ -8,9 +8,10 @@ import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import codechicken.lib.gui.modular.lib.geometry.Rectangle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 import static codechicken.lib.gui.modular.lib.geometry.Constraint.literal;
 import static codechicken.lib.gui.modular.lib.geometry.Constraint.match;
@@ -44,6 +45,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     private boolean dragBottom = false;
     private boolean dragRight = false;
     private boolean enableCursors = false;
+    private boolean resetOnUiInit = true;
 
     //Made available for external position restraints
     public int xMin = 0;
@@ -53,8 +55,8 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
 
     protected Rectangle minSize = Rectangle.create(0, 0, 50, 50);
     protected Rectangle maxSize = Rectangle.create(0, 0, 256, 256);
-    protected Runnable onMovedCallback = null;
-    protected Runnable onResizedCallback = null;
+    protected Consumer<Boolean> onMovedCallback = null;
+    protected Consumer<Boolean> onResizedCallback = null;
     protected PositionRestraint positionRestraint = draggable -> {
         if (xMin < 0) {
             int move = -xMin;
@@ -112,7 +114,15 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     @Override
     public void onScreenInit(Minecraft mc, Font font, int screenWidth, int screenHeight) {
         super.onScreenInit(mc, font, screenWidth, screenHeight);
-        resetBounds();
+        if (resetOnUiInit) resetBounds();
+    }
+
+    /**
+     * @param resetOnUiInit If true, element bounds will be reset on UI init. (Default: true)
+     */
+    public GuiManipulable setResetOnUiInit(boolean resetOnUiInit) {
+        this.resetOnUiInit = resetOnUiInit;
+        return this;
     }
 
     @Override
@@ -137,12 +147,22 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
         return this;
     }
 
+    public GuiManipulable setTopHandle(GuiElement<?> topHandle) {
+        this.topHandle = topHandle;
+        return this;
+    }
+
     public GuiManipulable addBottomHandle(int handleSize) {
         this.bottomHandle
                 .constrain(BOTTOM, match(contentElement.get(BOTTOM)))
                 .constrain(LEFT, match(contentElement.get(LEFT)))
                 .constrain(RIGHT, match(contentElement.get(RIGHT)))
                 .constrain(HEIGHT, literal(handleSize));
+        return this;
+    }
+
+    public GuiManipulable setBottomHandle(GuiElement<?> bottomHandle) {
+        this.bottomHandle = bottomHandle;
         return this;
     }
 
@@ -155,6 +175,11 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
         return this;
     }
 
+    public GuiManipulable setLeftHandle(GuiElement<?> leftHandle) {
+        this.leftHandle = leftHandle;
+        return this;
+    }
+
     public GuiManipulable addRightHandle(int handleSize) {
         this.rightHandle
                 .constrain(RIGHT, match(contentElement.get(RIGHT)))
@@ -164,12 +189,22 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
         return this;
     }
 
+    public GuiManipulable setRightHandle(GuiElement<?> rightHandle) {
+        this.rightHandle = rightHandle;
+        return this;
+    }
+
     public GuiManipulable addMoveHandle(int handleSize) {
         this.moveHandle
                 .constrain(TOP, match(contentElement.get(TOP)))
                 .constrain(LEFT, match(contentElement.get(LEFT)))
                 .constrain(RIGHT, match(contentElement.get(RIGHT)))
                 .constrain(HEIGHT, literal(handleSize));
+        return this;
+    }
+
+    public GuiManipulable setMoveHandle(GuiElement<?> moveHandle) {
+        this.moveHandle = moveHandle;
         return this;
     }
 
@@ -222,11 +257,21 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     }
 
     public GuiManipulable setOnMovedCallback(Runnable onMovedCallback) {
+        this.onMovedCallback = finished -> onMovedCallback.run();
+        return this;
+    }
+
+    public GuiManipulable setOnMovedCallback(Consumer<Boolean> onMovedCallback) {
         this.onMovedCallback = onMovedCallback;
         return this;
     }
 
     public GuiManipulable setOnResizedCallback(Runnable onResizedCallback) {
+        this.onResizedCallback = finished -> onResizedCallback.run();
+        return this;
+    }
+
+    public GuiManipulable setOnResizedCallback(Consumer<Boolean> onResizedCallback) {
         this.onResizedCallback = onResizedCallback;
         return this;
     }
@@ -324,13 +369,12 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
             int xMove = (int) (mouseX - dragXOffset) - xMin;
             int yMove = (int) (mouseY - dragYOffset) - yMin;
             if (dragPos) {
-                Rectangle previous = Rectangle.create(xMin, yMin, xMax - xMin, yMax - yMin);
                 xMin += xMove;
                 xMax += xMove;
                 yMin += yMove;
                 yMax += yMove;
-                validatePosition();
-                onMoved();
+                validatePosition(false);
+                onMoved(false);
             } else {
                 Rectangle min = getMinSize();
                 Rectangle max = getMaxSize();
@@ -358,8 +402,8 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
                     if (xMax - xMin > max.width()) xMax = xMin + (int) max.width();
                     if (xMax > scaledScreenWidth()) xMax = scaledScreenWidth();
                 }
-                validatePosition();
-                onResized();
+                validatePosition(false);
+                onResized(false);
             }
         }
         super.mouseMoved(mouseX, mouseY);
@@ -367,32 +411,43 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button, boolean consumed) {
-        if (isDragging) {
-            validatePosition();
+        if (isMoving()) {
+            validatePosition(true);
+        }
+        if (isResizing()) {
+            onResized(true);
         }
         isDragging = dragPos = dragTop = dragLeft = dragBottom = dragRight = false;
         return super.mouseReleased(mouseX, mouseY, button, consumed);
     }
 
-    protected void validatePosition() {
+    protected void validatePosition(boolean finished) {
         double x = xMin;
         double y = yMin;
         positionRestraint.restrainPosition(this);
-        if ((x != xMin || y != yMin) && onMovedCallback != null) {
-            onMovedCallback.run();
+        if ((x != xMin || y != yMin)) {
+            onMoved(finished);
         }
     }
 
-    protected void onMoved() {
+    protected void onMoved(boolean finished) {
         if (onMovedCallback != null) {
-            onMovedCallback.run();
+            onMovedCallback.accept(finished);
         }
     }
 
-    protected void onResized() {
+    protected void onResized(boolean finished) {
         if (onResizedCallback != null) {
-            onResizedCallback.run();
+            onMovedCallback.accept(finished);
         }
+    }
+
+    public boolean isMoving() {
+        return dragPos;
+    }
+
+    public boolean isResizing() {
+        return dragTop || dragLeft || dragBottom || dragRight;
     }
 
     public interface PositionRestraint {

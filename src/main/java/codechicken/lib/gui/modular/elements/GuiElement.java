@@ -19,9 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -53,6 +51,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
     private final List<GuiElement<?>> removeQueue = new ArrayList<>();
     private final List<GuiElement<?>> childElements = new ArrayList<>();
     private final List<GuiElement<?>> childElementsUnmodifiable = Collections.unmodifiableList(childElements);
+    private final Map<GuiElement<?>, Integer> reorderMap = new HashMap<>();
     public boolean initialized = false;
 
     private Minecraft mc;
@@ -119,6 +118,15 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
     }
 
     protected void applyQueuedChildUpdates() {
+        if (!reorderMap.isEmpty()) {
+            reorderMap.forEach((element, index) -> {
+                if (!childElements.contains(element)) return;
+                childElements.remove(element);
+                childElements.add(Math.min(index, childElements.size()), element);
+            });
+            reorderMap.clear();
+        }
+
         if (!removeQueue.isEmpty()) {
             childElements.removeAll(removeQueue);
             removeQueue.clear();
@@ -153,6 +161,27 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
             removeQueue.add(child);
         }
         addedQueue.remove(child);
+    }
+
+    /**
+     * Sets a child as the last element in the child lest, meaning it will render over all other elements.
+     */
+    public void bringChildToForeground(GuiElement<?> child) {
+        sendChildToIndex(child, childElements.size() - 1);
+    }
+
+    /**
+     * sends a child to a specific index in the child lest.
+     */
+    public void sendChildToIndex(GuiElement<?> child, int index) {
+        reorderMap.put(child, index);
+    }
+
+    /**
+     * Sets a child as the first element in the child lest, meaning it will render under all other elements.
+     */
+    public void sendChildToBackground(GuiElement<?> child) {
+        sendChildToIndex(child, 0);
     }
 
     @Override

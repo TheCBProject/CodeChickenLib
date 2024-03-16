@@ -346,7 +346,10 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
 
         for (int index = 0; index < slotCount; index++) {
             Slot slot = slots.getSlot(index + firstSlot);
-            render.texRect(slotTexture.apply(slot), slot.x + root.xMin() - 1, slot.y + root.yMin() - 1, 18, 18);
+            Material tex = slotTexture.apply(slot);
+            if (tex != null) {
+                render.texRect(tex, slot.x + root.xMin() - 1, slot.y + root.yMin() - 1, 18, 18);
+            }
         }
 
         render.pose().translate(0, 0, 0.4);

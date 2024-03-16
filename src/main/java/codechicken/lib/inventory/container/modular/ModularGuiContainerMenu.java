@@ -244,12 +244,12 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
                 itemStack2 = slot.getItem();
                 if (!itemStack2.isEmpty() && ItemStack.isSameItemSameTags(stack, itemStack2)) {
                     int l = itemStack2.getCount() + stack.getCount();
-                    if (l <= stack.getMaxStackSize()) {
+                    if (l <= Math.min(stack.getMaxStackSize(), slot.getMaxStackSize(stack))) {
                         stack.setCount(0);
                         itemStack2.setCount(l);
                         slot.setChanged();
                         moved = true;
-                    } else if (itemStack2.getCount() < stack.getMaxStackSize()) {
+                    } else if (itemStack2.getCount() < Math.min(stack.getMaxStackSize(), slot.getMaxStackSize(stack))) {
                         stack.shrink(stack.getMaxStackSize() - itemStack2.getCount());
                         itemStack2.setCount(stack.getMaxStackSize());
                         slot.setChanged();
@@ -284,8 +284,8 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
                 slot = targets.get(position);
                 itemStack2 = slot.getItem();
                 if (itemStack2.isEmpty() && slot.mayPlace(stack)) {
-                    if (stack.getCount() > slot.getMaxStackSize()) {
-                        slot.set(stack.split(slot.getMaxStackSize()));
+                    if (stack.getCount() > slot.getMaxStackSize(stack)) {
+                        slot.set(stack.split(slot.getMaxStackSize(stack)));
                     } else {
                         slot.set(stack.split(stack.getCount()));
                     }
