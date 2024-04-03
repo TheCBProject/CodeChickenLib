@@ -109,7 +109,7 @@ public class GuiItemStack extends GuiElement<GuiItemStack> implements Background
     @Override
     public boolean renderOverlay(GuiRender render, double mouseX, double mouseY, float partialTicks, boolean consumed) {
         if (super.renderOverlay(render, mouseX, mouseY, partialTicks, consumed)) return true;
-        if (isMouseOver() && !stack.get().isEmpty()) {
+        if (isMouseOver() && !stack.get().isEmpty() && toolTip.get()) {
             render.renderTooltip(stack.get(), mouseX, mouseY);
             return true;
         }

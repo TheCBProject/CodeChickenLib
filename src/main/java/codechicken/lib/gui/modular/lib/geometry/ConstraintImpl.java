@@ -226,6 +226,34 @@ public abstract non-sealed class ConstraintImpl<T extends ConstraintImpl<?>> imp
         }
     }
 
+    public static class BetweenOffset extends Between {
+        private final double offset;
+
+        public BetweenOffset(GeoRef start, GeoRef end, double pos, double offset) {
+            super(start, end, pos);
+            this.offset = offset;
+        }
+
+        @Override
+        protected double getImpl() {
+            return super.getImpl() + offset;
+        }
+    }
+
+    public static class BetweenOffsetDynamic extends BetweenDynamic {
+        private final Supplier<Double> offset;
+
+        public BetweenOffsetDynamic(GeoRef start, GeoRef end, Supplier<Double> pos, Supplier<Double> offset) {
+            super(start, end, pos);
+            this.offset = offset;
+        }
+
+        @Override
+        protected double getImpl() {
+            return super.getImpl() + offset.get();
+        }
+    }
+
     public static class MidPoint extends ConstraintImpl<MidPoint> {
         protected final GeoRef start;
         protected final GeoRef end;

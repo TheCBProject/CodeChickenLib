@@ -105,7 +105,7 @@ public class ModularGuiContainer<T extends AbstractContainerMenu> extends Abstra
                 }
             }
             renderFloatingItem(render, stack, mouseX - 8, mouseY - yOffset, countOverride);
-            ret = true;
+            ret = modularGui.doesFloatingItemDisableToolTips();
         }
 
         if (!this.snapbackItem.isEmpty()) {
@@ -120,7 +120,7 @@ public class ModularGuiContainer<T extends AbstractContainerMenu> extends Abstra
             int xPos = snapbackStartX + (int) ((float) xDist * anim);
             int yPos = snapbackStartY + (int) ((float) yDist * anim);
             renderFloatingItem(render, snapbackItem, xPos + leftPos, yPos + topPos, null);
-            ret = true;
+            ret = modularGui.doesFloatingItemDisableToolTips();
         }
 
         return ret;

@@ -79,11 +79,16 @@ public interface Rectangle {
      * Returns a new rectangle that represents the intersection area between the two inputs
      */
     default Rectangle intersect(Rectangle other) {
-        double x = Math.max(x(), other.x());
-        double y = Math.max(y(), other.y());
-        double width = Math.max(0, Math.min(xMax(), other.xMax()) - x());
-        double height = Math.max(0, Math.min(yMax(), other.yMax()) - y());
-        return create(x, y, width, height);
+        double left = Math.max(x(), other.x());
+        double right = Math.min(xMax(), other.xMax());
+        if (right > left) {
+            double top = Math.max(y(), other.y());
+            double bottom = Math.min(yMax(), other.yMax());
+            if (bottom > top) {
+                return create(left, top, right - left, bottom - top);
+            }
+        }
+        return create(0, 0, 0, 0);
     }
 
     /**

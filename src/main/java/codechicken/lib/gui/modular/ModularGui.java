@@ -45,6 +45,7 @@ public class ModularGui implements GuiParent<ModularGui> {
     private boolean closeOnEscape = true;
     private boolean renderBackground = true;
     private boolean vanillaSlotRendering = false;
+    private boolean floatingItemDisablesToolTips = true;
 
     private Font font;
     private Minecraft mc;
@@ -521,6 +522,17 @@ public class ModularGui implements GuiParent<ModularGui> {
      * */
     public void setCursor(ResourceLocation cursor) {
         this.newCursor = cursor;
+    }
+
+    /**
+     * By default, tool tips are disabled while where is a floating item on screen. This can be used to re-enable them.
+     */
+    public void setFloatingItemDisablesToolTips(boolean floatingItemDisablesToolTips) {
+        this.floatingItemDisablesToolTips = floatingItemDisablesToolTips;
+    }
+
+    public boolean doesFloatingItemDisableToolTips() {
+        return floatingItemDisablesToolTips;
     }
 
     public List<GuiElement<?>> getJeiExclusions() {

@@ -78,7 +78,7 @@ public sealed interface Constraint permits ConstraintImpl {
      * Contains a parameter to the given reference plus the provided fixed offset.
      *
      * @param relativeTo The relative geometry.
-     * @param offset The offset to apply.
+     * @param offset     The offset to apply.
      */
     static ConstraintImpl.Relative relative(GeoRef relativeTo, double offset) {
         return new ConstraintImpl.Relative(relativeTo, offset);
@@ -88,7 +88,7 @@ public sealed interface Constraint permits ConstraintImpl {
      * Contains a parameter to the given reference plus the provided dynamic offset.
      *
      * @param relativeTo The relative geometry.
-     * @param offset The dynamic offset to apply.
+     * @param offset     The dynamic offset to apply.
      */
     static ConstraintImpl.RelativeDynamic relative(GeoRef relativeTo, Supplier<Double> offset) {
         return new ConstraintImpl.RelativeDynamic(relativeTo, offset);
@@ -99,8 +99,8 @@ public sealed interface Constraint permits ConstraintImpl {
      * Note: it is possible to go outside the given range if the given position is greater than 1 or less than 0.
      * To prevent this call .clamp() on the returned constraint.
      *
-     * @param start The Start position.
-     * @param end The End position.
+     * @param start    The Start position.
+     * @param end      The End position.
      * @param position The position between start and end. (0=start to 1=end)
      */
     static ConstraintImpl.Between between(GeoRef start, GeoRef end, double position) {
@@ -108,12 +108,28 @@ public sealed interface Constraint permits ConstraintImpl {
     }
 
     /**
+     * Contains a parameter to a fixed position between the two provided references.
+     * Note: it is possible to go outside the given range if the given position is greater than 1 or less than 0.
+     * To prevent this call .clamp() on the returned constraint.
+     * <p>
+     * This variant also allows a pixel offset.
+     *
+     * @param start    The Start position.
+     * @param end      The End position.
+     * @param position The position between start and end. (0=start to 1=end)
+     * @param offset   position offset in pixels
+     */
+    static ConstraintImpl.BetweenOffset between(GeoRef start, GeoRef end, double position, double offset) {
+        return new ConstraintImpl.BetweenOffset(start, end, position, offset);
+    }
+
+    /**
      * Contains a parameter to a dynamic position between the two provided references.
      * Note: it is possible to go outside the given range if the given position is greater than 1 or less than 0.
      * To prevent this call .clamp() on the returned constraint.
      *
-     * @param start The Start position.
-     * @param end The End position.
+     * @param start    The Start position.
+     * @param end      The End position.
      * @param position The dynamic position between start and end. (0=start to 1=end)
      */
     static ConstraintImpl.BetweenDynamic between(GeoRef start, GeoRef end, Supplier<Double> position) {
@@ -121,10 +137,26 @@ public sealed interface Constraint permits ConstraintImpl {
     }
 
     /**
+     * Contains a parameter to a dynamic position between the two provided references.
+     * Note: it is possible to go outside the given range if the given position is greater than 1 or less than 0.
+     * To prevent this call .clamp() on the returned constraint.
+     * <p>
+     * This variant also allows a pixel offset.
+     *
+     * @param start    The Start position.
+     * @param end      The End position.
+     * @param position The dynamic position between start and end. (0=start to 1=end)
+     * @param offset   Dynamic position offset in pixels
+     */
+    static ConstraintImpl.BetweenDynamic between(GeoRef start, GeoRef end, Supplier<Double> position, Supplier<Double> offset) {
+        return new ConstraintImpl.BetweenOffsetDynamic(start, end, position, offset);
+    }
+
+    /**
      * Contains a parameter to the mid-point between the two provided references.
      *
      * @param start The Start position.
-     * @param end The End position.
+     * @param end   The End position.
      */
     static ConstraintImpl.MidPoint midPoint(GeoRef start, GeoRef end) {
         return new ConstraintImpl.MidPoint(start, end, 0);
@@ -133,8 +165,8 @@ public sealed interface Constraint permits ConstraintImpl {
     /**
      * Contains a parameter to the mid-point between the two provided references with a fixed offset.
      *
-     * @param start The Start position.
-     * @param end The End position.
+     * @param start  The Start position.
+     * @param end    The End position.
      * @param offset offset distance.
      */
     static ConstraintImpl.MidPoint midPoint(GeoRef start, GeoRef end, double offset) {
@@ -144,8 +176,8 @@ public sealed interface Constraint permits ConstraintImpl {
     /**
      * Contains a parameter to the mid-point between the two provided references with a dynamic offset.
      *
-     * @param start The Start position.
-     * @param end The End position.
+     * @param start  The Start position.
+     * @param end    The End position.
      * @param offset offset distance suppler.
      */
     static ConstraintImpl.MidPointDynamic midPoint(GeoRef start, GeoRef end, Supplier<Double> offset) {

@@ -413,6 +413,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     public boolean mouseReleased(double mouseX, double mouseY, int button, boolean consumed) {
         if (isMoving()) {
             validatePosition(true);
+            onMoved(true);
         }
         if (isResizing()) {
             onResized(true);
@@ -438,7 +439,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
 
     protected void onResized(boolean finished) {
         if (onResizedCallback != null) {
-            onMovedCallback.accept(finished);
+            onResizedCallback.accept(finished);
         }
     }
 
