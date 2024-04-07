@@ -237,7 +237,7 @@ public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
             render.drawString(formatted, xPos, yPos, getTextColour(), getShadow());
         }
         //Draw Wrapped
-        else if (tooLong && wrap) {
+        else if ((tooLong || font().split(component, Integer.MAX_VALUE).size() > 1) && wrap) {
             textHeight = font.wordWrapHeight(component, (int) xSize());
             List<FormattedCharSequence> list = font.split(component, (int) xSize());
 
