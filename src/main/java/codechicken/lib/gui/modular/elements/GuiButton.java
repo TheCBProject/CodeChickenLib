@@ -35,6 +35,7 @@ public class GuiButton extends GuiElement<GuiButton> {
     private Supplier<Boolean> disabled = () -> false;
     private Supplier<Boolean> toggleState;
     private GuiText label = null;
+    private boolean resetHoverOnPress = true;
 
     /**
      * In its default state this is a blank, invisible element that can fire callbacks when pressed.
@@ -162,6 +163,15 @@ public class GuiButton extends GuiElement<GuiButton> {
      */
     public GuiText getLabel() {
         return label;
+    }
+
+    /**
+     * By default, hover time is reset when button is pressed.
+     * THis allows you to disable that functionality to the tooltip will remain open when button is pressed.
+     */
+    public GuiButton setResetHoverOnPress(boolean resetHoverOnPress) {
+        this.resetHoverOnPress = resetHoverOnPress;
+        return this;
     }
 
     /**
@@ -294,7 +304,7 @@ public class GuiButton extends GuiElement<GuiButton> {
         Runnable onPress = this.onPress.get(button);
         if (onClick == null && onPress == null) return false;
         pressed = true;
-        hoverTime = 1;
+        if (resetHoverOnPress) hoverTime = 1;
 
         boolean consume = false;
         if (onClick != null) {
@@ -318,7 +328,7 @@ public class GuiButton extends GuiElement<GuiButton> {
         Runnable onClick = this.onClick.get(button);
         Runnable onPress = this.onPress.get(button);
         if (onClick == null && onPress == null) return consumed;
-        hoverTime = 1;
+        if (resetHoverOnPress) hoverTime = 1;
 
         if (!isDisabled() && isMouseOver()) {
             if (pressed && onPress != null) {
