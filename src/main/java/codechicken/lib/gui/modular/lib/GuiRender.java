@@ -1302,11 +1302,8 @@ public class GuiRender {
     }
 
     public void renderTooltip(Component message, double mouseX, double mouseY, int backgroundTop, int backgroundBottom, int borderTop, int borderBottom) {
-        this.renderTooltip(List.of(message.getVisualOrderText()), mouseX, mouseY, backgroundTop, backgroundBottom, borderTop, borderBottom);
-    }
-
-    public void componentTooltip(List<Component> tooltips, double mouseX, double mouseY) {
-        componentTooltip(tooltips, mouseX, mouseY, 0xf0100010, 0xf0100010, 0x505000ff, 0x5028007f);
+        List<ClientTooltipComponent> list = ForgeHooksClient.gatherTooltipComponents(tooltipStack, List.of(message), Optional.empty(), (int) mouseX, guiWidth(), guiHeight(), font());
+        this.renderTooltipInternal(list, mouseX, mouseY, backgroundTop, backgroundBottom, borderTop, borderBottom, DefaultTooltipPositioner.INSTANCE);
     }
 
     public void componentTooltip(List<Component> tooltips, double mouseX, double mouseY, int backgroundTop, int backgroundBottom, int borderTop, int borderBottom) {
@@ -1318,21 +1315,34 @@ public class GuiRender {
         componentTooltip(tooltips, mouseX, mouseY, 0xf0100010, 0xf0100010, 0x505000ff, 0x5028007f, stack);
     }
 
-    public void componentTooltip(List<? extends net.minecraft.network.chat.FormattedText> tooltips, double mouseX, double mouseY, int backgroundTop, int backgroundBottom, int borderTop, int borderBottom, ItemStack stack) {
+    public void componentTooltip(List<? extends FormattedText> tooltips, double mouseX, double mouseY) {
+        componentTooltip(tooltips, mouseX, mouseY, 0xf0100010, 0xf0100010, 0x505000ff, 0x5028007f, ItemStack.EMPTY);
+    }
+
+    public void componentTooltip(List<? extends FormattedText> tooltips, double mouseX, double mouseY, int backgroundTop, int backgroundBottom, int borderTop, int borderBottom, ItemStack stack) {
         this.tooltipStack = stack;
         List<ClientTooltipComponent> list = ForgeHooksClient.gatherTooltipComponents(tooltipStack, tooltips, Optional.empty(), (int) mouseX, guiWidth(), guiHeight(), font());
         this.renderTooltipInternal(list, mouseX, mouseY, backgroundTop, backgroundBottom, borderTop, borderBottom, DefaultTooltipPositioner.INSTANCE);
         this.tooltipStack = ItemStack.EMPTY;
     }
 
+    /**
+     * Warning: This tooltip method with not automatically wrap tooltip lines
+     */
     public void renderTooltip(List<? extends FormattedCharSequence> tooltips, double mouseX, double mouseY) {
         renderTooltip(tooltips, mouseX, mouseY, 0xf0100010, 0xf0100010, 0x505000ff, 0x5028007f);
     }
 
+    /**
+     * Warning: This tooltip method with not automatically wrap tooltip lines
+     */
     public void renderTooltip(List<? extends FormattedCharSequence> tooltips, double mouseX, double mouseY, int backgroundTop, int backgroundBottom, int borderTop, int borderBottom) {
         this.renderTooltipInternal(tooltips.stream().map(ClientTooltipComponent::create).collect(Collectors.toList()), mouseX, mouseY, backgroundTop, backgroundBottom, borderTop, borderBottom, DefaultTooltipPositioner.INSTANCE);
     }
 
+    /**
+     * Warning: This tooltip method with not automatically wrap tooltip lines
+     */
     public void renderTooltip(List<FormattedCharSequence> tooltips, ClientTooltipPositioner positioner, double mouseX, double mouseY, int backgroundTop, int backgroundBottom, int borderTop, int borderBottom) {
         this.renderTooltipInternal(tooltips.stream().map(ClientTooltipComponent::create).collect(Collectors.toList()), mouseX, mouseY, backgroundTop, backgroundBottom, borderTop, borderBottom, positioner);
     }
