@@ -17,6 +17,7 @@ public class GuiTexture extends GuiElement<GuiTexture> implements BackgroundRend
     private Supplier<Material> getMaterial;
     private Supplier<Integer> colour = () -> 0xFFFFFFFF;
     private Borders dynamicBorders = null;
+    private Supplier<Integer> rotation = () -> 0;
 
     /**
      * @param parent parent {@link GuiParent}.
@@ -97,6 +98,24 @@ public class GuiTexture extends GuiElement<GuiTexture> implements BackgroundRend
         return this;
     }
 
+    /**
+     * Sets the texture rotation, each integer increment will rotate the texture by 90 degrees.
+     * (Not compatible with dynamic textures)
+     */
+    public GuiTexture setRotation(Supplier<Integer> rotation) {
+        this.rotation = rotation;
+        return this;
+    }
+
+    /**
+     * Sets the texture rotation, each integer increment will rotate the texture by 90 degrees.
+     * (Not compatible with dynamic textures)
+     */
+    public GuiTexture setRotation(int rotation) {
+        this.rotation = () -> rotation;
+        return this;
+    }
+
     @Override
     public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
         Material material = getMaterial();
@@ -104,7 +123,7 @@ public class GuiTexture extends GuiElement<GuiTexture> implements BackgroundRend
         if (dynamicBorders != null) {
             render.dynamicTex(material, getRectangle(), dynamicBorders, colour.get());
         } else {
-            render.texRect(material, getRectangle(), colour.get());
+            render.texRect(material, rotation.get(), getRectangle(), colour.get());
         }
     }
 }
