@@ -19,11 +19,15 @@ import static codechicken.lib.gui.modular.lib.geometry.GeoParam.*;
 public class GuiColourPicker extends GuiManipulable {
 
     private ColourState colourState = ColourState.create();
+    private final Colour initialColour;
+    private boolean blockOutsideClicks = false;
+    private boolean closeOnOutsideClick = false;
     private GuiButton okButton;
     private GuiButton cancelButton;
 
-    public GuiColourPicker(@NotNull GuiParent<?> parent) {
+    public GuiColourPicker(@NotNull GuiParent<?> parent, Colour initialColour) {
         super(parent);
+        this.initialColour = initialColour;
     }
 
     public static GuiColourPicker create(GuiParent<?> guiParent, ColourState colourState) {
@@ -31,11 +35,10 @@ public class GuiColourPicker extends GuiManipulable {
     }
 
     public static GuiColourPicker create(GuiParent<?> guiParent, ColourState colourState, boolean hasAlpha) {
-        Colour initialColour = colourState.getColour();
-        GuiColourPicker picker = new GuiColourPicker(guiParent.getModularGui().getRoot());
+        GuiColourPicker picker = new GuiColourPicker(guiParent.getModularGui().getRoot(), colourState.getColour());
         picker.setOpaque(true);
         picker.setColourState(colourState);
-        Constraints.size(picker, 80, hasAlpha ? 80 : 68);
+        Constraints.size(picker, 80, hasAlpha ? 80 : 70);
 
         GuiRectangle background = GuiRectangle.toolTipBackground(picker.getContentElement());
         Constraints.bind(background, picker.getContentElement());
@@ -77,10 +80,7 @@ public class GuiColourPicker extends GuiManipulable {
 
         picker.cancelButton = GuiButton.flatColourButton(background, () -> Component.translatable("gui.cancel"), e -> 0xFF000000, e -> e ? 0xFF777777 : 0xFF555555)
                 .setOpaque(true)
-                .onPress(() -> {
-                    colourState.set(initialColour);
-                    picker.getParent().removeChild(picker);
-                })
+                .onPress(picker::cancel)
                 .constrain(HEIGHT, literal(10))
                 .constrain(TOP, relative(preview.get(BOTTOM), 2))
                 .constrain(LEFT, midPoint(background.get(LEFT), background.get(RIGHT), -4))
@@ -119,6 +119,35 @@ public class GuiColourPicker extends GuiManipulable {
                 .bindSliderWidth();
 
         return slideBG;
+    }
+
+    public GuiColourPicker setBlockOutsideClicks(boolean blockOutsideClicks) {
+        this.blockOutsideClicks = blockOutsideClicks;
+        return this;
+    }
+
+    public GuiColourPicker setCancelOnOutsideClick(boolean closeOnOutsideClick) {
+        this.closeOnOutsideClick = closeOnOutsideClick;
+        return this;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button, boolean consumed) {
+        if (closeOnOutsideClick && !getContentElement().getRectangle().contains(mouseX, mouseY)) {
+            cancel();
+        }
+        return super.mouseClicked(mouseX, mouseY, button, consumed) || blockOutsideClicks;
+    }
+
+    public void cancel() {
+        if (cancelButton != null && cancelButton.isEnabled()){
+            colourState.set(initialColour);
+        }
+        close();
+    }
+
+    public void close() {
+        getParent().removeChild(this);
     }
 
     private static boolean validHex(String value) {

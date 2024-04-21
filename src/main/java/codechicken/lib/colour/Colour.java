@@ -175,19 +175,19 @@ public abstract class Colour implements Copyable<Colour> {
     }
 
     public float rF() {
-        return r / 255F;
+        return r() / 255F;
     }
 
     public float gF() {
-        return g / 255F;
+        return g() / 255F;
     }
 
     public float bF() {
-        return b / 255F;
+        return b() / 255F;
     }
 
     public float aF() {
-        return a / 255F;
+        return a() / 255F;
     }
 
     public int r() {
