@@ -68,13 +68,15 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
 
     private void render() {
         rebuild();
-        this.vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+        vertexBuffer.bind();
+        vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
     }
 
     private void rebuild() {
         if (!dirty) return;
         builder.begin(mode(), format());
         factory.accept(format(), builder);
+        vertexBuffer.bind();
         vertexBuffer.upload(builder.end());
         builder.clear();
         dirty = false;
