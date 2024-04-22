@@ -40,13 +40,14 @@ import java.util.concurrent.CompletableFuture;
 public abstract class LootTableProvider implements DataProvider {
 
     private static final Logger logger = LogManager.getLogger();
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private final PackOutput.PathProvider output;
+    protected final String modId;
     private final Map<ResourceLocation, LootTable> tables = new HashMap<>();
 
-    protected LootTableProvider(PackOutput output) {
+    protected LootTableProvider(PackOutput output, String modId) {
         this.output = output.createPathProvider(PackOutput.Target.DATA_PACK, "loot_tables");
+        this.modId = modId;
     }
 
     @Override
@@ -88,10 +89,6 @@ public abstract class LootTableProvider implements DataProvider {
         }
     }
 
-    private static Path getPath(Path pathIn, ResourceLocation id) {
-        return pathIn.resolve("data/" + id.getNamespace() + "/loot_tables/" + id.getPath() + ".json");
-    }
-
     public static abstract class BlockLootProvider extends LootTableProvider {
 
         protected static final LootItemCondition.Builder SILK_TOUCH = MatchTool.toolMatches(ItemPredicate.Builder.item()
@@ -99,8 +96,8 @@ public abstract class LootTableProvider implements DataProvider {
         );
         protected static final LootItemCondition.Builder NO_SILK_TOUCH = SILK_TOUCH.invert();
 
-        protected BlockLootProvider(PackOutput output) {
-            super(output);
+        protected BlockLootProvider(PackOutput output, String modId) {
+            super(output, modId);
         }
 
         protected LootPool.Builder singleItem(ItemLike item) {
@@ -160,6 +157,10 @@ public abstract class LootTableProvider implements DataProvider {
         protected void register(ResourceLocation name, LootTable.Builder builder) {
             registerTable(new ResourceLocation(name.getNamespace(), "blocks/" + name.getPath()), builder.setParamSet(LootContextParamSets.BLOCK).build());
         }
-    }
 
+        @Override
+        public String getName() {
+            return modId + " Block Loot Tables";
+        }
+    }
 }

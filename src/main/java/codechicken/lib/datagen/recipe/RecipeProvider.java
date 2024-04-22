@@ -31,9 +31,11 @@ public abstract class RecipeProvider implements DataProvider {
 
     private final Map<ResourceLocation, RecipeBuilder> recipes = new HashMap<>();
     private final PackOutput output;
+    protected final String modId;
 
-    public RecipeProvider(PackOutput output) {
+    public RecipeProvider(PackOutput output, String modId) {
         this.output = output;
+        this.modId = modId;
     }
 
     @Override
@@ -168,5 +170,10 @@ public abstract class RecipeProvider implements DataProvider {
 
     protected InventoryChangeTrigger.TriggerInstance hasItem(ItemPredicate... predicates) {
         return new InventoryChangeTrigger.TriggerInstance(ContextAwarePredicate.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, predicates);
+    }
+
+    @Override
+    public String getName() {
+        return modId + " Recipes.";
     }
 }

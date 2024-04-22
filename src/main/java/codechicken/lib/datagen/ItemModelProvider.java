@@ -165,6 +165,11 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         return existingFileHelper;
     }
 
+    @Override
+    public String getName() {
+        return modid + " Item models.";
+    }
+
     public static class SimpleItemModelBuilder {
 
         private final ItemModelProvider provider;
