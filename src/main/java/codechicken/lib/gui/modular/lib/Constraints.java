@@ -90,6 +90,11 @@ public class Constraints {
         element.constrain(LEFT, midPoint(centerOn.get(LEFT), centerOn.get(RIGHT), () -> element.xSize() / -2));
     }
 
+    public static void center(ConstrainedGeometry<?> element, ConstrainedGeometry<?> centerOn, double xOffset, double yOffset) {
+        element.constrain(TOP, midPoint(centerOn.get(TOP), centerOn.get(BOTTOM), () -> (element.ySize() / -2) + yOffset));
+        element.constrain(LEFT, midPoint(centerOn.get(LEFT), centerOn.get(RIGHT), () -> (element.xSize() / -2) + xOffset));
+    }
+
     /**
      * Constrain the specified element to a position inside the specified targetElement.
      * See the following image for an example of what each LayoutPos does:
