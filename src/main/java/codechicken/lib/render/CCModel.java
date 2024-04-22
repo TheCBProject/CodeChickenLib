@@ -364,6 +364,13 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
         return this;
     }
 
+    public CCModel setTex(int tex) {
+        for (Vertex5 vert : verts) {
+            vert.uv.tex = tex;
+        }
+        return this;
+    }
+
     /**
      * Computes the minecraft lighting coordinates for use with a LightMatrix
      *
