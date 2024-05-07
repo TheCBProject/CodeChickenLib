@@ -180,15 +180,15 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
                 if (entity instanceof LivingEntity living) {
                     int eyeOffset = (int) ((entity.getEyeHeight()) * scale);
                     if (trackMouse.get()) {
-                        renderEntityInInventoryFollowsMouse(render, xPos, yPos, scale, xPos - (float) mouseX, yPos - (float) mouseY - eyeOffset, living);
+                        renderEntityInInventoryFollowsMouse(render, xPos, yPos, scale, force2dSize, xPos - (float) mouseX, yPos - (float) mouseY - eyeOffset, living);
                     } else {
-                        renderEntityInInventoryWithRotation(render, xPos, yPos, scale, rotation, living);
+                        renderEntityInInventoryWithRotation(render, xPos, yPos, scale, force2dSize, rotation, living);
                     }
                 } else {
                     Quaternionf quaternionf = new Quaternionf().rotateZ((float)Math.PI);
                     Quaternionf quaternionf1 = Axis.YP.rotationDegrees(rotation);
                     quaternionf.mul(quaternionf1);
-                    renderEntityInInventory(render, xPos, yPos, scale, quaternionf, quaternionf1, entity);
+                    renderEntityInInventory(render, xPos, yPos, scale, force2dSize, quaternionf, quaternionf1, entity);
                 }
             }
         } catch (Throwable e) {
@@ -200,12 +200,20 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
     }
 
     public static void renderEntityInInventoryFollowsMouse(GuiRender render, double pX, double pY, double pScale, float offsetX, float offsetY, LivingEntity pEntity) {
+        renderEntityInInventoryFollowsMouse(render, pX, pY, pScale, false, offsetX, offsetY, pEntity);
+    }
+
+    public static void renderEntityInInventoryFollowsMouse(GuiRender render, double pX, double pY, double pScale, boolean flat, float offsetX, float offsetY, LivingEntity pEntity) {
         float xAngle = (float)Math.atan(offsetX / 40.0F);
         float yAngle = (float)Math.atan(offsetY / 40.0F);
-        renderEntityInInventoryFollowsAngle(render, pX, pY, pScale, xAngle, yAngle, pEntity);
+        renderEntityInInventoryFollowsAngle(render, pX, pY, pScale, flat, xAngle, yAngle, pEntity);
     }
 
     public static void renderEntityInInventoryFollowsAngle(GuiRender render, double pX, double pY, double pScale, float angleX, float angleY, LivingEntity pEntity) {
+        renderEntityInInventoryFollowsAngle(render, pX, pY, pScale, false, angleX, angleY, pEntity);
+    }
+
+    public static void renderEntityInInventoryFollowsAngle(GuiRender render, double pX, double pY, double pScale, boolean flat, float angleX, float angleY, LivingEntity pEntity) {
         Quaternionf quaternionf = (new Quaternionf()).rotateZ((float)Math.PI);
         Quaternionf quaternionf1 = (new Quaternionf()).rotateX(angleY * 20.0F * ((float)Math.PI / 180F));
         quaternionf.mul(quaternionf1);
@@ -219,7 +227,7 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
         pEntity.setXRot(-angleY * 20.0F);
         pEntity.yHeadRot = pEntity.getYRot();
         pEntity.yHeadRotO = pEntity.getYRot();
-        renderEntityInInventory(render, pX, pY, pScale, quaternionf, quaternionf1, pEntity);
+        renderEntityInInventory(render, pX, pY, pScale, flat, quaternionf, quaternionf1, pEntity);
         pEntity.yBodyRot = f2;
         pEntity.setYRot(f3);
         pEntity.setXRot(f4);
@@ -228,6 +236,10 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
     }
 
     public static void renderEntityInInventoryWithRotation(GuiRender render, double xPos, double yPos, double scale, double rotation, LivingEntity living) {
+        renderEntityInInventoryWithRotation(render, xPos, yPos, scale, false, rotation, living);
+    }
+
+    public static void renderEntityInInventoryWithRotation(GuiRender render, double xPos, double yPos, double scale, boolean flat, double rotation, LivingEntity living) {
         Quaternionf quaternionf = new Quaternionf().rotateZ((float)Math.PI);
         Quaternionf quaternionf1 = Axis.YP.rotationDegrees((float) rotation);
         quaternionf.mul(quaternionf1);
@@ -241,7 +253,7 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
         living.setXRot(0);
         living.yHeadRot = living.getYRot();
         living.yHeadRotO = living.getYRot();
-        renderEntityInInventory(render, xPos, yPos, scale, quaternionf, quaternionf1, living);
+        renderEntityInInventory(render, xPos, yPos, scale, flat, quaternionf, quaternionf1, living);
         living.yBodyRot = f2;
         living.setYRot(f3);
         living.setXRot(f4);
@@ -250,9 +262,13 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
     }
 
     public static void renderEntityInInventory(GuiRender render, double pX, double pY, double pScale, Quaternionf quat, @Nullable Quaternionf pCameraOrientation, Entity pEntity) {
+        renderEntityInInventory(render, pX, pY, pScale, false, quat, pCameraOrientation, pEntity);
+    }
+
+    public static void renderEntityInInventory(GuiRender render, double pX, double pY, double pScale, boolean flat, Quaternionf quat, @Nullable Quaternionf pCameraOrientation, Entity pEntity) {
         render.pose().pushPose();
         render.pose().translate(pX, pY, 50.0D);
-        render.pose().mulPoseMatrix((new Matrix4f()).scaling((float)pScale, (float)pScale, (float)(-pScale)));
+        render.pose().mulPoseMatrix((new Matrix4f()).scaling((float)pScale, (float)pScale, flat ? -1 : (float)(-pScale)));
         render.pose().mulPose(quat);
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
