@@ -134,6 +134,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
 
         if (!addedQueue.isEmpty()) {
             childElements.addAll(addedQueue);
+            addedQueue.forEach(ConstrainedGeometry::clearGeometryCache);
             addedQueue.clear();
         }
     }

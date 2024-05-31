@@ -86,7 +86,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
 
     public GuiManipulable(@NotNull GuiParent<?> parent) {
         super(parent);
-        this.contentElement = new GuiElement<>(this)
+        this.contentElement = new ContentElement(this)
                 .constrain(LEFT, Constraint.dynamic(() -> (double) xMin))
                 .constrain(RIGHT, Constraint.dynamic(() -> (double) xMax))
                 .constrain(TOP, Constraint.dynamic(() -> (double) yMin))
@@ -336,34 +336,6 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button)) return true;
-
-        boolean posFlag = moveHandle != null && moveHandle.isMouseOver();
-        boolean topFlag = topHandle != null && topHandle.isMouseOver();
-        boolean leftFlag = leftHandle != null && leftHandle.isMouseOver();
-        boolean bottomFlag = bottomHandle != null && bottomHandle.isMouseOver();
-        boolean rightFlag = rightHandle != null && rightHandle.isMouseOver();
-
-        if (posFlag || topFlag || leftFlag || bottomFlag || rightFlag) {
-            dragXOffset = (int) (mouseX - xMin);
-            dragYOffset = (int) (mouseY - yMin);
-            isDragging = true;
-            if (posFlag) {
-                dragPos = true;
-            } else {
-                dragTop = topFlag;
-                dragLeft = leftFlag;
-                dragBottom = bottomFlag;
-                dragRight = rightFlag;
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
     public void mouseMoved(double mouseX, double mouseY) {
         if (isDragging) {
             int xMove = (int) (mouseX - dragXOffset) - xMin;
@@ -453,5 +425,40 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
 
     public interface PositionRestraint {
         void restrainPosition(GuiManipulable draggable);
+    }
+
+    private class ContentElement extends GuiElement<ContentElement> {
+
+        public ContentElement(@NotNull GuiParent<?> parent) {
+            super(parent);
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (super.mouseClicked(mouseX, mouseY, button)) return true;
+
+            boolean posFlag = moveHandle != null && moveHandle.isMouseOver();
+            boolean topFlag = topHandle != null && topHandle.isMouseOver();
+            boolean leftFlag = leftHandle != null && leftHandle.isMouseOver();
+            boolean bottomFlag = bottomHandle != null && bottomHandle.isMouseOver();
+            boolean rightFlag = rightHandle != null && rightHandle.isMouseOver();
+
+            if (posFlag || topFlag || leftFlag || bottomFlag || rightFlag) {
+                dragXOffset = (int) (mouseX - xMin);
+                dragYOffset = (int) (mouseY - yMin);
+                isDragging = true;
+                if (posFlag) {
+                    dragPos = true;
+                } else {
+                    dragTop = topFlag;
+                    dragLeft = leftFlag;
+                    dragBottom = bottomFlag;
+                    dragRight = rightFlag;
+                }
+                return true;
+            }
+
+            return false;
+        }
     }
 }
