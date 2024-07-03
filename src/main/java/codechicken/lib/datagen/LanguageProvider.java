@@ -10,6 +10,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.data.event.GatherDataEvent;
 
@@ -72,6 +73,7 @@ public abstract class LanguageProvider implements DataProvider {
     //@formatter:off
     public void add(Block key, String name) { add(key.getDescriptionId(), name); }
     public void add(Item key, String name) { add(key.getDescriptionId(), name); }
+    public void add(Supplier<? extends ItemLike> key, String name) { add(key.get().asItem(), name); }
     public void add(ItemStack key, String name) { add(key.getDescriptionId(), name); }
     public void add(Enchantment key, String name) { add(key.getDescriptionId(), name); }
     public void add(MobEffect key, String name) { add(key.getDescriptionId(), name); }
