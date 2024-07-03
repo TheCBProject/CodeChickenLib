@@ -82,7 +82,7 @@ public class ClientInit {
         event.register("class", new ClassModelLoader());
     }
 
-    public static void onResourceReload(RegisterClientReloadListenersEvent event) {
+    private static void onResourceReload(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener(CCGuiTextures.getAtlasHolder());
         event.registerReloadListener((ResourceManagerReloadListener) e -> CursorHelper.onResourceReload());
     }

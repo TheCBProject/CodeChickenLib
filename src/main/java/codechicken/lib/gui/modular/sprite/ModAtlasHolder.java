@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.SpriteLoader;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -22,6 +23,7 @@ import java.util.stream.Stream;
  * Created by brandon3055 on 20/08/2023
  */
 public class ModAtlasHolder implements PreparableReloadListener, AutoCloseable {
+
     private final TextureAtlas textureAtlas;
     private final ResourceLocation atlasLocation;
     private final ResourceLocation atlasInfoLocation;
@@ -42,6 +44,14 @@ public class ModAtlasHolder implements PreparableReloadListener, AutoCloseable {
         this.atlasLocation = new ResourceLocation(modid, atlasLocation);
         this.textureAtlas = new TextureAtlas(this.atlasLocation);
         this.modid = modid;
+        // TODO remove in 1.20.4
+        TextureManager textureManager = Minecraft.getInstance().getTextureManager();
+        if (textureManager != null) {
+            textureManager.register(this.textureAtlas.location(), this.textureAtlas);
+        }
+    }
+
+    public void init() {
         Minecraft.getInstance().getTextureManager().register(this.textureAtlas.location(), this.textureAtlas);
     }
 
@@ -77,6 +87,7 @@ public class ModAtlasHolder implements PreparableReloadListener, AutoCloseable {
     }
 
     public static class ModResourceManager implements ResourceManager {
+
         private final ResourceManager wrapped;
         private final String modid;
 

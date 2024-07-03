@@ -14,6 +14,7 @@ import java.util.function.Supplier;
  * <p>
  * Created by brandon3055 on 21/10/2023
  */
+// TODO 1.20.4, use GuiTextures instance.
 public class CCGuiTextures {
     private static final ModAtlasHolder ATLAS_HOLDER = new ModAtlasHolder(CodeChickenLib.MOD_ID, "textures/atlas/gui.png", "gui");
     private static final Map<String, Material> MATERIAL_CACHE = new HashMap<>();
