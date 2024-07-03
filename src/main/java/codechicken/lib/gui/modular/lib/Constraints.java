@@ -2,6 +2,7 @@ package codechicken.lib.gui.modular.lib;
 
 import codechicken.lib.gui.modular.lib.geometry.Borders;
 import codechicken.lib.gui.modular.lib.geometry.ConstrainedGeometry;
+import net.covers1624.quack.annotation.ReplaceWithExpr;
 
 import java.util.function.Supplier;
 
@@ -64,7 +65,6 @@ public class Constraints {
         element.constrain(RIGHT, relative(reference.get(RIGHT), () -> -borders.right()));
     }
 
-
     public static void size(ConstrainedGeometry<?> element, double width, double height) {
         element.constrain(WIDTH, literal(width));
         element.constrain(HEIGHT, literal(height));
@@ -104,8 +104,10 @@ public class Constraints {
      * @param reference The reference element, the element that target will be placed inside.
      * @param position  The layout position.
      */
+    @Deprecated
+    @ReplaceWithExpr ("target.placeInside")
     public static void placeInside(ConstrainedGeometry<?> target, ConstrainedGeometry<?> reference, LayoutPos position) {
-        placeInside(target, reference, position, 0, 0);
+        target.placeInside(reference, position);
     }
 
     /**
@@ -119,33 +121,10 @@ public class Constraints {
      * @param xOffset   Optional X offset to be applied to the final position.
      * @param yOffset   Optional Y offset to be applied to the final position.
      */
+    @Deprecated
+    @ReplaceWithExpr ("target.placeInside")
     public static void placeInside(ConstrainedGeometry<?> target, ConstrainedGeometry<?> reference, LayoutPos position, double xOffset, double yOffset) {
-        switch (position) {
-            case TOP_LEFT -> target
-                    .constrain(TOP, relative(reference.get(TOP), yOffset))
-                    .constrain(LEFT, relative(reference.get(LEFT), xOffset));
-            case TOP_CENTER -> target
-                    .constrain(TOP, relative(reference.get(TOP), yOffset))
-                    .constrain(LEFT, midPoint(reference.get(LEFT), reference.get(RIGHT), () -> (target.xSize() / -2) + xOffset));
-            case TOP_RIGHT -> target
-                    .constrain(TOP, relative(reference.get(TOP), yOffset))
-                    .constrain(RIGHT, relative(reference.get(RIGHT), xOffset));
-            case MIDDLE_RIGHT -> target
-                    .constrain(TOP, midPoint(reference.get(TOP), reference.get(BOTTOM), () -> (target.ySize() / -2) + yOffset))
-                    .constrain(RIGHT, relative(reference.get(RIGHT), xOffset));
-            case BOTTOM_RIGHT -> target
-                    .constrain(BOTTOM, relative(reference.get(BOTTOM), yOffset))
-                    .constrain(RIGHT, relative(reference.get(RIGHT), xOffset));
-            case BOTTOM_CENTER -> target
-                    .constrain(BOTTOM, relative(reference.get(BOTTOM), yOffset))
-                    .constrain(LEFT, midPoint(reference.get(LEFT), reference.get(RIGHT), () -> (target.xSize() / -2) + xOffset));
-            case BOTTOM_LEFT -> target
-                    .constrain(BOTTOM, relative(reference.get(BOTTOM), yOffset))
-                    .constrain(LEFT, relative(reference.get(LEFT), xOffset));
-            case MIDDLE_LEFT -> target
-                    .constrain(TOP, midPoint(reference.get(TOP), reference.get(BOTTOM), () -> (target.ySize() / -2) + yOffset))
-                    .constrain(LEFT, relative(reference.get(LEFT), xOffset));
-        }
+        target.placeInside(reference, position, xOffset, yOffset);
     }
 
     /**
@@ -157,8 +136,10 @@ public class Constraints {
      * @param reference The reference element, the element that target will be placed outside of.
      * @param position  The layout position.
      */
+    @Deprecated
+    @ReplaceWithExpr ("target.placeOutside")
     public static void placeOutside(ConstrainedGeometry<?> target, ConstrainedGeometry<?> reference, LayoutPos position) {
-        placeOutside(target, reference, position, 0, 0);
+        target.placeOutside(reference, position);
     }
 
     /**
@@ -172,33 +153,10 @@ public class Constraints {
      * @param xOffset   Optional X offset to be applied to the final position.
      * @param yOffset   Optional Y offset to be applied to the final position.
      */
+    @Deprecated
+    @ReplaceWithExpr ("target.placeOutside")
     public static void placeOutside(ConstrainedGeometry<?> target, ConstrainedGeometry<?> reference, LayoutPos position, double xOffset, double yOffset) {
-        switch (position) {
-            case TOP_LEFT -> target
-                    .constrain(BOTTOM, relative(reference.get(TOP), yOffset))
-                    .constrain(RIGHT, relative(reference.get(LEFT), xOffset));
-            case TOP_CENTER -> target
-                    .constrain(BOTTOM, relative(reference.get(TOP), yOffset))
-                    .constrain(LEFT, midPoint(reference.get(LEFT), reference.get(RIGHT), () -> (target.xSize() / -2) + xOffset));
-            case TOP_RIGHT -> target
-                    .constrain(BOTTOM, relative(reference.get(TOP), yOffset))
-                    .constrain(LEFT, relative(reference.get(RIGHT), xOffset));
-            case MIDDLE_RIGHT -> target
-                    .constrain(TOP, midPoint(reference.get(TOP), reference.get(BOTTOM), () -> (target.ySize() / -2) + yOffset))
-                    .constrain(LEFT, relative(reference.get(RIGHT), xOffset));
-            case BOTTOM_RIGHT -> target
-                    .constrain(TOP, relative(reference.get(BOTTOM), yOffset))
-                    .constrain(LEFT, relative(reference.get(RIGHT), xOffset));
-            case BOTTOM_CENTER -> target
-                    .constrain(TOP, relative(reference.get(BOTTOM), yOffset))
-                    .constrain(LEFT, midPoint(reference.get(LEFT), reference.get(RIGHT), () -> (target.xSize() / -2) + xOffset));
-            case BOTTOM_LEFT -> target
-                    .constrain(TOP, relative(reference.get(BOTTOM), yOffset))
-                    .constrain(RIGHT, relative(reference.get(LEFT), xOffset));
-            case MIDDLE_LEFT -> target
-                    .constrain(TOP, midPoint(reference.get(TOP), reference.get(BOTTOM), () -> (target.ySize() / -2) + yOffset))
-                    .constrain(RIGHT, relative(reference.get(LEFT), xOffset));
-        }
+        target.placeOutside(reference, position, xOffset, yOffset);
     }
 
     public enum LayoutPos {

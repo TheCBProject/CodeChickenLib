@@ -1,11 +1,14 @@
 package codechicken.lib.gui.modular.lib.geometry;
 
 import codechicken.lib.gui.modular.elements.GuiElement;
+import codechicken.lib.gui.modular.lib.Constraints;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
+import static codechicken.lib.gui.modular.lib.geometry.Constraint.midPoint;
+import static codechicken.lib.gui.modular.lib.geometry.Constraint.relative;
 import static codechicken.lib.gui.modular.lib.geometry.GeoParam.*;
 
 /**
@@ -213,12 +216,16 @@ public abstract class ConstrainedGeometry<T extends ConstrainedGeometry<T>> impl
         return new GeoRef(this, param);
     }
 
+    @SuppressWarnings ("unchecked")
+    private T self() {
+        return (T) this;
+    }
+
     /**
      * @param param      The geometry parameter to be constrained.
      * @param constraint The constraint to apply
      * @return This Element.
      */
-    @SuppressWarnings ("unchecked")
     public T constrain(GeoParam param, @Nullable Constraint constraint) {
         if (constraint != null && constraint.axis() != null && constraint.axis() != param.axis) {
             throw new IllegalStateException("Attempted to apply constraint for axis: " + constraint.axis() + ", to Parameter: " + param);
@@ -228,7 +235,7 @@ public abstract class ConstrainedGeometry<T extends ConstrainedGeometry<T>> impl
         } else if (param.axis == Axis.Y) {
             constrainY(param, constraint);
         }
-        return (T) this;
+        return self();
     }
 
     /**
@@ -236,11 +243,10 @@ public abstract class ConstrainedGeometry<T extends ConstrainedGeometry<T>> impl
      * Convenient when reconfiguring an elements constraints or applying constraints to an element
      * with an existing, unknown constraint configuration.
      */
-    @SuppressWarnings ("unchecked")
     public T clearConstraints() {
         xMin = xMax = xSize = yMin = yMax = ySize = null;
         xAxis = yAxis = AxisConfig.NONE;
-        return (T) this;
+        return self();
     }
 
     private void constrainX(GeoParam param, @Nullable Constraint constraint) {
@@ -279,11 +285,10 @@ public abstract class ConstrainedGeometry<T extends ConstrainedGeometry<T>> impl
      * @param strictMode Enable strict mode.
      * @return the geometry object.
      */
-    @SuppressWarnings ("unchecked")
     public T strictMode(boolean strictMode) {
         this.strictMode = strictMode;
         //TODO Propagate to children (Will be handled in the base GuiElement)
-        return (T) this;
+        return self();
     }
 
     //TODO This needs to be called from the parent element somewhere. Possibly on tick or render
@@ -372,5 +377,95 @@ public abstract class ConstrainedGeometry<T extends ConstrainedGeometry<T>> impl
         }
         if (!set) childBounds.setPos(xMin(), yMin()).setSize(0, 0);
         return childBounds;
+    }
+
+    //=== Layout Utilities ===//
+
+    /**
+     * Constrain this element to a position inside the specified targetElement.
+     * See the following image for an example of what each LayoutPos does:
+     * <a href="https://ss.brandon3055.com/e89a6">https://ss.brandon3055.com/e89a6</a>
+     *
+     * @param reference The reference element, the element that target will be placed inside.
+     * @param position  The layout position.
+     */
+    public T placeInside(ConstrainedGeometry<?> reference, Constraints.LayoutPos position) {
+        return placeInside(reference, position, 0, 0);
+    }
+
+    /**
+     * Constrain this element to a position inside the specified targetElement.
+     * See the following image for an example of what each LayoutPos does:
+     * <a href="https://ss.brandon3055.com/e89a6">https://ss.brandon3055.com/e89a6</a>
+     *
+     * @param reference The reference element, the element that target will be placed inside.
+     * @param position  The layout position.
+     * @param xOffset   Optional X offset to be applied to the final position.
+     * @param yOffset   Optional Y offset to be applied to the final position.
+     */
+    public T placeInside(ConstrainedGeometry<?> reference, Constraints.LayoutPos position, double xOffset, double yOffset) {
+        switch (position) {
+            case TOP_LEFT -> constrain(TOP, relative(reference.get(TOP), yOffset))
+                    .constrain(LEFT, relative(reference.get(LEFT), xOffset));
+            case TOP_CENTER -> constrain(TOP, relative(reference.get(TOP), yOffset))
+                    .constrain(LEFT, midPoint(reference.get(LEFT), reference.get(RIGHT), () -> (xSize() / -2) + xOffset));
+            case TOP_RIGHT -> constrain(TOP, relative(reference.get(TOP), yOffset))
+                    .constrain(RIGHT, relative(reference.get(RIGHT), xOffset));
+            case MIDDLE_RIGHT -> constrain(TOP, midPoint(reference.get(TOP), reference.get(BOTTOM), () -> (ySize() / -2) + yOffset))
+                    .constrain(RIGHT, relative(reference.get(RIGHT), xOffset));
+            case BOTTOM_RIGHT -> constrain(BOTTOM, relative(reference.get(BOTTOM), yOffset))
+                    .constrain(RIGHT, relative(reference.get(RIGHT), xOffset));
+            case BOTTOM_CENTER -> constrain(BOTTOM, relative(reference.get(BOTTOM), yOffset))
+                    .constrain(LEFT, midPoint(reference.get(LEFT), reference.get(RIGHT), () -> (xSize() / -2) + xOffset));
+            case BOTTOM_LEFT -> constrain(BOTTOM, relative(reference.get(BOTTOM), yOffset))
+                    .constrain(LEFT, relative(reference.get(LEFT), xOffset));
+            case MIDDLE_LEFT -> constrain(TOP, midPoint(reference.get(TOP), reference.get(BOTTOM), () -> (ySize() / -2) + yOffset))
+                    .constrain(LEFT, relative(reference.get(LEFT), xOffset));
+        }
+        return self();
+    }
+
+    /**
+     * Constrain this element to a position outside the specified targetElement.
+     * See the following image for an example of what each LayoutPos does:
+     * <a href="https://ss.brandon3055.com/baa7c">https://ss.brandon3055.com/baa7c</a>
+     *
+     * @param reference The reference element, the element that target will be placed outside of.
+     * @param position  The layout position.
+     */
+    public T placeOutside(ConstrainedGeometry<?> reference, Constraints.LayoutPos position) {
+        return placeOutside(reference, position, 0, 0);
+    }
+
+    /**
+     * Constrain this element to a position outside the specified targetElement.
+     * See the following image for an example of what each LayoutPos does:
+     * <a href="https://ss.brandon3055.com/baa7c">https://ss.brandon3055.com/baa7c</a>
+     *
+     * @param reference The reference element, the element that target will be placed outside of.
+     * @param position  The layout position.
+     * @param xOffset   Optional X offset to be applied to the final position.
+     * @param yOffset   Optional Y offset to be applied to the final position.
+     */
+    public T placeOutside(ConstrainedGeometry<?> reference, Constraints.LayoutPos position, double xOffset, double yOffset) {
+        switch (position) {
+            case TOP_LEFT -> constrain(BOTTOM, relative(reference.get(TOP), yOffset))
+                    .constrain(RIGHT, relative(reference.get(LEFT), xOffset));
+            case TOP_CENTER -> constrain(BOTTOM, relative(reference.get(TOP), yOffset))
+                    .constrain(LEFT, midPoint(reference.get(LEFT), reference.get(RIGHT), () -> (xSize() / -2) + xOffset));
+            case TOP_RIGHT -> constrain(BOTTOM, relative(reference.get(TOP), yOffset))
+                    .constrain(LEFT, relative(reference.get(RIGHT), xOffset));
+            case MIDDLE_RIGHT -> constrain(TOP, midPoint(reference.get(TOP), reference.get(BOTTOM), () -> (ySize() / -2) + yOffset))
+                    .constrain(LEFT, relative(reference.get(RIGHT), xOffset));
+            case BOTTOM_RIGHT -> constrain(TOP, relative(reference.get(BOTTOM), yOffset))
+                    .constrain(LEFT, relative(reference.get(RIGHT), xOffset));
+            case BOTTOM_CENTER -> constrain(TOP, relative(reference.get(BOTTOM), yOffset))
+                    .constrain(LEFT, midPoint(reference.get(LEFT), reference.get(RIGHT), () -> (xSize() / -2) + xOffset));
+            case BOTTOM_LEFT -> constrain(TOP, relative(reference.get(BOTTOM), yOffset))
+                    .constrain(RIGHT, relative(reference.get(LEFT), xOffset));
+            case MIDDLE_LEFT -> constrain(TOP, midPoint(reference.get(TOP), reference.get(BOTTOM), () -> (ySize() / -2) + yOffset))
+                    .constrain(RIGHT, relative(reference.get(LEFT), xOffset));
+        }
+        return self();
     }
 }
