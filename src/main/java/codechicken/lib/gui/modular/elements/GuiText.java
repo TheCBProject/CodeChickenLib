@@ -68,6 +68,11 @@ public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
         return this;
     }
 
+    public GuiText autoWidth() {
+        constrain(GeoParam.WIDTH, dynamic(() -> (double) font().width(getText())));
+        return this;
+    }
+
     public GuiText setTextSupplier(@NotNull Supplier<@Nullable Component> textSupplier) {
         this.text = textSupplier;
         return this;
