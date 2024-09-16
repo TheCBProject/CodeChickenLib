@@ -41,10 +41,6 @@ public interface PerspectiveModel extends BakedModel {
             pStack.scale(scale.x(), scale.y(), scale.z());
 
             pStack.mulPose(transform.getRightRotation());
-
-            if (leftFlip) {
-                TransformUtils.applyLeftyFlip(pStack);
-            }
             return this;
         }
         return BakedModel.super.applyTransform(context, pStack, leftFlip);

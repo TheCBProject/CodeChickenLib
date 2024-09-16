@@ -176,6 +176,7 @@ public class TransformUtils {
      *
      * @param pStack The {@link PoseStack} to apply to.
      */
+    @Deprecated (forRemoval = true)
     public static void applyLeftyFlip(PoseStack pStack) {
         if (!pStack.clear()) {
             Matrix4f tMat = pStack.last().pose();
