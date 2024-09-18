@@ -130,10 +130,7 @@ public class BakedVertexSource implements IVertexSource, IVertexConsumer {
                 if (attr == null) {
                     attr = key.createDefault(numVertices);
                 } else {
-                    Object newAttr = key.createDefault(numVertices);
-                    //noinspection SuspiciousSystemArraycopy
-                    System.arraycopy(attr, 0, newAttr, 0, prevLen);
-                    attr = newAttr;
+                    attr = key.copy(unsafeCast(attr), numVertices);
                 }
                 attributes[aIdx] = attr;
                 //Fill non primitive vertex attributes with new things.
