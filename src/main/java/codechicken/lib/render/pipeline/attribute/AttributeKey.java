@@ -6,6 +6,7 @@ import codechicken.lib.render.pipeline.VertexAttribute;
 import codechicken.lib.util.ArrayUtils;
 import codechicken.lib.util.Copyable;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +45,7 @@ public abstract class AttributeKey<T> {
             @Override
             public T copy(T src, int length) {
                 T dst = createDefault(length);
-                ArrayUtils.arrayCopy(src, 0, dst, 0, ((Object[]) src).length);
+                ArrayUtils.arrayCopy(src, 0, dst, 0, Array.getLength(src));
                 return dst;
             }
 
