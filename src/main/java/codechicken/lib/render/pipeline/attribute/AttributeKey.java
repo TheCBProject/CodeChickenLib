@@ -93,7 +93,7 @@ public abstract class AttributeKey<T> {
         private static final Map<String, AttributeKey<?>> nameMap = new HashMap<>();
         private static final List<AttributeKey<?>> attributeKeys = new ArrayList<>();
 
-        private static int registerAttributeKey(AttributeKey<?> attr) {
+        private static synchronized int registerAttributeKey(AttributeKey<?> attr) {
             if (nameMap.containsKey(attr.name)) {
                 throw new IllegalArgumentException("Duplicate registration of attribute with name: " + attr.name);
             }
