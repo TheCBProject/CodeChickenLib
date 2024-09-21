@@ -1,5 +1,6 @@
 package codechicken.lib.internal.network;
 
+import codechicken.lib.CodeChickenLib;
 import codechicken.lib.packet.PacketCustomChannel;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
@@ -12,6 +13,7 @@ public class CCLNetwork {
     public static final ResourceLocation NET_CHANNEL = new ResourceLocation("ccl:internal");
     public static final PacketCustomChannel channel = new PacketCustomChannel(NET_CHANNEL)
             .optional()
+            .versioned(CodeChickenLib.container().getModInfo().getVersion().toString())
             .clientConfiguration(() -> ClientConfigurationPacketHandler::new)
             .client(() -> ClientPacketHandler::new)
             .server(() -> ServerPacketHandler::new);
