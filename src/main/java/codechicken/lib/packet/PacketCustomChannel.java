@@ -89,20 +89,20 @@ public class PacketCustomChannel {
                     channel,
                     e -> new PacketCustom.Pkt(channel, e.retain()),
                     handlers -> {
-                        if (client != null) {
-                            handlers.client((payload, context) -> {
+                        handlers.client((payload, context) -> {
+                            if (client != null) {
                                 enqueue(context.workHandler(), payload, () -> {
                                     client.handlePacket(new PacketCustom(payload), Minecraft.getInstance());
                                 });
-                            });
-                        }
-                        if (server != null) {
-                            handlers.server((payload, context) -> {
+                            }
+                        });
+                        handlers.server((payload, context) -> {
+                            if (server != null) {
                                 enqueue(context.workHandler(), payload, () -> {
                                     server.handlePacket(new PacketCustom(payload), (ServerPlayer) context.player().orElseThrow());
                                 });
-                            });
-                        }
+                            }
+                        });
                     }
             );
         }
