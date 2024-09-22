@@ -194,7 +194,7 @@ public final class PacketCustom extends MCDataByteBuf {
     //@formatter:on
     //endregion
 
-    record Pkt(ResourceLocation id, FriendlyByteBuf data) implements CustomPacketPayload {
+    record Pkt(ResourceLocation id, ByteBuf data) implements CustomPacketPayload {
 
         @Override
         public void write(FriendlyByteBuf buf) {

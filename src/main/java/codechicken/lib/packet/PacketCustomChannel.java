@@ -5,6 +5,7 @@ import codechicken.lib.packet.ICustomPacketHandler.IClientPacketHandler;
 import codechicken.lib.packet.ICustomPacketHandler.IServerConfigurationPacketHandler;
 import codechicken.lib.packet.ICustomPacketHandler.IServerPacketHandler;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
@@ -87,7 +88,7 @@ public class PacketCustomChannel {
         if (client != null || server != null) {
             registrar.play(
                     channel,
-                    e -> new PacketCustom.Pkt(channel, e.retain()),
+                    this::read,
                     handlers -> {
                         handlers.client((payload, context) -> {
                             if (client != null) {
@@ -109,7 +110,7 @@ public class PacketCustomChannel {
         if (clientConfiguration != null || serverConfiguration != null) {
             registrar.configuration(
                     channel,
-                    e -> new PacketCustom.Pkt(channel, e.retain()),
+                    this::read,
                     handlers -> {
                         handlers.client((payload, context) -> {
                             enqueue(context.workHandler(), payload, () -> {
@@ -119,6 +120,13 @@ public class PacketCustomChannel {
                     }
             );
         }
+    }
+
+    private PacketCustom.Pkt read(FriendlyByteBuf buf) {
+        return new PacketCustom.Pkt(
+                channel,
+                buf.readBytes(buf.readableBytes())
+        );
     }
 
     private static void enqueue(ISynchronizedWorkHandler workHandler, PacketCustom.Pkt payload, Runnable runnable) {
