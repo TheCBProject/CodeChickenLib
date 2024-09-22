@@ -198,7 +198,9 @@ public final class PacketCustom extends MCDataByteBuf {
 
         @Override
         public void write(FriendlyByteBuf buf) {
+            data.markReaderIndex();
             buf.writeBytes(data);
+            data.resetReaderIndex();
         }
     }
 }
