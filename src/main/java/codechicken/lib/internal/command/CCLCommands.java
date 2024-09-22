@@ -11,9 +11,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.covers1624.quack.util.CrashLock;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraftforge.client.event.RegisterClientCommandsEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 /**
  * Created by covers1624 on 17/9/20.
@@ -25,8 +25,8 @@ public class CCLCommands {
     public static void init() {
         LOCK.lock();
 
-        MinecraftForge.EVENT_BUS.addListener(CCLCommands::registerServerCommands);
-        MinecraftForge.EVENT_BUS.addListener(CCLCommands::registerClientCommands);
+        NeoForge.EVENT_BUS.addListener(CCLCommands::registerServerCommands);
+        NeoForge.EVENT_BUS.addListener(CCLCommands::registerClientCommands);
     }
 
     private static void registerServerCommands(RegisterCommandsEvent event) {
@@ -44,5 +44,4 @@ public class CCLCommands {
         ItemInfoCommand.register(dispatcher);
         RenderItemToFileCommand.register(dispatcher);
     }
-
 }

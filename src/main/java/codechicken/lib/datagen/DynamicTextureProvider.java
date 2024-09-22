@@ -11,7 +11,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -30,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
  * Created by brandon3055 on 07/09/2023
  */
 public class DynamicTextureProvider implements DataProvider {
+
     private final DataGenerator gen;
     private final ExistingFileHelper fileHelper;
     private final String modid;
@@ -174,6 +175,7 @@ public class DynamicTextureProvider implements DataProvider {
     }
 
     private static class GeneratorResult {
+
         private final byte[] fileBytes;
         private final Path path;
 

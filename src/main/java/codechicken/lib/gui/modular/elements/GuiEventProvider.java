@@ -11,13 +11,14 @@ import java.util.function.BiConsumer;
 /**
  * Created by brandon3055 on 15/11/2023
  */
+// TODO Replace TriConsumer.
 public class GuiEventProvider extends GuiElement<GuiEventProvider> {
 
     private boolean ignoreConsumed = false;
     private final List<TriConsumer<Double, Double, Integer>> clickListeners = new ArrayList<>();
     private final List<TriConsumer<Double, Double, Integer>> releaseListeners = new ArrayList<>();
     private final List<BiConsumer<Double, Double>> movedListeners = new ArrayList<>();
-    private final List<TriConsumer<Double, Double, Double>> scrollListeners = new ArrayList<>();
+    private final List<ScrollListener> scrollListeners = new ArrayList<>();
     private final List<TriConsumer<Integer, Integer, Integer>> keyPressListeners = new ArrayList<>();
     private final List<TriConsumer<Integer, Integer, Integer>> keyReleaseListeners = new ArrayList<>();
     private final List<BiConsumer<Character, Integer>> charTypedListeners = new ArrayList<>();
@@ -46,7 +47,7 @@ public class GuiEventProvider extends GuiElement<GuiEventProvider> {
         return this;
     }
 
-    public GuiEventProvider onScroll(TriConsumer<Double, Double, Double> listener) {
+    public GuiEventProvider onScroll(ScrollListener listener) {
         scrollListeners.add(listener);
         return this;
     }
@@ -89,11 +90,11 @@ public class GuiEventProvider extends GuiElement<GuiEventProvider> {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scroll, boolean consumed) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY, boolean consumed) {
         if (ignoreConsumed || !consumed) {
-            scrollListeners.forEach(e -> e.accept(mouseX, mouseY, scroll));
+            scrollListeners.forEach(e -> e.onScrolled(mouseX, mouseY, scrollX, scrollY));
         }
-        return super.mouseScrolled(mouseX, mouseY, scroll, consumed);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY, consumed);
     }
 
     @Override
@@ -118,5 +119,10 @@ public class GuiEventProvider extends GuiElement<GuiEventProvider> {
             charTypedListeners.forEach(e -> e.accept(character, modifiers));
         }
         return super.charTyped(character, modifiers, consumed);
+    }
+
+    public interface ScrollListener {
+
+        void onScrolled(double mouseX, double mouseY, double scrollX, double scrollY);
     }
 }

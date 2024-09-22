@@ -3,11 +3,11 @@ package codechicken.lib.internal.command.client;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import static net.minecraft.commands.Commands.literal;
 
@@ -31,7 +31,7 @@ public class ItemInfoCommand {
         if (stack.isEmpty()) return 0;
 
         String tag = stack.hasTag() ? stack.getTag().toString() : "Item has no NBT.";
-        ctx.sendSuccess(() -> Component.literal("Registry Name: " + ForgeRegistries.ITEMS.getKey(stack.getItem())), false);
+        ctx.sendSuccess(() -> Component.literal("Registry Name: " + BuiltInRegistries.ITEM.getKey(stack.getItem())), false);
         ctx.sendSuccess(() -> Component.literal("NBT          : " + tag), false);
         return 0;
     }

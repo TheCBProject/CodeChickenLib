@@ -53,7 +53,7 @@ public class QuadAlphaOverride extends QuadTransformer {
     public boolean transform() {
         if (format.hasColor) {
             for (Vertex v : quad.vertices) {
-                v.color[3] = alphaOverride;
+                v.color()[3] = alphaOverride;
             }
         }
         return true;

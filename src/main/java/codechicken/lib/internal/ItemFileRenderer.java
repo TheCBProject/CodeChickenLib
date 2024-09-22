@@ -32,6 +32,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Mostly internal, intended for developer use.
  * <p>
@@ -289,7 +291,7 @@ public class ItemFileRenderer {
 
             int ret = runFfmpeg(
                     List.of(
-                            FFMPEG_BINARY.get(),
+                            requireNonNull(FFMPEG_BINARY.get()),
                             "-y",
                             "-framerate", String.valueOf(fps),
                             "-i", tempDir.toAbsolutePath() + "/%d.png",

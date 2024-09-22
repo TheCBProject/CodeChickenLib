@@ -4,7 +4,7 @@ import codechicken.lib.gui.modular.lib.BackgroundRender;
 import codechicken.lib.gui.modular.lib.Constraints;
 import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
-import codechicken.lib.gui.modular.sprite.CCGuiTextures;
+import codechicken.lib.gui.modular.sprite.GuiTextures;
 import codechicken.lib.gui.modular.sprite.Material;
 import codechicken.lib.util.FormatUtil;
 import net.minecraft.client.gui.screens.Screen;
@@ -26,8 +26,8 @@ import static net.minecraft.ChatFormatting.*;
  */
 public class GuiEnergyBar extends GuiElement<GuiEnergyBar> implements BackgroundRender {
     public static final DecimalFormat COMMA_FORMAT = new DecimalFormat("###,###,###,###,###", DecimalFormatSymbols.getInstance(Locale.ROOT));
-    public static final Material EMPTY = CCGuiTextures.getUncached("widgets/energy_empty");
-    public static final Material FULL = CCGuiTextures.getUncached("widgets/energy_full");
+    public static final Material EMPTY = GuiTextures.CCL.getUncached("widgets/energy_empty");
+    public static final Material FULL = GuiTextures.CCL.getUncached("widgets/energy_full");
 
     private Supplier<Long> energy = () -> 0L;
     private Supplier<Long> capacity = () -> 0L;

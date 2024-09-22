@@ -2,6 +2,7 @@ package codechicken.lib.colour;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
+import org.jetbrains.annotations.Nullable;
 
 import static java.lang.Math.max;
 
@@ -268,8 +269,12 @@ public abstract class Colour implements Copyable<Colour> {
         return packARGB(data[0], data[1], data[2], data[3]);
     }
 
-    public boolean equals(Colour colour) {
-        return colour != null && rgba() == colour.rgba();
+    public boolean equals(@Nullable Colour other) {
+        if (other == null) return false;
+        if (r != other.r) return false;
+        if (g != other.g) return false;
+        if (b != other.b) return false;
+        return a == other.a;
     }
 
     @Override
@@ -277,10 +282,7 @@ public abstract class Colour implements Copyable<Colour> {
         if (this == o) return true;
         if (!(o instanceof Colour colour)) return false;
 
-        if (r != colour.r) return false;
-        if (g != colour.g) return false;
-        if (b != colour.b) return false;
-        return a == colour.a;
+        return equals(colour);
     }
 
     @Override

@@ -1,28 +1,17 @@
 package codechicken.lib.datagen.recipe;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.advancements.RequirementsStrategy;
-import net.minecraft.advancements.critereon.*;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.advancements.*;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import org.apache.commons.lang3.StringUtils;
+import net.neoforged.neoforge.common.conditions.ICondition;
 
-import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.*;
 
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
@@ -34,7 +23,6 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     protected final Throwable created = new Throwable("Created at");
     protected final Advancement.Builder advancementBuilder = Advancement.Builder.advancement();
     protected final List<ICondition> conditions = new LinkedList<>();
-    protected final RecipeSerializer<?> serializer;
     protected final ResourceLocation id;
     protected final R result;
     private final Set<ItemLike> criteriaItems = new HashSet<>();
@@ -42,10 +30,9 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     private int criteriaCounter = 0;
     protected boolean generateCriteria = false;
     protected boolean enableUnlocking = false;
-    private String group;
+    protected String group = "";
 
-    protected AbstractRecipeBuilder(RecipeSerializer<?> serializer, ResourceLocation id, R result) {
-        this.serializer = serializer;
+    protected AbstractRecipeBuilder(ResourceLocation id, R result) {
         this.id = id;
         this.result = result;
     }
@@ -54,10 +41,8 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
         return unsafeCast(this);
     }
 
-    protected abstract ResourceLocation getAdvancementId();
-
-    public T withCondition(Function<ConditionBuilder, ICondition> f) {
-        conditions.add(f.apply(ConditionBuilder.INSTANCE));
+    public T withCondition(ICondition cond) {
+        conditions.add(cond);
         return getThis();
     }
 
@@ -77,7 +62,7 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
         return getThis();
     }
 
-    public T addCriterion(String name, CriterionTriggerInstance criterion) {
+    public T addCriterion(String name, Criterion<?> criterion) {
         if (!enableUnlocking) {
             throw new IllegalStateException("Recipe unlocking must be enabled with 'enableUnlocking'");
         }
@@ -91,24 +76,25 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     }
 
     @Override
-    public final FinishedRecipe build() {
+    public final BuiltRecipe build() {
         validate();
         if (enableUnlocking) {
             advancementBuilder.parent(new ResourceLocation("recipes/root"))
                     .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
                     .rewards(AdvancementRewards.Builder.recipe(id))
-                    .requirements(RequirementsStrategy.OR);
+                    .requirements(AdvancementRequirements.Strategy.OR);
         }
-        return _build();
+        AdvancementHolder advancement = advancementBuilder.build(id.withPrefix("recipes"));
+        if (advancement.value().criteria().isEmpty()) {
+            advancement = null;
+        }
+        return new BuiltRecipe(_build(), advancement, conditions);
     }
 
     protected void validate() {
-        if (enableUnlocking && advancementBuilder.getCriteria().isEmpty()) {
-            throw new IllegalStateException("No way of obtaining recipe " + id, created);
-        }
     }
 
-    protected abstract AbstractFinishedRecipe _build();
+    protected abstract Recipe<?> _build();
 
     protected void addAutoCriteria(ItemLike item) {
         if (generateCriteria && criteriaItems.add(item)) {
@@ -122,54 +108,21 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
         }
     }
 
-    protected InventoryChangeTrigger.TriggerInstance hasItem(ItemLike itemIn) {
+    protected Criterion<?> hasItem(ItemLike itemIn) {
         return this.hasItem(ItemPredicate.Builder.item().of(itemIn).build());
     }
 
-    protected InventoryChangeTrigger.TriggerInstance hasItem(TagKey<Item> tagIn) {
+    protected Criterion<?> hasItem(TagKey<Item> tagIn) {
         return this.hasItem(ItemPredicate.Builder.item().of(tagIn).build());
     }
 
-    protected InventoryChangeTrigger.TriggerInstance hasItem(ItemPredicate... predicates) {
-        return new InventoryChangeTrigger.TriggerInstance(ContextAwarePredicate.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, predicates);
-    }
-
-    public abstract class AbstractFinishedRecipe implements FinishedRecipe {
-
-        @Override
-        public void serializeRecipeData(JsonObject json) {
-            if (!conditions.isEmpty()) {
-                JsonArray conditionArray = new JsonArray();
-                for (ICondition condition : conditions) {
-                    conditionArray.add(CraftingHelper.serialize(condition));
-                }
-                json.add("conditions", conditionArray);
-            }
-            if (StringUtils.isNotEmpty(group)) {
-                json.addProperty("group", group);
-            }
-        }
-
-        @Override
-        public RecipeSerializer<?> getType() {
-            return serializer;
-        }
-
-        @Override
-        public ResourceLocation getId() {
-            return id;
-        }
-
-        @Nullable
-        @Override
-        public JsonObject serializeAdvancement() {
-            return enableUnlocking ? advancementBuilder.serializeToJson() : null;
-        }
-
-        @Nullable
-        @Override
-        public ResourceLocation getAdvancementId() {
-            return AbstractRecipeBuilder.this.getAdvancementId();
-        }
+    protected Criterion<?> hasItem(ItemPredicate... predicates) {
+        return CriteriaTriggers.INVENTORY_CHANGED.createCriterion(
+                new InventoryChangeTrigger.TriggerInstance(
+                        Optional.empty(),
+                        InventoryChangeTrigger.TriggerInstance.Slots.ANY,
+                        List.of(predicates)
+                )
+        );
     }
 }

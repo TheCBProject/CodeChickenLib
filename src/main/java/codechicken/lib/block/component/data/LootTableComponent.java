@@ -1,16 +1,22 @@
 package codechicken.lib.block.component.data;
 
 import codechicken.lib.block.ModularBlock;
-import codechicken.lib.datagen.LootTableProvider;
+import codechicken.lib.datagen.NoValidationBLockLootSubProvider;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.loot.BlockLootSubProvider;
+import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -29,10 +35,24 @@ public class LootTableComponent extends DataGenComponent {
     }
 
     @Override
-    protected void addToProvider(DataProvider provider) {
-        if (provider instanceof LootTableProvider.BlockLootProvider loot) {
+    protected void addToProvider(DataProvider p) {
+        if (p instanceof LootTableProvider provider) {
+            if (!(provider.subProviders instanceof ArrayList)) {
+                provider.subProviders = new ArrayList<>(provider.subProviders);
+            }
+            provider.subProviders.add(
+                    new LootTableProvider.SubProviderEntry(
+                            () -> new NoValidationBLockLootSubProvider() {
+                                @Override
+                                protected void generate() {
+                                    add(getBlock(), table);
+                                }
+                            },
+                            LootContextParamSets.BLOCK
+                    )
+            );
+
             configure.accept(this);
-            loot.register(getBlock(), table);
         }
     }
 

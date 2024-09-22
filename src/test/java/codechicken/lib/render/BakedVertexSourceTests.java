@@ -3,6 +3,8 @@ package codechicken.lib.render;
 import codechicken.lib.model.CachedFormat;
 import codechicken.lib.model.Quad;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.core.Direction;
+import net.neoforged.neoforge.client.textures.UnitTextureAtlasSprite;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,6 +36,8 @@ public class BakedVertexSourceTests {
     public void testExpandWithQuad() {
         Quad unbaked = new Quad();
         unbaked.reset(CachedFormat.BLOCK);
+        unbaked.setQuadOrientation(Direction.NORTH);
+        unbaked.setTexture(UnitTextureAtlasSprite.INSTANCE);
         BakedQuad quad = unbaked.bake();
 
         BakedVertexSource source = new BakedVertexSource();

@@ -22,10 +22,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -38,10 +38,8 @@ public abstract class WrappedItemModel implements BakedModel {
 
     protected final BakedModel wrapped;
     protected final ModelState parentState;
-    @Nullable
-    protected LivingEntity entity;
-    @Nullable
-    protected ClientLevel world;
+    protected @Nullable LivingEntity entity;
+    protected @Nullable ClientLevel world;
 
     private final ItemOverrides overrideList = new ItemOverrides() {
         @Override
@@ -58,7 +56,7 @@ public abstract class WrappedItemModel implements BakedModel {
     }
 
     @Override
-    public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand) {
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand) {
         return Collections.emptyList();
     }
 
@@ -111,6 +109,7 @@ public abstract class WrappedItemModel implements BakedModel {
     // TODO this needs to be redesigned so other IItemRenderers can be used as override models.
     protected void renderWrapped(ItemStack stack, PoseStack pStack, MultiBufferSource buffers, int packedLight, int packedOverlay, boolean fabulous, Function<VertexConsumer, VertexConsumer> consOverride) {
         BakedModel model = wrapped.getOverrides().resolve(wrapped, stack, world, entity, 0);
+        if (model == null) return; // What?
 
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         RenderType rType = ItemBlockRenderTypes.getRenderType(stack, fabulous);

@@ -3,16 +3,16 @@ package codechicken.lib.datagen;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.model.generators.ItemModelBuilder;
-import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.client.model.generators.ModelProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.ModelProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,6 +26,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static codechicken.lib.CodeChickenLib.MOD_ID;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Created by covers1624 on 15/10/20.
@@ -43,7 +44,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
 
     //region Location helpers
     protected String name(ItemLike item) {
-        return ForgeRegistries.ITEMS.getKey(item.asItem()).getPath();
+        return BuiltInRegistries.ITEM.getKey(item.asItem()).getPath();
     }
 
     protected ResourceLocation itemTexture(ItemLike item) {
@@ -176,7 +177,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         private final ItemModelBuilder builder;
         private final Item item;
         private final Map<String, ResourceLocation> layers = new HashMap<>();
-        private ModelFile parent;
+        private @Nullable ModelFile parent;
         private boolean noTexture = false;
         private String folder = "";
 
@@ -192,11 +193,11 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         }
 
         public SimpleItemModelBuilder parent(ModelFile parent) {
-            this.parent = Objects.requireNonNull(parent);
+            this.parent = requireNonNull(parent);
             return this;
         }
 
-        public SimpleItemModelBuilder texture(ResourceLocation texture) {
+        public SimpleItemModelBuilder texture(@Nullable ResourceLocation texture) {
             if (texture == null) throw new IllegalStateException("Use '.noTexture()' instead of '.texture(null)'");
             return texture("layer0", texture);
         }
@@ -205,7 +206,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
             if (noTexture) throw new IllegalStateException("Unable to set texture. NoTexture set.");
             if (!StringUtils.isEmpty(folder)) throw new IllegalArgumentException("Adding texture would ignore existing folder.");
 
-            ResourceLocation existing = layers.put(layer, Objects.requireNonNull(texture));
+            ResourceLocation existing = layers.put(layer, requireNonNull(texture));
             if (existing != null) {
                 LOGGER.warn("Overwriting layer '{}' texture '{}' with '{}'", layer, existing, texture);
             }
@@ -216,7 +217,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
             if (!layers.isEmpty()) throw new IllegalStateException("Textures set, folder would be ignored.");
             if (noTexture) throw new IllegalStateException("No Texture set, folder would be ignored.");
 
-            this.folder = Objects.requireNonNull(folder);
+            this.folder = requireNonNull(folder);
             return this;
         }
 
@@ -248,7 +249,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
 
         private void build() {
             if (!built) {
-                builder.parent(parent);
+                builder.parent(requireNonNull(parent, "Model requires a parent."));
                 if (!noTexture) {
                     if (layers.isEmpty()) {
                         builder.texture("layer0", provider.itemTexture(item, folder));
@@ -266,7 +267,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
 
     private static class WrappedItemModelBuilder extends ItemModelBuilder {
 
-        private SimpleItemModelBuilder simpleBuilder;
+        private @Nullable SimpleItemModelBuilder simpleBuilder;
 
         public WrappedItemModelBuilder(ResourceLocation outputLocation, ExistingFileHelper existingFileHelper) {
             super(outputLocation, existingFileHelper);
@@ -372,7 +373,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         @Override
         protected JsonObject toJson(JsonObject json) {
             super.toJson(json);
-            json.addProperty("class", Objects.requireNonNull(clazz).getName());
+            json.addProperty("class", requireNonNull(clazz).getName());
             return json;
         }
     }

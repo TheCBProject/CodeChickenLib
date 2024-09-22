@@ -1,30 +1,46 @@
 package codechicken.lib.datagen.recipe;
 
-import com.google.gson.JsonObject;
-import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.ItemLike;
+
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Created by covers1624 on 25/3/21.
  */
 public class SpecialCraftingRecipeBuilder implements RecipeBuilder {
 
-    protected final SimpleCraftingRecipeSerializer<?> serializer;
     protected final ResourceLocation id;
 
-    public SpecialCraftingRecipeBuilder(SimpleCraftingRecipeSerializer<?> serializer, ResourceLocation id) {
-        this.serializer = serializer;
+    private final Factory factory;
+
+    public SpecialCraftingRecipeBuilder(ResourceLocation id, Factory factory) {
         this.id = id;
+        this.factory = factory;
     }
 
-    public static SpecialCraftingRecipeBuilder builder(SimpleCraftingRecipeSerializer<?> serializer, String id) {
-        return builder(serializer, new ResourceLocation(id));
+    public static SpecialCraftingRecipeBuilder builder(ItemLike id, Factory factory) {
+        return builder(BuiltInRegistries.ITEM.getKey(id.asItem()), factory);
     }
 
-    public static SpecialCraftingRecipeBuilder builder(SimpleCraftingRecipeSerializer<?> serializer, ResourceLocation id) {
-        return new SpecialCraftingRecipeBuilder(serializer, id);
+    public static SpecialCraftingRecipeBuilder builder(Supplier<? extends ItemLike> id, Factory factory) {
+        return builder(id.get(), factory);
+    }
+
+    public static SpecialCraftingRecipeBuilder builder(ItemStack id, Factory factory) {
+        return builder(id.getItem(), factory);
+    }
+
+    public static SpecialCraftingRecipeBuilder builder(String id, Factory factory) {
+        return builder(new ResourceLocation(id), factory);
+    }
+
+    public static SpecialCraftingRecipeBuilder builder(ResourceLocation id, Factory factory) {
+        return new SpecialCraftingRecipeBuilder(id, factory);
     }
 
     @Override
@@ -33,17 +49,16 @@ public class SpecialCraftingRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public FinishedRecipe build() {
-        return new SpecialFinishedRecipe();
+    public BuiltRecipe build() {
+        return new BuiltRecipe(
+                factory.build(),
+                null,
+                List.of()
+        );
     }
 
-    //@formatter:off
-    protected class SpecialFinishedRecipe implements FinishedRecipe {
-        @Override public void serializeRecipeData(JsonObject p_218610_1_) { }
-        @Override public ResourceLocation getId() { return id; }
-        @Override public RecipeSerializer<?> getType() { return serializer; }
-        @Override public JsonObject serializeAdvancement() { return null; }
-        @Override public ResourceLocation getAdvancementId() { return null; }
+    public interface Factory {
+
+        Recipe<?> build();
     }
-    //@formatter:on
 }

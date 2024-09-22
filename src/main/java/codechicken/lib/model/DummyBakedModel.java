@@ -1,5 +1,6 @@
 package codechicken.lib.model;
 
+import codechicken.lib.texture.TextureUtils;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -7,11 +8,10 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Simple dummy model.
@@ -46,7 +46,7 @@ public class DummyBakedModel implements BakedModel {
 
     @Override
     public TextureAtlasSprite getParticleIcon() {
-        return null;
+        return TextureUtils.getMissingSprite();
     }
 
     @Override

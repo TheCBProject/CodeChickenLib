@@ -13,7 +13,7 @@ public class CustomGradient {
     public CustomGradient(ResourceLocation textureFile) {
         BufferedImage img = TextureUtils.loadBufferedImage(textureFile);
         if (img == null) {
-            throw new RuntimeException("File not found: " + textureFile.toString());
+            throw new RuntimeException("File not found: " + textureFile);
         }
 
         int[] data = new int[img.getWidth()];

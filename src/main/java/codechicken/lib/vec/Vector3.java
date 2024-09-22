@@ -80,7 +80,7 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public static Vector3 fromEntityCenter(Entity e) {
-        return new Vector3(e.position()).add(0, e.getMyRidingOffset() + e.getBbHeight() / 2, 0);
+        return new Vector3(e.position()).add(0, e.getBbHeight() / 2, 0);
     }
 
     public static Vector3 fromTile(BlockEntity tile) {
@@ -188,8 +188,7 @@ public class Vector3 implements Copyable<Vector3> {
         return add(vec.x, vec.y, vec.z);
     }
 
-    // TODO Move to use Vec3i
-    public Vector3 add(BlockPos pos) {
+    public Vector3 add(Vec3i pos) {
         return add(pos.getX(), pos.getY(), pos.getZ());
     }
 
@@ -212,7 +211,7 @@ public class Vector3 implements Copyable<Vector3> {
         return subtract(vec.x, vec.y, vec.z);
     }
 
-    public Vector3 subtract(BlockPos pos) {
+    public Vector3 subtract(Vec3i pos) {
         return subtract(pos.getX(), pos.getY(), pos.getZ());
     }
 
@@ -246,7 +245,7 @@ public class Vector3 implements Copyable<Vector3> {
         return divide(vec.x, vec.y, vec.z);
     }
 
-    public Vector3 divide(BlockPos pos) {
+    public Vector3 divide(Vec3i pos) {
         return divide(pos.getX(), pos.getY(), pos.getZ());
     }
 
@@ -502,12 +501,9 @@ public class Vector3 implements Copyable<Vector3> {
 
     @Override
     public int hashCode() {
-        long j = Double.doubleToLongBits(x);
-        int i = (int) (j ^ j >>> 32);
-        j = Double.doubleToLongBits(y);
-        i = 31 * i + (int) (j ^ j >>> 32);
-        j = Double.doubleToLongBits(z);
-        i = 31 * i + (int) (j ^ j >>> 32);
+        int i = Double.hashCode(x);
+        i = 31 * i + Double.hashCode(y);
+        i = 31 * i + Double.hashCode(z);
         return i;
     }
 
@@ -516,10 +512,9 @@ public class Vector3 implements Copyable<Vector3> {
         if (super.equals(o)) {
             return true;
         }
-        if (!(o instanceof Vector3)) {
+        if (!(o instanceof Vector3 v)) {
             return false;
         }
-        Vector3 v = (Vector3) o;
         return x == v.x && y == v.y && z == v.z;
     }
 

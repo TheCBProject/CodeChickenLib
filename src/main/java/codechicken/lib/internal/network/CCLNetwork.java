@@ -1,8 +1,8 @@
 package codechicken.lib.internal.network;
 
-import codechicken.lib.packet.PacketCustomChannelBuilder;
+import codechicken.lib.packet.PacketCustomChannel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.event.EventNetworkChannel;
+import net.neoforged.bus.api.IEventBus;
 
 /**
  * Created by covers1624 on 28/10/19.
@@ -10,7 +10,11 @@ import net.minecraftforge.network.event.EventNetworkChannel;
 public class CCLNetwork {
 
     public static final ResourceLocation NET_CHANNEL = new ResourceLocation("ccl:internal");
-    public static EventNetworkChannel netChannel;
+    public static final PacketCustomChannel channel = new PacketCustomChannel(NET_CHANNEL)
+            .optional()
+            .clientConfiguration(() -> ClientConfigurationPacketHandler::new)
+            .client(() -> ClientPacketHandler::new)
+            .server(() -> ServerPacketHandler::new);
 
     //Client handled.
     public static final int C_ADD_LANDING_EFFECTS = 1;
@@ -23,11 +27,7 @@ public class CCLNetwork {
     //Login handled.
     public static final int L_CONFIG_SYNC = 1;
 
-    public static void init() {
-        netChannel = PacketCustomChannelBuilder.named(NET_CHANNEL)//
-                .assignClientHandler(() -> ClientPacketHandler::new)//
-                .assignServerHandler(() -> ServerPacketHandler::new)//
-                .assignLoginHandler(() -> LoginPacketHandler::new)//
-                .build();
+    public static void init(IEventBus modBus) {
+        channel.init(modBus);
     }
 }

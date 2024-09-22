@@ -6,14 +6,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.extensions.IForgeBlock;
+import net.neoforged.neoforge.common.extensions.IBlockExtension;
 
 /**
  * Trait like interface for adding CustomParticle support to any block, Simply implement :D
  * <p>
  * Created by covers1624 on 31/10/19.
  */
-public interface ICustomParticleBlock extends IForgeBlock {
+public interface ICustomParticleBlock extends IBlockExtension {
 
     @Override
     default boolean addLandingEffects(BlockState state1, ServerLevel worldserver, BlockPos pos, BlockState state2, LivingEntity entity, int numberOfParticles) {

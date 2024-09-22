@@ -8,8 +8,8 @@ import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.ChunkRenderTypeSet;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.ChunkRenderTypeSet;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,8 +22,8 @@ import java.util.Map;
 @Deprecated // These may go away unless there is sufficient need for generic implementations like these.
 public class PerspectiveAwareLayeredModel extends AbstractBakedPropertiesModel {
 
-    private final ImmutableMap<RenderType, List<BakedQuad>> unculledQuads;
-    private final ImmutableMap<RenderType, Map<Direction, List<BakedQuad>>> faceQuads;
+    private final Map<RenderType, List<BakedQuad>> unculledQuads;
+    private final Map<RenderType, Map<Direction, List<BakedQuad>>> faceQuads;
     private final RenderType generallayer;
     private final ChunkRenderTypeSet chunkLayers;
 

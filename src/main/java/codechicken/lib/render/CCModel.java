@@ -28,16 +28,17 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
     public Vertex5[] verts;
     public ArrayList<Object> attributes = new ArrayList<>();
 
-    protected CCModel(VertexFormat.Mode vertexMode) {
+    protected CCModel(VertexFormat.Mode vertexMode, int numVerts) {
         if (vertexMode != VertexFormat.Mode.QUADS && vertexMode != VertexFormat.Mode.TRIANGLES) {
             throw new IllegalArgumentException("Models must be QUADS or TRIANGLES");
         }
 
         this.vertexMode = vertexMode;
         vp = vertexMode == VertexFormat.Mode.QUADS ? 4 : 3;
+        verts = new Vertex5[numVerts];
     }
 
-    public Vector3[] normals() {
+    public Vector3 @Nullable [] normals() {
         return getAttribute(NormalAttribute.attributeKey);
     }
 
@@ -347,6 +348,8 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
      */
     public CCModel computeLighting(LightModel light) {
         Vector3[] normals = normals();
+        if (normals == null) throw new IllegalStateException("Normals not computed.");
+
         int[] colours = getAttribute(LightingAttribute.attributeKey);
         if (colours == null) {
             colours = getOrAllocate(LightingAttribute.attributeKey);
@@ -377,8 +380,10 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
      * @return The model
      */
     public CCModel computeLightCoords() {
-        LC[] lcs = getOrAllocate(LightCoordAttribute.attributeKey);
         Vector3[] normals = normals();
+        if (normals == null) throw new IllegalStateException("Normals not computed.");
+
+        LC[] lcs = getOrAllocate(LightCoordAttribute.attributeKey);
         for (int i = 0; i < verts.length; i++) {
             lcs[i] = new LC().compute(verts[i].vec, normals[i]);
         }
@@ -391,8 +396,10 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
      * @return The model
      */
     public CCModel smoothNormals() {
-        ArrayList<PositionNormalEntry> map = new ArrayList<>();
         Vector3[] normals = normals();
+        if (normals == null) throw new IllegalStateException("Normals not computed.");
+
+        ArrayList<PositionNormalEntry> map = new ArrayList<>();
         nextvert:
         for (int k = 0; k < verts.length; k++) {
             Vector3 vec = verts[k].vec;
@@ -496,14 +503,12 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
         return newModel(VertexFormat.Mode.TRIANGLES, numVerts);
     }
 
-    public static CCModel newModel(VertexFormat.Mode vertexMode, int numVerts) {
-        CCModel model = newModel(vertexMode);
-        model.verts = new Vertex5[numVerts];
-        return model;
+    public static CCModel newModel(VertexFormat.Mode vertexMode) {
+        return newModel(vertexMode, 0);
     }
 
-    public static CCModel newModel(VertexFormat.Mode vertexMode) {
-        return new CCModel(vertexMode);
+    public static CCModel newModel(VertexFormat.Mode vertexMode, int numVerts) {
+        return new CCModel(vertexMode, numVerts);
     }
 
     public static CCModel createModel(List<Vector3> verts, List<Vector3> uvs, List<Vector3> normals, VertexFormat.Mode vertexMode, List<int[]> polys) {
@@ -514,9 +519,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
 
         boolean hasNormals = polys.get(0)[2] > 0;
         CCModel model = CCModel.newModel(vertexMode, polys.size());
-        if (hasNormals) {
-            model.getOrAllocate(NormalAttribute.attributeKey);
-        }
+        Vector3[] mNormals = hasNormals ? model.getOrAllocate(NormalAttribute.attributeKey) : null;
 
         for (int i = 0; i < polys.size(); i++) {
             int[] ai = polys.get(i);
@@ -528,7 +531,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
 
             model.verts[i] = new Vertex5(vert, uv.x, uv.y);
             if (hasNormals) {
-                model.normals()[i] = normals.get(ai[2] - 1).copy();
+                mNormals[i] = normals.get(ai[2] - 1).copy();
             }
         }
 
@@ -667,8 +670,9 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
                 }
             }
 
-            if (dst.normals() != null && dst.normals()[di] != null) {
-                dst.normals()[di].negate();
+            Vector3[] normals = dst.normals();
+            if (normals != null && normals[di] != null) {
+                normals[di].negate();
             }
         }
         return dst;
@@ -754,9 +758,7 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
      * @return The combined model.
      */
     public static CCModel combine(Collection<CCModel> models) {
-        if (models.isEmpty()) {
-            return null;
-        }
+        if (models.isEmpty()) throw new IllegalArgumentException("Can't combine an empty collection of models.");
 
         int numVerts = 0;
         VertexFormat.Mode vertexMode = null;
@@ -807,10 +809,12 @@ public class CCModel implements IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel zOffset(Cuboid6 offsets) {
+        Vector3[] normals = normals();
+        if (normals == null) throw new IllegalStateException("Normals not computed.");
+
         for (int k = 0; k < verts.length; k++) {
             Vertex5 vert = verts[k];
-            Vector3 normal = normals()[k];
-            switch (VectorUtils.findSide(normal)) {
+            switch (VectorUtils.findSide(normals[k])) {
                 case 0 -> vert.vec.y += offsets.min.y;
                 case 1 -> vert.vec.y += offsets.max.y;
                 case 2 -> vert.vec.z += offsets.min.z;

@@ -2,49 +2,46 @@ package codechicken.lib.packet;
 
 import codechicken.lib.data.MCDataByteBuf;
 import codechicken.lib.math.MathHelper;
-import codechicken.lib.util.ServerUtils;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.ServerOpList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.registries.IForgeRegistry;
-import org.apache.commons.lang3.tuple.Pair;
+import net.neoforged.neoforge.fluids.FluidStack;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.*;
 import java.util.UUID;
 
-//TODO, Evaluate explicit packet compression again.
 //Tasty Cheese!
 public final class PacketCustom extends MCDataByteBuf {
 
     private final ResourceLocation channel;
+    private final boolean inbound;
     private final int type;
 
-    public PacketCustom(ByteBuf payload) {
-        super(payload);
-        this.channel = null;
-        this.type = readUByte();
+    PacketCustom(Pkt pkt) {
+        super(pkt.data);
+        channel = pkt.id;
+        inbound = true;
+        type = readUByte();
     }
 
     public PacketCustom(ResourceLocation channel, int type) {
@@ -53,12 +50,13 @@ public final class PacketCustom extends MCDataByteBuf {
             throw new RuntimeException("Invalid packet type, Must be between 0 and 255. Got: " + type);
         }
         this.channel = channel;
+        inbound = false;
         this.type = type;
         writeByte(type);
     }
 
-    public boolean incoming() {
-        return channel == null;
+    public boolean isInbound() {
+        return inbound;
     }
 
     public int getType() {
@@ -69,112 +67,68 @@ public final class PacketCustom extends MCDataByteBuf {
         return channel;
     }
 
-    public Packet<?> toPacket(NetworkDirection direction) {
-        return toPacket(direction, 0);
+    public CustomPacketPayload toCustomPayload() {
+        if (isInbound()) throw new RuntimeException("Unable to send an inbound packet.");
+
+        return new Pkt(channel, toFriendlyByteBuf());
     }
 
-    public Packet<?> toPacket(NetworkDirection direction, int index) {
-        if (incoming()) {
-            throw new IllegalStateException("Tried to write an incoming packet");
-        }
-        return direction.buildPacket(Pair.of(toPacketBuffer(), index), channel).getThis();
+    // region Server -> Client
+    public Packet<?> toClientPacket() {
+        return PacketSender.toClientPacket(toCustomPayload());
     }
 
-    //endregion
-    //region Server -> Client.
-    public void sendToPlayer(ServerPlayer player) {
-        sendToPlayer(toPacket(NetworkDirection.PLAY_TO_CLIENT), player);
+    public void sendToPlayer(@Nullable ServerPlayer player) {
+        PacketSender.sendToPlayer(toCustomPayload(), player);
     }
 
-    public static void sendToPlayer(Packet<?> packet, ServerPlayer player) {
-        if (player == null) {
-            sendToClients(packet);
-        } else {
-            player.connection.send(packet);
-        }
+    public void sendToAllPlayers() {
+        PacketSender.sendToAllPlayers(toCustomPayload());
     }
 
-    public void sendToClients() {
-        sendToClients(toPacket(NetworkDirection.PLAY_TO_CLIENT));
+    public void sendToAllAround(BlockPos pos, double range, ResourceKey<Level> dim) {
+        PacketSender.sendToAllAround(toCustomPayload(), pos, range, dim);
     }
 
-    public static void sendToClients(Packet<?> packet) {
-        ServerUtils.getServer().getPlayerList().broadcastAll(packet);
-    }
-
-    public void sendPacketToAllAround(BlockPos pos, double range, ResourceKey<Level> dim) {
-        sendPacketToAllAround(pos.getX(), pos.getY(), pos.getZ(), range, dim);
-    }
-
-    public void sendPacketToAllAround(double x, double y, double z, double range, ResourceKey<Level> dim) {
-        sendToAllAround(toPacket(NetworkDirection.PLAY_TO_CLIENT), x, y, z, range, dim);
-    }
-
-    public static void sendToAllAround(Packet<?> packet, double x, double y, double z, double range, ResourceKey<Level> dim) {
-        ServerUtils.getServer().getPlayerList().broadcast(null, x, y, z, range, dim, packet);
+    public void sendToAllAround(double x, double y, double z, double range, ResourceKey<Level> dim) {
+        PacketSender.sendToAllAround(toCustomPayload(), x, y, z, range, dim);
     }
 
     public void sendToDimension(ResourceKey<Level> dim) {
-        sendToDimension(toPacket(NetworkDirection.PLAY_TO_CLIENT), dim);
-    }
-
-    public static void sendToDimension(Packet<?> packet, ResourceKey<Level> dim) {
-        ServerUtils.getServer().getPlayerList().broadcastAll(packet, dim);
+        PacketSender.sendToDimension(toCustomPayload(), dim);
     }
 
     public void sendToChunk(BlockEntity tile) {
-        sendToChunk(tile.getLevel(), tile.getBlockPos());
+        PacketSender.sendToChunk(toCustomPayload(), tile);
     }
 
-    public void sendToChunk(Level world, BlockPos blockPos) {
-        sendToChunk(toPacket(NetworkDirection.PLAY_TO_CLIENT), world, blockPos);
+    public void sendToChunk(ServerLevel level, BlockPos pos) {
+        PacketSender.sendToChunk(toCustomPayload(), level, pos);
     }
 
-    public void sendToChunk(Level world, int chunkX, int chunkZ) {
-        sendToChunk(toPacket(NetworkDirection.PLAY_TO_CLIENT), world, chunkX, chunkZ);
+    public void sendToChunk(ServerLevel level, int chunkX, int chunkZ) {
+        PacketSender.sendToChunk(toCustomPayload(), level, chunkX, chunkZ);
     }
 
-    public void sendToChunk(Level world, ChunkPos pos) {
-        sendToChunk(toPacket(NetworkDirection.PLAY_TO_CLIENT), world, pos);
-    }
-
-    public static void sendToChunk(Packet<?> packet, Level world, BlockPos blockPos) {
-        sendToChunk(packet, world, blockPos.getX() >> 4, blockPos.getZ() >> 4);
-    }
-
-    public static void sendToChunk(Packet<?> packet, Level world, int chunkX, int chunkZ) {
-        sendToChunk(packet, world, new ChunkPos(chunkX, chunkZ));
-    }
-
-    public static void sendToChunk(Packet<?> packet, Level world, ChunkPos pos) {
-        ServerLevel serverLevel = (ServerLevel) world;
-        serverLevel.getChunkSource().chunkMap.getPlayers(pos, false).forEach(e -> e.connection.send(packet));
+    public void sendToChunk(ServerLevel level, ChunkPos pos) {
+        PacketSender.sendToChunk(toCustomPayload(), level, pos);
     }
 
     public void sendToOps() {
-        sendToOps(toPacket(NetworkDirection.PLAY_TO_CLIENT));
+        PacketSender.sendToOps(toCustomPayload());
+    }
+    // endregion
+
+    // region Client -> Server
+    public Packet<?> toServerPacket() {
+        return PacketSender.toServerPacket(toCustomPayload());
     }
 
-    public static void sendToOps(Packet<?> packet) {
-        ServerOpList opList = ServerUtils.getServer().getPlayerList().getOps();
-        for (ServerPlayer player : ServerUtils.getServer().getPlayerList().getPlayers()) {
-            if (opList.get(player.getGameProfile()) != null) {
-                sendToPlayer(packet, player);
-            }
-        }
-    }
-
-    @OnlyIn (Dist.CLIENT)
     public void sendToServer() {
-        sendToServer(toPacket(NetworkDirection.PLAY_TO_SERVER));
+        PacketSender.sendToServer(toCustomPayload());
     }
+    // endregion
 
-    @OnlyIn (Dist.CLIENT)
-    public static void sendToServer(Packet<?> packet) {
-        Minecraft.getInstance().getConnection().send(packet);
-    }
-
-    //endregion
     //region Machine Generated overrides.
     //@formatter:off
     @Override public PacketCustom writeByte(int p0) { super.writeByte(p0); return this; }
@@ -227,16 +181,24 @@ public final class PacketCustom extends MCDataByteBuf {
     @Override public PacketCustom writeVec3i(Vec3i vec) { super.writeVec3i(vec); return this; }
     @Override public PacketCustom writeVec3d(Vec3 vec) { super.writeVec3d(vec); return this; }
     @Override public PacketCustom writeCompoundNBT(CompoundTag tag) { super.writeCompoundNBT(tag); return this; }
+    @Override public PacketCustom writeNullableCompoundNBT(@Nullable CompoundTag tag) { super.writeNullableCompoundNBT(tag); return this; }
     @Override public PacketCustom writeFluidStack(FluidStack stack) { super.writeFluidStack(stack); return this; }
     @Override public PacketCustom writeItemStack(ItemStack stack) { super.writeItemStack(stack); return this; }
-    @Override public PacketCustom writeItemStack(ItemStack stack, boolean limitedTag) { super.writeItemStack(stack, limitedTag); return this; }
     @Override public PacketCustom writeTextComponent(Component component) { super.writeTextComponent(component); return this; }
-    @Override public <T> PacketCustom writeRegistryIdDirect(IForgeRegistry<T> registry, T entry) { super.writeRegistryIdDirect(registry, entry); return this; }
-    @Override public <T> PacketCustom writeRegistryIdDirect(IForgeRegistry<T> registry, ResourceLocation entry) { super.writeRegistryIdDirect(registry, entry); return this; }
-    @Override public <T> PacketCustom writeRegistryId(IForgeRegistry<T> registry, T entry) { super.writeRegistryId(registry, entry); return this; }
-    @Override public <T> PacketCustom writeRegistryId(IForgeRegistry<T> registry, ResourceLocation entry) { super.writeRegistryId(registry, entry); return this; }
+    @Override public <T> PacketCustom writeRegistryIdDirect(Registry<T> registry, T entry) { super.writeRegistryIdDirect(registry, entry); return this; }
+    @Override public <T> PacketCustom writeRegistryIdDirect(Registry<T> registry, ResourceLocation entry) { super.writeRegistryIdDirect(registry, entry); return this; }
+    @Override public <T> PacketCustom writeRegistryId(Registry<T> registry, T entry) { super.writeRegistryId(registry, entry); return this; }
+    @Override public <T> PacketCustom writeRegistryId(Registry<T> registry, ResourceLocation entry) { super.writeRegistryId(registry, entry); return this; }
     @Override public PacketCustom writeByteBuf(ByteBuf buf) { super.writeByteBuf(buf); return this; }
     @Override public PacketCustom append(ByteBuf buf) { super.append(buf); return this; }
-    //@formatter:off
+    //@formatter:on
     //endregion
+
+    record Pkt(ResourceLocation id, FriendlyByteBuf data) implements CustomPacketPayload {
+
+        @Override
+        public void write(FriendlyByteBuf buf) {
+            buf.writeBytes(data);
+        }
+    }
 }

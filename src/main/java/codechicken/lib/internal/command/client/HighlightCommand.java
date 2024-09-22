@@ -10,6 +10,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Block;
@@ -17,9 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.registries.ForgeRegistries;
 
-import static codechicken.lib.util.LambdaUtils.tryOrNull;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
@@ -120,13 +119,13 @@ public class HighlightCommand {
         BlockEntity tile = level.getBlockEntity(pos);
         StringBuilder builder = new StringBuilder("\nBlock info:\n");
         builder.append("  BlockPos:      ").append(String.format("x:%s, y:%s, z:%s", pos.getX(), pos.getY(), pos.getZ())).append("\n");
-        builder.append("  Block Class:   ").append(tryOrNull(() -> block.getClass())).append("\n");
-        builder.append("  Registry Name: ").append(tryOrNull(() -> ForgeRegistries.BLOCKS.getKey(block))).append("\n");
+        builder.append("  Block Class:   ").append(block.getClass()).append("\n");
+        builder.append("  Registry Name: ").append(BuiltInRegistries.BLOCK.getKey(block)).append("\n");
         builder.append("  State:         ").append(state).append("\n");
         builder.append("Tile at position\n");
-        builder.append("  Tile Class:    ").append(tryOrNull(() -> tile.getClass())).append("\n");
-        builder.append("  Tile Id:       ").append(tryOrNull(() -> ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType()))).append("\n");
-        builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.saveWithoutMetadata())).append("\n");
+        builder.append("  Tile Class:    ").append(tile != null ? tile.getClass() : null).append("\n");
+        builder.append("  Tile Id:       ").append(tile != null ? BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(tile.getType()) : null).append("\n");
+        builder.append("  Tile NBT:      ").append(tile != null ? tile.saveWithoutMetadata() : null).append("\n");
         source.sendSuccess(() -> Component.literal(builder.toString()), false);
 
         return 0;

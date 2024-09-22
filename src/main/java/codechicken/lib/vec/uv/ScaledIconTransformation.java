@@ -25,8 +25,8 @@ public class ScaledIconTransformation extends IconTransformation {
 
     @Override
     public void apply(UV uv) {
-        uv.u = icon.getU(uv.u % 2 * 16) + su * (icon.getU1() - icon.getU0());
-        uv.v = icon.getV(uv.v % 2 * 16) + sv * (icon.getV1() - icon.getV0());
+        uv.u = icon.getU((float) (uv.u % 2)) + su * (icon.getU1() - icon.getU0());
+        uv.v = icon.getV((float) (uv.v % 2)) + sv * (icon.getV1() - icon.getV0());
     }
 
     @Override

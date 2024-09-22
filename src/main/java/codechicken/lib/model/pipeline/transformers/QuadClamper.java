@@ -61,6 +61,7 @@ public class QuadClamper extends QuadTransformer {
 
     @Override
     public boolean transform() {
+        assert quad.orientation != null;
         int s = quad.orientation.ordinal() >> 1;
 
         quad.clamp(clampBounds);

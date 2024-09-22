@@ -3,13 +3,13 @@ package codechicken.lib.render.block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,8 +27,8 @@ public class BlockRenderingRegistry {
 
     private static boolean initialized = false;
 
-    private static final Map<Holder<Block>, ICCBlockRenderer> blockRenderers = new HashMap<>();
-    private static final Map<Holder<Fluid>, ICCBlockRenderer> fluidRenderers = new HashMap<>();
+    private static final Map<Block, ICCBlockRenderer> blockRenderers = new HashMap<>();
+    private static final Map<Fluid, ICCBlockRenderer> fluidRenderers = new HashMap<>();
     private static final List<ICCBlockRenderer> globalRenderers = new ArrayList<>();
 
     @OnlyIn (Dist.CLIENT)
@@ -52,12 +52,11 @@ public class BlockRenderingRegistry {
      * @throws IllegalArgumentException If the same Block is registered twice.
      */
     public static synchronized void registerRenderer(Block block, ICCBlockRenderer renderer) {
-        Holder<Block> delegate = ForgeRegistries.BLOCKS.getDelegateOrThrow(block);
-        ICCBlockRenderer prev = blockRenderers.get(ForgeRegistries.BLOCKS.getDelegateOrThrow(block));
+        ICCBlockRenderer prev = blockRenderers.get(block);
         if (prev != null) {
-            throw new IllegalArgumentException("Renderer already registered for block. " + ForgeRegistries.BLOCKS.getKey(block));
+            throw new IllegalArgumentException("Renderer already registered for block. " + BuiltInRegistries.BLOCK.getKey(block));
         }
-        blockRenderers.put(delegate, renderer);
+        blockRenderers.put(block, renderer);
     }
 
     /**
@@ -71,12 +70,11 @@ public class BlockRenderingRegistry {
      * @throws IllegalArgumentException If the same Fluid is registered twice.
      */
     public static synchronized void registerRenderer(Fluid fluid, ICCBlockRenderer renderer) {
-        Holder<Fluid> delegate = ForgeRegistries.FLUIDS.getDelegateOrThrow(fluid);
-        ICCBlockRenderer prev = blockRenderers.get(delegate);
+        ICCBlockRenderer prev = fluidRenderers.get(fluid);
         if (prev != null) {
-            throw new IllegalArgumentException("Renderer already registered for fluid. " + ForgeRegistries.FLUIDS.getKey(fluid));
+            throw new IllegalArgumentException("Renderer already registered for fluid. " + BuiltInRegistries.FLUID.getKey(fluid));
         }
-        fluidRenderers.put(delegate, renderer);
+        fluidRenderers.put(fluid, renderer);
     }
 
     /**
@@ -97,7 +95,7 @@ public class BlockRenderingRegistry {
             }
         }
 
-        ICCBlockRenderer found = blockRenderers.get(ForgeRegistries.BLOCKS.getDelegateOrThrow(block));
+        ICCBlockRenderer found = blockRenderers.get(block);
         if (found != null && pred.test(found)) return found;
 
         return null;
@@ -111,7 +109,7 @@ public class BlockRenderingRegistry {
             }
         }
 
-        ICCBlockRenderer found = fluidRenderers.get(ForgeRegistries.FLUIDS.getDelegateOrThrow(fluid));
+        ICCBlockRenderer found = fluidRenderers.get(fluid);
         if (found != null && pred.test(found)) return found;
 
         return null;

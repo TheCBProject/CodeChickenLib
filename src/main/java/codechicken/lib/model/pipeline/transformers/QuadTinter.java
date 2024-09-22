@@ -59,9 +59,9 @@ public class QuadTinter extends QuadTransformer {
             float g = (tint >> 0x08 & 0xFF) / 255F;
             float b = (tint & 0xFF) / 255F;
             for (Vertex v : quad.vertices) {
-                v.color[0] *= r;
-                v.color[1] *= g;
-                v.color[2] *= b;
+                v.color()[0] *= r;
+                v.color()[1] *= g;
+                v.color()[2] *= b;
             }
         }
         return true;

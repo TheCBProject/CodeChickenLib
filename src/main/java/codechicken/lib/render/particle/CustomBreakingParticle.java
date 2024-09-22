@@ -16,8 +16,8 @@ public class CustomBreakingParticle extends TextureSheetParticle {
         gravity = 1;
         rCol = gCol = bCol = 0.6F;
         quadSize /= 2.0F;
-        this.uo = this.random.nextFloat() * 3.0F;
-        this.vo = this.random.nextFloat() * 3.0F;
+        uo = random.nextFloat() * 3.0F;
+        vo = random.nextFloat() * 3.0F;
     }
 
     public static CustomBreakingParticle newLandingParticle(ClientLevel world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
@@ -33,19 +33,19 @@ public class CustomBreakingParticle extends TextureSheetParticle {
     }
 
     protected float getU0() {
-        return this.sprite.getU((double) ((this.uo + 1.0F) / 4.0F * 16.0F));
+        return sprite.getU((uo + 1.0F) / 4.0F);
     }
 
     protected float getU1() {
-        return this.sprite.getU((double) (this.uo / 4.0F * 16.0F));
+        return sprite.getU(uo / 4.0F);
     }
 
     protected float getV0() {
-        return this.sprite.getV((double) (this.vo / 4.0F * 16.0F));
+        return sprite.getV(vo / 4.0F);
     }
 
     protected float getV1() {
-        return this.sprite.getV((double) ((this.vo + 1.0F) / 4.0F * 16.0F));
+        return sprite.getV((vo + 1.0F) / 4.0F);
     }
 
     public void setScale(float scale) {

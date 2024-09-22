@@ -1,6 +1,7 @@
 package codechicken.lib.vec.uv;
 
 import codechicken.lib.util.Copyable;
+import net.covers1624.quack.collection.FastStream;
 import net.covers1624.quack.collection.StreamableIterable;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class UVTransformationList extends UVTransformation {
     }
 
     public UVTransformationList(UVTransformationList other) {
-        transformations = StreamableIterable.of(other.transformations)
+        transformations = FastStream.of(other.transformations)
                 .map(Copyable::copy)
                 .toList();
 
@@ -98,7 +99,7 @@ public class UVTransformationList extends UVTransformation {
 
     @Override
     public boolean isRedundant() {
-        return transformations.size() == 0;
+        return transformations.isEmpty();
     }
 
     @Override

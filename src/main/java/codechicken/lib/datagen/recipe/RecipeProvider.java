@@ -1,26 +1,26 @@
 package codechicken.lib.datagen.recipe;
 
-import com.google.gson.JsonObject;
-import net.minecraft.advancements.critereon.*;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.critereon.EnterBlockTrigger;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.conditions.WithConditions;
 
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
@@ -30,27 +30,38 @@ import java.util.function.Supplier;
 public abstract class RecipeProvider implements DataProvider {
 
     private final Map<ResourceLocation, RecipeBuilder> recipes = new HashMap<>();
-    private final PackOutput output;
+    private final PackOutput.PathProvider recipePath;
+    private final PackOutput.PathProvider advancementPath;
     protected final String modId;
 
     public RecipeProvider(PackOutput output, String modId) {
-        this.output = output;
         this.modId = modId;
+        recipePath = output.createPathProvider(PackOutput.Target.DATA_PACK, "recipes");
+        advancementPath = output.createPathProvider(PackOutput.Target.DATA_PACK, "advancements");
     }
 
     @Override
     public final CompletableFuture<Void> run(CachedOutput cache) {
-        Path path = output.getOutputFolder();
         registerRecipes();
         List<CompletableFuture<?>> futures = new LinkedList<>();
         for (Map.Entry<ResourceLocation, RecipeBuilder> entry : recipes.entrySet()) {
             ResourceLocation id = entry.getKey();
-            FinishedRecipe finishedRecipe = entry.getValue().build();
-            futures.add(DataProvider.saveStable(cache, finishedRecipe.serializeRecipe(), path.resolve("data/" + id.getNamespace() + "/recipes/" + id.getPath() + ".json")));
+            RecipeBuilder.BuiltRecipe builtRecipe = entry.getValue().build();
+            futures.add(DataProvider.saveStable(
+                    cache,
+                    Recipe.CONDITIONAL_CODEC,
+                    Optional.of(new WithConditions<>(builtRecipe.conditions(), builtRecipe.recipe())),
+                    recipePath.json(id)
+            ));
 
-            JsonObject advancement = finishedRecipe.serializeAdvancement();
+            AdvancementHolder advancement = builtRecipe.advancement();
             if (advancement != null) {
-                futures.add(DataProvider.saveStable(cache, advancement, path.resolve("data/" + id.getNamespace() + "/advancements/" + id.getPath() + ".json")));
+                futures.add(DataProvider.saveStable(
+                        cache,
+                        Advancement.CONDITIONAL_CODEC,
+                        Optional.of(new WithConditions<>(builtRecipe.conditions(), advancement.value())),
+                        advancementPath.json(id)
+                ));
             }
         }
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
@@ -73,7 +84,7 @@ public abstract class RecipeProvider implements DataProvider {
     protected ShapedRecipeBuilder shapedRecipe(Supplier<? extends ItemLike> result) { return builder(ShapedRecipeBuilder.builder(result.get(), 1)); }
     protected ShapedRecipeBuilder shapedRecipe(Supplier<? extends ItemLike> result, int count) { return builder(ShapedRecipeBuilder.builder(new ItemStack(result.get(), count))); }
     protected ShapedRecipeBuilder shapedRecipe(Supplier<? extends ItemLike> result, int count, ResourceLocation id) { return builder(ShapedRecipeBuilder.builder(new ItemStack(result.get(), count), id)); }
-    protected ShapedRecipeBuilder shapedRecipe(ItemStack result) { return builder(ShapedRecipeBuilder.builder(result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
+    protected ShapedRecipeBuilder shapedRecipe(ItemStack result) { return builder(ShapedRecipeBuilder.builder(result, BuiltInRegistries.ITEM.getKey(result.getItem()))); }
     protected ShapedRecipeBuilder shapedRecipe(ItemStack result, ResourceLocation id) { return builder(ShapedRecipeBuilder.builder(result, id)); }
 
     protected ShapelessRecipeBuilder shapelessRecipe(ItemLike result) { return builder(ShapelessRecipeBuilder.builder(result, 1)); }
@@ -82,7 +93,7 @@ public abstract class RecipeProvider implements DataProvider {
     protected ShapelessRecipeBuilder shapelessRecipe(Supplier<? extends ItemLike> result) { return builder(ShapelessRecipeBuilder.builder(result.get(), 1)); }
     protected ShapelessRecipeBuilder shapelessRecipe(Supplier<? extends ItemLike> result, int count) { return builder(ShapelessRecipeBuilder.builder(new ItemStack(result.get(), count))); }
     protected ShapelessRecipeBuilder shapelessRecipe(Supplier<? extends ItemLike> result, int count, ResourceLocation id) { return builder(ShapelessRecipeBuilder.builder(new ItemStack(result.get(), count), id)); }
-    protected ShapelessRecipeBuilder shapelessRecipe(ItemStack result) { return builder(ShapelessRecipeBuilder.builder(result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
+    protected ShapelessRecipeBuilder shapelessRecipe(ItemStack result) { return builder(ShapelessRecipeBuilder.builder(result, BuiltInRegistries.ITEM.getKey(result.getItem()))); }
     protected ShapelessRecipeBuilder shapelessRecipe(ItemStack result, ResourceLocation id) { return builder(ShapelessRecipeBuilder.builder(result, id)); }
 
     protected FurnaceRecipeBuilder smelting(ItemLike result) { return builder(FurnaceRecipeBuilder.smelting(result, 1)); }
@@ -91,7 +102,7 @@ public abstract class RecipeProvider implements DataProvider {
     protected FurnaceRecipeBuilder smelting(Supplier<? extends ItemLike> result) { return builder(FurnaceRecipeBuilder.smelting(result.get(), 1)); }
     protected FurnaceRecipeBuilder smelting(Supplier<? extends ItemLike> result, int count) { return builder(FurnaceRecipeBuilder.smelting(new ItemStack(result.get(), count))); }
     protected FurnaceRecipeBuilder smelting(Supplier<? extends ItemLike> result, int count, ResourceLocation id) { return builder(FurnaceRecipeBuilder.smelting(new ItemStack(result.get(), count), id)); }
-    protected FurnaceRecipeBuilder smelting(ItemStack result) { return builder(FurnaceRecipeBuilder.smelting(result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
+    protected FurnaceRecipeBuilder smelting(ItemStack result) { return builder(FurnaceRecipeBuilder.smelting(result, BuiltInRegistries.ITEM.getKey(result.getItem()))); }
     protected FurnaceRecipeBuilder smelting(ItemStack result, ResourceLocation id) { return builder(FurnaceRecipeBuilder.smelting(result, id)); }
 
     protected FurnaceRecipeBuilder blasting(ItemLike result) { return builder(FurnaceRecipeBuilder.blasting(result, 1)); }
@@ -100,7 +111,7 @@ public abstract class RecipeProvider implements DataProvider {
     protected FurnaceRecipeBuilder blasting(Supplier<? extends ItemLike> result) { return builder(FurnaceRecipeBuilder.blasting(result.get(), 1)); }
     protected FurnaceRecipeBuilder blasting(Supplier<? extends ItemLike> result, int count) { return builder(FurnaceRecipeBuilder.blasting(new ItemStack(result.get(), count))); }
     protected FurnaceRecipeBuilder blasting(Supplier<? extends ItemLike> result, int count, ResourceLocation id) { return builder(FurnaceRecipeBuilder.blasting(new ItemStack(result.get(), count), id)); }
-    protected FurnaceRecipeBuilder blasting(ItemStack result) { return builder(FurnaceRecipeBuilder.blasting(result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
+    protected FurnaceRecipeBuilder blasting(ItemStack result) { return builder(FurnaceRecipeBuilder.blasting(result, BuiltInRegistries.ITEM.getKey(result.getItem()))); }
     protected FurnaceRecipeBuilder blasting(ItemStack result, ResourceLocation id) { return builder(FurnaceRecipeBuilder.blasting(result, id)); }
 
     protected FurnaceRecipeBuilder smoking(ItemLike result) { return builder(FurnaceRecipeBuilder.smoking(result, 1)); }
@@ -109,7 +120,7 @@ public abstract class RecipeProvider implements DataProvider {
     protected FurnaceRecipeBuilder smoking(Supplier<? extends ItemLike> result) { return builder(FurnaceRecipeBuilder.smoking(result.get(), 1)); }
     protected FurnaceRecipeBuilder smoking(Supplier<? extends ItemLike> result, int count) { return builder(FurnaceRecipeBuilder.smoking(new ItemStack(result.get(), count))); }
     protected FurnaceRecipeBuilder smoking(Supplier<? extends ItemLike> result, int count, ResourceLocation id) { return builder(FurnaceRecipeBuilder.smoking(new ItemStack(result.get(), count), id)); }
-    protected FurnaceRecipeBuilder smoking(ItemStack result) { return builder(FurnaceRecipeBuilder.smoking(result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
+    protected FurnaceRecipeBuilder smoking(ItemStack result) { return builder(FurnaceRecipeBuilder.smoking(result, BuiltInRegistries.ITEM.getKey(result.getItem()))); }
     protected FurnaceRecipeBuilder smoking(ItemStack result, ResourceLocation id) { return builder(FurnaceRecipeBuilder.smoking(result, id)); }
 
     protected FurnaceRecipeBuilder campfire(ItemLike result) { return builder(FurnaceRecipeBuilder.campfire(result, 1)); }
@@ -118,58 +129,67 @@ public abstract class RecipeProvider implements DataProvider {
     protected FurnaceRecipeBuilder campfire(Supplier<? extends ItemLike> result) { return builder(FurnaceRecipeBuilder.campfire(result.get(), 1)); }
     protected FurnaceRecipeBuilder campfire(Supplier<? extends ItemLike> result, int count) { return builder(FurnaceRecipeBuilder.campfire(new ItemStack(result.get(), count))); }
     protected FurnaceRecipeBuilder campfire(Supplier<? extends ItemLike> result, int count, ResourceLocation id) { return builder(FurnaceRecipeBuilder.campfire(new ItemStack(result.get(), count), id)); }
-    protected FurnaceRecipeBuilder campfire(ItemStack result) { return builder(FurnaceRecipeBuilder.campfire(result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
+    protected FurnaceRecipeBuilder campfire(ItemStack result) { return builder(FurnaceRecipeBuilder.campfire(result, BuiltInRegistries.ITEM.getKey(result.getItem()))); }
     protected FurnaceRecipeBuilder campfire(ItemStack result, ResourceLocation id) { return builder(FurnaceRecipeBuilder.campfire(result, id)); }
 
-    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, ItemLike result) { return builder(ShapedRecipeBuilder.custom(serializer, result, 1)); }
-    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, ItemLike result, int count) { return builder(ShapedRecipeBuilder.custom(serializer, new ItemStack(result, count))); }
-    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) { return builder(ShapedRecipeBuilder.custom(serializer, new ItemStack(result, count), id)); }
-    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result) { return builder(ShapedRecipeBuilder.custom(serializer, result.get(), 1)); }
-    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result, int count) { return builder(ShapedRecipeBuilder.custom(serializer, new ItemStack(result.get(), count))); }
-    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result, int count, ResourceLocation id) { return builder(ShapedRecipeBuilder.custom(serializer, new ItemStack(result.get(), count), id)); }
-    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, ItemStack result) { return builder(ShapedRecipeBuilder.custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
-    protected ShapedRecipeBuilder customShaped(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) { return builder(ShapedRecipeBuilder.custom(serializer, result, id)); }
+    protected ShapedRecipeBuilder customShaped(ItemLike result, ShapedRecipeBuilder.Factory factory) { return builder(ShapedRecipeBuilder.custom(result, 1, factory)); }
+    protected ShapedRecipeBuilder customShaped(ItemLike result, int count, ShapedRecipeBuilder.Factory factory) { return builder(ShapedRecipeBuilder.custom(new ItemStack(result, count), factory)); }
+    protected ShapedRecipeBuilder customShaped(ItemLike result, int count, ResourceLocation id, ShapedRecipeBuilder.Factory factory) { return builder(ShapedRecipeBuilder.custom(new ItemStack(result, count), id, factory)); }
+    protected ShapedRecipeBuilder customShaped(Supplier<? extends ItemLike> result, ShapedRecipeBuilder.Factory factory) { return builder(ShapedRecipeBuilder.custom(result.get(), 1, factory)); }
+    protected ShapedRecipeBuilder customShaped(Supplier<? extends ItemLike> result, int count, ShapedRecipeBuilder.Factory factory) { return builder(ShapedRecipeBuilder.custom(new ItemStack(result.get(), count), factory)); }
+    protected ShapedRecipeBuilder customShaped(Supplier<? extends ItemLike> result, int count, ResourceLocation id, ShapedRecipeBuilder.Factory factory) { return builder(ShapedRecipeBuilder.custom(new ItemStack(result.get(), count), id, factory)); }
+    protected ShapedRecipeBuilder customShaped(ItemStack result, ShapedRecipeBuilder.Factory factory) { return builder(ShapedRecipeBuilder.custom(result, BuiltInRegistries.ITEM.getKey(result.getItem()), factory)); }
+    protected ShapedRecipeBuilder customShaped(ItemStack result, ResourceLocation id, ShapedRecipeBuilder.Factory factory) { return builder(ShapedRecipeBuilder.custom(result, id, factory)); }
 
-    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, ItemLike result) { return builder(ShapelessRecipeBuilder.custom(serializer, result, 1)); }
-    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, ItemLike result, int count) { return builder(ShapelessRecipeBuilder.custom(serializer, new ItemStack(result, count))); }
-    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) { return builder(ShapelessRecipeBuilder.custom(serializer, new ItemStack(result, count), id)); }
-    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result) { return builder(ShapelessRecipeBuilder.custom(serializer, result.get(), 1)); }
-    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result, int count) { return builder(ShapelessRecipeBuilder.custom(serializer, new ItemStack(result.get(), count))); }
-    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result, int count, ResourceLocation id) { return builder(ShapelessRecipeBuilder.custom(serializer, new ItemStack(result.get(), count), id)); }
-    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, ItemStack result) { return builder(ShapelessRecipeBuilder.custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
-    protected ShapelessRecipeBuilder customShapeless(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) { return builder(ShapelessRecipeBuilder.custom(serializer, result, id)); }
+    protected ShapelessRecipeBuilder customShapeless(ItemLike result, ShapelessRecipeBuilder.Factory factory) { return builder(ShapelessRecipeBuilder.custom(result, 1, factory)); }
+    protected ShapelessRecipeBuilder customShapeless(ItemLike result, int count, ShapelessRecipeBuilder.Factory factory) { return builder(ShapelessRecipeBuilder.custom(new ItemStack(result, count), factory)); }
+    protected ShapelessRecipeBuilder customShapeless(ItemLike result, int count, ResourceLocation id, ShapelessRecipeBuilder.Factory factory) { return builder(ShapelessRecipeBuilder.custom(new ItemStack(result, count), id, factory)); }
+    protected ShapelessRecipeBuilder customShapeless(Supplier<? extends ItemLike> result, ShapelessRecipeBuilder.Factory factory) { return builder(ShapelessRecipeBuilder.custom(result.get(), 1, factory)); }
+    protected ShapelessRecipeBuilder customShapeless(Supplier<? extends ItemLike> result, int count, ShapelessRecipeBuilder.Factory factory) { return builder(ShapelessRecipeBuilder.custom(new ItemStack(result.get(), count), factory)); }
+    protected ShapelessRecipeBuilder customShapeless(Supplier<? extends ItemLike> result, int count, ResourceLocation id, ShapelessRecipeBuilder.Factory factory) { return builder(ShapelessRecipeBuilder.custom(new ItemStack(result.get(), count), id, factory)); }
+    protected ShapelessRecipeBuilder customShapeless(ItemStack result, ShapelessRecipeBuilder.Factory factory) { return builder(ShapelessRecipeBuilder.custom(result, BuiltInRegistries.ITEM.getKey(result.getItem()), factory)); }
+    protected ShapelessRecipeBuilder customShapeless(ItemStack result, ResourceLocation id, ShapelessRecipeBuilder.Factory factory) { return builder(ShapelessRecipeBuilder.custom(result, id, factory)); }
 
-    protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemLike result) { return builder(FurnaceRecipeBuilder.custom(serializer, result, 1)); }
-    protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemLike result, int count) { return builder(FurnaceRecipeBuilder.custom(serializer, new ItemStack(result, count))); }
-    protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) { return builder(FurnaceRecipeBuilder.custom(serializer, new ItemStack(result, count), id)); }
-    protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result) { return builder(FurnaceRecipeBuilder.custom(serializer, result.get(), 1)); }
-    protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result, int count) { return builder(FurnaceRecipeBuilder.custom(serializer, new ItemStack(result.get(), count))); }
-    protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result, int count, ResourceLocation id) { return builder(FurnaceRecipeBuilder.custom(serializer, new ItemStack(result.get(), count), id)); }
-    protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemStack result) { return builder(FurnaceRecipeBuilder.custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()))); }
-    protected FurnaceRecipeBuilder customFurnace(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) { return builder(FurnaceRecipeBuilder.custom(serializer, result, id)); }
+    protected FurnaceRecipeBuilder customFurnace(ItemLike result, FurnaceRecipeBuilder.Factory factory) { return builder(FurnaceRecipeBuilder.custom(result, 1, factory)); }
+    protected FurnaceRecipeBuilder customFurnace(ItemLike result, int count, FurnaceRecipeBuilder.Factory factory) { return builder(FurnaceRecipeBuilder.custom(new ItemStack(result, count), factory)); }
+    protected FurnaceRecipeBuilder customFurnace(ItemLike result, int count, ResourceLocation id, FurnaceRecipeBuilder.Factory factory) { return builder(FurnaceRecipeBuilder.custom(new ItemStack(result, count), id, factory)); }
+    protected FurnaceRecipeBuilder customFurnace(Supplier<? extends ItemLike> result, FurnaceRecipeBuilder.Factory factory) { return builder(FurnaceRecipeBuilder.custom(result.get(), 1, factory)); }
+    protected FurnaceRecipeBuilder customFurnace(Supplier<? extends ItemLike> result, int count, FurnaceRecipeBuilder.Factory factory) { return builder(FurnaceRecipeBuilder.custom(new ItemStack(result.get(), count), factory)); }
+    protected FurnaceRecipeBuilder customFurnace(Supplier<? extends ItemLike> result, int count, ResourceLocation id, FurnaceRecipeBuilder.Factory factory) { return builder(FurnaceRecipeBuilder.custom(new ItemStack(result.get(), count), id, factory)); }
+    protected FurnaceRecipeBuilder customFurnace(ItemStack result, FurnaceRecipeBuilder.Factory factory) { return builder(FurnaceRecipeBuilder.custom(result, BuiltInRegistries.ITEM.getKey(result.getItem()), factory)); }
+    protected FurnaceRecipeBuilder customFurnace(ItemStack result, ResourceLocation id, FurnaceRecipeBuilder.Factory factory) { return builder(FurnaceRecipeBuilder.custom(result, id, factory)); }
 
-    protected SpecialCraftingRecipeBuilder special(SimpleCraftingRecipeSerializer<?> serializer, String id) { return builder(SpecialCraftingRecipeBuilder.builder(serializer, id)); }
-    protected SpecialCraftingRecipeBuilder special(SimpleCraftingRecipeSerializer<?> serializer, ResourceLocation id) { return builder(SpecialCraftingRecipeBuilder.builder(serializer, id)); }
+    protected SpecialCraftingRecipeBuilder special(ItemLike id, SpecialCraftingRecipeBuilder.Factory factory) { return builder(SpecialCraftingRecipeBuilder.builder(id, factory)); }
+    protected SpecialCraftingRecipeBuilder special(Supplier<? extends ItemLike> id, SpecialCraftingRecipeBuilder.Factory factory) { return builder(SpecialCraftingRecipeBuilder.builder(id.get(), factory)); }
+    protected SpecialCraftingRecipeBuilder special(ItemStack id, SpecialCraftingRecipeBuilder.Factory factory) { return builder(SpecialCraftingRecipeBuilder.builder(id, factory)); }
+    protected SpecialCraftingRecipeBuilder special(String id, SpecialCraftingRecipeBuilder.Factory factory) { return builder(SpecialCraftingRecipeBuilder.builder(id, factory)); }
+    protected SpecialCraftingRecipeBuilder special(ResourceLocation id, SpecialCraftingRecipeBuilder.Factory factory) { return builder(SpecialCraftingRecipeBuilder.builder(id, factory)); }
     //@formatter:on
 
-    protected EnterBlockTrigger.TriggerInstance enteredBlock(Block blockIn) {
-        return new EnterBlockTrigger.TriggerInstance(ContextAwarePredicate.ANY, blockIn, StatePropertiesPredicate.ANY);
+    protected Criterion<?> enteredBlock(Block blockIn) {
+        return CriteriaTriggers.ENTER_BLOCK.createCriterion(new EnterBlockTrigger.TriggerInstance(Optional.empty(), Optional.of(blockIn.builtInRegistryHolder()), Optional.empty()));
     }
 
-    protected InventoryChangeTrigger.TriggerInstance hasItem(ItemLike itemIn) {
+    protected Criterion<?> hasItem(ItemLike itemIn) {
         return hasItem(ItemPredicate.Builder.item().of(itemIn).build());
     }
 
-    protected InventoryChangeTrigger.TriggerInstance hasItem(Supplier<? extends ItemLike> itemIn) {
+    protected Criterion<?> hasItem(Supplier<? extends ItemLike> itemIn) {
         return hasItem(ItemPredicate.Builder.item().of(itemIn.get()).build());
     }
 
-    protected InventoryChangeTrigger.TriggerInstance hasItem(TagKey<Item> tagIn) {
+    protected Criterion<?> hasItem(TagKey<Item> tagIn) {
         return hasItem(ItemPredicate.Builder.item().of(tagIn).build());
     }
 
-    protected InventoryChangeTrigger.TriggerInstance hasItem(ItemPredicate... predicates) {
-        return new InventoryChangeTrigger.TriggerInstance(ContextAwarePredicate.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, predicates);
+    protected Criterion<?> hasItem(ItemPredicate... predicates) {
+        return CriteriaTriggers.INVENTORY_CHANGED.createCriterion(
+                new InventoryChangeTrigger.TriggerInstance(
+                        Optional.empty(),
+                        InventoryChangeTrigger.TriggerInstance.Slots.ANY,
+                        List.of(predicates)
+                )
+        );
     }
 
     @Override

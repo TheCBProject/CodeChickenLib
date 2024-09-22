@@ -266,18 +266,12 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     }
 
     public int hashCode() {
-        long i = Double.doubleToLongBits(min.x);
-        int j = (int) (i ^ i >>> 32);
-        i = Double.doubleToLongBits(min.y);
-        j = 31 * j + (int) (i ^ i >>> 32);
-        i = Double.doubleToLongBits(min.z);
-        j = 31 * j + (int) (i ^ i >>> 32);
-        i = Double.doubleToLongBits(max.x);
-        j = 31 * j + (int) (i ^ i >>> 32);
-        i = Double.doubleToLongBits(max.y);
-        j = 31 * j + (int) (i ^ i >>> 32);
-        i = Double.doubleToLongBits(max.z);
-        j = 31 * j + (int) (i ^ i >>> 32);
+        int j = Double.hashCode(min.x);
+        j = 31 * j + Double.hashCode(min.y);
+        j = 31 * j + Double.hashCode(min.z);
+        j = 31 * j + Double.hashCode(max.x);
+        j = 31 * j + Double.hashCode(max.y);
+        j = 31 * j + Double.hashCode(max.z);
         return j;
     }
 
@@ -286,10 +280,9 @@ public class Cuboid6 implements Copyable<Cuboid6> {
         if (super.equals(obj)) {
             return true;
         }
-        if (!(obj instanceof Cuboid6)) {
+        if (!(obj instanceof Cuboid6 c)) {
             return false;
         }
-        Cuboid6 c = (Cuboid6) obj;
         return min.equals(c.min) && max.equals(c.max);
     }
 

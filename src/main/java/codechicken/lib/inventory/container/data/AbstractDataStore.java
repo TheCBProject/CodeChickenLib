@@ -8,7 +8,7 @@ import java.util.Objects;
 
 /**
  * The base class of a simple general purpose serializable data system.
- *
+ * <p>
  * Created by brandon3055 on 08/09/2023
  */
 public abstract class AbstractDataStore<T> {
@@ -28,7 +28,7 @@ public abstract class AbstractDataStore<T> {
         markDirty();
     }
 
-    public void markDirty(){}
+    public void markDirty() { }
 
     public abstract void toBytes(MCDataOutput buf);
 

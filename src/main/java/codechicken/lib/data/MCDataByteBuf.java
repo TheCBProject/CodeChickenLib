@@ -30,7 +30,7 @@ public class MCDataByteBuf implements MCDataInput, MCDataOutput {
      *
      * @return The {@link FriendlyByteBuf}.
      */
-    public FriendlyByteBuf toPacketBuffer() {
+    public FriendlyByteBuf toFriendlyByteBuf() {
         return buf instanceof FriendlyByteBuf ? (FriendlyByteBuf) buf : new FriendlyByteBuf(buf);
     }
 

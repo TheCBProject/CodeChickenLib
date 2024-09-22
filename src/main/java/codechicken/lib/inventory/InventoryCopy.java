@@ -5,7 +5,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -62,18 +61,15 @@ public class InventoryCopy implements Container {
     }
 
     @Override
-    @Nonnull
     public ItemStack getItem(int slot) {
         return items[slot];
     }
 
-    @Nonnull
     public ItemStack removeItem(int slot, int amount) {
         return InventoryUtils.decrStackSize(this, slot, amount);
     }
 
     @Override
-    @Nonnull
     public ItemStack removeItemNoUpdate(int slot) {
         return InventoryUtils.removeStackFromSlot(this, slot);
     }
@@ -90,25 +86,12 @@ public class InventoryCopy implements Container {
     }
 
     @Override
-    public int getMaxStackSize() {
-        return 64;
-    }
-
-    @Override
     public void setChanged() {
     }
 
     @Override
     public boolean canPlaceItem(int i, ItemStack itemstack) {
         return inv.canPlaceItem(i, itemstack);
-    }
-
-    @Override
-    public void startOpen(Player player) {
-    }
-
-    @Override
-    public void stopOpen(Player player) {
     }
 
     @Override

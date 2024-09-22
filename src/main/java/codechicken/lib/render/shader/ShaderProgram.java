@@ -1,6 +1,7 @@
 package codechicken.lib.render.shader;
 
 import com.google.common.collect.ImmutableList;
+import net.covers1624.quack.collection.FastStream;
 import net.covers1624.quack.collection.StreamableIterable;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
@@ -38,8 +39,8 @@ public class ShaderProgram implements ResourceManagerReloadListener {
 
     ShaderProgram(Collection<ShaderObject> shaders, Collection<UniformPair> uniforms, @Nullable Runnable applyCallback) {
         this.shaders = ImmutableList.copyOf(shaders);
-        this.uniforms = StreamableIterable.of(uniforms)
-                .toImmutableMap(UniformPair::name, e -> CCUniform.makeUniform(e.name(), e.type(), e.type().getSize(), null)); // TODO dont specify count of 1 here.
+        this.uniforms = FastStream.of(uniforms)
+                .toImmutableMap(UniformPair::name, e -> CCUniform.makeUniform(e.name(), e.type(), e.type().getSize(), null));
         this.applyCallback = applyCallback;
     }
 

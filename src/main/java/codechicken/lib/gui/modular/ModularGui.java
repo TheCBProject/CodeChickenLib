@@ -6,7 +6,6 @@ import codechicken.lib.gui.modular.lib.container.ContainerGuiProvider;
 import codechicken.lib.gui.modular.lib.geometry.Constraint;
 import codechicken.lib.gui.modular.lib.geometry.GeoParam;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
-import net.covers1624.quack.collection.FastStream;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,14 +14,16 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -35,6 +36,7 @@ import java.util.function.Consumer;
  * @see ContainerGuiProvider
  */
 public class ModularGui implements GuiParent<ModularGui> {
+
     private static final Logger LOGGER = LogManager.getLogger();
 
     private final GuiProvider provider;
@@ -344,13 +346,14 @@ public class ModularGui implements GuiParent<ModularGui> {
     /**
      * Pass through for the mouseScrolled event. Any screen implementing {@link ModularGui} must pass through this event.
      *
-     * @param mouseX Mouse X position
-     * @param mouseY Mouse Y position
-     * @param scroll Scroll direction and amount
+     * @param mouseX  Mouse X position
+     * @param mouseY  Mouse Y position
+     * @param scrollX Scroll direction and amount
+     * @param scrollY Scroll direction and amount
      * @return true if this event has been consumed.
      */
-    public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
-        return root.mouseScrolled(mouseX, mouseY, scroll, false);
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        return root.mouseScrolled(mouseX, mouseY, scrollX, scrollY, false);
     }
 
     /**
@@ -519,7 +522,7 @@ public class ModularGui implements GuiParent<ModularGui> {
     /**
      * Sets the current mouse cursor.
      * The cursor is reset at the end of each UI tick so this must be set every tick for as long as you want your custom cursor to be active.
-     * */
+     */
     public void setCursor(ResourceLocation cursor) {
         this.newCursor = cursor;
     }
@@ -583,7 +586,6 @@ public class ModularGui implements GuiParent<ModularGui> {
     public void onMouseClickPost(TriConsumer<Double, Double, Integer> onClick) {
         postClickListeners.add(onClick);
     }
-
 
     /**
      * Allows you to attach a callback that will be fired on key press, before the is handled by the rest of the gui.

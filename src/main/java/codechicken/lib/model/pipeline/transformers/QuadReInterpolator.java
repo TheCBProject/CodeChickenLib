@@ -53,11 +53,13 @@ public class QuadReInterpolator extends QuadTransformer {
     @Override
     public void setInputQuad(Quad quad) {
         super.setInputQuad(quad);
+        assert quad.orientation != null;
         quad.resetInterp(interpHelper, quad.orientation.ordinal() >> 1);
     }
 
     @Override
     public boolean transform() {
+        assert quad.orientation != null;
         int s = quad.orientation.ordinal() >> 1;
         if (format.hasColor || format.hasUV || format.hasLightMap) {
             interpCache.copyFrom(quad);

@@ -5,17 +5,15 @@ import codechicken.lib.colour.ColourARGB;
 import codechicken.lib.util.ResourceUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.level.block.state.BlockState;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -23,10 +21,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Random;
 
 public class TextureUtils {
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     /**
      * @return an array of ARGB pixel data
@@ -52,12 +50,11 @@ public class TextureUtils {
         return data;
     }
 
-    public static BufferedImage loadBufferedImage(ResourceLocation textureFile) {
+    public static @Nullable BufferedImage loadBufferedImage(ResourceLocation textureFile) {
         try {
             return loadBufferedImage(ResourceUtils.getResourceAsStream(textureFile));
-        } catch (Exception e) {
-            System.err.println("Failed to load texture file: " + textureFile);
-            e.printStackTrace();
+        } catch (Exception ex) {
+            LOGGER.error("failed to load texture {}", textureFile, ex);
         }
         return null;
     }
@@ -76,25 +73,6 @@ public class TextureUtils {
 
                 toTex[tp] = fromTex[fp];
             }
-        }
-    }
-
-    public static void prepareTexture(int target, int texture, int min_mag_filter, int wrap) {
-        GlStateManager._texParameter(target, GL11.GL_TEXTURE_MIN_FILTER, min_mag_filter);
-        GlStateManager._texParameter(target, GL11.GL_TEXTURE_MAG_FILTER, min_mag_filter);
-        if (target == GL11.GL_TEXTURE_2D) {
-            GlStateManager._bindTexture(target);
-        } else {
-            GL11.glBindTexture(target, texture);
-        }
-
-        switch (target) {
-            case GL12.GL_TEXTURE_3D:
-                GlStateManager._texParameter(target, GL12.GL_TEXTURE_WRAP_R, wrap);
-            case GL11.GL_TEXTURE_2D:
-                GlStateManager._texParameter(target, GL11.GL_TEXTURE_WRAP_T, wrap);
-            case GL11.GL_TEXTURE_1D:
-                GlStateManager._texParameter(target, GL11.GL_TEXTURE_WRAP_S, wrap);
         }
     }
 
@@ -133,50 +111,4 @@ public class TextureUtils {
     public static TextureAtlasSprite getItemTexture(ResourceLocation location) {
         return getTexture(new ResourceLocation(location.getNamespace(), "items/" + location.getPath()));
     }
-
-    @Deprecated
-    public static TextureAtlasSprite[] getSideIconsForBlock(BlockState state) {
-        TextureAtlasSprite[] sideSprites = new TextureAtlasSprite[6];
-        TextureAtlasSprite missingSprite = getMissingSprite();
-        for (int i = 0; i < 6; i++) {
-            TextureAtlasSprite[] sprites = getIconsForBlock(state, i);
-            TextureAtlasSprite sideSprite = missingSprite;
-            if (sprites.length != 0) {
-                sideSprite = sprites[0];
-            }
-            sideSprites[i] = sideSprite;
-        }
-        return sideSprites;
-    }
-
-    @Deprecated
-    public static TextureAtlasSprite[] getIconsForBlock(BlockState state, int side) {
-        return getIconsForBlock(state, Direction.values()[side]);
-    }
-
-    @Deprecated
-    public static TextureAtlasSprite[] getIconsForBlock(BlockState state, Direction side) {
-        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
-        if (model != null) {
-            List<BakedQuad> quads = model.getQuads(state, side, RandomSource.create(0));
-            if (quads != null && quads.size() > 0) {
-                TextureAtlasSprite[] sprites = new TextureAtlasSprite[quads.size()];
-                for (int i = 0; i < quads.size(); i++) {
-                    sprites[i] = quads.get(i).getSprite();
-                }
-                return sprites;
-            }
-        }
-        return new TextureAtlasSprite[0];
-    }
-
-    @Deprecated
-    public static TextureAtlasSprite getParticleIconForBlock(BlockState state) {
-        BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
-        if (model != null) {
-            return model.getParticleIcon();
-        }
-        return null;
-    }
-
 }

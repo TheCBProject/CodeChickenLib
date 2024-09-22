@@ -2,6 +2,7 @@ package codechicken.lib.util;
 
 import codechicken.lib.vec.Vector3;
 import net.minecraft.core.Direction;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by covers1624 on 4/10/2016.
@@ -27,25 +28,10 @@ public class VectorUtils {
      * @return The direction the normal is facing.
      */
     public static int findSide(Vector3 normal) {
-        if (normal.y <= -0.99) {
-            return 0;
-        }
-        if (normal.y >= 0.99) {
-            return 1;
-        }
-        if (normal.z <= -0.99) {
-            return 2;
-        }
-        if (normal.z >= 0.99) {
-            return 3;
-        }
-        if (normal.x <= -0.99) {
-            return 4;
-        }
-        if (normal.x >= 0.99) {
-            return 5;
-        }
-        return -1;
+        Direction dir = findSideE(normal);
+        if (dir == null) return -1;
+
+        return dir.ordinal();
     }
 
     /**
@@ -54,25 +40,14 @@ public class VectorUtils {
      * @param normal The normal to calculate from.
      * @return The direction the normal is facing.
      */
-    public static Direction calcNormalSide(Vector3 normal) {
-        if (normal.y <= -0.99) {
-            return Direction.DOWN;
-        }
-        if (normal.y >= 0.99) {
-            return Direction.UP;
-        }
-        if (normal.z <= -0.99) {
-            return Direction.NORTH;
-        }
-        if (normal.z >= 0.99) {
-            return Direction.SOUTH;
-        }
-        if (normal.x <= -0.99) {
-            return Direction.WEST;
-        }
-        if (normal.x >= 0.99) {
-            return Direction.EAST;
-        }
+    public static @Nullable Direction findSideE(Vector3 normal) {
+        if (normal.y <= -0.99) return Direction.DOWN;
+        if (normal.y >= 0.99) return Direction.UP;
+        if (normal.z <= -0.99) return Direction.NORTH;
+        if (normal.z >= 0.99) return Direction.SOUTH;
+        if (normal.x <= -0.99) return Direction.WEST;
+        if (normal.x >= 0.99) return Direction.EAST;
+
         return null;
     }
 }

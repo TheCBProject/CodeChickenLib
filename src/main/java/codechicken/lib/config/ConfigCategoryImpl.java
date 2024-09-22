@@ -2,7 +2,7 @@ package codechicken.lib.config;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
-import net.covers1624.quack.collection.StreamableIterable;
+import net.covers1624.quack.collection.ColUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -157,7 +157,7 @@ public class ConfigCategoryImpl extends AbstractConfigTag<ConfigCategory> implem
 
     @Override
     public boolean isDirty() {
-        return super.isDirty() || StreamableIterable.of(getChildren()).anyMatch(ConfigTag::isDirty);
+        return super.isDirty() || ColUtils.anyMatch(getChildren(), ConfigTag::isDirty);
     }
 
     @Override

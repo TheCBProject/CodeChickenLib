@@ -13,10 +13,10 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
+import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +54,7 @@ public class RenderUtils {
             bound.max.y = bound.min.y + (bound.max.y - bound.min.y) * capacity;
         }
         IClientFluidTypeExtensions props = IClientFluidTypeExtensions.of(type);
-        Material material = ForgeHooksClient.getBlockMaterial(props.getStillTexture(stack));
+        Material material = ClientHooks.getBlockMaterial(props.getStillTexture(stack));
         ccrs.bind(renderType, source);
         ccrs.baseColour = props.getTintColor(stack) << 8 | alpha;
         makeFluidModel(bound, material.sprite(), res).render(ccrs, mat);

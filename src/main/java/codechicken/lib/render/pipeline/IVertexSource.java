@@ -19,7 +19,7 @@ public interface IVertexSource {
 
     /**
      * The number of vertices available in the model.
-     *
+     * <p>
      * By default, this method just returns the
      * length of the @link #getVertices()} array.
      *
@@ -36,7 +36,8 @@ public interface IVertexSource {
      * @return The {@code T} for the given {@link AttributeKey}
      * or {@code null} of the Attribute does not exist.
      */
-    @Nullable <T> T getAttribute(AttributeKey<T> attr);
+    @Nullable
+    <T> T getAttribute(AttributeKey<T> attr);
 
     /**
      * Returns {@code true} if the specified attribute is provided by this {@link IVertexSource}.

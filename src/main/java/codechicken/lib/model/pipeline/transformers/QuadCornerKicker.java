@@ -112,6 +112,7 @@ public class QuadCornerKicker extends QuadTransformer {
 
     @Override
     public boolean transform() {
+        assert quad.orientation != null;
         int side = quad.orientation.ordinal();
         if (side != mySide && side != (mySide ^ 1)) {
             for (int hoz : horizonals[mySide]) {
@@ -119,17 +120,17 @@ public class QuadCornerKicker extends QuadTransformer {
                     if ((facadeMask & (1 << hoz)) != 0) {
                         Corner corner = Corner.fromSides(mySide ^ 1, side, hoz);
                         for (Vertex vertex : quad.vertices) {
-                            float x = vertex.vec[0];
-                            float y = vertex.vec[1];
-                            float z = vertex.vec[2];
+                            float x = vertex.vec()[0];
+                            float y = vertex.vec()[1];
+                            float z = vertex.vec()[2];
                             if (epsComp(x, corner.pX(box)) && epsComp(y, corner.pY(box)) && epsComp(z, corner.pZ(box))) {
                                 Vec3i vec = Direction.BY_3D_DATA[hoz].getNormal();
                                 x -= vec.getX() * thickness;
                                 y -= vec.getY() * thickness;
                                 z -= vec.getZ() * thickness;
-                                vertex.vec[0] = x;
-                                vertex.vec[1] = y;
-                                vertex.vec[2] = z;
+                                vertex.vec()[0] = x;
+                                vertex.vec()[1] = y;
+                                vertex.vec()[2] = z;
                             }
                         }
                     }

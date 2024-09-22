@@ -42,9 +42,10 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.event.RenderTooltipEvent;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.client.ItemDecoratorHandler;
+import net.neoforged.neoforge.client.event.RenderTooltipEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector2ic;
@@ -63,6 +64,7 @@ import java.util.stream.Collectors;
  * Created by brandon3055 on 29/06/2023
  */
 public class GuiRender {
+
     public static final RenderType SOLID = RenderType.gui();
 
     //Used for things like events that require the vanilla GuiGraphics
@@ -330,8 +332,9 @@ public class GuiRender {
         fill(type, xMin, yMin + borderWidth, xMin + borderWidth, yMax - borderWidth, borderColour);                 //Left
         fill(type, xMin, yMax - borderWidth, xMax, yMax, borderColour);                                             //Bottom
         fill(type, xMax - borderWidth, yMin + borderWidth, xMax, yMax - borderWidth, borderColour);                 //Right
-        if (fillColour != 0) //No point rendering fill if there is no fill colour
+        if (fillColour != 0) { //No point rendering fill if there is no fill colour
             fill(type, xMin + borderWidth, yMin + borderWidth, xMax - borderWidth, yMax - borderWidth, fillColour); //Fill
+        }
     }
 
     /**
@@ -418,8 +421,9 @@ public class GuiRender {
         fill(type, xMax - borderWidth, yMin, xMax, yMin + borderWidth, cornerMixColour);                             //Top Right Corner
         fill(type, xMin, yMax - borderWidth, xMin + borderWidth, yMax, cornerMixColour);                             //Bottom Left Corner
 
-        if (fillColour != 0) //No point rendering fill if there is no fill colour
+        if (fillColour != 0) { //No point rendering fill if there is no fill colour
             fill(type, xMin + borderWidth, yMin + borderWidth, xMax - borderWidth, yMax - borderWidth, fillColour);  //Fill
+        }
     }
 
     //=== Generic Backgrounds ===//
@@ -634,8 +638,8 @@ public class GuiRender {
      * @param rotation Rotates sprite clockwise in 90 degree steps.
      */
     public void sprite(RenderType type, double xMin, double yMin, double xMax, double yMax, int rotation, TextureAtlasSprite sprite, float red, float green, float blue, float alpha) {
-        float[] u = {sprite.getU0(), sprite.getU1(), sprite.getU1(), sprite.getU0()};
-        float[] v = {sprite.getV1(), sprite.getV1(), sprite.getV0(), sprite.getV0()};
+        float[] u = { sprite.getU0(), sprite.getU1(), sprite.getU1(), sprite.getU0() };
+        float[] v = { sprite.getV1(), sprite.getV1(), sprite.getV0(), sprite.getV0() };
         VertexConsumer buffer = buffers().getBuffer(type);
         Matrix4f mat = pose.last().pose();
         buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(red, green, blue, alpha).uv(u[(1 + rotation) % 4], v[(1 + rotation) % 4]).endVertex();  //R-B
@@ -813,9 +817,11 @@ public class GuiRender {
                         double vWidth = sectionHeight / textureHeight;
                         partialSprite(type, xPos, yPos, xPos + sectionWidth, yPos + sectionHeight, sprite, 0, 0, (float) uWidth, (float) vWidth, red, green, blue, alpha);
                         yPos += textureHeight;
-                    } while (yPos < yMax);
+                    }
+                    while (yPos < yMax);
                     xPos += textureWidth;
-                } while (xPos < xMax);
+                }
+                while (xPos < xMax);
             };
             if (batchDraw) {
                 draw.run();
@@ -995,8 +1001,8 @@ public class GuiRender {
     public void tex(Material material, double xMin, double yMin, double xMax, double yMax, int rotation, float red, float green, float blue, float alpha) {
         TextureAtlasSprite sprite = material.sprite();
         VertexConsumer buffer = material.buffer(buffers, GuiRender::texColType);
-        float[] u = {sprite.getU0(), sprite.getU1(), sprite.getU1(), sprite.getU0()};
-        float[] v = {sprite.getV1(), sprite.getV1(), sprite.getV0(), sprite.getV0()};
+        float[] u = { sprite.getU0(), sprite.getU1(), sprite.getU1(), sprite.getU0() };
+        float[] v = { sprite.getV1(), sprite.getV1(), sprite.getV0(), sprite.getV0() };
         Matrix4f mat = pose.last().pose();
         buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(red, green, blue, alpha).uv(u[(1 + rotation) % 4], v[(1 + rotation) % 4]).endVertex();  //R-B
         buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(red, green, blue, alpha).uv(u[(2 + rotation) % 4], v[(2 + rotation) % 4]).endVertex();  //R-T
@@ -1128,14 +1134,14 @@ public class GuiRender {
         }
     }
 
-    private void bufferDynamic(VertexConsumer builder, Matrix4f mat, TextureAtlasSprite tex, int x, int y, double textureX, double textureY, int width, int height, float red, float green, float blue, float alpha) {
+    private void bufferDynamic(VertexConsumer builder, Matrix4f mat, TextureAtlasSprite tex, int x, int y, float textureX, float textureY, int width, int height, float red, float green, float blue, float alpha) {
         int w = tex.contents().width();
         int h = tex.contents().height();
         //@formatter:off
-        builder.vertex(mat, x,         y + height, 0).color(red, green, blue, alpha).uv(tex.getU((textureX / w) * 16D),          tex.getV(((textureY + height) / h) * 16)).endVertex();
-        builder.vertex(mat, x + width, y + height, 0).color(red, green, blue, alpha).uv(tex.getU(((textureX + width) / w) * 16), tex.getV(((textureY + height) / h) * 16)).endVertex();
-        builder.vertex(mat, x + width, y,          0).color(red, green, blue, alpha).uv(tex.getU(((textureX + width) / w) * 16), tex.getV(((textureY) / h) * 16)).endVertex();
-        builder.vertex(mat, x,         y,          0).color(red, green, blue, alpha).uv(tex.getU((textureX / w) * 16),           tex.getV(((textureY) / h) * 16)).endVertex();
+        builder.vertex(mat, x,         y + height, 0).color(red, green, blue, alpha).uv(tex.getU(textureX / w),           tex.getV((textureY + height) / h)).endVertex();
+        builder.vertex(mat, x + width, y + height, 0).color(red, green, blue, alpha).uv(tex.getU((textureX + width) / w), tex.getV((textureY + height) / h)).endVertex();
+        builder.vertex(mat, x + width, y,          0).color(red, green, blue, alpha).uv(tex.getU((textureX + width) / w), tex.getV((textureY / h))).endVertex();
+        builder.vertex(mat, x,         y,          0).color(red, green, blue, alpha).uv(tex.getU(textureX / w),           tex.getV((textureY / h))).endVertex();
         //@formatter:on
     }
 
@@ -1293,7 +1299,7 @@ public class GuiRender {
     }
 
     public void toolTipWithImage(List<Component> tooltip, Optional<TooltipComponent> tooltipImage, double mouseX, double mouseY, int backgroundTop, int backgroundBottom, int borderTop, int borderBottom) {
-        List<ClientTooltipComponent> list = ForgeHooksClient.gatherTooltipComponents(tooltipStack, tooltip, tooltipImage, (int) mouseX, guiWidth(), guiHeight(), font());
+        List<ClientTooltipComponent> list = ClientHooks.gatherTooltipComponents(tooltipStack, tooltip, tooltipImage, (int) mouseX, guiWidth(), guiHeight(), font());
         this.renderTooltipInternal(list, mouseX, mouseY, backgroundTop, backgroundBottom, borderTop, borderBottom, DefaultTooltipPositioner.INSTANCE);
     }
 
@@ -1302,12 +1308,12 @@ public class GuiRender {
     }
 
     public void renderTooltip(Component message, double mouseX, double mouseY, int backgroundTop, int backgroundBottom, int borderTop, int borderBottom) {
-        List<ClientTooltipComponent> list = ForgeHooksClient.gatherTooltipComponents(tooltipStack, List.of(message), Optional.empty(), (int) mouseX, guiWidth(), guiHeight(), font());
+        List<ClientTooltipComponent> list = ClientHooks.gatherTooltipComponents(tooltipStack, List.of(message), Optional.empty(), (int) mouseX, guiWidth(), guiHeight(), font());
         this.renderTooltipInternal(list, mouseX, mouseY, backgroundTop, backgroundBottom, borderTop, borderBottom, DefaultTooltipPositioner.INSTANCE);
     }
 
     public void componentTooltip(List<Component> tooltips, double mouseX, double mouseY, int backgroundTop, int backgroundBottom, int borderTop, int borderBottom) {
-        List<ClientTooltipComponent> list = ForgeHooksClient.gatherTooltipComponents(tooltipStack, tooltips, Optional.empty(), (int) mouseX, guiWidth(), guiHeight(), font());
+        List<ClientTooltipComponent> list = ClientHooks.gatherTooltipComponents(tooltipStack, tooltips, Optional.empty(), (int) mouseX, guiWidth(), guiHeight(), font());
         this.renderTooltipInternal(list, mouseX, mouseY, backgroundTop, backgroundBottom, borderTop, borderBottom, DefaultTooltipPositioner.INSTANCE);
     }
 
@@ -1321,7 +1327,7 @@ public class GuiRender {
 
     public void componentTooltip(List<? extends FormattedText> tooltips, double mouseX, double mouseY, int backgroundTop, int backgroundBottom, int borderTop, int borderBottom, ItemStack stack) {
         this.tooltipStack = stack;
-        List<ClientTooltipComponent> list = ForgeHooksClient.gatherTooltipComponents(tooltipStack, tooltips, Optional.empty(), (int) mouseX, guiWidth(), guiHeight(), font());
+        List<ClientTooltipComponent> list = ClientHooks.gatherTooltipComponents(tooltipStack, tooltips, Optional.empty(), (int) mouseX, guiWidth(), guiHeight(), font());
         this.renderTooltipInternal(list, mouseX, mouseY, backgroundTop, backgroundBottom, borderTop, borderBottom, DefaultTooltipPositioner.INSTANCE);
         this.tooltipStack = ItemStack.EMPTY;
     }
@@ -1349,9 +1355,8 @@ public class GuiRender {
 
     private void renderTooltipInternal(List<ClientTooltipComponent> tooltips, double mouseX, double mouseY, int backgroundTop, int backgroundBottom, int borderTop, int borderBottom, ClientTooltipPositioner positioner) {
         if (!tooltips.isEmpty()) {
-            RenderTooltipEvent.Pre event = ForgeHooksClient.onRenderTooltipPre(tooltipStack, guiGraphicsWrapper(), (int) mouseX, (int) mouseY, guiWidth(), guiHeight(), tooltips, font(), positioner);
+            RenderTooltipEvent.Pre event = ClientHooks.onRenderTooltipPre(tooltipStack, guiGraphicsWrapper(), (int) mouseX, (int) mouseY, guiWidth(), guiHeight(), tooltips, font(), positioner);
             if (event.isCanceled()) return;
-
 
             int width = 0;
             int height = tooltips.size() == 1 ? -2 : 0;
@@ -1366,7 +1371,7 @@ public class GuiRender {
 
             RenderTooltipEvent.Color colorEvent = new RenderTooltipEvent.Color(tooltipStack, guiGraphicsWrapper(), (int) mouseX, (int) mouseY, font(), backgroundTop, borderTop, borderBottom, tooltips);
             colorEvent.setBackgroundEnd(backgroundBottom);
-            MinecraftForge.EVENT_BUS.post(colorEvent);
+            NeoForge.EVENT_BUS.post(colorEvent);
 
             toolTipBackground(xPos - 3, yPos - 3, width + 6, height + 6, colorEvent.getBackgroundStart(), colorEvent.getBackgroundEnd(), colorEvent.getBorderStart(), colorEvent.getBorderEnd(), false);
             int linePos = yPos;
@@ -1572,14 +1577,12 @@ public class GuiRender {
 
             pose.popPose();
             if (size == 16) {
-                net.minecraftforge.client.ItemDecoratorHandler.of(stack).render(guiGraphicsWrapper(), font(), stack, (int) x, (int) y);
+                ItemDecoratorHandler.of(stack).render(guiGraphicsWrapper(), font(), stack, (int) x, (int) y);
             }
         }
     }
 
-
     //=== Entity? ===//
-
 
     //=== Render Utils ===//
 
@@ -1708,6 +1711,7 @@ public class GuiRender {
      * This exists to allow thing like the Tooltip events to still function correctly, hopefully without exploding...
      */
     public static class RenderWrapper extends GuiGraphics {
+
         private final GuiRender wrapped;
 
         private RenderWrapper(GuiRender wrapped) {
@@ -1723,16 +1727,6 @@ public class GuiRender {
         @Override
         public void flush() {
             wrapped.flush();
-        }
-
-        @Override
-        public void flushIfManaged() {
-            wrapped.flushIfBatched();
-        }
-
-        @Override
-        public void flushIfUnmanaged() {
-            wrapped.flushIfUnBatched();
         }
     }
 }

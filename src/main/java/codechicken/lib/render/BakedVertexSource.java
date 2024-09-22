@@ -95,14 +95,14 @@ public class BakedVertexSource implements IVertexSource, IVertexConsumer {
             int v = vertexIndex++;
             Quad.Vertex vertex = unpacker.vertices[i];
             Vertex5 vertex5 = vertices[v];
-            vertex5.vec.set(vertex.vec);
-            vertex5.uv.set(vertex.uv);
+            vertex5.vec.set(vertex.vec());
+            vertex5.uv.set(vertex.uv());
 
             Vector3 normal = getAttr(NormalAttribute.attributeKey)[v];
-            normal.set(vertex.normal);
+            normal.set(vertex.normal());
             getAttr(LightCoordAttribute.attributeKey)[v].compute(vertex5.vec, normal);
 
-            getAttr(ColourAttribute.attributeKey)[v] = Colour.packRGBA(vertex.color);
+            getAttr(ColourAttribute.attributeKey)[v] = Colour.packRGBA(vertex.color());
 
             sprites[v] = unpacker.sprite;
         }

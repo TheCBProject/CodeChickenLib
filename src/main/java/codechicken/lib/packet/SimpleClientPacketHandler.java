@@ -26,10 +26,10 @@ public class SimpleClientPacketHandler implements IClientPacketHandler {
     }
 
     @Override
-    public void handlePacket(PacketCustom packet, Minecraft mc, ClientPacketListener handler) {
+    public void handlePacket(PacketCustom packet, Minecraft mc) {
         IClientPacketHandler h = handlers.get(packet.getType());
         if (h != null) {
-            h.handlePacket(packet, mc, handler);
+            h.handlePacket(packet, mc);
         } else {
             LOGGER.warn("Received unknown packet on channel '{}' with descriptor '{}'.", packet.getChannel(), packet.getType());
         }

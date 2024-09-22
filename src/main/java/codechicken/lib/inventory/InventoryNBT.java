@@ -6,7 +6,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -46,19 +45,16 @@ public class InventoryNBT implements Container {
     }
 
     @Override
-    @Nonnull
     public ItemStack getItem(int slot) {
         return items[slot];
     }
 
     @Override
-    @Nonnull
     public ItemStack removeItem(int slot, int amount) {
         return InventoryUtils.decrStackSize(this, slot, amount);
     }
 
     @Override
-    @Nonnull
     public ItemStack removeItemNoUpdate(int slot) {
         return InventoryUtils.removeStackFromSlot(this, slot);
     }
@@ -67,11 +63,6 @@ public class InventoryNBT implements Container {
     public void setItem(int slot, ItemStack stack) {
         items[slot] = stack;
         setChanged();
-    }
-
-    @Override
-    public int getMaxStackSize() {
-        return 64;
     }
 
     @Override
@@ -87,19 +78,6 @@ public class InventoryNBT implements Container {
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
-    }
-
-    @Override
-    public void startOpen(Player player) {
-    }
-
-    @Override
-    public void stopOpen(Player player) {
-    }
-
-    @Override
-    public boolean canPlaceItem(int i, ItemStack itemstack) {
         return true;
     }
 }

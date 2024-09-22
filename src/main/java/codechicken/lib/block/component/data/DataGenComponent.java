@@ -3,8 +3,8 @@ package codechicken.lib.block.component.data;
 import codechicken.lib.block.ModularBlock;
 import net.minecraft.data.DataProvider;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.ApiStatus;
  * to each {@link DataProvider}
  * <p>
  * You can either add each block manually via {@link #addToProvider(ModularBlock, DataProvider)}. Or you
- * can register your entire {@link DeferredRegister<Block>} via {@link #addAllToProvider(DeferredRegister, DataProvider)}
+ * can register your entire {@link DeferredRegister <Block>} via {@link #addAllToProvider(DeferredRegister, DataProvider)}
  * <p>
  * Created by covers1624 on 22/7/22.
  */
@@ -51,7 +51,7 @@ public abstract class DataGenComponent extends ModularBlock.Component {
      * @param provider The {@link DataProvider} to add things to.
      */
     public static void addAllToProvider(DeferredRegister<Block> blocks, DataProvider provider) {
-        for (RegistryObject<Block> entry : blocks.getEntries()) {
+        for (DeferredHolder<Block, ?> entry : blocks.getEntries()) {
             if (entry.get() instanceof ModularBlock block) {
                 addToProvider(block, provider);
             }

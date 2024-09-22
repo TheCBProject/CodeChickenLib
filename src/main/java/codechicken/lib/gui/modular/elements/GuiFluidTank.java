@@ -4,7 +4,7 @@ import codechicken.lib.gui.modular.lib.BackgroundRender;
 import codechicken.lib.gui.modular.lib.Constraints;
 import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
-import codechicken.lib.gui.modular.sprite.CCGuiTextures;
+import codechicken.lib.gui.modular.sprite.GuiTextures;
 import codechicken.lib.gui.modular.sprite.Material;
 import codechicken.lib.util.FormatUtil;
 import net.minecraft.client.Minecraft;
@@ -15,8 +15,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,8 +36,9 @@ import static net.minecraft.ChatFormatting.*;
  * Created by brandon3055 on 11/09/2023
  */
 public class GuiFluidTank extends GuiElement<GuiFluidTank> implements BackgroundRender {
+
     //TODO make a better texture, This feels a little too.. cluttered.
-    public static final Material DEFAULT_WINDOW = CCGuiTextures.getUncached("widgets/tank_window");
+    public static final Material DEFAULT_WINDOW = GuiTextures.CCL.getUncached("widgets/tank_window");
 
     private int gaugeColour = 0xFF909090;
     private boolean drawGauge = true;
@@ -170,12 +171,12 @@ public class GuiFluidTank extends GuiElement<GuiFluidTank> implements Background
         double ySize = ySize();
         double capacity = getCapacity();
         if (ySize / (capacity / 100D) > 3) return ySize / (capacity / 100D);
-        else if (ySize / (capacity / 500D) > 3) return ySize / (capacity / 500D);
-        else if (ySize / (capacity / 1000D) > 3) return ySize / (capacity / 1000D);
-        else if (ySize / (capacity / 5000D) > 3) return ySize / (capacity / 5000D);
-        else if (ySize / (capacity / 10000D) > 3) return ySize / (capacity / 10000D);
-        else if (ySize / (capacity / 50000D) > 3) return ySize / (capacity / 50000D);
-        else if (ySize / (capacity / 100000D) > 3) return ySize / (capacity / 100000D);
+        if (ySize / (capacity / 500D) > 3) return ySize / (capacity / 500D);
+        if (ySize / (capacity / 1000D) > 3) return ySize / (capacity / 1000D);
+        if (ySize / (capacity / 5000D) > 3) return ySize / (capacity / 5000D);
+        if (ySize / (capacity / 10000D) > 3) return ySize / (capacity / 10000D);
+        if (ySize / (capacity / 50000D) > 3) return ySize / (capacity / 50000D);
+        if (ySize / (capacity / 100000D) > 3) return ySize / (capacity / 100000D);
         return 0;
     }
 
@@ -248,5 +249,5 @@ public class GuiFluidTank extends GuiElement<GuiFluidTank> implements Background
         return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(texture);
     }
 
-    public record FluidTank(GuiRectangle container, GuiFluidTank tank) {}
+    public record FluidTank(GuiRectangle container, GuiFluidTank tank) { }
 }

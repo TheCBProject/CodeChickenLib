@@ -35,5 +35,3 @@ public abstract class UVTransformation extends ITransformation<UV, UVTransformat
         return operationIndex;
     }
 }
-
-

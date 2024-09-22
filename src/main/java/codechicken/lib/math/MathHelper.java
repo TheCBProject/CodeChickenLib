@@ -3,6 +3,7 @@ package codechicken.lib.math;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import org.jetbrains.annotations.Nullable;
 
 public class MathHelper {
 
@@ -297,29 +298,14 @@ public class MathHelper {
         return side == null ? -1 : side.get3DDataValue();
     }
 
-    public static Direction getSide(BlockPos pos) {
-        if (!isAxial(pos)) {
-            return null;
-        }
-        if (pos.getY() < 0) {
-            return Direction.DOWN;
-        }
-        if (pos.getY() > 0) {
-            return Direction.UP;
-        }
-        if (pos.getZ() < 0) {
-            return Direction.NORTH;
-        }
-        if (pos.getZ() > 0) {
-            return Direction.SOUTH;
-        }
-        if (pos.getX() < 0) {
-            return Direction.WEST;
-        }
-        if (pos.getX() > 0) {
-            return Direction.EAST;
-        }
-
+    public static @Nullable Direction getSide(BlockPos pos) {
+        if (!isAxial(pos)) return null;
+        if (pos.getY() < 0) return Direction.DOWN;
+        if (pos.getY() > 0) return Direction.UP;
+        if (pos.getZ() < 0) return Direction.NORTH;
+        if (pos.getZ() > 0) return Direction.SOUTH;
+        if (pos.getX() < 0) return Direction.WEST;
+        if (pos.getX() > 0) return Direction.EAST;
         return null;
     }
 }

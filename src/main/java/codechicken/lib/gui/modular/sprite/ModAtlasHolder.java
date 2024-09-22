@@ -44,11 +44,6 @@ public class ModAtlasHolder implements PreparableReloadListener, AutoCloseable {
         this.atlasLocation = new ResourceLocation(modid, atlasLocation);
         this.textureAtlas = new TextureAtlas(this.atlasLocation);
         this.modid = modid;
-        // TODO remove in 1.20.4
-        TextureManager textureManager = Minecraft.getInstance().getTextureManager();
-        if (textureManager != null) {
-            textureManager.register(this.textureAtlas.location(), this.textureAtlas);
-        }
     }
 
     public void init() {

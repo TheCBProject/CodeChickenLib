@@ -5,8 +5,7 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'net.neoforged.gradle' version '[6.0.18,6.2)'
-    id 'org.spongepowered.mixin' version '0.7.+'
+    id 'net.neoforged.gradle.userdev' version '7.0.97'
 }
 
 java {
@@ -18,7 +17,9 @@ java {
 }
 
 group = 'io.codechicken'
-archivesBaseName = 'CodeChickenLib'
+base {
+    archivesName = 'CodeChickenLib'
+}
 
 sourceSets.main.resources.srcDirs += "src/main/generated"
 
@@ -28,27 +29,20 @@ println "Starting build of ${archivesBaseName}, Version: ${mod_version}"
 println "Using Forge: ${forge_version}, for Minecraft: ${mc_version}"
 
 minecraft {
-    mappings channel: 'official', version: mc_version
-    accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
-    runs {
-        client {
-            workingDirectory file('run')
-            mods { codechickenlib { source sourceSets.main } }
-        }
-        server {
-            workingDirectory file('run')
-            mods { codechickenlib { source sourceSets.main } }
-        }
-        data {
-            workingDirectory file('run')
-            args '--mod', 'codechickenlib', '--all', '--output', file("src/main/generated"), '--existing', file("src/main/resources")
-            mods { codechickenlib { source sourceSets.main } }
-        }
-    }
+    accessTransformers.file file("src/main/resources/META-INF/accesstransformer.cfg")
 }
 
-mixin {
-    add(sourceSets.main, "mixins.codechickenlib.refmap.json")
+runs {
+    client {
+        workingDirectory file('run')
+    }
+    server {
+        workingDirectory file('run')
+    }
+    data {
+        workingDirectory file('run')
+        programArguments.addAll '--mod', 'codechickenlib', '--all', '--output', file("src/main/generated").absolutePath, '--existing', file("src/main/resources").absolutePath
+    }
 }
 
 processResources {
@@ -66,7 +60,6 @@ processResources {
 configurations {
     shadow
     implementation.extendsFrom shadow
-    annotationProcessor.extendsFrom minecraft
 }
 
 repositories {
@@ -76,39 +69,34 @@ repositories {
 }
 
 dependencies {
-    minecraft "net.neoforged:forge:${mc_version}-${forge_version}"
+    implementation "net.neoforged:neoforge:${forge_version}"
 
-    shadow 'net.covers1624:Quack:0.4.7.72'
+    shadow 'net.covers1624:Quack:0.4.10.105'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 
-    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}"))
-    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}"))
-    runtimeOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}"))
+    implementation("mezz.jei:jei-${mc_version}-neoforge:${jei_version}") {
+        transitive false
+    }
 }
 
 test {
     useJUnitPlatform()
 }
 
-reobf {
-    shadowJar {}
-    jar { enabled = false } // Disable jar.
-}
-
 def commonManifest = {
-    attributes 'Specification-Title': archivesBaseName
+    attributes 'Specification-Title': base.archivesName.get()
     attributes 'Specification-Vendor': 'covers1624'
     attributes 'Specification-Version': "1"
-    attributes 'Implementation-Title': archivesBaseName
+    attributes 'Implementation-Title': base.archivesName.get()
     attributes 'Implementation-Vendor': 'covers1624'
     attributes 'Implementation-Version': mod_version
     attributes 'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
     attributes 'MixinConfigs': 'mixins.codechickenlib.json'
 }
 
-def publishingMetadata = project.layout.buildDirectory.file("libs/$archivesBaseName-$version-publishing.json")
+def publishingMetadata = project.layout.buildDirectory.file("libs/${base.archivesName.get()}-$version-publishing.json")
 def publishingMetadataTask = tasks.register("publishingMetadata") {
     outputs.file(publishingMetadata)
     doFirst {
@@ -117,7 +105,7 @@ def publishingMetadataTask = tasks.register("publishingMetadata") {
                         'displayName' : "CodeChicken Lib ${version}",
                         'mcVersion'   : "${mc_version}",
                         'version'     : "${mod_version}",
-                        'classifier'  : 'universal',
+                        'classifier'  : null,
                         'modLoader'   : ['neoforge', 'forge'],
                         'curseforgeId': '242818',
                         'modrinthId'  : '2gq0ALnz'
@@ -128,9 +116,8 @@ def publishingMetadataTask = tasks.register("publishingMetadata") {
 
 jar.enabled = false
 shadowJar {
-    finalizedBy 'reobfShadowJar'
     finalizedBy 'signShadowJar'
-    archiveClassifier = 'universal'
+    archiveClassifier = ''
     manifest commonManifest
 
     configurations = [project.configurations.shadow]
@@ -139,7 +126,6 @@ shadowJar {
 
 tasks.register("signShadowJar") {
     dependsOn("shadowJar")
-    dependsOn("reobfShadowJar")
 
     doFirst {
         def args = [:]
@@ -185,7 +171,7 @@ publishing {
     publications {
         CodeChickenLib(MavenPublication) {
             groupId project.group
-            artifactId project.archivesBaseName
+            artifactId project.base.archivesName.get()
             version project.version
             artifact shadowJar
             artifact sourcesJar
@@ -196,17 +182,17 @@ publishing {
             }
 
             pom {
-                name = archivesBaseName
-                description = archivesBaseName
-                url = "https://github.com/TheCBProject/${archivesBaseName}"
+                name = base.archivesName.get()
+                description = base.archivesName.get()
+                url = "https://github.com/TheCBProject/${base.archivesName.get()}"
                 scm {
-                    url = "https://github.com/TheCBProject/${archivesBaseName}"
-                    connection = "scm:git:git@github.com:TheCBProject/${archivesBaseName}.git"
+                    url = "https://github.com/TheCBProject/${base.archivesName.get()}"
+                    connection = "scm:git:git@github.com:TheCBProject/${base.archivesName.get()}.git"
                 }
 
                 issueManagement {
                     system = 'github'
-                    url = "https://github.com/TheCBProject/${archivesBaseName}/issues"
+                    url = "https://github.com/TheCBProject/${base.archivesName.get()}/issues"
                 }
                 licenses {
                     license {

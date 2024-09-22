@@ -7,19 +7,14 @@ import codechicken.lib.gui.modular.lib.geometry.Rectangle;
 import codechicken.lib.render.CCRenderEventHandler;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.player.RemotePlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +32,7 @@ import java.util.function.Supplier;
  * Created by brandon3055 on 15/11/2023
  */
 public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements BackgroundRender {
+
     public static final Logger LOGGER = LogManager.getLogger();
     private static final Map<ResourceLocation, Entity> entityCache = new HashMap<>();
     private static final List<ResourceLocation> invalidEntities = new ArrayList<>();
@@ -62,7 +58,7 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
             return this;
         }
 
-        this.entityName = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType());
+        this.entityName = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
         invalidEntity = invalidEntities.contains(entityName);
         return this;
     }
@@ -70,7 +66,7 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
     public GuiEntityRenderer setEntity(ResourceLocation entity) {
         this.entityName = entity;
         this.entity = entityCache.computeIfAbsent(entity, resourceLocation -> {
-            EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(entity);
+            EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.getOptional(entity).orElse(null);
             return type == null ? null : type.create(mc().level);
         });
 
@@ -185,7 +181,7 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
                         renderEntityInInventoryWithRotation(render, xPos, yPos, scale, force2dSize, rotation, living);
                     }
                 } else {
-                    Quaternionf quaternionf = new Quaternionf().rotateZ((float)Math.PI);
+                    Quaternionf quaternionf = new Quaternionf().rotateZ((float) Math.PI);
                     Quaternionf quaternionf1 = Axis.YP.rotationDegrees(rotation);
                     quaternionf.mul(quaternionf1);
                     renderEntityInInventory(render, xPos, yPos, scale, force2dSize, quaternionf, quaternionf1, entity);
@@ -204,8 +200,8 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
     }
 
     public static void renderEntityInInventoryFollowsMouse(GuiRender render, double pX, double pY, double pScale, boolean flat, float offsetX, float offsetY, LivingEntity pEntity) {
-        float xAngle = (float)Math.atan(offsetX / 40.0F);
-        float yAngle = (float)Math.atan(offsetY / 40.0F);
+        float xAngle = (float) Math.atan(offsetX / 40.0F);
+        float yAngle = (float) Math.atan(offsetY / 40.0F);
         renderEntityInInventoryFollowsAngle(render, pX, pY, pScale, flat, xAngle, yAngle, pEntity);
     }
 
@@ -214,8 +210,8 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
     }
 
     public static void renderEntityInInventoryFollowsAngle(GuiRender render, double pX, double pY, double pScale, boolean flat, float angleX, float angleY, LivingEntity pEntity) {
-        Quaternionf quaternionf = (new Quaternionf()).rotateZ((float)Math.PI);
-        Quaternionf quaternionf1 = (new Quaternionf()).rotateX(angleY * 20.0F * ((float)Math.PI / 180F));
+        Quaternionf quaternionf = (new Quaternionf()).rotateZ((float) Math.PI);
+        Quaternionf quaternionf1 = (new Quaternionf()).rotateX(angleY * 20.0F * ((float) Math.PI / 180F));
         quaternionf.mul(quaternionf1);
         float f2 = pEntity.yBodyRot;
         float f3 = pEntity.getYRot();
@@ -240,7 +236,7 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
     }
 
     public static void renderEntityInInventoryWithRotation(GuiRender render, double xPos, double yPos, double scale, boolean flat, double rotation, LivingEntity living) {
-        Quaternionf quaternionf = new Quaternionf().rotateZ((float)Math.PI);
+        Quaternionf quaternionf = new Quaternionf().rotateZ((float) Math.PI);
         Quaternionf quaternionf1 = Axis.YP.rotationDegrees((float) rotation);
         quaternionf.mul(quaternionf1);
         float f2 = living.yBodyRot;
@@ -268,7 +264,7 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
     public static void renderEntityInInventory(GuiRender render, double pX, double pY, double pScale, boolean flat, Quaternionf quat, @Nullable Quaternionf pCameraOrientation, Entity pEntity) {
         render.pose().pushPose();
         render.pose().translate(pX, pY, 50.0D);
-        render.pose().mulPoseMatrix((new Matrix4f()).scaling((float)pScale, (float)pScale, flat ? -1 : (float)(-pScale)));
+        render.pose().mulPoseMatrix((new Matrix4f()).scaling((float) pScale, (float) pScale, flat ? -1 : (float) (-pScale)));
         render.pose().mulPose(quat);
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();

@@ -34,15 +34,16 @@ public class OBJWriter {
             int vStart = verts.size();
             int uStart = uvs.size();
             int nStart = normals.size();
-            boolean hasNormals = m.normals() != null;
             polys.clear();
 
+            Vector3[] mNormals = m.normals();
+            boolean hasNormals = mNormals != null;
             for (int i = 0; i < m.verts.length; i++) {
                 int[] ia = new int[hasNormals ? 3 : 2];
                 ia[0] = addIndex(verts, m.verts[i].vec);
                 ia[1] = addIndex(uvs, m.verts[i].uv);
                 if (hasNormals) {
-                    ia[2] = addIndex(normals, m.normals()[i]);
+                    ia[2] = addIndex(normals, mNormals[i]);
                 }
                 polys.add(ia);
             }

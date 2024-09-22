@@ -1,30 +1,26 @@
 package codechicken.lib.capability;
 
-import codechicken.lib.math.MathHelper;
-import com.google.common.collect.Iterables;
-import net.covers1624.quack.collection.Object2IntPair;
+import net.covers1624.quack.util.SneakyUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.common.util.NonNullSupplier;
+import net.minecraft.server.level.ServerLevel;
+import net.neoforged.neoforge.capabilities.BlockCapability;
+import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
+import net.neoforged.neoforge.capabilities.ICapabilityInvalidationListener;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * A simple cache for capabilities as viewed from a specific world position.
  * <p>
- * Several things need to be implemented depending on your usage, if you wish to have a time-out
- * based cache, meaning if a capability for a block is 'empty', it will wait {@link #setWaitTicks}
- * number of ticks to check again, if you are using this class in that mode, you must call
- * {@link #tick()} each game tick otherwise nothing will ever re-cache. <br/>
- * You can also call {@link #onNeighborChanged}, doing so will force a re-cache of all empty capabilities
- * from the block that notified us of a change, on the next query.<br/>
- * For Support of API's that notify you when your host was moved, you should probably call {@link #setWorldPos}
- * to clear the entire cache and notify of world and/or position change.
+ * Provides a cleaner api to the Neo provided {@link BlockCapabilityCache}. The Neo cache requires you know, up-front,
+ * what capabilities you wish to receive, this is not always the case and not always easily computable.
+ * <p>
+ * For Support of API's that notify you when your host was moved, you should call {@link #setLevelPos}
+ * to ensure the capability cache
  * <p>
  * It is also possible to create {@link CapabilityCache} without a world and position. Doing so, will
  * cause all getters to return 'empty' until one is assigned.
@@ -33,100 +29,46 @@ import java.util.*;
  */
 public class CapabilityCache {
 
-    private final Map<Capability<?>, Object2IntPair<LazyOptional<?>>> selfCache = new HashMap<>();
-    private final EnumMap<Direction, Map<Capability<?>, Object2IntPair<LazyOptional<?>>>> sideCache = new EnumMap<>(Direction.class);
+    private final SideCache[] cache;
 
-    private Level world;
-    private BlockPos pos;
-
-    private int ticks;
-    private int waitTicks = 5 * 20;
+    private @Nullable ServerLevel level;
+    private @Nullable BlockPos pos;
+    private int moveCookie;
 
     public CapabilityCache() {
+        cache = new SideCache[7];
+        for (int i = 0; i < cache.length; i++) {
+            cache[i] = new SideCache();
+        }
     }
 
-    public CapabilityCache(Level world, BlockPos pos) {
-        this.world = world;
-        this.pos = pos;
-    }
-
-    /**
-     * Sets the number of ticks to wait between re-caching an 'empty' capability.<br/>
-     * The default is to wait 5 seconds.
-     *
-     * @param ticks The number of game ticks to wait.
-     */
-    public void setWaitTicks(int ticks) {
-        this.waitTicks = ticks;
-    }
-
-    /**
-     * Call this to notify of a new game tick.
-     */
-    public void tick() {
-        ticks++;
+    public CapabilityCache(ServerLevel level, BlockPos pos) {
+        this();
+        setLevelPos(level, pos);
     }
 
     /**
      * Call this when {@link CapabilityCache}'s host has been moved.<br/>
      * Clears all internal state and sets a new world / pos.
      *
-     * @param world The new world.
+     * @param level The new world.
      * @param pos   The new pos.
      */
-    public void setWorldPos(Level world, BlockPos pos) {
+    public void setLevelPos(ServerLevel level, BlockPos pos) {
         clear();
-        this.world = world;
+        this.level = level;
         this.pos = pos;
+        this.moveCookie++;
     }
 
     /**
      * Clears all internal state. Everything will be re-cached.
      */
     public void clear() {
-        selfCache.clear();
-        Arrays.stream(Direction.BY_3D_DATA).map(this::getCacheForSide).forEach(Map::clear);
-    }
-
-    /**
-     * Notifies {@link CapabilityCache} of a {@link Block#onNeighborChange} event.<br/>
-     * Marks all empty capabilities provided by <code>from</code> block, to be re-cached
-     * next query.
-     *
-     * @param from The from position.
-     */
-    public void onNeighborChanged(BlockPos from) {
-        if (world == null || pos == null) {
-            return;
+        for (SideCache sideCache : cache) {
+            sideCache.cache.clear();
+            sideCache.listener = null;
         }
-        BlockPos offset = from.subtract(pos);
-        int diff = MathHelper.absSum(offset);
-        int side = MathHelper.toSide(offset);
-        if (side < 0 || diff != 1) {
-            return;
-        }
-        Direction sideChanged = Direction.BY_3D_DATA[side];
-
-        Iterables.concat(selfCache.entrySet(), getCacheForSide(sideChanged).entrySet()).forEach(entry -> {
-            Object2IntPair<LazyOptional<?>> pair = entry.getValue();
-            if (pair.getKey() != null && !pair.getKey().isPresent()) {
-                pair.setKey(null);
-                pair.setValue(ticks);
-            }
-        });
-    }
-
-    /**
-     * Overload of {@link #getCapability} with support for evaluating a {@link NonNullSupplier}
-     * when empty.
-     *
-     * @param capability The capability to get.
-     * @param to         The direction to ask.
-     * @param default_   The supplier to evaluate when empty.
-     * @return The instance, either the capability at <code>to</code> or what <code>default_</code> supplies.
-     */
-    public <T> T getCapabilityOr(Capability<T> capability, Direction to, NonNullSupplier<T> default_) {
-        return getCapability(capability, to).orElseGet(default_);
     }
 
     /**
@@ -137,8 +79,11 @@ public class CapabilityCache {
      * @param default_   The object to return when empty.
      * @return The instance, either the capability at <code>to</code> or <code>default_</code>
      */
-    public <T> T getCapabilityOr(Capability<T> capability, Direction to, T default_) {
-        return getCapability(capability, to).orElse(default_);
+    public <T> T getCapabilityOr(BlockCapability<T, Direction> capability, Direction to, T default_) {
+        T ret = getCapability(capability, to);
+        if (ret == null) return default_;
+
+        return ret;
     }
 
     /**
@@ -148,66 +93,72 @@ public class CapabilityCache {
      *
      * @param capability The capability to get.
      * @param to         The direction to ask.
-     * @return A {@link LazyOptional} of the capability, may be empty.
+     * @return The capability instance or {@code null}.
      */
-    public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction to) {
+    public <T> @Nullable T getCapability(BlockCapability<T, @Nullable Direction> capability, Direction to) {
+        return getCapability(capability, to, to.getOpposite());
+    }
+
+    /**
+     * Gets a capability from the block in <code>to</code> direction from {@link CapabilityCache}'s
+     * position.
+     *
+     * @param capability The capability to get.
+     * @param to         The direction to ask.
+     * @param ctx        The context, usually the face.
+     * @return The capability instance or {@code null}.
+     */
+    public <T, C> @Nullable T getCapability(BlockCapability<T, C> capability, Direction to, C ctx) {
         Objects.requireNonNull(capability, "Null capability.");
-        if (world == null || pos == null) {
-            return LazyOptional.empty().cast();
+        if (level == null || pos == null) return null;
+
+        SideCache sideCache = cache[idxForDir(to)];
+        CacheKey key = new CacheKey(capability, ctx);
+        CacheValue<T> val = SneakyUtils.unsafeCast(sideCache.cache.get(key));
+        if (val != null) return val.obj;
+
+        BlockPos there = pos.relative(to);
+        T obj;
+        if (level.isLoaded(there)) {
+            obj = level.getCapability(capability, there, ctx);
+            sideCache.addListener(there);
+        } else {
+            obj = null;
         }
-        Map<Capability<?>, Object2IntPair<LazyOptional<?>>> sideCache = getCacheForSide(to);
-        Object2IntPair<LazyOptional<?>> cache = sideCache.get(capability);
-        if (cache == null) {
-            cache = new Object2IntPair<>(null, ticks);
-            sideCache.put(capability, cache);
-            return tryReCache(capability, to, cache).cast();
-        }
-        LazyOptional<?> lookup = cache.getKey();
-        if (lookup == null || !lookup.isPresent()) {
-            return tryReCache(capability, to, cache).cast();
-        }
-        return lookup.cast();
+        sideCache.cache.put(key, new CacheValue<>(obj));
+        return obj;
     }
 
-    //TODO this logic should be unified and merged with above, There is a potential case where we could leak the Object2IntPair
-    //TODO  instance if a mod does weird things with their invalidations of LazyOptionals
-    private LazyOptional<?> tryReCache(Capability<?> capability, Direction to, Object2IntPair<LazyOptional<?>> cache) {
-        boolean isFirst = cache.getKey() == null;
-        if (isFirst || !cache.getKey().isPresent()) {
-            if (isFirst || cache.getValue() + waitTicks <= ticks) {
-                LazyOptional<?> lookup = requestCapability(capability, to);
-                if (lookup.isPresent()) {
-                    cache.setKey(lookup);
-                    cache.setValue(ticks);
-                    lookup.addListener(l -> {//TODO, probably not needed? we check every lookup anyway..
-                        //When the LazyOptional notifies us that its gone,
-                        //set the cache to empty, and mark ticks.
-                        cache.setKey(LazyOptional.empty());
-                        cache.setValue(ticks);
-                    });
-                } else {
-                    cache.setKey(LazyOptional.empty());
-                    cache.setValue(ticks);
+    private static int idxForDir(@Nullable Direction dir) {
+        return dir == null ? 6 : dir.ordinal();
+    }
+
+    private final class SideCache {
+
+        private final Map<CacheKey, CacheValue<?>> cache = new HashMap<>();
+        private @Nullable ICapabilityInvalidationListener listener;
+
+        public void addListener(BlockPos pos) {
+            if (listener != null) return;
+            if (level == null) throw new RuntimeException("Level is null?? What?");
+
+            listener = new ICapabilityInvalidationListener() {
+                private final int cookie = moveCookie;
+
+                @Override
+                public boolean onInvalidate() {
+                    if (cookie != moveCookie) return false;
+
+                    cache.clear();
+                    return true;
                 }
-            }
+            };
+            level.registerCapabilityListener(pos, listener);
         }
-        return cache.getKey();
     }
 
-    private LazyOptional<?> requestCapability(Capability<?> capability, Direction to) {
-        BlockEntity tile = world.getBlockEntity(pos.relative(to));
-        Direction inverse = to == null ? null : to.getOpposite();
-        if (tile != null) {
-            return tile.getCapability(capability, inverse);
-        }
-        return LazyOptional.empty();
-    }
+    private record CacheKey(BlockCapability<?, ?> capability, @Nullable Object context) { }
 
-    private Map<Capability<?>, Object2IntPair<LazyOptional<?>>> getCacheForSide(Direction side) {
-        if (side == null) {
-            return selfCache;
-        }
-        return sideCache.computeIfAbsent(side, s -> new HashMap<>());
-    }
+    private record CacheValue<T>(@Nullable T obj) { }
 
 }

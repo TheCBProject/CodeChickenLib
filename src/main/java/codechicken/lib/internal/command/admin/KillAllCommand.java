@@ -8,6 +8,7 @@ import net.covers1624.quack.collection.FastStream;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerChunkCache;
@@ -15,9 +16,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -77,10 +77,11 @@ public class KillAllCommand {
         ServerChunkCache provider = world.getChunkSource();
         Object2IntMap<EntityType<?>> counts = new Object2IntOpenHashMap<>();
         counts.defaultReturnValue(0);
-        FastStream<Entity> entities = FastStream.of(world.getEntities().getAll())
+        List<Entity> entities = FastStream.of(world.getEntities().getAll())
                 .filter(Objects::nonNull)
                 .filter(predicate)
-                .filter(e -> provider.hasChunk(floor(e.getX()) >> 4, floor(e.getZ()) >> 4));
+                .filter(e -> provider.hasChunk(floor(e.getX()) >> 4, floor(e.getZ()) >> 4))
+                .toList();
 
         for (Entity e : entities) {
             killFunc.accept(e);
@@ -94,11 +95,11 @@ public class KillAllCommand {
         int total = 0;
         for (EntityType<?> t : order) {
             int count = counts.getInt(t);
-            String name = ForgeRegistries.ENTITY_TYPES.getKey(t).toString();
+            String name = BuiltInRegistries.ENTITY_TYPE.getKey(t).toString();
             ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.killall.success.line", RED + name + RESET + " x " + AQUA + count), false);
             total += count;
         }
-        if (order.size() == 0) {
+        if (order.isEmpty()) {
             ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.killall.fail"), false);
         } else if (order.size() > 1) {
             int finalTotal = total;

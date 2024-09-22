@@ -1,16 +1,12 @@
 package codechicken.lib.packet;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.network.protocol.login.ClientLoginPacketListener;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.server.network.ConfigurationTask;
+import net.neoforged.neoforge.network.event.OnGameConfigurationEvent;
+import org.jetbrains.annotations.ApiStatus;
 
-import java.util.function.BiConsumer;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
 
 /**
  * Created by covers1624 on 2/03/2017.
@@ -22,12 +18,10 @@ public interface ICustomPacketHandler {
         /**
          * Called on the client to handle a packet sent from the server.
          *
-         * @param packet  The packet.
-         * @param mc      The Minecraft instance.
-         * @param handler The ClientPlayNetHandler.
+         * @param packet The packet.
+         * @param mc     The Minecraft instance.
          */
-        @OnlyIn (Dist.CLIENT)
-        void handlePacket(PacketCustom packet, Minecraft mc, ClientPacketListener handler);
+        void handlePacket(PacketCustom packet, Minecraft mc);
     }
 
     interface IServerPacketHandler extends ICustomPacketHandler {
@@ -35,42 +29,31 @@ public interface ICustomPacketHandler {
         /**
          * Called on the server to handle a packet sent from a client.
          *
-         * @param packet  The Packet.
-         * @param sender  The player who sent the packet.
-         * @param handler The ServerPlayNetHandler
+         * @param packet The Packet.
+         * @param sender The player who sent the packet.
          */
-        void handlePacket(PacketCustom packet, ServerPlayer sender, ServerGamePacketListenerImpl handler);
+        void handlePacket(PacketCustom packet, ServerPlayer sender);
     }
 
-    interface ILoginPacketHandler extends ICustomPacketHandler {
+    /**
+     * Used with {@link OnGameConfigurationEvent} to send packets to the client during the configuration phase.
+     */
+    interface IClientConfigurationPacketHandler extends ICustomPacketHandler {
 
         /**
-         * Called on the server to gather all login packets to be sent to the client.
-         * Unlike usual PacketCustom operation, Login packets are handled differently in FML,
-         * and require an acknowledgement response to be sent. Login packets must be sent using,
-         * this.
+         * Called on the client to handle a configuration phase packet.
          *
-         * @param consumer The consumer to accept any packets to be sent,
-         *                 The first generic parameter being a descriptive name for the packet used
-         *                 in FML logging, the second generic being a supplier used to generate the
-         *                 packet. Supplier is used for cleaner scope variable name hiding.
+         * @param packet The packet.
+         * @param mc     The Minecraft instance.
          */
-        void gatherLoginPackets(BiConsumer<String, Supplier<PacketCustom>> consumer);
+        void handlePacket(PacketCustom packet, Minecraft mc);
+    }
 
-        /**
-         * Called on the client to handle a login packet provided through {@link #gatherLoginPackets}.
-         * This method unlike the other handlers, does not sync to the main thread for processing, instead
-         * it is fired on the network thread, this is to allow mods to choose if the packet is important
-         * in the handshake cycle and must be handled before anything else can continue. If the data isn't
-         * critical to the handshake process, feel free to use {@link NetworkEvent.Context#enqueueWork(Runnable)}
-         * to throw things on the main thread.
-         *
-         * @param packet  The packet to handle.
-         * @param mc      The Minecraft instance.
-         * @param handler Vanilla's NetHandler.
-         * @param context The network context.
-         */
-        @OnlyIn (Dist.CLIENT)
-        void handleLoginPacket(PacketCustom packet, Minecraft mc, ClientLoginPacketListener handler, NetworkEvent.Context context);
+    // TODO this is tricky, as we don't have any context to identify the sending client and have a meaningful back/forth.
+    //  Its likely not incredibly useful for our uses cases here.
+    @ApiStatus.Experimental
+    interface IServerConfigurationPacketHandler extends ICustomPacketHandler {
+
+        void handlePacket(PacketCustom packet, ServerPlayer sender, Consumer<ConfigurationTask.Type> onTaskCompleted);
     }
 }

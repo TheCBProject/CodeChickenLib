@@ -14,7 +14,7 @@ import static codechicken.lib.internal.network.CCLNetwork.S_GUI_SYNC;
 public class ServerPacketHandler implements IServerPacketHandler {
 
     @Override
-    public void handlePacket(PacketCustom packet, ServerPlayer sender, ServerGamePacketListenerImpl handler) {
+    public void handlePacket(PacketCustom packet, ServerPlayer sender) {
         switch (packet.getType()) {
             case S_GUI_SYNC -> ModularGuiContainerMenu.handlePacketFromClient(sender, packet);
         }

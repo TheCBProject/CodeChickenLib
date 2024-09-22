@@ -29,6 +29,9 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A simple easy to manipulate quad format. Can be reset and then used on a different format.
@@ -37,12 +40,12 @@ import net.minecraft.world.phys.AABB;
  */
 public class Quad implements IVertexProducer, IVertexConsumer {
 
-    public CachedFormat format;
+    private @Nullable CachedFormat format;
 
     public int tintIndex = -1;
-    public Direction orientation;
+    public @Nullable Direction orientation;
     public boolean diffuseLighting = true;
-    public TextureAtlasSprite sprite;
+    public @Nullable TextureAtlasSprite sprite;
 
     public Vertex[] vertices = new Vertex[4];
     public boolean full;
@@ -71,9 +74,13 @@ public class Quad implements IVertexProducer, IVertexConsumer {
         this.format = format;
     }
 
+    public final CachedFormat format() {
+        return requireNonNull(format, "Quad does not have a format assigned yet.");
+    }
+
     @Override
     public VertexFormat getVertexFormat() {
-        return format.format;
+        return format().format;
     }
 
     @Override
@@ -103,11 +110,11 @@ public class Quad implements IVertexProducer, IVertexConsumer {
         }
         Vertex v = vertices[vertexIndex];
         if (v == null) {
-            v = new Vertex(format);
+            v = new Vertex(format());
             vertices[vertexIndex] = v;
         }
         System.arraycopy(data, 0, v.raw[element], 0, data.length);
-        if (element == (format.elementCount - 1)) {
+        if (element == (format().elementCount - 1)) {
             vertexIndex++;
             if (vertexIndex == 4) {
                 vertexIndex = 0;
@@ -127,7 +134,7 @@ public class Quad implements IVertexProducer, IVertexConsumer {
     @Override
     public void pipe(IVertexConsumer consumer) {
         if (consumer instanceof IVertexConsumer) {
-            ((IVertexConsumer) consumer).put(this);
+            consumer.put(this);
         } else {
             consumer.setQuadTint(tintIndex);
             consumer.setQuadOrientation(orientation);
@@ -174,7 +181,7 @@ public class Quad implements IVertexProducer, IVertexConsumer {
      */
     public void clamp(Cuboid6 cuboid) {
         for (Vertex vertex : vertices) {
-            float[] vec = vertex.vec;
+            float[] vec = vertex.vec();
             vec[0] = (float) MathHelper.clip(vec[0], cuboid.min.x, cuboid.max.x);
             vec[1] = (float) MathHelper.clip(vec[1], cuboid.min.y, cuboid.max.y);
             vec[2] = (float) MathHelper.clip(vec[2], cuboid.min.z, cuboid.max.z);
@@ -189,17 +196,17 @@ public class Quad implements IVertexProducer, IVertexConsumer {
      * @param setNormal If the normal vector should be updated.
      */
     public void calculateOrientation(boolean setNormal) {
-        v1.set(vertices[3].vec).subtract(t.set(vertices[1].vec));
-        v2.set(vertices[2].vec).subtract(t.set(vertices[0].vec));
+        v1.set(vertices[3].vec()).subtract(t.set(vertices[1].vec()));
+        v2.set(vertices[2].vec()).subtract(t.set(vertices[0].vec()));
 
         Vector3 normal = v2.crossProduct(v1).normalize();
 
-        if (format.hasNormal && setNormal) {
+        if (format().hasNormal && setNormal) {
             for (Vertex vertex : vertices) {
-                vertex.normal[0] = (float) normal.x;
-                vertex.normal[1] = (float) normal.y;
-                vertex.normal[2] = (float) normal.z;
-                vertex.normal[3] = 0;
+                vertex.normal()[0] = (float) normal.x;
+                vertex.normal()[1] = (float) normal.y;
+                vertex.normal()[2] = (float) normal.z;
+                vertex.normal()[3] = 0;
             }
         }
         orientation = Direction.getNearest(normal.x, normal.y, normal.z);
@@ -214,7 +221,7 @@ public class Quad implements IVertexProducer, IVertexConsumer {
         if (!full) {
             throw new RuntimeException("Only copying full quads is supported.");
         }
-        Quad quad = new Quad(format);
+        Quad quad = new Quad(format());
         quad.tintIndex = tintIndex;
         quad.orientation = orientation;
         quad.diffuseLighting = diffuseLighting;
@@ -240,7 +247,7 @@ public class Quad implements IVertexProducer, IVertexConsumer {
         sprite = quad.sprite;
         full = quad.full;
         for (int v = 0; v < 4; v++) {
-            for (int e = 0; e < format.elementCount; e++) {
+            for (int e = 0; e < format().elementCount; e++) {
                 System.arraycopy(quad.vertices[v].raw[e], 0, vertices[v].raw[e], 0, 4);
             }
         }
@@ -283,10 +290,10 @@ public class Quad implements IVertexProducer, IVertexConsumer {
      * @return The BakedQuad.
      */
     public BakedQuad bake() {
-        int[] packedData = new int[format.format.getVertexSize()];
+        int[] packedData = new int[format().format.getVertexSize()];
         for (int v = 0; v < 4; v++) {
-            for (int e = 0; e < format.elementCount; e++) {
-                VertexUtils.pack(vertices[v].raw[e], packedData, format.format, v, e);
+            for (int e = 0; e < format().elementCount; e++) {
+                VertexUtils.pack(vertices[v].raw[e], packedData, format().format, v, e);
             }
         }
 
@@ -295,9 +302,11 @@ public class Quad implements IVertexProducer, IVertexConsumer {
 
     // Broken out as a stub for mixins to target easier.
     private BakedQuad makeQuad(int[] packedData) {
-        if (format.format != DefaultVertexFormat.BLOCK) {
-            throw new IllegalStateException("Unable to bake this quad to the specified format. " + format.format);
+        if (format().format != DefaultVertexFormat.BLOCK) {
+            throw new IllegalStateException("Unable to bake this quad to the specified format. " + format().format);
         }
+        requireNonNull(orientation, "Quad requires an orientation.");
+        requireNonNull(sprite, "Quad requires a sprite.");
         return new BakedQuad(packedData, tintIndex, orientation, sprite, diffuseLighting);
     }
 
@@ -314,12 +323,12 @@ public class Quad implements IVertexProducer, IVertexConsumer {
         public float[][] raw;
 
         // References to the arrays inside raw.
-        public float[] vec;
-        public float[] normal;
-        public float[] color;
-        public float[] uv;
-        public float[] overlay;
-        public float[] lightmap;
+        private float @Nullable [] vec;
+        private float @Nullable [] normal;
+        private float @Nullable [] color;
+        private float @Nullable [] uv;
+        private float @Nullable [] overlay;
+        private float @Nullable [] lightmap;
 
         /**
          * Create a new Vertex.
@@ -371,6 +380,15 @@ public class Quad implements IVertexProducer, IVertexConsumer {
             }
         }
 
+        // @formatter:off
+        public final float[] vec() { return requireNonNull(vec, "Vertex does not have the position element.");}
+        public final float[] normal() { return requireNonNull(normal, "Vertex does not have the normal element.");}
+        public final float[] color() { return requireNonNull(color, "Vertex does not have the colour element.");}
+        public final float[] uv() { return requireNonNull(uv, "Vertex does not have the uv element.");}
+        public final float[] overlay() { return requireNonNull(overlay, "Vertex does not have the overlay element.");}
+        public final float[] lightmap() { return requireNonNull(lightmap, "Vertex does not have the lightmap element.");}
+        // @formatter:on
+
         /**
          * Gets the 2d X coord for the given axis.
          *
@@ -379,9 +397,9 @@ public class Quad implements IVertexProducer, IVertexConsumer {
          */
         public float dx(int s) {
             if (s <= 1) {
-                return vec[0];
+                return vec()[0];
             } else {
-                return vec[2];
+                return vec()[2];
             }
         }
 
@@ -393,9 +411,9 @@ public class Quad implements IVertexProducer, IVertexConsumer {
          */
         public float dy(int s) {
             if (s > 0) {
-                return vec[1];
+                return vec()[1];
             } else {
-                return vec[2];
+                return vec()[2];
             }
         }
 
@@ -408,13 +426,13 @@ public class Quad implements IVertexProducer, IVertexConsumer {
          */
         public Vertex interpColorFrom(InterpHelper interpHelper, Vertex[] others) {
             for (int e = 0; e < 4; e++) {
-                float p1 = others[0].color[e];
-                float p2 = others[1].color[e];
-                float p3 = others[2].color[e];
-                float p4 = others[3].color[e];
+                float p1 = others[0].color()[e];
+                float p2 = others[1].color()[e];
+                float p3 = others[2].color()[e];
+                float p4 = others[3].color()[e];
                 // Only interpolate if colors are different.
                 if (p1 != p2 || p2 != p3 || p3 != p4) {
-                    color[e] = interpHelper.interpolate(p1, p2, p3, p4);
+                    color()[e] = interpHelper.interpolate(p1, p2, p3, p4);
                 }
             }
             return this;
@@ -429,12 +447,12 @@ public class Quad implements IVertexProducer, IVertexConsumer {
          */
         public Vertex interpUVFrom(InterpHelper interpHelper, Vertex[] others) {
             for (int e = 0; e < 2; e++) {
-                float p1 = others[0].uv[e];
-                float p2 = others[1].uv[e];
-                float p3 = others[2].uv[e];
-                float p4 = others[3].uv[e];
+                float p1 = others[0].uv()[e];
+                float p2 = others[1].uv()[e];
+                float p3 = others[2].uv()[e];
+                float p4 = others[3].uv()[e];
                 if (p1 != p2 || p2 != p3 || p3 != p4) {
-                    uv[e] = interpHelper.interpolate(p1, p2, p3, p4);
+                    uv()[e] = interpHelper.interpolate(p1, p2, p3, p4);
                 }
             }
             return this;
@@ -449,12 +467,12 @@ public class Quad implements IVertexProducer, IVertexConsumer {
          */
         public Vertex interpLightMapFrom(InterpHelper interpHelper, Vertex[] others) {
             for (int e = 0; e < 2; e++) {
-                float p1 = others[0].lightmap[e];
-                float p2 = others[1].lightmap[e];
-                float p3 = others[2].lightmap[e];
-                float p4 = others[3].lightmap[e];
+                float p1 = others[0].lightmap()[e];
+                float p2 = others[1].lightmap()[e];
+                float p3 = others[2].lightmap()[e];
+                float p4 = others[3].lightmap()[e];
                 if (p1 != p2 || p2 != p3 || p3 != p4) {
-                    lightmap[e] = interpHelper.interpolate(p1, p2, p3, p4);
+                    lightmap()[e] = interpHelper.interpolate(p1, p2, p3, p4);
                 }
             }
             return this;

@@ -10,16 +10,13 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
-
-import javax.annotation.Nonnull;
+import net.neoforged.neoforge.items.IItemHandler;
 
 public class InventoryUtils {
 
     /**
      * Static default implementation for IInventory method
      */
-    @Nonnull
     public static ItemStack decrStackSize(Container inv, int slot, int size) {
         ItemStack item = inv.getItem(slot);
 
@@ -54,7 +51,7 @@ public class InventoryUtils {
     /**
      * @return The quantity of items from addition that can be added to base
      */
-    public static int incrStackSize(@Nonnull ItemStack base, @Nonnull ItemStack addition) {
+    public static int incrStackSize(ItemStack base, ItemStack addition) {
         if (canStack(base, addition)) {
             return incrStackSize(base, addition.getCount());
         }
@@ -65,7 +62,7 @@ public class InventoryUtils {
     /**
      * @return The quantity of items from addition that can be added to base
      */
-    public static int incrStackSize(@Nonnull ItemStack base, int addition) {
+    public static int incrStackSize(ItemStack base, int addition) {
         int totalSize = base.getCount() + addition;
 
         if (totalSize <= base.getMaxStackSize()) {
@@ -123,7 +120,7 @@ public class InventoryUtils {
     /**
      * Gets the maximum quantity of an item that can be inserted into inv
      */
-    public static int getInsertibleQuantity(InventoryRange inv, @Nonnull ItemStack stack) {
+    public static int getInsertibleQuantity(InventoryRange inv, ItemStack stack) {
         int quantity = 0;
         stack = ItemUtils.copyStack(stack, Integer.MAX_VALUE);
         for (int slot : inv.slots) {
@@ -133,7 +130,7 @@ public class InventoryUtils {
         return quantity;
     }
 
-    public static int getInsertibleQuantity(Container inv, @Nonnull ItemStack stack) {
+    public static int getInsertibleQuantity(Container inv, ItemStack stack) {
         return getInsertibleQuantity(new InventoryRange(inv), stack);
     }
 
@@ -147,7 +144,7 @@ public class InventoryUtils {
         return Math.min(fit, stack.getCount());
     }
 
-    public static int fitStackInSlot(Container inv, int slot, @Nonnull ItemStack stack) {
+    public static int fitStackInSlot(Container inv, int slot, ItemStack stack) {
         return fitStackInSlot(new InventoryRange(inv), slot, stack);
     }
 
@@ -155,7 +152,7 @@ public class InventoryUtils {
      * @param simulate If set to true, no items will actually be inserted
      * @return The number of items unable to be inserted
      */
-    public static int insertItem(InventoryRange inv, @Nonnull ItemStack stack, boolean simulate) {
+    public static int insertItem(InventoryRange inv, ItemStack stack, boolean simulate) {
         stack = stack.copy();
         for (int pass = 0; pass < 2; pass++) {
             for (int slot : inv.slots) {
@@ -188,7 +185,7 @@ public class InventoryUtils {
         return stack.getCount();
     }
 
-    public static int insertItem(Container inv, @Nonnull ItemStack stack, boolean simulate) {
+    public static int insertItem(Container inv, ItemStack stack, boolean simulate) {
         return insertItem(new InventoryRange(inv), stack, simulate);
     }
 
@@ -208,7 +205,7 @@ public class InventoryUtils {
         return getExtractableStack(new InventoryRange(inv), slot);
     }
 
-    public static boolean areStacksIdentical(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
+    public static boolean areStacksIdentical(ItemStack stack1, ItemStack stack2) {
         if (stack1.isEmpty() || stack2.isEmpty()) {
             return stack1 == stack2;
         }
@@ -216,7 +213,7 @@ public class InventoryUtils {
         return stack1.getItem() == stack2.getItem() && stack1.getDamageValue() == stack2.getDamageValue() && stack1.getCount() == stack2.getCount() && Objects.equal(stack1.getTag(), stack2.getTag());
     }
 
-    public static boolean canStack(@Nonnull ItemStack stack1, @Nonnull ItemStack stack2) {
+    public static boolean canStack(ItemStack stack1, ItemStack stack2) {
         return stack1.isEmpty() || stack2.isEmpty() || (stack1.getItem() == stack2.getItem() && (stack2.getDamageValue() == stack1.getDamageValue()) && ItemStack.isSameItemSameTags(stack2, stack1)) && stack1.isStackable();
     }
 

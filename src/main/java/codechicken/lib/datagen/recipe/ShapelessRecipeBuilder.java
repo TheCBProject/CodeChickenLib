@@ -1,20 +1,16 @@
 package codechicken.lib.datagen.recipe;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -24,10 +20,14 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
 
     private static final Logger logger = LogManager.getLogger();
 
-    private final List<Ingredient> ingredients = new ArrayList<>();
+    private final Factory factory;
+    private final NonNullList<Ingredient> ingredients = NonNullList.create();
 
-    protected ShapelessRecipeBuilder(RecipeSerializer<?> serializer, ResourceLocation id, ItemStack result) {
-        super(serializer, id, result);
+    private CraftingBookCategory category = CraftingBookCategory.MISC;
+
+    protected ShapelessRecipeBuilder(ResourceLocation id, ItemStack result, Factory factory) {
+        super(id, result);
+        this.factory = factory;
     }
 
     public static ShapelessRecipeBuilder builder(ItemLike result) {
@@ -55,32 +55,32 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
     }
 
     public static ShapelessRecipeBuilder builder(ItemStack result) {
-        return builder(result, ForgeRegistries.ITEMS.getKey(result.getItem()));
+        return builder(result, BuiltInRegistries.ITEM.getKey(result.getItem()));
     }
 
     public static ShapelessRecipeBuilder builder(ItemStack result, ResourceLocation id) {
-        return new ShapelessRecipeBuilder(RecipeSerializer.SHAPELESS_RECIPE, id, result);
+        return new ShapelessRecipeBuilder(id, result, ShapelessRecipe::new);
     }
 
     // region Custom
-    public static ShapelessRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result) {
-        return custom(serializer, result, 1);
+    public static ShapelessRecipeBuilder custom(ItemLike result, Factory factory) {
+        return custom(result, 1, factory);
     }
 
-    public static ShapelessRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result, int count) {
-        return custom(serializer, new ItemStack(result, count));
+    public static ShapelessRecipeBuilder custom(ItemLike result, int count, Factory factory) {
+        return custom(new ItemStack(result, count), factory);
     }
 
-    public static ShapelessRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) {
-        return custom(serializer, new ItemStack(result, count), id);
+    public static ShapelessRecipeBuilder custom(ItemLike result, int count, ResourceLocation id, Factory factory) {
+        return custom(new ItemStack(result, count), id, factory);
     }
 
-    public static ShapelessRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result) {
-        return custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()));
+    public static ShapelessRecipeBuilder custom(ItemStack result, Factory factory) {
+        return custom(result, BuiltInRegistries.ITEM.getKey(result.getItem()), factory);
     }
 
-    public static ShapelessRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) {
-        return new ShapelessRecipeBuilder(serializer, id, result);
+    public static ShapelessRecipeBuilder custom(ItemStack result, ResourceLocation id, Factory factory) {
+        return new ShapelessRecipeBuilder(id, result, factory);
     }
     // endregion
 
@@ -138,22 +138,23 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
         return this;
     }
 
-    @Override
-    public AbstractItemStackFinishedRecipe _build() {
-        return new FinishedShapelessRecipe();
+    public ShapelessRecipeBuilder category(CraftingBookCategory category) {
+        this.category = category;
+        return this;
     }
 
-    public class FinishedShapelessRecipe extends AbstractItemStackFinishedRecipe {
+    @Override
+    public Recipe<?> _build() {
+        return factory.build(
+                group,
+                category,
+                result,
+                ingredients
+        );
+    }
 
-        @Override
-        public void serializeRecipeData(JsonObject json) {
-            super.serializeRecipeData(json);
+    public interface Factory {
 
-            JsonArray ingredients = new JsonArray();
-            for (Ingredient ingredient : ShapelessRecipeBuilder.this.ingredients) {
-                ingredients.add(ingredient.toJson());
-            }
-            json.add("ingredients", ingredients);
-        }
+        Recipe<?> build(String group, CraftingBookCategory category, ItemStack result, NonNullList<Ingredient> ingredients);
     }
 }

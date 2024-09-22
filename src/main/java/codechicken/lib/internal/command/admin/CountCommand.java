@@ -7,12 +7,12 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.arguments.ResourceArgument;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -65,11 +65,11 @@ public class CountCommand {
         int total = 0;
         for (EntityType<?> type : order) {
             int count = counts.getInt(type);
-            String name = ForgeRegistries.ENTITY_TYPES.getKey(type).toString();
+            String name = BuiltInRegistries.ENTITY_TYPE.getKey(type).toString();
             ctx.getSource().sendSuccess(() -> Component.literal(GREEN + name + RESET + " x " + AQUA + count), false);
             total += count;
         }
-        if (order.size() == 0) {
+        if (order.isEmpty()) {
             ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.count.fail"), false);
         } else if (order.size() > 1) {
             int finalTotal = total;

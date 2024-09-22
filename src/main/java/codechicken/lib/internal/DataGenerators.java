@@ -2,6 +2,7 @@ package codechicken.lib.internal;
 
 import codechicken.lib.datagen.LanguageProvider;
 import codechicken.lib.util.CCLTags;
+import net.covers1624.quack.util.CrashLock;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
@@ -9,11 +10,11 @@ import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.common.data.BlockTagsProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.data.BlockTagsProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,11 +23,16 @@ import static codechicken.lib.CodeChickenLib.MOD_ID;
 /**
  * Created by covers1624 on 13/12/20.
  */
-@Mod.EventBusSubscriber (modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class DataGenerators {
 
-    @SubscribeEvent
-    public static void gatherDataGenerators(GatherDataEvent event) {
+    private static final CrashLock LOCK = new CrashLock("Already Initialized");
+
+    public static void init(IEventBus modBus) {
+        LOCK.lock();
+        modBus.addListener(DataGenerators::gatherDataGenerators);
+    }
+
+    private static void gatherDataGenerators(GatherDataEvent event) {
         DataGenerator gen = event.getGenerator();
         PackOutput output = gen.getPackOutput();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();

@@ -1,19 +1,16 @@
 package codechicken.lib.datagen.recipe;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.chars.CharOpenHashSet;
 import it.unimi.dsi.fastutil.chars.CharSet;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,11 +25,16 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
 
     private static final Logger logger = LogManager.getLogger();
 
+    private final Factory factory;
     private final List<String> patternLines = new ArrayList<>();
     private final Char2ObjectMap<Ingredient> keys = new Char2ObjectOpenHashMap<>();
 
-    protected ShapedRecipeBuilder(RecipeSerializer<?> serializer, ResourceLocation id, ItemStack result) {
-        super(serializer, id, result);
+    private CraftingBookCategory category = CraftingBookCategory.MISC;
+    private boolean showNotification = true;
+
+    protected ShapedRecipeBuilder(ResourceLocation id, ItemStack result, Factory factory) {
+        super(id, result);
+        this.factory = factory;
     }
 
     public static ShapedRecipeBuilder builder(ItemLike result) {
@@ -60,32 +62,32 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
     }
 
     public static ShapedRecipeBuilder builder(ItemStack result) {
-        return builder(result, ForgeRegistries.ITEMS.getKey(result.getItem()));
+        return builder(result, BuiltInRegistries.ITEM.getKey(result.getItem()));
     }
 
     public static ShapedRecipeBuilder builder(ItemStack result, ResourceLocation id) {
-        return new ShapedRecipeBuilder(RecipeSerializer.SHAPED_RECIPE, id, result);
+        return new ShapedRecipeBuilder(id, result, ShapedRecipe::new);
     }
 
     // region Custom
-    public static ShapedRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result) {
-        return custom(serializer, result, 1);
+    public static ShapedRecipeBuilder custom(ItemLike result, Factory factory) {
+        return custom(result, 1, factory);
     }
 
-    public static ShapedRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result, int count) {
-        return custom(serializer, new ItemStack(result, count));
+    public static ShapedRecipeBuilder custom(ItemLike result, int count, Factory factory) {
+        return custom(new ItemStack(result, count), factory);
     }
 
-    public static ShapedRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) {
-        return custom(serializer, new ItemStack(result, count), id);
+    public static ShapedRecipeBuilder custom(ItemLike result, int count, ResourceLocation id, Factory factory) {
+        return custom(new ItemStack(result, count), id, factory);
     }
 
-    public static ShapedRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result) {
-        return custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()));
+    public static ShapedRecipeBuilder custom(ItemStack result, Factory factory) {
+        return custom(result, BuiltInRegistries.ITEM.getKey(result.getItem()), factory);
     }
 
-    public static ShapedRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) {
-        return new ShapedRecipeBuilder(serializer, id, result);
+    public static ShapedRecipeBuilder custom(ItemStack result, ResourceLocation id, Factory factory) {
+        return new ShapedRecipeBuilder(id, result, factory);
     }
     // endregion
 
@@ -130,9 +132,25 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
         return this;
     }
 
+    public ShapedRecipeBuilder category(CraftingBookCategory category) {
+        this.category = category;
+        return this;
+    }
+
+    public ShapedRecipeBuilder showNotifications(boolean showNotification) {
+        this.showNotification = showNotification;
+        return this;
+    }
+
     @Override
-    public AbstractItemStackFinishedRecipe _build() {
-        return new FinishedShapedRecipe();
+    public Recipe<?> _build() {
+        return factory.build(
+                group,
+                category,
+                ShapedRecipePattern.of(keys, patternLines),
+                result,
+                showNotification
+        );
     }
 
     @Override
@@ -163,20 +181,8 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
         }
     }
 
-    public class FinishedShapedRecipe extends AbstractItemStackFinishedRecipe {
+    public interface Factory {
 
-        @Override
-        public void serializeRecipeData(JsonObject json) {
-            super.serializeRecipeData(json);
-            JsonArray pattern = new JsonArray();
-            patternLines.forEach(pattern::add);
-            json.add("pattern", pattern);
-
-            JsonObject key = new JsonObject();
-            for (Char2ObjectMap.Entry<Ingredient> entry : keys.char2ObjectEntrySet()) {
-                key.add(String.valueOf(entry.getCharKey()), entry.getValue().toJson());
-            }
-            json.add("key", key);
-        }
+        Recipe<?> build(String group, CraftingBookCategory category, ShapedRecipePattern pattern, ItemStack result, boolean showNotification);
     }
 }

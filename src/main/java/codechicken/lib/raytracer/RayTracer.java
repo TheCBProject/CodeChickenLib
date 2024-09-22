@@ -1,25 +1,26 @@
 package codechicken.lib.raytracer;
 
 import codechicken.lib.vec.Vector3;
-import net.covers1624.quack.annotation.ReplaceWith;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ForgeMod;
+import net.neoforged.neoforge.common.NeoForgeMod;
+import org.jetbrains.annotations.Nullable;
+
+import static java.util.Objects.requireNonNull;
 
 public class RayTracer {
 
+    @Nullable
     public static BlockHitResult retraceBlock(BlockGetter level, Player player, BlockPos pos) {
         Vec3 startVec = getStartVec(player);
         Vec3 endVec = getEndVec(player);
@@ -35,13 +36,16 @@ public class RayTracer {
         return baseTraceResult;
     }
 
-    private static double getBlockReachDistance_server(ServerPlayer player) {
-        return player.getAttribute(ForgeMod.BLOCK_REACH.get()).getValue();
+    private static double getBlockReachDistance_server(Player player) {
+        return player.getAttributeValue(NeoForgeMod.BLOCK_REACH.value());
     }
 
-    @OnlyIn (Dist.CLIENT)
-    private static double getBlockReachDistance_client() {
-        return Minecraft.getInstance().gameMode.getPickRange();
+    private static double getBlockReachDistance_client(Player player) {
+        AttributeInstance reach = player.getAttribute(NeoForgeMod.BLOCK_REACH.value());
+        if (reach != null) return reach.getValue();
+
+        // We may not have NeoForge on the client.
+        return requireNonNull(Minecraft.getInstance().gameMode).getPickRange();
     }
 
     public static BlockHitResult retrace(Player player) {
@@ -75,9 +79,11 @@ public class RayTracer {
         return getCorrectedHeadVec(player);
     }
 
-    @Deprecated // Use attribute directly? avoid all this nonsense.
     public static double getBlockReachDistance(Player player) {
-        return player.level().isClientSide ? getBlockReachDistance_client() : player instanceof ServerPlayer ? getBlockReachDistance_server((ServerPlayer) player) : 5D;
+        if (player instanceof ServerPlayer) return getBlockReachDistance_server(player);
+        if (player.level().isClientSide) return getBlockReachDistance_client(player);
+        // /shrug? we tried?
+        return 5D;
     }
 
     public static Vec3 getEndVec(Player player) {

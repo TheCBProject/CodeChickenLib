@@ -9,27 +9,6 @@ public class LightModel implements IVertexOperation {
 
     public static final int operationIndex = IVertexOperation.registerOperation();
 
-    public static class Light {
-
-        public Vector3 ambient = new Vector3();
-        public Vector3 diffuse = new Vector3();
-        public Vector3 position;
-
-        public Light(Vector3 pos) {
-            position = pos.copy().normalize();
-        }
-
-        public Light setDiffuse(Vector3 vec) {
-            diffuse.set(vec);
-            return this;
-        }
-
-        public Light setAmbient(Vector3 vec) {
-            ambient.set(vec);
-            return this;
-        }
-    }
-
     public static LightModel standardLightModel;
 
     static {
@@ -43,8 +22,8 @@ public class LightModel implements IVertexOperation {
         //@formatter:on
     }
 
-    private Vector3 ambient = new Vector3();
-    private Light[] lights = new Light[8];
+    private final Vector3 ambient = new Vector3();
+    private final Light[] lights = new Light[8];
     private int lightCount;
 
     public LightModel addLight(Light light) {
@@ -114,5 +93,26 @@ public class LightModel implements IVertexOperation {
             colours[i] = apply(-1, Rotation.axes[i]);
         }
         return new PlanarLightModel(colours);
+    }
+
+    public static class Light {
+
+        public Vector3 ambient = new Vector3();
+        public Vector3 diffuse = new Vector3();
+        public Vector3 position;
+
+        public Light(Vector3 pos) {
+            position = pos.copy().normalize();
+        }
+
+        public Light setDiffuse(Vector3 vec) {
+            diffuse.set(vec);
+            return this;
+        }
+
+        public Light setAmbient(Vector3 vec) {
+            ambient.set(vec);
+            return this;
+        }
     }
 }

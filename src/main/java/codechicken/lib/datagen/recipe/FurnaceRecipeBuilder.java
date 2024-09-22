@@ -1,18 +1,19 @@
 package codechicken.lib.datagen.recipe;
 
-import com.google.gson.JsonObject;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Created by covers1624 on 28/12/20.
@@ -21,12 +22,16 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
 
     private static final Logger logger = LogManager.getLogger();
 
-    private Ingredient ingredient;
+    private final Factory factory;
+
+    private CookingBookCategory category = CookingBookCategory.MISC;
+    private @Nullable Ingredient ingredient;
     private float experience = 0.0F;
     private int cookingTime = 200;
 
-    protected FurnaceRecipeBuilder(RecipeSerializer<?> serializer, ResourceLocation id, ItemStack result) {
-        super(serializer, id, result);
+    protected FurnaceRecipeBuilder(ResourceLocation id, ItemStack result, Factory factory) {
+        super(id, result);
+        this.factory = factory;
     }
 
     //region Smelting
@@ -55,11 +60,11 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
 
     public static FurnaceRecipeBuilder smelting(ItemStack result) {
-        return smelting(result, ForgeRegistries.ITEMS.getKey(result.getItem()));
+        return smelting(result, BuiltInRegistries.ITEM.getKey(result.getItem()));
     }
 
     public static FurnaceRecipeBuilder smelting(ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(RecipeSerializer.SMELTING_RECIPE, id, result)
+        return new FurnaceRecipeBuilder(id, result, SmeltingRecipe::new)
                 .cookingTime(200);
     }
     //endregion
@@ -90,11 +95,11 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
 
     public static FurnaceRecipeBuilder blasting(ItemStack result) {
-        return blasting(result, ForgeRegistries.ITEMS.getKey(result.getItem()));
+        return blasting(result, BuiltInRegistries.ITEM.getKey(result.getItem()));
     }
 
     public static FurnaceRecipeBuilder blasting(ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(RecipeSerializer.BLASTING_RECIPE, id, result)
+        return new FurnaceRecipeBuilder(id, result, BlastingRecipe::new)
                 .cookingTime(100);
     }
     //endregion
@@ -125,11 +130,11 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
 
     public static FurnaceRecipeBuilder smoking(ItemStack result) {
-        return smoking(result, ForgeRegistries.ITEMS.getKey(result.getItem()));
+        return smoking(result, BuiltInRegistries.ITEM.getKey(result.getItem()));
     }
 
     public static FurnaceRecipeBuilder smoking(ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(RecipeSerializer.SMOKING_RECIPE, id, result)
+        return new FurnaceRecipeBuilder(id, result, SmokingRecipe::new)
                 .cookingTime(100);
     }
     //endregion
@@ -160,48 +165,53 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
 
     public static FurnaceRecipeBuilder campfire(ItemStack result) {
-        return campfire(result, ForgeRegistries.ITEMS.getKey(result.getItem()));
+        return campfire(result, BuiltInRegistries.ITEM.getKey(result.getItem()));
     }
 
     public static FurnaceRecipeBuilder campfire(ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(RecipeSerializer.CAMPFIRE_COOKING_RECIPE, id, result)
+        return new FurnaceRecipeBuilder(id, result, CampfireCookingRecipe::new)
                 .cookingTime(600);
     }
     //endregion
 
     //region Custom
-    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result) {
-        return custom(serializer, result, 1);
+    public static FurnaceRecipeBuilder custom(ItemLike result, Factory factory) {
+        return custom(result, 1, factory);
     }
 
-    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result, int count) {
-        return custom(serializer, new ItemStack(result, count));
+    public static FurnaceRecipeBuilder custom(ItemLike result, int count, Factory factory) {
+        return custom(new ItemStack(result, count), factory);
     }
 
-    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, ItemLike result, int count, ResourceLocation id) {
-        return custom(serializer, new ItemStack(result, count), id);
+    public static FurnaceRecipeBuilder custom(ItemLike result, int count, ResourceLocation id, Factory factory) {
+        return custom(new ItemStack(result, count), id, factory);
     }
 
-    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result) {
-        return custom(serializer, result.get(), 1);
+    public static FurnaceRecipeBuilder custom(Supplier<? extends ItemLike> result, Factory factory) {
+        return custom(result.get(), 1, factory);
     }
 
-    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result, int count) {
-        return custom(serializer, new ItemStack(result.get(), count));
+    public static FurnaceRecipeBuilder custom(Supplier<? extends ItemLike> result, int count, Factory factory) {
+        return custom(new ItemStack(result.get(), count), factory);
     }
 
-    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
-        return custom(serializer, new ItemStack(result.get(), count), id);
+    public static FurnaceRecipeBuilder custom(Supplier<? extends ItemLike> result, int count, ResourceLocation id, Factory factory) {
+        return custom(new ItemStack(result.get(), count), id, factory);
     }
 
-    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result) {
-        return custom(serializer, result, ForgeRegistries.ITEMS.getKey(result.getItem()));
+    public static FurnaceRecipeBuilder custom(ItemStack result, Factory factory) {
+        return custom(result, BuiltInRegistries.ITEM.getKey(result.getItem()), factory);
     }
 
-    public static FurnaceRecipeBuilder custom(RecipeSerializer<?> serializer, ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(serializer, id, result);
+    public static FurnaceRecipeBuilder custom(ItemStack result, ResourceLocation id, Factory factory) {
+        return new FurnaceRecipeBuilder(id, result, factory);
     }
     //endregion
+
+    public FurnaceRecipeBuilder category(CookingBookCategory category) {
+        this.category = category;
+        return this;
+    }
 
     public FurnaceRecipeBuilder ingredient(TagKey<Item> tag) {
         addAutoCriteria(tag);
@@ -240,18 +250,20 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     }
 
     @Override
-    public AbstractItemStackFinishedRecipe _build() {
-        return new FinishedFurnaceRecipe();
+    public Recipe<?> _build() {
+        return factory.build(group, category, requireNonNull(ingredient), result, experience, cookingTime);
     }
 
-    public class FinishedFurnaceRecipe extends AbstractItemStackFinishedRecipe {
-
-        @Override
-        public void serializeRecipeData(JsonObject json) {
-            super.serializeRecipeData(json);
-            json.add("ingredient", ingredient.toJson());
-            json.addProperty("experience", experience);
-            json.addProperty("cookingtime", cookingTime);
+    @Override
+    protected void validate() {
+        super.validate();
+        if (ingredient == null) {
+            throw new IllegalStateException("No ingredient set.");
         }
+    }
+
+    public interface Factory {
+
+        Recipe<?> build(String group, CookingBookCategory category, Ingredient ingredient, ItemStack result, float experience, int cookingTime);
     }
 }

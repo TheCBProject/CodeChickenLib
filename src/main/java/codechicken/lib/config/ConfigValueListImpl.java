@@ -15,7 +15,7 @@ import it.unimi.dsi.fastutil.ints.IntLists;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
-import net.covers1624.quack.collection.StreamableIterable;
+import net.covers1624.quack.collection.FastStream;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
@@ -503,7 +503,7 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
     private static List<String> convertToStrings(List<?> list) {
         if (list instanceof StringList sList) return sList;
 
-        return new StringList(StreamableIterable.of(list).map(Object::toString).toList());
+        return new StringList(FastStream.of(list).map(Object::toString).toList());
     }
 
     private static IntList convertToInts(List<?> list) {

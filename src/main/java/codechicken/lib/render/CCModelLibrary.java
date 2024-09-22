@@ -13,16 +13,12 @@ import static codechicken.lib.math.MathHelper.phi;
 
 public class CCModelLibrary {
 
-    public static CCModel icosahedron4;
-    public static CCModel icosahedron7;
+    public static final CCModel icosahedron4;
+    public static final CCModel icosahedron7;
 
     private static int i;
 
     static {
-        generateIcosahedron();
-    }
-
-    private static void generateIcosahedron() {
         Vector3[] verts = new Vector3[12];
 
         verts[0] = new Vector3(-1, phi, 0);

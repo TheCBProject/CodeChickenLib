@@ -2,14 +2,16 @@ package codechicken.lib;
 
 import codechicken.lib.config.ConfigCategory;
 import codechicken.lib.config.ConfigFile;
-import codechicken.lib.datagen.ConditionalIngredient;
+import codechicken.lib.config.ConfigSyncManager;
 import codechicken.lib.internal.ClientInit;
+import codechicken.lib.internal.DataGenerators;
+import codechicken.lib.internal.TileChunkLoadHook;
 import codechicken.lib.internal.command.CCLCommands;
 import codechicken.lib.internal.network.CCLNetwork;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLConfig;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLConfig;
+import net.neoforged.fml.loading.FMLEnvironment;
 
 import java.nio.file.Paths;
 
@@ -29,15 +31,20 @@ public class CodeChickenLib {
 
     public static ConfigCategory config;
 
-    public CodeChickenLib() {
+    public CodeChickenLib(IEventBus modBus) {
         config = new ConfigFile(MOD_ID)
                 .path(Paths.get("config/ccl.cfg"))
                 .load();
+        if (FMLEnvironment.dist.isClient()) {
+            ClientInit.init(modBus);
+        }
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ClientInit::init);
+        ConfigSyncManager.init(modBus);
 
         CCLCommands.init();
-        CCLNetwork.init();
-        ConditionalIngredient.Serializer.init();
+        CCLNetwork.init(modBus);
+        TileChunkLoadHook.init();
+//        ConditionalIngredient.Serializer.init();
+        DataGenerators.init(modBus);
     }
 }

@@ -24,6 +24,7 @@ import codechicken.lib.model.Quad;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -68,7 +69,7 @@ public class BakedPipeline implements IVertexConsumer {
 
     private final PipelineElement<?>[] elements;
     private final Map<String, PipelineElement<?>> nameLookup;
-    private IPipelineConsumer first;
+    private @Nullable IPipelineConsumer first;
 
     private final Quad unpacker = new Quad();
 
@@ -168,23 +169,28 @@ public class BakedPipeline implements IVertexConsumer {
      * @param collector The IVertexConsumer that should collect the transformed quad.
      */
     public void prepare(IVertexConsumer collector) {
+        if (elements.length == 0) throw new IllegalStateException("No elements in the pipeline.");
+
         IPipelineConsumer next = null;
         for (PipelineElement<?> element : elements) {
             if (element.isEnabled) {
                 if (first == null) {
                     first = element.consumer;
                 } else {
+                    assert next != null;
                     next.setParent(element.consumer);
                 }
                 next = element.consumer;
             }
         }
+        assert next != null;
         next.setParent(collector);
     }
 
     @Override
     public VertexFormat getVertexFormat() {
         check();
+        assert first != null;
         return first.getVertexFormat();
     }
 
@@ -234,6 +240,7 @@ public class BakedPipeline implements IVertexConsumer {
     }
 
     private void onFull() {
+        assert first != null;
         first.setInputQuad(unpacker);
         first.put(unpacker);
     }
@@ -243,10 +250,16 @@ public class BakedPipeline implements IVertexConsumer {
      */
     public static class PipelineElement<T extends IPipelineConsumer> {
 
-        public String name;
-        public boolean defaultState;
-        public T consumer;
+        public final String name;
+        public final boolean defaultState;
+        public final T consumer;
         public boolean isEnabled;
+
+        public PipelineElement(String name, boolean defaultState, T consumer) {
+            this.name = name;
+            this.defaultState = defaultState;
+            this.consumer = consumer;
+        }
 
         public void reset(CachedFormat format) {
             isEnabled = defaultState;
@@ -360,11 +373,7 @@ public class BakedPipeline implements IVertexConsumer {
             if (elements.stream().anyMatch(p -> p.name.equals(name))) {
                 throw new IllegalArgumentException("Unable to add element with duplicate name: " + name);
             }
-            PipelineElement<T> element = new PipelineElement<>();
-            element.name = name;
-            element.consumer = factory.create();
-            element.defaultState = defaultState;
-            return element;
+            return new PipelineElement<>(name, defaultState, factory.create());
         }
 
         /**

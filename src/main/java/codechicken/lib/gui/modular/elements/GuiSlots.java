@@ -8,7 +8,7 @@ import codechicken.lib.gui.modular.lib.geometry.Constraint;
 import codechicken.lib.gui.modular.lib.geometry.GeoParam;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import codechicken.lib.gui.modular.lib.geometry.Position;
-import codechicken.lib.gui.modular.sprite.CCGuiTextures;
+import codechicken.lib.gui.modular.sprite.GuiTextures;
 import codechicken.lib.gui.modular.sprite.Material;
 import net.covers1624.quack.collection.FastStream;
 import net.minecraft.world.inventory.Slot;
@@ -41,7 +41,7 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
     private final SlotGroup slots;
     private final ContainerScreenAccess<?> screenAccess;
 
-    private Function<Slot, Material> slotTexture = slot -> CCGuiTextures.getUncached("widgets/slot");
+    private Function<Slot, Material> slotTexture = slot -> GuiTextures.CCL.getUncached("widgets/slot");
     private Function<Slot, Material> slotIcons = slot -> null;
     private Function<Slot, Integer> highlightColour = slot -> 0x80ffffff;
     private TriConsumer<Slot, Position, GuiRender> slotOverlay = null;

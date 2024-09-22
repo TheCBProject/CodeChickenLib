@@ -5,14 +5,16 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.commands.CommandRuntimeException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 
+import static java.util.Objects.requireNonNull;
 import static net.minecraft.commands.Commands.argument;
 import static net.minecraft.commands.Commands.literal;
 
@@ -20,6 +22,8 @@ import static net.minecraft.commands.Commands.literal;
  * Created by covers1624 on 27/2/23.
  */
 public class RenderItemToFileCommand {
+
+    private static final DynamicCommandExceptionType ERROR_INVALID = new DynamicCommandExceptionType(p_311534_ -> (Component) p_311534_);
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("ccl")
@@ -50,7 +54,7 @@ public class RenderItemToFileCommand {
         );
     }
 
-    private static int renderToFile(CommandContext<CommandSourceStack> ctx, int resolution) {
+    private static int renderToFile(CommandContext<CommandSourceStack> ctx, int resolution) throws CommandSyntaxException {
         String path = getPath(ctx);
         ItemStack held = getHeldItem();
 
@@ -59,7 +63,7 @@ public class RenderItemToFileCommand {
         return 0;
     }
 
-    private static int renderAnim(CommandContext<CommandSourceStack> ctx, int resolution) {
+    private static int renderAnim(CommandContext<CommandSourceStack> ctx, int resolution) throws CommandSyntaxException {
         CommandSourceStack src = ctx.getSource();
         int fps = IntegerArgumentType.getInteger(ctx, "fps");
         int duration = IntegerArgumentType.getInteger(ctx, "duration");
@@ -96,30 +100,30 @@ public class RenderItemToFileCommand {
         return 0;
     }
 
-    private static String getPath(CommandContext<CommandSourceStack> ctx) {
+    private static String getPath(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         String str = StringArgumentType.getString(ctx, "name");
         if (str.contains("..")) {
-            throw new CommandRuntimeException(Component.literal("'..' is not allowed in name."));
+            throw ERROR_INVALID.create(Component.literal("'..' is not allowed in name."));
         }
         return str;
     }
 
-    public static int getResolution(CommandContext<CommandSourceStack> ctx) {
+    public static int getResolution(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         int res = IntegerArgumentType.getInteger(ctx, "resolution");
         if ((res & res - 1) != 0) {
-            throw new CommandRuntimeException(Component.literal("Resolution must be a power of 2. 16, 32, 64..."));
+            throw ERROR_INVALID.create(Component.literal("Resolution must be a power of 2. 16, 32, 64..."));
         }
         return res;
     }
 
-    private static ItemStack getHeldItem() {
-        LocalPlayer player = Minecraft.getInstance().player;
+    private static ItemStack getHeldItem() throws CommandSyntaxException {
+        LocalPlayer player = requireNonNull(Minecraft.getInstance().player);
         ItemStack held = player.getItemInHand(InteractionHand.MAIN_HAND);
         if (held.isEmpty()) {
             held = player.getItemInHand(InteractionHand.OFF_HAND);
         }
         if (held.isEmpty()) {
-            throw new CommandRuntimeException(Component.literal("You are not holding anything."));
+            throw ERROR_INVALID.create(Component.literal("You are not holding anything."));
         }
         return held;
     }

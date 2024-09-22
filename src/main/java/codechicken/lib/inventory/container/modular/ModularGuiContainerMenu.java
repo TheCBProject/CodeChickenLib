@@ -181,7 +181,7 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
     @Override
     public ItemStack quickMoveStack(@NotNull Player player, int slotIndex) {
         Slot slot = getSlot(slotIndex);
-        if (slot == null || !slot.hasItem()) {
+        if (!slot.hasItem()) {
             return ItemStack.EMPTY;
         }
 

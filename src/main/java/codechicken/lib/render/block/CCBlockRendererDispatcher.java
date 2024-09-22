@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
@@ -21,15 +22,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.TimeUnit;
-
-import static codechicken.lib.util.LambdaUtils.tryOrNull;
 
 /**
  * Created by covers1624 on 8/09/2016.
@@ -111,20 +109,19 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
         }
     }
 
-    @SuppressWarnings ("Convert2MethodRef")//Suppress these, the lambdas need to be synthetic functions instead of a method reference.
     private static void handleCaughtException(Throwable t, BlockState inState, BlockPos pos, BlockAndTintGetter world) {
         Block inBlock = inState.getBlock();
         BlockEntity tile = world.getBlockEntity(pos);
 
         StringBuilder builder = new StringBuilder("\n CCL has caught an exception whilst rendering a block\n");
         builder.append("  BlockPos:      ").append(String.format("x:%s, y:%s, z:%s", pos.getX(), pos.getY(), pos.getZ())).append("\n");
-        builder.append("  Block Class:   ").append(tryOrNull(() -> inBlock.getClass())).append("\n");
-        builder.append("  Registry Name: ").append(tryOrNull(() -> ForgeRegistries.BLOCKS.getKey(inBlock))).append("\n");
+        builder.append("  Block Class:   ").append(inBlock.getClass()).append("\n");
+        builder.append("  Registry Name: ").append(BuiltInRegistries.BLOCK.getKey(inBlock)).append("\n");
         builder.append("  State:         ").append(inState).append("\n");
         builder.append(" Tile at position\n");
-        builder.append("  Tile Class:    ").append(tryOrNull(() -> tile.getClass())).append("\n");
-        builder.append("  Tile Id:       ").append(tryOrNull(() -> ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(tile.getType()))).append("\n");
-        builder.append("  Tile NBT:      ").append(tryOrNull(() -> tile.saveWithFullMetadata())).append("\n");
+        builder.append("  Tile Class:    ").append(tile != null ? tile.getClass() : null).append("\n");
+        builder.append("  Tile Id:       ").append(tile != null ? BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(tile.getType()) : null).append("\n");
+        builder.append("  Tile NBT:      ").append(tile != null ? tile.saveWithoutMetadata() : null).append("\n");
         builder.append("This functionality can be disabled in the CCL config file.\n");
         if (ClientInit.messagePlayerOnRenderExceptionCaught) {
             builder.append("You can also turn off player messages in the CCL config file.\n");

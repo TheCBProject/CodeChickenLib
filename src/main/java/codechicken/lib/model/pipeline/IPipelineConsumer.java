@@ -22,6 +22,7 @@ import codechicken.lib.model.CachedFormat;
 import codechicken.lib.model.IVertexConsumer;
 import codechicken.lib.model.Quad;
 import codechicken.lib.model.pipeline.transformers.QuadReInterpolator;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Anything implementing this may be used in the BakedPipeline.
@@ -55,5 +56,5 @@ public interface IPipelineConsumer extends IVertexConsumer {
      *
      * @param parent The parent.
      */
-    void setParent(IVertexConsumer parent);
+    void setParent(@Nullable IVertexConsumer parent);
 }

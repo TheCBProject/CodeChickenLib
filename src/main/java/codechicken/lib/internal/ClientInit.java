@@ -4,22 +4,22 @@ import codechicken.lib.CodeChickenLib;
 import codechicken.lib.config.ConfigCategory;
 import codechicken.lib.config.ConfigSyncManager;
 import codechicken.lib.gui.modular.lib.CursorHelper;
-import codechicken.lib.gui.modular.sprite.CCGuiTextures;
-import codechicken.lib.model.CompositeItemModel;
+import codechicken.lib.gui.modular.sprite.GuiTextures;
 import codechicken.lib.model.ClassModelLoader;
+import codechicken.lib.model.CompositeItemModel;
 import codechicken.lib.render.CCRenderEventHandler;
 import codechicken.lib.render.block.BlockRenderingRegistry;
 import net.covers1624.quack.util.CrashLock;
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.common.NeoForge;
+
+import static codechicken.lib.CodeChickenLib.MOD_ID;
 
 /**
  * Created by covers1624 on 8/9/23.
@@ -31,18 +31,19 @@ public class ClientInit {
     public static boolean catchBlockRenderExceptions;
     public static boolean messagePlayerOnRenderExceptionCaught;
 
-    public static void init() {
+    public static void init(IEventBus modBus) {
         LOCK.lock();
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
         loadClientConfig();
         CCRenderEventHandler.init();
+        HighlightHandler.init();
+        ExceptionMessageEventHandler.init();
 
-        MinecraftForge.EVENT_BUS.addListener(ClientInit::onClientDisconnected);
+        GuiTextures.CCL.init(modBus);
 
-        bus.addListener(ClientInit::onClientSetup);
-        bus.addListener(ClientInit::onRegisterGeometryLoaders);
-        bus.addListener(ClientInit::onResourceReload);
+        modBus.addListener(ClientInit::onClientSetup);
+        modBus.addListener(ClientInit::onRegisterGeometryLoaders);
+        modBus.addListener(ClientInit::onResourceReload);
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {
@@ -73,17 +74,12 @@ public class ClientInit {
         clientTag.save();
     }
 
-    private static void onClientDisconnected(ClientPlayerNetworkEvent.LoggingOut event) {
-        ConfigSyncManager.onClientDisconnected();
-    }
-
     private static void onRegisterGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
-        event.register("item_composite", new CompositeItemModel());
-        event.register("class", new ClassModelLoader());
+        event.register(new ResourceLocation(MOD_ID, "item_composite"), new CompositeItemModel());
+        event.register(new ResourceLocation(MOD_ID, "class"), new ClassModelLoader());
     }
 
     private static void onResourceReload(RegisterClientReloadListenersEvent event) {
-        event.registerReloadListener(CCGuiTextures.getAtlasHolder());
         event.registerReloadListener((ResourceManagerReloadListener) e -> CursorHelper.onResourceReload());
     }
 }

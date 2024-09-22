@@ -7,8 +7,9 @@ import codechicken.lib.util.Copyable;
 import codechicken.lib.util.TransformUtils;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Created by covers1624 on 19/11/2016.
@@ -70,11 +71,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
     }
 
     public TextureAtlasSprite getParticleTexture() {
-        //TODO, Move this to use a ResourceLocation.
-        if (particle == null) {
-            particle = TextureUtils.getMissingSprite();
-        }
-        return particle;
+        return maybeMissingTexture(particle);
     }
 
     @Override
@@ -88,6 +85,13 @@ public class ModelProperties implements Copyable<ModelProperties> {
 
     public Builder toBuilder() {
         return new Builder(this);
+    }
+
+    private static TextureAtlasSprite maybeMissingTexture(@Nullable TextureAtlasSprite sprite) {
+        if (sprite == null) {
+            sprite = TextureUtils.getMissingSprite();
+        }
+        return sprite;
     }
 
     /**
@@ -131,7 +135,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
 
         public static class PerspectiveBuilder extends Builder {
 
-            private PerspectiveModelState transforms;
+            private @Nullable PerspectiveModelState transforms;
 
             protected PerspectiveBuilder(PerspectiveProperties properties) {
                 super(properties);
@@ -150,7 +154,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
 
             @Override
             public PerspectiveProperties build() {
-                return new PerspectiveProperties(transforms, super.build());
+                return new PerspectiveProperties(requireNonNull(transforms), super.build());
             }
         }
     }
@@ -161,7 +165,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
         private boolean isGui3D;
         private boolean isBuiltInRenderer;
         private boolean usesBlockLight;
-        private TextureAtlasSprite particle;
+        private @Nullable TextureAtlasSprite particle;
 
         protected Builder() {
         }
@@ -174,7 +178,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
             particle = properties.particle;
         }
 
-        protected Builder(boolean isAO, boolean isGui3D, boolean usesBlockLight, boolean isBuiltInRenderer, TextureAtlasSprite particle) {
+        protected Builder(boolean isAO, boolean isGui3D, boolean usesBlockLight, boolean isBuiltInRenderer, @Nullable TextureAtlasSprite particle) {
             this.isAO = isAO;
             this.isGui3D = isGui3D;
             this.usesBlockLight = usesBlockLight;
@@ -231,7 +235,7 @@ public class ModelProperties implements Copyable<ModelProperties> {
         }
 
         public ModelProperties build() {
-            return new ModelProperties(isAO, isGui3D, usesBlockLight, isBuiltInRenderer, particle);
+            return new ModelProperties(isAO, isGui3D, usesBlockLight, isBuiltInRenderer, maybeMissingTexture(particle));
         }
 
     }

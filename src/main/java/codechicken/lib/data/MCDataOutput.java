@@ -6,7 +6,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.chat.Component;
@@ -14,10 +16,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.neoforged.neoforge.fluids.FluidStack;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.io.DataOutput;
@@ -30,8 +30,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static codechicken.lib.data.DataUtils.checkLen;
-import static java.text.MessageFormat.format;
-import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 /**
  * Provides the ability to write various datas to some sort of data stream.
@@ -837,59 +835,53 @@ public interface MCDataOutput {
      * @return The same stream.
      */
     default MCDataOutput writeCompoundNBT(CompoundTag tag) {
+        try {
+            NbtIo.write(tag, toDataOutput());
+        } catch (IOException e) {
+            throw new EncoderException("Failed to write CompoundNBT to stream.", e);
+        }
+        return this;
+    }
+
+    /**
+     * Writes a Nullable {@link CompoundTag} to the stream.
+     *
+     * @param tag The {@link CompoundTag} or {@code null}.
+     * @return The same stream.
+     */
+    default MCDataOutput writeNullableCompoundNBT(@Nullable CompoundTag tag) {
         if (tag == null) {
             writeBoolean(false);
         } else {
-            try {
-                writeBoolean(true);
-                NbtIo.write(tag, toDataOutput());
-            } catch (IOException e) {
-                throw new EncoderException("Failed to write CompoundNBT to stream.", e);
-            }
+            writeBoolean(true);
+            writeCompoundNBT(tag);
         }
         return this;
     }
 
     /**
      * Writes an {@link ItemStack} to the stream.
-     * Overload for {@link #writeItemStack(ItemStack, boolean)} passing true.
+     * <p>
+     * It should also be noted that this implementation writes the {@link ItemStack#getCount()}
+     * as a varInt opposed to a byte, as that is favourable in some cases.
      *
      * @param stack The {@link ItemStack}.
      * @return The same stream.
      */
     default MCDataOutput writeItemStack(ItemStack stack) {
-        return writeItemStack(stack, true);
-    }
-
-    /**
-     * Writes an {@link ItemStack} to the stream.
-     * The <code>limitedTag</code> parameter, can be used to force the use of
-     * the stack {@link ItemStack#getShareTag()} instead of its {@link ItemStack#getTag()}.
-     * Under normal circumstances in Server -> Client sync, not all NBT tags are required,
-     * to be sent to the client. For Example, the inventory of a pouch / bag(Containers sync it).
-     * However, in Client -> Server sync, the entire tag may be required, modders can choose,
-     * if they want a stacks full tag or not. The default is to use {@link ItemStack#getShareTag()}.
-     * <p>
-     * It should also be noted that this implementation writes the {@link ItemStack#getCount()}
-     * as a varInt opposed to a byte, as that is favourable in some cases.
-     *
-     * @param stack      The {@link ItemStack}.
-     * @param limitedTag Weather to use the stacks {@link ItemStack#getShareTag()} instead.
-     * @return The same stream.
-     */
-    default MCDataOutput writeItemStack(ItemStack stack, boolean limitedTag) {
         if (stack.isEmpty()) {
             writeBoolean(false);
         } else {
             writeBoolean(true);
             Item item = stack.getItem();
-            writeRegistryIdDirect(ForgeRegistries.ITEMS, item);
+            writeRegistryIdDirect(BuiltInRegistries.ITEM, item);
             writeVarInt(stack.getCount());
+            writeNullableCompoundNBT(stack.serializeAttachments());
             CompoundTag nbt = null;
             if (item.canBeDepleted() || item.shouldOverrideMultiplayerNbt()) {
-                nbt = limitedTag ? stack.getShareTag() : stack.getTag();
+                nbt = stack.getTag();
             }
-            writeCompoundNBT(nbt);
+            writeNullableCompoundNBT(nbt);
         }
         return this;
     }
@@ -905,9 +897,9 @@ public interface MCDataOutput {
             writeBoolean(false);
         } else {
             writeBoolean(true);
-            writeRegistryIdDirect(ForgeRegistries.FLUIDS, stack.getFluid());
+            writeRegistryIdDirect(BuiltInRegistries.FLUID, stack.getFluid());
             writeVarInt(stack.getAmount());
-            writeCompoundNBT(stack.getTag());
+            writeNullableCompoundNBT(stack.getTag());
         }
         return this;
     }
@@ -931,9 +923,8 @@ public interface MCDataOutput {
      * @param entry    The object to write to the stream.
      * @return The same stream.
      */
-    default <T> MCDataOutput writeRegistryIdDirect(IForgeRegistry<T> registry, T entry) {
-        ForgeRegistry<T> r = unsafeCast(Objects.requireNonNull(registry));
-        writeVarInt(r.getID(entry));
+    default <T> MCDataOutput writeRegistryIdDirect(Registry<T> registry, T entry) {
+        writeVarInt(registry.getId(entry));
         return this;
     }
 
@@ -946,9 +937,8 @@ public interface MCDataOutput {
      * @param entry    The name of the registry object to write.
      * @return The same stream.
      */
-    default <T> MCDataOutput writeRegistryIdDirect(IForgeRegistry<T> registry, ResourceLocation entry) {
-        ForgeRegistry<T> r = unsafeCast(Objects.requireNonNull(registry));
-        writeVarInt(r.getID(entry));
+    default <T> MCDataOutput writeRegistryIdDirect(Registry<T> registry, ResourceLocation entry) {
+        writeVarInt(registry.getId(entry));
         return this;
     }
 
@@ -960,14 +950,14 @@ public interface MCDataOutput {
      * @param entry    The object to write to the stream.
      * @return The same stream.
      */
-    default <T> MCDataOutput writeRegistryId(IForgeRegistry<T> registry, T entry) {
-        ResourceLocation rName = registry.getRegistryName();
+    default <T> MCDataOutput writeRegistryId(Registry<T> registry, T entry) {
+        ResourceLocation rName = registry.key().location();
         if (!registry.containsValue(entry)) {
-            throw new IllegalArgumentException(format("Registry '{0}' does not contain entry '{1}'", rName, entry));
+            throw new IllegalArgumentException(String.format("Registry '%s' does not contain entry '%s'", rName, entry));
         }
         writeResourceLocation(rName);
         writeRegistryIdDirect(registry, entry);
-        return null;
+        return this;
     }
 
     /**
@@ -978,14 +968,14 @@ public interface MCDataOutput {
      * @param entry    The name of the registry object to write.
      * @return The same stream.
      */
-    default <T> MCDataOutput writeRegistryId(IForgeRegistry<T> registry, ResourceLocation entry) {
-        ResourceLocation rName = registry.getRegistryName();
+    default <T> MCDataOutput writeRegistryId(Registry<T> registry, ResourceLocation entry) {
+        ResourceLocation rName = registry.key().location();
         if (!registry.containsKey(entry)) {
-            throw new IllegalArgumentException(format("Registry '{0}' does not contain entry '{1}'", rName, entry));
+            throw new IllegalArgumentException(String.format("Registry '%s' does not contain entry '%s'", rName, entry));
         }
         writeResourceLocation(rName);
         writeRegistryIdDirect(registry, entry);
-        return null;
+        return this;
     }
     //endregion
 

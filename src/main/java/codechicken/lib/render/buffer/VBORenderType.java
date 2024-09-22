@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import static java.util.Objects.requireNonNull;
 import static net.covers1624.quack.util.SneakyUtils.none;
 
 /**
@@ -69,7 +70,7 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
     private void render() {
         rebuild();
         vertexBuffer.bind();
-        vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+        vertexBuffer.drawWithShader(RenderSystem.getModelViewMatrix(), RenderSystem.getProjectionMatrix(), requireNonNull(RenderSystem.getShader()));
     }
 
     private void rebuild() {

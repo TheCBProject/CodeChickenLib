@@ -2,11 +2,10 @@ package codechicken.lib.inventory.container.modular;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.SlotItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
 import java.util.function.*;
 
@@ -17,13 +16,14 @@ import java.util.function.*;
  * Created by brandon3055 on 10/09/2023
  */
 public class ModularSlot extends SlotItemHandler {
+
     private boolean canPlace = true;
     private boolean checkContainer = true;
     private Supplier<Boolean> enabled = () -> true;
     private Predicate<ItemStack> validator = stack -> true;
     private Function<ItemStack, Integer> stackLimit = stack -> Integer.MAX_VALUE;
     private BiPredicate<Player, ItemStack> canRemove = (player, stack) -> true;
-    private BiConsumer<ItemStack, ItemStack> onSet = (oldStack, newStack) -> {};
+    private BiConsumer<ItemStack, ItemStack> onSet = (oldStack, newStack) -> { };
 
     public ModularSlot(Container container, int index) {
         this(new InvWrapper(container), index, 0, 0);

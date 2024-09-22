@@ -1,6 +1,7 @@
 package codechicken.lib.render.pipeline;
 
 import codechicken.lib.render.CCRenderState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,8 +11,6 @@ import java.util.List;
 public class CCRenderPipeline {
 
     private final CCRenderState renderState;
-    @Deprecated
-    private final PipelineBuilder builder;
 
     @Deprecated//Hack removed.
     public boolean forceFormatAttributes = true;
@@ -20,11 +19,10 @@ public class CCRenderPipeline {
     private final List<IVertexOperation> ops = new ArrayList<>();
     private final List<PipelineNode> nodes = new ArrayList<>();
     private final List<IVertexOperation> sorted = new ArrayList<>();
-    private PipelineNode loading;
+    private @Nullable PipelineNode loading;
 
     public CCRenderPipeline(CCRenderState renderState) {
         this.renderState = renderState;
-        builder = new PipelineBuilder(renderState);
     }
 
     public void setPipeline(IVertexOperation... ops) {
@@ -52,6 +50,7 @@ public class CCRenderPipeline {
 
         unbuild();
 
+        assert renderState.cFmt != null;
         if (renderState.cFmt.hasNormal) {
             addAttribute(renderState.normalAttrib);
         }
@@ -76,6 +75,7 @@ public class CCRenderPipeline {
         for (int i = 0; i < ops.size(); i++) {
             IVertexOperation op = ops.get(i);
             loading = nodes.get(op.operationID());
+            assert loading != null;
             boolean loaded = op.load(renderState);
             if (loaded) {
                 loading.op = op;
@@ -97,10 +97,12 @@ public class CCRenderPipeline {
     }
 
     public void addRequirement(int opRef) {
+        assert loading != null;
         loading.deps.add(nodes.get(opRef));
     }
 
     public void addDependency(VertexAttribute<?> attrib) {
+        assert loading != null;
         loading.deps.add(nodes.get(attrib.operationID()));
         addAttribute(attrib);
     }
@@ -119,45 +121,10 @@ public class CCRenderPipeline {
         }
     }
 
-    @Deprecated
-    public PipelineBuilder builder() {
-        ops.clear();
-        return builder;
-    }
-
-    @Deprecated
-    public class PipelineBuilder {
-
-        private final CCRenderState renderState;
-
-        public PipelineBuilder(CCRenderState renderState) {
-            this.renderState = renderState;
-        }
-
-        public PipelineBuilder add(IVertexOperation op) {
-            ops.add(op);
-            return this;
-        }
-
-        public PipelineBuilder add(IVertexOperation... ops) {
-            Collections.addAll(CCRenderPipeline.this.ops, ops);
-            return this;
-        }
-
-        public void build() {
-            rebuild();
-        }
-
-        public void render() {
-            rebuild();
-            renderState.render();
-        }
-    }
-
     private class PipelineNode {
 
         public ArrayList<PipelineNode> deps = new ArrayList<>();
-        public IVertexOperation op;
+        public @Nullable IVertexOperation op;
 
         public void add() {
             if (op == null) {

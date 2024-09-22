@@ -1,15 +1,16 @@
 package codechicken.lib.gui.modular.sprite;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
-import net.minecraftforge.data.loading.DatagenModLoader;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.data.loading.DatagenModLoader;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static codechicken.lib.CodeChickenLib.MOD_ID;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -19,6 +20,8 @@ import static java.util.Objects.requireNonNull;
  * Created by brandon3055 on 21/10/2023
  */
 public class GuiTextures {
+
+    public static final GuiTextures CCL = new GuiTextures(MOD_ID);
 
     private final String modId;
     private final @Nullable ModAtlasHolder atlasHolder;
@@ -36,10 +39,10 @@ public class GuiTextures {
     /**
      * Called to initialize the {@link GuiTextures} helper
      *
-     * @param bus Your mod event bus.
+     * @param modBus Your mod event bus.
      */
-    public void init(IEventBus bus) {
-        bus.addListener(this::onRegisterReloadListeners);
+    public void init(IEventBus modBus) {
+        modBus.addListener(this::onRegisterReloadListeners);
     }
 
     private void onRegisterReloadListeners(RegisterClientReloadListenersEvent event) {

@@ -101,26 +101,4 @@ public class Material {
         if (sprite == null) return null;
         return new Material(sprite.atlasLocation(), sprite.contents().name(), e -> Minecraft.getInstance().getTextureAtlas(sprite.atlasLocation()).apply(e));
     }
-
-    public static Material fromRawTexture(ResourceLocation texture) {
-        return new Material(texture, texture, FullSprite::new);
-    }
-
-    private static class FullSprite extends TextureAtlasSprite {
-        private FullSprite(ResourceLocation location) {
-            super(location, new SpriteContents(location, new FrameSize(1, 1), new NativeImage(1, 1, false), AnimationMetadataSection.EMPTY), 1, 1, 0, 0);
-        }
-
-        @Override
-        public float getU(double u)
-        {
-            return (float) u / 16;
-        }
-
-        @Override
-        public float getV(double v)
-        {
-            return (float) v / 16;
-        }
-    }
 }

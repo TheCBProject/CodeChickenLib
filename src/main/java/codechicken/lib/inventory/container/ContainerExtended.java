@@ -9,9 +9,6 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import java.util.LinkedList;
-
 public abstract class ContainerExtended extends AbstractContainerMenu {
 
     @Nullable
@@ -43,8 +40,10 @@ public abstract class ContainerExtended extends AbstractContainerMenu {
             @Override
             public void sendSlotChange(AbstractContainerMenu container, int slot, ItemStack stack) {
                 delegate.sendSlotChange(container, slot, stack);
-                if (stack.getCount() > Byte.MAX_VALUE) {
-                    sendLargeStack(stack, slot, player);
+                if (player != null) {
+                    if (stack.getCount() > Byte.MAX_VALUE) {
+                        sendLargeStack(stack, slot, player);
+                    }
                 }
             }
 
@@ -75,13 +74,12 @@ public abstract class ContainerExtended extends AbstractContainerMenu {
         super.clicked(slot, dragType, clickType, player);
     }
 
-    @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nonnull Player player, int slotIndex) {
+    public ItemStack quickMoveStack(Player player, int slotIndex) {
         ItemStack transferredStack = ItemStack.EMPTY;
         Slot slot = slots.get(slotIndex);
 
-        if (slot != null && slot.hasItem()) {
+        if (slot.hasItem()) {
             ItemStack stack = slot.getItem();
             transferredStack = stack.copy();
 
@@ -100,7 +98,7 @@ public abstract class ContainerExtended extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean moveItemStackTo(@Nonnull ItemStack stack, int startIndex, int endIndex, boolean reverse) {
+    public boolean moveItemStackTo(ItemStack stack, int startIndex, int endIndex, boolean reverse) {
         boolean merged = false;
         int slotIndex = reverse ? endIndex - 1 : startIndex;
 
@@ -176,7 +174,7 @@ public abstract class ContainerExtended extends AbstractContainerMenu {
     }
 
     @Override
-    public boolean stillValid(@Nonnull Player var1) {
+    public boolean stillValid(Player var1) {
         return true;
     }
 

@@ -5,6 +5,7 @@ import codechicken.lib.render.lighting.LC;
 import codechicken.lib.render.pipeline.VertexAttribute;
 import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Uses the position of the lightmatrix to compute LC if not provided
@@ -13,9 +14,9 @@ public class LightCoordAttribute extends VertexAttribute<LC[]> {
 
     public static final AttributeKey<LC[]> attributeKey = AttributeKey.create("light_coord", LC[]::new);
 
-    private final Vector3 vec = new Vector3();//for computation
+    private final Vector3 vec = new Vector3(); // for computation
 
-    private LC[] lcRef;
+    private LC @Nullable [] lcRef;
 
     public LightCoordAttribute() {
         super(attributeKey);
@@ -23,6 +24,8 @@ public class LightCoordAttribute extends VertexAttribute<LC[]> {
 
     @Override
     public boolean load(CCRenderState ccrs) {
+        assert ccrs.model != null;
+
         lcRef = ccrs.model.getAttribute(attributeKey);
         if (ccrs.model.hasAttribute(attributeKey)) {
             return lcRef != null;

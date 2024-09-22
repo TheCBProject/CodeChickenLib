@@ -1,6 +1,5 @@
 package codechicken.lib.internal;
 
-import codechicken.lib.CodeChickenLib;
 import codechicken.lib.colour.EnumColour;
 import codechicken.lib.render.RenderUtils;
 import codechicken.lib.render.buffer.TransformingVertexConsumer;
@@ -9,16 +8,15 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.covers1624.quack.util.CrashLock;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
 
 import static net.minecraft.client.renderer.RenderStateShard.*;
@@ -26,8 +24,9 @@ import static net.minecraft.client.renderer.RenderStateShard.*;
 /**
  * Created by covers1624 on 9/06/18.
  */
-@Mod.EventBusSubscriber (value = Dist.CLIENT, modid = CodeChickenLib.MOD_ID)
 public class HighlightHandler {
+
+    private static final CrashLock LOCK = new CrashLock("Already Initialized");
 
     private static final Cuboid6 BOX = Cuboid6.full.copy().expand(0.02);
     private static final float[] RED = EnumColour.RED.getColour(128).packArray();
@@ -58,8 +57,12 @@ public class HighlightHandler {
             .createCompositeState(false)
     );
 
-    @SubscribeEvent
-    public static void renderLevelLast(RenderLevelStageEvent event) {
+    public static void init() {
+        LOCK.lock();
+        NeoForge.EVENT_BUS.addListener(HighlightHandler::renderLevelLast);
+    }
+
+    private static void renderLevelLast(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
 
         if (highlight != null) {

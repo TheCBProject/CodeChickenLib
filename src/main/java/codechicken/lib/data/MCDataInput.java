@@ -7,7 +7,9 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.EncoderException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
@@ -19,14 +21,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryManager;
+import net.neoforged.neoforge.fluids.FluidStack;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import javax.annotation.Nullable;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -35,6 +33,7 @@ import java.nio.*;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+import static java.util.Objects.requireNonNull;
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
 /**
@@ -586,17 +585,23 @@ public interface MCDataInput {
      *
      * @return The {@link CompoundTag}.
      */
-    @Nullable
     default CompoundTag readCompoundNBT() {
-        if (!readBoolean()) {
-            return null;
-        } else {
-            try {
-                return NbtIo.read(toDataInput(), new NbtAccounter(2097152L));
-            } catch (IOException e) {
-                throw new EncoderException("Failed to read CompoundNBT from stream.", e);
-            }
+        try {
+            return NbtIo.read(toDataInput(), NbtAccounter.create(2097152L));
+        } catch (IOException e) {
+            throw new EncoderException("Failed to read CompoundNBT from stream.", e);
         }
+    }
+
+    /**
+     * Reads a {@link CompoundTag} from the stream.
+     *
+     * @return The {@link CompoundTag} or {@code null}.
+     */
+    default @Nullable CompoundTag readNullableCompoundNBT() {
+        if (!readBoolean()) return null;
+
+        return readCompoundNBT();
     }
 
     /**
@@ -607,15 +612,14 @@ public interface MCDataInput {
      * @return The {@link ItemStack}.
      */
     default ItemStack readItemStack() {
-        if (!readBoolean()) {
-            return ItemStack.EMPTY;
-        } else {
-            Item item = readRegistryIdDirect(ForgeRegistries.ITEMS);
-            int count = readVarInt();
-            ItemStack stack = new ItemStack(item, count);
-            stack.readShareTag(readCompoundNBT());
-            return stack;
-        }
+        if (!readBoolean()) return ItemStack.EMPTY;
+
+        Item item = readRegistryIdDirect(BuiltInRegistries.ITEM);
+        int count = readVarInt();
+        CompoundTag attachments = readNullableCompoundNBT();
+        ItemStack stack = new ItemStack(item, count, attachments);
+        stack.setTag(readNullableCompoundNBT());
+        return stack;
     }
 
     /**
@@ -624,17 +628,15 @@ public interface MCDataInput {
      * @return The {@link FluidStack}.
      */
     default FluidStack readFluidStack() {
-        if (!readBoolean()) {
+        if (!readBoolean()) return FluidStack.EMPTY;
+
+        Fluid fluid = readRegistryIdDirect(BuiltInRegistries.FLUID);
+        int amount = readVarInt();
+        CompoundTag tag = readNullableCompoundNBT();
+        if (fluid == Fluids.EMPTY) {
             return FluidStack.EMPTY;
-        } else {
-            Fluid fluid = readRegistryIdDirect(ForgeRegistries.FLUIDS);
-            int amount = readVarInt();
-            CompoundTag tag = readCompoundNBT();
-            if (fluid == Fluids.EMPTY) {
-                return FluidStack.EMPTY;
-            }
-            return new FluidStack(fluid, amount, tag);
         }
+        return new FluidStack(fluid, amount, tag);
     }
 
     /**
@@ -643,33 +645,31 @@ public interface MCDataInput {
      * @return The {@link Component}.
      */
     default MutableComponent readTextComponent() {
-        return Component.Serializer.fromJson(readString());
+        return requireNonNull(Component.Serializer.fromJson(readString()));
     }
 
     /**
      * Reads a registry object from the stream.
      *
-     * @param registry The {@link IForgeRegistry} to load the entry from.
+     * @param registry The {@link Registry} to load the entry from.
      * @return The registry object..
-     * @see MCDataOutput#writeRegistryIdDirect(IForgeRegistry, Object)
-     * @see MCDataOutput#writeRegistryIdDirect(IForgeRegistry, ResourceLocation)
+     * @see MCDataOutput#writeRegistryIdDirect(Registry, Object)
+     * @see MCDataOutput#writeRegistryIdDirect(Registry, ResourceLocation)
      */
-    default <T> T readRegistryIdDirect(IForgeRegistry<T> registry) {
-        ForgeRegistry<T> _registry = unsafeCast(registry);
-        return _registry.getValue(readVarInt());
+    default <T> T readRegistryIdDirect(Registry<T> registry) {
+        return requireNonNull(registry.byId(readVarInt()), "Registry entry did not exist.");
     }
 
     /**
      * Reads a registry object from the stream.
      *
      * @return The registry object.
-     * @see MCDataOutput#writeRegistryId(IForgeRegistry, Object)
-     * @see MCDataOutput#writeRegistryId(IForgeRegistry, ResourceLocation)
+     * @see MCDataOutput#writeRegistryId(Registry, Object)
+     * @see MCDataOutput#writeRegistryId(Registry, ResourceLocation)
      */
     default <T> T readRegistryId() {
         ResourceLocation rName = readResourceLocation();
-        ForgeRegistry<T> registry = RegistryManager.ACTIVE.getRegistry(rName);
-        return readRegistryIdDirect(registry);
+        return readRegistryIdDirect(unsafeCast(requireNonNull(BuiltInRegistries.REGISTRY.get(rName), "Registry " + rName + " not found.")));
     }
     //endregion
 

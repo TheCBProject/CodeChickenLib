@@ -4,14 +4,11 @@ import codechicken.lib.math.MathHelper;
 import codechicken.lib.model.PerspectiveModelState;
 import codechicken.lib.vec.Vector3;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Transformation;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.world.item.ItemDisplayContext;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -169,26 +166,5 @@ public class TransformUtils {
         }
 
         return new PerspectiveModelState(map.build());
-    }
-
-    /**
-     * Applies standard lefty flip to a {@link PoseStack}.
-     *
-     * @param pStack The {@link PoseStack} to apply to.
-     */
-    @Deprecated (forRemoval = true)
-    public static void applyLeftyFlip(PoseStack pStack) {
-        if (!pStack.clear()) {
-            Matrix4f tMat = pStack.last().pose();
-            Matrix3f nMat = pStack.last().normal();
-
-            tMat.mulLocal(flipX.getMatrix());
-            tMat.mul(flipX.getMatrix());
-            nMat.mulLocal(flipX.getNormalMatrix());
-            nMat.mul(flipX.getNormalMatrix());
-
-            pStack.last().pose().mul(tMat);
-            pStack.last().normal().mul(nMat);
-        }
     }
 }

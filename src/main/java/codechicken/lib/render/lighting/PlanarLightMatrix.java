@@ -5,13 +5,16 @@ import codechicken.lib.render.pipeline.IVertexOperation;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
+import org.jetbrains.annotations.Nullable;
+
+import static java.util.Objects.requireNonNull;
 
 public class PlanarLightMatrix extends PlanarLightModel {
 
     public static final int operationIndex = IVertexOperation.registerOperation();
     public static PlanarLightMatrix instance = new PlanarLightMatrix();
 
-    public BlockAndTintGetter access;
+    public @Nullable BlockAndTintGetter access;
     public BlockPos pos = BlockPos.ZERO;
 
     private int sampled = 0;
@@ -29,6 +32,7 @@ public class PlanarLightMatrix extends PlanarLightModel {
     }
 
     public int brightness(int side) {
+        requireNonNull(access, "PlanarLightMatrix must be located first.");
         if ((sampled & 1 << side) == 0) {
             brightness[side] = LevelRenderer.getLightColor(access, pos);
             sampled |= 1 << side;

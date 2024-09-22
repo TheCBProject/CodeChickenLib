@@ -8,6 +8,9 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Note that when using the class as a vertex transformer, the vertices are assumed to be within the BB (x, y, z) -> (x+1, y+1, z+1)
@@ -20,7 +23,7 @@ public class LightMatrix implements IVertexOperation {
     public float[][] ao = new float[13][4];
     public int[][] brightness = new int[13][4];
 
-    public BlockAndTintGetter access;
+    public @Nullable BlockAndTintGetter access;
     public BlockPos pos = BlockPos.ZERO;
 
     private int sampled = 0;
@@ -89,6 +92,7 @@ public class LightMatrix implements IVertexOperation {
     }
 
     public void sample(int i) {
+        requireNonNull(access, "LightMatrix must be located first.");
         if ((sampled & 1 << i) == 0) {
             BlockPos bp = new BlockPos(pos.getX() + (i % 3) - 1, pos.getY() + (i / 9) - 1, pos.getZ() + (i / 3 % 3) - 1);
             BlockState b = access.getBlockState(bp);

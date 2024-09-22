@@ -22,18 +22,23 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
+import org.jetbrains.annotations.Nullable;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * The core of the CodeChickenLib render system.
  * Where possible assign a local var of CCRenderState to avoid millions of calls to instance();
  * Uses a ThreadLocal system to assign each thread their own CCRenderState so we can use it in Multithreaded chunk batching.
- * TODO, proper piping of BakedQuads and CCBakedQuads.
+ * <p>
+ * Piping Vanilla {@link BakedQuad} instances through here possible via {@link BakedVertexSource}.
  */
 public class CCRenderState {
 
@@ -47,14 +52,14 @@ public class CCRenderState {
     public final VertexAttribute<LC[]> lightCoordAttrib = new LightCoordAttribute();
 
     //pipeline state
-    public IVertexSource model;
+    public @Nullable IVertexSource model;
     public int firstVertexIndex;
     public int lastVertexIndex;
     public int vertexIndex;
     public CCRenderPipeline pipeline;
-    public VertexConsumer r;
-    public VertexFormat fmt;
-    public CachedFormat cFmt;
+    public @Nullable VertexConsumer r;
+    public @Nullable VertexFormat fmt;
+    public @Nullable CachedFormat cFmt;
 
     //context
     /**
@@ -84,7 +89,7 @@ public class CCRenderState {
     //attribute storage
     public int side;
     public LC lc = new LC();
-    public TextureAtlasSprite sprite;
+    public @Nullable TextureAtlasSprite sprite;
 
     private CCRenderState() {
         pipeline = new CCRenderPipeline(this);
@@ -232,6 +237,10 @@ public class CCRenderState {
     }
 
     public void render() {
+        if (r == null) throw new IllegalStateException("VertexConsumer is not bound.");
+        if (fmt == null) throw new IllegalStateException("VertexFormat is not bound?"); // this should be handled by the VertexConsumer assertion.
+        if (model == null) throw new IllegalStateException("Model is not set.");
+
         Vertex5[] verts = model.getVertices();
         for (vertexIndex = firstVertexIndex; vertexIndex < lastVertexIndex; vertexIndex++) {
             model.prepareVertex(this);
@@ -246,8 +255,11 @@ public class CCRenderState {
     }
 
     public void writeVert() {
-        if (r instanceof ISpriteAwareVertexConsumer) {
-            ((ISpriteAwareVertexConsumer) r).sprite(sprite);
+        assert r != null;
+        assert fmt != null;
+        assert cFmt != null;
+        if (sprite != null && r instanceof ISpriteAwareVertexConsumer cons) {
+            cons.sprite(sprite);
         }
         ImmutableList<VertexFormatElement> elements = fmt.getElements();
         for (int e = 0; e < elements.size(); e++) {
@@ -309,11 +321,11 @@ public class CCRenderState {
     }
 
     public VertexConsumer getConsumer() {
-        return r;
+        return requireNonNull(r, "VertexConsumer is not bound.");
     }
 
     public VertexFormat getVertexFormat() {
-        return fmt;
+        return requireNonNull(fmt, "VertexFormat is not bound.");
     }
 
     public void draw() {

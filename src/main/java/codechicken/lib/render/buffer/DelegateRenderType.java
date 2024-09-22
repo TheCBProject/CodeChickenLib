@@ -3,6 +3,7 @@ package codechicken.lib.render.buffer;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexSorting;
+import net.covers1624.quack.util.SneakyUtils;
 import net.minecraft.client.renderer.RenderType;
 
 /**
@@ -17,7 +18,7 @@ public class DelegateRenderType extends RenderType {
     }
 
     public DelegateRenderType(RenderType parent, VertexFormat format) {
-        super(parent.name, format, parent.mode(), parent.bufferSize(), parent.affectsCrumbling(), parent.sortOnUpload, null, null);
+        super(parent.name, format, parent.mode(), parent.bufferSize(), parent.affectsCrumbling(), parent.sortOnUpload, SneakyUtils.none(), SneakyUtils.none());
         this.parent = parent;
     }
 

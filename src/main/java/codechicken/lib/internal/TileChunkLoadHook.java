@@ -1,28 +1,25 @@
-package codechicken.lib.world;
+package codechicken.lib.internal;
 
+import codechicken.lib.world.IChunkLoadTile;
+import net.covers1624.quack.util.CrashLock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ImposterProtoChunk;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.level.ChunkEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.ChunkEvent;
 
 public class TileChunkLoadHook {
 
-    private static boolean init;
+    private static final CrashLock LOCK = new CrashLock("Already Initialized.");
 
     public static void init() {
-        if (init) {
-            return;
-        }
-        init = true;
+        LOCK.lock();
 
-        MinecraftForge.EVENT_BUS.register(new TileChunkLoadHook());
+        NeoForge.EVENT_BUS.addListener(TileChunkLoadHook::onChunkLoad);
     }
 
-    @SubscribeEvent
-    public void onChunkLoad(ChunkEvent.Load event) {
+    private static void onChunkLoad(ChunkEvent.Load event) {
         ChunkAccess iChunk = event.getChunk();
         LevelChunk chunk;
         if (iChunk instanceof LevelChunk) {

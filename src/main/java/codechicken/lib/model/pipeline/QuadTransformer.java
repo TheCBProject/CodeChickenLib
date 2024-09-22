@@ -24,8 +24,11 @@ import codechicken.lib.model.Quad;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Base class for a simple QuadTransformer.
@@ -37,8 +40,8 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 public abstract class QuadTransformer implements IVertexConsumer, IPipelineConsumer {
 
     protected final Quad quad;
-    protected CachedFormat format;
-    protected IVertexConsumer consumer;
+    protected @Nullable CachedFormat format;
+    protected @Nullable IVertexConsumer consumer;
 
     /**
      * Used for the BakedPipeline.
@@ -69,7 +72,7 @@ public abstract class QuadTransformer implements IVertexConsumer, IPipelineConsu
     }
 
     @Override
-    public void setParent(IVertexConsumer parent) {
+    public void setParent(@Nullable IVertexConsumer parent) {
         consumer = parent;
     }
 
@@ -82,7 +85,7 @@ public abstract class QuadTransformer implements IVertexConsumer, IPipelineConsu
     }
 
     // @formatter:off
-	@Override public VertexFormat getVertexFormat() { return format.format; }
+	@Override public VertexFormat getVertexFormat() { return requireNonNull(format).format; }
 	@Override public void setQuadTint( int tint ) { quad.setQuadTint( tint ); }
 	@Override public void setQuadOrientation( Direction orientation ) { quad.setQuadOrientation( orientation ); }
 	@Override public void setApplyDiffuseLighting( boolean diffuse ) { quad.setApplyDiffuseLighting( diffuse ); }
@@ -112,7 +115,7 @@ public abstract class QuadTransformer implements IVertexConsumer, IPipelineConsu
 
     public void onFull() {
         if (transform()) {
-            quad.pipe(consumer);
+            quad.pipe(requireNonNull(consumer));
         }
     }
 

@@ -82,6 +82,7 @@ public class QuadFaceStripper extends QuadTransformer {
 
     @Override
     public boolean transform() {
+        assert quad.orientation != null;
         if (mask == 0) {
             return true;// No mask, nothing changes.
         }
@@ -92,26 +93,26 @@ public class QuadFaceStripper extends QuadTransformer {
             switch (quad.orientation.getAxis()) {
                 case X -> {
                     float bound = (float) (dir == POSITIVE ? bounds.max.x : bounds.min.x);
-                    float x1 = vertices[0].vec[0];
-                    float x2 = vertices[1].vec[0];
-                    float x3 = vertices[2].vec[0];
-                    float x4 = vertices[3].vec[0];
+                    float x1 = vertices[0].vec()[0];
+                    float x2 = vertices[1].vec()[0];
+                    float x3 = vertices[2].vec()[0];
+                    float x4 = vertices[3].vec()[0];
                     return x1 != x2 || x2 != x3 || x3 != x4 || x4 != bound;
                 }
                 case Y -> {
                     float bound = (float) (dir == POSITIVE ? bounds.max.y : bounds.min.y);
-                    float y1 = vertices[0].vec[1];
-                    float y2 = vertices[1].vec[1];
-                    float y3 = vertices[2].vec[1];
-                    float y4 = vertices[3].vec[1];
+                    float y1 = vertices[0].vec()[1];
+                    float y2 = vertices[1].vec()[1];
+                    float y3 = vertices[2].vec()[1];
+                    float y4 = vertices[3].vec()[1];
                     return y1 != y2 || y2 != y3 || y3 != y4 || y4 != bound;
                 }
                 case Z -> {
                     float bound = (float) (dir == POSITIVE ? bounds.max.z : bounds.min.z);
-                    float z1 = vertices[0].vec[2];
-                    float z2 = vertices[1].vec[2];
-                    float z3 = vertices[2].vec[2];
-                    float z4 = vertices[3].vec[2];
+                    float z1 = vertices[0].vec()[2];
+                    float z2 = vertices[1].vec()[2];
+                    float z3 = vertices[2].vec()[2];
+                    float z4 = vertices[3].vec()[2];
                     return z1 != z2 || z2 != z3 || z3 != z4 || z4 != bound;
                 }
             }

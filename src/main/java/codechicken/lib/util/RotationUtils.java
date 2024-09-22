@@ -69,18 +69,13 @@ public class RotationUtils {
      * @return Next facing.
      */
     public static Direction rotateCounterClockwise(Direction facing) {
-        switch (facing) {
-            case NORTH:
-                return Direction.WEST;
-            case EAST:
-                return Direction.NORTH;
-            case SOUTH:
-                return Direction.EAST;
-            case WEST:
-                return Direction.SOUTH;
-            default:
-                throw new IllegalStateException("Unable to get CCW facing of " + facing);
-        }
+        return switch (facing) {
+            case NORTH -> Direction.WEST;
+            case EAST -> Direction.NORTH;
+            case SOUTH -> Direction.EAST;
+            case WEST -> Direction.SOUTH;
+            default -> throw new IllegalStateException("Unable to get CCW facing of " + facing);
+        };
     }
 
     /**
@@ -90,18 +85,13 @@ public class RotationUtils {
      * @return Next facing.
      */
     public static Direction rotateClockwise(Direction facing) {
-        switch (facing) {
-            case NORTH:
-                return Direction.EAST;
-            case EAST:
-                return Direction.SOUTH;
-            case SOUTH:
-                return Direction.WEST;
-            case WEST:
-                return Direction.NORTH;
-            default:
-                throw new IllegalStateException("Unable to get CW facing of " + facing);
-        }
+        return switch (facing) {
+            case NORTH -> Direction.EAST;
+            case EAST -> Direction.SOUTH;
+            case SOUTH -> Direction.WEST;
+            case WEST -> Direction.NORTH;
+            default -> throw new IllegalStateException("Unable to get CW facing of " + facing);
+        };
     }
 
     /**
@@ -111,21 +101,14 @@ public class RotationUtils {
      * @return Next facing.
      */
     public static Direction rotateForward(Direction facing) {
-        switch (facing) {
-            case NORTH:
-                return Direction.DOWN;
-            case DOWN:
-                return Direction.UP;
-            case UP:
-                return Direction.WEST;
-            case WEST:
-                return Direction.EAST;
-            case EAST:
-                return Direction.SOUTH;
-            case SOUTH:
-                return Direction.NORTH;
-        }
-        return Direction.NORTH;
+        return switch (facing) {
+            case NORTH -> Direction.DOWN;
+            case DOWN -> Direction.UP;
+            case UP -> Direction.WEST;
+            case WEST -> Direction.EAST;
+            case EAST -> Direction.SOUTH;
+            case SOUTH -> Direction.NORTH;
+        };
     }
 
     /**
@@ -135,21 +118,14 @@ public class RotationUtils {
      * @return Next facing.
      */
     public static Direction rotateBackwards(Direction facing) {
-        switch (facing) {
-            case NORTH:
-                return Direction.SOUTH;
-            case SOUTH:
-                return Direction.EAST;
-            case EAST:
-                return Direction.WEST;
-            case WEST:
-                return Direction.UP;
-            case UP:
-                return Direction.DOWN;
-            case DOWN:
-                return Direction.NORTH;
-        }
-        return Direction.NORTH;
+        return switch (facing) {
+            case NORTH -> Direction.SOUTH;
+            case SOUTH -> Direction.EAST;
+            case EAST -> Direction.WEST;
+            case WEST -> Direction.UP;
+            case UP -> Direction.DOWN;
+            case DOWN -> Direction.NORTH;
+        };
     }
 
     /**
@@ -159,16 +135,12 @@ public class RotationUtils {
      * @return The rotation in Direction.
      */
     public static Direction entityRotationToSide(int rotation) {
-        switch (rotation) {
-            case 0:
-                return Direction.SOUTH;
-            case 1:
-                return Direction.WEST;
-            case 2:
-                return Direction.NORTH;
-            default:
-                return Direction.EAST;
-        }
+        return switch (rotation) {
+            case 0 -> Direction.SOUTH;
+            case 1 -> Direction.WEST;
+            case 2 -> Direction.NORTH;
+            default -> Direction.EAST;
+        };
     }
 
 }

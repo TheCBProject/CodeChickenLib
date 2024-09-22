@@ -4,6 +4,7 @@ import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.VertexAttribute;
 import codechicken.lib.vec.Rotation;
 import codechicken.lib.vec.Vector3;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Apples normals to the render operation. If the model is a planar model it uses known normals.
@@ -12,7 +13,7 @@ public class NormalAttribute extends VertexAttribute<Vector3[]> {
 
     public static final AttributeKey<Vector3[]> attributeKey = AttributeKey.create("normal", Vector3[]::new);
 
-    private Vector3[] normalRef;
+    private Vector3 @Nullable [] normalRef;
 
     public NormalAttribute() {
         super(attributeKey);
@@ -20,6 +21,8 @@ public class NormalAttribute extends VertexAttribute<Vector3[]> {
 
     @Override
     public boolean load(CCRenderState ccrs) {
+        assert ccrs.model != null;
+
         normalRef = ccrs.model.getAttribute(attributeKey);
         if (ccrs.model.hasAttribute(attributeKey)) {
             return normalRef != null;

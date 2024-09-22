@@ -1,7 +1,7 @@
 package codechicken.lib.gui.modular.lib;
 
-import com.google.common.collect.Lists;
 import codechicken.lib.gui.modular.elements.GuiElement;
+import com.google.common.collect.Lists;
 
 import java.util.List;
 
@@ -121,12 +121,13 @@ public interface ElementEvents {
      * <p>
      * Note: You do not need to call super when overriding this interface method.
      *
-     * @param mouseX Mouse X position
-     * @param mouseY Mouse Y position
-     * @param scroll Scroll direction and amount
+     * @param mouseX  Mouse X position
+     * @param mouseY  Mouse Y position
+     * @param scrollX Scroll direction and amount
+     * @param scrollY Scroll direction and amount
      * @return true to consume event.
      */
-    default boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
+    default boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         return false;
     }
 
@@ -138,17 +139,18 @@ public interface ElementEvents {
      *
      * @param mouseX   Mouse X position
      * @param mouseY   Mouse Y position
-     * @param scroll   Scroll direction and amount
+     * @param scrollX  Scroll direction and amount
+     * @param scrollY  Scroll direction and amount
      * @param consumed Will be true if this action has already been consumed.
      * @return true if this event has been consumed.
      */
-    default boolean mouseScrolled(double mouseX, double mouseY, double scroll, boolean consumed) {
+    default boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY, boolean consumed) {
         for (GuiElement<?> child : Lists.reverse(getChildren())) {
             if (child.isEnabled()) {
-                consumed |= child.mouseScrolled(mouseX, mouseY, scroll, consumed);
+                consumed |= child.mouseScrolled(mouseX, mouseY, scrollX, scrollY, consumed);
             }
         }
-        return consumed || mouseScrolled(mouseX, mouseY, scroll) || blockMouseEvents();
+        return consumed || mouseScrolled(mouseX, mouseY, scrollX, scrollY) || blockMouseEvents();
     }
 
     /**

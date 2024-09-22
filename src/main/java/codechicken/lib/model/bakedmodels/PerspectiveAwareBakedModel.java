@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -19,8 +20,8 @@ import java.util.Map;
 @Deprecated // These may go away unless there is sufficient need for generic implementations like these.
 public class PerspectiveAwareBakedModel extends AbstractBakedPropertiesModel {
 
-    private final ImmutableMap<Direction, List<BakedQuad>> faceQuads;
-    private final ImmutableList<BakedQuad> generalQuads;
+    private final Map<Direction, List<BakedQuad>> faceQuads;
+    private final List<BakedQuad> generalQuads;
 
     public PerspectiveAwareBakedModel(Map<Direction, List<BakedQuad>> faceQuads, PerspectiveModelState transforms, ModelProperties properties) {
         this(faceQuads, ImmutableList.of(), transforms, properties);
@@ -49,15 +50,10 @@ public class PerspectiveAwareBakedModel extends AbstractBakedPropertiesModel {
     }
 
     @Override
-    public List<BakedQuad> getQuads(BlockState state, Direction side, RandomSource rand) {
-        if (side == null) {
-            return generalQuads;
-        } else {
-            if (faceQuads.containsKey(side)) {
-                return faceQuads.get(side);
-            }
-        }
-        return ImmutableList.of();
+    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand) {
+        if (side == null) return generalQuads;
+
+        return faceQuads.getOrDefault(side, List.of());
     }
 
     @Override

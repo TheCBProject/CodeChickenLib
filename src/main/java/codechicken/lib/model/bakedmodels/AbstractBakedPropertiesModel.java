@@ -19,11 +19,10 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.common.util.ConcatenatedListView;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.common.util.ConcatenatedListView;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -78,7 +77,7 @@ public abstract class AbstractBakedPropertiesModel implements PerspectiveModel, 
     }
 
     @Override
-    public Set<TextureAtlasSprite> getHitEffects(@Nonnull BlockHitResult traceResult, BlockState state, BlockAndTintGetter world, BlockPos pos, ModelData modelData) {
+    public Set<TextureAtlasSprite> getHitEffects(BlockHitResult traceResult, BlockState state, BlockAndTintGetter world, BlockPos pos, ModelData modelData) {
         Vector3 vec = new Vector3(traceResult.getLocation()).subtract(traceResult.getBlockPos());
         return getAllQuads(state, modelData).stream()
                 .filter(quad -> quad.getDirection() == traceResult.getDirection())

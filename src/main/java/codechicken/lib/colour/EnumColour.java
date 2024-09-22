@@ -3,18 +3,17 @@ package codechicken.lib.colour;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
+import net.covers1624.quack.collection.FastStream;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Created by covers1624 on 16/09/2016.
@@ -48,14 +47,14 @@ public enum EnumColour implements StringRepresentable {
 
     private static final ImmutableTable<EnumColour, EnumColour, EnumColour> mixMap;
 
-    private static final Map<String, EnumColour> nameLookup = Arrays.stream(values())//
-            .collect(Collectors.toMap(e -> e.name, Function.identity()));
+    private static final Map<String, EnumColour> nameLookup = FastStream.of(values())
+            .toMap(e -> e.name, Function.identity());
 
-    private static final Map<ResourceLocation, EnumColour> dyeTagLookup = Arrays.stream(values())//
-            .collect(Collectors.toMap(e -> e.dyeTagName, Function.identity()));
+    private static final Map<ResourceLocation, EnumColour> dyeTagLookup = FastStream.of(values())
+            .toMap(e -> e.dyeTagName, Function.identity());
 
-    private static final Map<ResourceLocation, EnumColour> woolTagLookup = Arrays.stream(values())//
-            .collect(Collectors.toMap(e -> e.woolTagName, Function.identity()));
+    private static final Map<ResourceLocation, EnumColour> woolTagLookup = FastStream.of(values())
+            .toMap(e -> e.woolTagName, Function.identity());
 
     static {
         Table<EnumColour, EnumColour, EnumColour> tmp = HashBasedTable.create();
@@ -163,11 +162,11 @@ public enum EnumColour implements StringRepresentable {
         return new ColourRGBA(rgba(alpha));
     }
 
-    public EnumColour mix(EnumColour b) {
+    public @Nullable EnumColour mix(EnumColour b) {
         return mix(this, b);
     }
 
-    public static EnumColour mix(EnumColour a, EnumColour b) {
+    public static @Nullable EnumColour mix(EnumColour a, EnumColour b) {
         if (a == b) {
             return a;
         }
@@ -182,37 +181,31 @@ public enum EnumColour implements StringRepresentable {
         return values()[15 - id];
     }
 
-    public static EnumColour fromDyeTag(ResourceLocation tag) {
+    public static @Nullable EnumColour fromDyeTag(ResourceLocation tag) {
         return dyeTagLookup.get(tag);
     }
 
-    public static EnumColour fromWoolTag(ResourceLocation tag) {
+    public static @Nullable EnumColour fromWoolTag(ResourceLocation tag) {
         return woolTagLookup.get(tag);
     }
 
-    public static EnumColour fromDyeStack(ItemStack stack) {
-        return ForgeRegistries.ITEMS.getHolder(stack.getItem())
-                .flatMap(e -> e.getTagKeys()
-                        .map(TagKey::location)
-                        .map(dyeTagLookup::get)
-                        .filter(Objects::nonNull)
-                        .findFirst()
-                )
-                .orElse(null);
+    public static @Nullable EnumColour fromDyeStack(ItemStack stack) {
+        return FastStream.of(stack.getTags())
+                .map(TagKey::location)
+                .map(dyeTagLookup::get)
+                .filter(Objects::nonNull)
+                .firstOrDefault();
     }
 
-    public static EnumColour fromWoolStack(ItemStack stack) {
-        return ForgeRegistries.ITEMS.getHolder(stack.getItem())
-                .flatMap(e -> e.getTagKeys()
-                        .map(TagKey::location)
-                        .map(woolTagLookup::get)
-                        .filter(Objects::nonNull)
-                        .findFirst()
-                )
-                .orElse(null);
+    public static @Nullable EnumColour fromWoolStack(ItemStack stack) {
+        return FastStream.of(stack.getTags())
+                .map(TagKey::location)
+                .map(woolTagLookup::get)
+                .filter(Objects::nonNull)
+                .firstOrDefault();
     }
 
-    public static EnumColour fromName(String name) {
+    public static @Nullable EnumColour fromName(String name) {
         return nameLookup.get(name);
     }
 }

@@ -4,23 +4,18 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 
 /**
  * Inventory wrapper for unified ISided/IInventory access
  */
 public class InventoryRange {
 
-    public Container inv;
-    public Direction face;
-    public WorldlyContainer sidedInv;
-    public int[] slots;
-
-    @Deprecated// Use EnumFacing version.
-    public InventoryRange(Container inv, int side) {
-        this(inv, Direction.BY_3D_DATA[side]);
-    }
+    public final Container inv;
+    public @Nullable final Direction face;
+    public @Nullable WorldlyContainer sidedInv;
+    public final int[] slots;
 
     public InventoryRange(Container inv, Direction side) {
         this.inv = inv;
@@ -42,6 +37,7 @@ public class InventoryRange {
 
     public InventoryRange(Container inv, int fslot, int lslot) {
         this.inv = inv;
+        this.face = null;
         slots = new int[lslot - fslot];
         for (int i = 0; i < slots.length; i++) {
             slots[i] = fslot + i;
@@ -57,11 +53,11 @@ public class InventoryRange {
         }
     }
 
-    public boolean canInsertItem(int slot, @Nonnull ItemStack item) {
+    public boolean canInsertItem(int slot, ItemStack item) {
         return sidedInv == null ? inv.canPlaceItem(slot, item) : sidedInv.canPlaceItemThroughFace(slot, item, face);
     }
 
-    public boolean canExtractItem(int slot, @Nonnull ItemStack item) {
+    public boolean canExtractItem(int slot, ItemStack item) {
         return sidedInv == null ? inv.canPlaceItem(slot, item) : sidedInv.canTakeItemThroughFace(slot, item, face);
     }
 

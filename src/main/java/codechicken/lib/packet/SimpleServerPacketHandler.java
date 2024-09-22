@@ -26,10 +26,10 @@ public class SimpleServerPacketHandler implements IServerPacketHandler {
     }
 
     @Override
-    public void handlePacket(PacketCustom packet, ServerPlayer sender, ServerGamePacketListenerImpl handler) {
+    public void handlePacket(PacketCustom packet, ServerPlayer sender) {
         IServerPacketHandler h = handlers.get(packet.getType());
         if (h != null) {
-            h.handlePacket(packet, sender, handler);
+            h.handlePacket(packet, sender);
         } else {
             LOGGER.warn("Received unknown packet on channel '{}' with descriptor '{}'.", packet.getChannel(), packet.getType());
         }

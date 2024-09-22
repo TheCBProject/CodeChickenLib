@@ -76,7 +76,7 @@ public class ModularGuiContainer<T extends AbstractContainerMenu> extends Abstra
         imageHeight = (int) root.getValue(GeoParam.HEIGHT);
 
         if (modularGui.renderBackground()) {
-            renderBackground(graphics);
+            renderBackground(graphics, mouseX, mouseY, partialTicks);
         }
         GuiRender render = GuiRender.convert(graphics);//modularGui.createRender(graphics.bufferSource());
         modularGui.render(render, partialTicks);
@@ -168,8 +168,8 @@ public class ModularGuiContainer<T extends AbstractContainerMenu> extends Abstra
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
-        return modularGui.mouseScrolled(mouseX, mouseY, scroll) || super.mouseScrolled(mouseX, mouseY, scroll);
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        return modularGui.mouseScrolled(mouseX, mouseY, scrollX, scrollY) || super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override

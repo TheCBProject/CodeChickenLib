@@ -20,11 +20,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
+
 /**
  * Created by brandon3055 on 31/12/2023
  */
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
+
     private static final ResourceLocation ID = new ResourceLocation(CodeChickenLib.MOD_ID, "jei_plugin");
 
     public JEIPlugin() {
@@ -43,15 +46,17 @@ public class JEIPlugin implements IModPlugin {
                 return FastStream.of(screen.getModularGui().getJeiExclusions()).map(e -> e.getRectangle().toRect2i()).toList();
             }
         });
-        registration.addGhostIngredientHandler(ModularGuiContainer.class, new IngredientDropHandler());
+        Class<ModularGuiContainer<?>> clazz = unsafeCast(ModularGuiContainer.class);
+        registration.addGhostIngredientHandler(clazz, new IngredientDropHandler());
     }
 
-    private static class IngredientDropHandler implements IGhostIngredientHandler<ModularGuiContainer> {
+    private static class IngredientDropHandler implements IGhostIngredientHandler<ModularGuiContainer<?>> {
+
         private ModularGui gui;
         private boolean highlight = true;
 
         @Override
-        public <I> List<Target<I>> getTargetsTyped(ModularGuiContainer screen, ITypedIngredient<I> ingredient, boolean doStart) {
+        public <I> List<Target<I>> getTargetsTyped(ModularGuiContainer<?> screen, ITypedIngredient<I> ingredient, boolean doStart) {
             gui = screen.getModularGui();
             gui.setJeiHighlightTime(doStart ? 60 * 20 : 3 * 20);
             highlight = !doStart;
@@ -74,6 +79,7 @@ public class JEIPlugin implements IModPlugin {
     }
 
     private record DropTarget<I>(GuiElement<?> element) implements IGhostIngredientHandler.Target<I> {
+
         @Override
         public Rect2i getArea() {
             return element.getRectangle().toRect2i();

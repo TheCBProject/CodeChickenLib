@@ -1,5 +1,7 @@
 package codechicken.lib.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Function;
@@ -253,7 +255,7 @@ public class ArrayUtils {
      * @param <T>    What we are dealing with.
      * @return The index in the array of the object.
      */
-    public static <T> int indexOf(T[] array, T object) {
+    public static <T> int indexOf(T[] array, @Nullable T object) {
         if (object == null) {
             for (int i = 0; i < array.length; i++) {
                 if (array[i] == null) {
@@ -366,7 +368,7 @@ public class ArrayUtils {
      * @param <T>     The thing.
      * @return If the element exists at all.
      */
-    public static <T> boolean contains(T[] input, T element) {
+    public static <T> boolean contains(T[] input, @Nullable T element) {
         for (T test : input) {
             if (Objects.equals(test, element)) {
                 return true;
@@ -403,7 +405,7 @@ public class ArrayUtils {
      * @param <T>   The thing.
      * @return If the array is null or contains null.
      */
-    public static <T> boolean isNullOrContainsNull(T[] input) {
+    public static <T> boolean isNullOrContainsNull(T @Nullable [] input) {
         if (input != null) {
             for (T t : input) {
                 if (t == null) {

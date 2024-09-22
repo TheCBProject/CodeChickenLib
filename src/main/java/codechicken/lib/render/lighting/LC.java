@@ -47,27 +47,15 @@ public class LC implements Copyable<LC> {
     }
 
     public LC compute(Vector3 vec, int side) {
-        boolean offset = false;
-        switch (side) {
-            case 0:
-                offset = vec.y <= 0;
-                break;
-            case 1:
-                offset = vec.y >= 1;
-                break;
-            case 2:
-                offset = vec.z <= 0;
-                break;
-            case 3:
-                offset = vec.z >= 1;
-                break;
-            case 4:
-                offset = vec.x <= 0;
-                break;
-            case 5:
-                offset = vec.x >= 1;
-                break;
-        }
+        boolean offset = switch (side) {
+            case 0 -> vec.y <= 0;
+            case 1 -> vec.y >= 1;
+            case 2 -> vec.z <= 0;
+            case 3 -> vec.z >= 1;
+            case 4 -> vec.x <= 0;
+            case 5 -> vec.x >= 1;
+            default -> false;
+        };
         if (!offset) {
             side += 6;
         }

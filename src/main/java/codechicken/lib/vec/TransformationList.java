@@ -1,6 +1,7 @@
 package codechicken.lib.vec;
 
 import codechicken.lib.util.Copyable;
+import net.covers1624.quack.collection.FastStream;
 import net.covers1624.quack.collection.StreamableIterable;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +33,7 @@ public class TransformationList extends Transformation {
     }
 
     public TransformationList(TransformationList other) {
-        transformations = StreamableIterable.of(other.transformations)
+        transformations = FastStream.of(other.transformations)
                 .map(Copyable::copy)
                 .toList();
         mat = other.mat;
@@ -159,7 +160,7 @@ public class TransformationList extends Transformation {
 
     @Override
     public boolean isRedundant() {
-        return transformations.size() == 0;
+        return transformations.isEmpty();
     }
 
     @Override
