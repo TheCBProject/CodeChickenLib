@@ -85,41 +85,39 @@ public class PacketCustomChannel {
         if (optional) registrar = registrar.optional();
         if (version != null) registrar = registrar.versioned(version);
 
-        if (client != null || server != null) {
-            registrar.play(
-                    channel,
-                    this::read,
-                    handlers -> {
-                        handlers.client((payload, context) -> {
-                            if (client != null) {
-                                enqueue(context.workHandler(), payload, () -> {
-                                    client.handlePacket(new PacketCustom(payload), Minecraft.getInstance());
-                                });
-                            }
-                        });
-                        handlers.server((payload, context) -> {
-                            if (server != null) {
-                                enqueue(context.workHandler(), payload, () -> {
-                                    server.handlePacket(new PacketCustom(payload), (ServerPlayer) context.player().orElseThrow());
-                                });
-                            }
-                        });
-                    }
-            );
-        }
-        if (clientConfiguration != null || serverConfiguration != null) {
-            registrar.configuration(
-                    channel,
-                    this::read,
-                    handlers -> {
-                        handlers.client((payload, context) -> {
+        registrar.play(
+                channel,
+                this::read,
+                handlers -> {
+                    handlers.client((payload, context) -> {
+                        if (client != null) {
+                            enqueue(context.workHandler(), payload, () -> {
+                                client.handlePacket(new PacketCustom(payload), Minecraft.getInstance());
+                            });
+                        }
+                    });
+                    handlers.server((payload, context) -> {
+                        if (server != null) {
+                            enqueue(context.workHandler(), payload, () -> {
+                                server.handlePacket(new PacketCustom(payload), (ServerPlayer) context.player().orElseThrow());
+                            });
+                        }
+                    });
+                }
+        );
+        registrar.configuration(
+                channel,
+                this::read,
+                handlers -> {
+                    handlers.client((payload, context) -> {
+                        if (clientConfiguration != null) {
                             enqueue(context.workHandler(), payload, () -> {
                                 clientConfiguration.handlePacket(new PacketCustom(payload), Minecraft.getInstance());
                             });
-                        });
-                    }
-            );
-        }
+                        }
+                    });
+                }
+        );
     }
 
     private PacketCustom.Pkt read(FriendlyByteBuf buf) {
