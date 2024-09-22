@@ -8,6 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import net.covers1624.quack.image.AnimatedGifEncoder;
+import net.covers1624.quack.io.IOUtils;
 import net.covers1624.quack.platform.OperatingSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -162,7 +163,7 @@ public class ItemFileRenderer {
         protected boolean render() throws IOException {
             try (NativeImage image = takeItemScreenshot()) {
                 image.flipY();
-                image.writeToFile(path);
+                image.writeToFile(IOUtils.makeParents(path));
             }
             return true;
         }
@@ -228,7 +229,7 @@ public class ItemFileRenderer {
 
         @Override
         protected void serialize() throws IOException {
-            try (OutputStream os = Files.newOutputStream(path)) {
+            try (OutputStream os = Files.newOutputStream(IOUtils.makeParents(path))) {
                 AnimatedGifEncoder encoder = new AnimatedGifEncoder();
                 encoder.start(os);
                 encoder.setDelay((int) frameDelay);
