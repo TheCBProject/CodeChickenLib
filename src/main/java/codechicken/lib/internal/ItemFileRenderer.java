@@ -283,6 +283,7 @@ public class ItemFileRenderer {
             for (NativeImage frame : frames) {
                 try (frame) {
                     Path file = tempDir.resolve(i++ + ".png");
+                    LOGGER.info("Dumping: {}", file);
                     tempFiles.add(file);
                     frame.writeToFile(file);
                 }
