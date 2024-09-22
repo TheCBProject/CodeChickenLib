@@ -162,7 +162,6 @@ public class ItemFileRenderer {
         @Override
         protected boolean render() throws IOException {
             try (NativeImage image = takeItemScreenshot()) {
-                image.flipY();
                 image.writeToFile(IOUtils.makeParents(path));
             }
             return true;
