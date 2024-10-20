@@ -121,7 +121,7 @@ public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
         builder.append(" Tile at position\n");
         builder.append("  Tile Class:    ").append(tile != null ? tile.getClass() : null).append("\n");
         builder.append("  Tile Id:       ").append(tile != null ? BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(tile.getType()) : null).append("\n");
-        builder.append("  Tile NBT:      ").append(tile != null ? tile.saveWithoutMetadata() : null).append("\n");
+        builder.append("  Tile NBT:      ").append(tile != null ? tile.saveWithoutMetadata(tile.getLevel().registryAccess()) : null).append("\n");
         builder.append("This functionality can be disabled in the CCL config file.\n");
         if (ClientInit.messagePlayerOnRenderExceptionCaught) {
             builder.append("You can also turn off player messages in the CCL config file.\n");

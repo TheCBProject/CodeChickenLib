@@ -1,8 +1,7 @@
 package codechicken.lib.render.buffer;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexSorting;
 import net.covers1624.quack.util.SneakyUtils;
 import net.minecraft.client.renderer.RenderType;
 
@@ -23,8 +22,8 @@ public class DelegateRenderType extends RenderType {
     }
 
     @Override
-    public void end(BufferBuilder buffer, VertexSorting sorting) {
-        parent.end(buffer, sorting);
+    public void draw(MeshData meshData) {
+        parent.draw(meshData);
     }
 
     @Override

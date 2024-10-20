@@ -40,8 +40,8 @@ public class ModAtlasHolder implements PreparableReloadListener, AutoCloseable {
      *                          e.g. "gui" will point to modid:atlases/gui.json
      */
     public ModAtlasHolder(String modid, String atlasLocation, String atlasInfoLocation) {
-        this.atlasInfoLocation = new ResourceLocation(modid, atlasInfoLocation);
-        this.atlasLocation = new ResourceLocation(modid, atlasLocation);
+        this.atlasInfoLocation = ResourceLocation.fromNamespaceAndPath(modid, atlasInfoLocation);
+        this.atlasLocation = ResourceLocation.fromNamespaceAndPath(modid, atlasLocation);
         this.textureAtlas = new TextureAtlas(this.atlasLocation);
         this.modid = modid;
     }

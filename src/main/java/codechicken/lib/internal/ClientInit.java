@@ -75,8 +75,8 @@ public class ClientInit {
     }
 
     private static void onRegisterGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
-        event.register(new ResourceLocation(MOD_ID, "item_composite"), new CompositeItemModel());
-        event.register(new ResourceLocation(MOD_ID, "class"), new ClassModelLoader());
+        event.register(ResourceLocation.fromNamespaceAndPath(MOD_ID, "item_composite"), new CompositeItemModel());
+        event.register(ResourceLocation.fromNamespaceAndPath(MOD_ID, "class"), new ClassModelLoader());
     }
 
     private static void onResourceReload(RegisterClientReloadListenersEvent event) {

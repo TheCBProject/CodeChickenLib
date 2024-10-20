@@ -89,7 +89,7 @@ public class Material {
      * @return an un-cached material from a vanilla atlas.
      */
     public static Material fromAtlas(ResourceLocation atlasLocation, String texture) {
-        return new Material(atlasLocation, new ResourceLocation(atlasLocation.getNamespace(), texture), e -> Minecraft.getInstance().getTextureAtlas(atlasLocation).apply(e));
+        return new Material(atlasLocation, ResourceLocation.fromNamespaceAndPath(atlasLocation.getNamespace(), texture), e -> Minecraft.getInstance().getTextureAtlas(atlasLocation).apply(e));
     }
 
     /**

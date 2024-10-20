@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
 import org.lwjgl.opengl.GL11;
 
 import javax.imageio.ImageIO;
@@ -107,7 +108,7 @@ public class ItemFileRenderer {
         protected NativeImage takeItemScreenshot() {
             long start = System.nanoTime();
             Minecraft mc = Minecraft.getInstance();
-            PoseStack pStack = RenderSystem.getModelViewStack();
+            Matrix4fStack pStack = RenderSystem.getModelViewStack();
             GuiGraphics guiGraphics = new GuiGraphics(mc, mc.renderBuffers().bufferSource());
 
             if (target == null || target.width < resolution || target.height < resolution) {
@@ -120,8 +121,8 @@ public class ItemFileRenderer {
             Matrix4f ortho = new Matrix4f().setOrtho(0, resolution * 16F / resolution, resolution * 16F / resolution, 0, -3000, 3000);
             RenderSystem.setProjectionMatrix(ortho, VertexSorting.ORTHOGRAPHIC_Z);
 
-            pStack.pushPose();
-            pStack.setIdentity();
+            pStack.pushMatrix();
+            pStack.identity();
             RenderSystem.applyModelViewMatrix();
             target.bindWrite(true);
 
@@ -145,7 +146,7 @@ public class ItemFileRenderer {
             image.flipY();
             if (DEBUG) LOGGER.info("Screenshot: {}ns", System.nanoTime() - postRender);
 
-            pStack.popPose();
+            pStack.popMatrix();
             RenderSystem.applyModelViewMatrix();
 
             target.unbindWrite();
@@ -276,7 +277,7 @@ public class ItemFileRenderer {
         @Override
         protected void serialize() throws IOException {
             Path tempDir = path.getParent().resolve(path.getFileName() + ".tmp");
-            Files.createDirectory(tempDir);
+            Files.createDirectories(tempDir);
             LOGGER.info("Dumping frames to temp directory..");
             int i = 0;
             List<Path> tempFiles = new ArrayList<>(frames.size() + 1);

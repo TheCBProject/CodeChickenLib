@@ -125,7 +125,7 @@ public class HighlightCommand {
         builder.append("Tile at position\n");
         builder.append("  Tile Class:    ").append(tile != null ? tile.getClass() : null).append("\n");
         builder.append("  Tile Id:       ").append(tile != null ? BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(tile.getType()) : null).append("\n");
-        builder.append("  Tile NBT:      ").append(tile != null ? tile.saveWithoutMetadata() : null).append("\n");
+        builder.append("  Tile NBT:      ").append(tile != null ? tile.saveWithoutMetadata(tile.getLevel().registryAccess()) : null).append("\n");
         source.sendSuccess(() -> Component.literal(builder.toString()), false);
 
         return 0;

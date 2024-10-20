@@ -44,17 +44,6 @@ public class ResourceUtils {
      * @return The gotten resource.
      * @throws IOException If the resource doesn't exist, or some other IO error occurred.
      */
-    public static Resource getResource(String location) throws IOException {
-        return getResource(new ResourceLocation(location));
-    }
-
-    /**
-     * Get's an IResource from the resource manager.
-     *
-     * @param location The resource to get.
-     * @return The gotten resource.
-     * @throws IOException If the resource doesn't exist, or some other IO error occurred.
-     */
     public static Resource getResource(ResourceLocation location) throws IOException {
         return getResourceManager().getResourceOrThrow(location);
     }

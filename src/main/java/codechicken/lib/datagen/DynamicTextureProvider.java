@@ -60,7 +60,7 @@ public class DynamicTextureProvider implements DataProvider {
     }
 
     public void addDynamicTexture(String dynamicInput, String outputTexture, int width, int height, int topBorder, int leftBorder, int bottomBorder, int rightBorder) {
-        addDynamicTexture(new ResourceLocation(modid, dynamicInput), new ResourceLocation(modid, outputTexture), width, height, topBorder, leftBorder, bottomBorder, rightBorder);
+        addDynamicTexture(ResourceLocation.fromNamespaceAndPath(modid, dynamicInput), ResourceLocation.fromNamespaceAndPath(modid, outputTexture), width, height, topBorder, leftBorder, bottomBorder, rightBorder);
     }
 
     public void addDynamicTexture(ResourceLocation dynamicInput, ResourceLocation outputTexture, int width, int height, int border) {
@@ -70,10 +70,10 @@ public class DynamicTextureProvider implements DataProvider {
     public void addDynamicTexture(ResourceLocation dynamicInput, ResourceLocation outputTexture, int width, int height, int topBorder, int leftBorder, int bottomBorder, int rightBorder) {
         try {
             if (!dynamicInput.getPath().endsWith(".png")) {
-                dynamicInput = new ResourceLocation(dynamicInput.getNamespace(), dynamicInput.getPath() + ".png");
+                dynamicInput = ResourceLocation.fromNamespaceAndPath(dynamicInput.getNamespace(), dynamicInput.getPath() + ".png");
             }
             if (!outputTexture.getPath().endsWith(".png")) {
-                outputTexture = new ResourceLocation(outputTexture.getNamespace(), outputTexture.getPath() + ".png");
+                outputTexture = ResourceLocation.fromNamespaceAndPath(outputTexture.getNamespace(), outputTexture.getPath() + ".png");
             }
 
             Resource inputResource = fileHelper.getResource(dynamicInput, PackType.CLIENT_RESOURCES);

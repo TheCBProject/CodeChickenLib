@@ -8,7 +8,6 @@ import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -19,6 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -36,6 +36,7 @@ import static codechicken.lib.gui.modular.lib.geometry.GeoParam.*;
  * Created by brandon3055 on 03/09/2023
  */
 public class GuiTextField extends GuiElement<GuiTextField> implements BackgroundRender {
+
     private static final RenderType HIGHLIGHT_TYPE = RenderType.create("text_field_highlight", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, RenderType.CompositeState.builder()
             .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorShader))
             .setColorLogicState(RenderStateShard.OR_REVERSE_COLOR_LOGIC)
@@ -300,7 +301,7 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
         int selectStart = Math.min(cursorPos, highlightPos);
         int selectEnd = Math.max(cursorPos, highlightPos);
         int freeSpace = maxLength - value.length() - (selectStart - selectEnd);
-        String toInsert = SharedConstants.filterText(text);
+        String toInsert = StringUtil.filterText(text);
         int insertLen = toInsert.length();
         if (freeSpace < insertLen) {
             toInsert = toInsert.substring(0, freeSpace);
@@ -374,11 +375,17 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
                 if (i == -1) {
                     i = l;
                 } else {
-                    while (b && i < l && value.charAt(i) == ' ') ++i;
+                    while (b && i < l && value.charAt(i) == ' ') {
+                        ++i;
+                    }
                 }
             } else {
-                while (b && i > 0 && value.charAt(i - 1) == ' ') --i;
-                while (i > 0 && value.charAt(i - 1) != ' ') --i;
+                while (b && i > 0 && value.charAt(i - 1) == ' ') {
+                    --i;
+                }
+                while (i > 0 && value.charAt(i - 1) != ' ') {
+                    --i;
+                }
             }
         }
 
@@ -565,7 +572,7 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
     public boolean charTyped(char charTyped, int charCode) {
         if (!canConsumeInput()) {
             return false;
-        } else if (SharedConstants.isAllowedChatCharacter(charTyped)) {
+        } else if (StringUtil.isAllowedChatCharacter(charTyped)) {
             if (isEditable()) {
                 insertText(Character.toString(charTyped));
             }
@@ -672,6 +679,6 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
         tick++;
     }
 
-    public record TextField(GuiRectangle container, GuiTextField field) {}
+    public record TextField(GuiRectangle container, GuiTextField field) { }
 }
 

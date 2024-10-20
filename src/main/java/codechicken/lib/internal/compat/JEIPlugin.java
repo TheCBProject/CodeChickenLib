@@ -28,7 +28,7 @@ import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
 
-    private static final ResourceLocation ID = new ResourceLocation(CodeChickenLib.MOD_ID, "jei_plugin");
+    private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "jei_plugin");
 
     public JEIPlugin() {
     }

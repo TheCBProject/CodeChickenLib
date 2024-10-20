@@ -4,12 +4,14 @@ import codechicken.lib.gui.modular.elements.GuiSlots;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import codechicken.lib.inventory.container.modular.ModularGuiContainerMenu;
 import codechicken.lib.inventory.container.modular.ModularSlot;
+import net.covers1624.quack.collection.FastStream;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 import java.util.ArrayList;
@@ -30,6 +32,13 @@ import java.util.function.Function;
  * Created by brandon3055 on 08/09/2023
  */
 public class SlotGroup {
+
+    private static final EquipmentSlot[] ARMOR_SLOTS = new EquipmentSlot[] {
+            EquipmentSlot.HEAD,
+            EquipmentSlot.CHEST,
+            EquipmentSlot.LEGS,
+            EquipmentSlot.FEET
+    };
 
     public final int zone;
     public final List<Integer> quickMoveTo;
@@ -83,12 +92,12 @@ public class SlotGroup {
 
     public void addPlayerArmor(Inventory inventory) {
         for (int i = 0; i < 4; ++i) {
-            EquipmentSlot slot = EquipmentSlot.byTypeAndIndex(EquipmentSlot.Type.ARMOR, 3 - i);
+            EquipmentSlot slot = ARMOR_SLOTS[i];
             addSlot(new ModularSlot(inventory, 39 - i)
                     .onSet((oldStack, newStack) -> onEquipItem(inventory, slot, newStack, oldStack))
                     .setStackLimit(stack -> 1)
-                    .setValidator(stack -> slot == Mob.getEquipmentSlotForItem(stack))
-                    .setCanRemove((player, stack) -> stack.isEmpty() || player.isCreative() || !EnchantmentHelper.hasBindingCurse(stack))
+                    .setValidator(stack -> slot == inventory.player.getEquipmentSlotForItem(stack))
+                    .setCanRemove((player, stack) -> stack.isEmpty() || player.isCreative() || !EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE))
             );
         }
     }

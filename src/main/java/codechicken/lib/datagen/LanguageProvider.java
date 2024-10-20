@@ -75,13 +75,11 @@ public abstract class LanguageProvider implements DataProvider {
     public void add(Item key, String name) { add(key.getDescriptionId(), name); }
     public void add(Supplier<? extends ItemLike> key, String name) { add(key.get().asItem(), name); }
     public void add(ItemStack key, String name) { add(key.getDescriptionId(), name); }
-    public void add(Enchantment key, String name) { add(key.getDescriptionId(), name); }
     public void add(MobEffect key, String name) { add(key.getDescriptionId(), name); }
     public void add(EntityType<?> key, String name) { add(key.getDescriptionId(), name); }
     public void addBlock(Supplier<? extends Block> key, String name) { add(key.get().getDescriptionId(), name); }
     public void addItem(Supplier<? extends Item> key, String name) { add(key.get().getDescriptionId(), name); }
     public void addItemStack(Supplier<ItemStack> key, String name) { add(key.get().getDescriptionId(), name); }
-    public void addEnchantment(Supplier<Enchantment> key, String name) { add(key.get().getDescriptionId(), name); }
     public void addEffect(Supplier<MobEffect> key, String name) { add(key.get().getDescriptionId(), name); }
     public void addEntityType(Supplier<EntityType<?>> key, String name) { add(key.get().getDescriptionId(), name); }
     //@formatter:on

@@ -52,39 +52,39 @@ public class DataGenerators {
 
         @Override
         protected void addTags(HolderLookup.Provider pProvider) {
-            tag(CCLTags.Blocks.WOOL)
-                    .addTag(CCLTags.Blocks.WOOL_WHITE)
-                    .addTag(CCLTags.Blocks.WOOL_ORANGE)
-                    .addTag(CCLTags.Blocks.WOOL_MAGENTA)
-                    .addTag(CCLTags.Blocks.WOOL_LIGHT_BLUE)
-                    .addTag(CCLTags.Blocks.WOOL_YELLOW)
-                    .addTag(CCLTags.Blocks.WOOL_LIME)
-                    .addTag(CCLTags.Blocks.WOOL_PINK)
-                    .addTag(CCLTags.Blocks.WOOL_GRAY)
-                    .addTag(CCLTags.Blocks.WOOL_LIGHT_GRAY)
-                    .addTag(CCLTags.Blocks.WOOL_CYAN)
-                    .addTag(CCLTags.Blocks.WOOL_PURPLE)
-                    .addTag(CCLTags.Blocks.WOOL_BLUE)
-                    .addTag(CCLTags.Blocks.WOOL_BROWN)
-                    .addTag(CCLTags.Blocks.WOOL_GREEN)
-                    .addTag(CCLTags.Blocks.WOOL_RED)
-                    .addTag(CCLTags.Blocks.WOOL_BLACK);
-            tag(CCLTags.Blocks.WOOL_WHITE).add(Blocks.WHITE_WOOL);
-            tag(CCLTags.Blocks.WOOL_ORANGE).add(Blocks.ORANGE_WOOL);
-            tag(CCLTags.Blocks.WOOL_MAGENTA).add(Blocks.MAGENTA_WOOL);
-            tag(CCLTags.Blocks.WOOL_LIGHT_BLUE).add(Blocks.LIGHT_BLUE_WOOL);
-            tag(CCLTags.Blocks.WOOL_YELLOW).add(Blocks.YELLOW_WOOL);
-            tag(CCLTags.Blocks.WOOL_LIME).add(Blocks.LIME_WOOL);
-            tag(CCLTags.Blocks.WOOL_PINK).add(Blocks.PINK_WOOL);
-            tag(CCLTags.Blocks.WOOL_GRAY).add(Blocks.GRAY_WOOL);
-            tag(CCLTags.Blocks.WOOL_LIGHT_GRAY).add(Blocks.LIGHT_GRAY_WOOL);
-            tag(CCLTags.Blocks.WOOL_CYAN).add(Blocks.CYAN_WOOL);
-            tag(CCLTags.Blocks.WOOL_PURPLE).add(Blocks.PURPLE_WOOL);
-            tag(CCLTags.Blocks.WOOL_BLUE).add(Blocks.BLUE_WOOL);
-            tag(CCLTags.Blocks.WOOL_BROWN).add(Blocks.BROWN_WOOL);
-            tag(CCLTags.Blocks.WOOL_GREEN).add(Blocks.GREEN_WOOL);
-            tag(CCLTags.Blocks.WOOL_RED).add(Blocks.RED_WOOL);
-            tag(CCLTags.Blocks.WOOL_BLACK).add(Blocks.BLACK_WOOL);
+            tag(CCLTags.Blocks.WOOLS)
+                    .addTag(CCLTags.Blocks.WOOLS_WHITE)
+                    .addTag(CCLTags.Blocks.WOOLS_ORANGE)
+                    .addTag(CCLTags.Blocks.WOOLS_MAGENTA)
+                    .addTag(CCLTags.Blocks.WOOLS_LIGHT_BLUE)
+                    .addTag(CCLTags.Blocks.WOOLS_YELLOW)
+                    .addTag(CCLTags.Blocks.WOOLS_LIME)
+                    .addTag(CCLTags.Blocks.WOOLS_PINK)
+                    .addTag(CCLTags.Blocks.WOOLS_GRAY)
+                    .addTag(CCLTags.Blocks.WOOLS_LIGHT_GRAY)
+                    .addTag(CCLTags.Blocks.WOOLS_CYAN)
+                    .addTag(CCLTags.Blocks.WOOLS_PURPLE)
+                    .addTag(CCLTags.Blocks.WOOLS_BLUE)
+                    .addTag(CCLTags.Blocks.WOOLS_BROWN)
+                    .addTag(CCLTags.Blocks.WOOLS_GREEN)
+                    .addTag(CCLTags.Blocks.WOOLS_RED)
+                    .addTag(CCLTags.Blocks.WOOLS_BLACK);
+            tag(CCLTags.Blocks.WOOLS_WHITE).add(Blocks.WHITE_WOOL);
+            tag(CCLTags.Blocks.WOOLS_ORANGE).add(Blocks.ORANGE_WOOL);
+            tag(CCLTags.Blocks.WOOLS_MAGENTA).add(Blocks.MAGENTA_WOOL);
+            tag(CCLTags.Blocks.WOOLS_LIGHT_BLUE).add(Blocks.LIGHT_BLUE_WOOL);
+            tag(CCLTags.Blocks.WOOLS_YELLOW).add(Blocks.YELLOW_WOOL);
+            tag(CCLTags.Blocks.WOOLS_LIME).add(Blocks.LIME_WOOL);
+            tag(CCLTags.Blocks.WOOLS_PINK).add(Blocks.PINK_WOOL);
+            tag(CCLTags.Blocks.WOOLS_GRAY).add(Blocks.GRAY_WOOL);
+            tag(CCLTags.Blocks.WOOLS_LIGHT_GRAY).add(Blocks.LIGHT_GRAY_WOOL);
+            tag(CCLTags.Blocks.WOOLS_CYAN).add(Blocks.CYAN_WOOL);
+            tag(CCLTags.Blocks.WOOLS_PURPLE).add(Blocks.PURPLE_WOOL);
+            tag(CCLTags.Blocks.WOOLS_BLUE).add(Blocks.BLUE_WOOL);
+            tag(CCLTags.Blocks.WOOLS_BROWN).add(Blocks.BROWN_WOOL);
+            tag(CCLTags.Blocks.WOOLS_GREEN).add(Blocks.GREEN_WOOL);
+            tag(CCLTags.Blocks.WOOLS_RED).add(Blocks.RED_WOOL);
+            tag(CCLTags.Blocks.WOOLS_BLACK).add(Blocks.BLACK_WOOL);
         }
 
         @Override
@@ -101,39 +101,39 @@ public class DataGenerators {
 
         @Override
         protected void addTags(HolderLookup.Provider pProvider) {
-            tag(CCLTags.Items.WOOL)
-                    .addTag(CCLTags.Items.WOOL_WHITE)
-                    .addTag(CCLTags.Items.WOOL_ORANGE)
-                    .addTag(CCLTags.Items.WOOL_MAGENTA)
-                    .addTag(CCLTags.Items.WOOL_LIGHT_BLUE)
-                    .addTag(CCLTags.Items.WOOL_YELLOW)
-                    .addTag(CCLTags.Items.WOOL_LIME)
-                    .addTag(CCLTags.Items.WOOL_PINK)
-                    .addTag(CCLTags.Items.WOOL_GRAY)
-                    .addTag(CCLTags.Items.WOOL_LIGHT_GRAY)
-                    .addTag(CCLTags.Items.WOOL_CYAN)
-                    .addTag(CCLTags.Items.WOOL_PURPLE)
-                    .addTag(CCLTags.Items.WOOL_BLUE)
-                    .addTag(CCLTags.Items.WOOL_BROWN)
-                    .addTag(CCLTags.Items.WOOL_GREEN)
-                    .addTag(CCLTags.Items.WOOL_RED)
-                    .addTag(CCLTags.Items.WOOL_BLACK);
-            tag(CCLTags.Items.WOOL_WHITE).add(Items.WHITE_WOOL);
-            tag(CCLTags.Items.WOOL_ORANGE).add(Items.ORANGE_WOOL);
-            tag(CCLTags.Items.WOOL_MAGENTA).add(Items.MAGENTA_WOOL);
-            tag(CCLTags.Items.WOOL_LIGHT_BLUE).add(Items.LIGHT_BLUE_WOOL);
-            tag(CCLTags.Items.WOOL_YELLOW).add(Items.YELLOW_WOOL);
-            tag(CCLTags.Items.WOOL_LIME).add(Items.LIME_WOOL);
-            tag(CCLTags.Items.WOOL_PINK).add(Items.PINK_WOOL);
-            tag(CCLTags.Items.WOOL_GRAY).add(Items.GRAY_WOOL);
-            tag(CCLTags.Items.WOOL_LIGHT_GRAY).add(Items.LIGHT_GRAY_WOOL);
-            tag(CCLTags.Items.WOOL_CYAN).add(Items.CYAN_WOOL);
-            tag(CCLTags.Items.WOOL_PURPLE).add(Items.PURPLE_WOOL);
-            tag(CCLTags.Items.WOOL_BLUE).add(Items.BLUE_WOOL);
-            tag(CCLTags.Items.WOOL_BROWN).add(Items.BROWN_WOOL);
-            tag(CCLTags.Items.WOOL_GREEN).add(Items.GREEN_WOOL);
-            tag(CCLTags.Items.WOOL_RED).add(Items.RED_WOOL);
-            tag(CCLTags.Items.WOOL_BLACK).add(Items.BLACK_WOOL);
+            tag(CCLTags.Items.WOOLS)
+                    .addTag(CCLTags.Items.WOOLS_WHITE)
+                    .addTag(CCLTags.Items.WOOLS_ORANGE)
+                    .addTag(CCLTags.Items.WOOLS_MAGENTA)
+                    .addTag(CCLTags.Items.WOOLS_LIGHT_BLUE)
+                    .addTag(CCLTags.Items.WOOLS_YELLOW)
+                    .addTag(CCLTags.Items.WOOLS_LIME)
+                    .addTag(CCLTags.Items.WOOLS_PINK)
+                    .addTag(CCLTags.Items.WOOLS_GRAY)
+                    .addTag(CCLTags.Items.WOOLS_LIGHT_GRAY)
+                    .addTag(CCLTags.Items.WOOLS_CYAN)
+                    .addTag(CCLTags.Items.WOOLS_PURPLE)
+                    .addTag(CCLTags.Items.WOOLS_BLUE)
+                    .addTag(CCLTags.Items.WOOLS_BROWN)
+                    .addTag(CCLTags.Items.WOOLS_GREEN)
+                    .addTag(CCLTags.Items.WOOLS_RED)
+                    .addTag(CCLTags.Items.WOOLS_BLACK);
+            tag(CCLTags.Items.WOOLS_WHITE).add(Items.WHITE_WOOL);
+            tag(CCLTags.Items.WOOLS_ORANGE).add(Items.ORANGE_WOOL);
+            tag(CCLTags.Items.WOOLS_MAGENTA).add(Items.MAGENTA_WOOL);
+            tag(CCLTags.Items.WOOLS_LIGHT_BLUE).add(Items.LIGHT_BLUE_WOOL);
+            tag(CCLTags.Items.WOOLS_YELLOW).add(Items.YELLOW_WOOL);
+            tag(CCLTags.Items.WOOLS_LIME).add(Items.LIME_WOOL);
+            tag(CCLTags.Items.WOOLS_PINK).add(Items.PINK_WOOL);
+            tag(CCLTags.Items.WOOLS_GRAY).add(Items.GRAY_WOOL);
+            tag(CCLTags.Items.WOOLS_LIGHT_GRAY).add(Items.LIGHT_GRAY_WOOL);
+            tag(CCLTags.Items.WOOLS_CYAN).add(Items.CYAN_WOOL);
+            tag(CCLTags.Items.WOOLS_PURPLE).add(Items.PURPLE_WOOL);
+            tag(CCLTags.Items.WOOLS_BLUE).add(Items.BLUE_WOOL);
+            tag(CCLTags.Items.WOOLS_BROWN).add(Items.BROWN_WOOL);
+            tag(CCLTags.Items.WOOLS_GREEN).add(Items.GREEN_WOOL);
+            tag(CCLTags.Items.WOOLS_RED).add(Items.RED_WOOL);
+            tag(CCLTags.Items.WOOLS_BLACK).add(Items.BLACK_WOOL);
         }
 
         @Override

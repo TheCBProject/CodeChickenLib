@@ -5,16 +5,16 @@ import codechicken.lib.vec.Vector3;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.EncoderException;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
-import net.minecraft.core.Vec3i;
+import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.StreamDecoder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -532,7 +532,7 @@ public interface MCDataInput {
      * @return The {@link ResourceLocation}.
      */
     default ResourceLocation readResourceLocation() {
-        return new ResourceLocation(readString());
+        return ResourceLocation.parse(readString());
     }
 
     /**
@@ -612,14 +612,7 @@ public interface MCDataInput {
      * @return The {@link ItemStack}.
      */
     default ItemStack readItemStack() {
-        if (!readBoolean()) return ItemStack.EMPTY;
-
-        Item item = readRegistryIdDirect(BuiltInRegistries.ITEM);
-        int count = readVarInt();
-        CompoundTag attachments = readNullableCompoundNBT();
-        ItemStack stack = new ItemStack(item, count, attachments);
-        stack.setTag(readNullableCompoundNBT());
-        return stack;
+        return readWithRegistryCodec(ItemStack.OPTIONAL_STREAM_CODEC);
     }
 
     /**
@@ -628,15 +621,7 @@ public interface MCDataInput {
      * @return The {@link FluidStack}.
      */
     default FluidStack readFluidStack() {
-        if (!readBoolean()) return FluidStack.EMPTY;
-
-        Fluid fluid = readRegistryIdDirect(BuiltInRegistries.FLUID);
-        int amount = readVarInt();
-        CompoundTag tag = readNullableCompoundNBT();
-        if (fluid == Fluids.EMPTY) {
-            return FluidStack.EMPTY;
-        }
-        return new FluidStack(fluid, amount, tag);
+        return readWithRegistryCodec(FluidStack.OPTIONAL_STREAM_CODEC);
     }
 
     /**
@@ -645,7 +630,7 @@ public interface MCDataInput {
      * @return The {@link Component}.
      */
     default MutableComponent readTextComponent() {
-        return requireNonNull(Component.Serializer.fromJson(readString()));
+        return requireNonNull(Component.Serializer.fromJson(readString(), RegistryAccess.EMPTY));
     }
 
     /**
@@ -670,6 +655,14 @@ public interface MCDataInput {
     default <T> T readRegistryId() {
         ResourceLocation rName = readResourceLocation();
         return readRegistryIdDirect(unsafeCast(requireNonNull(BuiltInRegistries.REGISTRY.get(rName), "Registry " + rName + " not found.")));
+    }
+
+    default <T> T readWithCodec(StreamDecoder<? super FriendlyByteBuf, T> codec) {
+        throw new RuntimeException("Only able to use StreamCodec's with PacketCustom instances.");
+    }
+
+    default <T> T readWithRegistryCodec(StreamDecoder<? super RegistryFriendlyByteBuf, T> codec) {
+        throw new RuntimeException("Only able to use StreamCodec's with PacketCustom instances.");
     }
     //endregion
 

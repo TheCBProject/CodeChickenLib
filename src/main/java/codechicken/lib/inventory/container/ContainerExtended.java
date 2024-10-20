@@ -111,7 +111,7 @@ public abstract class ContainerExtended extends AbstractContainerMenu {
                 Slot slot = slots.get(slotIndex);
                 ItemStack slotStack = slot.getItem();
 
-                if (!slotStack.isEmpty() && ItemStack.isSameItemSameTags(stack, slotStack)) {
+                if (!slotStack.isEmpty() && ItemStack.isSameItemSameComponents(stack, slotStack)) {
                     int totalStackSize = slotStack.getCount() + stack.getCount();
                     int maxStackSize = Math.min(stack.getMaxStackSize(), slot.getMaxStackSize());
                     if (totalStackSize <= maxStackSize) {

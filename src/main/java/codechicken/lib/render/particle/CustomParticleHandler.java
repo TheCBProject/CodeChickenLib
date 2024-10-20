@@ -51,7 +51,7 @@ public class CustomParticleHandler {
      * @return Always true for this, basically just return the result of this method inside {@link Block#addLandingEffects}
      */
     public static boolean handleLandingEffects(ServerLevel world, BlockPos pos, LivingEntity entity, int numParticles) {
-        PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, C_ADD_LANDING_EFFECTS);
+        PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, C_ADD_LANDING_EFFECTS, entity.level().registryAccess());
         packet.writePos(pos);
         packet.writeVector(Vector3.fromEntity(entity));
         packet.writeVarInt(numParticles);
@@ -66,7 +66,7 @@ public class CustomParticleHandler {
         BlockModelShaper modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
         BakedModel model = modelShapes.getBlockModel(state);
         if (model instanceof IModelParticleProvider) {
-            ModelData modelData = requireNonNull(world.getModelDataManager()).getAtOrEmpty(pos);
+            ModelData modelData = requireNonNull(world.getModelDataManager()).getAt(pos);
             ParticleEngine particleManager = Minecraft.getInstance().particleEngine;
             List<TextureAtlasSprite> sprites = new ArrayList<>(((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos, modelData));
             TextureAtlasSprite rolledSprite = sprites.get(world.random.nextInt(sprites.size()));
@@ -98,7 +98,7 @@ public class CustomParticleHandler {
             BlockModelShaper modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
             BakedModel model = modelShapes.getBlockModel(state);
             if (model instanceof IModelParticleProvider) {
-                ModelData modelData = requireNonNull(world.getModelDataManager()).getAtOrEmpty(pos);
+                ModelData modelData = requireNonNull(world.getModelDataManager()).getAt(pos);
                 Cuboid6 bounds = new Cuboid6();
                 if (hit instanceof VoxelShapeBlockHitResult) {
                     bounds.set(((VoxelShapeBlockHitResult) hit).shape.bounds());
@@ -130,7 +130,7 @@ public class CustomParticleHandler {
         BlockModelShaper modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
         BakedModel model = modelShapes.getBlockModel(state);
         if (model instanceof IModelParticleProvider) {
-            ModelData modelData = requireNonNull(world.getModelDataManager()).getAtOrEmpty(pos);
+            ModelData modelData = requireNonNull(world.getModelDataManager()).getAt(pos);
             Cuboid6 bounds = new Cuboid6(state.getShape(world, pos).bounds());
             addBlockDestroyEffects(world, bounds.add(pos), new ArrayList<>(((IModelParticleProvider) model).getDestroyEffects(state, world, pos, modelData)), manager);
             return true;
@@ -147,7 +147,7 @@ public class CustomParticleHandler {
         BlockModelShaper modelShapes = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper();
         BakedModel model = modelShapes.getBlockModel(state);
         if (model instanceof IModelParticleProvider) {
-            ModelData modelData = requireNonNull(world.getModelDataManager()).getAtOrEmpty(pos);
+            ModelData modelData = requireNonNull(world.getModelDataManager()).getAt(pos);
             List<TextureAtlasSprite> sprites = new ArrayList<>(((IModelParticleProvider) model).getHitEffects(traceResult, state, world, pos, modelData));
 
             double speed = 0.15000000596046448D;

@@ -104,7 +104,7 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
      */
     public void sendPacketToClient(int packetId, Consumer<MCDataOutput> packetWriter) {
         if (inventory.player instanceof ServerPlayer serverPlayer) {
-            PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, C_GUI_SYNC);
+            PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, C_GUI_SYNC, inventory.player.registryAccess());
             packet.writeByte(containerId);
             packet.writeByte((byte) packetId);
             packetWriter.accept(packet);
@@ -119,7 +119,7 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
      * @param packetWriter Use this callback to write your data to the packet.
      */
     public void sendPacketToServer(int packetId, Consumer<MCDataOutput> packetWriter) {
-        PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, S_GUI_SYNC);
+        PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, S_GUI_SYNC, inventory.player.registryAccess());
         packet.writeByte(containerId);
         packet.writeByte((byte) packetId);
         packetWriter.accept(packet);
@@ -242,7 +242,7 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
 
                 slot = targets.get(position);
                 itemStack2 = slot.getItem();
-                if (!itemStack2.isEmpty() && ItemStack.isSameItemSameTags(stack, itemStack2)) {
+                if (!itemStack2.isEmpty() && ItemStack.isSameItemSameComponents(stack, itemStack2)) {
                     int l = itemStack2.getCount() + stack.getCount();
                     if (l <= Math.min(stack.getMaxStackSize(), slot.getMaxStackSize(stack))) {
                         stack.setCount(0);

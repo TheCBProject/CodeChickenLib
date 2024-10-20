@@ -1,6 +1,7 @@
 package codechicken.lib.inventory;
 
 import codechicken.lib.util.ArrayUtils;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -14,10 +15,12 @@ import java.util.Objects;
  */
 public class InventoryNBT implements Container {
 
+    protected final RegistryAccess registries;
     protected ItemStack[] items;
     protected CompoundTag tag;
 
-    public InventoryNBT(int size, CompoundTag tag) {
+    public InventoryNBT(RegistryAccess registries, int size, CompoundTag tag) {
+        this.registries = registries;
         this.tag = tag;
         items = new ItemStack[size];
         ArrayUtils.fillArray(items, ItemStack.EMPTY, (Objects::isNull));
@@ -25,12 +28,12 @@ public class InventoryNBT implements Container {
     }
 
     private void writeNBT() {
-        tag.put("items", InventoryUtils.writeItemStacksToTag(items, getMaxStackSize()));
+        tag.put("items", InventoryUtils.writeItemStacksToTag(registries, items, getMaxStackSize()));
     }
 
     private void readNBT() {
         if (tag.contains("items")) {
-            InventoryUtils.readItemStacksFromTag(items, tag.getList("items", 10));
+            InventoryUtils.readItemStacksFromTag(registries, items, tag.getList("items", 10));
         }
     }
 

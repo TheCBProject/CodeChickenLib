@@ -33,7 +33,7 @@ public abstract class ShaderInstanceMixin {
     )
     private Program onGetOrCreate(ResourceProvider provider, Program.Type type, String s) throws IOException {
         if (self() instanceof CCShaderInstance instance) {
-            return instance.compileProgram(provider, type, new ResourceLocation(s));
+            return instance.compileProgram(provider, type, ResourceLocation.parse(s));
         }
 
         return callGetOrCreate(provider, type, s);

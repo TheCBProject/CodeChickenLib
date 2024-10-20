@@ -1,10 +1,7 @@
 package codechicken.lib.render.buffer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexSorting;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 
@@ -24,7 +21,7 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
 
     private final BiConsumer<VertexFormat, BufferBuilder> factory;
     private final VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
-    private final BufferBuilder builder;
+    private final ByteBufferBuilder builder;
     private boolean dirty = true;
 
     /**
@@ -37,7 +34,7 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
     public VBORenderType(RenderType parent, BiConsumer<VertexFormat, BufferBuilder> factory) {
         super(parent, parent.format());
         this.factory = factory;
-        builder = new BufferBuilder(bufferSize());
+        builder = new ByteBufferBuilder(bufferSize());
     }
 
     /**
@@ -75,19 +72,17 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
 
     private void rebuild() {
         if (!dirty) return;
-        builder.begin(mode(), format());
-        factory.accept(format(), builder);
+        builder.discard();
+        BufferBuilder buffer = new BufferBuilder(builder, mode(), format());
+        factory.accept(format(), buffer);
         vertexBuffer.bind();
-        vertexBuffer.upload(builder.end());
+        vertexBuffer.upload(buffer.build());
         builder.clear();
         dirty = false;
     }
 
     @Override
-    public void end(BufferBuilder buffer, VertexSorting sorting) {
-        // End buffer and discard state, we don't operate like this.
-        buffer.endOrDiscardIfEmpty();
-
+    public void draw(MeshData meshData) {
         setupRenderState();
         render();
         clearRenderState();
@@ -141,10 +136,7 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
         }
 
         @Override
-        public void end(BufferBuilder buffer, VertexSorting sorting) {
-            // End buffer and discard state, we don't operate like this.
-            buffer.endOrDiscardIfEmpty();
-
+        public void draw(MeshData meshData) {
             setupRenderState();
             render();
             clearRenderState();

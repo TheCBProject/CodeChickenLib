@@ -89,7 +89,7 @@ public class TextureUtils {
     }
 
     public static TextureAtlasSprite getTexture(String location) {
-        return getTextureMap().getSprite(new ResourceLocation(location));
+        return getTextureMap().getSprite(ResourceLocation.parse(location));
     }
 
     public static TextureAtlasSprite getTexture(ResourceLocation location) {
@@ -97,18 +97,18 @@ public class TextureUtils {
     }
 
     public static TextureAtlasSprite getBlockTexture(String string) {
-        return getBlockTexture(new ResourceLocation(string));
+        return getBlockTexture(ResourceLocation.parse(string));
     }
 
     public static TextureAtlasSprite getBlockTexture(ResourceLocation location) {
-        return getTexture(new ResourceLocation(location.getNamespace(), "block/" + location.getPath()));
+        return getTexture(ResourceLocation.fromNamespaceAndPath(location.getNamespace(), "block/" + location.getPath()));
     }
 
     public static TextureAtlasSprite getItemTexture(String string) {
-        return getItemTexture(new ResourceLocation(string));
+        return getItemTexture(ResourceLocation.parse(string));
     }
 
     public static TextureAtlasSprite getItemTexture(ResourceLocation location) {
-        return getTexture(new ResourceLocation(location.getNamespace(), "items/" + location.getPath()));
+        return getTexture(ResourceLocation.fromNamespaceAndPath(location.getNamespace(), "items/" + location.getPath()));
     }
 }

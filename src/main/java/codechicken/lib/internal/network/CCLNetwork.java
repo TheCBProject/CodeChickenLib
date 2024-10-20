@@ -5,12 +5,14 @@ import codechicken.lib.packet.PacketCustomChannel;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 
+import static codechicken.lib.CodeChickenLib.MOD_ID;
+
 /**
  * Created by covers1624 on 28/10/19.
  */
 public class CCLNetwork {
 
-    public static final ResourceLocation NET_CHANNEL = new ResourceLocation("ccl:internal");
+    public static final ResourceLocation NET_CHANNEL = ResourceLocation.fromNamespaceAndPath(MOD_ID, "internal");
     public static final PacketCustomChannel channel = new PacketCustomChannel(NET_CHANNEL)
             .optional()
             .versioned(CodeChickenLib.container().getModInfo().getVersion().toString())
@@ -20,7 +22,6 @@ public class CCLNetwork {
 
     //Client handled.
     public static final int C_ADD_LANDING_EFFECTS = 1;
-    public static final int C_OPEN_CONTAINER = 10;
     public static final int C_GUI_SYNC = 20;
 
     //Server handled.

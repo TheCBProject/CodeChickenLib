@@ -28,7 +28,7 @@ public class ItemQuadBakery {
         for (int i = 0; i < sprites.length; i++) {
             TextureAtlasSprite sprite = sprites[i];
             List<BlockElement> unbaked = UnbakedGeometryHelper.createUnbakedItemElements(i, sprite);
-            quads.addAll(UnbakedGeometryHelper.bakeElements(unbaked, e -> sprite, state, new ResourceLocation("ccl:dynamic")));
+            quads.addAll(UnbakedGeometryHelper.bakeElements(unbaked, e -> sprite, state));
         }
         return quads;
     }

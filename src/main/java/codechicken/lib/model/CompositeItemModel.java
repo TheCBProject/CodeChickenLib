@@ -61,13 +61,13 @@ public class CompositeItemModel implements IGeometryLoader<CompositeItemModel.Ge
     public record Geometry(Map<String, BlockModel> children, List<String> itemPasses) implements IUnbakedGeometry<Geometry> {
 
         @Override
-        public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
+        public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides) {
             TextureAtlasSprite particle = spriteGetter.apply(context.getMaterial("particle"));
             ModelState effectiveState = composeState(context.getRootTransform(), modelState);
 
             ImmutableMap<String, BakedModel> children = FastStream.of(this.children.entrySet())
                     .filter(e -> context.isComponentVisible(e.getKey(), true))
-                    .toImmutableMap(Map.Entry::getKey, e -> e.getValue().bake(baker, e.getValue(), spriteGetter, effectiveState, modelLocation, true));
+                    .toImmutableMap(Map.Entry::getKey, e -> e.getValue().bake(baker, e.getValue(), spriteGetter, effectiveState, true));
 
             ImmutableList<BakedModel> itemPasses = FastStream.of(this.itemPasses)
                     .map(children::get)

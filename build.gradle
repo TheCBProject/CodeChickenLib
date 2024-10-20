@@ -5,12 +5,12 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'net.neoforged.gradle.userdev' version '7.0.97'
+    id 'net.neoforged.gradle.userdev' version '7.0.165'
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
     withSourcesJar()
     withJavadocJar()
@@ -41,7 +41,7 @@ runs {
     }
     data {
         workingDirectory file('run')
-        programArguments.addAll '--mod', 'codechickenlib', '--all', '--output', file("src/main/generated").absolutePath, '--existing', file("src/main/resources").absolutePath
+        arguments.addAll '--mod', 'codechickenlib', '--all', '--output', file("src/main/generated").absolutePath, '--existing', file("src/main/resources").absolutePath
     }
 }
 
@@ -49,7 +49,7 @@ processResources {
     inputs.property 'mod_version', mod_version
     inputs.property 'mc_version', mc_version
 
-    filesMatching('META-INF/mods.toml') {
+    filesMatching('META-INF/neoforge.mods.toml') {
         expand 'file': ['jarVersion': mod_version],
                 'mc_version': mc_version,
                 'forge_version': forge_version,
@@ -123,6 +123,7 @@ shadowJar {
     configurations = [project.configurations.shadow]
     from file("LICENSE")
 }
+assemble.dependsOn shadowJar
 
 tasks.register("signShadowJar") {
     dependsOn("shadowJar")

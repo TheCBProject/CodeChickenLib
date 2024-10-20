@@ -4,6 +4,7 @@ import codechicken.lib.block.ModularBlockEntity;
 import codechicken.lib.block.ModularTileBlock;
 import codechicken.lib.inventory.InventoryUtils;
 import codechicken.lib.util.ArrayUtils;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.Container;
@@ -121,13 +122,13 @@ public class InventoryComponent extends ModularTileBlock.TileComponent<Inventory
         }
 
         @Override
-        protected void save(CompoundTag tag) {
-            tag.put("Items", InventoryUtils.writeItemStacksToTag(items));
+        protected void save(CompoundTag tag, HolderLookup.Provider registries) {
+            tag.put("Items", InventoryUtils.writeItemStacksToTag(registries, items));
         }
 
         @Override
-        protected void load(CompoundTag tag) {
-            InventoryUtils.readItemStacksFromTag(items, tag.getList("Items", Tag.TAG_COMPOUND));
+        protected void load(CompoundTag tag, HolderLookup.Provider registries) {
+            InventoryUtils.readItemStacksFromTag(registries, items, tag.getList("Items", Tag.TAG_COMPOUND));
         }
     }
 }

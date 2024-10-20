@@ -354,7 +354,7 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         private @Nullable Class<? extends BakedModel> clazz;
 
         protected ClassCustomLoaderBuilder(SimpleItemModelBuilder parent) {
-            super(new ResourceLocation(MOD_ID, "class"), parent);
+            super(ResourceLocation.fromNamespaceAndPath(MOD_ID, "class"), parent);
         }
 
         public ClassCustomLoaderBuilder clazz(Class<? extends BakedModel> clazz) {
@@ -388,11 +388,11 @@ public abstract class ItemModelProvider extends ModelProvider<ItemModelBuilder> 
         }
 
         public static CompositeLoaderBuilder forge(SimpleItemModelBuilder parent) {
-            return new CompositeLoaderBuilder(new ResourceLocation("forge", "composite"), parent);
+            return new CompositeLoaderBuilder(ResourceLocation.fromNamespaceAndPath("forge", "composite"), parent);
         }
 
         public static CompositeLoaderBuilder ccl(SimpleItemModelBuilder parent) {
-            return new CompositeLoaderBuilder(new ResourceLocation(MOD_ID, "item_composite"), parent);
+            return new CompositeLoaderBuilder(ResourceLocation.fromNamespaceAndPath(MOD_ID, "item_composite"), parent);
         }
 
         public CompositeLoaderBuilder nested(String name, Consumer<SimpleItemModelBuilder> cons) {

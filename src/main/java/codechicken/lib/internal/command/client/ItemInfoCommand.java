@@ -30,9 +30,8 @@ public class ItemInfoCommand {
         ItemStack stack = player.hasItemInSlot(EquipmentSlot.MAINHAND) ? player.getMainHandItem() : player.getOffhandItem();
         if (stack.isEmpty()) return 0;
 
-        String tag = stack.hasTag() ? stack.getTag().toString() : "Item has no NBT.";
         ctx.sendSuccess(() -> Component.literal("Registry Name: " + BuiltInRegistries.ITEM.getKey(stack.getItem())), false);
-        ctx.sendSuccess(() -> Component.literal("NBT          : " + tag), false);
+        ctx.sendSuccess(() -> Component.literal("Components   : " + stack.getComponents()), false);
         return 0;
     }
 }

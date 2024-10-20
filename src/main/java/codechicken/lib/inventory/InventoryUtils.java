@@ -2,6 +2,7 @@ package codechicken.lib.inventory;
 
 import codechicken.lib.util.ItemUtils;
 import com.google.common.base.Objects;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NumericTag;
@@ -77,20 +78,19 @@ public class InventoryUtils {
     /**
      * NBT item saving function
      */
-    public static ListTag writeItemStacksToTag(ItemStack[] items) {
-        return writeItemStacksToTag(items, 64);
+    public static ListTag writeItemStacksToTag(HolderLookup.Provider registries, ItemStack[] items) {
+        return writeItemStacksToTag(registries, items, 64);
     }
 
     /**
      * NBT item saving function with support for stack sizes > 32K
      */
-    public static ListTag writeItemStacksToTag(ItemStack[] items, int maxQuantity) {
+    public static ListTag writeItemStacksToTag(HolderLookup.Provider registries, ItemStack[] items, int maxQuantity) {
         ListTag tagList = new ListTag();
         for (int i = 0; i < items.length; i++) {
             CompoundTag tag = new CompoundTag();
             tag.putShort("Slot", (short) i);
-            items[i].save(tag);
-
+            tag.put("Item", items[i].saveOptional(registries));
             if (maxQuantity > Short.MAX_VALUE) {
                 tag.putInt("Quantity", items[i].getCount());
             } else if (maxQuantity > Byte.MAX_VALUE) {
@@ -105,11 +105,11 @@ public class InventoryUtils {
     /**
      * NBT item loading function with support for stack sizes > 32K
      */
-    public static void readItemStacksFromTag(ItemStack[] items, ListTag tagList) {
+    public static void readItemStacksFromTag(HolderLookup.Provider registries, ItemStack[] items, ListTag tagList) {
         for (int i = 0; i < tagList.size(); i++) {
             CompoundTag tag = tagList.getCompound(i);
             int b = tag.getShort("Slot");
-            items[b] = ItemStack.of(tag);
+            items[b] = ItemStack.parseOptional(registries, tag.getCompound("Item"));
             Tag quantTag = tag.get("Quantity");
             if (quantTag instanceof NumericTag quant) {
                 items[b].setCount(quant.getAsInt());
@@ -210,11 +210,11 @@ public class InventoryUtils {
             return stack1 == stack2;
         }
 
-        return stack1.getItem() == stack2.getItem() && stack1.getDamageValue() == stack2.getDamageValue() && stack1.getCount() == stack2.getCount() && Objects.equal(stack1.getTag(), stack2.getTag());
+        return stack1.getItem() == stack2.getItem() && stack1.getDamageValue() == stack2.getDamageValue() && stack1.getCount() == stack2.getCount() && ItemStack.isSameItemSameComponents(stack2, stack1);
     }
 
     public static boolean canStack(ItemStack stack1, ItemStack stack2) {
-        return stack1.isEmpty() || stack2.isEmpty() || (stack1.getItem() == stack2.getItem() && (stack2.getDamageValue() == stack1.getDamageValue()) && ItemStack.isSameItemSameTags(stack2, stack1)) && stack1.isStackable();
+        return stack1.isEmpty() || stack2.isEmpty() || (stack1.getItem() == stack2.getItem() && (stack2.getDamageValue() == stack1.getDamageValue()) && ItemStack.isSameItemSameComponents(stack2, stack1)) && stack1.isStackable();
     }
 
     /**

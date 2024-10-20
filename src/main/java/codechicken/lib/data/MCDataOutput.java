@@ -4,16 +4,14 @@ import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.EncoderException;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
-import net.minecraft.core.Vec3i;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamEncoder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -869,21 +867,7 @@ public interface MCDataOutput {
      * @return The same stream.
      */
     default MCDataOutput writeItemStack(ItemStack stack) {
-        if (stack.isEmpty()) {
-            writeBoolean(false);
-        } else {
-            writeBoolean(true);
-            Item item = stack.getItem();
-            writeRegistryIdDirect(BuiltInRegistries.ITEM, item);
-            writeVarInt(stack.getCount());
-            writeNullableCompoundNBT(stack.serializeAttachments());
-            CompoundTag nbt = null;
-            if (item.canBeDepleted() || item.shouldOverrideMultiplayerNbt()) {
-                nbt = stack.getTag();
-            }
-            writeNullableCompoundNBT(nbt);
-        }
-        return this;
+        return writeWithRegistryCodec(ItemStack.OPTIONAL_STREAM_CODEC, stack);
     }
 
     /**
@@ -893,15 +877,7 @@ public interface MCDataOutput {
      * @return The same stream.
      */
     default MCDataOutput writeFluidStack(FluidStack stack) {
-        if (stack.isEmpty()) {
-            writeBoolean(false);
-        } else {
-            writeBoolean(true);
-            writeRegistryIdDirect(BuiltInRegistries.FLUID, stack.getFluid());
-            writeVarInt(stack.getAmount());
-            writeNullableCompoundNBT(stack.getTag());
-        }
-        return this;
+        return writeWithRegistryCodec(FluidStack.OPTIONAL_STREAM_CODEC, stack);
     }
 
     /**
@@ -911,7 +887,7 @@ public interface MCDataOutput {
      * @return The same stream.
      */
     default MCDataOutput writeTextComponent(Component component) {
-        return writeString(Component.Serializer.toJson(component), 262144);//32kb
+        return writeString(Component.Serializer.toJson(component, RegistryAccess.EMPTY), 262144);//32kb
     }
 
     /**
@@ -976,6 +952,14 @@ public interface MCDataOutput {
         writeResourceLocation(rName);
         writeRegistryIdDirect(registry, entry);
         return this;
+    }
+
+    default <T> MCDataOutput writeWithCodec(StreamEncoder<? super FriendlyByteBuf, T> codec, T thing) {
+        throw new RuntimeException("Only able to use StreamCodec's with PacketCustom instances.");
+    }
+
+    default <T> MCDataOutput writeWithRegistryCodec(StreamEncoder<? super RegistryFriendlyByteBuf, T> codec, T thing) {
+        throw new RuntimeException("Only able to use StreamCodec's with PacketCustom instances.");
     }
     //endregion
 

@@ -18,7 +18,7 @@ public class TomlConfigSerializer implements ConfigSerializer {
 
     @Override
     public void parse(Path file, ConfigCategoryImpl rootTag) throws IOException {
-        try (CommentedFileConfig tomlConfig = CommentedFileConfig.builder(file).preserveInsertionOrder().build()) {
+        try (CommentedFileConfig tomlConfig = CommentedFileConfig.builder(file).sync().preserveInsertionOrder().build()) {
             tomlConfig.load();
             load("", rootTag, tomlConfig);
         }

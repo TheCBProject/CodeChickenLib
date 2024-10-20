@@ -16,7 +16,6 @@ import codechicken.lib.render.pipeline.attribute.*;
 import codechicken.lib.vec.Matrix4;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -30,6 +29,8 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
@@ -97,36 +98,6 @@ public class CCRenderState {
 
     public static CCRenderState instance() {
         return instances.get();
-    }
-
-    /**
-     * Bind this {@link CCRenderState} instance to the {@link Tesselator} buffer
-     * and prepare to start drawing vertices for the given <code>mode</code> and {@link VertexFormat}.
-     *
-     * @param mode   The Draw Mode.
-     * @param format The {@link VertexFormat}.
-     * @return The {@link BufferBuilder} instance from {@link Tesselator}.
-     */
-    public BufferBuilder startDrawing(VertexFormat.Mode mode, VertexFormat format) {
-        BufferBuilder r = Tesselator.getInstance().getBuilder();
-        r.begin(mode, format);
-        bind(r);
-        return r;
-    }
-
-    /**
-     * Bind this {@link CCRenderState} instance to the given {@link BufferBuilder}
-     * and prepare to start drawing vertices for the given <code>mode</code> and {@link VertexFormat}.
-     *
-     * @param mode   The Draw Mode.
-     * @param format The {@link VertexFormat}.
-     * @param buffer The {@link BufferBuilder} to bind to.
-     * @return The same {@link BufferBuilder} that was passed in.
-     */
-    public BufferBuilder startDrawing(VertexFormat.Mode mode, VertexFormat format, BufferBuilder buffer) {
-        buffer.begin(mode, format);
-        bind(buffer);
-        return buffer;
     }
 
     /**
@@ -261,39 +232,23 @@ public class CCRenderState {
         if (sprite != null && r instanceof ISpriteAwareVertexConsumer cons) {
             cons.sprite(sprite);
         }
-        ImmutableList<VertexFormatElement> elements = fmt.getElements();
-        for (int e = 0; e < elements.size(); e++) {
-            VertexFormatElement fmte = elements.get(e);
-            switch (fmte.getUsage()) {
-                case POSITION:
-                    r.vertex(vert.vec.x, vert.vec.y, vert.vec.z);
-                    break;
-                case UV:
-                    int idx = fmte.getIndex();
-                    switch (idx) {
-                        case 0 -> r.uv((float) vert.uv.u, (float) vert.uv.v);
-                        case 1 -> r.overlayCoords(overlay);
-                        case 2 -> r.uv2(brightness);
+        List<VertexFormatElement> elements = fmt.getElements();
+        for (VertexFormatElement fmte : elements) {
+            switch (fmte.usage()) {
+                case POSITION -> r.addVertex((float) vert.vec.x, (float) vert.vec.y, (float) vert.vec.z);
+                case UV -> {
+                    switch (fmte.index()) {
+                        case 0 -> r.setUv((float) vert.uv.u, (float) vert.uv.v);
+                        case 1 -> r.setOverlay(overlay);
+                        case 2 -> r.setLight(brightness);
+                        default -> throw new UnsupportedOperationException("Unknown UV index. " + fmte.index());
                     }
-                    break;
-                case COLOR:
-                    if (r instanceof BufferBuilder && ((BufferBuilder) r).defaultColorSet) {
-                        //-_- Fucking mojang..
-                        ((BufferBuilder) r).nextElement();
-                    } else {
-                        r.color(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
-                    }
-                    break;
-                case NORMAL:
-                    r.normal((float) normal.x, (float) normal.y, (float) normal.z);
-                    break;
-                case PADDING:
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Generic vertex format element");
+                }
+                case COLOR -> r.setColor(colour >>> 24, colour >> 16 & 0xFF, colour >> 8 & 0xFF, alphaOverride >= 0 ? alphaOverride : colour & 0xFF);
+                case NORMAL -> r.setNormal((float) normal.x, (float) normal.y, (float) normal.z);
+                default -> throw new UnsupportedOperationException("Generic vertex format element");
             }
         }
-        r.endVertex();
     }
 
     public void setBrightness(BlockAndTintGetter world, BlockPos pos) {
@@ -326,9 +281,5 @@ public class CCRenderState {
 
     public VertexFormat getVertexFormat() {
         return requireNonNull(fmt, "VertexFormat is not bound.");
-    }
-
-    public void draw() {
-        Tesselator.getInstance().end();
     }
 }

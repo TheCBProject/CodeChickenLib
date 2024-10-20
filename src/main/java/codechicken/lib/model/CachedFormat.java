@@ -95,7 +95,7 @@ public class CachedFormat {
 
         for (int i = 0; i < elementCount; i++) {
             VertexFormatElement element = elements.get(i);
-            switch (element.getUsage()) {
+            switch (element.usage()) {
                 case POSITION:
                     if (hasPosition) {
                         throw new IllegalStateException("Found 2 position elements..");
@@ -118,7 +118,7 @@ public class CachedFormat {
                     colorIndex = i;
                     break;
                 case UV:
-                    switch (element.getIndex()) {
+                    switch (element.index()) {
                         case 0 -> {
                             if (hasUV) {
                                 throw new IllegalStateException("Found 2 UV elements..");

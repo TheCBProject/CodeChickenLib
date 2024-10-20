@@ -5,9 +5,10 @@ import codechicken.lib.vec.Matrix4;
 import net.covers1624.quack.util.CrashLock;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.bus.api.EventPriority;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 
 public class CCRenderEventHandler {
 
@@ -23,16 +24,12 @@ public class CCRenderEventHandler {
         NeoForge.EVENT_BUS.addListener(EventPriority.LOW, CCRenderEventHandler::onBlockHighlight);
     }
 
-    private static void clientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
-            renderTime++;
-        }
+    private static void clientTick(ClientTickEvent.Post event) {
+        renderTime++;
     }
 
-    private static void renderTick(TickEvent.RenderTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            renderFrame = event.renderTickTime;
-        }
+    private static void renderTick(RenderFrameEvent.Pre event) {
+        renderFrame = event.getPartialTick().getGameTimeDeltaPartialTick(true);
     }
 
     private static void onBlockHighlight(RenderHighlightEvent.Block event) {

@@ -15,7 +15,7 @@ public class MatLibTests {
 
     @Test
     public void testMatLibParse() {
-        MatLib matLib = MatLib.parse(TestResourceProvider.INSTANCE, new ResourceLocation("test:model/test.mtl"));
+        MatLib matLib = MatLib.parse(TestResourceProvider.INSTANCE, ResourceLocation.parse("test:model/test.mtl"));
         assertEquals(1, matLib.materials.size());
         ModelMaterial material = matLib.getMaterial("Material");
         assertNotNull(material);

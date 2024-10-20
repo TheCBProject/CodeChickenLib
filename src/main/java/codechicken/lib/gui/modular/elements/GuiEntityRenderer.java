@@ -264,7 +264,7 @@ public class GuiEntityRenderer extends GuiElement<GuiEntityRenderer> implements 
     public static void renderEntityInInventory(GuiRender render, double pX, double pY, double pScale, boolean flat, Quaternionf quat, @Nullable Quaternionf pCameraOrientation, Entity pEntity) {
         render.pose().pushPose();
         render.pose().translate(pX, pY, 50.0D);
-        render.pose().mulPoseMatrix((new Matrix4f()).scaling((float) pScale, (float) pScale, flat ? -1 : (float) (-pScale)));
+        render.pose().scale((float) pScale, (float) pScale, flat ? -1 : (float) (-pScale));
         render.pose().mulPose(quat);
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();

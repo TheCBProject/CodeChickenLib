@@ -79,7 +79,7 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     public final BuiltRecipe build() {
         validate();
         if (enableUnlocking) {
-            advancementBuilder.parent(new ResourceLocation("recipes/root"))
+            advancementBuilder.parent(ResourceLocation.withDefaultNamespace("recipes/root"))
                     .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
                     .rewards(AdvancementRewards.Builder.recipe(id))
                     .requirements(AdvancementRequirements.Strategy.OR);

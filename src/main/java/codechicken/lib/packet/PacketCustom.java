@@ -1,18 +1,19 @@
 package codechicken.lib.packet;
 
 import codechicken.lib.data.MCDataByteBuf;
+import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.vec.Cuboid6;
 import codechicken.lib.vec.Vector3;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Registry;
-import net.minecraft.core.Vec3i;
+import net.minecraft.core.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamDecoder;
+import net.minecraft.network.codec.StreamEncoder;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.network.connection.ConnectionType;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.*;
@@ -36,22 +38,25 @@ public final class PacketCustom extends MCDataByteBuf {
     private final ResourceLocation channel;
     private final boolean inbound;
     private final int type;
+    private final @Nullable RegistryAccess registryAccess;
 
     PacketCustom(Pkt pkt) {
-        super(pkt.data);
-        channel = pkt.id;
+        super(pkt.data, pkt.registryAccess);
+        channel = pkt.type().id();
         inbound = true;
         type = readUByte();
+        registryAccess = pkt.registryAccess();
     }
 
-    public PacketCustom(ResourceLocation channel, int type) {
-        super(Unpooled.buffer());
+    public PacketCustom(ResourceLocation channel, int type, @Nullable RegistryAccess registryAccess) {
+        super(Unpooled.buffer(), registryAccess);
         if (!MathHelper.between(0, type, 255)) {
             throw new RuntimeException("Invalid packet type, Must be between 0 and 255. Got: " + type);
         }
         this.channel = channel;
         inbound = false;
         this.type = type;
+        this.registryAccess = registryAccess;
         writeByte(type);
     }
 
@@ -70,7 +75,7 @@ public final class PacketCustom extends MCDataByteBuf {
     public CustomPacketPayload toCustomPayload() {
         if (isInbound()) throw new RuntimeException("Unable to send an inbound packet.");
 
-        return new Pkt(channel, toFriendlyByteBuf());
+        return new Pkt(new CustomPacketPayload.Type<>(channel), registryAccess, toFriendlyByteBuf());
     }
 
     // region Server -> Client
@@ -194,13 +199,6 @@ public final class PacketCustom extends MCDataByteBuf {
     //@formatter:on
     //endregion
 
-    record Pkt(ResourceLocation id, ByteBuf data) implements CustomPacketPayload {
-
-        @Override
-        public void write(FriendlyByteBuf buf) {
-            data.markReaderIndex();
-            buf.writeBytes(data);
-            data.resetReaderIndex();
-        }
+    record Pkt(Type<Pkt> type, @Nullable RegistryAccess registryAccess, ByteBuf data) implements CustomPacketPayload {
     }
 }

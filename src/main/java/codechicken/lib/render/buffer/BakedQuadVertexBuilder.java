@@ -1,18 +1,14 @@
 package codechicken.lib.render.buffer;
 
-import codechicken.lib.colour.Colour;
-import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.model.CachedFormat;
 import codechicken.lib.model.Quad;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * A {@link VertexConsumer} implementation to build {@link BakedQuad}s.
@@ -21,14 +17,12 @@ import java.util.stream.Collectors;
  */
 public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVertexConsumer {
 
-    private final List<Quad> quadList = new ArrayList<>();
+    private final List<BakedQuad> quadList = new ArrayList<>();
     private final VertexFormat.Mode mode;
-    private final int vSize;
 
+    private final Quad current = new Quad();
     private CachedFormat format;
-    private @Nullable Colour defaultColour;
-    private @Nullable Quad current;
-    private int vertex;
+    private int vertex = -1;
 
     public BakedQuadVertexBuilder() {
         this(VertexFormat.Mode.QUADS);
@@ -56,7 +50,6 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
         }
         this.mode = mode;
         this.format = format;
-        vSize = mode.primitiveLength;
     }
 
     // Provided for interop with other mods that may provide different quad formats.
@@ -67,39 +60,34 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
     // Provided for interop with other mods that may provide different quad formats.
     public void setFormat(CachedFormat format) {
         this.format = format;
+        current.reset(format);
     }
 
     public void reset() {
         quadList.clear();
-        current = null;
-        vertex = 0;
+        vertex = -1;
     }
 
     @Override
     public void sprite(TextureAtlasSprite sprite) {
-        checkNewQuad();
-        assert current != null;
         current.setTexture(sprite);
     }
 
     @Override
-    public VertexConsumer vertex(double x, double y, double z) {
+    public VertexConsumer addVertex(float x, float y, float z) {
         if (!format.hasPosition) return this;
 
-        checkNewQuad();
-        assert current != null;
-        current.vertices[vertex].vec()[0] = (float) x;
-        current.vertices[vertex].vec()[1] = (float) y;
-        current.vertices[vertex].vec()[2] = (float) z;
+        endPrevVertex();
+        current.vertices[vertex].vec()[0] = x;
+        current.vertices[vertex].vec()[1] = y;
+        current.vertices[vertex].vec()[2] = z;
         return this;
     }
 
     @Override
-    public VertexConsumer color(int red, int green, int blue, int alpha) {
+    public VertexConsumer setColor(int red, int green, int blue, int alpha) {
         if (!format.hasColor) return this;
 
-        checkNewQuad();
-        assert current != null;
         current.vertices[vertex].color()[0] = red / 255F;
         current.vertices[vertex].color()[1] = green / 255F;
         current.vertices[vertex].color()[2] = blue / 255F;
@@ -108,55 +96,45 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
     }
 
     @Override
-    public VertexConsumer uv(float u, float v) {
+    public VertexConsumer setUv(float u, float v) {
         if (!format.hasUV) return this;
 
-        checkNewQuad();
-        assert current != null;
         current.vertices[vertex].uv()[0] = u;
         current.vertices[vertex].uv()[1] = v;
         return this;
     }
 
     @Override
-    public VertexConsumer overlayCoords(int u, int v) {
+    public VertexConsumer setUv1(int u, int v) {
         if (!format.hasOverlay) return this;
 
-        checkNewQuad();
-        assert current != null;
         current.vertices[vertex].overlay()[0] = u / (float) 0xF0;
         current.vertices[vertex].overlay()[1] = v / (float) 0xF0;
         return this;
     }
 
     @Override
-    public VertexConsumer uv2(int u, int v) {
+    public VertexConsumer setUv2(int u, int v) {
         if (!format.hasLightMap) return this;
 
-        checkNewQuad();
-        assert current != null;
         current.vertices[vertex].lightmap()[0] = u / (float) 0xF0;
         current.vertices[vertex].lightmap()[1] = v / (float) 0xF0;
         return this;
     }
 
     @Override
-    public VertexConsumer normal(float x, float y, float z) {
+    public VertexConsumer setNormal(float x, float y, float z) {
         if (!format.hasNormal) return this;
 
-        checkNewQuad();
-        assert current != null;
         current.vertices[vertex].normal()[0] = x;
         current.vertices[vertex].normal()[1] = y;
         current.vertices[vertex].normal()[2] = z;
         return this;
     }
 
-    @Override
-    public void endVertex() {
-        assert current != null;
+    private void endPrevVertex() {
         vertex++;
-        if (vertex == vSize) {
+        if (vertex == mode.primitiveLength) {
             if (mode == VertexFormat.Mode.TRIANGLES) {
                 //Quadulate.
                 for (int e = 0; e < current.format().elementCount; e++) {
@@ -166,38 +144,14 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
             if (current.sprite == null) {
                 throw new IllegalStateException("Sprite not set.");
             }
-            if (defaultColour != null) {
-                float[] colour = defaultColour.getRGBA();
-                for (Quad.Vertex v : current.vertices) {
-                    System.arraycopy(colour, 0, v.color(), 0, 4);
-                }
-            }
-            quadList.add(current);
-            current = null;
-            vertex = 0;
+            quadList.add(current.bake());
+            current.reset(format);
+            vertex = -1;
         }
-    }
-
-    @Override
-    public void defaultColor(int r, int g, int b, int a) {
-        defaultColour = new ColourRGBA(r, g, b, a);
-    }
-
-    @Override
-    public void unsetDefaultColor() {
-        defaultColour = null;
     }
 
     public List<BakedQuad> bake() {
-        if (current != null) {
-            throw new IllegalStateException("Not finished building.");
-        }
-        return quadList.stream().map(Quad::bake).collect(Collectors.toList());
-    }
-
-    private void checkNewQuad() {
-        if (current == null) {
-            current = new Quad(format);
-        }
+        endPrevVertex();
+        return new ArrayList<>(quadList);
     }
 }

@@ -139,35 +139,35 @@ public class RenderUtils {
      * @param a       Alpha channel.
      */
     public static void bufferCuboidSolid(VertexConsumer builder, Cuboid6 c, float r, float g, float b, float a) {
-        builder.vertex(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.addVertex((float) c.min.x, (float) c.max.y, (float) c.min.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.max.x, (float) c.max.y, (float) c.min.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.max.x, (float) c.min.y, (float) c.min.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.min.x, (float) c.min.y, (float) c.min.z).setColor(r, g, b, a);
 
-        builder.vertex(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.addVertex((float) c.min.x, (float) c.min.y, (float) c.max.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.max.x, (float) c.min.y, (float) c.max.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.max.x, (float) c.max.y, (float) c.max.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.min.x, (float) c.max.y, (float) c.max.z).setColor(r, g, b, a);
 
-        builder.vertex(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.addVertex((float) c.min.x, (float) c.min.y, (float) c.min.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.max.x, (float) c.min.y, (float) c.min.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.max.x, (float) c.min.y, (float) c.max.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.min.x, (float) c.min.y, (float) c.max.z).setColor(r, g, b, a);
 
-        builder.vertex(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.addVertex((float) c.min.x, (float) c.max.y, (float) c.max.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.max.x, (float) c.max.y, (float) c.max.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.max.x, (float) c.max.y, (float) c.min.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.min.x, (float) c.max.y, (float) c.min.z).setColor(r, g, b, a);
 
-        builder.vertex(c.min.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.min.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.min.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.min.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
+        builder.addVertex((float) c.min.x, (float) c.min.y, (float) c.max.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.min.x, (float) c.max.y, (float) c.max.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.min.x, (float) c.max.y, (float) c.min.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.min.x, (float) c.min.y, (float) c.min.z).setColor(r, g, b, a);
 
-        builder.vertex(c.max.x, c.min.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.max.x, c.max.y, c.min.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.max.x, c.max.y, c.max.z).color(r, g, b, a).endVertex();
-        builder.vertex(c.max.x, c.min.y, c.max.z).color(r, g, b, a).endVertex();
+        builder.addVertex((float) c.max.x, (float) c.min.y, (float) c.min.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.max.x, (float) c.max.y, (float) c.min.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.max.x, (float) c.max.y, (float) c.max.z).setColor(r, g, b, a);
+        builder.addVertex((float) c.max.x, (float) c.min.y, (float) c.max.z).setColor(r, g, b, a);
     }
 
     public static void bufferHitbox(Matrix4 mat, MultiBufferSource getter, Camera renderInfo, Cuboid6 cuboid) {
@@ -215,8 +215,8 @@ public class RenderUtils {
         Vector3 v1 = vectors[0].set(x1, y1, z1).subtract(x2, y2, z2);
         double d = v1.mag();
         v1.divide(d);
-        builder.vertex(x1, y1, z1).color(r, g, b, a).normal((float) v1.x, (float) v1.y, (float) v1.z).endVertex();
-        builder.vertex(x2, y2, z2).color(r, g, b, a).normal((float) v1.x, (float) v1.y, (float) v1.z).endVertex();
+        builder.addVertex((float) x1, (float) y1, (float) z1).setColor(r, g, b, a).setNormal((float) v1.x, (float) v1.y, (float) v1.z);
+        builder.addVertex((float) x2, (float) y2, (float) z2).setColor(r, g, b, a).setNormal((float) v1.x, (float) v1.y, (float) v1.z);
     }
 
     public static Matrix4 getMatrix(Matrix4 in, Vector3 translation, Rotation rotation, double scale) {

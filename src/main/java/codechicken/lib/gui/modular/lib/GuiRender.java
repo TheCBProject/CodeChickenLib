@@ -218,10 +218,10 @@ public class GuiRender {
 
         Matrix4f mat = pose.last().pose();
         VertexConsumer buffer = buffers.getBuffer(type);
-        buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(colour).endVertex(); //R-B
-        buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(colour).endVertex(); //R-T
-        buffer.vertex(mat, (float) xMin, (float) yMin, 0).color(colour).endVertex(); //L-T
-        buffer.vertex(mat, (float) xMin, (float) yMax, 0).color(colour).endVertex(); //L-B
+        buffer.addVertex(mat, (float) xMax, (float) yMax, 0).setColor(colour); //R-B
+        buffer.addVertex(mat, (float) xMax, (float) yMin, 0).setColor(colour); //R-T
+        buffer.addVertex(mat, (float) xMin, (float) yMin, 0).setColor(colour); //L-T
+        buffer.addVertex(mat, (float) xMin, (float) yMax, 0).setColor(colour); //L-B
         flushIfUnBatched();
     }
 
@@ -246,10 +246,10 @@ public class GuiRender {
         float eG = g(bottomColour);
         float eB = b(bottomColour);
         Matrix4f mat = pose.last().pose();
-        buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(eR, eG, eB, eA).endVertex(); //R-B
-        buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(sR, sG, sB, sA).endVertex(); //R-T
-        buffer.vertex(mat, (float) xMin, (float) yMin, 0).color(sR, sG, sB, sA).endVertex(); //L-T
-        buffer.vertex(mat, (float) xMin, (float) yMax, 0).color(eR, eG, eB, eA).endVertex(); //L-B
+        buffer.addVertex(mat, (float) xMax, (float) yMax, 0).setColor(eR, eG, eB, eA); //R-B
+        buffer.addVertex(mat, (float) xMax, (float) yMin, 0).setColor(sR, sG, sB, sA); //R-T
+        buffer.addVertex(mat, (float) xMin, (float) yMin, 0).setColor(sR, sG, sB, sA); //L-T
+        buffer.addVertex(mat, (float) xMin, (float) yMax, 0).setColor(eR, eG, eB, eA); //L-B
         this.flushIfUnBatched();
     }
 
@@ -274,10 +274,10 @@ public class GuiRender {
         float eG = g(rightColour);
         float eB = b(rightColour);
         Matrix4f mat = pose.last().pose();
-        buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(eR, eG, eB, eA).endVertex(); //R-B
-        buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(eR, eG, eB, eA).endVertex(); //R-T
-        buffer.vertex(mat, (float) xMin, (float) yMin, 0).color(sR, sG, sB, sA).endVertex(); //L-T
-        buffer.vertex(mat, (float) xMin, (float) yMax, 0).color(sR, sG, sB, sA).endVertex(); //L-B
+        buffer.addVertex(mat, (float) xMax, (float) yMax, 0).setColor(eR, eG, eB, eA); //R-B
+        buffer.addVertex(mat, (float) xMax, (float) yMin, 0).setColor(eR, eG, eB, eA); //R-T
+        buffer.addVertex(mat, (float) xMin, (float) yMin, 0).setColor(sR, sG, sB, sA); //L-T
+        buffer.addVertex(mat, (float) xMin, (float) yMax, 0).setColor(sR, sG, sB, sA); //L-B
         this.flushIfUnBatched();
     }
 
@@ -544,10 +544,10 @@ public class GuiRender {
     public void sprite(RenderType type, double xMin, double yMin, double xMax, double yMax, TextureAtlasSprite sprite, float red, float green, float blue, float alpha) {
         VertexConsumer buffer = buffers().getBuffer(type);
         Matrix4f mat = pose.last().pose();
-        buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(red, green, blue, alpha).uv(sprite.getU1(), sprite.getV1()).endVertex();  //R-B
-        buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(red, green, blue, alpha).uv(sprite.getU1(), sprite.getV0()).endVertex();  //R-T
-        buffer.vertex(mat, (float) xMin, (float) yMin, 0).color(red, green, blue, alpha).uv(sprite.getU0(), sprite.getV0()).endVertex();  //L-T
-        buffer.vertex(mat, (float) xMin, (float) yMax, 0).color(red, green, blue, alpha).uv(sprite.getU0(), sprite.getV1()).endVertex();  //L-B
+        buffer.addVertex(mat, (float) xMax, (float) yMax, 0).setColor(red, green, blue, alpha).setUv(sprite.getU1(), sprite.getV1());  //R-B
+        buffer.addVertex(mat, (float) xMax, (float) yMin, 0).setColor(red, green, blue, alpha).setUv(sprite.getU1(), sprite.getV0());  //R-T
+        buffer.addVertex(mat, (float) xMin, (float) yMin, 0).setColor(red, green, blue, alpha).setUv(sprite.getU0(), sprite.getV0());  //L-T
+        buffer.addVertex(mat, (float) xMin, (float) yMax, 0).setColor(red, green, blue, alpha).setUv(sprite.getU0(), sprite.getV1());  //L-B
         flushIfUnBatched();
     }
 
@@ -642,10 +642,10 @@ public class GuiRender {
         float[] v = { sprite.getV1(), sprite.getV1(), sprite.getV0(), sprite.getV0() };
         VertexConsumer buffer = buffers().getBuffer(type);
         Matrix4f mat = pose.last().pose();
-        buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(red, green, blue, alpha).uv(u[(1 + rotation) % 4], v[(1 + rotation) % 4]).endVertex();  //R-B
-        buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(red, green, blue, alpha).uv(u[(2 + rotation) % 4], v[(2 + rotation) % 4]).endVertex();  //R-T
-        buffer.vertex(mat, (float) xMin, (float) yMin, 0).color(red, green, blue, alpha).uv(u[(3 + rotation) % 4], v[(3 + rotation) % 4]).endVertex();  //L-T
-        buffer.vertex(mat, (float) xMin, (float) yMax, 0).color(red, green, blue, alpha).uv(u[(0 + rotation) % 4], v[(0 + rotation) % 4]).endVertex();  //L-B
+        buffer.addVertex(mat, (float) xMax, (float) yMax, 0).setColor(red, green, blue, alpha).setUv(u[(1 + rotation) % 4], v[(1 + rotation) % 4]);  //R-B
+        buffer.addVertex(mat, (float) xMax, (float) yMin, 0).setColor(red, green, blue, alpha).setUv(u[(2 + rotation) % 4], v[(2 + rotation) % 4]);  //R-T
+        buffer.addVertex(mat, (float) xMin, (float) yMin, 0).setColor(red, green, blue, alpha).setUv(u[(3 + rotation) % 4], v[(3 + rotation) % 4]);  //L-T
+        buffer.addVertex(mat, (float) xMin, (float) yMax, 0).setColor(red, green, blue, alpha).setUv(u[(0 + rotation) % 4], v[(0 + rotation) % 4]);  //L-B
         flushIfUnBatched();
     }
 
@@ -759,10 +759,10 @@ public class GuiRender {
         float v1 = sprite.getV1();
         float ul = u1 - u0;
         float vl = v1 - v0;
-        buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(red, green, blue, alpha).uv(u0 + (uMax * ul), v0 + (vMax * vl)).endVertex();  //R-B
-        buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(red, green, blue, alpha).uv(u0 + (uMax * ul), v0 + (vMin * vl)).endVertex();  //R-T
-        buffer.vertex(mat, (float) xMin, (float) yMin, 0).color(red, green, blue, alpha).uv(u0 + (uMin * ul), v0 + (vMin * vl)).endVertex();  //L-T
-        buffer.vertex(mat, (float) xMin, (float) yMax, 0).color(red, green, blue, alpha).uv(u0 + (uMin * ul), v0 + (vMax * vl)).endVertex();  //L-B
+        buffer.addVertex(mat, (float) xMax, (float) yMax, 0).setColor(red, green, blue, alpha).setUv(u0 + (uMax * ul), v0 + (vMax * vl));  //R-B
+        buffer.addVertex(mat, (float) xMax, (float) yMin, 0).setColor(red, green, blue, alpha).setUv(u0 + (uMax * ul), v0 + (vMin * vl));  //R-T
+        buffer.addVertex(mat, (float) xMin, (float) yMin, 0).setColor(red, green, blue, alpha).setUv(u0 + (uMin * ul), v0 + (vMin * vl));  //L-T
+        buffer.addVertex(mat, (float) xMin, (float) yMax, 0).setColor(red, green, blue, alpha).setUv(u0 + (uMin * ul), v0 + (vMax * vl));  //L-B
         flushIfUnBatched();
     }
 
@@ -905,10 +905,10 @@ public class GuiRender {
         TextureAtlasSprite sprite = material.sprite();
         VertexConsumer buffer = material.buffer(buffers, GuiRender::texColType);
         Matrix4f mat = pose.last().pose();
-        buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(red, green, blue, alpha).uv(sprite.getU1(), sprite.getV1()).endVertex();  //R-B
-        buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(red, green, blue, alpha).uv(sprite.getU1(), sprite.getV0()).endVertex();  //R-T
-        buffer.vertex(mat, (float) xMin, (float) yMin, 0).color(red, green, blue, alpha).uv(sprite.getU0(), sprite.getV0()).endVertex();  //L-T
-        buffer.vertex(mat, (float) xMin, (float) yMax, 0).color(red, green, blue, alpha).uv(sprite.getU0(), sprite.getV1()).endVertex();  //L-B
+        buffer.addVertex(mat, (float) xMax, (float) yMax, 0).setColor(red, green, blue, alpha).setUv(sprite.getU1(), sprite.getV1());  //R-B
+        buffer.addVertex(mat, (float) xMax, (float) yMin, 0).setColor(red, green, blue, alpha).setUv(sprite.getU1(), sprite.getV0());  //R-T
+        buffer.addVertex(mat, (float) xMin, (float) yMin, 0).setColor(red, green, blue, alpha).setUv(sprite.getU0(), sprite.getV0());  //L-T
+        buffer.addVertex(mat, (float) xMin, (float) yMax, 0).setColor(red, green, blue, alpha).setUv(sprite.getU0(), sprite.getV1());  //L-B
         flushIfUnBatched();
     }
 
@@ -1004,10 +1004,10 @@ public class GuiRender {
         float[] u = { sprite.getU0(), sprite.getU1(), sprite.getU1(), sprite.getU0() };
         float[] v = { sprite.getV1(), sprite.getV1(), sprite.getV0(), sprite.getV0() };
         Matrix4f mat = pose.last().pose();
-        buffer.vertex(mat, (float) xMax, (float) yMax, 0).color(red, green, blue, alpha).uv(u[(1 + rotation) % 4], v[(1 + rotation) % 4]).endVertex();  //R-B
-        buffer.vertex(mat, (float) xMax, (float) yMin, 0).color(red, green, blue, alpha).uv(u[(2 + rotation) % 4], v[(2 + rotation) % 4]).endVertex();  //R-T
-        buffer.vertex(mat, (float) xMin, (float) yMin, 0).color(red, green, blue, alpha).uv(u[(3 + rotation) % 4], v[(3 + rotation) % 4]).endVertex();  //L-T
-        buffer.vertex(mat, (float) xMin, (float) yMax, 0).color(red, green, blue, alpha).uv(u[(0 + rotation) % 4], v[(0 + rotation) % 4]).endVertex();  //L-B
+        buffer.addVertex(mat, (float) xMax, (float) yMax, 0).setColor(red, green, blue, alpha).setUv(u[(1 + rotation) % 4], v[(1 + rotation) % 4]);  //R-B
+        buffer.addVertex(mat, (float) xMax, (float) yMin, 0).setColor(red, green, blue, alpha).setUv(u[(2 + rotation) % 4], v[(2 + rotation) % 4]);  //R-T
+        buffer.addVertex(mat, (float) xMin, (float) yMin, 0).setColor(red, green, blue, alpha).setUv(u[(3 + rotation) % 4], v[(3 + rotation) % 4]);  //L-T
+        buffer.addVertex(mat, (float) xMin, (float) yMax, 0).setColor(red, green, blue, alpha).setUv(u[(0 + rotation) % 4], v[(0 + rotation) % 4]);  //L-B
         flushIfUnBatched();
     }
 
@@ -1138,10 +1138,10 @@ public class GuiRender {
         int w = tex.contents().width();
         int h = tex.contents().height();
         //@formatter:off
-        builder.vertex(mat, x,         y + height, 0).color(red, green, blue, alpha).uv(tex.getU(textureX / w),           tex.getV((textureY + height) / h)).endVertex();
-        builder.vertex(mat, x + width, y + height, 0).color(red, green, blue, alpha).uv(tex.getU((textureX + width) / w), tex.getV((textureY + height) / h)).endVertex();
-        builder.vertex(mat, x + width, y,          0).color(red, green, blue, alpha).uv(tex.getU((textureX + width) / w), tex.getV((textureY / h))).endVertex();
-        builder.vertex(mat, x,         y,          0).color(red, green, blue, alpha).uv(tex.getU(textureX / w),           tex.getV((textureY / h))).endVertex();
+        builder.addVertex(mat, x,         y + height, 0).setColor(red, green, blue, alpha).setUv(tex.getU(textureX / w),           tex.getV((textureY + height) / h));
+        builder.addVertex(mat, x + width, y + height, 0).setColor(red, green, blue, alpha).setUv(tex.getU((textureX + width) / w), tex.getV((textureY + height) / h));
+        builder.addVertex(mat, x + width, y,          0).setColor(red, green, blue, alpha).setUv(tex.getU((textureX + width) / w), tex.getV((textureY / h))         );
+        builder.addVertex(mat, x,         y,          0).setColor(red, green, blue, alpha).setUv(tex.getU(textureX / w),           tex.getV((textureY / h))         );
         //@formatter:on
     }
 
@@ -1485,8 +1485,7 @@ public class GuiRender {
             pose.pushPose();
             pose.translate(x + (size / 2D), y + (size / 2D), size);
             try {
-                pose.mulPoseMatrix((new Matrix4f()).scaling(1.0F, -1.0F, 1.0F));
-                pose.scale((float) size, (float) size, (float) size);
+                pose.scale((float) size, (float) -size, (float) size);
                 boolean flag = !bakedmodel.usesBlockLight();
                 if (flag) Lighting.setupForFlatItems();
                 mc().getItemRenderer().render(stack, ItemDisplayContext.GUI, false, pose, buffers, 0xf000f0, OverlayTexture.NO_OVERLAY, bakedmodel);
@@ -1496,9 +1495,7 @@ public class GuiRender {
                 CrashReport crashreport = CrashReport.forThrowable(throwable, "Rendering item");
                 CrashReportCategory crashreportcategory = crashreport.addCategory("Item being rendered");
                 crashreportcategory.setDetail("Item Type", () -> String.valueOf(stack.getItem()));
-                crashreportcategory.setDetail("Item Stack", () -> String.valueOf(stack.getItem()));
-                crashreportcategory.setDetail("Item Damage", () -> String.valueOf(stack.getDamageValue()));
-                crashreportcategory.setDetail("Item NBT", () -> String.valueOf(stack.getTag()));
+                crashreportcategory.setDetail("Item Components", () -> String.valueOf(stack.getComponents()));
                 crashreportcategory.setDetail("Item Foil", () -> String.valueOf(stack.hasFoil()));
                 throw new ReportedException(crashreport);
             }
@@ -1567,7 +1564,7 @@ public class GuiRender {
             }
 
             LocalPlayer localplayer = mc().player;
-            float f = localplayer == null ? 0.0F : localplayer.getCooldowns().getCooldownPercent(stack.getItem(), mc().getFrameTime());
+            float f = localplayer == null ? 0.0F : localplayer.getCooldowns().getCooldownPercent(stack.getItem(), mc().getTimer().getGameTimeDeltaPartialTick(true));
             if (f > 0.0F) {
                 double i1 = y + Mth.floor(16.0F * (1.0F - f));
                 double j1 = i1 + Mth.ceil(16.0F * f);
@@ -1699,8 +1696,8 @@ public class GuiRender {
     }
 
     public static RenderType texColType(ResourceLocation location) {
-        return RenderType.create("tex_col_type", DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, RenderType.CompositeState.builder()
-                .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorTexShader))
+        return RenderType.create("tex_col_type", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 256, RenderType.CompositeState.builder()
+                .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader))
                 .setTextureState(new RenderStateShard.TextureStateShard(location, false, false))
                 .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
                 .setCullState(RenderStateShard.NO_CULL)

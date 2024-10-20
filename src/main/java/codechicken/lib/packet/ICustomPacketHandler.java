@@ -3,7 +3,7 @@ package codechicken.lib.packet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ConfigurationTask;
-import net.neoforged.neoforge.network.event.OnGameConfigurationEvent;
+import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Consumer;
@@ -36,7 +36,7 @@ public interface ICustomPacketHandler {
     }
 
     /**
-     * Used with {@link OnGameConfigurationEvent} to send packets to the client during the configuration phase.
+     * Used with {@link RegisterConfigurationTasksEvent} to send packets to the client during the configuration phase.
      */
     interface IClientConfigurationPacketHandler extends ICustomPacketHandler {
 

@@ -2,6 +2,7 @@ package codechicken.lib.block;
 
 import codechicken.lib.block.ModularTileBlock.TileComponent;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -43,24 +44,24 @@ public abstract class ModularBlockEntity extends BlockEntity {
 
     @Override
     @MustBeInvokedByOverriders
-    protected void saveAdditional(CompoundTag tag) {
-        super.saveAdditional(tag);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
 
         for (DataComponent component : components) {
             CompoundTag componentTag = new CompoundTag();
-            component.save(componentTag);
+            component.save(componentTag, registries);
             tag.put(component.tileComponent.name, componentTag);
         }
     }
 
     @Override
     @MustBeInvokedByOverriders
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
 
         for (DataComponent component : components) {
             if (tag.contains(component.tileComponent.name)) {
-                component.load(tag.getCompound(component.tileComponent.name));
+                component.load(tag.getCompound(component.tileComponent.name), registries);
             }
         }
     }
@@ -75,10 +76,10 @@ public abstract class ModularBlockEntity extends BlockEntity {
             this.tileComponent = tileComponent;
         }
 
-        protected void save(CompoundTag tag) {
+        protected void save(CompoundTag tag, HolderLookup.Provider registries) {
         }
 
-        protected void load(CompoundTag tag) {
+        protected void load(CompoundTag tag, HolderLookup.Provider registries) {
         }
     }
 }

@@ -19,7 +19,7 @@ public class OBJParserTests {
 
     @Test
     public void testObject() {
-        Map<String, CCModel> modelMap = OBJParser.parse(TestResourceProvider.INSTANCE, new ResourceLocation("test:model/test.obj"), VertexFormat.Mode.QUADS, null, false);
+        Map<String, CCModel> modelMap = OBJParser.parse(TestResourceProvider.INSTANCE, ResourceLocation.parse("test:model/test.obj"), VertexFormat.Mode.QUADS, null, false);
         CCModel model = modelMap.get("Cube");
         assertNotNull(model);
         ModelMaterial material = model.material();
@@ -28,7 +28,7 @@ public class OBJParserTests {
 
     @Test
     public void testGroup() {
-        Map<String, CCModel> modelMap = OBJParser.parse(TestResourceProvider.INSTANCE, new ResourceLocation("test:model/test_group.obj"), VertexFormat.Mode.QUADS, null, false);
+        Map<String, CCModel> modelMap = OBJParser.parse(TestResourceProvider.INSTANCE, ResourceLocation.parse("test:model/test_group.obj"), VertexFormat.Mode.QUADS, null, false);
         CCModel model = modelMap.get("Cube");
         assertNotNull(model);
         ModelMaterial material = model.material();
@@ -37,7 +37,7 @@ public class OBJParserTests {
 
     @Test
     public void testGroupObject() {
-        Map<String, CCModel> modelMap = OBJParser.parse(TestResourceProvider.INSTANCE, new ResourceLocation("test:model/test_group_object.obj"), VertexFormat.Mode.QUADS, null, false);
+        Map<String, CCModel> modelMap = OBJParser.parse(TestResourceProvider.INSTANCE, ResourceLocation.parse("test:model/test_group_object.obj"), VertexFormat.Mode.QUADS, null, false);
         CCModel model = modelMap.get("Group/Cube");
         assertNotNull(model);
         ModelMaterial material = model.material();
@@ -46,7 +46,7 @@ public class OBJParserTests {
 
     @Test
     public void testMultiObject() {
-        Map<String, CCModel> modelMap = new OBJParser(new ResourceLocation("test:model/test_multi_object.obj"))
+        Map<String, CCModel> modelMap = new OBJParser(ResourceLocation.parse("test:model/test_multi_object.obj"))
                 .provider(TestResourceProvider.INSTANCE)
                 .ignoreMtl()
                 .quads()

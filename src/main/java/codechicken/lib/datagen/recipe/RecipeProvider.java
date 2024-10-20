@@ -7,7 +7,9 @@ import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.EnterBlockTrigger;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -30,18 +32,24 @@ import java.util.function.Supplier;
 public abstract class RecipeProvider implements DataProvider {
 
     private final Map<ResourceLocation, RecipeBuilder> recipes = new HashMap<>();
+    private final CompletableFuture<HolderLookup.Provider> registries;
     private final PackOutput.PathProvider recipePath;
     private final PackOutput.PathProvider advancementPath;
     protected final String modId;
 
-    public RecipeProvider(PackOutput output, String modId) {
+    public RecipeProvider(CompletableFuture<HolderLookup.Provider> registries, PackOutput output, String modId) {
+        this.registries = registries;
         this.modId = modId;
-        recipePath = output.createPathProvider(PackOutput.Target.DATA_PACK, "recipes");
-        advancementPath = output.createPathProvider(PackOutput.Target.DATA_PACK, "advancements");
+        recipePath = output.createRegistryElementsPathProvider(Registries.RECIPE);
+        advancementPath = output.createRegistryElementsPathProvider(Registries.ADVANCEMENT);
     }
 
     @Override
     public final CompletableFuture<Void> run(CachedOutput cache) {
+        return registries.thenCompose(registries -> run(cache, registries));
+    }
+
+    private final CompletableFuture<Void> run(CachedOutput cache, HolderLookup.Provider registries) {
         registerRecipes();
         List<CompletableFuture<?>> futures = new LinkedList<>();
         for (Map.Entry<ResourceLocation, RecipeBuilder> entry : recipes.entrySet()) {
@@ -49,6 +57,7 @@ public abstract class RecipeProvider implements DataProvider {
             RecipeBuilder.BuiltRecipe builtRecipe = entry.getValue().build();
             futures.add(DataProvider.saveStable(
                     cache,
+                    registries,
                     Recipe.CONDITIONAL_CODEC,
                     Optional.of(new WithConditions<>(builtRecipe.conditions(), builtRecipe.recipe())),
                     recipePath.json(id)
@@ -58,6 +67,7 @@ public abstract class RecipeProvider implements DataProvider {
             if (advancement != null) {
                 futures.add(DataProvider.saveStable(
                         cache,
+                        registries,
                         Advancement.CONDITIONAL_CODEC,
                         Optional.of(new WithConditions<>(builtRecipe.conditions(), advancement.value())),
                         advancementPath.json(id)

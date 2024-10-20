@@ -86,6 +86,6 @@ public class GuiTextures {
      * @return A new Material for the specified gui texture.
      */
     public Material getUncached(String texture) {
-        return new Material(getAtlasHolder().atlasLocation(), new ResourceLocation(modId, "gui/" + texture), getAtlasHolder()::getSprite);
+        return new Material(getAtlasHolder().atlasLocation(), ResourceLocation.fromNamespaceAndPath(modId, "gui/" + texture), getAtlasHolder()::getSprite);
     }
 }

@@ -2,6 +2,7 @@ package codechicken.lib.inventory.container.data;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.Tag;
 
 import java.util.Objects;
@@ -34,9 +35,9 @@ public abstract class AbstractDataStore<T> {
 
     public abstract void fromBytes(MCDataInput buf);
 
-    public abstract Tag toTag();
+    public abstract Tag toTag(HolderLookup.Provider holders);
 
-    public abstract void fromTag(Tag tag);
+    public abstract void fromTag(HolderLookup.Provider holders, Tag tag);
 
     public boolean isSameValue(T newValue) {
         return Objects.equals(value, newValue);

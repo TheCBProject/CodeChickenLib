@@ -3,6 +3,7 @@ package codechicken.lib.config;
 import codechicken.lib.packet.PacketCustom;
 import com.google.common.base.Joiner;
 import net.covers1624.quack.util.CrashLock;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.configuration.ServerConfigurationPacketListener;
 import net.minecraft.resources.ResourceLocation;
@@ -11,17 +12,14 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.configuration.ICustomConfigurationTask;
-import net.neoforged.neoforge.network.event.OnGameConfigurationEvent;
+import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import static codechicken.lib.CodeChickenLib.MOD_ID;
 import static codechicken.lib.internal.network.CCLNetwork.L_CONFIG_SYNC;
@@ -88,18 +86,18 @@ public class ConfigSyncManager {
         }
     }
 
-    private static void onGameConfigurationEvent(OnGameConfigurationEvent event) {
+    private static void onGameConfigurationEvent(RegisterConfigurationTasksEvent event) {
         event.register(new ConfigSyncConfigurationTask(event.getListener()));
     }
 
     private record ConfigSyncConfigurationTask(ServerConfigurationPacketListener listener) implements ICustomConfigurationTask {
 
-        private static final Type TYPE = new Type(new ResourceLocation(MOD_ID, "config_sync"));
+        private static final Type TYPE = new Type(ResourceLocation.fromNamespaceAndPath(MOD_ID, "config_sync"));
 
         @Override
         public void run(Consumer<CustomPacketPayload> sender) {
             if (!SYNC_MAP.isEmpty()) {
-                PacketCustom packet = new PacketCustom(NET_CHANNEL, L_CONFIG_SYNC);
+                PacketCustom packet = new PacketCustom(NET_CHANNEL, L_CONFIG_SYNC, null);
                 packet.writeVarInt(SYNC_MAP.size());
                 for (Map.Entry<ResourceLocation, ConfigTag> entry : SYNC_MAP.entrySet()) {
                     packet.writeResourceLocation(entry.getKey());

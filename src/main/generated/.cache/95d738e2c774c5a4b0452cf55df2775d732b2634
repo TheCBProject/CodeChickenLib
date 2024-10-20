@@ -1,18 +1,18 @@
-// 1.20.1	2023-09-08T20:30:19.590475077	CodeChickenLib Block tags.
-48ffc90719924738f43a8ea0c526941cbbb83318 data/forge/tags/blocks/wool.json
-dc26d59698d238e0c60c400dbffea2ba82af4365 data/forge/tags/blocks/wool/black.json
-4b007eca91284e115e6a0c208c8dddbbf0aed7bc data/forge/tags/blocks/wool/blue.json
-9f867580ce1e743583fab6a17e3d03248865eafc data/forge/tags/blocks/wool/brown.json
-b4b458788e919f93343c36ef996f828bcf610abc data/forge/tags/blocks/wool/cyan.json
-62e9def05a24ce6a0f8b7fdb1490d7e856991d47 data/forge/tags/blocks/wool/gray.json
-1bdd1be741fcfa89c90c2bf0af6706b6c63139ca data/forge/tags/blocks/wool/green.json
-e054a5fe2248aa8c0a7f66d210cb54a639c661f6 data/forge/tags/blocks/wool/light_blue.json
-bf7627f1264b6899bedb6f55e19898dad5d03d8c data/forge/tags/blocks/wool/light_gray.json
-aceb5be462f62f63438e67877d38c89951e8919e data/forge/tags/blocks/wool/lime.json
-cfd0d2c16adae65fbf8640439a1814ab244082cb data/forge/tags/blocks/wool/magenta.json
-842c228466435a5cc9221a17f70a778db8617590 data/forge/tags/blocks/wool/orange.json
-3ff0870e67b5b9c122d8e59400180e4bd93780a3 data/forge/tags/blocks/wool/pink.json
-fec60767247bdbebf6cd451bb3692c9a8ffef908 data/forge/tags/blocks/wool/purple.json
-85f94b89b0d20e38f4e9f464fb443064c29f2bf1 data/forge/tags/blocks/wool/red.json
-8e71446b54f055edb3ba7a025d4335cb78da1b45 data/forge/tags/blocks/wool/white.json
-0de700cdfc12e281290ea7bc709d3241620ec9fb data/forge/tags/blocks/wool/yellow.json
+// 1.21.1	2024-12-06T17:16:20.746404632	CodeChickenLib Block tags.
+9b9a1318b746e42366ee1747896a1c61d71bc0ae data/c/tags/block/wools.json
+dc26d59698d238e0c60c400dbffea2ba82af4365 data/c/tags/block/wools/black.json
+4b007eca91284e115e6a0c208c8dddbbf0aed7bc data/c/tags/block/wools/blue.json
+9f867580ce1e743583fab6a17e3d03248865eafc data/c/tags/block/wools/brown.json
+b4b458788e919f93343c36ef996f828bcf610abc data/c/tags/block/wools/cyan.json
+62e9def05a24ce6a0f8b7fdb1490d7e856991d47 data/c/tags/block/wools/gray.json
+1bdd1be741fcfa89c90c2bf0af6706b6c63139ca data/c/tags/block/wools/green.json
+e054a5fe2248aa8c0a7f66d210cb54a639c661f6 data/c/tags/block/wools/light_blue.json
+bf7627f1264b6899bedb6f55e19898dad5d03d8c data/c/tags/block/wools/light_gray.json
+aceb5be462f62f63438e67877d38c89951e8919e data/c/tags/block/wools/lime.json
+cfd0d2c16adae65fbf8640439a1814ab244082cb data/c/tags/block/wools/magenta.json
+842c228466435a5cc9221a17f70a778db8617590 data/c/tags/block/wools/orange.json
+3ff0870e67b5b9c122d8e59400180e4bd93780a3 data/c/tags/block/wools/pink.json
+fec60767247bdbebf6cd451bb3692c9a8ffef908 data/c/tags/block/wools/purple.json
+85f94b89b0d20e38f4e9f464fb443064c29f2bf1 data/c/tags/block/wools/red.json
+8e71446b54f055edb3ba7a025d4335cb78da1b45 data/c/tags/block/wools/white.json
+0de700cdfc12e281290ea7bc709d3241620ec9fb data/c/tags/block/wools/yellow.json

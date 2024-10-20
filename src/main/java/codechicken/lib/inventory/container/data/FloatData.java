@@ -2,10 +2,10 @@ package codechicken.lib.inventory.container.data;
 
 import codechicken.lib.data.MCDataInput;
 import codechicken.lib.data.MCDataOutput;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
 
 /**
  * Created by brandon3055 on 09/09/2023
@@ -31,12 +31,12 @@ public class FloatData extends AbstractDataStore<Float> {
     }
 
     @Override
-    public Tag toTag() {
+    public Tag toTag(HolderLookup.Provider holders) {
         return FloatTag.valueOf(value);
     }
 
     @Override
-    public void fromTag(Tag tag) {
+    public void fromTag(HolderLookup.Provider holders, Tag tag) {
         value = ((NumericTag) tag).getAsFloat();
     }
 }

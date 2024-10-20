@@ -40,7 +40,7 @@ public class ClassModelLoader implements IGeometryLoader<ClassModelLoader.Geomet
     public record Geometry(Constructor<? extends BakedModel> ctor) implements IUnbakedGeometry<Geometry> {
 
         @Override
-        public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
+        public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides) {
             try {
                 return ctor.newInstance();
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException ex) {

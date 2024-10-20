@@ -36,7 +36,7 @@ public class SpecialCraftingRecipeBuilder implements RecipeBuilder {
     }
 
     public static SpecialCraftingRecipeBuilder builder(String id, Factory factory) {
-        return builder(new ResourceLocation(id), factory);
+        return builder(ResourceLocation.parse(id), factory);
     }
 
     public static SpecialCraftingRecipeBuilder builder(ResourceLocation id, Factory factory) {

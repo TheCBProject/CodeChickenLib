@@ -53,11 +53,11 @@ public class VertexUtils {
     public static void unpack(int[] from, float[] to, VertexFormat formatFrom, int v, int e) {
         int length = Math.min(4, to.length);
         VertexFormatElement element = formatFrom.getElements().get(e);
-        int vertexStart = v * formatFrom.getVertexSize() + formatFrom.getOffset(e);
-        int count = element.getElementCount();
-        VertexFormatElement.Type type = element.getType();
-        VertexFormatElement.Usage usage = element.getUsage();
-        int size = type.getSize();
+        int vertexStart = v * formatFrom.getVertexSize() + formatFrom.getOffset(element);
+        int count = element.count();
+        VertexFormatElement.Type type = element.type();
+        VertexFormatElement.Usage usage = element.usage();
+        int size = type.size();
         int mask = (256 << (8 * (size - 1))) - 1;
         for (int i = 0; i < length; i++) {
             if (i < count) {
@@ -91,10 +91,10 @@ public class VertexUtils {
 
     public static void pack(float[] from, int[] to, VertexFormat formatTo, int v, int e) {
         VertexFormatElement element = formatTo.getElements().get(e);
-        int vertexStart = v * formatTo.getVertexSize() + formatTo.getOffset(e);
-        int count = element.getElementCount();
-        VertexFormatElement.Type type = element.getType();
-        int size = type.getSize();
+        int vertexStart = v * formatTo.getVertexSize() + formatTo.getOffset(element);
+        int count = element.count();
+        VertexFormatElement.Type type = element.type();
+        int size = type.size();
         int mask = (256 << (8 * (size - 1))) - 1;
         for (int i = 0; i < 4; i++) {
             if (i < count) {
@@ -131,7 +131,7 @@ public class VertexUtils {
             int e2;
             for (e2 = 0; e2 < toCount; e2++) {
                 VertexFormatElement current = to.getElements().get(e2);
-                if (expected.getUsage() == current.getUsage() && expected.getIndex() == current.getIndex()) {
+                if (expected.usage() == current.usage() && expected.index() == current.index()) {
                     break;
                 }
             }
