@@ -76,9 +76,10 @@ public class ModularGuiContainer<T extends AbstractContainerMenu> extends Abstra
         imageHeight = (int) root.getValue(GeoParam.HEIGHT);
 
         if (modularGui.renderBackground()) {
-            renderBackground(graphics, mouseX, mouseY, partialTicks);
+            //Called here to ensure background renders before modularGui elements.
+            super.renderBackground(graphics, mouseX, mouseY, partialTicks);
         }
-        GuiRender render = GuiRender.convert(graphics);//modularGui.createRender(graphics.bufferSource());
+        GuiRender render = GuiRender.convert(graphics);
         modularGui.render(render, partialTicks);
 
         super.render(graphics, mouseX, mouseY, partialTicks);
@@ -86,6 +87,11 @@ public class ModularGuiContainer<T extends AbstractContainerMenu> extends Abstra
         if (!handleFloatingItemRender(render, mouseX, mouseY) && !renderHoveredStackToolTip(render, mouseX, mouseY)) {
             modularGui.renderOverlay(render, partialTicks);
         }
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        //Stubbed to avoid the above super.render() call from rendering the background again.
     }
 
     protected boolean handleFloatingItemRender(GuiRender render, int mouseX, int mouseY) {
