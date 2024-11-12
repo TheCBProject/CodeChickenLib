@@ -256,7 +256,7 @@ public class GuiSlider extends GuiElement<GuiSlider> {
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (isMouseOver() || (scrollableElement != null && scrollableElement.isMouseOver())) {
             if (!state.canScroll(axis)) return false;
-            state.setPos(MathHelper.clip(state.getPos() + (state.scrollSpeed() * -scrollX), 0, 1));
+            state.setPos(MathHelper.clip(state.getPos() + (state.scrollSpeed() * -scrollY), 0, 1));
             return true;
         }
         return false;
