@@ -93,11 +93,7 @@ public class PacketCustomChannel {
 
         CustomPacketPayload.Type<PacketCustom.Pkt> type = new CustomPacketPayload.Type<>(channel);
         StreamCodec<FriendlyByteBuf, PacketCustom.Pkt> codec = StreamCodec.of(
-                (buf, p) -> {
-                    p.data().markReaderIndex();
-                    buf.writeBytes(p.data());
-                    p.data().resetReaderIndex();
-                },
+                (buf, p) -> buf.writeBytes(p.data(), 0, p.data().writerIndex()),
                 buf -> {
                     RegistryAccess access = buf instanceof RegistryFriendlyByteBuf b ? b.registryAccess() : null;
                     return new PacketCustom.Pkt(type, access, buf.readBytes(buf.readableBytes()));
