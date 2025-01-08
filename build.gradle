@@ -106,7 +106,7 @@ def publishingMetadataTask = tasks.register("publishingMetadata") {
                         'mcVersion'   : "${mc_version}",
                         'version'     : "${mod_version}",
                         'classifier'  : null,
-                        'modLoader'   : ['neoforge', 'forge'],
+                        'modLoader'   : ['neoforge'],
                         'curseforgeId': '242818',
                         'modrinthId'  : '2gq0ALnz'
                 ]
