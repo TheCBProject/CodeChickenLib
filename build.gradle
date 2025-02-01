@@ -1,11 +1,10 @@
 import groovy.json.JsonOutput
 
 plugins {
-    id 'java'
+    id 'java-library'
     id 'maven-publish'
     id 'signing'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'net.neoforged.gradle.userdev' version '7.0.165'
+    id 'net.neoforged.moddev' version '2.0.77'
 }
 
 java {
@@ -28,20 +27,33 @@ version = "${mc_version}-${mod_version}"
 println "Starting build of ${archivesBaseName}, Version: ${mod_version}"
 println "Using Forge: ${forge_version}, for Minecraft: ${mc_version}"
 
-minecraft {
-    accessTransformers.file file("src/main/resources/META-INF/accesstransformer.cfg")
-}
+neoForge {
+    enable {
+        version = forge_version
+        enabledSourceSets += sourceSets.test
+    }
 
-runs {
-    client {
-        workingDirectory file('run')
+    accessTransformers {
+        publish file("src/main/resources/META-INF/accesstransformer.cfg")
     }
-    server {
-        workingDirectory file('run')
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+        }
+        data {
+            data()
+            programArguments.addAll '--mod', 'codechickenlib', '--all', '--output', file("src/main/generated").absolutePath, '--existing', file("src/main/resources").absolutePath
+        }
     }
-    data {
-        workingDirectory file('run')
-        arguments.addAll '--mod', 'codechickenlib', '--all', '--output', file("src/main/generated").absolutePath, '--existing', file("src/main/resources").absolutePath
+
+    mods {
+        codechickenlib {
+            sourceSet sourceSets.main
+        }
     }
 }
 
@@ -57,11 +69,6 @@ processResources {
     }
 }
 
-configurations {
-    shadow
-    implementation.extendsFrom shadow
-}
-
 repositories {
     mavenLocal()
     maven { url "https://maven.covers1624.net/" }
@@ -69,16 +76,19 @@ repositories {
 }
 
 dependencies {
-    implementation "net.neoforged:neoforge:${forge_version}"
+    jarJar(api('net.covers1624:Quack')) {
+        version {
+            strictly '[0.4.10,0.5)'
+            prefer '0.4.10.105'
+        }
+    }
 
-    shadow 'net.covers1624:Quack:0.4.10.105'
+    compileOnly("mezz.jei:jei-${mc_version}-neoforge:${jei_version}") {
+        transitive false
+    }
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-
-    implementation("mezz.jei:jei-${mc_version}-neoforge:${jei_version}") {
-        transitive false
-    }
 }
 
 test {
@@ -114,23 +124,19 @@ def publishingMetadataTask = tasks.register("publishingMetadata") {
     }
 }
 
-jar.enabled = false
-shadowJar {
-    finalizedBy 'signShadowJar'
-    archiveClassifier = ''
+jar {
+    finalizedBy 'signJar'
     manifest commonManifest
 
-    configurations = [project.configurations.shadow]
     from file("LICENSE")
 }
-assemble.dependsOn shadowJar
 
-tasks.register("signShadowJar") {
-    dependsOn("shadowJar")
+tasks.register("signJar") {
+    dependsOn("jar")
 
     doFirst {
         def args = [:]
-        args['jar'] = shadowJar.archiveFile.get().asFile
+        args['jar'] = jar.archiveFile.get().asFile
         if (System.getenv("KEY_STORE")) {
             args['keyStore'] = System.getenv("KEY_STORE")
             file(System.getenv("KEY_STORE_PROPS")).withReader {
@@ -169,14 +175,15 @@ publishing {
             }
         }
     }
+
     publications {
         CodeChickenLib(MavenPublication) {
             groupId project.group
             artifactId project.base.archivesName.get()
             version project.version
-            artifact shadowJar
-            artifact sourcesJar
-            artifact javadocJar
+
+            from components['java']
+
             artifact(publishingMetadata) {
                 builtBy publishingMetadataTask
                 classifier 'publishing'
