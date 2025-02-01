@@ -2,6 +2,8 @@ package codechicken.lib.render.buffer;
 
 import codechicken.lib.model.CachedFormat;
 import codechicken.lib.model.Quad;
+import codechicken.lib.util.VectorUtils;
+import codechicken.lib.vec.Vector3;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -49,7 +51,7 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
             throw new IllegalArgumentException("Only QUADS or TRIANGLES supported. Got: " + mode);
         }
         this.mode = mode;
-        this.format = format;
+        setFormat(format);
     }
 
     // Provided for interop with other mods that may provide different quad formats.
@@ -144,14 +146,16 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
             if (current.sprite == null) {
                 throw new IllegalStateException("Sprite not set.");
             }
+            current.setQuadOrientation(VectorUtils.findSideE(Vector3.fromArray(current.vertices[0].normal())));
             quadList.add(current.bake());
             current.reset(format);
-            vertex = -1;
+            vertex = 0;
         }
     }
 
     public List<BakedQuad> bake() {
         endPrevVertex();
+        vertex = -1;
         return new ArrayList<>(quadList);
     }
 }
