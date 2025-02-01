@@ -80,6 +80,12 @@ public class CCRenderState {
      */
     public LightMatrix lightMatrix = new LightMatrix();
 
+    // TODO, REALLY SERIOUSLY NUKE THIS.
+    // This was added as a workaround for Multipart to actually seriously disable the lighting engine,
+    // when building BakedQuads for parts which don't do it themselves.
+    @Deprecated (forRemoval = true)
+    public boolean hackyReallyDontComputeLighting;
+
     //vertex outputs
     public final Vertex5 vert = new Vertex5();
     public final Vector3 normal = new Vector3();
@@ -161,7 +167,7 @@ public class CCRenderState {
     public void reset() {
         model = null;
         pipeline.reset();
-        computeLighting = true;
+        computeLighting = !hackyReallyDontComputeLighting;
         colour = baseColour = alphaOverride = -1;
     }
 

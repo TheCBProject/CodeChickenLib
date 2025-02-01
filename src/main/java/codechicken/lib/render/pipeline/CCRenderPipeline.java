@@ -57,7 +57,7 @@ public class CCRenderPipeline {
         if (renderState.cFmt.hasColor) {
             addAttribute(renderState.colourAttrib);
         }
-        if (renderState.computeLighting) {
+        if (renderState.computeLighting && !renderState.hackyReallyDontComputeLighting) {
             addAttribute(renderState.lightingAttrib);
         }
 
