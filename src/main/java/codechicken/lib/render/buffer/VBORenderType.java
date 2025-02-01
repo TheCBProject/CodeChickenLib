@@ -2,6 +2,7 @@ package codechicken.lib.render.buffer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 
@@ -13,7 +14,7 @@ import static java.util.Objects.requireNonNull;
 import static net.covers1624.quack.util.SneakyUtils.none;
 
 /**
- * A RenderType that is backed by a VertexBufferObject used for Instanced rendering.
+ * A RenderType that is backed by a VertexBufferObject used for Cached rendering.
  * <p>
  * Created by covers1624 on 25/5/20.
  */
@@ -64,6 +65,23 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
         return new WithCallbacks().withState(shard);
     }
 
+    /**
+     * Called to draw a VBORenderType.
+     *
+     * @param buffers The buffers instance.
+     */
+    public void draw(MultiBufferSource buffers) {
+        draw(buffers, this);
+    }
+
+    private static void draw(MultiBufferSource buffers, RenderType type) {
+        var cons = buffers.getBuffer(type);
+        // Add some garbage so a mesh gets generated.
+        for (int i = 0; i < type.mode().primitiveLength; i++) {
+            cons.addVertex(0F, 0F, 0F, 0, 0F, 0F, 0, 0, 0F, 0F, 0F);
+        }
+    }
+
     private void render() {
         rebuild();
         vertexBuffer.bind();
@@ -83,9 +101,11 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
 
     @Override
     public void draw(MeshData meshData) {
-        setupRenderState();
-        render();
-        clearRenderState();
+        try (meshData) {
+            setupRenderState();
+            render();
+            clearRenderState();
+        }
     }
 
     @Override
@@ -137,9 +157,11 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
 
         @Override
         public void draw(MeshData meshData) {
-            setupRenderState();
-            render();
-            clearRenderState();
+            try (meshData) {
+                setupRenderState();
+                render();
+                clearRenderState();
+            }
         }
 
         @Override
@@ -148,6 +170,10 @@ public class VBORenderType extends DelegateRenderType implements AutoCloseable {
                 state.clearRenderState();
             }
             super.clearRenderState();
+        }
+
+        public void draw(MultiBufferSource buffers) {
+            VBORenderType.draw(buffers, this);
         }
     }
 }
