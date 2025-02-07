@@ -14,6 +14,7 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.client.model.data.ModelData;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -22,7 +23,14 @@ import org.jetbrains.annotations.Nullable;
  * Created by covers1624 on 8/09/2016.
  *
  * @see BlockRenderingRegistry
+ * @deprecated Unfortunately, this has become a maintenance and compatability burden. Mods like Sodium
+ * are in every single modpack, and we can't realistically tell people not to use it. It's possible
+ * a Neo api may pop up that allows features similar to this API. But I'm not going to hold my breath.
+ * If someone still requires the functionality that this system provides, they should implement mixins
+ * themselves, or Sodium/Embeddium compatability.
  */
+@Deprecated (forRemoval = true)
+@ScheduledForRemoval (inVersion = "mc 1.21.2+")
 public interface ICCBlockRenderer {
 
     //region Block
@@ -36,6 +44,7 @@ public interface ICCBlockRenderer {
      * @param renderType The {@link RenderType}, {@code null} for breaking.
      * @return If you wish to render the BlockState.
      */
+    @Deprecated
     boolean canHandleBlock(BlockAndTintGetter world, BlockPos pos, BlockState blockState, @Nullable RenderType renderType);
 
     /**
@@ -53,6 +62,7 @@ public interface ICCBlockRenderer {
      * @param data       Any ModelData.
      * @param renderType The {@link RenderType}, {@code null} for breaking.
      */
+    @Deprecated
     void renderBlock(BlockState state, BlockPos pos, BlockAndTintGetter world, PoseStack mStack, VertexConsumer builder, RandomSource random, ModelData data, @Nullable RenderType renderType);
 
     /**
@@ -66,6 +76,7 @@ public interface ICCBlockRenderer {
      * @param builder The {@link VertexConsumer} to add quads to.
      * @param data    Any ModelData.
      */
+    @Deprecated
     default void renderBreaking(BlockState state, BlockPos pos, BlockAndTintGetter world, PoseStack mStack, VertexConsumer builder, ModelData data) {
         CCRenderState ccrs = CCRenderState.instance();
         ccrs.overlay = OverlayTexture.NO_OVERLAY;
@@ -85,6 +96,7 @@ public interface ICCBlockRenderer {
      * @param state The state.
      * @return If you wish to render this block.
      */
+    @Deprecated // No replacement. Use a mixin.
     default boolean canHandleEntity(BlockState state) {
         return false;
     }
@@ -101,6 +113,7 @@ public interface ICCBlockRenderer {
      * @param data          Any ModelData.
      * @param renderType    The {@link RenderType} may be {@code null}.
      */
+    @Deprecated // No replacement. Use a mixin.
     default void renderEntity(BlockState state, PoseStack nStack, MultiBufferSource builder, int packedLight, int packedOverlay, ModelData data, @Nullable RenderType renderType) { }
     //endregion
 
@@ -115,6 +128,7 @@ public interface ICCBlockRenderer {
      * @param fluidState The {@link FluidState}.
      * @return If you wish to render the {@link FluidState}.
      */
+    @Deprecated // No replacement. Use a mixin.
     default boolean canHandleFluid(BlockAndTintGetter world, BlockPos pos, BlockState blockState, FluidState fluidState) {
         return false;
     }
@@ -131,6 +145,7 @@ public interface ICCBlockRenderer {
      * @param blockState The {@link BlockState}
      * @param fluidState The {@link FluidState}
      */
+    @Deprecated // No replacement. Use a mixin.
     default void renderFluid(BlockPos pos, BlockAndTintGetter world, VertexConsumer builder, BlockState blockState, FluidState fluidState) { }
     //endregion
 }
