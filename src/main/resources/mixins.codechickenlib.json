@@ -9,6 +9,7 @@
         "dev.GameNarratorMixin",
         "ItemRendererMixin",
         "MinecraftMixin",
-        "ShaderInstanceMixin"
+        "ShaderInstanceMixin",
+        "EmbeddiumCCLMixin"
     ]
 }

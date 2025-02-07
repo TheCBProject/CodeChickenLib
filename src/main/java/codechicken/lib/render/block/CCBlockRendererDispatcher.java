@@ -26,12 +26,15 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by covers1624 on 8/09/2016.
  */
+@Deprecated
+@ScheduledForRemoval (inVersion = "mc 1.21.2+")
 public class CCBlockRendererDispatcher extends BlockRenderDispatcher {
 
     private static final Logger logger = LogManager.getLogger();

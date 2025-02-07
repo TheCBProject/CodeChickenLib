@@ -73,6 +73,7 @@ repositories {
     mavenLocal()
     maven { url "https://maven.covers1624.net/" }
     maven { url "https://maven.blamejared.com/" }
+    maven { url "https://api.modrinth.com/maven" }
 }
 
 dependencies {
@@ -82,6 +83,8 @@ dependencies {
             prefer '0.4.10.105'
         }
     }
+
+    compileOnly 'maven.modrinth:embeddium:1.0.15+mc1.21.1'
 
     compileOnly("mezz.jei:jei-${mc_version}-neoforge:${jei_version}") {
         transitive false
