@@ -10,6 +10,6 @@
         "ItemRendererMixin",
         "MinecraftMixin",
         "ShaderInstanceMixin",
-        "EmbeddiumCCLMixin"
+        "compat.EmbeddiumCCLMixin"
     ]
 }
