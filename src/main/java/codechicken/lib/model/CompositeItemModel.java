@@ -78,8 +78,11 @@ public class CompositeItemModel implements IGeometryLoader<CompositeItemModel.Ge
                 @Nullable
                 @Override
                 public BakedModel resolve(BakedModel pModel, ItemStack pStack, @Nullable ClientLevel pLevel, @Nullable LivingEntity pEntity, int pSeed) {
-                    ImmutableList<BakedModel> iPasses = FastStream.of(itemPasses)
-                            .map(e -> e.getOverrides().resolve(e, pStack, pLevel, pEntity, pSeed))
+                    ImmutableMap<String, BakedModel> mappedChildren = FastStream.of(children.entrySet())
+                            .toImmutableMap(Map.Entry::getKey, e -> e.getValue().getOverrides().resolve(e.getValue(), pStack, pLevel, pEntity, pSeed));
+
+                    ImmutableList<BakedModel> iPasses = FastStream.of(Geometry.this.itemPasses)
+                            .map(mappedChildren::get)
                             .toImmutableList();
 
                     return new CompositeModel.Baked(
@@ -89,7 +92,7 @@ public class CompositeItemModel implements IGeometryLoader<CompositeItemModel.Ge
                             particle,
                             context.getTransforms(),
                             this,
-                            children,
+                            mappedChildren,
                             iPasses
                     );
                 }
