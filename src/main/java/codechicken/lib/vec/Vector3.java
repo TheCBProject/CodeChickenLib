@@ -2,9 +2,15 @@ package codechicken.lib.vec;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.util.Copyable;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.PrimitiveCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
@@ -29,6 +35,20 @@ public class Vector3 implements Copyable<Vector3> {
     public static final Vector3 Z_POS = new Vector3( 0, 0, 1);
     public static final Vector3 Z_NEG = new Vector3( 0, 0,-1);
     //@formatter:on
+
+    public static final Codec<Vector3> CODEC = RecordCodecBuilder.create(b -> b.group(
+                    PrimitiveCodec.DOUBLE.fieldOf("x").forGetter(e -> e.x),
+                    PrimitiveCodec.DOUBLE.fieldOf("y").forGetter(e -> e.y),
+                    PrimitiveCodec.DOUBLE.fieldOf("z").forGetter(e -> e.z)
+            ).apply(b, Vector3::new)
+    );
+
+    public static final StreamCodec<ByteBuf, Vector3> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.DOUBLE, e -> e.x,
+            ByteBufCodecs.DOUBLE, e -> e.y,
+            ByteBufCodecs.DOUBLE, e -> e.z,
+            Vector3::new
+    );
 
     public double x;
     public double y;
