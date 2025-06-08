@@ -80,7 +80,7 @@ dependencies {
     jarJar(api('net.covers1624:Quack')) {
         version {
             strictly '[0.4.10,0.5)'
-            prefer '0.4.10.105'
+            prefer '0.4.10.115'
         }
     }
 
