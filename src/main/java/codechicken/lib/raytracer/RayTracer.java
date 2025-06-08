@@ -16,13 +16,19 @@ public class RayTracer {
 
     @Nullable
     public static BlockHitResult retraceBlock(BlockGetter level, Player player, BlockPos pos) {
+        return retraceBlock(level, player, pos, ClipContext.Block.OUTLINE);
+    }
+
+    @Nullable
+    public static BlockHitResult retraceBlock(BlockGetter level, Player player, BlockPos pos, ClipContext.Block context) {
         Vec3 startVec = getStartVec(player);
         Vec3 endVec = getEndVec(player);
+
         BlockState state = level.getBlockState(pos);
-        VoxelShape baseShape = state.getShape(level, pos);
+        VoxelShape baseShape = context.get(state, level, pos, CollisionContext.of(player));
         BlockHitResult baseTraceResult = baseShape.clip(startVec, endVec, pos);
         if (baseTraceResult != null) {
-            BlockHitResult raytraceTraceShape = state.getVisualShape(level, pos, CollisionContext.of(player)).clip(startVec, endVec, pos);
+            BlockHitResult raytraceTraceShape = state.getInteractionShape(level, pos).clip(startVec, endVec, pos);
             if (raytraceTraceShape != null) {
                 return raytraceTraceShape;
             }
