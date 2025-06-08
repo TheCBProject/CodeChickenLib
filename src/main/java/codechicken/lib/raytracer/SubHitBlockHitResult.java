@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 public class SubHitBlockHitResult extends BlockHitResult implements Comparable<SubHitBlockHitResult> {
 
@@ -12,18 +13,18 @@ public class SubHitBlockHitResult extends BlockHitResult implements Comparable<S
      * The square distance from the start of the raytrace.
      */
     public final double dist;
-    public final Object hitInfo;
+    public final @Nullable Object hitInfo;
     public final int subHit;
 
-    public SubHitBlockHitResult(Vector3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, Object data, double dist) {
+    public SubHitBlockHitResult(Vector3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, @Nullable Object data, double dist) {
         this(false, hitVec.vec3(), faceIn, posIn, isInside, data, dist);
     }
 
-    public SubHitBlockHitResult(Vec3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, Object data, double dist) {
+    public SubHitBlockHitResult(Vec3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, @Nullable Object data, double dist) {
         this(false, hitVec, faceIn, posIn, isInside, data, dist);
     }
 
-    protected SubHitBlockHitResult(boolean isMissIn, Vec3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, Object data, double dist) {
+    protected SubHitBlockHitResult(boolean isMissIn, Vec3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, @Nullable Object data, double dist) {
         super(isMissIn, hitVec, faceIn, posIn, isInside);
         if (data instanceof Integer d) {
             subHit = d;
