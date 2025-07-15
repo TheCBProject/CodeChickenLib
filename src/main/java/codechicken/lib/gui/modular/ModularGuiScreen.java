@@ -69,7 +69,11 @@ public class ModularGuiScreen extends Screen {
         }
         GuiRender render = GuiRender.convert(graphics);
         modularGui.render(render, partialTicks);
+        //Ensure we render overlay on top of things like JEI
+        render.pose().pushPose();
+        render.pose().translate(0, 0, 400);
         modularGui.renderOverlay(render, partialTicks);
+        render.pose().popPose();
     }
 
     @Override

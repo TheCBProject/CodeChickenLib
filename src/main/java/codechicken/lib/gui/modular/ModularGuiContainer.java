@@ -84,9 +84,13 @@ public class ModularGuiContainer<T extends AbstractContainerMenu> extends Abstra
 
         super.render(graphics, mouseX, mouseY, partialTicks);
 
+        //Ensure we render overlay on top of things like JEI
+        render.pose().pushPose();
+        render.pose().translate(0, 0, 400);
         if (!handleFloatingItemRender(render, mouseX, mouseY) && !renderHoveredStackToolTip(render, mouseX, mouseY)) {
             modularGui.renderOverlay(render, partialTicks);
         }
+        render.pose().popPose();
     }
 
     @Override
@@ -139,7 +143,7 @@ public class ModularGuiContainer<T extends AbstractContainerMenu> extends Abstra
                 return false;
             }
             ItemStack itemStack = this.hoveredSlot.getItem();
-            guiGraphics.toolTipWithImage(this.getTooltipFromContainerItem(itemStack), itemStack.getTooltipImage(), mouseX, mouseY);
+            guiGraphics.toolTipWithImage(this.getTooltipFromContainerItem(itemStack), itemStack.getTooltipImage(), itemStack, mouseX, mouseY);
             return true;
         }
         return false;
