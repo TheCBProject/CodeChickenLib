@@ -4,6 +4,7 @@ import codechicken.lib.render.shader.GlslProcessor.ProcessedShader;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.shaders.Program;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.Util;
@@ -127,7 +128,7 @@ public class CCShaderInstance extends ShaderInstance {
         ProcessedShader processedShader = new GlslProcessor(resourceProvider, adjustedLoc).process();
 
         int id = GL20.glCreateShader(programType.getGlType());
-        GL20.glShaderSource(id, processedShader.processedSource());
+        GlStateManager.glShaderSource(id, List.of(processedShader.processedSource()));
         GL20.glCompileShader(id);
         if (GL20.glGetShaderi(id, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
             String s1 = GL20.glGetShaderInfoLog(id);
