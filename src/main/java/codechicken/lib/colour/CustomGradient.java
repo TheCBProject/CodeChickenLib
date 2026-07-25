@@ -2,7 +2,7 @@ package codechicken.lib.colour;
 
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.texture.TextureUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.awt.image.BufferedImage;
 
@@ -10,7 +10,7 @@ public class CustomGradient {
 
     public int[] gradient;
 
-    public CustomGradient(ResourceLocation textureFile) {
+    public CustomGradient(Identifier textureFile) {
         BufferedImage img = TextureUtils.loadBufferedImage(textureFile);
         if (img == null) {
             throw new RuntimeException("File not found: " + textureFile);

@@ -1,7 +1,10 @@
 package codechicken.lib.gui.modular;
 
 import codechicken.lib.gui.modular.elements.GuiElement;
-import codechicken.lib.gui.modular.lib.*;
+import codechicken.lib.gui.modular.lib.ContentElement;
+import codechicken.lib.gui.modular.lib.CursorHelper;
+import codechicken.lib.gui.modular.lib.DynamicTextures;
+import codechicken.lib.gui.modular.lib.GuiProvider;
 import codechicken.lib.gui.modular.lib.container.ContainerGuiProvider;
 import codechicken.lib.gui.modular.lib.geometry.Constraint;
 import codechicken.lib.gui.modular.lib.geometry.GeoParam;
@@ -10,14 +13,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.util.TriConsumer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -57,16 +60,16 @@ public class ModularGui implements GuiParent<ModularGui> {
     private Screen parentScreen;
 
     private Component guiTitle = Component.empty();
-    private ResourceLocation newCursor = null;
+    private Identifier newCursor = null;
 
     private final Map<Slot, GuiElement<?>> slotHandlers = new HashMap<>();
     private final List<Runnable> tickListeners = new ArrayList<>();
     private final List<Runnable> resizeListeners = new ArrayList<>();
     private final List<Runnable> closeListeners = new ArrayList<>();
-    private final List<TriConsumer<Double, Double, Integer>> preClickListeners = new ArrayList<>();
-    private final List<TriConsumer<Double, Double, Integer>> postClickListeners = new ArrayList<>();
-    private final List<TriConsumer<Integer, Integer, Integer>> preKeyPressListeners = new ArrayList<>();
-    private final List<TriConsumer<Integer, Integer, Integer>> postKeyPressListeners = new ArrayList<>();
+    private final List<Consumer<MouseButtonEvent>> preClickListeners = new ArrayList<>();
+    private final List<Consumer<MouseButtonEvent>> postClickListeners = new ArrayList<>();
+    private final List<Consumer<KeyEvent>> preKeyPressListeners = new ArrayList<>();
+    private final List<Consumer<KeyEvent>> postKeyPressListeners = new ArrayList<>();
 
     private int jeiHighlightTime = 0;
 
@@ -101,11 +104,10 @@ public class ModularGui implements GuiParent<ModularGui> {
 
     //=== Modular Gui Setup ===//
 
-    public void setGuiTitle(@NotNull Component guiTitle) {
+    public void setGuiTitle(Component guiTitle) {
         this.guiTitle = guiTitle;
     }
 
-    @NotNull
     public Component getGuiTitle() {
         return guiTitle;
     }
@@ -203,51 +205,29 @@ public class ModularGui implements GuiParent<ModularGui> {
     //=== Modular Gui Passthrough Methods ===//
 
     /**
-     * Create a new {@link GuiRender} for the current render call.
-     *
-     * @param buffers BufferSource can be retried from {@link GuiGraphics}
-     * @return A new {@link GuiRender} for the current render call.
-     */
-    @Deprecated //If you have the GuiGraphics, use GuiRender#convert to ensure the underlying PoseStack is carried over. That will ensure things like the JEI overlay will be rendered at a
-    public GuiRender createRender(MultiBufferSource.BufferSource buffers) {
-        return new GuiRender(mc, buffers);
-    }
-
-    /**
      * Primary render method for ModularGui. The screen implementing ModularGui must call this in its render method.
-     * Followed by the {@link #renderOverlay(GuiRender, float)} method to handle overlay rendering.
-     *
-     * @param render GuiRender instance converted from Minecraft's {@link GuiGraphics} via {@link GuiRender#convert(GuiGraphics)}
+     * Followed by the {@link #renderOverlay(GuiGraphics, float)} method to handle overlay rendering.
      */
-    public void render(GuiRender render, float partialTicks) {
+    public void render(GuiGraphics graphics, float partialTicks) {
         root.clearGeometryCache();
         double mouseX = computeMouseX();
         double mouseY = computeMouseY();
-        root.render(render, mouseX, mouseY, partialTicks);
-
-        //Ensure overlay is rendered at a depth of ether 400 or total element depth + 100 (whichever is greater)
-        double depth = root.getCombinedElementDepth();
-        if (depth <= 300) {
-            render.pose().translate(0, 0, 400 - depth);
-        } else {
-            render.pose().translate(0, 0, 100);
-        }
+        root.render(graphics, mouseX, mouseY, partialTicks);
     }
 
     /**
      * Handles gui overlay rendering. This is where things like tool tips are rendered.
-     * This should be called immediately after {@link #render(GuiRender, float)}
+     * This should be called immediately after {@link #render(GuiGraphics, float)}
      * <p>
-     * The reason this is split out from {@link #render(GuiRender, float)} is to allow
+     * The reason this is split out from {@link #render(GuiGraphics, float)} is to allow
      * stack tool tips to override gui overlay rendering in {@link ModularGuiContainer}
      *
-     * @param render This should be the same render instance that was passed to the previous {@link #render(GuiRender, float)} call.
      * @return true if an overlay such as a tooltip is currently being drawn.
      */
-    public boolean renderOverlay(GuiRender render, float partialTicks) {
+    public boolean renderOverlay(GuiGraphics graphics, float partialTicks) {
         double mouseX = computeMouseX();
         double mouseY = computeMouseY();
-        return root.renderOverlay(render, mouseX, mouseY, partialTicks, false);
+        return root.renderOverlay(graphics, mouseX, mouseY, partialTicks, false);
     }
 
     /**
@@ -277,16 +257,14 @@ public class ModularGui implements GuiParent<ModularGui> {
     /**
      * Pass through for the mouseClicked event. Any screen implementing {@link ModularGui} must pass through this event.
      *
-     * @param mouseX Mouse X position
-     * @param mouseY Mouse Y position
-     * @param button Mouse Button
+     * @param event The mouse button event. Position, Key, and modifiers.
      * @return true if this event has been consumed.
      */
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        preClickListeners.forEach(e -> e.accept(mouseX, mouseY, button));
-        boolean consumed = root.mouseClicked(mouseX, mouseY, button, false);
+    public boolean mouseClicked(MouseButtonEvent event) {
+        preClickListeners.forEach(e -> e.accept(event));
+        boolean consumed = root.mouseClicked(event, false);
         if (!consumed) {
-            postClickListeners.forEach(e -> e.accept(mouseX, mouseY, button));
+            postClickListeners.forEach(e -> e.accept(event));
         }
         return consumed;
     }
@@ -294,28 +272,24 @@ public class ModularGui implements GuiParent<ModularGui> {
     /**
      * Pass through for the mouseReleased event. Any screen implementing {@link ModularGui} must pass through this event.
      *
-     * @param mouseX Mouse X position
-     * @param mouseY Mouse Y position
-     * @param button Mouse Button
+     * @param event The mouse button event. Position, Key, and modifiers.
      * @return true if this event has been consumed.
      */
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        return root.mouseReleased(mouseX, mouseY, button, false);
+    public boolean mouseReleased(MouseButtonEvent event) {
+        return root.mouseReleased(event, false);
     }
 
     /**
      * Pass through for the keyPressed event. Any screen implementing {@link ModularGui} must pass through this event.
      *
-     * @param key       the keyboard key that was pressed.
-     * @param scancode  the system-specific scancode of the key
-     * @param modifiers bitfield describing which modifier keys were held down.
+     * @param event The key event. Key, scancode, and modifiers.
      * @return true if this event has been consumed.
      */
-    public boolean keyPressed(int key, int scancode, int modifiers) {
-        preKeyPressListeners.forEach(e -> e.accept(key, scancode, modifiers));
-        boolean consumed = root.keyPressed(key, scancode, modifiers, false);
+    public boolean keyPressed(KeyEvent event) {
+        preKeyPressListeners.forEach(e -> e.accept(event));
+        boolean consumed = root.keyPressed(event, false);
         if (!consumed) {
-            postKeyPressListeners.forEach(e -> e.accept(key, scancode, modifiers));
+            postKeyPressListeners.forEach(e -> e.accept(event));
         }
         return consumed;
     }
@@ -323,24 +297,21 @@ public class ModularGui implements GuiParent<ModularGui> {
     /**
      * Pass through for the keyReleased event. Any screen implementing {@link ModularGui} must pass through this event.
      *
-     * @param key       the keyboard key that was released.
-     * @param scancode  the system-specific scancode of the key
-     * @param modifiers bitfield describing which modifier keys were held down.
+     * @param event The key event. Key, scancode, and modifiers.
      * @return true if this event has been consumed.
      */
-    public boolean keyReleased(int key, int scancode, int modifiers) {
-        return root.keyReleased(key, scancode, modifiers, false);
+    public boolean keyReleased(KeyEvent event) {
+        return root.keyReleased(event, false);
     }
 
     /**
      * Pass through for the charTyped event. Any screen implementing {@link ModularGui} must pass through this event.
      *
-     * @param character The character typed.
-     * @param modifiers bitfield describing which modifier keys were held down.
+     * @param event The character event, codepoint and modifiers.
      * @return true if this event has been consumed.
      */
-    public boolean charTyped(char character, int modifiers) {
-        return root.charTyped(character, modifiers, false);
+    public boolean charTyped(CharacterEvent event) {
+        return root.charTyped(event, false);
     }
 
     /**
@@ -523,7 +494,7 @@ public class ModularGui implements GuiParent<ModularGui> {
      * Sets the current mouse cursor.
      * The cursor is reset at the end of each UI tick so this must be set every tick for as long as you want your custom cursor to be active.
      */
-    public void setCursor(ResourceLocation cursor) {
+    public void setCursor(Identifier cursor) {
         this.newCursor = cursor;
     }
 
@@ -575,7 +546,7 @@ public class ModularGui implements GuiParent<ModularGui> {
     /**
      * Allows you to attach a callback that will be fired on mouse click, before the click is handled by the rest of the gui.
      */
-    public void onMouseClickPre(TriConsumer<Double, Double, Integer> onClick) {
+    public void onMouseClickPre(Consumer<MouseButtonEvent> onClick) {
         preClickListeners.add(onClick);
     }
 
@@ -583,14 +554,14 @@ public class ModularGui implements GuiParent<ModularGui> {
      * Allows you to attach a callback that will be fired on mouse click, after the click has been handled by the rest of the gui.
      * Will only be fired if the event was not consumed by an element.
      */
-    public void onMouseClickPost(TriConsumer<Double, Double, Integer> onClick) {
+    public void onMouseClickPost(Consumer<MouseButtonEvent> onClick) {
         postClickListeners.add(onClick);
     }
 
     /**
      * Allows you to attach a callback that will be fired on key press, before the is handled by the rest of the gui.
      */
-    public void onKeyPressPre(TriConsumer<Integer, Integer, Integer> preKeyPress) {
+    public void onKeyPressPre(Consumer<KeyEvent> preKeyPress) {
         preKeyPressListeners.add(preKeyPress);
     }
 
@@ -598,7 +569,7 @@ public class ModularGui implements GuiParent<ModularGui> {
      * Allows you to attach a callback that will be fired on key press, after it has been handled by the rest of the gui.
      * Will only be fired if the event was not consumed by an element.
      */
-    public void onKeyPressPost(TriConsumer<Integer, Integer, Integer> postKeyPress) {
+    public void onKeyPressPost(Consumer<KeyEvent> postKeyPress) {
         postKeyPressListeners.add(postKeyPress);
     }
 }

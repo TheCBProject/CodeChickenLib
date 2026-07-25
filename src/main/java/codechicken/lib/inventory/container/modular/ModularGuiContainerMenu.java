@@ -1,16 +1,12 @@
 package codechicken.lib.inventory.container.modular;
 
-import codechicken.lib.data.MCDataInput;
-import codechicken.lib.data.MCDataOutput;
 import codechicken.lib.gui.modular.elements.GuiSlots;
 import codechicken.lib.gui.modular.lib.container.ContainerScreenAccess;
 import codechicken.lib.gui.modular.lib.container.DataSync;
 import codechicken.lib.gui.modular.lib.container.SlotGroup;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
-import codechicken.lib.internal.network.CCLNetwork;
-import codechicken.lib.packet.PacketCustom;
-import codechicken.lib.vec.Vector3;
-import net.minecraft.network.FriendlyByteBuf;
+import codechicken.lib.internal.CCLNetwork;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -18,19 +14,16 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import static codechicken.lib.internal.network.CCLNetwork.*;
 
 /**
  * The base abstract ContainerMenu for all modular gui containers.
@@ -38,6 +31,7 @@ import static codechicken.lib.internal.network.CCLNetwork.*;
  * Created by brandon3055 on 08/09/2023
  */
 public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
+
     private static final Logger LOGGER = LogManager.getLogger();
 
     public final Inventory inventory;
@@ -96,15 +90,16 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
     }
 
     //=== Network ===//
+
     /**
      * Send a packet to the client side container.
      *
      * @param packetId     message id, Can be any value from 0 to 254, 255 is used by the {@link DataSync} system.
      * @param packetWriter Use this callback to write your data to the packet.
      */
-    public void sendPacketToClient(int packetId, Consumer<MCDataOutput> packetWriter) {
+    public void sendPacketToClient(int packetId, Consumer<RegistryFriendlyByteBuf> packetWriter) {
         if (inventory.player instanceof ServerPlayer serverPlayer) {
-            PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, C_GUI_SYNC, inventory.player.registryAccess());
+            var packet = CCLNetwork.GUI_SYNC.toClient(inventory.player);
             packet.writeByte(containerId);
             packet.writeByte((byte) packetId);
             packetWriter.accept(packet);
@@ -118,34 +113,36 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
      * @param packetId     message id, Can be any value from 0 to 255
      * @param packetWriter Use this callback to write your data to the packet.
      */
-    public void sendPacketToServer(int packetId, Consumer<MCDataOutput> packetWriter) {
-        PacketCustom packet = new PacketCustom(CCLNetwork.NET_CHANNEL, S_GUI_SYNC, inventory.player.registryAccess());
+    public void sendPacketToServer(int packetId, Consumer<RegistryFriendlyByteBuf> packetWriter) {
+        var packet = CCLNetwork.GUI_SYNC.toServer();
         packet.writeByte(containerId);
         packet.writeByte((byte) packetId);
         packetWriter.accept(packet);
         packet.sendToServer();
     }
 
-    public static void handlePacketFromClient(Player player, MCDataInput packet) {
+    public static void handlePacketFromClient(RegistryFriendlyByteBuf packet, IPayloadContext ctx) {
         int containerId = packet.readByte();
         int packetId = packet.readByte() & 0xFF;
+        var player = ctx.player();
         if (player.containerMenu instanceof ModularGuiContainerMenu menu && menu.containerId == containerId) {
-            menu.handlePacketFromClient(player, packetId, packet);
+            menu.handlePacketFromClient(packet, ctx, packetId);
         }
     }
 
     /**
      * Override this in your container menu implementation in order to receive packets sent via {@link #sendPacketToServer(int, Consumer)}
      */
-    public void handlePacketFromClient(Player player, int packetId, MCDataInput packet) {
+    public void handlePacketFromClient(RegistryFriendlyByteBuf packet, IPayloadContext ctx, int packetId) {
 
     }
 
-    public static void handlePacketFromServer(Player player, MCDataInput packet) {
+    public static void handlePacketFromServer(RegistryFriendlyByteBuf packet, IPayloadContext ctx) {
         int containerId = packet.readByte();
         int packetId = packet.readByte() & 0xFF;
+        var player = ctx.player();
         if (player.containerMenu instanceof ModularGuiContainerMenu menu && menu.containerId == containerId) {
-            menu.handlePacketFromServer(player, packetId, packet);
+            menu.handlePacketFromServer(packet, ctx, packetId);
         }
     }
 
@@ -154,7 +151,7 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
      * <p>
      * Don't forget to call super if you plan on using the {@link DataSync} system.
      */
-    public void handlePacketFromServer(Player player, int packetId, MCDataInput packet) {
+    public void handlePacketFromServer(RegistryFriendlyByteBuf packet, IPayloadContext ctx, int packetId) {
         if (packetId == 255) {
             int index = packet.readByte() & 0xFF;
             if (dataSyncs.size() > index) {
@@ -179,7 +176,7 @@ public abstract class ModularGuiContainerMenu extends AbstractContainerMenu {
      *  Maybe just the ability to specify which zones each group quick-moves to...
      */
     @Override
-    public ItemStack quickMoveStack(@NotNull Player player, int slotIndex) {
+    public ItemStack quickMoveStack(Player player, int slotIndex) {
         Slot slot = getSlot(slotIndex);
         if (!slot.hasItem()) {
             return ItemStack.EMPTY;

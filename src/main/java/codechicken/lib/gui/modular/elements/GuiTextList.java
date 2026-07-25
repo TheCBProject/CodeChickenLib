@@ -1,13 +1,13 @@
 package codechicken.lib.gui.modular.elements;
 
 import codechicken.lib.gui.modular.lib.ForegroundRender;
-import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.geometry.Align;
 import codechicken.lib.gui.modular.lib.geometry.GeoParam;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -20,6 +20,7 @@ import static codechicken.lib.gui.modular.lib.geometry.Constraint.dynamic;
  * Created by brandon3055 on 10/10/2023
  */
 public class GuiTextList extends GuiElement<GuiTextList> implements ForegroundRender {
+
     private Supplier<List<? extends Component>> text;
     private Supplier<Boolean> shadow = () -> true;
     private Supplier<Integer> textColour = () -> 0xFFFFFFFF;
@@ -31,21 +32,21 @@ public class GuiTextList extends GuiElement<GuiTextList> implements ForegroundRe
     /**
      * @param parent parent {@link GuiParent}.
      */
-    public GuiTextList(@NotNull GuiParent<?> parent) {
+    public GuiTextList(GuiParent<?> parent) {
         this(parent, () -> null);
     }
 
     /**
      * @param parent parent {@link GuiParent}.
      */
-    public GuiTextList(@NotNull GuiParent<?> parent, List<? extends Component> text) {
+    public GuiTextList(GuiParent<?> parent, List<? extends Component> text) {
         this(parent, () -> text);
     }
 
     /**
      * @param parent parent {@link GuiParent}.
      */
-    public GuiTextList(@NotNull GuiParent<?> parent, @NotNull Supplier<List<? extends Component>> text) {
+    public GuiTextList(GuiParent<?> parent, Supplier<List<? extends Component>> text) {
         super(parent);
         this.text = text;
     }
@@ -58,7 +59,7 @@ public class GuiTextList extends GuiElement<GuiTextList> implements ForegroundRe
         return this;
     }
 
-    public GuiTextList setTextSupplier(@NotNull Supplier<List<? extends Component>> textSupplier) {
+    public GuiTextList setTextSupplier(Supplier<List<? extends Component>> textSupplier) {
         this.text = textSupplier;
         return this;
     }
@@ -113,7 +114,7 @@ public class GuiTextList extends GuiElement<GuiTextList> implements ForegroundRe
         return scroll;
     }
 
-    public GuiTextList setShadow(@NotNull Supplier<Boolean> shadow) {
+    public GuiTextList setShadow(Supplier<Boolean> shadow) {
         this.shadow = shadow;
         return this;
     }
@@ -142,15 +143,10 @@ public class GuiTextList extends GuiElement<GuiTextList> implements ForegroundRe
     }
 
     @Override
-    public double getForegroundDepth() {
-        return 0.035;
-    }
-
-    @Override
-    public void renderForeground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderInFront(GuiGraphics render, double mouseX, double mouseY, float partialTicks) {
         List<? extends Component> list = getText();
         if (list.isEmpty()) return;
-        Font font = render.font();
+        Font font = Minecraft.getInstance().font;
 
         double height = (list.size() * (font.lineHeight + lineSpacing)) - lineSpacing;
         double yPos = verticalAlign == MIN ? yMin() : verticalAlign == MAX ? yMax() - height : (yCenter() - (height / 2)) + 1;
@@ -159,12 +155,12 @@ public class GuiTextList extends GuiElement<GuiTextList> implements ForegroundRe
             boolean tooLong = textWidth > xSize();
 
             if (tooLong && scroll) {
-                render.pushScissorRect(getRectangle());
-                render.drawScrollingString(line, xMin(), yPos, xMax(), getTextColour(), getShadow(), false);
-                render.popScissor();
+                render.cc$enableScissor(getRectangle());
+                render.cc$drawScrollingString(font, line, xMin(), yPos, xMax(), getTextColour(), getShadow(), false);
+                render.cc$disableScissor();
             } else {
                 double xPos = horizontalAlign == MIN ? xMin() : horizontalAlign == MAX ? xMax() - textWidth : xMin() + xSize() / 2 - textWidth / 2D;
-                render.drawString(line, xPos, yPos, getTextColour(), getShadow());
+                render.cc$drawString(font, line, xPos, yPos, getTextColour(), getShadow());
             }
 
             yPos += font.lineHeight + lineSpacing;

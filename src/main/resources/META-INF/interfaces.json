@@ -1,0 +1,14 @@
+{
+    "net/minecraft/network/FriendlyByteBuf": [
+        "codechicken/lib/packet/CCFriendlyByteBufExtension"
+    ],
+    "net/minecraft/network/RegistryFriendlyByteBuf": [
+        "codechicken/lib/packet/CCRegistryFriendlyByteBufExtension"
+    ],
+    "net/minecraft/client/renderer/OrderedSubmitNodeCollector": [
+        'codechicken/lib/render/extension/CCOrderedSubmitNodeCollectorExtension'
+    ],
+    "net/minecraft/client/gui/GuiGraphics": [
+        'codechicken/lib/gui/render/GuiGraphicsExtension'
+    ]
+}

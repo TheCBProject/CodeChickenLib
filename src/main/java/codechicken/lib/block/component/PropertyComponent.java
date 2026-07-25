@@ -1,5 +1,6 @@
 package codechicken.lib.block.component;
 
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -15,5 +16,9 @@ public abstract class PropertyComponent<V extends Comparable<V>> extends StateAw
     protected PropertyComponent(Property<V> property, V defaultValue) {
         this.property = property;
         this.defaultValue = defaultValue;
+    }
+
+    public final V get(BlockState state) {
+        return state.getValue(property);
     }
 }

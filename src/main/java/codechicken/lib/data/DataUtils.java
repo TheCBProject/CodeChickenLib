@@ -5,6 +5,7 @@ import java.io.OutputStream;
 /**
  * Created by covers1624 on 4/15/20.
  */
+@Deprecated (forRemoval = true)
 class DataUtils {
 
     /**

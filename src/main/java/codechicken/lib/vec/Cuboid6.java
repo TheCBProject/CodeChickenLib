@@ -2,10 +2,14 @@ package codechicken.lib.vec;
 
 import codechicken.lib.raytracer.VoxelShapeCache;
 import codechicken.lib.util.Copyable;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -16,7 +20,19 @@ import java.math.RoundingMode;
 
 public class Cuboid6 implements Copyable<Cuboid6> {
 
-    public static Cuboid6 full = new Cuboid6(0, 0, 0, 1, 1, 1);
+    public static final Cuboid6 full = new Cuboid6(0, 0, 0, 1, 1, 1);
+
+    public static final Codec<Cuboid6> CODEC = RecordCodecBuilder.create(b -> b.group(
+                    Vector3.CODEC.fieldOf("min").forGetter(e -> e.min),
+                    Vector3.CODEC.fieldOf("max").forGetter(e -> e.max)
+            ).apply(b, Cuboid6::new)
+    );
+
+    public static final StreamCodec<ByteBuf, Cuboid6> STREAM_CODEC = StreamCodec.composite(
+            Vector3.STREAM_CODEC, e -> e.min,
+            Vector3.STREAM_CODEC, e -> e.max,
+            Cuboid6::new
+    );
 
     public Vector3 min;
     public Vector3 max;
@@ -41,7 +57,7 @@ public class Cuboid6 implements Copyable<Cuboid6> {
     }
 
     public Cuboid6(CompoundTag tag) {
-        this(Vector3.fromNBT(tag.getCompound("min")), Vector3.fromNBT(tag.getCompound("max")));
+        this(Vector3.fromNBT(tag.getCompoundOrEmpty("min")), Vector3.fromNBT(tag.getCompoundOrEmpty("max")));
     }
 
     public Cuboid6(Cuboid6 cuboid) {
@@ -154,8 +170,8 @@ public class Cuboid6 implements Copyable<Cuboid6> {
 
     public Cuboid6 expandSide(Direction side, int amount) {
         switch (side.getAxisDirection()) {
-            case NEGATIVE -> min.add(Vector3.fromVec3i(side.getNormal()).multiply(amount));
-            case POSITIVE -> max.add(Vector3.fromVec3i(side.getNormal()).multiply(amount));
+            case NEGATIVE -> min.add(Vector3.fromVec3i(side.getUnitVec3i()).multiply(amount));
+            case POSITIVE -> max.add(Vector3.fromVec3i(side.getUnitVec3i()).multiply(amount));
         }
         return this;
     }

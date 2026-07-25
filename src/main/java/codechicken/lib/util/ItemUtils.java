@@ -3,7 +3,6 @@ package codechicken.lib.util;
 import codechicken.lib.vec.Vector3;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -127,7 +126,7 @@ public class ItemUtils {
     public static void ejectItem(Level world, BlockPos pos, ItemStack stack, Direction dir) {
         pos.relative(dir);
         ItemEntity entity = new ItemEntity(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-        entity.setDeltaMovement(Vec3.atLowerCornerOf(dir.getNormal()).scale(0.3));
+        entity.setDeltaMovement(Vec3.atLowerCornerOf(dir.getUnitVec3i()).scale(0.3));
         entity.setPickUpDelay(10);
         world.addFreshEntity(entity);
     }

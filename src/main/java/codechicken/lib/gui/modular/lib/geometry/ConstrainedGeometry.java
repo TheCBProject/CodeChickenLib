@@ -2,7 +2,6 @@ package codechicken.lib.gui.modular.lib.geometry;
 
 import codechicken.lib.gui.modular.elements.GuiElement;
 import codechicken.lib.gui.modular.lib.Constraints;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
@@ -63,7 +62,6 @@ public abstract class ConstrainedGeometry<T extends ConstrainedGeometry<T>> impl
 
     private boolean strictMode = false;
 
-    @NotNull
     public abstract GuiParent<?> getParent();
 
     public GeoRef getParent(GeoParam param) {

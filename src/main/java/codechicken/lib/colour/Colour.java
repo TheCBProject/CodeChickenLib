@@ -269,6 +269,78 @@ public abstract class Colour implements Copyable<Colour> {
         return packARGB(data[0], data[1], data[2], data[3]);
     }
 
+    public static int replace(int c, int i, float v) {
+        return replace(c, i, (int) (v * 255F));
+    }
+
+    /**
+     * Replace the packed 8-bit color component at the specified index.
+     *
+     * @param c The packed color.
+     * @param i The index to replace.
+     * @param v The value to replace with.
+     * @return The new packed color.
+     */
+    public static int replace(int c, int i, int v) {
+        int mask = ~(0xFF << i * 8);
+        return c & mask | (v & 0xFF) << i * 8;
+    }
+
+    public static int unpack(int c, int i) {
+        return (c >> (8 * i)) & 0xFF;
+    }
+
+    public static int pack(int c, int i) {
+        return (c & 0xFF) << 8 * i;
+    }
+
+    /**
+     * For each color component in c1 and c2, adds them together
+     * clamping to 0 - 255.
+     * <p>
+     * Agnostic of color packing order.
+     */
+    public static int add(int c1, int c2) {
+        int r = 0;
+        for (int i = 0; i < 4; i++) {
+            int a = unpack(c1, i);
+            int b = unpack(c2, i);
+            r |= pack(Math.min(a + b, 255), i);
+        }
+        return r;
+    }
+
+    /**
+     * For each color component in c1 and c2, subtracts them
+     * clamping to 0 - 255.
+     * <p>
+     * Agnostic of color packing order.
+     */
+    public static int sub(int c1, int c2) {
+        int r = 0;
+        for (int i = 0; i < 4; i++) {
+            int a = unpack(c1, i);
+            int b = unpack(c2, i);
+            r |= pack(Math.max(a - b, 0), i);
+        }
+        return r;
+    }
+
+    /**
+     * For each color component in c1 and c2, calculates the midpoint.
+     * <p>
+     * Agnostic of color packing order.
+     */
+    public static int mid(int c1, int c2) {
+        int r = 0;
+        for (int i = 0; i < 4; i++) {
+            int a = unpack(c1, i);
+            int b = unpack(c2, i);
+            r |= pack(b + (a - b) / 2, i);
+        }
+        return r;
+    }
+
     public boolean equals(@Nullable Colour other) {
         if (other == null) return false;
         if (r != other.r) return false;

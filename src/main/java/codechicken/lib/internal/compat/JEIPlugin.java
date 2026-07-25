@@ -13,7 +13,7 @@ import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import net.covers1624.quack.collection.FastStream;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -28,13 +28,13 @@ import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 @JeiPlugin
 public class JEIPlugin implements IModPlugin {
 
-    private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "jei_plugin");
+    private static final Identifier ID = Identifier.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "jei_plugin");
 
     public JEIPlugin() {
     }
 
     @Override
-    public ResourceLocation getPluginUid() {
+    public Identifier getPluginUid() {
         return ID;
     }
 

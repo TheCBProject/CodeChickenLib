@@ -12,6 +12,7 @@ import static codechicken.lib.packet.ICustomPacketHandler.IClientPacketHandler;
 /**
  * Created by covers1624 on 21/5/20.
  */
+@Deprecated (forRemoval = true)
 public class SimpleClientPacketHandler implements IClientPacketHandler {
 
     private static final Logger LOGGER = LogManager.getLogger();

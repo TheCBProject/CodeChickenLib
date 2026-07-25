@@ -308,4 +308,12 @@ public class MathHelper {
         if (pos.getX() > 0) return Direction.EAST;
         return null;
     }
+
+    public static boolean isInRect(double minX, double minY, double width, double height, double testX, double testY) {
+        return ((testX >= minX && testX < minX + width) && (testY >= minY && testY < minY + height));
+    }
+
+    public static boolean isInRect(int minX, int minY, int width, int height, double testX, double testY) {
+        return ((testX >= minX && testX < minX + width) && (testY >= minY && testY < minY + height));
+    }
 }

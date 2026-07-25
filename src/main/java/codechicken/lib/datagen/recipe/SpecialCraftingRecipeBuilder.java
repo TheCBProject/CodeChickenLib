@@ -1,7 +1,9 @@
 package codechicken.lib.datagen.recipe;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
@@ -14,12 +16,14 @@ import java.util.function.Supplier;
  */
 public class SpecialCraftingRecipeBuilder implements RecipeBuilder {
 
-    protected final ResourceLocation id;
+    protected final Identifier id;
+    protected final ResourceKey<Recipe<?>> key;
 
     private final Factory factory;
 
-    public SpecialCraftingRecipeBuilder(ResourceLocation id, Factory factory) {
+    public SpecialCraftingRecipeBuilder(Identifier id, Factory factory) {
         this.id = id;
+        this.key = ResourceKey.create(Registries.RECIPE, id);
         this.factory = factory;
     }
 
@@ -36,16 +40,21 @@ public class SpecialCraftingRecipeBuilder implements RecipeBuilder {
     }
 
     public static SpecialCraftingRecipeBuilder builder(String id, Factory factory) {
-        return builder(ResourceLocation.parse(id), factory);
+        return builder(Identifier.parse(id), factory);
     }
 
-    public static SpecialCraftingRecipeBuilder builder(ResourceLocation id, Factory factory) {
+    public static SpecialCraftingRecipeBuilder builder(Identifier id, Factory factory) {
         return new SpecialCraftingRecipeBuilder(id, factory);
     }
 
     @Override
-    public ResourceLocation getId() {
+    public final Identifier getId() {
         return id;
+    }
+
+    @Override
+    public final ResourceKey<Recipe<?>> getKey() {
+        return key;
     }
 
     @Override

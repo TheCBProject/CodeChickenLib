@@ -4,8 +4,9 @@ import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.chars.CharOpenHashSet;
 import it.unimi.dsi.fastutil.chars.CharSet;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -32,68 +33,68 @@ public class ShapedRecipeBuilder extends AbstractItemStackRecipeBuilder<ShapedRe
     private CraftingBookCategory category = CraftingBookCategory.MISC;
     private boolean showNotification = true;
 
-    protected ShapedRecipeBuilder(ResourceLocation id, ItemStack result, Factory factory) {
-        super(id, result);
+    protected ShapedRecipeBuilder(Identifier id, HolderGetter<Item> items, ItemStack result, Factory factory) {
+        super(id, items, result);
         this.factory = factory;
     }
 
-    public static ShapedRecipeBuilder builder(ItemLike result) {
-        return builder(result, 1);
+    public static ShapedRecipeBuilder builder(HolderGetter<Item> items, ItemLike result) {
+        return builder(items, result, 1);
     }
 
-    public static ShapedRecipeBuilder builder(ItemLike result, int count) {
-        return builder(new ItemStack(result, count));
+    public static ShapedRecipeBuilder builder(HolderGetter<Item> items, ItemLike result, int count) {
+        return builder(items, new ItemStack(result, count));
     }
 
-    public static ShapedRecipeBuilder builder(ItemLike result, int count, ResourceLocation id) {
-        return builder(new ItemStack(result, count), id);
+    public static ShapedRecipeBuilder builder(HolderGetter<Item> items, ItemLike result, int count, Identifier id) {
+        return builder(items, new ItemStack(result, count), id);
     }
 
-    public static ShapedRecipeBuilder builder(Supplier<? extends ItemLike> result) {
-        return builder(result.get(), 1);
+    public static ShapedRecipeBuilder builder(HolderGetter<Item> items, Supplier<? extends ItemLike> result) {
+        return builder(items, result.get(), 1);
     }
 
-    public static ShapedRecipeBuilder builder(Supplier<? extends ItemLike> result, int count) {
-        return builder(new ItemStack(result.get(), count));
+    public static ShapedRecipeBuilder builder(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count) {
+        return builder(items, new ItemStack(result.get(), count));
     }
 
-    public static ShapedRecipeBuilder builder(Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
-        return builder(new ItemStack(result.get(), count), id);
+    public static ShapedRecipeBuilder builder(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count, Identifier id) {
+        return builder(items, new ItemStack(result.get(), count), id);
     }
 
-    public static ShapedRecipeBuilder builder(ItemStack result) {
-        return builder(result, BuiltInRegistries.ITEM.getKey(result.getItem()));
+    public static ShapedRecipeBuilder builder(HolderGetter<Item> items, ItemStack result) {
+        return builder(items, result, BuiltInRegistries.ITEM.getKey(result.getItem()));
     }
 
-    public static ShapedRecipeBuilder builder(ItemStack result, ResourceLocation id) {
-        return new ShapedRecipeBuilder(id, result, ShapedRecipe::new);
+    public static ShapedRecipeBuilder builder(HolderGetter<Item> items, ItemStack result, Identifier id) {
+        return new ShapedRecipeBuilder(id, items, result, ShapedRecipe::new);
     }
 
     // region Custom
-    public static ShapedRecipeBuilder custom(ItemLike result, Factory factory) {
-        return custom(result, 1, factory);
+    public static ShapedRecipeBuilder custom(HolderGetter<Item> items, ItemLike result, Factory factory) {
+        return custom(items, result, 1, factory);
     }
 
-    public static ShapedRecipeBuilder custom(ItemLike result, int count, Factory factory) {
-        return custom(new ItemStack(result, count), factory);
+    public static ShapedRecipeBuilder custom(HolderGetter<Item> items, ItemLike result, int count, Factory factory) {
+        return custom(items, new ItemStack(result, count), factory);
     }
 
-    public static ShapedRecipeBuilder custom(ItemLike result, int count, ResourceLocation id, Factory factory) {
-        return custom(new ItemStack(result, count), id, factory);
+    public static ShapedRecipeBuilder custom(HolderGetter<Item> items, ItemLike result, int count, Identifier id, Factory factory) {
+        return custom(items, new ItemStack(result, count), id, factory);
     }
 
-    public static ShapedRecipeBuilder custom(ItemStack result, Factory factory) {
-        return custom(result, BuiltInRegistries.ITEM.getKey(result.getItem()), factory);
+    public static ShapedRecipeBuilder custom(HolderGetter<Item> items, ItemStack result, Factory factory) {
+        return custom(items, result, BuiltInRegistries.ITEM.getKey(result.getItem()), factory);
     }
 
-    public static ShapedRecipeBuilder custom(ItemStack result, ResourceLocation id, Factory factory) {
-        return new ShapedRecipeBuilder(id, result, factory);
+    public static ShapedRecipeBuilder custom(HolderGetter<Item> items, ItemStack result, Identifier id, Factory factory) {
+        return new ShapedRecipeBuilder(id, items, result, factory);
     }
     // endregion
 
     public ShapedRecipeBuilder key(char key, TagKey<Item> item) {
         addAutoCriteria(item);
-        return keyInternal(key, Ingredient.of(item));
+        return keyInternal(key, Ingredient.of(items.getOrThrow(item)));
     }
 
     public ShapedRecipeBuilder key(char key, ItemLike item) {

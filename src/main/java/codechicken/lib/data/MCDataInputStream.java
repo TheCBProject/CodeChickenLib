@@ -14,6 +14,7 @@ import java.io.InputStream;
  * <p>
  * Created by covers1624 on 4/16/20.
  */
+@Deprecated (forRemoval = true)
 public class MCDataInputStream implements MCDataInput {
 
     private final DataInput in;

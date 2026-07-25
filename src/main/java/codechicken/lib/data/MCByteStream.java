@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
  * <p>
  * Created by covers1624 on 4/16/20.
  */
+@Deprecated (forRemoval = true)
 public class MCByteStream extends MCDataOutputStream {
 
     private final ByteArrayOutputStream bos;

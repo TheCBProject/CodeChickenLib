@@ -1,9 +1,8 @@
 package codechicken.lib.config;
 
 import codechicken.lib.config.parser.ConfigSerializer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
@@ -38,7 +37,7 @@ public final class ConfigFile {
      * <p>
      * The {@code rootName} is used when creating translation keys for
      * a given tag. It is recommended that you use your ModID for this, or
-     * a {@link ResourceLocation} like string.
+     * a {@link Identifier} like string.
      *
      * @param rootName The root name for the returned config. Usually
      *                 your ModID.

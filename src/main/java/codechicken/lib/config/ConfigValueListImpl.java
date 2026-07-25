@@ -1,8 +1,7 @@
 package codechicken.lib.config;
 
 import codechicken.lib.config.ListRestriction.Failure;
-import codechicken.lib.data.MCDataInput;
-import codechicken.lib.data.MCDataOutput;
+import codechicken.lib.packet.CCStreamCodecs;
 import it.unimi.dsi.fastutil.booleans.BooleanArrayList;
 import it.unimi.dsi.fastutil.booleans.BooleanList;
 import it.unimi.dsi.fastutil.booleans.BooleanLists;
@@ -16,6 +15,8 @@ import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.longs.LongLists;
 import net.covers1624.quack.collection.FastStream;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
@@ -350,28 +351,22 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
     }
 
     @Override
-    public void write(MCDataOutput out) {
+    public void write(FriendlyByteBuf packet) {
         if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tried to write UNKNOWN tag to network");
-        out.writeEnum(type);
+        packet.writeEnum(type);
         switch (type) {
-            case STRING -> {
-                List<String> values = getStrings();
-                out.writeVarInt(values.size());
-                for (String s : values) {
-                    out.writeString(s);
-                }
-            }
-            case BOOLEAN -> out.writeBooleans(getBooleans().toBooleanArray());
-            case INT -> out.writeInts(getInts().toIntArray());
-            case LONG -> out.writeLongs(getLongs().toLongArray());
-            case HEX -> out.writeInts(getHexs().toIntArray());
-            case DOUBLE -> out.writeDoubles(getDoubles().toDoubleArray());
+            case STRING -> packet.writeCollection(getStrings(), ByteBufCodecs.STRING_UTF8);
+            case BOOLEAN -> packet.cc$writeWithCodec(CCStreamCodecs.BOOLEAN_ARRAY, getBooleans().toBooleanArray());
+            case INT -> packet.cc$writeWithCodec(CCStreamCodecs.INT_ARRAY, getInts().toIntArray());
+            case LONG -> packet.cc$writeWithCodec(CCStreamCodecs.LONG_ARRAY, getLongs().toLongArray());
+            case HEX -> packet.cc$writeWithCodec(CCStreamCodecs.INT_ARRAY, getHexs().toIntArray());
+            case DOUBLE -> packet.cc$writeWithCodec(CCStreamCodecs.DOUBLE_ARRAY, getDoubles().toDoubleArray());
         }
     }
 
     @Override
-    public void read(MCDataInput in) {
-        ValueType netType = in.readEnum(ValueType.class);
+    public void read(FriendlyByteBuf packet) {
+        ValueType netType = packet.readEnum(ValueType.class);
         if (networkSynthetic) {
             type = netType;
         }
@@ -379,26 +374,17 @@ public class ConfigValueListImpl extends AbstractConfigTag<ConfigValueList> impl
         if (netType != type) throw new IllegalStateException("Tried to read a " + netType + " tag from the network into a " + type + " tag");
 
         switch (type) {
-            case STRING -> networkValue = readStringList(in);
-            case BOOLEAN -> networkValue = new BooleanArrayList(in.readBooleans());
-            case INT, HEX -> networkValue = new IntArrayList(in.readInts());
-            case LONG -> networkValue = new LongArrayList(in.readLongs());
-            case DOUBLE -> networkValue = new DoubleArrayList(in.readDoubles());
+            case STRING -> networkValue = packet.readList(ByteBufCodecs.STRING_UTF8);
+            case BOOLEAN -> networkValue = new BooleanArrayList(packet.cc$readWithCodec(CCStreamCodecs.BOOLEAN_ARRAY));
+            case INT, HEX -> networkValue = new IntArrayList(packet.cc$readWithCodec(CCStreamCodecs.INT_ARRAY));
+            case LONG -> networkValue = new LongArrayList(packet.cc$readWithCodec(CCStreamCodecs.LONG_ARRAY));
+            case DOUBLE -> networkValue = new DoubleArrayList(packet.cc$readWithCodec(CCStreamCodecs.DOUBLE_ARRAY));
         }
     }
 
     @Override
     public void resetFromNetwork() {
         networkValue = null;
-    }
-
-    private List<String> readStringList(MCDataInput in) {
-        int len = in.readVarInt();
-        List<String> values = new ArrayList<>(len);
-        for (int i = 0; i < len; i++) {
-            values.add(in.readString());
-        }
-        return values;
     }
 
     public ConfigValueList setValue(List<?> value) {

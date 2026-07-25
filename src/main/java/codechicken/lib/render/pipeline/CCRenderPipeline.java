@@ -1,6 +1,7 @@
 package codechicken.lib.render.pipeline;
 
 import codechicken.lib.render.CCRenderState;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -50,11 +51,10 @@ public class CCRenderPipeline {
 
         unbuild();
 
-        assert renderState.cFmt != null;
-        if (renderState.cFmt.hasNormal) {
+        if (renderState.fmt.contains(VertexFormatElement.NORMAL)) {
             addAttribute(renderState.normalAttrib);
         }
-        if (renderState.cFmt.hasColor) {
+        if (renderState.fmt.contains(VertexFormatElement.COLOR)) {
             addAttribute(renderState.colourAttrib);
         }
         if (renderState.computeLighting && !renderState.hackyReallyDontComputeLighting) {

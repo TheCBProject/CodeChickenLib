@@ -14,6 +14,7 @@ import java.io.OutputStream;
  * <p>
  * Created by covers1624 on 4/15/20.
  */
+@Deprecated (forRemoval = true)
 public class MCDataOutputStream implements MCDataOutput {
 
     private final DataOutput out;

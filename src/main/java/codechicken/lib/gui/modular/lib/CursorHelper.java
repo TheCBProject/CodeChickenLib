@@ -2,7 +2,7 @@ package codechicken.lib.gui.modular.lib;
 
 import codechicken.lib.CodeChickenLib;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,16 +26,16 @@ import java.util.Optional;
 public class CursorHelper {
     public static final Logger LOGGER = LogManager.getLogger();
 
-    public static final ResourceLocation DRAG = ResourceLocation.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "textures/gui/cursors/drag.png");
-    public static final ResourceLocation RESIZE_H = ResourceLocation.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "textures/gui/cursors/resize_h.png");
-    public static final ResourceLocation RESIZE_V = ResourceLocation.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "textures/gui/cursors/resize_v.png");
-    public static final ResourceLocation RESIZE_TRBL = ResourceLocation.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "textures/gui/cursors/resize_diag_trbl.png");
-    public static final ResourceLocation RESIZE_TLBR = ResourceLocation.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "textures/gui/cursors/resize_diag_tlbr.png");
+    public static final Identifier DRAG = Identifier.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "textures/gui/cursors/drag.png");
+    public static final Identifier RESIZE_H = Identifier.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "textures/gui/cursors/resize_h.png");
+    public static final Identifier RESIZE_V = Identifier.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "textures/gui/cursors/resize_v.png");
+    public static final Identifier RESIZE_TRBL = Identifier.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "textures/gui/cursors/resize_diag_trbl.png");
+    public static final Identifier RESIZE_TLBR = Identifier.fromNamespaceAndPath(CodeChickenLib.MOD_ID, "textures/gui/cursors/resize_diag_tlbr.png");
 
-    private static final Map<ResourceLocation, Long> cursors = new HashMap<>();
-    private static ResourceLocation active = null;
+    private static final Map<Identifier, Long> cursors = new HashMap<>();
+    private static Identifier active = null;
 
-    private static long createCursor(ResourceLocation cursorTexture) {
+    private static long createCursor(Identifier cursorTexture) {
         try {
             Resource resource = Minecraft.getInstance().getResourceManager().getResource(cursorTexture).orElse(null);
             if (resource == null) return MemoryUtil.NULL;
@@ -74,10 +74,10 @@ public class CursorHelper {
         return result;
     }
 
-    public static void setCursor(@Nullable ResourceLocation cursor) {
+    public static void setCursor(@Nullable Identifier cursor) {
         if (cursor != active) {
             active = cursor;
-            long window = Minecraft.getInstance().getWindow().getWindow();
+            long window = Minecraft.getInstance().getWindow().handle();
             long newCursor = active == null ? 0 : cursors.computeIfAbsent(cursor, CursorHelper::createCursor);
             GLFW.glfwSetCursor(window, newCursor);
         }

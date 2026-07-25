@@ -16,16 +16,16 @@ public class SubHitBlockHitResult extends BlockHitResult implements Comparable<S
     public final @Nullable Object hitInfo;
     public final int subHit;
 
-    public SubHitBlockHitResult(Vector3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, @Nullable Object data, double dist) {
-        this(false, hitVec.vec3(), faceIn, posIn, isInside, data, dist);
+    public SubHitBlockHitResult(Vector3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, boolean worldBorder, @Nullable Object data, double dist) {
+        this(false, hitVec.vec3(), faceIn, posIn, isInside, worldBorder, data, dist);
     }
 
-    public SubHitBlockHitResult(Vec3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, @Nullable Object data, double dist) {
-        this(false, hitVec, faceIn, posIn, isInside, data, dist);
+    public SubHitBlockHitResult(Vec3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, boolean worldBorder, @Nullable Object data, double dist) {
+        this(false, hitVec, faceIn, posIn, isInside, worldBorder, data, dist);
     }
 
-    protected SubHitBlockHitResult(boolean isMissIn, Vec3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, @Nullable Object data, double dist) {
-        super(isMissIn, hitVec, faceIn, posIn, isInside);
+    protected SubHitBlockHitResult(boolean isMissIn, Vec3 hitVec, Direction faceIn, BlockPos posIn, boolean isInside, boolean worldBorder, @Nullable Object data, double dist) {
+        super(isMissIn, hitVec, faceIn, posIn, isInside, worldBorder);
         if (data instanceof Integer d) {
             subHit = d;
         } else {
@@ -37,7 +37,7 @@ public class SubHitBlockHitResult extends BlockHitResult implements Comparable<S
 
     @Override
     public SubHitBlockHitResult withDirection(Direction newFace) {
-        return new SubHitBlockHitResult(getType() == Type.MISS, getLocation(), getDirection(), getBlockPos(), isInside(), hitInfo, dist);
+        return new SubHitBlockHitResult(getType() == Type.MISS, getLocation(), getDirection(), getBlockPos(), isInside(), isWorldBorderHit(), hitInfo, dist);
     }
 
     @Override

@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -33,7 +34,7 @@ public class CountCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(literal("ccl")
                 .then(literal("count")
-                        .requires(e -> e.hasPermission(2))
+                        .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                         .then(argument("entity", ResourceArgument.resource(context, Registries.ENTITY_TYPE))
                                 .executes(ctx -> {
                                     EntityType<?> entityType = ResourceArgument.getEntityType(ctx, "entity").value();

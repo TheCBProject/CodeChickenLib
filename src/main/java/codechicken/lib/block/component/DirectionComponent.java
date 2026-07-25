@@ -20,6 +20,7 @@ public class DirectionComponent extends PropertyComponent<Direction> {
 
     public static PlacementFunc NONE = (state, ctx) -> null;
     public static PlacementFunc PLAYER_HORIZONTAL = (state, ctx) -> ctx.getHorizontalDirection();
+    public static PlacementFunc PLAYER_HORIZONTAL_OPPOSITE = (state, ctx) -> ctx.getHorizontalDirection().getOpposite();
     public static PlacementFunc PLAYER_LOOKING_NEAREST = (state, ctx) -> ctx.getNearestLookingDirection().getOpposite();
     public static PlacementFunc FACE_NORMAL = (state, ctx) -> ctx.getClickedFace();
 

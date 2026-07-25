@@ -42,14 +42,14 @@ public class ScissorHandler {
         if (active != null) {
             active.apply();
         } else {
-            RenderSystem.disableScissor();
+//            RenderSystem.disableScissor();
         }
     }
 
     private record ScissorState(int x, int y, int xMax, int yMax) {
 
         private ScissorState apply() {
-            RenderSystem.enableScissor(x, y, xMax - x, yMax - y);
+//            RenderSystem.enableScissor(x, y, xMax - x, yMax - y);
             return this;
         }
 

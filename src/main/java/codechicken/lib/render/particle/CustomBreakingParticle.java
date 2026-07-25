@@ -1,18 +1,16 @@
 package codechicken.lib.render.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
-public class CustomBreakingParticle extends TextureSheetParticle {
+public class CustomBreakingParticle extends SingleQuadParticle {
 
     private final float uo;
     private final float vo;
 
     public CustomBreakingParticle(ClientLevel world, double x, double y, double z, double dx, double dy, double dz, TextureAtlasSprite icon) {
-        super(world, x, y, z, dx, dy, dz);
-        setSprite(icon);
+        super(world, x, y, z, dx, dy, dz, icon);
         gravity = 1;
         rCol = gCol = bCol = 0.6F;
         quadSize /= 2.0F;
@@ -28,8 +26,9 @@ public class CustomBreakingParticle extends TextureSheetParticle {
         return particle;
     }
 
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.TERRAIN_SHEET;
+    @Override
+    protected Layer getLayer() {
+        return Layer.TERRAIN;
     }
 
     protected float getU0() {

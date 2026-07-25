@@ -1,10 +1,15 @@
 package codechicken.lib.datagen.recipe;
 
 import net.minecraft.advancements.*;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.advancements.criterion.RecipeUnlockedTrigger;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
@@ -23,7 +28,9 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     protected final Throwable created = new Throwable("Created at");
     protected final Advancement.Builder advancementBuilder = Advancement.Builder.advancement();
     protected final List<ICondition> conditions = new LinkedList<>();
-    protected final ResourceLocation id;
+    protected final Identifier id;
+    protected final ResourceKey<Recipe<?>> key;
+    protected final HolderGetter<Item> items;
     protected final R result;
     private final Set<ItemLike> criteriaItems = new HashSet<>();
     private final Set<TagKey<Item>> criteriaTags = new HashSet<>();
@@ -32,8 +39,10 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     protected boolean enableUnlocking = false;
     protected String group = "";
 
-    protected AbstractRecipeBuilder(ResourceLocation id, R result) {
+    protected AbstractRecipeBuilder(Identifier id, HolderGetter<Item> items, R result) {
         this.id = id;
+        key = ResourceKey.create(Registries.RECIPE, id);
+        this.items = items;
         this.result = result;
     }
 
@@ -71,17 +80,22 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     }
 
     @Override
-    public final ResourceLocation getId() {
+    public final Identifier getId() {
         return id;
+    }
+
+    @Override
+    public final ResourceKey<Recipe<?>> getKey() {
+        return key;
     }
 
     @Override
     public final BuiltRecipe build() {
         validate();
         if (enableUnlocking) {
-            advancementBuilder.parent(ResourceLocation.withDefaultNamespace("recipes/root"))
-                    .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-                    .rewards(AdvancementRewards.Builder.recipe(id))
+            advancementBuilder.parent(Identifier.withDefaultNamespace("recipes/root"))
+                    .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(getKey()))
+                    .rewards(AdvancementRewards.Builder.recipe(getKey()))
                     .requirements(AdvancementRequirements.Strategy.OR);
         }
         AdvancementHolder advancement = advancementBuilder.build(id.withPrefix("recipes"));
@@ -109,11 +123,11 @@ public abstract class AbstractRecipeBuilder<R, T extends AbstractRecipeBuilder<R
     }
 
     protected Criterion<?> hasItem(ItemLike itemIn) {
-        return this.hasItem(ItemPredicate.Builder.item().of(itemIn).build());
+        return this.hasItem(ItemPredicate.Builder.item().of(items, itemIn).build());
     }
 
     protected Criterion<?> hasItem(TagKey<Item> tagIn) {
-        return this.hasItem(ItemPredicate.Builder.item().of(tagIn).build());
+        return this.hasItem(ItemPredicate.Builder.item().of(items, tagIn).build());
     }
 
     protected Criterion<?> hasItem(ItemPredicate... predicates) {

@@ -3,6 +3,7 @@ package codechicken.lib.render.pipeline.attribute;
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.VertexAttribute;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -20,10 +21,10 @@ public class LightingAttribute extends VertexAttribute<int[]> {
 
     @Override
     public boolean load(CCRenderState ccrs) {
-        assert ccrs.cFmt != null;
+        assert ccrs.fmt != null;
         assert ccrs.model != null;
 
-        if (!ccrs.computeLighting || !ccrs.cFmt.hasColor || !ccrs.model.hasAttribute(attributeKey)) {
+        if (!ccrs.computeLighting || !ccrs.fmt.contains(VertexFormatElement.COLOR) || !ccrs.model.hasAttribute(attributeKey)) {
             return false;
         }
 

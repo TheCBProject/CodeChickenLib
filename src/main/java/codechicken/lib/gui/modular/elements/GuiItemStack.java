@@ -1,10 +1,12 @@
 package codechicken.lib.gui.modular.elements;
 
 import codechicken.lib.gui.modular.lib.BackgroundRender;
-import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -24,16 +26,16 @@ public class GuiItemStack extends GuiElement<GuiItemStack> implements Background
     private Supplier<Boolean> decorate = () -> true;
     private Supplier<Boolean> toolTip = () -> true;
 
-    public GuiItemStack(@NotNull GuiParent<?> parent) {
+    public GuiItemStack(GuiParent<?> parent) {
         this(parent, () -> ItemStack.EMPTY);
     }
 
-    public GuiItemStack(@NotNull GuiParent<?> parent, ItemStack itemStack) {
+    public GuiItemStack(GuiParent<?> parent, ItemStack itemStack) {
         super(parent);
         setStack(itemStack);
     }
 
-    public GuiItemStack(@NotNull GuiParent<?> parent, Supplier<ItemStack> provider) {
+    public GuiItemStack(GuiParent<?> parent, Supplier<ItemStack> provider) {
         super(parent);
         setStack(provider);
     }
@@ -86,31 +88,36 @@ public class GuiItemStack extends GuiElement<GuiItemStack> implements Background
 
     //=== Internal methods ===//
 
-    public double getStackSize() {
+    private double getStackSize() {
         return Math.max(getValue(WIDTH), getValue(HEIGHT));
     }
 
     @Override
-    public double getBackgroundDepth() {
-        return getStackSize() * 2;
-    }
-
-    @Override
-    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBehind(GuiGraphics render, double mouseX, double mouseY, float partialTicks) {
         ItemStack stack = this.stack.get();
         if (stack.isEmpty()) return;
 
-        render.renderItem(stack, xMin(), yMin(), getStackSize(), (int) (xMin() + (xSize() * yMin())));
+        // TODO size needs to be applied via pose transform
+        render.cc$renderItem(stack, xMin(), yMin(), (int) (xMin() + (xSize() * yMin())));
         if (decorate.get()) {
-            render.renderItemDecorations(stack, xMin(), yMin(), getStackSize());
+            render.cc$renderItemDecorations(Minecraft.getInstance().font, stack, xMin(), yMin());
         }
     }
 
     @Override
-    public boolean renderOverlay(GuiRender render, double mouseX, double mouseY, float partialTicks, boolean consumed) {
-        if (super.renderOverlay(render, mouseX, mouseY, partialTicks, consumed)) return true;
-        if (isMouseOver() && !stack.get().isEmpty() && toolTip.get()) {
-            render.renderTooltip(stack.get(), mouseX, mouseY);
+    public boolean renderOverlay(GuiGraphics graphics, double mouseX, double mouseY, float partialTicks, boolean consumed) {
+        if (super.renderOverlay(graphics, mouseX, mouseY, partialTicks, consumed)) return true;
+        var stack = this.stack.get();
+        if (isMouseOver() && !stack.isEmpty() && toolTip.get()) {
+            graphics.setTooltipForNextFrame(
+                    font(),
+                    Screen.getTooltipFromItem(Minecraft.getInstance(), stack),
+                    stack.getTooltipImage(),
+                    stack,
+                    (int) mouseX,
+                    (int) mouseY,
+                    stack.get(DataComponents.TOOLTIP_STYLE)
+            );
             return true;
         }
         return false;

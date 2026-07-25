@@ -16,8 +16,8 @@ import net.minecraft.network.codec.StreamDecoder;
 import net.minecraft.network.codec.StreamEncoder;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -33,9 +33,10 @@ import java.nio.*;
 import java.util.UUID;
 
 //Tasty Cheese!
+@Deprecated (forRemoval = true)
 public final class PacketCustom extends MCDataByteBuf {
 
-    private final ResourceLocation channel;
+    private final Identifier channel;
     private final boolean inbound;
     private final int type;
     private final @Nullable RegistryAccess registryAccess;
@@ -48,7 +49,7 @@ public final class PacketCustom extends MCDataByteBuf {
         registryAccess = pkt.registryAccess();
     }
 
-    public PacketCustom(ResourceLocation channel, int type, @Nullable RegistryAccess registryAccess) {
+    public PacketCustom(Identifier channel, int type, @Nullable RegistryAccess registryAccess) {
         super(Unpooled.buffer(), registryAccess);
         if (!MathHelper.between(0, type, 255)) {
             throw new RuntimeException("Invalid packet type, Must be between 0 and 255. Got: " + type);
@@ -68,7 +69,7 @@ public final class PacketCustom extends MCDataByteBuf {
         return type;
     }
 
-    public ResourceLocation getChannel() {
+    public Identifier getChannel() {
         return channel;
     }
 
@@ -180,7 +181,7 @@ public final class PacketCustom extends MCDataByteBuf {
     @Override public PacketCustom writeDoubleBuffer(DoubleBuffer buffer) { super.writeDoubleBuffer(buffer); return this; }
     @Override public PacketCustom writeVector(Vector3 vec) { super.writeVector(vec); return this; }
     @Override public PacketCustom writeCuboid(Cuboid6 cuboid) { super.writeCuboid(cuboid); return this; }
-    @Override public PacketCustom writeResourceLocation(ResourceLocation loc) { super.writeResourceLocation(loc); return this; }
+    @Override public PacketCustom writeResourceLocation(Identifier loc) { super.writeResourceLocation(loc); return this; }
     @Override public PacketCustom writeDirection(Direction dir) { super.writeDirection(dir); return this; }
     @Override public PacketCustom writePos(BlockPos pos) { super.writePos(pos); return this; }
     @Override public PacketCustom writeVec3i(Vec3i vec) { super.writeVec3i(vec); return this; }
@@ -191,9 +192,9 @@ public final class PacketCustom extends MCDataByteBuf {
     @Override public PacketCustom writeItemStack(ItemStack stack) { super.writeItemStack(stack); return this; }
     @Override public PacketCustom writeTextComponent(Component component) { super.writeTextComponent(component); return this; }
     @Override public <T> PacketCustom writeRegistryIdDirect(Registry<T> registry, T entry) { super.writeRegistryIdDirect(registry, entry); return this; }
-    @Override public <T> PacketCustom writeRegistryIdDirect(Registry<T> registry, ResourceLocation entry) { super.writeRegistryIdDirect(registry, entry); return this; }
+    @Override public <T> PacketCustom writeRegistryIdDirect(Registry<T> registry, Identifier entry) { super.writeRegistryIdDirect(registry, entry); return this; }
     @Override public <T> PacketCustom writeRegistryId(Registry<T> registry, T entry) { super.writeRegistryId(registry, entry); return this; }
-    @Override public <T> PacketCustom writeRegistryId(Registry<T> registry, ResourceLocation entry) { super.writeRegistryId(registry, entry); return this; }
+    @Override public <T> PacketCustom writeRegistryId(Registry<T> registry, Identifier entry) { super.writeRegistryId(registry, entry); return this; }
     @Override public PacketCustom writeByteBuf(ByteBuf buf) { super.writeByteBuf(buf); return this; }
     @Override public PacketCustom append(ByteBuf buf) { super.append(buf); return this; }
     //@formatter:on

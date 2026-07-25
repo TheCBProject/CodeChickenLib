@@ -33,7 +33,7 @@ public class PacketSender {
      * @return The packet.
      */
     public static Packet<?> toClientPacket(CustomPacketPayload payload) {
-        return new ClientboundCustomPayloadPacket(payload);
+        return payload.toVanillaClientbound();
     }
 
     /**
@@ -237,7 +237,7 @@ public class PacketSender {
         PlayerList playerList = getCurrentServer().getPlayerList();
         ServerOpList opList = playerList.getOps();
         for (ServerPlayer player : playerList.getPlayers()) {
-            if (opList.get(player.getGameProfile()) != null) {
+            if (opList.get(player.nameAndId()) != null) {
                 sendToPlayer(packet, player);
             }
         }
@@ -253,7 +253,7 @@ public class PacketSender {
      * @return The packet.
      */
     public static Packet<?> toServerPacket(CustomPacketPayload payload) {
-        return new ServerboundCustomPayloadPacket(payload);
+        return payload.toVanillaServerbound();
     }
 
     /**

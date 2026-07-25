@@ -3,13 +3,14 @@ package codechicken.lib.gui.modular.elements;
 import codechicken.lib.gui.modular.lib.Constraints;
 import codechicken.lib.gui.modular.lib.geometry.Constraint;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
-import codechicken.lib.gui.modular.sprite.GuiTextures;
+import codechicken.lib.gui.modular.SpriteSupplier;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -17,12 +18,14 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static codechicken.lib.CodeChickenLib.MOD_ID;
 import static codechicken.lib.gui.modular.lib.geometry.GeoParam.*;
 
 /**
  * Created by brandon3055 on 28/08/2023
  */
 public class GuiButton extends GuiElement<GuiButton> {
+
     public static final int LEFT_CLICK = 0;
     public static final int RIGHT_CLICK = 1;
     public static final int MIDDLE_CLICK = 2;
@@ -30,11 +33,11 @@ public class GuiButton extends GuiElement<GuiButton> {
     private final Map<Integer, Runnable> onClick = new HashMap<>();
     private final Map<Integer, Runnable> onPress = new HashMap<>();
     private boolean pressed = false;
-    private Holder<SoundEvent> pressSound = SoundEvents.UI_BUTTON_CLICK;
-    private Holder<SoundEvent> releaseSound = null;
+    private @Nullable Holder<SoundEvent> pressSound = SoundEvents.UI_BUTTON_CLICK;
+    private @Nullable Holder<SoundEvent> releaseSound = null;
     private Supplier<Boolean> disabled = () -> false;
-    private Supplier<Boolean> toggleState;
-    private GuiText label = null;
+    private @Nullable Supplier<Boolean> toggleState;
+    private @Nullable GuiText label = null;
     private boolean resetHoverOnPress = true;
 
     /**
@@ -44,23 +47,23 @@ public class GuiButton extends GuiElement<GuiButton> {
      *
      * @param parent parent {@link GuiParent}.
      */
-    public GuiButton(@NotNull GuiParent<?> parent) {
+    public GuiButton(GuiParent<?> parent) {
         super(parent);
     }
 
     /**
      * Creates a new gui button that looks and acts exactly like a standard vanilla button.
      */
-    public static GuiButton vanilla(@NotNull GuiParent<?> parent, @Nullable Component label, Runnable onClick) {
+    public static GuiButton vanilla(GuiParent<?> parent, @Nullable Component label, Runnable onClick) {
         return vanilla(parent, label).onClick(onClick);
     }
 
     /**
      * Creates a new gui button that looks and acts exactly like a standard vanilla button.
      */
-    public static GuiButton vanilla(@NotNull GuiParent<?> parent, @Nullable Component label) {
+    public static GuiButton vanilla(GuiParent<?> parent, @Nullable Component label) {
         GuiButton button = new GuiButton(parent);
-        GuiTexture texture = new GuiTexture(button, GuiTextures.CCL.getter(() -> button.toggleState() ? "dynamic/button_highlight" : "dynamic/button_vanilla"));
+        GuiTexture texture = new GuiTexture(button, SpriteSupplier.gui(() -> Identifier.fromNamespaceAndPath(MOD_ID, button.toggleState() ? "dynamic/button_highlight" : "dynamic/button_vanilla")));
         texture.dynamicTexture();
         GuiRectangle highlight = new GuiRectangle(button).border(() -> button.hoverTime() > 0 ? 0xFFFFFFFF : 0);
 
@@ -68,8 +71,9 @@ public class GuiButton extends GuiElement<GuiButton> {
         Constraints.bind(highlight, button);
 
         if (label != null) {
-            button.setLabel(new GuiText(button, label));
-            Constraints.bind(button.getLabel(), button, 0, 2, 0, 2);
+            var buttonLabel = new GuiText(button, label);
+            button.setLabel(buttonLabel);
+            Constraints.bind(buttonLabel, button, 0, 2, 0, 2);
         }
 
         return button;
@@ -78,14 +82,14 @@ public class GuiButton extends GuiElement<GuiButton> {
     /**
      * Creates a vanilla button with a "press" animation.
      */
-    public static GuiButton vanillaAnimated(@NotNull GuiParent<?> parent, Component label, Runnable onPress) {
+    public static GuiButton vanillaAnimated(GuiParent<?> parent, @Nullable Component label, Runnable onPress) {
         return vanillaAnimated(parent, label == null ? null : () -> label, onPress);
     }
 
     /**
      * Creates a vanilla button with a "press" animation.
      */
-    public static GuiButton vanillaAnimated(@NotNull GuiParent<?> parent, @Nullable Supplier<Component> label, Runnable onPress) {
+    public static GuiButton vanillaAnimated(GuiParent<?> parent, @Nullable Supplier<Component> label, Runnable onPress) {
         return vanillaAnimated(parent, label).onPress(onPress);
     }
 
@@ -94,16 +98,16 @@ public class GuiButton extends GuiElement<GuiButton> {
     /**
      * Creates a vanilla button with a "press" animation.
      */
-    public static GuiButton vanillaAnimated(@NotNull GuiParent<?> parent, Component label) {
+    public static GuiButton vanillaAnimated(GuiParent<?> parent, @Nullable Component label) {
         return vanillaAnimated(parent, label == null ? null : () -> label);
     }
 
     /**
      * Creates a vanilla button with a "press" animation.
      */
-    public static GuiButton vanillaAnimated(@NotNull GuiParent<?> parent, @Nullable Supplier<Component> label) {
+    public static GuiButton vanillaAnimated(GuiParent<?> parent, @Nullable Supplier<Component> label) {
         GuiButton button = new GuiButton(parent);
-        GuiTexture texture = new GuiTexture(button, GuiTextures.CCL.getter(() -> button.toggleState() || button.isPressed() ? "dynamic/button_pressed" : "dynamic/button_vanilla"));
+        GuiTexture texture = new GuiTexture(button, SpriteSupplier.gui(() -> Identifier.fromNamespaceAndPath(MOD_ID, button.toggleState() || button.isPressed() ? "dynamic/button_pressed" : "dynamic/button_vanilla")));
         texture.dynamicTexture();
         GuiRectangle highlight = new GuiRectangle(button).border(() -> button.isMouseOver() ? 0xFFFFFFFF : 0);
 
@@ -125,14 +129,14 @@ public class GuiButton extends GuiElement<GuiButton> {
     /**
      * Super simple button that is just a coloured rectangle with a label.
      */
-    public static GuiButton flatColourButton(@NotNull GuiParent<?> parent, @Nullable Supplier<Component> label, Function<Boolean, Integer> buttonColour) {
+    public static GuiButton flatColourButton(GuiParent<?> parent, @Nullable Supplier<Component> label, Function<Boolean, Integer> buttonColour) {
         return flatColourButton(parent, label, buttonColour, null);
     }
 
     /**
      * Super simple button that is just a coloured rectangle with a label.
      */
-    public static GuiButton flatColourButton(@NotNull GuiParent<?> parent, @Nullable Supplier<Component> label, Function<Boolean, Integer> buttonColour, @Nullable Function<Boolean, Integer> borderColour) {
+    public static GuiButton flatColourButton(GuiParent<?> parent, @Nullable Supplier<Component> label, Function<Boolean, Integer> buttonColour, @Nullable Function<Boolean, Integer> borderColour) {
         GuiButton button = new GuiButton(parent);
         GuiRectangle background = new GuiRectangle(button)
                 .fill(() -> buttonColour.apply(button.isMouseOver() || button.toggleState() || button.isPressed()))
@@ -153,7 +157,7 @@ public class GuiButton extends GuiElement<GuiButton> {
      *
      * @param label The button label.
      */
-    public GuiButton setLabel(GuiText label) {
+    public GuiButton setLabel(@Nullable GuiText label) {
         this.label = label;
         return this;
     }
@@ -161,7 +165,7 @@ public class GuiButton extends GuiElement<GuiButton> {
     /**
      * @return The buttons label element, If it has one.
      */
-    public GuiText getLabel() {
+    public @Nullable GuiText getLabel() {
         return label;
     }
 
@@ -276,7 +280,7 @@ public class GuiButton extends GuiElement<GuiButton> {
     /**
      * Sets the sound to be played when this button is pressed.
      */
-    public GuiButton setPressSound(Holder<SoundEvent> pressSound) {
+    public GuiButton setPressSound(@Nullable Holder<SoundEvent> pressSound) {
         this.pressSound = pressSound;
         return this;
     }
@@ -284,50 +288,47 @@ public class GuiButton extends GuiElement<GuiButton> {
     /**
      * Sets the sound to be played when this button is released.
      */
-    public GuiButton setReleaseSound(Holder<SoundEvent> releaseSound) {
+    public GuiButton setReleaseSound(@Nullable Holder<SoundEvent> releaseSound) {
         this.releaseSound = releaseSound;
         return this;
     }
 
-    public Holder<SoundEvent> getPressSound() {
+    public @Nullable Holder<SoundEvent> getPressSound() {
         return pressSound;
     }
 
-    public Holder<SoundEvent> getReleaseSound() {
+    public @Nullable Holder<SoundEvent> getReleaseSound() {
         return releaseSound;
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event) {
         if (!isMouseOver() || isDisabled()) return false;
-        Runnable onClick = this.onClick.get(button);
-        Runnable onPress = this.onPress.get(button);
+        Runnable onClick = this.onClick.get(event.button());
+        Runnable onPress = this.onPress.get(event.button());
         if (onClick == null && onPress == null) return false;
+
         pressed = true;
         if (resetHoverOnPress) hoverTime = 1;
 
-        boolean consume = false;
         if (onClick != null) {
             onClick.run();
-            consume = true;
-        }
-        if (onPress != null) {
-            consume = true;
         }
 
         if (getPressSound() != null) {
             mc().getSoundManager().play(SimpleSoundInstance.forUI(getPressSound(), 1F));
         }
-        return consume;
+        return true;
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button, boolean consumed) {
-        consumed = super.mouseReleased(mouseX, mouseY, button, consumed);
+    public boolean mouseReleased(MouseButtonEvent event, boolean consumed) {
+        consumed = super.mouseReleased(event, consumed);
         if (!pressed) return consumed;
-        Runnable onClick = this.onClick.get(button);
-        Runnable onPress = this.onPress.get(button);
+        Runnable onClick = this.onClick.get(event.button());
+        Runnable onPress = this.onPress.get(event.button());
         if (onClick == null && onPress == null) return consumed;
+
         if (resetHoverOnPress) hoverTime = 1;
 
         if (!isDisabled() && isMouseOver()) {

@@ -1,18 +1,19 @@
 package codechicken.lib.config;
 
-import codechicken.lib.packet.PacketCustom;
+import codechicken.lib.packet.ConfigurationStreamPacket;
+import codechicken.lib.packet.StreamNetworkChannel;
 import com.google.common.base.Joiner;
 import net.covers1624.quack.util.CrashLock;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.network.protocol.configuration.ServerConfigurationPacketListener;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.network.ConfigurationTask;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.configuration.ICustomConfigurationTask;
-import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.ApiStatus;
@@ -20,10 +21,6 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-
-import static codechicken.lib.CodeChickenLib.MOD_ID;
-import static codechicken.lib.internal.network.CCLNetwork.L_CONFIG_SYNC;
-import static codechicken.lib.internal.network.CCLNetwork.NET_CHANNEL;
 
 /**
  * Created by covers1624 on 19/5/22.
@@ -33,7 +30,7 @@ public class ConfigSyncManager {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final CrashLock LOCK = new CrashLock("Already Initialized.");
 
-    private static final Map<ResourceLocation, ConfigTag> SYNC_MAP = new HashMap<>();
+    private static final Map<Identifier, ConfigTag> SYNC_MAP = new HashMap<>();
 
     /**
      * Registers the specified {@link ConfigTag} for syncing.
@@ -43,7 +40,7 @@ public class ConfigSyncManager {
      * @param key The unique id to associate this tag.
      * @param tag The Tag to sync.
      */
-    public static void registerSync(ResourceLocation key, ConfigTag tag) {
+    public static void registerSync(Identifier key, ConfigTag tag) {
         ConfigTag prev = SYNC_MAP.put(key, tag);
         if (prev != null) {
             throw new IllegalArgumentException("Key '" + key + "' already registered.");
@@ -54,18 +51,16 @@ public class ConfigSyncManager {
     public static void init(IEventBus modBus) {
         LOCK.lock();
 
-        if (FMLEnvironment.dist.isClient()) {
+        if (FMLEnvironment.getDist().isClient()) {
             NeoForge.EVENT_BUS.addListener(ConfigSyncManager::onClientDisconnected);
         }
-
-        modBus.addListener(ConfigSyncManager::onGameConfigurationEvent);
     }
 
     @ApiStatus.Internal
-    public static void readSyncPacket(PacketCustom packet) {
+    public static void readSyncPacket(FriendlyByteBuf packet, IPayloadContext ctx) {
         int numPackets = packet.readVarInt();
         for (int i = 0; i < numPackets; i++) {
-            ResourceLocation ident = packet.readResourceLocation();
+            Identifier ident = packet.readIdentifier();
             LOGGER.info("Applying config sync for {}.", ident);
             ConfigTag config = SYNC_MAP.get(ident);
             if (config == null) {
@@ -78,7 +73,7 @@ public class ConfigSyncManager {
     }
 
     private static void onClientDisconnected(ClientPlayerNetworkEvent.LoggingOut event) {
-        for (Map.Entry<ResourceLocation, ConfigTag> entry : SYNC_MAP.entrySet()) {
+        for (Map.Entry<Identifier, ConfigTag> entry : SYNC_MAP.entrySet()) {
             LOGGER.info("Client disconnected, rolling back config for {}.", entry.getKey());
             ConfigTag config = entry.getValue();
             config.resetFromNetwork();
@@ -86,34 +81,24 @@ public class ConfigSyncManager {
         }
     }
 
-    private static void onGameConfigurationEvent(RegisterConfigurationTasksEvent event) {
-        event.register(new ConfigSyncConfigurationTask(event.getListener()));
-    }
-
-    private record ConfigSyncConfigurationTask(ServerConfigurationPacketListener listener) implements ICustomConfigurationTask {
-
-        private static final Type TYPE = new Type(ResourceLocation.fromNamespaceAndPath(MOD_ID, "config_sync"));
+    @ApiStatus.Internal
+    public record ConfigSyncConfigurationTask(ConfigurationTask.Type type, StreamNetworkChannel.ConfigurationContext ctx) implements ICustomConfigurationTask {
 
         @Override
         public void run(Consumer<CustomPacketPayload> sender) {
             if (!SYNC_MAP.isEmpty()) {
-                PacketCustom packet = new PacketCustom(NET_CHANNEL, L_CONFIG_SYNC, null);
+                ConfigurationStreamPacket packet = ctx.newPacket();
                 packet.writeVarInt(SYNC_MAP.size());
-                for (Map.Entry<ResourceLocation, ConfigTag> entry : SYNC_MAP.entrySet()) {
-                    packet.writeResourceLocation(entry.getKey());
+                for (Map.Entry<Identifier, ConfigTag> entry : SYNC_MAP.entrySet()) {
+                    packet.writeIdentifier(entry.getKey());
                     entry.getValue().write(packet);
                 }
 
                 String mods = Joiner.on(", ").join(SYNC_MAP.keySet());
                 LOGGER.info("Sending config sync packet for {} to connecting player.", mods);
-                sender.accept(packet.toCustomPayload());
+                sender.accept(packet);
             }
-            listener.finishCurrentTask(TYPE);
-        }
-
-        @Override
-        public Type type() {
-            return TYPE;
+            ctx.packetListener().finishCurrentTask(type);
         }
     }
 }

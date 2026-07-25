@@ -1,12 +1,13 @@
 package codechicken.lib.gui.modular;
 
 import codechicken.lib.gui.modular.lib.GuiProvider;
-import codechicken.lib.gui.modular.lib.GuiRender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * A simple ModularGui screen implementation.
@@ -35,7 +36,6 @@ public class ModularGuiScreen extends Screen {
         return modularGui;
     }
 
-    @NotNull
     @Override
     public Component getTitle() {
         return modularGui.getGuiTitle();
@@ -57,23 +57,19 @@ public class ModularGuiScreen extends Screen {
     }
 
     @Override
-    public void resize(@NotNull Minecraft minecraft, int width, int height) {
-        super.resize(minecraft, width, height);
+    public void resize(int width, int height) {
+        super.resize(width, height);
         modularGui.onScreenInit(minecraft, font, width, height);
     }
 
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         if (modularGui.renderBackground()) {
             renderBackground(graphics, mouseX, mouseY, partialTicks);
         }
-        GuiRender render = GuiRender.convert(graphics);
-        modularGui.render(render, partialTicks);
-        //Ensure we render overlay on top of things like JEI
-        render.pose().pushPose();
-        render.pose().translate(0, 0, 400);
-        modularGui.renderOverlay(render, partialTicks);
-        render.pose().popPose();
+        modularGui.render(graphics, partialTicks);
+        // TODO do we render atop JEI? Whats the event ordering here?
+        modularGui.renderOverlay(graphics, partialTicks);
     }
 
     @Override
@@ -94,13 +90,13 @@ public class ModularGuiScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        return modularGui.mouseClicked(mouseX, mouseY, button) || super.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        return modularGui.mouseClicked(event) || super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        return modularGui.mouseReleased(mouseX, mouseY, button) || super.mouseReleased(mouseX, mouseY, button);
+    public boolean mouseReleased(MouseButtonEvent event) {
+        return modularGui.mouseReleased(event) || super.mouseReleased(event);
     }
 
     @Override
@@ -109,17 +105,17 @@ public class ModularGuiScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int key, int scancode, int modifiers) {
-        return modularGui.keyPressed(key, scancode, modifiers) || super.keyPressed(key, scancode, modifiers);
+    public boolean keyPressed(KeyEvent event) {
+        return modularGui.keyPressed(event) || super.keyPressed(event);
     }
 
     @Override
-    public boolean keyReleased(int key, int scancode, int modifiers) {
-        return modularGui.keyReleased(key, scancode, modifiers) || super.keyReleased(key, scancode, modifiers);
+    public boolean keyReleased(KeyEvent event) {
+        return modularGui.keyReleased(event) || super.keyReleased(event);
     }
 
     @Override
-    public boolean charTyped(char character, int modifiers) {
-        return modularGui.charTyped(character, modifiers) || super.charTyped(character, modifiers);
+    public boolean charTyped(CharacterEvent event) {
+        return modularGui.charTyped(event) || super.charTyped(event);
     }
 }

@@ -49,8 +49,8 @@ public class IconTransformation extends UVTransformation {
 
         @Override
         public void apply(UV uv) {
-            uv.u = icon.getUOffset((float) uv.u) / 16;
-            uv.v = icon.getVOffset((float) uv.v) / 16;
+            uv.u = getUOffset(icon, (float) uv.u);
+            uv.v = getVOffset(icon, (float) uv.v);
         }
 
         @Override
@@ -61,6 +61,14 @@ public class IconTransformation extends UVTransformation {
         @Override
         public IconTransformation copy() {
             return new Inverse(this);
+        }
+
+        public static float getUOffset(TextureAtlasSprite sprite, float u) {
+            return (u - sprite.getU0()) / (sprite.getU1() - sprite.getU0());
+        }
+
+        public static float getVOffset(TextureAtlasSprite sprite, float v) {
+            return (v - sprite.getV0()) / (sprite.getV1() - sprite.getV0());
         }
     }
 }

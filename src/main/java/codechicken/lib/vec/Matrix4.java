@@ -66,6 +66,10 @@ public class Matrix4 extends Transformation {
         set(stack);
     }
 
+    public Matrix4(PoseStack.Pose pose) {
+        set(pose);
+    }
+
     public Matrix4 setIdentity() {
         m00 = m11 = m22 = m33 = 1;
         m01 = m02 = m03 = m10 = m12 = m13 = m20 = m21 = m23 = m30 = m31 = m32 = 0;
@@ -414,6 +418,10 @@ public class Matrix4 extends Transformation {
 
     public Matrix4 set(PoseStack stack) {
         return set(stack.last().pose());
+    }
+
+    public Matrix4 set(PoseStack.Pose pose) {
+        return set(pose.pose());
     }
 
     public Matrix4 set(Matrix4f mat) {

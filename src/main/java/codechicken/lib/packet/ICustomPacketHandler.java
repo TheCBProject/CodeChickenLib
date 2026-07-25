@@ -11,8 +11,10 @@ import java.util.function.Consumer;
 /**
  * Created by covers1624 on 2/03/2017.
  */
+@Deprecated (forRemoval = true)
 public interface ICustomPacketHandler {
 
+    @Deprecated (forRemoval = true)
     interface IClientPacketHandler extends ICustomPacketHandler {
 
         /**
@@ -24,6 +26,7 @@ public interface ICustomPacketHandler {
         void handlePacket(PacketCustom packet, Minecraft mc);
     }
 
+    @Deprecated (forRemoval = true)
     interface IServerPacketHandler extends ICustomPacketHandler {
 
         /**
@@ -38,6 +41,7 @@ public interface ICustomPacketHandler {
     /**
      * Used with {@link RegisterConfigurationTasksEvent} to send packets to the client during the configuration phase.
      */
+    @Deprecated (forRemoval = true)
     interface IClientConfigurationPacketHandler extends ICustomPacketHandler {
 
         /**
@@ -51,6 +55,7 @@ public interface ICustomPacketHandler {
 
     // TODO this is tricky, as we don't have any context to identify the sending client and have a meaningful back/forth.
     //  Its likely not incredibly useful for our uses cases here.
+    @Deprecated (forRemoval = true)
     @ApiStatus.Experimental
     interface IServerConfigurationPacketHandler extends ICustomPacketHandler {
 

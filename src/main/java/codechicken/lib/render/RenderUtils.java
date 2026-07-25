@@ -2,14 +2,14 @@ package codechicken.lib.render;
 
 import codechicken.lib.render.buffer.TransformingVertexConsumer;
 import codechicken.lib.vec.*;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -32,17 +32,7 @@ public class RenderUtils {
         }
     }
 
-    public static RenderType getFluidRenderType() {
-        return RenderType.create("ccl:fluid_render", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS, 256, RenderType.CompositeState.builder()
-                .setShaderState(RenderType.POSITION_COLOR_TEX_LIGHTMAP_SHADER)
-                .setTextureState(RenderType.BLOCK_SHEET)
-                .setTransparencyState(RenderType.TRANSLUCENT_TRANSPARENCY)
-                .setLightmapState(RenderType.LIGHTMAP)
-                .createCompositeState(false)
-        );
-    }
-
-    public static void renderFluidCuboid(CCRenderState ccrs, Matrix4 mat, RenderType renderType, MultiBufferSource source, FluidStack stack, Cuboid6 bound, double capacity, double res) {
+    public static void renderFluidCuboid(CCRenderState ccrs, Matrix4 mat, FluidStack stack, Cuboid6 bound, double capacity, double res) {
         if (stack.isEmpty()) {
             return;
         }
@@ -54,10 +44,9 @@ public class RenderUtils {
             bound.max.y = bound.min.y + (bound.max.y - bound.min.y) * capacity;
         }
         IClientFluidTypeExtensions props = IClientFluidTypeExtensions.of(type);
-        Material material = ClientHooks.getBlockMaterial(props.getStillTexture(stack));
-        ccrs.bind(renderType, source);
+        TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager().get(ClientHooks.getBlockMaterial(props.getStillTexture(stack)));
         ccrs.baseColour = props.getTintColor(stack) << 8 | alpha;
-        makeFluidModel(bound, material.sprite(), res).render(ccrs, mat);
+        makeFluidModel(bound, sprite, res).render(ccrs, mat);
     }
 
     public static CCModel makeFluidModel(Cuboid6 bound, TextureAtlasSprite tex, double res) {
@@ -65,6 +54,7 @@ public class RenderUtils {
         List<Vertex5> verts = new ArrayList<>();
         makeFluidCuboid(verts, bound, tex, res);
         model.verts = verts.toArray(new Vertex5[0]);
+        model.computeNormals();
         return model;
     }
 
@@ -170,16 +160,19 @@ public class RenderUtils {
         builder.addVertex((float) c.max.x, (float) c.min.y, (float) c.max.z).setColor(r, g, b, a);
     }
 
+    @Deprecated
     public static void bufferHitbox(Matrix4 mat, MultiBufferSource getter, Camera renderInfo, Cuboid6 cuboid) {
-        Vec3 projectedView = renderInfo.getPosition();
+        Vec3 projectedView = renderInfo.position();
         bufferHitBox(mat.copy().translate(-projectedView.x, -projectedView.y, -projectedView.z), getter, cuboid);
     }
 
+    @Deprecated
     public static void bufferHitBox(Matrix4 mat, MultiBufferSource getter, Cuboid6 cuboid) {
-        VertexConsumer builder = new TransformingVertexConsumer(getter.getBuffer(RenderType.lines()), mat);
+        VertexConsumer builder = new TransformingVertexConsumer(getter.getBuffer(RenderTypes.lines()), mat);
         bufferCuboidOutline(builder, cuboid.copy().expand(0.0020000000949949026D), 0.0F, 0.0F, 0.0F, 0.4F);
     }
 
+    @Deprecated
     public static void bufferCuboidOutline(VertexConsumer builder, Cuboid6 c, float r, float g, float b, float a) {
         bufferLinePair(builder, c.min.x, c.min.y, c.min.z, c.max.x, c.min.y, c.min.z, r, g, b, a);
         bufferLinePair(builder, c.max.x, c.min.y, c.min.z, c.max.x, c.min.y, c.max.z, r, g, b, a);
@@ -195,22 +188,26 @@ public class RenderUtils {
         bufferLinePair(builder, c.min.x, c.min.y, c.max.z, c.min.x, c.max.y, c.max.z, r, g, b, a);
     }
 
+    @Deprecated
     public static void bufferShapeHitBox(Matrix4 mat, MultiBufferSource buffers, Camera renderInfo, VoxelShape shape) {
-        Vec3 projectedView = renderInfo.getPosition();
+        Vec3 projectedView = renderInfo.position();
         bufferShapeHitBox(mat.copy().translate(-projectedView.x, -projectedView.y, -projectedView.z), buffers, shape);
     }
 
+    @Deprecated
     public static void bufferShapeHitBox(Matrix4 mat, MultiBufferSource buffers, VoxelShape shape) {
-        VertexConsumer builder = new TransformingVertexConsumer(buffers.getBuffer(RenderType.lines()), mat);
+        VertexConsumer builder = new TransformingVertexConsumer(buffers.getBuffer(RenderTypes.lines()), mat);
         bufferShapeOutline(builder, shape, 0.0F, 0.0F, 0.0F, 0.4F);
     }
 
+    @Deprecated
     public static void bufferShapeOutline(VertexConsumer builder, VoxelShape shape, float r, float g, float b, float a) {
         shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
             bufferLinePair(builder, x1, y1, z1, x2, y2, z2, r, g, b, a);
         });
     }
 
+    @Deprecated
     private static void bufferLinePair(VertexConsumer builder, double x1, double y1, double z1, double x2, double y2, double z2, float r, float g, float b, float a) {
         Vector3 v1 = vectors[0].set(x1, y1, z1).subtract(x2, y2, z2);
         double d = v1.mag();

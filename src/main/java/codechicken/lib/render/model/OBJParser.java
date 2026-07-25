@@ -7,7 +7,7 @@ import codechicken.lib.vec.Transformation;
 import codechicken.lib.vec.Vector3;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +18,7 @@ import java.util.*;
  */
 public class OBJParser {
 
-    private final ResourceLocation location;
+    private final Identifier location;
     @Nullable
     private ResourceProvider provider;
     private VertexFormat.Mode vertexMode = VertexFormat.Mode.TRIANGLES;
@@ -29,9 +29,9 @@ public class OBJParser {
     /**
      * Create a new instance of an OBJParser for a nice builder-like structure.
      *
-     * @param location The {@link ResourceLocation} of the OBJ.
+     * @param location The {@link Identifier} of the OBJ.
      */
-    public OBJParser(ResourceLocation location) {
+    public OBJParser(Identifier location) {
         this.location = location;
     }
 
@@ -116,13 +116,13 @@ public class OBJParser {
      * Parse an OBJ model into a named map of {@link CCModel}s.
      *
      * @param provider    The {@link ResourceProvider} to locate assets.
-     * @param loc         The {@link ResourceLocation} of the OBJ model.
+     * @param loc         The {@link Identifier} of the OBJ model.
      * @param vertexMode  The {@link VertexFormat.Mode} to parse the model into.
      * @param coordSystem The coordinate system transformation to apply during parsing.
      * @param ignoreMtl   If MTL files should be ignored.
      * @return The parsed models.
      */
-    public static Map<String, CCModel> parse(ResourceProvider provider, ResourceLocation loc, VertexFormat.Mode vertexMode, @Nullable Transformation coordSystem, boolean ignoreMtl) {
+    public static Map<String, CCModel> parse(ResourceProvider provider, Identifier loc, VertexFormat.Mode vertexMode, @Nullable Transformation coordSystem, boolean ignoreMtl) {
         if (vertexMode != VertexFormat.Mode.QUADS && vertexMode != VertexFormat.Mode.TRIANGLES) throw new IllegalStateException("Only Quads and Triangles are supported.");
 
         Map<String, CCModel> builtModels = new HashMap<>();
@@ -296,9 +296,9 @@ public class OBJParser {
         return values;
     }
 
-    private static ResourceLocation maybeRelative(ResourceLocation other, String resource) {
+    private static Identifier maybeRelative(Identifier other, String resource) {
         if (resource.contains(":")) {
-            return ResourceLocation.parse(resource);
+            return Identifier.parse(resource);
         }
         String path = other.getPath();
         int lastSlash = path.lastIndexOf("/");
@@ -307,6 +307,6 @@ public class OBJParser {
         } else {
             path = "";
         }
-        return ResourceLocation.fromNamespaceAndPath(other.getNamespace(), path + "/" + resource);
+        return Identifier.fromNamespaceAndPath(other.getNamespace(), path + "/" + resource);
     }
 }

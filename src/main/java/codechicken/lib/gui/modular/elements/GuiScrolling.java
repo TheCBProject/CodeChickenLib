@@ -2,14 +2,13 @@ package codechicken.lib.gui.modular.elements;
 
 import codechicken.lib.gui.modular.lib.Constraints;
 import codechicken.lib.gui.modular.lib.ContentElement;
-import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.SliderState;
 import codechicken.lib.gui.modular.lib.geometry.Axis;
 import codechicken.lib.gui.modular.lib.geometry.Constraint;
 import codechicken.lib.gui.modular.lib.geometry.GeoParam;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import codechicken.lib.math.MathHelper;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.GuiGraphics;
 import org.jetbrains.annotations.Nullable;
 
 import static codechicken.lib.gui.modular.lib.geometry.Constraint.match;
@@ -49,7 +48,7 @@ public class GuiScrolling extends GuiElement<GuiScrolling> implements ContentEle
     /**
      * @param parent parent {@link GuiParent}.
      */
-    public GuiScrolling(@NotNull GuiParent<?> parent) {
+    public GuiScrolling(GuiParent<?> parent) {
         super(parent);
         installContainerElement(new ContentElement(this));
     }
@@ -153,19 +152,20 @@ public class GuiScrolling extends GuiElement<GuiScrolling> implements ContentEle
     //=== Rendering ===//
 
     @Override
-    protected boolean renderChild(GuiElement<?> child, GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    protected boolean renderChild(GuiElement<?> child, GuiGraphics render, double mouseX, double mouseY, float partialTicks) {
         boolean scissor = child == contentElement && enableScissor;
-        if (scissor) render.pushScissorRect(getRectangle());
+        if (scissor) render.cc$enableScissor(getRectangle());
         boolean ret = super.renderChild(child, render, mouseX, mouseY, partialTicks);
-        if (scissor) render.popScissor();
+        if (scissor) render.cc$disableScissor();
         return ret;
     }
 
     private class ContentElement extends GuiElement<ContentElement> {
+
         /**
          * @param parent parent {@link GuiParent}.
          */
-        public ContentElement(@NotNull GuiParent<?> parent) {
+        public ContentElement(GuiParent<?> parent) {
             super(parent);
         }
 
@@ -176,7 +176,7 @@ public class GuiScrolling extends GuiElement<GuiScrolling> implements ContentEle
         }
     }
 
-    public static ScrollWindow simpleScrollWindow(@NotNull GuiParent<?> parent, boolean verticalScrollBar, boolean horizontalScrollBar) {
+    public static ScrollWindow simpleScrollWindow(GuiParent<?> parent, boolean verticalScrollBar, boolean horizontalScrollBar) {
         GuiElement<?> container = new GuiElement<>(parent);
         GuiRectangle background = GuiRectangle.vanillaSlot(container)
                 .constrain(TOP, match(container.get(TOP)))

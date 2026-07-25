@@ -2,12 +2,12 @@ package codechicken.lib.gui.modular.elements;
 
 import codechicken.lib.gui.modular.lib.ContentElement;
 import codechicken.lib.math.MathHelper;
-import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.geometry.Constraint;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import codechicken.lib.gui.modular.lib.geometry.Rectangle;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.GuiGraphics;
 import org.joml.Vector2d;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Random;
 import java.util.function.Consumer;
@@ -24,12 +24,12 @@ public class GuiDVD extends GuiElement<GuiDVD> implements ContentElement<GuiElem
     private final GuiElement<?> movingElement;
     private double xOffset = 0;
     private double yOffset = 0;
-    private Vector2d velocity = null;
+    private @Nullable Vector2d velocity = null;
     private int bounce = 0;
     private Consumer<Integer> onBounce = bounce -> {
     };
 
-    public GuiDVD(@NotNull GuiParent<?> parent) {
+    public GuiDVD(GuiParent<?> parent) {
         super(parent);
         this.movingElement = new GuiElement<>(this)
                 .constrain(TOP, Constraint.relative(get(TOP), () -> yOffset))
@@ -64,7 +64,7 @@ public class GuiDVD extends GuiElement<GuiDVD> implements ContentElement<GuiElem
     }
 
     @Override
-    public void render(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void render(GuiGraphics render, double mouseX, double mouseY, float partialTicks) {
         super.render(render, mouseX, mouseY, partialTicks);
         if (velocity == null) return;
 

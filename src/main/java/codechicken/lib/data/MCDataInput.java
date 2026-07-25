@@ -13,9 +13,10 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.StreamDecoder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
@@ -43,6 +44,7 @@ import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
  * <p>
  * Created by covers1624 on 4/15/20.
  */
+@Deprecated (forRemoval = true)
 public interface MCDataInput {
 
     //region Primitives
@@ -527,12 +529,12 @@ public interface MCDataInput {
     //region MinecraftObjects
 
     /**
-     * Reads a {@link ResourceLocation} from the stream.
+     * Reads a {@link Identifier} from the stream.
      *
-     * @return The {@link ResourceLocation}.
+     * @return The {@link Identifier}.
      */
-    default ResourceLocation readResourceLocation() {
-        return ResourceLocation.parse(readString());
+    default Identifier readResourceLocation() {
+        return Identifier.parse(readString());
     }
 
     /**
@@ -629,8 +631,8 @@ public interface MCDataInput {
      *
      * @return The {@link Component}.
      */
-    default MutableComponent readTextComponent() {
-        return requireNonNull(Component.Serializer.fromJson(readString(), RegistryAccess.EMPTY));
+    default Component readTextComponent() {
+        return readWithRegistryCodec(ComponentSerialization.STREAM_CODEC);
     }
 
     /**
@@ -653,7 +655,7 @@ public interface MCDataInput {
      * @see MCDataOutput#writeRegistryId(Registry, ResourceLocation)
      */
     default <T> T readRegistryId() {
-        ResourceLocation rName = readResourceLocation();
+        Identifier rName = readResourceLocation();
         return readRegistryIdDirect(unsafeCast(requireNonNull(BuiltInRegistries.REGISTRY.get(rName), "Registry " + rName + " not found.")));
     }
 

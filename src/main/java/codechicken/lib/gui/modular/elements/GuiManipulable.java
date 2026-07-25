@@ -8,7 +8,7 @@ import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import codechicken.lib.gui.modular.lib.geometry.Rectangle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.input.MouseButtonEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -34,6 +34,7 @@ import static codechicken.lib.gui.modular.lib.geometry.GeoParam.*;
  * Created by brandon3055 on 13/11/2023
  */
 public class GuiManipulable extends GuiElement<GuiManipulable> implements ContentElement<GuiElement<?>> {
+
     private final GuiElement<?> contentElement;
 
     private int dragXOffset = 0;
@@ -84,7 +85,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     private GuiElement<?> topHandle;
     private GuiElement<?> bottomHandle;
 
-    public GuiManipulable(@NotNull GuiParent<?> parent) {
+    public GuiManipulable(GuiParent<?> parent) {
         super(parent);
         this.contentElement = new ContentElement(this)
                 .constrain(LEFT, Constraint.dynamic(() -> (double) xMin))
@@ -99,10 +100,10 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     }
 
     public GuiManipulable resetBounds() {
-        xMin = (int)xMin();
-        xMax = (int)xMax();
-        yMin = (int)yMin();
-        yMax = (int)yMax();
+        xMin = (int) xMin();
+        xMax = (int) xMax();
+        yMin = (int) yMin();
+        yMax = (int) yMax();
         return this;
     }
 
@@ -297,7 +298,6 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
         return maxSize;
     }
 
-
     @Override
     public void tick(double mouseX, double mouseY) {
         if (enableCursors) {
@@ -382,7 +382,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button, boolean consumed) {
+    public boolean mouseReleased(MouseButtonEvent event, boolean consumed) {
         if (isMoving()) {
             validatePosition(true);
             onMoved(true);
@@ -391,7 +391,7 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
             onResized(true);
         }
         isDragging = dragPos = dragTop = dragLeft = dragBottom = dragRight = false;
-        return super.mouseReleased(mouseX, mouseY, button, consumed);
+        return super.mouseReleased(event, consumed);
     }
 
     protected void validatePosition(boolean finished) {
@@ -424,18 +424,19 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
     }
 
     public interface PositionRestraint {
+
         void restrainPosition(GuiManipulable draggable);
     }
 
     private class ContentElement extends GuiElement<ContentElement> {
 
-        public ContentElement(@NotNull GuiParent<?> parent) {
+        public ContentElement(GuiParent<?> parent) {
             super(parent);
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (super.mouseClicked(mouseX, mouseY, button)) return true;
+        public boolean mouseClicked(MouseButtonEvent event) {
+            if (super.mouseClicked(event)) return true;
 
             boolean posFlag = moveHandle != null && moveHandle.isMouseOver();
             boolean topFlag = topHandle != null && topHandle.isMouseOver();
@@ -444,8 +445,8 @@ public class GuiManipulable extends GuiElement<GuiManipulable> implements Conten
             boolean rightFlag = rightHandle != null && rightHandle.isMouseOver();
 
             if (posFlag || topFlag || leftFlag || bottomFlag || rightFlag) {
-                dragXOffset = (int) (mouseX - xMin);
-                dragYOffset = (int) (mouseY - yMin);
+                dragXOffset = (int) (event.x() - xMin);
+                dragYOffset = (int) (event.y() - yMin);
                 isDragging = true;
                 if (posFlag) {
                     dragPos = true;

@@ -1,8 +1,7 @@
 package codechicken.lib.config;
 
-import codechicken.lib.data.MCDataInput;
-import codechicken.lib.data.MCDataOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -74,7 +73,7 @@ public interface ConfigTag {
     /**
      * Sets this tag as requiring syncing to the client.
      * <p>
-     * Register your root tag via {@link ConfigSyncManager#registerSync(ResourceLocation, ConfigTag)}.
+     * Register your root tag via {@link ConfigSyncManager#registerSync(Identifier, ConfigTag)}.
      */
     ConfigTag syncTagToClient();
 
@@ -168,16 +167,16 @@ public interface ConfigTag {
     ConfigTag copy();
 
     /**
-     * Write this tag to a {@link MCDataOutput}.
+     * Write this tag to a {@link FriendlyByteBuf} packet.
      * Only categories and/or tags which have {@link #syncTagToClient()} set
      * will be written.
      *
-     * @param out The output stream.
+     * @param packet The packet to write to.
      */
-    void write(MCDataOutput out);
+    void write(FriendlyByteBuf packet);
 
     /**
-     * Read this tag from a {@link MCDataInput}.
+     * Read this tag from a {@link FriendlyByteBuf} packet.
      * All tags and values will be read and inserted into the tree.
      * <p>
      * If a tag does not already exist in the tree, one will be added and marked
@@ -186,9 +185,9 @@ public interface ConfigTag {
      * All tags with a network value will be reset to default when {@link #resetFromNetwork()}
      * is called, whilst any 'network only' tags will be deleted.
      *
-     * @param in The input stream.
+     * @param packet The packet to read from.
      */
-    void read(MCDataInput in);
+    void read(FriendlyByteBuf packet);
 
     /**
      * Resets all network tags back to their original value.

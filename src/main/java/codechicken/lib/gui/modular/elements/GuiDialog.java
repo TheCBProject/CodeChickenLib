@@ -5,12 +5,11 @@ import codechicken.lib.gui.modular.lib.Constraints;
 import codechicken.lib.gui.modular.lib.geometry.Constraint;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import net.covers1624.quack.collection.FastStream;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -27,7 +26,7 @@ public class GuiDialog extends GuiElement<GuiDialog> {
     private boolean blockKeyInput = true;
     private boolean blockMouseInput = true;
 
-    protected GuiDialog(@NotNull GuiParent<?> parent) {
+    protected GuiDialog(GuiParent<?> parent) {
         super(parent);
     }
 
@@ -40,7 +39,7 @@ public class GuiDialog extends GuiElement<GuiDialog> {
      * @param width      The dialog width, (Height will automatically adjust based on content.)
      * @param options    The list of options for this dialog.
      */
-    public static GuiDialog optionsDialog(@NotNull GuiParent<?> parent, @Nullable Component title, Component dialogText, int width, Option... options) {
+    public static GuiDialog optionsDialog(GuiParent<?> parent, @Nullable Component title, Component dialogText, int width, Option... options) {
         return optionsDialog(parent, title, dialogText, GuiRectangle::toolTipBackground, GuiDialog::defaultButton, width, options);
     }
 
@@ -52,7 +51,7 @@ public class GuiDialog extends GuiElement<GuiDialog> {
      * @param width      The dialog width, (Height will automatically adjust based on content.)
      * @param options    The list of options for this dialog.
      */
-    public static GuiDialog optionsDialog(@NotNull GuiParent<?> parent, Component dialogText, int width, Option... options) {
+    public static GuiDialog optionsDialog(GuiParent<?> parent, Component dialogText, int width, Option... options) {
         return optionsDialog(parent, null, dialogText, width, options);
     }
 
@@ -65,7 +64,7 @@ public class GuiDialog extends GuiElement<GuiDialog> {
      * @param dialogText The main dialog text.
      * @param width      The dialog width, (Height will automatically adjust based on content.)
      */
-    public static GuiDialog infoDialog(@NotNull GuiParent<?> parent, @Nullable Component title, Component dialogText, int width, @Nullable Runnable okAction) {
+    public static GuiDialog infoDialog(GuiParent<?> parent, @Nullable Component title, Component dialogText, int width, @Nullable Runnable okAction) {
         return optionsDialog(parent, title, dialogText, width, neutral(Component.translatable("gui.ok"), okAction));
     }
 
@@ -78,7 +77,7 @@ public class GuiDialog extends GuiElement<GuiDialog> {
      * @param dialogText The main dialog text.
      * @param width      The dialog width, (Height will automatically adjust based on content.)
      */
-    public static GuiDialog infoDialog(@NotNull GuiParent<?> parent, @Nullable Component title, Component dialogText, int width) {
+    public static GuiDialog infoDialog(GuiParent<?> parent, @Nullable Component title, Component dialogText, int width) {
         return infoDialog(parent, title, dialogText, width, null);
     }
 
@@ -90,7 +89,7 @@ public class GuiDialog extends GuiElement<GuiDialog> {
      * @param dialogText The main dialog text.
      * @param width      The dialog width, (Height will automatically adjust based on content.)
      */
-    public static GuiDialog infoDialog(@NotNull GuiParent<?> parent, Component dialogText, int width) {
+    public static GuiDialog infoDialog(GuiParent<?> parent, Component dialogText, int width) {
         return infoDialog(parent, null, dialogText, width);
     }
 
@@ -138,12 +137,12 @@ public class GuiDialog extends GuiElement<GuiDialog> {
     }
 
     @Override
-    public boolean keyPressed(int key, int scancode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
         return blockKeyInput;
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event) {
         return blockMouseInput;
     }
 
@@ -160,7 +159,7 @@ public class GuiDialog extends GuiElement<GuiDialog> {
      * @param width             The dialog width, (Height will automatically adjust based on content.)
      * @param options           The list of options for this dialog.
      */
-    public static GuiDialog optionsDialog(@NotNull GuiParent<?> parent, @Nullable Component title, Component dialogText, Function<GuiDialog, GuiElement<?>> backgroundBuilder, BiFunction<GuiDialog, Option, GuiButton> buttonBuilder, int width, Option... options) {
+    public static GuiDialog optionsDialog(GuiParent<?> parent, @Nullable Component title, Component dialogText, Function<GuiDialog, GuiElement<?>> backgroundBuilder, BiFunction<GuiDialog, Option, GuiButton> buttonBuilder, int width, Option... options) {
         if (options.length == 0) throw new IllegalStateException("Can not create gui dialog with no options!");
         ModularGui gui = parent.getModularGui();
 
@@ -237,5 +236,5 @@ public class GuiDialog extends GuiElement<GuiDialog> {
         return button;
     }
 
-    public record Option(Component text, @Nullable Runnable action, Function<Boolean, Integer> colour) {}
+    public record Option(Component text, @Nullable Runnable action, Function<Boolean, Integer> colour) { }
 }

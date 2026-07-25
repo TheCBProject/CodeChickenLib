@@ -1,19 +1,17 @@
 package codechicken.lib.gui.modular.elements;
 
 import codechicken.lib.gui.modular.lib.ForegroundRender;
-import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.geometry.Align;
 import codechicken.lib.gui.modular.lib.geometry.GeoParam;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import codechicken.lib.gui.modular.lib.geometry.Position;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.FormattedCharSequence;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -22,15 +20,17 @@ import java.util.function.Supplier;
 import static codechicken.lib.gui.modular.lib.geometry.Align.MAX;
 import static codechicken.lib.gui.modular.lib.geometry.Align.MIN;
 import static codechicken.lib.gui.modular.lib.geometry.Constraint.dynamic;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Created by brandon3055 on 31/08/2023
  */
 public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
+
     private Supplier<Component> text;
     private Supplier<Boolean> shadow = () -> true;
     private Supplier<Integer> textColour = () -> 0xFFFFFFFF;
-    private Supplier<Double> rotation = null;
+    private @Nullable Supplier<Double> rotation = null;
     private Position rotatePoint = Position.create(() -> xSize() / 2, () -> ySize() / 2);
     private boolean trim = false;
     private boolean wrap = false;
@@ -41,21 +41,21 @@ public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
     /**
      * @param parent parent {@link GuiParent}.
      */
-    public GuiText(@NotNull GuiParent<?> parent) {
+    public GuiText(GuiParent<?> parent) {
         this(parent, () -> null);
     }
 
     /**
      * @param parent parent {@link GuiParent}.
      */
-    public GuiText(@NotNull GuiParent<?> parent, @Nullable Component text) {
+    public GuiText(GuiParent<?> parent, @Nullable Component text) {
         this(parent, () -> text);
     }
 
     /**
      * @param parent parent {@link GuiParent}.
      */
-    public GuiText(@NotNull GuiParent<?> parent, @NotNull Supplier<@Nullable Component> text) {
+    public GuiText(GuiParent<?> parent, Supplier<@Nullable Component> text) {
         super(parent);
         this.text = text;
     }
@@ -64,16 +64,16 @@ public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
      * Apply a dynamic height constraint that sets the height based on text height (accounting for wrapping)
      */
     public GuiText autoHeight() {
-        constrain(GeoParam.HEIGHT, dynamic(() -> wrap ? (double) font().wordWrapHeight(getText(), (int) xSize()) : font().lineHeight));
+        constrain(GeoParam.HEIGHT, dynamic(() -> wrap ? (double) font().wordWrapHeight(requireNonNull(getText()), (int) xSize()) : font().lineHeight));
         return this;
     }
 
     public GuiText autoWidth() {
-        constrain(GeoParam.WIDTH, dynamic(() -> (double) font().width(getText())));
+        constrain(GeoParam.WIDTH, dynamic(() -> (double) font().width(requireNonNull(getText()))));
         return this;
     }
 
-    public GuiText setTextSupplier(@NotNull Supplier<@Nullable Component> textSupplier) {
+    public GuiText setTextSupplier(Supplier<@Nullable Component> textSupplier) {
         this.text = textSupplier;
         return this;
     }
@@ -83,12 +83,12 @@ public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
         return this;
     }
 
-    public GuiText setText(@NotNull String text) {
+    public GuiText setText(String text) {
         this.text = () -> Component.literal(text);
         return this;
     }
 
-    public GuiText setTranslatable(@NotNull String translationKey) {
+    public GuiText setTranslatable(String translationKey) {
         this.text = () -> Component.translatable(translationKey);
         return this;
     }
@@ -152,7 +152,7 @@ public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
         return scroll;
     }
 
-    public GuiText setShadow(@NotNull Supplier<Boolean> shadow) {
+    public GuiText setShadow(Supplier<Boolean> shadow) {
         this.shadow = shadow;
         return this;
     }
@@ -208,27 +208,22 @@ public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
     }
 
     @Override
-    public double getForegroundDepth() {
-        return 0.05;
-    }
-
-    @Override
-    public void renderForeground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderInFront(GuiGraphics graphics, double mouseX, double mouseY, float partialTicks) {
         Component component = getText();
         if (component == null) return;
-        Font font = render.font();
+        Font font = Minecraft.getInstance().font;
 
         int textHeight = font.lineHeight;
         int textWidth = font.width(component);
         boolean tooLong = textWidth > xSize();
         double yPos = (yMin() + ySize() / 2 - textHeight / 2D) + 1; //Adding 1 here makes the text look 'visually' centered, Text height includes the height of the optional underline.
 
-        PoseStack stack = render.pose();
+        var pose = graphics.pose();
         if (rotation != null) {
-            stack.pushPose();
-            stack.translate(xMin() + rotatePoint.x(), yMin() + rotatePoint.y(), 0);
-            stack.mulPose(Axis.ZP.rotationDegrees(rotation.get().floatValue()));
-            stack.translate(-xMin() - rotatePoint.x(), -yMin() - rotatePoint.y(), 0);
+            pose.pushMatrix();
+            pose.translate((float) (xMin() + rotatePoint.x()), (float) (yMin() + rotatePoint.y()));
+            pose.rotate(rotation.get().floatValue());
+            pose.translate((float) (-xMin() - rotatePoint.x()), (float) (-yMin() - rotatePoint.y()));
         }
 
         //Draw Trimmed
@@ -239,7 +234,7 @@ public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
             textWidth = font.width(formatted);
 
             double xPos = alignment == MIN ? xMin() : alignment == MAX ? xMax() - textWidth : xMin() + xSize() / 2 - textWidth / 2D;
-            render.drawString(formatted, xPos, yPos, getTextColour(), getShadow());
+            graphics.cc$drawString(font, formatted, xPos, yPos, getTextColour(), getShadow());
         }
         //Draw Wrapped
         else if ((tooLong || font().split(component, Integer.MAX_VALUE).size() > 1) && wrap) {
@@ -250,24 +245,24 @@ public class GuiText extends GuiElement<GuiText> implements ForegroundRender {
             for (FormattedCharSequence line : list) {
                 int lineWidth = font.width(line);
                 double xPos = alignment == MIN ? xMin() : alignment == MAX ? xMax() - lineWidth : xMin() + xSize() / 2 - lineWidth / 2D;
-                render.drawString(line, xPos, yPos, getTextColour(), getShadow());
+                graphics.cc$drawString(font, line, xPos, yPos, getTextColour(), getShadow());
                 yPos += font.lineHeight;
             }
         }
         //Draw Scrolling
         else if (tooLong && scroll) {
-            render.pushScissorRect(getRectangle());
-            render.drawScrollingString(component, xMin(), yPos, xMax(), getTextColour(), getShadow(), false);
-            render.popScissor();
+            graphics.cc$enableScissor(getRectangle());
+            graphics.cc$drawScrollingString(font, component, xMin(), yPos, xMax(), getTextColour(), getShadow(), false);
+            graphics.cc$disableScissor();
         }
         //Draw
         else {
             double xPos = alignment == MIN ? xMin() : alignment == MAX ? xMax() - textWidth : xMin() + xSize() / 2 - textWidth / 2D;
-            render.drawString(component, xPos, yPos, getTextColour(), getShadow());
+            graphics.cc$drawString(font, component, xPos, yPos, getTextColour(), getShadow());
         }
 
         if (rotation != null) {
-            stack.popPose();
+            pose.popMatrix();
         }
     }
 }

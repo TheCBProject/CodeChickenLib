@@ -4,9 +4,10 @@ import codechicken.lib.colour.Colour;
 import codechicken.lib.gui.modular.lib.*;
 import codechicken.lib.gui.modular.lib.geometry.Axis;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -25,7 +26,7 @@ public class GuiColourPicker extends GuiManipulable {
     private GuiButton okButton;
     private GuiButton cancelButton;
 
-    public GuiColourPicker(@NotNull GuiParent<?> parent, Colour initialColour) {
+    public GuiColourPicker(GuiParent<?> parent, Colour initialColour) {
         super(parent);
         this.initialColour = initialColour;
     }
@@ -132,15 +133,15 @@ public class GuiColourPicker extends GuiManipulable {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button, boolean consumed) {
-        if (closeOnOutsideClick && !getContentElement().getRectangle().contains(mouseX, mouseY)) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean consumed) {
+        if (closeOnOutsideClick && !getContentElement().getRectangle().contains(event.x(), event.y())) {
             cancel();
         }
-        return super.mouseClicked(mouseX, mouseY, button, consumed) || blockOutsideClicks;
+        return super.mouseClicked(event, consumed) || blockOutsideClicks;
     }
 
     public void cancel() {
-        if (cancelButton != null && cancelButton.isEnabled()){
+        if (cancelButton != null && cancelButton.isEnabled()) {
             colourState.set(initialColour);
         }
         close();
@@ -160,62 +161,64 @@ public class GuiColourPicker extends GuiManipulable {
     }
 
     public static class SliderBG extends GuiElement<SliderBG> implements BackgroundRender {
+
         public int colour;
         public int highlight;
         public GuiSlider slider;
         public boolean pressed = false;
 
-        public SliderBG(@NotNull GuiParent<?> parent, int colour, int highlight) {
+        public SliderBG(GuiParent<?> parent, int colour, int highlight) {
             super(parent);
             this.colour = colour;
             this.highlight = highlight;
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button, boolean consumed) {
-            pressed = button == 0;
-            return super.mouseClicked(mouseX, mouseY, button, consumed);
+        public boolean mouseClicked(MouseButtonEvent event, boolean consumed) {
+            pressed = event.button() == 0;
+            return super.mouseClicked(event, consumed);
         }
 
         @Override
-        public boolean mouseReleased(double mouseX, double mouseY, int button, boolean consumed) {
-            if (button == 0) pressed = false;
-            return super.mouseReleased(mouseX, mouseY, button, consumed);
+        public boolean mouseReleased(MouseButtonEvent event, boolean consumed) {
+            if (event.button() == 0) pressed = false;
+            return super.mouseReleased(event, consumed);
         }
 
         @Override
-        public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
-            render.fill(xMin(), yMin(), xMin() + 1, yMax(), colour);
-            render.fill(xMax() - 1, yMin(), xMax(), yMax(), colour);
-            render.fill(xMin() + 1, yCenter() - 0.5, xMax() - 1, yCenter() + 0.5, colour);
+        public void renderBehind(GuiGraphics render, double mouseX, double mouseY, float partialTicks) {
+            render.cc$fill(xMin(), yMin(), xMin() + 1, yMax(), colour);
+            render.cc$fill(xMax() - 1, yMin(), xMax(), yMax(), colour);
+            render.cc$fill(xMin() + 1, yCenter() - 0.5, xMax() - 1, yCenter() + 0.5, colour);
 
             if ((isMouseOver() && !pressed) || slider.isDragging()) {
-                render.rect(getRectangle(), highlight);
+                render.cc$fill(getRectangle(), highlight);
             }
         }
     }
 
     public static class ColourPreview extends GuiElement<ColourPreview> implements BackgroundRender {
+
         private final Supplier<Integer> colour;
         public int colourA = 0xFF999999;
         public int colourB = 0xFF666666;
 
-        public ColourPreview(@NotNull GuiParent<?> parent, Supplier<Integer> colour) {
+        public ColourPreview(GuiParent<?> parent, Supplier<Integer> colour) {
             super(parent);
             this.colour = colour;
         }
 
         @Override
-        public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
-            render.pushScissorRect(xMin(), yMin(), xSize(), ySize());
+        public void renderBehind(GuiGraphics render, double mouseX, double mouseY, float partialTicks) {
+            render.cc$enableScissor(xMin(), yMin(), xSize(), ySize());
             for (int x = 0; xMin() + (x * 2) < xMax(); x++) {
                 for (int y = 0; yMin() + (y * 2) < yMax(); y++) {
                     int col = (y & 1) == 0 ? ((x & 1) == 0 ? colourA : colourB) : ((x & 1) == 0 ? colourB : colourA);
-                    render.rect(xMin() + (x * 2), yMin() + (y * 2), 2, 2, col);
+                    render.cc$fill(xMin() + (x * 2), yMin() + (y * 2), 2, 2, col);
                 }
             }
-            render.popScissor();
-            render.rect(getRectangle(), colour.get());
+            render.cc$disableScissor();
+            render.cc$fill(getRectangle(), colour.get());
         }
     }
 
@@ -229,19 +232,19 @@ public class GuiColourPicker extends GuiManipulable {
     }
 
     public SliderState sliderStateAlpha() {
-        return SliderState.forSlider(() -> (double) colourState.getColour().aF(), e -> colourState.set(colourState.getColour().aF(e.floatValue())), () -> -1D / (Screen.hasShiftDown() ? 16 : 64));
+        return SliderState.forSlider(() -> (double) colourState.getColour().aF(), e -> colourState.set(colourState.getColour().aF(e.floatValue())), () -> -1D / (Minecraft.getInstance().hasShiftDown() ? 16 : 64));
     }
 
     public SliderState sliderStateRed() {
-        return SliderState.forSlider(() -> (double) colourState.getColour().rF(), e -> colourState.set(colourState.getColour().rF(e.floatValue())), () -> -1D / (Screen.hasShiftDown() ? 16 : 64));
+        return SliderState.forSlider(() -> (double) colourState.getColour().rF(), e -> colourState.set(colourState.getColour().rF(e.floatValue())), () -> -1D / (Minecraft.getInstance().hasShiftDown() ? 16 : 64));
     }
 
     public SliderState sliderStateGreen() {
-        return SliderState.forSlider(() -> (double) colourState.getColour().gF(), e -> colourState.set(colourState.getColour().gF(e.floatValue())), () -> -1D / (Screen.hasShiftDown() ? 16 : 64));
+        return SliderState.forSlider(() -> (double) colourState.getColour().gF(), e -> colourState.set(colourState.getColour().gF(e.floatValue())), () -> -1D / (Minecraft.getInstance().hasShiftDown() ? 16 : 64));
     }
 
     public SliderState sliderStateBlue() {
-        return SliderState.forSlider(() -> (double) colourState.getColour().bF(), e -> colourState.set(colourState.getColour().bF(e.floatValue())), () -> -1D / (Screen.hasShiftDown() ? 16 : 64));
+        return SliderState.forSlider(() -> (double) colourState.getColour().bF(), e -> colourState.set(colourState.getColour().bF(e.floatValue())), () -> -1D / (Minecraft.getInstance().hasShiftDown() ? 16 : 64));
     }
 
     public TextState getTextState() {

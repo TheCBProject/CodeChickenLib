@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 
 import static net.minecraft.commands.Commands.literal;
@@ -16,11 +17,11 @@ public class MiscCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(literal("ccl")
                 .then(literal("meminfo")
-                        .requires(e -> e.hasPermission(4))
+                        .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                         .executes(MiscCommands::printMemInfo)
                 )
                 .then(literal("gc")
-                        .requires(e -> e.hasPermission(4))
+                        .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                         .executes(ctx -> {
                             ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.gc.before"), true);
                             printMemInfo(ctx, true);

@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.joml.Vector4f;
 
 import java.math.BigDecimal;
@@ -128,7 +129,7 @@ public class Vector3 implements Copyable<Vector3> {
     }
 
     public static Vector3 fromNBT(CompoundTag tag) {
-        return new Vector3(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
+        return new Vector3(tag.getDoubleOr("x", 0), tag.getDoubleOr("y", 0), tag.getDoubleOr("z", 0));
     }
 
     public Vec3 vec3() {
@@ -179,6 +180,10 @@ public class Vector3 implements Copyable<Vector3> {
 
     public Vector3 set(Vec3i vec) {
         return set(vec.getX(), vec.getY(), vec.getZ());
+    }
+
+    public Vector3 set(Vector3fc vec) {
+        return set(vec.x(), vec.y(), vec.z());
     }
 
     public Vector3 set(double[] da) {

@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2CharArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2CharMap;
 import net.covers1624.quack.io.IOUtils;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,9 +1,8 @@
 package codechicken.lib.inventory.container.data;
 
-import codechicken.lib.data.MCDataInput;
-import codechicken.lib.data.MCDataOutput;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
 import java.util.Objects;
 
@@ -31,9 +30,9 @@ public abstract class AbstractDataStore<T> {
 
     public void markDirty() { }
 
-    public abstract void toBytes(MCDataOutput buf);
+    public abstract void toBytes(RegistryFriendlyByteBuf buf);
 
-    public abstract void fromBytes(MCDataInput buf);
+    public abstract void fromBytes(RegistryFriendlyByteBuf buf);
 
     public abstract Tag toTag(HolderLookup.Provider holders);
 

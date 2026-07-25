@@ -1,7 +1,7 @@
 package codechicken.lib.render.model;
 
 import codechicken.lib.util.ResourceUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,7 +17,7 @@ public class MatLib {
 
     public final Map<String, ModelMaterial> materials = new HashMap<>();
 
-    public static MatLib parse(ResourceProvider resourceProvider, ResourceLocation loc) {
+    public static MatLib parse(ResourceProvider resourceProvider, Identifier loc) {
         MatLib matLib = new MatLib();
         ModelMaterial curr = null;
         for (String line : ResourceUtils.loadResource(resourceProvider, loc)) {

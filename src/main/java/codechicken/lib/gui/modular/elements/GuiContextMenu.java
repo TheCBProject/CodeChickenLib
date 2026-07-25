@@ -3,6 +3,7 @@ package codechicken.lib.gui.modular.elements;
 import codechicken.lib.gui.modular.ModularGui;
 import codechicken.lib.gui.modular.lib.Constraints;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 import java.util.*;
@@ -122,8 +123,8 @@ public class GuiContextMenu extends GuiElement<GuiContextMenu> {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button, boolean consumed) {
-        consumed = super.mouseClicked(mouseX, mouseY, button, consumed);
+    public boolean mouseClicked(MouseButtonEvent event, boolean consumed) {
+        consumed = super.mouseClicked(event, consumed);
         pressed = isMouseOver();
         if (isMouseOver() || consumed) {
             if (actionOnClick) {
@@ -141,8 +142,8 @@ public class GuiContextMenu extends GuiElement<GuiContextMenu> {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button, boolean consumed) {
-        consumed = super.mouseReleased(mouseX, mouseY, button, consumed);
+    public boolean mouseReleased(MouseButtonEvent event, boolean consumed) {
+        consumed = super.mouseReleased(event, consumed);
         if (isMouseOver() || consumed) {
             if (!actionOnClick) {
                 if (consumed && closeOnItemClicked && pressed) {

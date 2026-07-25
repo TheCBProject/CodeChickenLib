@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * Created by covers1624 on 4/16/20.
  */
+@Deprecated (forRemoval = true)
 public class MCDataByteBuf implements MCDataInput, MCDataOutput {
 
     protected final ByteBuf buf;

@@ -1,13 +1,18 @@
 package codechicken.lib.gui.modular.lib;
 
 import codechicken.lib.gui.modular.elements.GuiElement;
+import net.covers1624.quack.collection.FastStream;
 import net.covers1624.quack.util.SneakyUtils;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -93,15 +98,27 @@ public interface TooltipHandler<T extends TooltipHandler<T>> {
 
     /**
      * The method responsible for rendering element tool tips.
-     * Called from {@link GuiElement#renderOverlay(GuiRender, double, double, float, boolean)}
+     * Called from {@link GuiElement#renderOverlay(GuiGraphics, double, double, float, boolean)}
      */
-    default boolean renderTooltip(GuiRender render, double mouseX, double mouseY) {
+    default boolean renderTooltip(GuiGraphics graphics, Font font, double mouseX, double mouseY) {
         Supplier<List<Component>> supplier = getTooltip();
         if (supplier == null) return false;
         List<Component> list = supplier.get();
         if (list.isEmpty()) return false;
-        //Run all components though split to account for newline characters in translations
-        render.componentTooltip(list.stream().flatMap(component -> render.font().getSplitter().splitLines(component, Integer.MAX_VALUE, component.getStyle()).stream()).toList(), mouseX, mouseY);
+
+        graphics.renderTooltip(
+                font,
+                FastStream.of(list)
+                        //Run all components though split to account for newline characters in translations
+                        .flatMap(e -> font.getSplitter().splitLines(e, Integer.MAX_VALUE, e.getStyle()))
+                        .map(Language.getInstance()::getVisualOrder)
+                        .map(ClientTooltipComponent::create)
+                        .toList(),
+                (int) mouseX,
+                (int) mouseY,
+                DefaultTooltipPositioner.INSTANCE,
+                null
+        );
         return true;
     }
 }

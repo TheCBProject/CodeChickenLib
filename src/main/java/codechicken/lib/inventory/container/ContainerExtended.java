@@ -1,13 +1,14 @@
 package codechicken.lib.inventory.container;
 
-import codechicken.lib.packet.PacketCustom;
-import net.minecraft.core.NonNullList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public abstract class ContainerExtended extends AbstractContainerMenu {
 
@@ -25,7 +26,7 @@ public abstract class ContainerExtended extends AbstractContainerMenu {
     public void setSynchronizer(ContainerSynchronizer delegate) {
         super.setSynchronizer(new ContainerSynchronizer() {
             @Override
-            public void sendInitialData(AbstractContainerMenu container, NonNullList<ItemStack> stacks, ItemStack carried, int[] data) {
+            public void sendInitialData(AbstractContainerMenu container, List<ItemStack> stacks, ItemStack carried, int[] data) {
                 delegate.sendInitialData(container, stacks, carried, data);
                 if (player != null) {
                     for (int i = 0; i < stacks.size(); i++) {
@@ -56,6 +57,11 @@ public abstract class ContainerExtended extends AbstractContainerMenu {
             public void sendDataChange(AbstractContainerMenu container, int slot, int data) {
                 delegate.sendDataChange(container, slot, data);
             }
+
+            @Override
+            public RemoteSlot createSlot() {
+                return delegate.createSlot();
+            }
         });
     }
 
@@ -65,9 +71,8 @@ public abstract class ContainerExtended extends AbstractContainerMenu {
     @Override
     public void clicked(int slot, int dragType, ClickType clickType, Player player) {
         if (slot >= 0 && slot < slots.size()) {
-            Slot actualSlot = getSlot(slot);
-            if (actualSlot instanceof SlotHandleClicks) {
-                ((SlotHandleClicks) actualSlot).slotClick(this, player, dragType, clickType);
+            if (getSlot(slot) instanceof SlotHandleClicks handleClicks) {
+                handleClicks.slotClick(this, player, dragType, clickType);
                 return;
             }
         }
@@ -182,14 +187,14 @@ public abstract class ContainerExtended extends AbstractContainerMenu {
      * May be called from a client packet handler to handle additional info
      */
 
-    public void handleOutputPacket(PacketCustom packet) {
+    public void handleOutputPacket(RegistryFriendlyByteBuf packet) {
     }
 
     /**
      * May be called from a server packet handler to handle additional info
      */
 
-    public void handleInputPacket(PacketCustom packet) {
+    public void handleInputPacket(RegistryFriendlyByteBuf packet) {
     }
 
     /**

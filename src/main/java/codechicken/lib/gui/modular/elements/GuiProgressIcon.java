@@ -1,14 +1,13 @@
 package codechicken.lib.gui.modular.elements;
 
-
 import codechicken.lib.gui.modular.lib.BackgroundRender;
-import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.geometry.Axis;
 import codechicken.lib.gui.modular.lib.geometry.Direction;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
-import codechicken.lib.gui.modular.sprite.Material;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import codechicken.lib.gui.modular.SpriteSupplier;
+import codechicken.lib.math.MathHelper;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
 
 import java.util.function.Supplier;
 
@@ -25,34 +24,24 @@ import java.util.function.Supplier;
  */
 public class GuiProgressIcon extends GuiElement<GuiProgressIcon> implements BackgroundRender {
 
-    private Supplier<Material> background = null;
-    private Supplier<Material> animated;
+    private SpriteSupplier background = SpriteSupplier.EMPTY;
+    private SpriteSupplier animated = SpriteSupplier.EMPTY;
     private Supplier<Double> progress = () -> 0D;
     private boolean rotateToDirection = true;
     private Direction direction = Direction.RIGHT;
 
-    public GuiProgressIcon(@NotNull GuiParent<?> parent, Supplier<Material> animated) {
-        super(parent);
-        this.animated = animated;
+    public GuiProgressIcon(GuiParent<?> parent) {
+        this(parent, SpriteSupplier.EMPTY, SpriteSupplier.EMPTY);
     }
 
-    public GuiProgressIcon(@NotNull GuiParent<?> parent, Material animated) {
-        this(parent, () -> animated);
+    public GuiProgressIcon(GuiParent<?> parent, SpriteSupplier animated) {
+        this(parent, SpriteSupplier.EMPTY, animated);
     }
 
-    public GuiProgressIcon(@NotNull GuiParent<?> parent, Supplier<Material> background, Supplier<Material> animated) {
+    public GuiProgressIcon(GuiParent<?> parent, SpriteSupplier background, SpriteSupplier animated) {
         super(parent);
         this.background = background;
         this.animated = animated;
-    }
-
-    public GuiProgressIcon(@NotNull GuiParent<?> parent, Material background, Material animated) {
-        this(parent, () -> background, () -> animated);
-    }
-
-
-    public GuiProgressIcon(@NotNull GuiParent<?> parent) {
-        super(parent);
     }
 
     /**
@@ -76,15 +65,7 @@ public class GuiProgressIcon extends GuiElement<GuiProgressIcon> implements Back
     /**
      * Sets the background texture, aka the "empty" texture.
      */
-    public GuiProgressIcon setBackground(@Nullable Material background) {
-        this.background = () -> background;
-        return this;
-    }
-
-    /**
-     * Sets the background texture, aka the "empty" texture.
-     */
-    public GuiProgressIcon setBackground(@Nullable Supplier<Material> background) {
+    public GuiProgressIcon setBackground(SpriteSupplier background) {
         this.background = background;
         return this;
     }
@@ -92,15 +73,7 @@ public class GuiProgressIcon extends GuiElement<GuiProgressIcon> implements Back
     /**
      * Sets the texture that will be animated.
      */
-    public GuiProgressIcon setAnimated(Material animated) {
-        this.animated = () -> animated;
-        return this;
-    }
-
-    /**
-     * Sets the texture that will be animated.
-     */
-    public GuiProgressIcon setAnimated(Supplier<Material> animated) {
+    public GuiProgressIcon setAnimated(SpriteSupplier animated) {
         this.animated = animated;
         return this;
     }
@@ -127,39 +100,40 @@ public class GuiProgressIcon extends GuiElement<GuiProgressIcon> implements Back
     }
 
     @Override
-    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBehind(GuiGraphics graphics, double mouseX, double mouseY, float partialTicks) {
         if (rotateToDirection) {
-            render.pose().pushPose();
+            graphics.pose().pushMatrix();
 
             double width = direction.getAxis() == Axis.X ? xSize() : ySize();
             double height = direction.getAxis() == Axis.X ? ySize() : xSize();
 
-            render.pose().translate(xMin() + (xSize() / 2), yMin() + (ySize() / 2), 0);
-            render.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees((float) Direction.RIGHT.rotationTo(direction)));
+            graphics.pose().translate((float) (xMin() + (xSize() / 2)), (float) (yMin() + (ySize() / 2)));
+            graphics.pose().rotate((float) (Direction.RIGHT.rotationTo(direction) * MathHelper.torad));
 
             double halfWidth = width / 2;
             double halfHeight = height / 2;
-            if (background != null && background.get() != null) {
-                render.tex(background.get(), -halfWidth, -halfHeight, halfWidth, halfHeight, 0xFFFFFFFF);
-            }
+            background.ifPresent(sprite -> {
+                graphics.cc$blitSprite(RenderPipelines.GUI_TEXTURED, sprite, -halfWidth, -halfHeight, halfWidth, halfHeight);
+            });
 
-            if (animated == null || animated.get() == null) return;
-            float progress = (float) getProgress();
-            render.partialSprite(animated.get().renderType(GuiRender::texColType), -halfWidth, -halfHeight, -halfWidth + (width * progress), -halfHeight + height, animated.get().sprite(), 0F, 0F, progress, 1F, 0xFFFFFFFF);
-
-            render.pose().popPose();
+            animated.ifPresent(sprite -> {
+                float progress = (float) getProgress();
+                graphics.cc$blitPartialSprite(RenderPipelines.GUI_TEXTURED, -halfWidth, -halfHeight, -halfWidth + (width * progress), -halfHeight + height, sprite, 0F, 0F, progress, 1F, 0xFFFFFFFF);
+            });
+            graphics.pose().popMatrix();
         } else {
-            if (background != null && background.get() != null) {
-                render.texRect(background.get(), getRectangle());
-            }
-            if (animated == null || animated.get() == null) return;
-            float progress = (float) getProgress();
-            switch (direction) {
-                case UP -> render.partialSprite(animated.get().renderType(GuiRender::texColType), xMin(), yMax() - (ySize() * progress), xMax(), yMax(), animated.get().sprite(), 0F, 1F - progress, 1F, 1F, 0xFFFFFFFF);
-                case LEFT -> render.partialSprite(animated.get().renderType(GuiRender::texColType), xMax() - (xSize() * progress), yMin(), xMax(), yMax(), animated.get().sprite(), 1F - progress, 0F, 1F, 1F, 0xFFFFFFFF);
-                case DOWN -> render.partialSprite(animated.get().renderType(GuiRender::texColType), xMin(), yMin(), xMax(), yMin() + (ySize() * progress), animated.get().sprite(), 0F, 0F, 1F, progress, 0xFFFFFFFF);
-                case RIGHT -> render.partialSprite(animated.get().renderType(GuiRender::texColType), xMin(), yMin(), xMin() + (xSize() * progress), yMax(), animated.get().sprite(), 0F, 0F, progress, 1F, 0xFFFFFFFF);
-            }
+            background.ifPresent(sprite -> {
+                graphics.cc$blitSprite(RenderPipelines.GUI_TEXTURED, sprite, getRectangle());
+            });
+            animated.ifPresent(sprite -> {
+                float progress = (float) getProgress();
+                switch (direction) {
+                    case UP -> graphics.cc$blitPartialSprite(RenderPipelines.GUI_TEXTURED, xMin(), yMax() - (ySize() * progress), xMax(), yMax(), sprite, 0F, 1F - progress, 1F, 1F);
+                    case LEFT -> graphics.cc$blitPartialSprite(RenderPipelines.GUI_TEXTURED, xMax() - (xSize() * progress), yMin(), xMax(), yMax(), sprite, 1F - progress, 0F, 1F, 1F);
+                    case DOWN -> graphics.cc$blitPartialSprite(RenderPipelines.GUI_TEXTURED, xMin(), yMin(), xMax(), yMin() + (ySize() * progress), sprite, 0F, 0F, 1F, progress);
+                    case RIGHT -> graphics.cc$blitPartialSprite(RenderPipelines.GUI_TEXTURED, xMin(), yMin(), xMin() + (xSize() * progress), yMax(), sprite, 0F, 0F, progress, 1F);
+                }
+            });
         }
     }
 }

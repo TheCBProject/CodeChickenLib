@@ -1,11 +1,10 @@
 package codechicken.lib.gui.modular.elements;
 
-import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.SliderState;
 import codechicken.lib.gui.modular.lib.geometry.*;
 import codechicken.lib.math.MathHelper;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -53,9 +52,8 @@ public class GuiList<E> extends GuiElement<GuiList<E>> {
         return text;
     };
 
-    public GuiList(@NotNull GuiParent<?> parent) {
+    public GuiList(GuiParent<?> parent) {
         super(parent);
-        this.setZStacking(false);
         this.setRenderCull(getRectangle());
     }
 
@@ -226,9 +224,9 @@ public class GuiList<E> extends GuiElement<GuiList<E>> {
     }
 
     @Override
-    public void render(GuiRender render, double mouseX, double mouseY, float partialTicks) {
-        if (enableScissor) render.pushScissorRect(getRectangle());
+    public void render(GuiGraphics render, double mouseX, double mouseY, float partialTicks) {
+        if (enableScissor) render.cc$enableScissor(getRectangle());
         super.render(render, mouseX, mouseY, partialTicks);
-        if (enableScissor) render.popScissor();
+        if (enableScissor) render.cc$disableScissor();
     }
 }

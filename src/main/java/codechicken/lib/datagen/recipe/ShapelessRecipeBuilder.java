@@ -1,12 +1,16 @@
 package codechicken.lib.datagen.recipe;
 
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.ItemLike;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,62 +29,62 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
 
     private CraftingBookCategory category = CraftingBookCategory.MISC;
 
-    protected ShapelessRecipeBuilder(ResourceLocation id, ItemStack result, Factory factory) {
-        super(id, result);
+    protected ShapelessRecipeBuilder(Identifier id, HolderGetter<Item> items, ItemStack result, Factory factory) {
+        super(id, items, result);
         this.factory = factory;
     }
 
-    public static ShapelessRecipeBuilder builder(ItemLike result) {
-        return builder(result, 1);
+    public static ShapelessRecipeBuilder builder(HolderGetter<Item> items, ItemLike result) {
+        return builder(items, result, 1);
     }
 
-    public static ShapelessRecipeBuilder builder(ItemLike result, int count) {
-        return builder(new ItemStack(result, count));
+    public static ShapelessRecipeBuilder builder(HolderGetter<Item> items, ItemLike result, int count) {
+        return builder(items, new ItemStack(result, count));
     }
 
-    public static ShapelessRecipeBuilder builder(ItemLike result, int count, ResourceLocation id) {
-        return builder(new ItemStack(result, count), id);
+    public static ShapelessRecipeBuilder builder(HolderGetter<Item> items, ItemLike result, int count, Identifier id) {
+        return builder(items, new ItemStack(result, count), id);
     }
 
-    public static ShapelessRecipeBuilder builder(Supplier<? extends ItemLike> result) {
-        return builder(result.get(), 1);
+    public static ShapelessRecipeBuilder builder(HolderGetter<Item> items, Supplier<? extends ItemLike> result) {
+        return builder(items, result.get(), 1);
     }
 
-    public static ShapelessRecipeBuilder builder(Supplier<? extends ItemLike> result, int count) {
-        return builder(new ItemStack(result.get(), count));
+    public static ShapelessRecipeBuilder builder(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count) {
+        return builder(items, new ItemStack(result.get(), count));
     }
 
-    public static ShapelessRecipeBuilder builder(Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
-        return builder(new ItemStack(result.get(), count), id);
+    public static ShapelessRecipeBuilder builder(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count, Identifier id) {
+        return builder(items, new ItemStack(result.get(), count), id);
     }
 
-    public static ShapelessRecipeBuilder builder(ItemStack result) {
-        return builder(result, BuiltInRegistries.ITEM.getKey(result.getItem()));
+    public static ShapelessRecipeBuilder builder(HolderGetter<Item> items, ItemStack result) {
+        return builder(items, result, BuiltInRegistries.ITEM.getKey(result.getItem()));
     }
 
-    public static ShapelessRecipeBuilder builder(ItemStack result, ResourceLocation id) {
-        return new ShapelessRecipeBuilder(id, result, ShapelessRecipe::new);
+    public static ShapelessRecipeBuilder builder(HolderGetter<Item> items, ItemStack result, Identifier id) {
+        return new ShapelessRecipeBuilder(id, items, result, ShapelessRecipe::new);
     }
 
     // region Custom
-    public static ShapelessRecipeBuilder custom(ItemLike result, Factory factory) {
-        return custom(result, 1, factory);
+    public static ShapelessRecipeBuilder custom(HolderGetter<Item> items, ItemLike result, Factory factory) {
+        return custom(items, result, 1, factory);
     }
 
-    public static ShapelessRecipeBuilder custom(ItemLike result, int count, Factory factory) {
-        return custom(new ItemStack(result, count), factory);
+    public static ShapelessRecipeBuilder custom(HolderGetter<Item> items, ItemLike result, int count, Factory factory) {
+        return custom(items, new ItemStack(result, count), factory);
     }
 
-    public static ShapelessRecipeBuilder custom(ItemLike result, int count, ResourceLocation id, Factory factory) {
-        return custom(new ItemStack(result, count), id, factory);
+    public static ShapelessRecipeBuilder custom(HolderGetter<Item> items, ItemLike result, int count, Identifier id, Factory factory) {
+        return custom(items, new ItemStack(result, count), id, factory);
     }
 
-    public static ShapelessRecipeBuilder custom(ItemStack result, Factory factory) {
-        return custom(result, BuiltInRegistries.ITEM.getKey(result.getItem()), factory);
+    public static ShapelessRecipeBuilder custom(HolderGetter<Item> items, ItemStack result, Factory factory) {
+        return custom(items, result, BuiltInRegistries.ITEM.getKey(result.getItem()), factory);
     }
 
-    public static ShapelessRecipeBuilder custom(ItemStack result, ResourceLocation id, Factory factory) {
-        return new ShapelessRecipeBuilder(id, result, factory);
+    public static ShapelessRecipeBuilder custom(HolderGetter<Item> items, ItemStack result, Identifier id, Factory factory) {
+        return new ShapelessRecipeBuilder(id, items, result, factory);
     }
     // endregion
 
@@ -90,7 +94,7 @@ public class ShapelessRecipeBuilder extends AbstractItemStackRecipeBuilder<Shape
 
     public ShapelessRecipeBuilder addIngredient(TagKey<Item> tag, int quantity) {
         addAutoCriteria(tag);
-        Ingredient ingredient = Ingredient.of(tag);
+        Ingredient ingredient = Ingredient.of(items.getOrThrow(tag));
         for (int i = 0; i < quantity; ++i) {
             ingredients.add(ingredient);
         }

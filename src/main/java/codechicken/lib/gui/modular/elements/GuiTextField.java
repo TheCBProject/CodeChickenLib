@@ -1,25 +1,21 @@
 package codechicken.lib.gui.modular.elements;
 
 import codechicken.lib.gui.modular.lib.BackgroundRender;
-import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.TextState;
 import codechicken.lib.gui.modular.lib.geometry.Constraint;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
@@ -36,11 +32,6 @@ import static codechicken.lib.gui.modular.lib.geometry.GeoParam.*;
  * Created by brandon3055 on 03/09/2023
  */
 public class GuiTextField extends GuiElement<GuiTextField> implements BackgroundRender {
-
-    private static final RenderType HIGHLIGHT_TYPE = RenderType.create("text_field_highlight", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, RenderType.CompositeState.builder()
-            .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorShader))
-            .setColorLogicState(RenderStateShard.OR_REVERSE_COLOR_LOGIC)
-            .createCompositeState(false));
 
     private int tick;
     private int cursorPos;
@@ -68,7 +59,7 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
     private Predicate<String> filter = Objects::nonNull;
     private BiFunction<String, Integer, FormattedCharSequence> formatter = (string, pos) -> FormattedCharSequence.forward(string, Style.EMPTY);
 
-    public GuiTextField(@NotNull GuiParent<?> parent) {
+    public GuiTextField(GuiParent<?> parent) {
         super(parent);
     }
 
@@ -317,7 +308,7 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
     }
 
     private void deleteText(int i) {
-        if (Screen.hasControlDown()) {
+        if (Minecraft.getInstance().hasControlDown()) {
             deleteWords(i);
         } else {
             deleteChars(i);
@@ -474,25 +465,25 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
     //=== Input Handling ===//
 
     @Override
-    public boolean keyPressed(int key, int scancode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
         if (!canConsumeInput()) {
             return false;
         } else {
-            shiftPressed = Screen.hasShiftDown();
-            if (Screen.isSelectAll(key)) {
+            shiftPressed = event.hasShiftDown();
+            if (event.isSelectAll()) {
                 moveCursorToEnd();
                 setHighlightPos(0);
                 return true;
-            } else if (Screen.isCopy(key)) {
+            } else if (event.isCopy()) {
                 Minecraft.getInstance().keyboardHandler.setClipboard(getHighlighted());
                 return true;
-            } else if (Screen.isPaste(key)) {
+            } else if (event.isPaste()) {
                 if (isEditable()) {
                     insertText(Minecraft.getInstance().keyboardHandler.getClipboard());
                 }
 
                 return true;
-            } else if (Screen.isCut(key)) {
+            } else if (event.isCut()) {
                 Minecraft.getInstance().keyboardHandler.setClipboard(getHighlighted());
                 if (isEditable()) {
                     insertText("");
@@ -500,12 +491,12 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
 
                 return true;
             } else {
-                switch (key) {
+                switch (event.key()) {
                     case InputConstants.KEY_BACKSPACE:
                         if (isEditable()) {
                             shiftPressed = false;
                             deleteText(-1);
-                            shiftPressed = Screen.hasShiftDown();
+                            shiftPressed = event.hasShiftDown();
                         }
 
                         return true;
@@ -525,23 +516,23 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
                     case InputConstants.KEY_PAGEDOWN:
                     default:
                         //Consume key presses when we are typing so we dont do something dumb like close the screen when you type e
-                        return key != GLFW.GLFW_KEY_ESCAPE;
+                        return event.key() != GLFW.GLFW_KEY_ESCAPE;
                     case InputConstants.KEY_DELETE:
                         if (isEditable()) {
                             shiftPressed = false;
                             deleteText(1);
-                            shiftPressed = Screen.hasShiftDown();
+                            shiftPressed = event.hasShiftDown();
                         }
                         return true;
                     case InputConstants.KEY_RIGHT:
-                        if (Screen.hasControlDown()) {
+                        if (event.hasControlDown()) {
                             moveCursorTo(getWordPosition(1));
                         } else {
                             moveCursor(1);
                         }
                         return true;
                     case InputConstants.KEY_LEFT:
-                        if (Screen.hasControlDown()) {
+                        if (event.hasControlDown()) {
                             moveCursorTo(getWordPosition(-1));
                         } else {
                             moveCursor(-1);
@@ -563,18 +554,18 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
     }
 
     @Override
-    public boolean keyReleased(int key, int scancode, int modifiers, boolean consumed) {
-        this.shiftPressed = Screen.hasShiftDown();
-        return super.keyReleased(key, scancode, modifiers, consumed);
+    public boolean keyReleased(KeyEvent event, boolean consumed) {
+        this.shiftPressed = event.hasShiftDown();
+        return super.keyReleased(event, consumed);
     }
 
     @Override
-    public boolean charTyped(char charTyped, int charCode) {
+    public boolean charTyped(CharacterEvent event) {
         if (!canConsumeInput()) {
             return false;
-        } else if (StringUtil.isAllowedChatCharacter(charTyped)) {
+        } else if (StringUtil.isAllowedChatCharacter(event.codepoint())) {
             if (isEditable()) {
-                insertText(Character.toString(charTyped));
+                insertText(event.codepointAsString());
             }
             return true;
         } else {
@@ -583,8 +574,8 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button, boolean consumed) {
-        consumed = super.mouseClicked(mouseX, mouseY, button, consumed);
+    public boolean mouseClicked(MouseButtonEvent event, boolean consumed) {
+        consumed = super.mouseClicked(event, consumed);
 
         boolean mouseOver = isMouseOver();
         if (isFocused() && !mouseOver) {
@@ -599,8 +590,8 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
             setFocus(isFocusable.get());
         }
 
-        if (isFocused() && mouseOver && button == 0) {
-            int i = (int) (Mth.floor(mouseX) - xMin());
+        if (isFocused() && mouseOver && event.button() == 0) {
+            int i = (int) (Mth.floor(event.x()) - xMin());
             String s = font().plainSubstrByWidth(getValue().substring(displayPos), (int) xSize());
             moveCursorTo(font().plainSubstrByWidth(s, i).length() + displayPos);
             return true;
@@ -609,15 +600,9 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
         }
     }
 
-    //=== Rendering ===//
-
     @Override
-    public double getBackgroundDepth() {
-        return 0.04;
-    }
-
-    @Override
-    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBehind(GuiGraphics render, double mouseX, double mouseY, float partialTicks) {
+        var font = Minecraft.getInstance().font;
         String value = getValue();
         int colour = textColor.get();
 
@@ -636,7 +621,9 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
 
         if (!displayText.isEmpty()) {
             String drawString = flag ? displayText.substring(0, textStart) : displayText;
-            drawEnd = render.drawString(formatter.apply(drawString, displayPos), drawX, drawY, colour, shadow.get());
+            var formatted = formatter.apply(drawString, displayPos);
+            render.cc$drawString(font, formatted, drawX, drawY, colour, shadow.get());
+            drawEnd += font.width(formatted) + 1;
         }
 
         boolean flag2 = cursorPos < value.length() || value.length() >= getMaxLength();
@@ -650,26 +637,24 @@ public class GuiTextField extends GuiElement<GuiTextField> implements Background
         }
 
         if (!displayText.isEmpty() && flag && textStart < displayText.length()) {
-            render.drawString(formatter.apply(displayText.substring(textStart), cursorPos), drawEnd, drawY, colour, shadow.get());
+            render.cc$drawString(font, formatter.apply(displayText.substring(textStart), cursorPos), drawEnd, drawY, colour, shadow.get());
         }
 
         if (suggestion != null && value.isEmpty()) {
-            render.drawString(suggestion.get(), (float) (k1 - 1), (float) drawY, suggestionColour.get(), suggestionShadow.get());
+            render.cc$drawString(font, suggestion.get(), (float) (k1 - 1), (float) drawY, suggestionColour.get(), suggestionShadow.get());
         }
 
         if (cursorBlink) {
             if (flag2) {
-                render.fill(k1, drawY - 1, k1 + 1, drawY + 1 + 9, -3092272);
+                render.cc$fill(k1, drawY - 1, k1 + 1, drawY + 1 + 9, -3092272);
             } else {
-                render.drawString("_", (float) k1, (float) drawY, colour, shadow.get());
+                render.cc$drawString(font, "_", (float) k1, (float) drawY, colour, shadow.get());
             }
         }
 
         if (highlightStart != textStart) {
             int l1 = (int) (drawX + font().width(displayText.substring(0, highlightStart)));
-            render.pose().translate(0, 0, 0.035);
-            render.fill(HIGHLIGHT_TYPE, k1, drawY - 1, l1 - 1, drawY + 1 + 9, 0xFF0000FF);
-            render.pose().translate(0, 0, -0.035);
+            render.cc$textHighlight(k1, drawY - 1, l1 - 1, drawY + 1 + 9);
         }
     }
 

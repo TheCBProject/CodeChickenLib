@@ -1,11 +1,15 @@
 package codechicken.lib.gui.modular.elements;
 
+import codechicken.lib.colour.Colour;
 import codechicken.lib.gui.modular.lib.BackgroundRender;
-import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.GuiGraphics;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Supplier;
+import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Used to draw a simple rectangle on the screen.
@@ -15,19 +19,20 @@ import java.util.function.Supplier;
  * Created by brandon3055 on 28/08/2023
  */
 public class GuiRectangle extends GuiElement<GuiRectangle> implements BackgroundRender {
-    private Supplier<Integer> fill = null;
-    private Supplier<Integer> border = null;
 
-    private Supplier<Double> borderWidth = () -> 1D;
+    private @Nullable IntSupplier fill = null;
+    private @Nullable IntSupplier border = null;
 
-    private Supplier<Integer> shadeTopLeft;
-    private Supplier<Integer> shadeBottomRight;
-    private Supplier<Integer> shadeCorners;
+    private DoubleSupplier borderWidth = () -> 1D;
+
+    private @Nullable IntSupplier shadeTopLeft;
+    private @Nullable IntSupplier shadeBottomRight;
+    private @Nullable IntSupplier shadeCorners;
 
     /**
      * @param parent parent {@link GuiParent}.
      */
-    public GuiRectangle(@NotNull GuiParent<?> parent) {
+    public GuiRectangle(GuiParent<?> parent) {
         super(parent);
     }
 
@@ -35,7 +40,7 @@ public class GuiRectangle extends GuiElement<GuiRectangle> implements Background
      * Creates a rectangle that mimics the appearance of a vanilla inventory slot.
      * Uses shadedRect to create the 3D "inset" look.
      */
-    public static GuiRectangle vanillaSlot(@NotNull GuiParent<?> parent) {
+    public static GuiRectangle vanillaSlot(GuiParent<?> parent) {
         return new GuiRectangle(parent).shadedRect(0xFF373737, 0xFFffffff, 0xFF8b8b8b, 0xFF8b8b8b);
     }
 
@@ -43,30 +48,30 @@ public class GuiRectangle extends GuiElement<GuiRectangle> implements Background
      * Creates a rectangle that mimics the appearance of a vanilla inventory slot, except inverted
      * Uses shadedRect to create the 3D "popped out" appearance
      */
-    public static GuiRectangle invertedSlot(@NotNull GuiParent<?> parent) {
+    public static GuiRectangle invertedSlot(GuiParent<?> parent) {
         return new GuiRectangle(parent).shadedRect(0xFFffffff, 0xFF373737, 0xFF8b8b8b, 0xFF8b8b8b);
     }
 
     /**
      * Creates a rectangle similar in appearance to a vanilla button, but with no texture and no black border.
      */
-    public static GuiRectangle planeButton(@NotNull GuiParent<?> parent) {
+    public static GuiRectangle planeButton(GuiParent<?> parent) {
         return new GuiRectangle(parent).shadedRect(0xFFaaaaaa, 0xFF545454, 0xFF6f6f6f);
     }
 
-    public static GuiRectangle toolTipBackground(@NotNull GuiParent<?> parent) {
+    public static GuiRectangle toolTipBackground(GuiParent<?> parent) {
         return toolTipBackground(parent, 0xF0100010, 0x505000FF, 0x5028007f);
     }
 
-    public static GuiRectangle toolTipBackground(@NotNull GuiParent<?> parent, int backgroundColour, int borderColourTop, int borderColourBottom) {
+    public static GuiRectangle toolTipBackground(GuiParent<?> parent, int backgroundColour, int borderColourTop, int borderColourBottom) {
         return toolTipBackground(parent, backgroundColour, backgroundColour, borderColourTop, borderColourBottom);
     }
 
-    public static GuiRectangle toolTipBackground(@NotNull GuiParent<?> parent, int backgroundColourTop, int backgroundColourBottom, int borderColourTop, int borderColourBottom) {
+    public static GuiRectangle toolTipBackground(GuiParent<?> parent, int backgroundColourTop, int backgroundColourBottom, int borderColourTop, int borderColourBottom) {
         return new GuiRectangle(parent) {
             @Override
-            public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
-                render.toolTipBackground(xMin(), yMin(), xSize(), ySize(), backgroundColourTop, backgroundColourBottom, borderColourTop, borderColourBottom, false);
+            public void renderBehind(GuiGraphics graphics, double mouseX, double mouseY, float partialTicks) {
+                graphics.cc$tooltipBackground(xMin(), yMin(), xSize(), ySize(), backgroundColourTop, backgroundColourBottom, borderColourTop, borderColourBottom, false);
             }
         };
     }
@@ -75,7 +80,7 @@ public class GuiRectangle extends GuiElement<GuiRectangle> implements Background
         return border(() -> border);
     }
 
-    public GuiRectangle border(Supplier<Integer> border) {
+    public GuiRectangle border(@Nullable IntSupplier border) {
         this.border = border;
         return this;
     }
@@ -84,7 +89,7 @@ public class GuiRectangle extends GuiElement<GuiRectangle> implements Background
         return fill(() -> fill);
     }
 
-    public GuiRectangle fill(Supplier<Integer> fill) {
+    public GuiRectangle fill(IntSupplier fill) {
         this.fill = fill;
         return this;
     }
@@ -93,7 +98,7 @@ public class GuiRectangle extends GuiElement<GuiRectangle> implements Background
         return rectangle(() -> fill, () -> border);
     }
 
-    public GuiRectangle rectangle(Supplier<Integer> fill, Supplier<Integer> border) {
+    public GuiRectangle rectangle(IntSupplier fill, IntSupplier border) {
         this.fill = fill;
         this.border = border;
         return this;
@@ -103,15 +108,15 @@ public class GuiRectangle extends GuiElement<GuiRectangle> implements Background
         return shadedRect(() -> topLeft, () -> bottomRight, () -> fill);
     }
 
-    public GuiRectangle shadedRect(Supplier<Integer> topLeft, Supplier<Integer> bottomRight, Supplier<Integer> fill) {
-        return shadedRect(topLeft, bottomRight, () -> GuiRender.midColour(topLeft.get(), bottomRight.get()), fill);
+    public GuiRectangle shadedRect(IntSupplier topLeft, IntSupplier bottomRight, IntSupplier fill) {
+        return shadedRect(topLeft, bottomRight, () -> Colour.mid(topLeft.getAsInt(), bottomRight.getAsInt()), fill);
     }
 
     public GuiRectangle shadedRect(int topLeft, int bottomRight, int cornerMix, int fill) {
         return shadedRect(() -> topLeft, () -> bottomRight, () -> cornerMix, () -> fill);
     }
 
-    public GuiRectangle shadedRect(Supplier<Integer> topLeft, Supplier<Integer> bottomRight, Supplier<Integer> cornerMix, Supplier<Integer> fill) {
+    public GuiRectangle shadedRect(IntSupplier topLeft, IntSupplier bottomRight, IntSupplier cornerMix, IntSupplier fill) {
         this.fill = fill;
         this.shadeTopLeft = topLeft;
         this.shadeBottomRight = bottomRight;
@@ -119,23 +124,27 @@ public class GuiRectangle extends GuiElement<GuiRectangle> implements Background
         return this;
     }
 
-    public GuiRectangle setShadeTopLeft(Supplier<Integer> shadeTopLeft) {
+    public GuiRectangle setShadeTopLeft(IntSupplier shadeTopLeft) {
         this.shadeTopLeft = shadeTopLeft;
         return this;
     }
 
-    public GuiRectangle setShadeBottomRight(Supplier<Integer> shadeBottomRight) {
+    public GuiRectangle setShadeBottomRight(IntSupplier shadeBottomRight) {
         this.shadeBottomRight = shadeBottomRight;
         return this;
     }
 
-    public GuiRectangle setShadeCorners(Supplier<Integer> shadeCorners) {
+    public GuiRectangle setShadeCorners(IntSupplier shadeCorners) {
         this.shadeCorners = shadeCorners;
         return this;
     }
 
     public GuiRectangle setShadeCornersAuto() {
-        this.shadeCorners = () -> GuiRender.midColour(shadeTopLeft.get(), shadeBottomRight.get());
+        this.shadeCorners = () -> {
+            var topLeft = requireNonNull(shadeTopLeft, "shadeTopLeft required for corners.").getAsInt();
+            var bottomRight = requireNonNull(shadeBottomRight, "shadeBottomRight required for corners.").getAsInt();
+            return Colour.mid(topLeft, bottomRight);
+        };
         return this;
     }
 
@@ -143,23 +152,23 @@ public class GuiRectangle extends GuiElement<GuiRectangle> implements Background
         return borderWidth(() -> borderWidth);
     }
 
-    public GuiRectangle borderWidth(Supplier<Double> borderWidth) {
+    public GuiRectangle borderWidth(DoubleSupplier borderWidth) {
         this.borderWidth = borderWidth;
         return this;
     }
 
     public double getBorderWidth() {
-        return borderWidth.get();
+        return borderWidth.getAsDouble();
     }
 
     @Override
-    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBehind(GuiGraphics render, double mouseX, double mouseY, float partialTicks) {
         if (shadeTopLeft != null && shadeBottomRight != null && shadeCorners != null) {
-            render.shadedRect(getRectangle(), getBorderWidth(), shadeTopLeft.get(), shadeBottomRight.get(), shadeCorners.get(), fill == null ? 0 : fill.get());
+            render.cc$shadedRect(getRectangle(), getBorderWidth(), shadeTopLeft.getAsInt(), shadeBottomRight.getAsInt(), shadeCorners.getAsInt(), fill == null ? 0 : fill.getAsInt());
         } else if (border != null) {
-            render.borderRect(getRectangle(), getBorderWidth(), fill == null ? 0 : fill.get(), border.get());
+            render.cc$borderRect(getRectangle(), getBorderWidth(), fill == null ? 0 : fill.getAsInt(), border.getAsInt());
         } else if (fill != null) {
-            render.rect(getRectangle(), fill.get());
+            render.cc$fill(getRectangle(), fill.getAsInt());
         }
     }
 }

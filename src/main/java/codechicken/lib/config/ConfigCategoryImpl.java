@@ -1,8 +1,7 @@
 package codechicken.lib.config;
 
-import codechicken.lib.data.MCDataInput;
-import codechicken.lib.data.MCDataOutput;
 import net.covers1624.quack.collection.ColUtils;
+import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -182,39 +181,35 @@ public class ConfigCategoryImpl extends AbstractConfigTag<ConfigCategory> implem
     }
 
     @Override
-    public void write(MCDataOutput out) {
-        out.writeVarInt(tagMap.size());
+    public void write(FriendlyByteBuf packet) {
+        packet.writeVarInt(tagMap.size());
         for (AbstractConfigTag<?> child : tagMap.values()) {
             if (!child.requiresClientSync()) {
-                out.writeByte(NET_NO_TAG);
+                packet.writeByte(NET_NO_TAG);
                 continue;
             }
 
-            if (child instanceof ConfigCategory) {
-                out.writeByte(NET_CAT_TAG);
-            } else if (child instanceof ConfigValue) {
-                out.writeByte(NET_VAL_TAG);
-            } else if (child instanceof ConfigValueList) {
-                out.writeByte(NET_VAL_LST);
-            } else {
-                throw new IllegalStateException("Unknown tag class. " + child.getClass());
+            switch (child) {
+                case ConfigCategory cat -> packet.writeByte(NET_CAT_TAG);
+                case ConfigValue val -> packet.writeByte(NET_VAL_TAG);
+                case ConfigValueList list -> packet.writeByte(NET_VAL_LST);
+                default -> throw new IllegalStateException("Unknown tag class. " + child.getClass());
             }
-            out.writeString(child.getName());
-            child.write(out);
+            packet.writeUtf(child.getName());
+            child.write(packet);
         }
     }
 
     @Override
-    public void read(MCDataInput in) {
+    public void read(FriendlyByteBuf in) {
         int numTags = in.readVarInt();
         for (int i = 0; i < numTags; i++) {
             byte t = in.readByte();
             if (t == NET_NO_TAG) continue;
 
-            String name = in.readString();
+            String name = in.readUtf();
             ConfigTag tag = findTag(name);
             switch (t) {
-                default -> throw new IllegalStateException("Unknown tag network type: " + t);
                 case NET_CAT_TAG -> {
                     if (tag != null && !(tag instanceof ConfigCategoryImpl)) throw new IllegalStateException("Tried to read category into " + tag.getClass().getSimpleName());
                     if (tag == null) {
@@ -239,6 +234,7 @@ public class ConfigCategoryImpl extends AbstractConfigTag<ConfigCategory> implem
                         tag = cat;
                     }
                 }
+                default -> throw new IllegalStateException("Unknown tag network type: " + t);
             }
             tag.read(in);
         }

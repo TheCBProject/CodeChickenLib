@@ -4,10 +4,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
@@ -18,6 +20,7 @@ import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
  * <p>
  * Created by covers1624 on 18/7/22.
  */
+// TODO On Java25 this may not be required anymore as we can do stuff before a super ctor call.
 @ApiStatus.Experimental
 public abstract class LazyStateBlock extends Block {
 
@@ -94,5 +97,17 @@ public abstract class LazyStateBlock extends Block {
     @Override
     protected final void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         // Explicitly disallowed.
+    }
+
+    @Override
+    protected Function<BlockState, VoxelShape> getShapeForEachState(Function<BlockState, VoxelShape> shapeGetter) {
+        computeState();
+        return super.getShapeForEachState(shapeGetter);
+    }
+
+    @Override
+    protected Function<BlockState, VoxelShape> getShapeForEachState(Function<BlockState, VoxelShape> shapeGetter, Property<?>... properties) {
+        computeState();
+        return super.getShapeForEachState(shapeGetter, properties);
     }
 }

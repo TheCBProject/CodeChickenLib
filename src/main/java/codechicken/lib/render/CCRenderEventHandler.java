@@ -3,12 +3,17 @@ package codechicken.lib.render;
 import codechicken.lib.raytracer.VoxelShapeBlockHitResult;
 import codechicken.lib.vec.Matrix4;
 import net.covers1624.quack.util.CrashLock;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.state.BlockOutlineRenderState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.bus.api.EventPriority;
+import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
-import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.common.NeoForge;
+
+import java.util.List;
 
 public class CCRenderEventHandler {
 
@@ -32,14 +37,16 @@ public class CCRenderEventHandler {
         renderFrame = event.getPartialTick().getGameTimeDeltaPartialTick(true);
     }
 
-    private static void onBlockHighlight(RenderHighlightEvent.Block event) {
-        //We have found a CuboidRayTraceResult, Lets render it properly..
-        BlockHitResult hit = event.getTarget();
-        if (hit instanceof VoxelShapeBlockHitResult voxelHit) {
+    private static void onBlockHighlight(ExtractBlockOutlineRenderStateEvent event) {
+        if (event.getHitResult() instanceof VoxelShapeBlockHitResult hit) {
             event.setCanceled(true);
-            Matrix4 mat = new Matrix4(event.getPoseStack());
-            mat.translate(voxelHit.getBlockPos());
-            RenderUtils.bufferShapeHitBox(mat, event.getMultiBufferSource(), event.getCamera(), voxelHit.shape);
+            event.getLevelRenderState().blockOutlineRenderState = new BlockOutlineRenderState(
+                    event.getBlockPos(),
+                    event.isInTranslucentPass(),
+                    event.isHighContrast(),
+                    hit.shape,
+                    List.of()
+            );
         }
     }
 }

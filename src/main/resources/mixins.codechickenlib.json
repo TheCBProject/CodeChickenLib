@@ -5,11 +5,14 @@
     "plugin": "codechicken.lib.internal.mixin.CCLMixinPlugin",
     "target": "@env(DEFAULT)",
     "compatibilityLevel": "JAVA_17",
+    "mixins": [
+        "network.FriendlyByteBufMixin",
+        "network.RegistryFriendlyByteBufMixin"
+    ],
     "client": [
         "dev.GameNarratorMixin",
-        "ItemRendererMixin",
         "MinecraftMixin",
-        "ShaderInstanceMixin",
-        "compat.EmbeddiumCCLMixin"
+        "render.OrderedSubmitNodeCollectorMixin",
+        "render.GuiGraphicsMixin"
     ]
 }

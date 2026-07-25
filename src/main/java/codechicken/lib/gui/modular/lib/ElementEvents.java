@@ -2,6 +2,9 @@ package codechicken.lib.gui.modular.lib;
 
 import codechicken.lib.gui.modular.elements.GuiElement;
 import com.google.common.collect.Lists;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 
 import java.util.List;
 
@@ -43,81 +46,73 @@ public interface ElementEvents {
     /**
      * Override this method to implement handling for the mouseClicked event.
      * This event propagates through the entire gui element stack from top to bottom, If eny element consumes the event it will not propagate any further.
-     * For rare cases where you need to receive this even if it has been consumed, you can override {@link #mouseClicked(double, double, int, boolean)}
+     * For rare cases where you need to receive this even if it has been consumed, you can override {@link #mouseClicked(MouseButtonEvent, boolean)}
      * <p>
      * Note: You do not need to call super when overriding this interface method.
      *
-     * @param mouseX Mouse X position
-     * @param mouseY Mouse Y position
-     * @param button Mouse Button
+     * @param event The mouse button event. Position, Key, and modifiers.
      * @return true to consume event.
      */
-    default boolean mouseClicked(double mouseX, double mouseY, int button) {
+    default boolean mouseClicked(MouseButtonEvent event) {
         return false;
     }
 
     /**
      * Root handler for mouseClick event. This method will always be called for all elements even if the event has already been consumed.
-     * There are a few uses for this method, but the fast majority of mouseClick handling should be implemented via {@link #mouseClicked(double, double, int)}
+     * There are a few uses for this method, but the fast majority of mouseClick handling should be implemented via {@link #mouseClicked(MouseButtonEvent)}
      * <p>
      * Note: If overriding this method, do so with caution, You must either return true (if you wish to consume the event) or you must return the result of the super call.
      *
-     * @param mouseX   Mouse X position
-     * @param mouseY   Mouse Y position
-     * @param button   Mouse Button
+     * @param event    The mouse button event. Position, Key, and modifiers.
      * @param consumed Will be true if this action has already been consumed.
      * @return true if this event has been consumed.
      */
-    default boolean mouseClicked(double mouseX, double mouseY, int button, boolean consumed) {
+    default boolean mouseClicked(MouseButtonEvent event, boolean consumed) {
         for (GuiElement<?> child : Lists.reverse(getChildren())) {
             if (child.isEnabled()) {
-                consumed |= child.mouseClicked(mouseX, mouseY, button, consumed);
+                consumed |= child.mouseClicked(event, consumed);
             }
         }
-        return consumed || mouseClicked(mouseX, mouseY, button) || blockMouseEvents();
+        return consumed || mouseClicked(event) || blockMouseEvents();
     }
 
     /**
      * Override this method to implement handling for the mouseReleased event.
      * This event propagates through the entire gui element stack from top to bottom, If eny element consumes the event it will not propagate any further.
-     * For rare cases where you need to receive this even if it has been consumed, you can override {@link #mouseReleased(double, double, int, boolean)}
+     * For rare cases where you need to receive this even if it has been consumed, you can override {@link #mouseReleased(MouseButtonEvent, boolean)}
      * <p>
      * Note: You do not need to call super when overriding this interface method.
      *
-     * @param mouseX Mouse X position
-     * @param mouseY Mouse Y position
-     * @param button Mouse Button
+     * @param event The mouse button event. Position, Key, and modifiers.
      * @return true to consume event.
      */
-    default boolean mouseReleased(double mouseX, double mouseY, int button) {
+    default boolean mouseReleased(MouseButtonEvent event) {
         return false;
     }
 
     /**
      * Root handler for mouseReleased event. This method will always be called for all elements even if the event has already been consumed.
-     * There are a few uses for this method, but the fast majority of mouseReleased handling should be implemented via {@link #mouseReleased(double, double, int)}
+     * There are a few uses for this method, but the fast majority of mouseReleased handling should be implemented via {@link #mouseReleased(MouseButtonEvent)}
      * <p>
      * Note: If overriding this method, do so with caution, You must either return true (if you wish to consume the event) or you must return the result of the super call.
      *
-     * @param mouseX   Mouse X position
-     * @param mouseY   Mouse Y position
-     * @param button   Mouse Button
+     * @param event    The mouse button event. Position, Key, and modifiers.
      * @param consumed Will be true if this action has already been consumed.
      * @return true if this event has been consumed.
      */
-    default boolean mouseReleased(double mouseX, double mouseY, int button, boolean consumed) {
+    default boolean mouseReleased(MouseButtonEvent event, boolean consumed) {
         for (GuiElement<?> child : Lists.reverse(getChildren())) {
             if (child.isEnabled()) {
-                consumed |= child.mouseReleased(mouseX, mouseY, button, consumed);
+                consumed |= child.mouseReleased(event, consumed);
             }
         }
-        return consumed || mouseReleased(mouseX, mouseY, button) || blockMouseEvents();
+        return consumed || mouseReleased(event) || blockMouseEvents();
     }
 
     /**
      * Override this method to implement handling for the mouseScrolled event.
      * This event propagates through the entire gui element stack from top to bottom, If eny element consumes the event it will not propagate any further.
-     * For rare cases where you need to receive this even if it has been consumed, you can override {@link #mouseScrolled(double, double, double, boolean)}
+     * For rare cases where you need to receive this even if it has been consumed, you can override {@link #mouseScrolled(double, double, double, double, boolean)}
      * <p>
      * Note: You do not need to call super when overriding this interface method.
      *
@@ -133,7 +128,7 @@ public interface ElementEvents {
 
     /**
      * Root handler for mouseScrolled event. This method will always be called for all elements even if the event has already been consumed.
-     * There are a few uses for this method, but the fast majority of mouseScrolled handling should be implemented via {@link #mouseScrolled(double, double, double)}
+     * There are a few uses for this method, but the fast majority of mouseScrolled handling should be implemented via {@link #mouseScrolled(double, double, double, double)}
      * <p>
      * Note: If overriding this method, do so with caution, You must either return true (if you wish to consume the event) or you must return the result of the super call.
      *
@@ -165,110 +160,100 @@ public interface ElementEvents {
     /**
      * Override this method to implement handling for the keyPressed event.
      * This event propagates through the entire gui element stack from top to bottom, If eny element consumes the event it will not propagate any further.
-     * For rare cases where you need to receive this even if it has been consumed, you can override {@link #keyPressed(int, int, int, boolean)}
+     * For rare cases where you need to receive this even if it has been consumed, you can override {@link #keyPressed(KeyEvent, boolean)}
      * <p>
      * Note: You do not need to call super when overriding this interface method.
      *
-     * @param key       the keyboard key that was pressed.
-     * @param scancode  the system-specific scancode of the key
-     * @param modifiers bitfield describing which modifier keys were held down.
+     * @param event The key event. Key, scancode, and modifiers.
      * @return true to consume event.
      */
-    default boolean keyPressed(int key, int scancode, int modifiers) {
+    default boolean keyPressed(KeyEvent event) {
         return false;
     }
 
     /**
      * Root handler for keyPressed event. This method will always be called for all elements even if the event has already been consumed.
-     * There are a few uses for this method, but the fast majority of keyPressed handling should be implemented via {@link #keyPressed(int, int, int)}
+     * There are a few uses for this method, but the fast majority of keyPressed handling should be implemented via {@link #keyPressed(KeyEvent)}
      * <p>
      * Note: If overriding this method, do so with caution, You must either return true (if you wish to consume the event) or you must return the result of the super call.
      *
-     * @param key       the keyboard key that was pressed.
-     * @param scancode  the system-specific scancode of the key
-     * @param modifiers bitfield describing which modifier keys were held down.
-     * @param consumed  Will be true if this action has already been consumed.
+     * @param event    The key event. Key, scancode, and modifiers.
+     * @param consumed Will be true if this action has already been consumed.
      * @return true if this event has been consumed.
      */
-    default boolean keyPressed(int key, int scancode, int modifiers, boolean consumed) {
+    default boolean keyPressed(KeyEvent event, boolean consumed) {
         for (GuiElement<?> child : Lists.reverse(getChildren())) {
             if (child.isEnabled()) {
-                consumed |= child.keyPressed(key, scancode, modifiers, consumed);
+                consumed |= child.keyPressed(event, consumed);
             }
         }
-        return consumed || keyPressed(key, scancode, modifiers);
+        return consumed || keyPressed(event);
     }
 
     /**
      * Override this method to implement handling for the keyReleased event.
      * This event propagates through the entire gui element stack from top to bottom, If eny element consumes the event it will not propagate any further.
-     * For rare cases where you need to receive this even if it has been consumed, you can override {@link #keyReleased(int, int, int, boolean)}
+     * For rare cases where you need to receive this even if it has been consumed, you can override {@link #keyReleased(KeyEvent, boolean)}
      * <p>
      * Note: You do not need to call super when overriding this interface method.
      *
-     * @param key       the keyboard key that was released.
-     * @param scancode  the system-specific scancode of the key
-     * @param modifiers bitfield describing which modifier keys were held down.
+     * @param event The key event. Key, scancode, and modifiers.
      * @return true to consume event.
      */
-    default boolean keyReleased(int key, int scancode, int modifiers) {
+    default boolean keyReleased(KeyEvent event) {
         return false;
     }
 
     /**
      * Root handler for keyReleased event. This method will always be called for all elements even if the event has already been consumed.
-     * There are a few uses for this method, but the fast majority of keyReleased handling should be implemented via {@link #keyReleased(int, int, int)}
+     * There are a few uses for this method, but the fast majority of keyReleased handling should be implemented via {@link #keyReleased(KeyEvent)}
      * <p>
      * Note: If overriding this method, do so with caution, You must either return true (if you wish to consume the event) or you must return the result of the super call.
      *
-     * @param key       the keyboard key that was released.
-     * @param scancode  the system-specific scancode of the key
-     * @param modifiers bitfield describing which modifier keys were held down.
-     * @param consumed  Will be true if this action has already been consumed.
+     * @param event    The key event. Key, scancode, and modifiers.
+     * @param consumed Will be true if this action has already been consumed.
      * @return true if this event has been consumed.
      */
-    default boolean keyReleased(int key, int scancode, int modifiers, boolean consumed) {
+    default boolean keyReleased(KeyEvent event, boolean consumed) {
         for (GuiElement<?> child : Lists.reverse(getChildren())) {
             if (child.isEnabled()) {
-                consumed |= child.keyReleased(key, scancode, modifiers, consumed);
+                consumed |= child.keyReleased(event, consumed);
             }
         }
-        return consumed || keyReleased(key, scancode, modifiers);
+        return consumed || keyReleased(event);
     }
 
     /**
      * Override this method to implement handling for the charTyped event.
      * This event propagates through the entire gui element stack from top to bottom, If eny element consumes the event it will not propagate any further.
-     * For rare cases where you need to receive this even if it has been consumed, you can override {@link #charTyped(char, int, boolean)}
+     * For rare cases where you need to receive this even if it has been consumed, you can override {@link #charTyped(CharacterEvent, boolean)}
      * <p>
      * Note: You do not need to call super when overriding this interface method.
      *
-     * @param character The character typed.
-     * @param modifiers bitfield describing which modifier keys were held down.
+     * @param event The character event, codepoint and modifiers.
      * @return true to consume event.
      */
-    default boolean charTyped(char character, int modifiers) {
+    default boolean charTyped(CharacterEvent event) {
         return false;
     }
 
     /**
      * Root handler for charTyped event. This method will always be called for all elements even if the event has already been consumed.
-     * There are a few uses for this method, but the fast majority of charTyped handling should be implemented via {@link #charTyped(char, int)}
+     * There are a few uses for this method, but the fast majority of charTyped handling should be implemented via {@link #charTyped(CharacterEvent)}
      * <p>
      * Note: If overriding this method, do so with caution, You must either return true (if you wish to consume the event) or you must return the result of the super call.
      *
-     * @param character The character typed.
-     * @param modifiers bitfield describing which modifier keys were held down.
-     * @param consumed  Will be true if this action has already been consumed.
+     * @param event    The character event, codepoint and modifiers.
+     * @param consumed Will be true if this action has already been consumed.
      * @return true if this event has been consumed.
      */
-    default boolean charTyped(char character, int modifiers, boolean consumed) {
+    default boolean charTyped(CharacterEvent event, boolean consumed) {
         for (GuiElement<?> child : Lists.reverse(getChildren())) {
             if (child.isEnabled()) {
-                consumed |= child.charTyped(character, modifiers, consumed);
+                consumed |= child.charTyped(event, consumed);
             }
         }
-        return consumed || charTyped(character, modifiers);
+        return consumed || charTyped(event);
     }
 
 }

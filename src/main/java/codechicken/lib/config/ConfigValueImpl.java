@@ -1,7 +1,6 @@
 package codechicken.lib.config;
 
-import codechicken.lib.data.MCDataInput;
-import codechicken.lib.data.MCDataOutput;
+import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.slf4j.Logger;
@@ -438,22 +437,22 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
     }
 
     @Override
-    public void write(MCDataOutput out) {
+    public void write(FriendlyByteBuf packet) {
         if (type == ValueType.UNKNOWN) throw new IllegalStateException("Tried to write UNKNOWN tag to network");
-        out.writeEnum(type);
+        packet.writeEnum(type);
         switch (type) {
-            case BOOLEAN -> out.writeBoolean(getBoolean());
-            case STRING -> out.writeString(getString());
-            case INT -> out.writeInt(getInt()); // TODO varint? signedVarint?
-            case LONG -> out.writeLong(getLong()); // TODO varlong? signedVarlong?
-            case HEX -> out.writeInt(getHex()); // TODO varint? signedVarint?
-            case DOUBLE -> out.writeDouble(getDouble());
+            case BOOLEAN -> packet.writeBoolean(getBoolean());
+            case STRING -> packet.writeUtf(getString());
+            case INT -> packet.writeInt(getInt()); // TODO varint? signedVarint?
+            case LONG -> packet.writeLong(getLong()); // TODO varlong? signedVarlong?
+            case HEX -> packet.writeInt(getHex()); // TODO varint? signedVarint?
+            case DOUBLE -> packet.writeDouble(getDouble());
         }
     }
 
     @Override
-    public void read(MCDataInput in) {
-        ValueType netType = in.readEnum(ValueType.class);
+    public void read(FriendlyByteBuf packet) {
+        ValueType netType = packet.readEnum(ValueType.class);
         if (networkSynthetic) {
             type = netType;
         }
@@ -461,11 +460,11 @@ public class ConfigValueImpl extends AbstractConfigTag<ConfigValue> implements C
         if (netType != type) throw new IllegalStateException("Tried to read a " + netType + " tag from the network into a " + type + " tag");
 
         switch (type) {
-            case BOOLEAN -> networkValue = in.readBoolean();
-            case STRING -> networkValue = in.readString();
-            case INT, HEX -> networkValue = in.readInt();
-            case LONG -> networkValue = in.readLong();
-            case DOUBLE -> networkValue = in.readDouble();
+            case BOOLEAN -> networkValue = packet.readBoolean();
+            case STRING -> networkValue = packet.readUtf();
+            case INT, HEX -> networkValue = packet.readInt();
+            case LONG -> networkValue = packet.readLong();
+            case DOUBLE -> networkValue = packet.readDouble();
         }
     }
 

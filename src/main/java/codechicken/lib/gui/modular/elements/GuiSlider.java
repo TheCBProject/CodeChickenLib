@@ -1,9 +1,10 @@
 package codechicken.lib.gui.modular.elements;
 
-import codechicken.lib.gui.modular.lib.*;
+import codechicken.lib.gui.modular.lib.Constraints;
+import codechicken.lib.gui.modular.lib.SliderState;
 import codechicken.lib.gui.modular.lib.geometry.*;
 import codechicken.lib.math.MathHelper;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.input.MouseButtonEvent;
 
 import static codechicken.lib.gui.modular.lib.geometry.GeoParam.*;
 
@@ -19,6 +20,7 @@ import static codechicken.lib.gui.modular.lib.geometry.GeoParam.*;
  * Created by brandon3055 on 02/09/2023
  */
 public class GuiSlider extends GuiElement<GuiSlider> {
+
     private final Axis axis;
     private SliderState state = SliderState.create(0.1);
     private GuiElement<?> slider;
@@ -43,7 +45,7 @@ public class GuiSlider extends GuiElement<GuiSlider> {
      * This includes a default slider element the width of which is bound to the GuiSlider,
      * And the length of which is controlled by {@link SliderState#sliderRatio()}
      */
-    public GuiSlider(@NotNull GuiParent<?> parent, Axis axis) {
+    public GuiSlider(GuiParent<?> parent, Axis axis) {
         super(parent);
         this.axis = axis;
         installSlider(new GuiElement<>(this));
@@ -51,7 +53,7 @@ public class GuiSlider extends GuiElement<GuiSlider> {
         bindSliderWidth();
     }
 
-    public GuiSlider(@NotNull GuiParent<?> parent, Axis axis, GuiElement<?> slider) {
+    public GuiSlider(GuiParent<?> parent, Axis axis, GuiElement<?> slider) {
         super(parent);
         this.axis = axis;
         installSlider(slider);
@@ -198,28 +200,28 @@ public class GuiSlider extends GuiElement<GuiSlider> {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event) {
         dragging = false;
-        clickPos = Position.create(mouseX, mouseY);
+        clickPos = Position.create(event.x(), event.y());
         slideStartPos = state.getPos();
-        if (button == dragButton && isMouseOver()) {
+        if (event.button() == dragButton && isMouseOver()) {
             if (!slider.isMouseOver()) {
                 clickPos = Position.create(slider.xCenter(), slider.yCenter());
-                handleDrag(mouseX, mouseY);
+                handleDrag(event.x(), event.y());
             }
             dragging = true;
             return true;
         }
-        if (button == scrollDragButton && scrollableElement != null && scrollableElement.isMouseOver()) {
+        if (event.button() == scrollDragButton && scrollableElement != null && scrollableElement.isMouseOver()) {
             scrollableDragging = true;
         }
         return false;
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button, boolean consumed) {
+    public boolean mouseReleased(MouseButtonEvent event, boolean consumed) {
         dragging = scrollableDragging = false;
-        return super.mouseReleased(mouseX, mouseY, button, consumed);
+        return super.mouseReleased(event, consumed);
     }
 
     @Override
@@ -262,5 +264,5 @@ public class GuiSlider extends GuiElement<GuiSlider> {
         return false;
     }
 
-    public record ScrollBar(GuiRectangle container, GuiSlider slider, GuiRectangle highlight) {}
+    public record ScrollBar(GuiRectangle container, GuiSlider slider, GuiRectangle highlight) { }
 }

@@ -10,8 +10,9 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamEncoder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -36,6 +37,7 @@ import static codechicken.lib.data.DataUtils.checkLen;
  * <p>
  * Created by covers1624 on 4/15/20.
  */
+@Deprecated (forRemoval = true)
 public interface MCDataOutput {
 
     //region Primitives.
@@ -758,12 +760,12 @@ public interface MCDataOutput {
     //region Minecraft Objects.
 
     /**
-     * Writes a {@link ResourceLocation} to the stream.
+     * Writes a {@link Identifier} to the stream.
      *
-     * @param loc The {@link ResourceLocation}.
+     * @param loc The {@link Identifier}.
      * @return The same stream.
      */
-    default MCDataOutput writeResourceLocation(ResourceLocation loc) {
+    default MCDataOutput writeResourceLocation(Identifier loc) {
         return writeString(loc.toString());
     }
 
@@ -887,7 +889,7 @@ public interface MCDataOutput {
      * @return The same stream.
      */
     default MCDataOutput writeTextComponent(Component component) {
-        return writeString(Component.Serializer.toJson(component, RegistryAccess.EMPTY), 262144);//32kb
+        return writeWithRegistryCodec(ComponentSerialization.STREAM_CODEC, component);
     }
 
     /**
@@ -913,7 +915,7 @@ public interface MCDataOutput {
      * @param entry    The name of the registry object to write.
      * @return The same stream.
      */
-    default <T> MCDataOutput writeRegistryIdDirect(Registry<T> registry, ResourceLocation entry) {
+    default <T> MCDataOutput writeRegistryIdDirect(Registry<T> registry, Identifier entry) {
         writeVarInt(registry.getId(entry));
         return this;
     }
@@ -927,7 +929,7 @@ public interface MCDataOutput {
      * @return The same stream.
      */
     default <T> MCDataOutput writeRegistryId(Registry<T> registry, T entry) {
-        ResourceLocation rName = registry.key().location();
+        Identifier rName = registry.key().identifier();
         if (!registry.containsValue(entry)) {
             throw new IllegalArgumentException(String.format("Registry '%s' does not contain entry '%s'", rName, entry));
         }
@@ -944,8 +946,8 @@ public interface MCDataOutput {
      * @param entry    The name of the registry object to write.
      * @return The same stream.
      */
-    default <T> MCDataOutput writeRegistryId(Registry<T> registry, ResourceLocation entry) {
-        ResourceLocation rName = registry.key().location();
+    default <T> MCDataOutput writeRegistryId(Registry<T> registry, Identifier entry) {
+        Identifier rName = registry.key().identifier();
         if (!registry.containsKey(entry)) {
             throw new IllegalArgumentException(String.format("Registry '%s' does not contain entry '%s'", rName, entry));
         }

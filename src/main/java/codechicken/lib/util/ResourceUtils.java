@@ -1,11 +1,8 @@
 package codechicken.lib.util;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraft.server.packs.resources.ResourceProvider;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +21,7 @@ public class ResourceUtils {
      * @return The InputStream.
      * @throws IOException If the file is not found or some other IO error occurred.
      */
-    public static InputStream getResourceAsStream(ResourceLocation resource) throws IOException {
+    public static InputStream getResourceAsStream(Identifier resource) throws IOException {
         return getResource(resource).open();
     }
 
@@ -33,8 +30,8 @@ public class ResourceUtils {
      *
      * @return The resource manager.
      */
-    public static ReloadableResourceManager getResourceManager() {
-        return (ReloadableResourceManager) Minecraft.getInstance().getResourceManager();
+    public static ResourceManager getResourceManager() {
+        return Minecraft.getInstance().getResourceManager();
     }
 
     /**
@@ -44,28 +41,19 @@ public class ResourceUtils {
      * @return The gotten resource.
      * @throws IOException If the resource doesn't exist, or some other IO error occurred.
      */
-    public static Resource getResource(ResourceLocation location) throws IOException {
+    public static Resource getResource(Identifier location) throws IOException {
         return getResourceManager().getResourceOrThrow(location);
     }
 
     /**
-     * Registers a IResourceManagerReloadListener to MC's resource manager.
-     *
-     * @param reloadListener The listener.
-     */
-    public static void registerReloadListener(ResourceManagerReloadListener reloadListener) {
-        getResourceManager().registerReloadListener(reloadListener);
-    }
-
-    /**
-     * Loads the given {@link ResourceLocation} with the given {@link ResourceProvider} into
+     * Loads the given {@link Identifier} with the given {@link ResourceProvider} into
      * a list of UTF-8 Strings.
      *
      * @param resourceProvider The {@link ResourceProvider}.
-     * @param loc              The {@link ResourceLocation}.
+     * @param loc              The {@link Identifier}.
      * @return The UTF-8 lines of the resource.
      */
-    public static List<String> loadResource(ResourceProvider resourceProvider, ResourceLocation loc) {
+    public static List<String> loadResource(ResourceProvider resourceProvider, Identifier loc) {
         try {
             Resource resource = resourceProvider.getResourceOrThrow(loc);
             try (BufferedReader reader = resource.openAsReader()) {
@@ -75,5 +63,4 @@ public class ResourceUtils {
             throw new RuntimeException("Failed to load MTL file: " + loc, ex);
         }
     }
-
 }

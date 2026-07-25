@@ -2,7 +2,7 @@ package codechicken.lib.render.model;
 
 import codechicken.lib.colour.ColourRGBA;
 import codechicken.lib.test.TestResourceProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,7 +15,7 @@ public class MatLibTests {
 
     @Test
     public void testMatLibParse() {
-        MatLib matLib = MatLib.parse(TestResourceProvider.INSTANCE, ResourceLocation.parse("test:model/test.mtl"));
+        MatLib matLib = MatLib.parse(TestResourceProvider.INSTANCE, Identifier.parse("test:model/test.mtl"));
         assertEquals(1, matLib.materials.size());
         ModelMaterial material = matLib.getMaterial("Material");
         assertNotNull(material);

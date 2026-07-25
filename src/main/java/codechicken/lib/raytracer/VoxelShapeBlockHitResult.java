@@ -18,32 +18,28 @@ public class VoxelShapeBlockHitResult extends SubHitBlockHitResult {
     public IndexedVoxelShape shape;
 
     public VoxelShapeBlockHitResult(BlockHitResult other, IndexedVoxelShape shape, double dist) {
-        super(other.getLocation(), other.getDirection(), other.getBlockPos(), other.isInside(), shape.getData(), dist);
+        super(other.getLocation(), other.getDirection(), other.getBlockPos(), other.isInside(), other.isWorldBorderHit(), shape.getData(), dist);
         this.shape = shape;
     }
 
-    public VoxelShapeBlockHitResult(Vector3 hit, Direction side, BlockPos pos, boolean isInside, IndexedVoxelShape shape, double dist) {
-        super(hit, side, pos, isInside, shape.getData(), dist);
+    public VoxelShapeBlockHitResult(Vector3 hit, Direction side, BlockPos pos, boolean isInside, boolean worldBorder, IndexedVoxelShape shape, double dist) {
+        super(hit, side, pos, isInside, worldBorder, shape.getData(), dist);
         this.shape = shape;
     }
 
-    public VoxelShapeBlockHitResult(Vector3 hit, Direction side, boolean isInside, IndexedVoxelShape shape, double dist) {
-        super(hit, side, BlockPos.ZERO, isInside, shape.getData(), dist);
+    public VoxelShapeBlockHitResult(Vector3 hit, Direction side, boolean isInside, boolean worldBorder, IndexedVoxelShape shape, double dist) {
+        super(hit, side, BlockPos.ZERO, isInside, worldBorder, shape.getData(), dist);
         this.shape = shape;
     }
 
-    protected VoxelShapeBlockHitResult(boolean isMissIn, Vec3 hit, Direction side, BlockPos pos, boolean isInside, IndexedVoxelShape shape, double dist) {
-        super(isMissIn, hit, side, pos, isInside, shape.getData(), dist);
+    protected VoxelShapeBlockHitResult(boolean isMissIn, Vec3 hit, Direction side, BlockPos pos, boolean isInside, boolean worldBorder, IndexedVoxelShape shape, double dist) {
+        super(isMissIn, hit, side, pos, isInside, worldBorder, shape.getData(), dist);
         this.shape = shape;
     }
 
     @Override
     public SubHitBlockHitResult withDirection(Direction newFace) {
-        return new VoxelShapeBlockHitResult(getType() == Type.MISS, getLocation(), newFace, getBlockPos(), isInside(), shape, dist);
-    }
-
-    public SubHitBlockHitResult getAsDistanceResult() {
-        return new SubHitBlockHitResult(getType() == Type.MISS, getLocation(), getDirection(), getBlockPos(), isInside(), hitInfo, dist);
+        return new VoxelShapeBlockHitResult(getType() == Type.MISS, getLocation(), newFace, getBlockPos(), isInside(), isWorldBorderHit(), shape, dist);
     }
 
     @Override

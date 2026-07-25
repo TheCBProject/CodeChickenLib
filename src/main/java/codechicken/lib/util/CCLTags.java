@@ -1,6 +1,6 @@
 package codechicken.lib.util;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -33,7 +33,7 @@ public class CCLTags {
         public static TagKey<Block> WOOLS_BLACK = common("wools/black");
 
         private static TagKey<Block> common(String path) {
-            return BlockTags.create(ResourceLocation.fromNamespaceAndPath("c", path));
+            return BlockTags.create(Identifier.fromNamespaceAndPath("c", path));
         }
     }
 
@@ -58,7 +58,7 @@ public class CCLTags {
         public static TagKey<Item> WOOLS_BLACK = common("wools/black");
 
         private static TagKey<Item> common(String path) {
-            return ItemTags.create(ResourceLocation.fromNamespaceAndPath("c", path));
+            return ItemTags.create(Identifier.fromNamespaceAndPath("c", path));
         }
     }
 }

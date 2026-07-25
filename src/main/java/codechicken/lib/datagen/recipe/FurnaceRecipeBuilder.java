@@ -1,7 +1,8 @@
 package codechicken.lib.datagen.recipe;
 
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -29,182 +30,182 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
     private float experience = 0.0F;
     private int cookingTime = 200;
 
-    protected FurnaceRecipeBuilder(ResourceLocation id, ItemStack result, Factory factory) {
-        super(id, result);
+    protected FurnaceRecipeBuilder(Identifier id, HolderGetter<Item> items, ItemStack result, Factory factory) {
+        super(id, items, result);
         this.factory = factory;
     }
 
     //region Smelting
-    public static FurnaceRecipeBuilder smelting(ItemLike result) {
-        return smelting(result, 1);
+    public static FurnaceRecipeBuilder smelting(HolderGetter<Item> items, ItemLike result) {
+        return smelting(items, result, 1);
     }
 
-    public static FurnaceRecipeBuilder smelting(ItemLike result, int count) {
-        return smelting(new ItemStack(result, count));
+    public static FurnaceRecipeBuilder smelting(HolderGetter<Item> items, ItemLike result, int count) {
+        return smelting(items, new ItemStack(result, count));
     }
 
-    public static FurnaceRecipeBuilder smelting(ItemLike result, int count, ResourceLocation id) {
-        return smelting(new ItemStack(result, count), id);
+    public static FurnaceRecipeBuilder smelting(HolderGetter<Item> items, ItemLike result, int count, Identifier id) {
+        return smelting(items, new ItemStack(result, count), id);
     }
 
-    public static FurnaceRecipeBuilder smelting(Supplier<? extends ItemLike> result) {
-        return smelting(result.get(), 1);
+    public static FurnaceRecipeBuilder smelting(HolderGetter<Item> items, Supplier<? extends ItemLike> result) {
+        return smelting(items, result.get(), 1);
     }
 
-    public static FurnaceRecipeBuilder smelting(Supplier<? extends ItemLike> result, int count) {
-        return smelting(new ItemStack(result.get(), count));
+    public static FurnaceRecipeBuilder smelting(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count) {
+        return smelting(items, new ItemStack(result.get(), count));
     }
 
-    public static FurnaceRecipeBuilder smelting(Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
-        return smelting(new ItemStack(result.get(), count), id);
+    public static FurnaceRecipeBuilder smelting(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count, Identifier id) {
+        return smelting(items, new ItemStack(result.get(), count), id);
     }
 
-    public static FurnaceRecipeBuilder smelting(ItemStack result) {
-        return smelting(result, BuiltInRegistries.ITEM.getKey(result.getItem()));
+    public static FurnaceRecipeBuilder smelting(HolderGetter<Item> items, ItemStack result) {
+        return smelting(items, result, BuiltInRegistries.ITEM.getKey(result.getItem()));
     }
 
-    public static FurnaceRecipeBuilder smelting(ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(id, result, SmeltingRecipe::new)
+    public static FurnaceRecipeBuilder smelting(HolderGetter<Item> items, ItemStack result, Identifier id) {
+        return new FurnaceRecipeBuilder(id, items, result, SmeltingRecipe::new)
                 .cookingTime(200);
     }
     //endregion
 
     //region Blasting
-    public static FurnaceRecipeBuilder blasting(ItemLike result) {
-        return blasting(result, 1);
+    public static FurnaceRecipeBuilder blasting(HolderGetter<Item> items, ItemLike result) {
+        return blasting(items, result, 1);
     }
 
-    public static FurnaceRecipeBuilder blasting(ItemLike result, int count) {
-        return blasting(new ItemStack(result, count));
+    public static FurnaceRecipeBuilder blasting(HolderGetter<Item> items, ItemLike result, int count) {
+        return blasting(items, new ItemStack(result, count));
     }
 
-    public static FurnaceRecipeBuilder blasting(ItemLike result, int count, ResourceLocation id) {
-        return blasting(new ItemStack(result, count), id);
+    public static FurnaceRecipeBuilder blasting(HolderGetter<Item> items, ItemLike result, int count, Identifier id) {
+        return blasting(items, new ItemStack(result, count), id);
     }
 
-    public static FurnaceRecipeBuilder blasting(Supplier<? extends ItemLike> result) {
-        return blasting(result.get(), 1);
+    public static FurnaceRecipeBuilder blasting(HolderGetter<Item> items, Supplier<? extends ItemLike> result) {
+        return blasting(items, result.get(), 1);
     }
 
-    public static FurnaceRecipeBuilder blasting(Supplier<? extends ItemLike> result, int count) {
-        return blasting(new ItemStack(result.get(), count));
+    public static FurnaceRecipeBuilder blasting(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count) {
+        return blasting(items, new ItemStack(result.get(), count));
     }
 
-    public static FurnaceRecipeBuilder blasting(Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
-        return blasting(new ItemStack(result.get(), count), id);
+    public static FurnaceRecipeBuilder blasting(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count, Identifier id) {
+        return blasting(items, new ItemStack(result.get(), count), id);
     }
 
-    public static FurnaceRecipeBuilder blasting(ItemStack result) {
-        return blasting(result, BuiltInRegistries.ITEM.getKey(result.getItem()));
+    public static FurnaceRecipeBuilder blasting(HolderGetter<Item> items, ItemStack result) {
+        return blasting(items, result, BuiltInRegistries.ITEM.getKey(result.getItem()));
     }
 
-    public static FurnaceRecipeBuilder blasting(ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(id, result, BlastingRecipe::new)
+    public static FurnaceRecipeBuilder blasting(HolderGetter<Item> items, ItemStack result, Identifier id) {
+        return new FurnaceRecipeBuilder(id, items, result, BlastingRecipe::new)
                 .cookingTime(100);
     }
     //endregion
 
     //region Smoking
-    public static FurnaceRecipeBuilder smoking(ItemLike result) {
-        return smoking(result, 1);
+    public static FurnaceRecipeBuilder smoking(HolderGetter<Item> items, ItemLike result) {
+        return smoking(items, result, 1);
     }
 
-    public static FurnaceRecipeBuilder smoking(ItemLike result, int count) {
-        return smoking(new ItemStack(result, count));
+    public static FurnaceRecipeBuilder smoking(HolderGetter<Item> items, ItemLike result, int count) {
+        return smoking(items, new ItemStack(result, count));
     }
 
-    public static FurnaceRecipeBuilder smoking(ItemLike result, int count, ResourceLocation id) {
-        return smoking(new ItemStack(result, count), id);
+    public static FurnaceRecipeBuilder smoking(HolderGetter<Item> items, ItemLike result, int count, Identifier id) {
+        return smoking(items, new ItemStack(result, count), id);
     }
 
-    public static FurnaceRecipeBuilder smoking(Supplier<? extends ItemLike> result) {
-        return smoking(result.get(), 1);
+    public static FurnaceRecipeBuilder smoking(HolderGetter<Item> items, Supplier<? extends ItemLike> result) {
+        return smoking(items, result.get(), 1);
     }
 
-    public static FurnaceRecipeBuilder smoking(Supplier<? extends ItemLike> result, int count) {
-        return smoking(new ItemStack(result.get(), count));
+    public static FurnaceRecipeBuilder smoking(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count) {
+        return smoking(items, new ItemStack(result.get(), count));
     }
 
-    public static FurnaceRecipeBuilder smoking(Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
-        return smoking(new ItemStack(result.get(), count), id);
+    public static FurnaceRecipeBuilder smoking(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count, Identifier id) {
+        return smoking(items, new ItemStack(result.get(), count), id);
     }
 
-    public static FurnaceRecipeBuilder smoking(ItemStack result) {
-        return smoking(result, BuiltInRegistries.ITEM.getKey(result.getItem()));
+    public static FurnaceRecipeBuilder smoking(HolderGetter<Item> items, ItemStack result) {
+        return smoking(items, result, BuiltInRegistries.ITEM.getKey(result.getItem()));
     }
 
-    public static FurnaceRecipeBuilder smoking(ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(id, result, SmokingRecipe::new)
+    public static FurnaceRecipeBuilder smoking(HolderGetter<Item> items, ItemStack result, Identifier id) {
+        return new FurnaceRecipeBuilder(id, items, result, SmokingRecipe::new)
                 .cookingTime(100);
     }
     //endregion
 
     //region Campfire
-    public static FurnaceRecipeBuilder campfire(ItemLike result) {
-        return campfire(result, 1);
+    public static FurnaceRecipeBuilder campfire(HolderGetter<Item> items, ItemLike result) {
+        return campfire(items, result, 1);
     }
 
-    public static FurnaceRecipeBuilder campfire(ItemLike result, int count) {
-        return campfire(new ItemStack(result, count));
+    public static FurnaceRecipeBuilder campfire(HolderGetter<Item> items, ItemLike result, int count) {
+        return campfire(items, new ItemStack(result, count));
     }
 
-    public static FurnaceRecipeBuilder campfire(ItemLike result, int count, ResourceLocation id) {
-        return campfire(new ItemStack(result, count), id);
+    public static FurnaceRecipeBuilder campfire(HolderGetter<Item> items, ItemLike result, int count, Identifier id) {
+        return campfire(items, new ItemStack(result, count), id);
     }
 
-    public static FurnaceRecipeBuilder campfire(Supplier<? extends ItemLike> result) {
-        return campfire(result.get(), 1);
+    public static FurnaceRecipeBuilder campfire(HolderGetter<Item> items, Supplier<? extends ItemLike> result) {
+        return campfire(items, result.get(), 1);
     }
 
-    public static FurnaceRecipeBuilder campfire(Supplier<? extends ItemLike> result, int count) {
-        return campfire(new ItemStack(result.get(), count));
+    public static FurnaceRecipeBuilder campfire(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count) {
+        return campfire(items, new ItemStack(result.get(), count));
     }
 
-    public static FurnaceRecipeBuilder campfire(Supplier<? extends ItemLike> result, int count, ResourceLocation id) {
-        return campfire(new ItemStack(result.get(), count), id);
+    public static FurnaceRecipeBuilder campfire(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count, Identifier id) {
+        return campfire(items, new ItemStack(result.get(), count), id);
     }
 
-    public static FurnaceRecipeBuilder campfire(ItemStack result) {
-        return campfire(result, BuiltInRegistries.ITEM.getKey(result.getItem()));
+    public static FurnaceRecipeBuilder campfire(HolderGetter<Item> items, ItemStack result) {
+        return campfire(items, result, BuiltInRegistries.ITEM.getKey(result.getItem()));
     }
 
-    public static FurnaceRecipeBuilder campfire(ItemStack result, ResourceLocation id) {
-        return new FurnaceRecipeBuilder(id, result, CampfireCookingRecipe::new)
+    public static FurnaceRecipeBuilder campfire(HolderGetter<Item> items, ItemStack result, Identifier id) {
+        return new FurnaceRecipeBuilder(id, items, result, CampfireCookingRecipe::new)
                 .cookingTime(600);
     }
     //endregion
 
     //region Custom
-    public static FurnaceRecipeBuilder custom(ItemLike result, Factory factory) {
-        return custom(result, 1, factory);
+    public static FurnaceRecipeBuilder custom(HolderGetter<Item> items, ItemLike result, Factory factory) {
+        return custom(items, result, 1, factory);
     }
 
-    public static FurnaceRecipeBuilder custom(ItemLike result, int count, Factory factory) {
-        return custom(new ItemStack(result, count), factory);
+    public static FurnaceRecipeBuilder custom(HolderGetter<Item> items, ItemLike result, int count, Factory factory) {
+        return custom(items, new ItemStack(result, count), factory);
     }
 
-    public static FurnaceRecipeBuilder custom(ItemLike result, int count, ResourceLocation id, Factory factory) {
-        return custom(new ItemStack(result, count), id, factory);
+    public static FurnaceRecipeBuilder custom(HolderGetter<Item> items, ItemLike result, int count, Identifier id, Factory factory) {
+        return custom(items, new ItemStack(result, count), id, factory);
     }
 
-    public static FurnaceRecipeBuilder custom(Supplier<? extends ItemLike> result, Factory factory) {
-        return custom(result.get(), 1, factory);
+    public static FurnaceRecipeBuilder custom(HolderGetter<Item> items, Supplier<? extends ItemLike> result, Factory factory) {
+        return custom(items, result.get(), 1, factory);
     }
 
-    public static FurnaceRecipeBuilder custom(Supplier<? extends ItemLike> result, int count, Factory factory) {
-        return custom(new ItemStack(result.get(), count), factory);
+    public static FurnaceRecipeBuilder custom(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count, Factory factory) {
+        return custom(items, new ItemStack(result.get(), count), factory);
     }
 
-    public static FurnaceRecipeBuilder custom(Supplier<? extends ItemLike> result, int count, ResourceLocation id, Factory factory) {
-        return custom(new ItemStack(result.get(), count), id, factory);
+    public static FurnaceRecipeBuilder custom(HolderGetter<Item> items, Supplier<? extends ItemLike> result, int count, Identifier id, Factory factory) {
+        return custom(items, new ItemStack(result.get(), count), id, factory);
     }
 
-    public static FurnaceRecipeBuilder custom(ItemStack result, Factory factory) {
-        return custom(result, BuiltInRegistries.ITEM.getKey(result.getItem()), factory);
+    public static FurnaceRecipeBuilder custom(HolderGetter<Item> items, ItemStack result, Factory factory) {
+        return custom(items, result, BuiltInRegistries.ITEM.getKey(result.getItem()), factory);
     }
 
-    public static FurnaceRecipeBuilder custom(ItemStack result, ResourceLocation id, Factory factory) {
-        return new FurnaceRecipeBuilder(id, result, factory);
+    public static FurnaceRecipeBuilder custom(HolderGetter<Item> items, ItemStack result, Identifier id, Factory factory) {
+        return new FurnaceRecipeBuilder(id, items, result, factory);
     }
     //endregion
 
@@ -215,7 +216,7 @@ public class FurnaceRecipeBuilder extends AbstractItemStackRecipeBuilder<Furnace
 
     public FurnaceRecipeBuilder ingredient(TagKey<Item> tag) {
         addAutoCriteria(tag);
-        this.ingredient = Ingredient.of(tag);
+        this.ingredient = Ingredient.of(items.getOrThrow(tag));
         return this;
     }
 

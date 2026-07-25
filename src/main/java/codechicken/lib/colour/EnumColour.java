@@ -8,7 +8,7 @@ import net.covers1624.quack.collection.FastStream;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
@@ -49,8 +49,8 @@ public enum EnumColour implements StringRepresentable {
     public static final StreamCodec<ByteBuf, EnumColour> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, EnumColour::ordinal);
 
     private final String name;
-    private final ResourceLocation dyeTagName;
-    private final ResourceLocation woolTagName;
+    private final Identifier dyeTagName;
+    private final Identifier woolTagName;
     private final String unlocalizedName;
     private final int rgb;
 
@@ -59,10 +59,10 @@ public enum EnumColour implements StringRepresentable {
     private static final Map<String, EnumColour> nameLookup = FastStream.of(values())
             .toMap(e -> e.name, Function.identity());
 
-    private static final Map<ResourceLocation, EnumColour> dyeTagLookup = FastStream.of(values())
+    private static final Map<Identifier, EnumColour> dyeTagLookup = FastStream.of(values())
             .toMap(e -> e.dyeTagName, Function.identity());
 
-    private static final Map<ResourceLocation, EnumColour> woolTagLookup = FastStream.of(values())
+    private static final Map<Identifier, EnumColour> woolTagLookup = FastStream.of(values())
             .toMap(e -> e.woolTagName, Function.identity());
 
     static {
@@ -96,8 +96,8 @@ public enum EnumColour implements StringRepresentable {
 
     EnumColour(String name, String dyeTagName, String woolTagName, String unlocalizedName, int rgb) {
         this.name = name;
-        this.dyeTagName = ResourceLocation.parse(dyeTagName);
-        this.woolTagName = ResourceLocation.parse(woolTagName);
+        this.dyeTagName = Identifier.parse(dyeTagName);
+        this.woolTagName = Identifier.parse(woolTagName);
         this.unlocalizedName = unlocalizedName;
         this.rgb = rgb;
     }
@@ -107,11 +107,11 @@ public enum EnumColour implements StringRepresentable {
         return name;
     }
 
-    public ResourceLocation getDyeTagName() {
+    public Identifier getDyeTagName() {
         return dyeTagName;
     }
 
-    public ResourceLocation getWoolTagName() {
+    public Identifier getWoolTagName() {
         return woolTagName;
     }
 
@@ -190,11 +190,11 @@ public enum EnumColour implements StringRepresentable {
         return values()[15 - id];
     }
 
-    public static @Nullable EnumColour fromDyeTag(ResourceLocation tag) {
+    public static @Nullable EnumColour fromDyeTag(Identifier tag) {
         return dyeTagLookup.get(tag);
     }
 
-    public static @Nullable EnumColour fromWoolTag(ResourceLocation tag) {
+    public static @Nullable EnumColour fromWoolTag(Identifier tag) {
         return woolTagLookup.get(tag);
     }
 

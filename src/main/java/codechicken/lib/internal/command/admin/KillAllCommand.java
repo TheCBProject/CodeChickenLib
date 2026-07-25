@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.covers1624.quack.collection.FastStream;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import static codechicken.lib.math.MathHelper.floor;
@@ -38,7 +39,7 @@ public class KillAllCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(literal("ccl")
                 .then(literal("killall")
-                        .requires(e -> e.hasPermission(2))
+                        .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                         .then(argument("entity", ResourceArgument.resource(context, Registries.ENTITY_TYPE))
                                 .executes(ctx -> {
                                     EntityType<?> entityType = ResourceArgument.getEntityType(ctx, "entity").value();
@@ -60,16 +61,18 @@ public class KillAllCommand {
     }
 
     private static int killAllGracefully(CommandContext<CommandSourceStack> ctx, @Nullable EntityType<?> type, Predicate<Entity> predicate) {
-        return killEntities(ctx, type, predicate, Entity::kill);
+        return killEntities(ctx, type, predicate, (l, e) -> e.kill(l));
     }
 
     private static int killallForce(CommandContext<CommandSourceStack> ctx, @Nullable EntityType<?> type, Predicate<Entity> predicate) {
-        return killEntities(ctx, type, predicate, Entity::discard);
+        return killEntities(ctx, type, predicate, (l, e) -> e.discard());
     }
 
-    private static int killEntities(CommandContext<CommandSourceStack> ctx, @Nullable EntityType<?> type, Predicate<Entity> predicate, Consumer<Entity> killFunc) {
+    private static int killEntities(CommandContext<CommandSourceStack> ctx, @Nullable EntityType<?> type, Predicate<Entity> predicate, BiConsumer<ServerLevel, Entity> killFunc) {
         if (type == EntityType.PLAYER) {
-            ctx.getSource().sendSuccess(() -> Component.translatable("ccl.commands.killall.fail.player").withStyle(RED), false);
+            ctx.getSource().sendSuccess(
+                    () -> Component.translatable("ccl.commands.killall.fail.player").withStyle(RED),
+                    false);
             return 0;
         }
         CommandSourceStack source = ctx.getSource();
@@ -84,7 +87,7 @@ public class KillAllCommand {
                 .toList();
 
         for (Entity e : entities) {
-            killFunc.accept(e);
+            killFunc.accept(world, e);
             int count = counts.getInt(e.getType());
             counts.put(e.getType(), count + 1);
         }

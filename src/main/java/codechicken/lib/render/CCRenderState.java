@@ -2,7 +2,7 @@ package codechicken.lib.render;
 
 import codechicken.lib.colour.Colour;
 import codechicken.lib.colour.ColourRGBA;
-import codechicken.lib.model.CachedFormat;
+import codechicken.lib.render.buffer.BakedQuadVertexBuilder;
 import codechicken.lib.render.buffer.ISpriteAwareVertexConsumer;
 import codechicken.lib.render.buffer.TransformingVertexConsumer;
 import codechicken.lib.render.lighting.LC;
@@ -20,8 +20,8 @@ import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -60,7 +60,6 @@ public class CCRenderState {
     public CCRenderPipeline pipeline;
     public @Nullable VertexConsumer r;
     public @Nullable VertexFormat fmt;
-    public @Nullable CachedFormat cFmt;
 
     //context
     /**
@@ -107,6 +106,25 @@ public class CCRenderState {
     }
 
     /**
+     * Bind this {@link CCRenderState} instance to a new {@link BakedQuadVertexBuilder}.
+     */
+    public BakedQuadVertexBuilder bindBaking() {
+        var r = new BakedQuadVertexBuilder();
+        bind(r, DefaultVertexFormat.BLOCK);
+        return r;
+    }
+
+    /**
+     * Bind this {@link CCRenderState} instance to the given {@link BakedQuadVertexBuilder}.
+     *
+     * @param r The {@link BakedQuadVertexBuilder}.
+     */
+    public BakedQuadVertexBuilder bind(BakedQuadVertexBuilder r) {
+        bind(r, DefaultVertexFormat.BLOCK);
+        return r;
+    }
+
+    /**
      * Bind this {@link CCRenderState} instance to the given {@link BufferBuilder}.
      *
      * @param r The {@link BufferBuilder}.
@@ -124,7 +142,16 @@ public class CCRenderState {
     public void bind(VertexConsumer consumer, VertexFormat format) {
         r = consumer;
         fmt = format;
-        cFmt = CachedFormat.lookup(format);
+    }
+
+    /**
+     * Bind this {@link CCRenderState} to the given {@link VertexConsumer} and {@link RenderType}.
+     *
+     * @param consumer   The {@link VertexConsumer} to bind to.
+     * @param renderType The {@link RenderType} of the {@link VertexConsumer}.
+     */
+    public void bind(VertexConsumer consumer, RenderType renderType) {
+        bind(consumer, renderType.format());
     }
 
     /**
@@ -234,7 +261,6 @@ public class CCRenderState {
     public void writeVert() {
         assert r != null;
         assert fmt != null;
-        assert cFmt != null;
         if (sprite != null && r instanceof ISpriteAwareVertexConsumer cons) {
             cons.sprite(sprite);
         }
@@ -258,7 +284,7 @@ public class CCRenderState {
     }
 
     public void setBrightness(BlockAndTintGetter world, BlockPos pos) {
-        brightness = LevelRenderer.getLightColor(world, world.getBlockState(pos), pos);
+        brightness = LevelRenderer.getLightColor(world, pos);
     }
 
     public void setBrightness(Entity entity, float frameDelta) {

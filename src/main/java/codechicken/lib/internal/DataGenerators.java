@@ -4,16 +4,13 @@ import codechicken.lib.datagen.LanguageProvider;
 import codechicken.lib.util.CCLTags;
 import net.covers1624.quack.util.CrashLock;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.ItemTagsProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 import java.util.concurrent.CompletableFuture;
@@ -29,25 +26,21 @@ public class DataGenerators {
 
     public static void init(IEventBus modBus) {
         LOCK.lock();
-        modBus.addListener(DataGenerators::gatherDataGenerators);
+        if (FMLEnvironment.getDist().isClient()) {
+            modBus.addListener(DataGenerators::gatherDataGenerators);
+        }
     }
 
-    private static void gatherDataGenerators(GatherDataEvent event) {
-        DataGenerator gen = event.getGenerator();
-        PackOutput output = gen.getPackOutput();
-        CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
-
-        ExistingFileHelper files = event.getExistingFileHelper();
-        BlockTags blockTagsProvider = new BlockTags(output, lookupProvider, files);
-        gen.addProvider(event.includeServer(), blockTagsProvider);
-        gen.addProvider(event.includeServer(), new ItemTags(output, lookupProvider, blockTagsProvider.contentsGetter(), files));
-        gen.addProvider(event.includeClient() || event.includeServer(), new LangUS(output, LanguageProvider.getDist(event)));
+    private static void gatherDataGenerators(GatherDataEvent.Client event) {
+        event.createProvider(BlockTags::new);
+        event.createProvider(ItemTags::new);
+        event.createProvider(LangUS::new);
     }
 
     private static class BlockTags extends BlockTagsProvider {
 
-        public BlockTags(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper files) {
-            super(output, lookupProvider, MOD_ID, files);
+        public BlockTags(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+            super(output, lookupProvider, MOD_ID);
         }
 
         @Override
@@ -95,8 +88,8 @@ public class DataGenerators {
 
     private static class ItemTags extends ItemTagsProvider {
 
-        public ItemTags(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagLookup<Block>> blockTagProvider, ExistingFileHelper files) {
-            super(output, lookupProvider, blockTagProvider, MOD_ID, files);
+        public ItemTags(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+            super(output, lookupProvider, MOD_ID);
         }
 
         @Override
@@ -144,8 +137,8 @@ public class DataGenerators {
 
     public static class LangUS extends LanguageProvider {
 
-        public LangUS(PackOutput output, Side side) {
-            super(output, MOD_ID, "en_us", side);
+        public LangUS(PackOutput output) {
+            super(output, MOD_ID, "en_us");
         }
 
         @Override

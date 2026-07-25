@@ -14,6 +14,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
+import net.minecraft.network.FriendlyByteBuf;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -931,7 +932,7 @@ public class ConfigV3Tests {
     @Test
     public void testTagCategoryRead() {
         ByteBuf buffer = Unpooled.buffer();
-        MCDataByteBuf buf = new MCDataByteBuf(buffer);
+        FriendlyByteBuf buf = new FriendlyByteBuf(buffer);
 
         IllegalStateException ex;
         ConfigCategoryImpl rootTag = new ConfigCategoryImpl("rootTag", null);
@@ -940,7 +941,7 @@ public class ConfigV3Tests {
 
             buf.writeVarInt(1);
             buf.writeByte(ConfigCategoryImpl.NET_NO_TAG - 1);
-            buf.writeString("cat1");
+            buf.writeUtf("cat1");
             ex = assertThrows(IllegalStateException.class, () -> rootTag.read(buf));
             assertEquals("Unknown tag network type: " + (ConfigCategoryImpl.NET_NO_TAG - 1), ex.getMessage());
 
@@ -964,7 +965,7 @@ public class ConfigV3Tests {
         { // Test NET_CAT_TAG behaves as expected.
             buf.writeVarInt(1);
             buf.writeByte(ConfigCategoryImpl.NET_CAT_TAG);
-            buf.writeString("cat1");
+            buf.writeUtf("cat1");
             buf.writeVarInt(0);
             rootTag.read(buf);
 
@@ -990,7 +991,7 @@ public class ConfigV3Tests {
         { // Test NET_VAL_TAG behaves as expected.
             buf.writeVarInt(1);
             buf.writeByte(ConfigCategoryImpl.NET_VAL_TAG);
-            buf.writeString("val1");
+            buf.writeUtf("val1");
             buf.writeEnum(ValueType.INT);
             buf.writeInt(22);
             rootTag.read(buf);
@@ -1017,7 +1018,7 @@ public class ConfigV3Tests {
         { // Test NET_VAL_LST behaves as expected.
             buf.writeVarInt(1);
             buf.writeByte(ConfigCategoryImpl.NET_VAL_LST);
-            buf.writeString("lst1");
+            buf.writeUtf("lst1");
             buf.writeEnum(ValueType.INT);
             buf.writeVarInt(2);
             buf.writeInt(22);
@@ -1043,7 +1044,7 @@ public class ConfigV3Tests {
     @Test
     public void testTagValueRead() {
         ByteBuf buffer = Unpooled.buffer();
-        MCDataByteBuf buf = new MCDataByteBuf(buffer);
+        FriendlyByteBuf buf = new FriendlyByteBuf(buffer);
         buf.writeEnum(ValueType.INT);
         buf.writeInt(22);
 
@@ -1074,7 +1075,7 @@ public class ConfigV3Tests {
     @Test
     public void testTagValueListRead() {
         ByteBuf buffer = Unpooled.buffer();
-        MCDataByteBuf buf = new MCDataByteBuf(buffer);
+        FriendlyByteBuf buf = new FriendlyByteBuf(buffer);
         buf.writeEnum(ValueType.INT);
         buf.writeVarInt(2);
         buf.writeInt(22);
@@ -1125,7 +1126,7 @@ public class ConfigV3Tests {
         listCat.getValueList("list5").setHexs(new IntArrayList(List.of(0xFFFFFFFF, 0xFF00FF00)));
         listCat.getValueList("list6").setDoubles(new DoubleArrayList(List.of(4.20, 6.9)));
 
-        MCDataByteBuf buf = new MCDataByteBuf();
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         root.write(buf);
 
         ConfigCategoryImpl root2 = new ConfigCategoryImpl("rootTag", null);
@@ -1149,7 +1150,7 @@ public class ConfigV3Tests {
 
         root.getValue("not_synced");
 
-        MCDataByteBuf buf = new MCDataByteBuf();
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         root.write(buf);
 
         ConfigCategoryImpl root2 = new ConfigCategoryImpl("rootTag", null);
@@ -1192,7 +1193,7 @@ public class ConfigV3Tests {
                 .syncTagToClient();
         listCat.getValueList("list1").setStrings(List.of("World", "Hello"));
 
-        MCDataByteBuf buf = new MCDataByteBuf();
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         root.write(buf);
 
         ConfigCategoryImpl root2 = new ConfigCategoryImpl("rootTag", null);

@@ -4,9 +4,10 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 
 import static net.minecraft.commands.Commands.literal;
 
@@ -18,7 +19,7 @@ public class DevCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(literal("ccl")
                 .then(literal("setup_dev_world")
-                        .requires(e -> e.hasPermission(4))
+                        .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
                         .executes(DevCommands::setupWorld)
                 )
         );
@@ -27,18 +28,15 @@ public class DevCommands {
     private static int setupWorld(CommandContext<CommandSourceStack> ctx) {
         CommandSourceStack source = ctx.getSource();
         MinecraftServer server = source.getServer();
-        GameRules gameRules = server.getGameRules();
+        GameRules gameRules = server.getWorldData().getGameRules();
 
         for (ServerLevel level : server.getAllLevels()) {
             level.setWeatherParameters(6000, 0, false, false);
         }
 
-        gameRules.getRule(GameRules.RULE_DAYLIGHT)
-                .set(false, server);
-        gameRules.getRule(GameRules.RULE_WEATHER_CYCLE)
-                .set(false, server);
-        gameRules.getRule(GameRules.RULE_DO_TRADER_SPAWNING)
-                .set(false, server);
+        gameRules.set(GameRules.ADVANCE_TIME, false, server);
+        gameRules.set(GameRules.ADVANCE_WEATHER, false, server);
+        gameRules.set(GameRules.SPAWN_WANDERING_TRADERS, false, server);
         return 0;
     }
 }

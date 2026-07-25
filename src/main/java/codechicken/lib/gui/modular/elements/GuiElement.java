@@ -1,21 +1,21 @@
 package codechicken.lib.gui.modular.elements;
 
 import codechicken.lib.colour.ColourARGB;
-import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import codechicken.lib.gui.modular.ModularGui;
 import codechicken.lib.gui.modular.lib.*;
 import codechicken.lib.gui.modular.lib.geometry.ConstrainedGeometry;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import codechicken.lib.gui.modular.lib.geometry.Position;
 import codechicken.lib.gui.modular.lib.geometry.Rectangle;
+import codechicken.lib.math.MathHelper;
+import com.google.common.collect.Lists;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.covers1624.quack.util.SneakyUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.security.InvalidParameterException;
@@ -44,7 +44,6 @@ import java.util.function.Supplier;
  */
 public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> implements ElementEvents, TooltipHandler<T> {
 
-    @NotNull
     private GuiParent<?> parent;
 
     private final List<GuiElement<?>> addedQueue = new ArrayList<>();
@@ -64,7 +63,6 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
     private boolean isMouseOver = false;
     private boolean opaque = false;
     private boolean removed = true;
-    private boolean zStacking = true;
     private Supplier<Boolean> enabled = () -> true;
     private Supplier<Boolean> enableToolTip = () -> true;
     private Supplier<List<Component>> toolTip = null;
@@ -76,12 +74,11 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
     /**
      * @param parent parent {@link GuiParent}.
      */
-    public GuiElement(@NotNull GuiParent<?> parent) {
+    public GuiElement(GuiParent<?> parent) {
         this.parent = parent;
         this.parent.addChild(this);
     }
 
-    @NotNull
     @Override
     public GuiParent<?> getParent() {
         return parent;
@@ -301,8 +298,8 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "{" +
-                "geometry=" + getRectangle() +
-                '}';
+               "geometry=" + getRectangle() +
+               '}';
     }
 
     //=== Render / Update ===//
@@ -318,49 +315,6 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
     }
 
     /**
-     * Allows you to disable child z-stacking, Meaning all child elements will be rendered at the same z-level
-     * rather than being stacked. (Not Recursive, children their sub elements with stacking)
-     * <p>
-     * This can be useful when rendering a lot of high z depth elements such as ItemStacks.
-     * As long as you know for sure none of the elements intersect, it should be safe to disable stacking.
-     *
-     * @param zStacking Enable z stacking (default true)
-     */
-    public T setZStacking(boolean zStacking) {
-        this.zStacking = zStacking;
-        return SneakyUtils.unsafeCast(this);
-    }
-
-    public boolean zStacking() {
-        return zStacking;
-    }
-
-    /**
-     * Returns the depth of this element plus all of its children (recursively)
-     * Note: You should almost never need to override this! Depth of background and / or foreground content
-     * should be specified via {@link BackgroundRender#getBackgroundDepth()} and {@link ForegroundRender#getForegroundDepth()}
-     *
-     * @return The depth (z height) of this element plus all of its children.
-     */
-    public double getCombinedElementDepth() {
-        double depth = 0;
-        if (this instanceof BackgroundRender bgr) depth += bgr.getBackgroundDepth();
-        if (this instanceof ForegroundRender fgr) depth += fgr.getForegroundDepth();
-
-        double childDepth = 0;
-        for (GuiElement<?> child : childElements) {
-            if (!child.isEnabled()) continue;
-            if (zStacking) {
-                childDepth += child.getCombinedElementDepth();
-            } else {
-                childDepth = Math.max(childDepth, child.getCombinedElementDepth());
-            }
-        }
-
-        return depth + childDepth;
-    }
-
-    /**
      * This is the main render method that handles rendering this element and any child elements it may have.
      * <b>This method almost never needs to be overridden</b>, instead when creating custom elements with custom rendering,
      * your element should implement {@link BackgroundRender} and / or {@link ForegroundRender} in or order to implement
@@ -369,51 +323,31 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
      * Note: After the render is complete, the poseStack's z pos will be offset by the total depth of this element and its children.
      * This is intended behavior,
      *
-     * @param render       Contains gui context information as well as essential render methods/utils including the PoseStack.
+     * @param graphics     Contains gui context information as well as essential render methods/utils including the PoseStack.
      * @param mouseX       Current mouse X position
      * @param mouseY       Current mouse Y position
      * @param partialTicks Partial render ticks
      */
-    public void render(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void render(GuiGraphics graphics, double mouseX, double mouseY, float partialTicks) {
         applyQueuedChildUpdates();
         if (this instanceof BackgroundRender bgr) {
-            double depth = bgr.getBackgroundDepth();
-            bgr.renderBackground(render, mouseX, mouseY, partialTicks);
-            if (depth > 0) {
-                render.pose().translate(0, 0, depth);
-            }
+            bgr.renderBehind(graphics, mouseX, mouseY, partialTicks);
         }
 
-        double maxDepth = 0;
         for (GuiElement<?> child : childElements) {
             if (child.isEnabled()) {
-                boolean rendered = renderChild(child, render, mouseX, mouseY, partialTicks);
-                //If z-stacking is disabled, we need to undo the z offset that was applied by the child element.
-                if (!zStacking && rendered) {
-                    double depth = child.getCombinedElementDepth();
-                    maxDepth = Math.max(maxDepth, depth);
-                    render.pose().translate(0, 0, -depth);
-                }
+                renderChild(child, graphics, mouseX, mouseY, partialTicks);
             }
-        }
-
-        if (!zStacking) {
-            //Now we need to apply the z offset of the tallest child.
-            render.pose().translate(0, 0, maxDepth);
         }
 
         if (this instanceof ForegroundRender fgr) {
-            double depth = fgr.getForegroundDepth();
-            fgr.renderForeground(render, mouseX, mouseY, partialTicks);
-            if (depth > 0) {
-                render.pose().translate(0, 0, depth);
-            }
+            fgr.renderInFront(graphics, mouseX, mouseY, partialTicks);
         }
     }
 
-    protected boolean renderChild(GuiElement<?> child, GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    protected boolean renderChild(GuiElement<?> child, GuiGraphics graphics, double mouseX, double mouseY, float partialTicks) {
         if (renderCull != null && !renderCull.intersects(child.getRectangle())) return false;
-        child.render(render, mouseX, mouseY, partialTicks);
+        child.render(graphics, mouseX, mouseY, partialTicks);
         return true;
     }
 
@@ -428,20 +362,20 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
      * To check if the cursor is over this element, use 'render.hoveredElement() == this'
      * {@link #isMouseOver()} Will also work, but may be problematic when multiple, stacked elements have overlay content.
      *
-     * @param render       Contains gui context information as well as essential render methods/utils including the PoseStack.
+     * @param graphics     Contains gui context information as well as essential render methods/utils including the PoseStack.
      * @param mouseX       Current mouse X position
      * @param mouseY       Current mouse Y position
      * @param partialTicks Partial render ticks
      * @param consumed     Will be true if the overlay render call has already been consumed by another element.
      * @return true if the render call has been consumed.
      */
-    public boolean renderOverlay(GuiRender render, double mouseX, double mouseY, float partialTicks, boolean consumed) {
+    public boolean renderOverlay(GuiGraphics graphics, double mouseX, double mouseY, float partialTicks, boolean consumed) {
         for (GuiElement<?> child : Lists.reverse(getChildren())) {
             if (child.isEnabled()) {
-                consumed |= child.renderOverlay(render, mouseX, mouseY, partialTicks, consumed);
+                consumed |= child.renderOverlay(graphics, mouseX, mouseY, partialTicks, consumed);
             }
         }
-        return consumed || (showToolTip() && renderTooltip(render, mouseX, mouseY));
+        return consumed || (showToolTip() && renderTooltip(graphics, Minecraft.getInstance().font, mouseX, mouseY));
     }
 
     /**
@@ -487,7 +421,7 @@ public class GuiElement<T extends GuiElement<T>> extends ConstrainedGeometry<T> 
             }
         }
 
-        isMouseOver = !consumed && GuiRender.isInRect(xMin(), yMin(), xSize(), ySize(), mouseX, mouseY) && !blockMouseOver(this, mouseX, mouseY);
+        isMouseOver = !consumed && MathHelper.isInRect(xMin(), yMin(), xSize(), ySize(), mouseX, mouseY) && !blockMouseOver(this, mouseX, mouseY);
         return consumed || (isMouseOver && isOpaque());
     }
 

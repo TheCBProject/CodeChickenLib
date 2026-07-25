@@ -1,7 +1,7 @@
 package codechicken.lib.gui.modular.lib.container;
 
 import codechicken.lib.gui.modular.elements.GuiSlots;
-import codechicken.lib.gui.modular.lib.GuiRender;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -17,6 +17,6 @@ public interface ContainerScreenAccess<T extends AbstractContainerMenu> extends 
     /**
      * This is the modular gui friendly method used by elements such as {@link GuiSlots} to render inventory item stacks.
      */
-    void renderSlot(GuiRender render, Slot slot);
+    void doRenderSlot(GuiGraphics render, Slot slot);
 
 }

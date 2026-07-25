@@ -1,10 +1,9 @@
 package codechicken.lib.inventory.container.data;
 
-import codechicken.lib.data.MCDataInput;
-import codechicken.lib.data.MCDataOutput;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +30,13 @@ public class FluidData extends AbstractDataStore<FluidStack> {
     }
 
     @Override
-    public void toBytes(MCDataOutput buf) {
-        buf.writeFluidStack(value);
+    public void toBytes(RegistryFriendlyByteBuf buf) {
+        buf.cc$writeWithRegistryCodec(FluidStack.OPTIONAL_STREAM_CODEC, value);
     }
 
     @Override
-    public void fromBytes(MCDataInput buf) {
-        value = buf.readFluidStack();
+    public void fromBytes(RegistryFriendlyByteBuf buf) {
+        value = buf.cc$readWithRegistryCodec(FluidStack.OPTIONAL_STREAM_CODEC);
     }
 
     @Override

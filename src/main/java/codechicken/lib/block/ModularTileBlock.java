@@ -24,12 +24,12 @@ import java.util.function.Supplier;
 public abstract class ModularTileBlock<T extends ModularBlockEntity> extends ModularBlock implements EntityBlock {
 
     final Map<String, TileComponent<?>> namedComponents = new HashMap<>();
-    private final LazyValue<BlockEntityType<T>> type;
+    private final Supplier<BlockEntityType<? extends T>> type;
 
-    private final TickList clientTicks = new TickList();
-    private final TickList serverTicks = new TickList();
+    protected final TickList<T> clientTicks = new TickList<>();
+    protected final TickList<T> serverTicks = new TickList<>();
 
-    public ModularTileBlock(Properties props, Supplier<BlockEntityType<T>> typeSupplier) {
+    public ModularTileBlock(Properties props, Supplier<BlockEntityType<? extends T>> typeSupplier) {
         super(props);
         type = new LazyValue<>(typeSupplier);
     }
@@ -52,14 +52,21 @@ public abstract class ModularTileBlock<T extends ModularBlockEntity> extends Mod
     @Nullable
     @Override
     @SuppressWarnings ("unchecked")
-    public final <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+    public final <BE extends BlockEntity> BlockEntityTicker<BE> getTicker(Level level, BlockState state, BlockEntityType<BE> type) {
         if (type != this.type.get()) return null;
 
-        if (level.isClientSide) {
-            return (BlockEntityTicker<T>) clientTicks.compileTicker();
+        if (level.isClientSide()) {
+            return (BlockEntityTicker<BE>) clientTicks.compileTicker();
         }
 
-        return (BlockEntityTicker<T>)serverTicks.compileTicker();
+        return (BlockEntityTicker<BE>) serverTicks.compileTicker();
+    }
+
+    @Override
+    protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
+        super.triggerEvent(state, level, pos, id, param);
+        BlockEntity be = level.getBlockEntity(pos);
+        return be != null && be.triggerEvent(id, param);
     }
 
     public static abstract class TileComponent<D extends DataComponent> extends Component {
@@ -70,26 +77,26 @@ public abstract class ModularTileBlock<T extends ModularBlockEntity> extends Mod
         protected abstract D createData(ModularBlockEntity ent);
     }
 
-    private static class TickList {
+    public static class TickList<T extends ModularBlockEntity> {
 
-        private final LinkedList<BlockEntityTicker<?>> tickers = new LinkedList<>();
+        private final LinkedList<BlockEntityTicker<T>> tickers = new LinkedList<>();
         @Nullable
-        private BlockEntityTicker<?> compiled;
+        private BlockEntityTicker<T> compiled;
 
-        private void addTickerFirst(BlockEntityTicker<?> pre) {
+        public void addTickerFirst(BlockEntityTicker<T> pre) {
             assert compiled == null : "Unable to hot-add new tickers.";
 
             tickers.addFirst(pre);
         }
 
-        private void addTicker(BlockEntityTicker<?> ticker) {
+        public void addTicker(BlockEntityTicker<T> ticker) {
             assert compiled == null : "Unable to hot-add new tickers.";
 
             tickers.add(ticker);
         }
 
         @Nullable
-        private BlockEntityTicker<?> compileTicker() {
+        private BlockEntityTicker<T> compileTicker() {
             if (compiled != null) return compiled;
             if (tickers.isEmpty()) return null;
 
@@ -98,10 +105,10 @@ public abstract class ModularTileBlock<T extends ModularBlockEntity> extends Mod
                 tickers.clear();
             } else {
                 @SuppressWarnings ("unchecked")
-                BlockEntityTicker<BlockEntity>[] tickers = this.tickers.toArray(new BlockEntityTicker[0]);
+                BlockEntityTicker<T>[] tickers = this.tickers.toArray(BlockEntityTicker[]::new);
                 this.tickers.clear();
                 compiled = (level, pos, state, tile) -> {
-                    for (BlockEntityTicker<BlockEntity> ticker : tickers) {
+                    for (var ticker : tickers) {
                         ticker.tick(level, pos, state, tile);
                     }
                 };

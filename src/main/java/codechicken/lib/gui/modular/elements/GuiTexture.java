@@ -1,11 +1,11 @@
 package codechicken.lib.gui.modular.elements;
 
 import codechicken.lib.gui.modular.lib.BackgroundRender;
-import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.geometry.Borders;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
-import codechicken.lib.gui.modular.sprite.Material;
-import org.jetbrains.annotations.NotNull;
+import codechicken.lib.gui.modular.SpriteSupplier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
@@ -14,41 +14,28 @@ import java.util.function.Supplier;
  * Created by brandon3055 on 28/08/2023
  */
 public class GuiTexture extends GuiElement<GuiTexture> implements BackgroundRender {
-    private Supplier<Material> getMaterial;
+
+    private SpriteSupplier spriteSupplier = SpriteSupplier.EMPTY;
     private Supplier<Integer> colour = () -> 0xFFFFFFFF;
-    private Borders dynamicBorders = null;
+    private @Nullable Borders dynamicBorders = null;
     private Supplier<Integer> rotation = () -> 0;
 
-    /**
-     * @param parent parent {@link GuiParent}.
-     */
-    public GuiTexture(@NotNull GuiParent<?> parent) {
-        super(parent);
+    public GuiTexture(GuiParent<?> parent) {
+        this(parent, SpriteSupplier.EMPTY);
     }
 
-    public GuiTexture(@NotNull GuiParent<?> parent, Supplier<Material> supplier) {
+    public GuiTexture(GuiParent<?> parent, SpriteSupplier spriteSupplier) {
         super(parent);
-        setMaterial(supplier);
+        setMaterial(spriteSupplier);
     }
 
-    public GuiTexture(@NotNull GuiParent<?> parent, Material material) {
-        super(parent);
-        setMaterial(material);
-    }
-
-    public GuiTexture setMaterial(Supplier<Material> supplier) {
-        this.getMaterial = supplier;
+    public GuiTexture setMaterial(SpriteSupplier spriteSupplier) {
+        this.spriteSupplier = spriteSupplier;
         return this;
     }
 
-    public GuiTexture setMaterial(Material material) {
-        this.getMaterial = () -> material;
-        return this;
-    }
-
-    @Nullable
-    public Material getMaterial() {
-        return getMaterial == null ? null : getMaterial.get();
+    public SpriteSupplier getSprite() {
+        return spriteSupplier;
     }
 
     /**
@@ -76,7 +63,7 @@ public class GuiTexture extends GuiElement<GuiTexture> implements BackgroundRend
      * The border parameters indicate the width of border around the texture that must be maintained during the cutting and tiling process.
      * For standardisation purposes the border width should be >= 5
      */
-    public GuiTexture dynamicTexture(Borders textureBorders) {
+    public GuiTexture dynamicTexture(@Nullable Borders textureBorders) {
         dynamicBorders = textureBorders;
         return this;
     }
@@ -117,13 +104,13 @@ public class GuiTexture extends GuiElement<GuiTexture> implements BackgroundRend
     }
 
     @Override
-    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
-        Material material = getMaterial();
-        if (material == null) return;
-        if (dynamicBorders != null) {
-            render.dynamicTex(material, getRectangle(), dynamicBorders, colour.get());
-        } else {
-            render.texRect(material, rotation.get(), getRectangle(), colour.get());
-        }
+    public void renderBehind(GuiGraphics graphics, double mouseX, double mouseY, float partialTicks) {
+        getSprite().ifPresent(sprite -> {
+            if (dynamicBorders != null) {
+                graphics.cc$blitDynamicSprite(RenderPipelines.GUI_TEXTURED, sprite, getRectangle(), dynamicBorders, colour.get());
+            } else {
+                graphics.cc$blitSprite(RenderPipelines.GUI_TEXTURED, sprite, rotation.get(), getRectangle(), colour.get());
+            }
+        });
     }
 }

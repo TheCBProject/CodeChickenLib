@@ -1,29 +1,29 @@
 package codechicken.lib.gui.modular.elements;
 
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
-import org.apache.logging.log4j.util.TriConsumer;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Created by brandon3055 on 15/11/2023
  */
-// TODO Replace TriConsumer.
 public class GuiEventProvider extends GuiElement<GuiEventProvider> {
 
     private boolean ignoreConsumed = false;
-    private final List<TriConsumer<Double, Double, Integer>> clickListeners = new ArrayList<>();
-    private final List<TriConsumer<Double, Double, Integer>> releaseListeners = new ArrayList<>();
-    private final List<BiConsumer<Double, Double>> movedListeners = new ArrayList<>();
+    private final List<Consumer<MouseButtonEvent>> clickListeners = new ArrayList<>();
+    private final List<Consumer<MouseButtonEvent>> releaseListeners = new ArrayList<>();
+    private final List<MouseMoveListener> movedListeners = new ArrayList<>();
     private final List<ScrollListener> scrollListeners = new ArrayList<>();
-    private final List<TriConsumer<Integer, Integer, Integer>> keyPressListeners = new ArrayList<>();
-    private final List<TriConsumer<Integer, Integer, Integer>> keyReleaseListeners = new ArrayList<>();
-    private final List<BiConsumer<Character, Integer>> charTypedListeners = new ArrayList<>();
+    private final List<Consumer<KeyEvent>> keyPressListeners = new ArrayList<>();
+    private final List<Consumer<KeyEvent>> keyReleaseListeners = new ArrayList<>();
+    private final List<Consumer<CharacterEvent>> charTypedListeners = new ArrayList<>();
 
-    public GuiEventProvider(@NotNull GuiParent<?> parent) {
+    public GuiEventProvider(GuiParent<?> parent) {
         super(parent);
     }
 
@@ -32,17 +32,17 @@ public class GuiEventProvider extends GuiElement<GuiEventProvider> {
         return this;
     }
 
-    public GuiEventProvider onMouseClick(TriConsumer<Double, Double, Integer> listener) {
+    public GuiEventProvider onMouseClick(Consumer<MouseButtonEvent> listener) {
         clickListeners.add(listener);
         return this;
     }
 
-    public GuiEventProvider onMouseRelease(TriConsumer<Double, Double, Integer> listener) {
+    public GuiEventProvider onMouseRelease(Consumer<MouseButtonEvent> listener) {
         releaseListeners.add(listener);
         return this;
     }
 
-    public GuiEventProvider onMouseMove(BiConsumer<Double, Double> listener) {
+    public GuiEventProvider onMouseMove(MouseMoveListener listener) {
         movedListeners.add(listener);
         return this;
     }
@@ -52,40 +52,40 @@ public class GuiEventProvider extends GuiElement<GuiEventProvider> {
         return this;
     }
 
-    public GuiEventProvider onKeyPress(TriConsumer<Integer, Integer, Integer> listener) {
+    public GuiEventProvider onKeyPress(Consumer<KeyEvent> listener) {
         keyPressListeners.add(listener);
         return this;
     }
 
-    public GuiEventProvider onKeyRelease(TriConsumer<Integer, Integer, Integer> listener) {
+    public GuiEventProvider onKeyRelease(Consumer<KeyEvent> listener) {
         keyReleaseListeners.add(listener);
         return this;
     }
 
-    public GuiEventProvider onCharTyped(BiConsumer<Character, Integer> listener) {
+    public GuiEventProvider onCharTyped(Consumer<CharacterEvent> listener) {
         charTypedListeners.add(listener);
         return this;
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button, boolean consumed) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean consumed) {
         if (ignoreConsumed || !consumed) {
-            clickListeners.forEach(e -> e.accept(mouseX, mouseY, button));
+            clickListeners.forEach(e -> e.accept(event));
         }
-        return super.mouseClicked(mouseX, mouseY, button, consumed);
+        return super.mouseClicked(event, consumed);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button, boolean consumed) {
+    public boolean mouseReleased(MouseButtonEvent event, boolean consumed) {
         if (ignoreConsumed || !consumed) {
-            releaseListeners.forEach(e -> e.accept(mouseX, mouseY, button));
+            releaseListeners.forEach(e -> e.accept(event));
         }
-        return super.mouseReleased(mouseX, mouseY, button, consumed);
+        return super.mouseReleased(event, consumed);
     }
 
     @Override
     public void mouseMoved(double mouseX, double mouseY) {
-        movedListeners.forEach(e -> e.accept(mouseX, mouseY));
+        movedListeners.forEach(e -> e.onMoved(mouseX, mouseY));
         super.mouseMoved(mouseX, mouseY);
     }
 
@@ -98,27 +98,32 @@ public class GuiEventProvider extends GuiElement<GuiEventProvider> {
     }
 
     @Override
-    public boolean keyPressed(int key, int scancode, int modifiers, boolean consumed) {
+    public boolean keyPressed(KeyEvent event, boolean consumed) {
         if (ignoreConsumed || !consumed) {
-            keyPressListeners.forEach(e -> e.accept(key, scancode, modifiers));
+            keyPressListeners.forEach(e -> e.accept(event));
         }
-        return super.keyPressed(key, scancode, modifiers, consumed);
+        return super.keyPressed(event, consumed);
     }
 
     @Override
-    public boolean keyReleased(int key, int scancode, int modifiers, boolean consumed) {
+    public boolean keyReleased(KeyEvent event, boolean consumed) {
         if (ignoreConsumed || !consumed) {
-            keyReleaseListeners.forEach(e -> e.accept(key, scancode, modifiers));
+            keyReleaseListeners.forEach(e -> e.accept(event));
         }
-        return super.keyReleased(key, scancode, modifiers, consumed);
+        return super.keyReleased(event, consumed);
     }
 
     @Override
-    public boolean charTyped(char character, int modifiers, boolean consumed) {
+    public boolean charTyped(CharacterEvent event, boolean consumed) {
         if (ignoreConsumed || !consumed) {
-            charTypedListeners.forEach(e -> e.accept(character, modifiers));
+            charTypedListeners.forEach(e -> e.accept(event));
         }
-        return super.charTyped(character, modifiers, consumed);
+        return super.charTyped(event, consumed);
+    }
+
+    public interface MouseMoveListener {
+
+        void onMoved(double mouseX, double mouseY);
     }
 
     public interface ScrollListener {

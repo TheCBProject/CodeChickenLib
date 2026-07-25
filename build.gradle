@@ -4,7 +4,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'signing'
-    id 'net.neoforged.moddev' version '2.0.77'
+    id 'net.neoforged.moddev' version '2.0.141'
 }
 
 java {
@@ -24,7 +24,7 @@ sourceSets.main.resources.srcDirs += "src/main/generated"
 
 mod_version = "${mod_version}." + (System.getenv("BUILD_NUMBER") ?: "1")
 version = "${mc_version}-${mod_version}"
-println "Starting build of ${archivesBaseName}, Version: ${mod_version}"
+println "Starting build of ${base.archivesName.get()}, Version: ${mod_version}"
 println "Using Forge: ${forge_version}, for Minecraft: ${mc_version}"
 
 neoForge {
@@ -35,6 +35,11 @@ neoForge {
 
     accessTransformers {
         publish file("src/main/resources/META-INF/accesstransformer.cfg")
+    }
+
+    interfaceInjectionData {
+        from file('src/main/resources/META-INF/interfaces.json')
+        publish file('src/main/resources/META-INF/interfaces.json')
     }
 
     runs {
@@ -73,25 +78,23 @@ repositories {
     mavenLocal()
     maven { url "https://maven.covers1624.net/" }
     maven { url "https://maven.blamejared.com/" }
-    maven { url "https://api.modrinth.com/maven" }
 }
 
 dependencies {
     jarJar(api('net.covers1624:Quack')) {
         version {
             strictly '[0.4.10,0.5)'
-            prefer '0.4.10.115'
+            prefer '0.4.10.128'
         }
     }
-
-    compileOnly 'maven.modrinth:embeddium:1.0.15+mc1.21.1'
 
     compileOnly("mezz.jei:jei-${mc_version}-neoforge:${jei_version}") {
         transitive false
     }
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation platform('org.junit:junit-bom:6.0.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 test {

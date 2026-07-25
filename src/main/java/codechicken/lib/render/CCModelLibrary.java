@@ -3,12 +3,13 @@ package codechicken.lib.render;
 import codechicken.lib.vec.Quat;
 import codechicken.lib.vec.Vector3;
 import codechicken.lib.vec.Vertex5;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 
+import static codechicken.lib.CodeChickenLib.MOD_ID;
 import static codechicken.lib.math.MathHelper.phi;
 
 public class CCModelLibrary {
@@ -81,21 +82,23 @@ public class CCModelLibrary {
         i++;
     }
 
-    public static RenderType getIcos4RenderType(ResourceLocation texture) {
-        return RenderType.create("icosahedron4", DefaultVertexFormat.BLOCK, VertexFormat.Mode.TRIANGLES, 256, makeIcosState(texture));
+    public static RenderType getIcos4RenderType(Identifier texture) {
+        return RenderType.create(
+                MOD_ID + ":icosahedron4",
+                RenderSetup.builder(CCRenderPipelines.SOLID_TRIANGLES)
+                        .withTexture("Sampler0", texture)
+                        .useLightmap()
+                        .createRenderSetup()
+        );
     }
 
-    public static RenderType getIcos7RenderType(ResourceLocation texture) {
-        return RenderType.create("icosahedron7", DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 256, makeIcosState(texture));
+    public static RenderType getIcos7RenderType(Identifier texture) {
+        return RenderType.create(
+                MOD_ID + ":icosahedron7",
+                RenderSetup.builder(RenderPipelines.SOLID_BLOCK)
+                        .withTexture("Sampler0", texture)
+                        .useLightmap()
+                        .createRenderSetup()
+        );
     }
-
-    public static RenderType.CompositeState makeIcosState(ResourceLocation texture) {
-        return RenderType.CompositeState.builder()
-                .setShaderState(RenderStateShard.RENDERTYPE_SOLID_SHADER) // TODO 1.20, this is probably wrong.
-                .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
-                .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
-                .setLightmapState(RenderStateShard.LIGHTMAP)
-                .createCompositeState(false);
-    }
-
 }

@@ -106,51 +106,52 @@ public class ItemFileRenderer {
         protected abstract boolean render() throws IOException;
 
         protected NativeImage takeItemScreenshot() {
-            long start = System.nanoTime();
-            Minecraft mc = Minecraft.getInstance();
-            Matrix4fStack pStack = RenderSystem.getModelViewStack();
-            GuiGraphics guiGraphics = new GuiGraphics(mc, mc.renderBuffers().bufferSource());
-
-            if (target == null || target.width < resolution || target.height < resolution) {
-                if (target == null) {
-                    target = new RenderTarget(true) { };
-                }
-                target.resize(resolution, resolution, Minecraft.ON_OSX);
-            }
-
-            Matrix4f ortho = new Matrix4f().setOrtho(0, resolution * 16F / resolution, resolution * 16F / resolution, 0, -3000, 3000);
-            RenderSystem.setProjectionMatrix(ortho, VertexSorting.ORTHOGRAPHIC_Z);
-
-            pStack.pushMatrix();
-            pStack.identity();
-            RenderSystem.applyModelViewMatrix();
-            target.bindWrite(true);
-
-            GL11.glClearColor(0, 0, 0, 0);
-            GL11.glClearDepth(1.0);
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-
-            Lighting.setupFor3DItems();
-            RenderSystem.enableCull();
-            long preRender = System.nanoTime();
-            if (DEBUG) LOGGER.info("Setup: {}ns", preRender - start);
-
-            guiGraphics.renderItem(stack, 0, 0);
-
-            long postRender = System.nanoTime();
-            if (DEBUG) LOGGER.info("Render: {}ns", postRender - preRender);
-
-            NativeImage image = new NativeImage(resolution, resolution, false);
-            target.bindRead();
-            image.downloadTexture(0, false);
-            image.flipY();
-            if (DEBUG) LOGGER.info("Screenshot: {}ns", System.nanoTime() - postRender);
-
-            pStack.popMatrix();
-            RenderSystem.applyModelViewMatrix();
-
-            target.unbindWrite();
-            return image;
+//            long start = System.nanoTime();
+//            Minecraft mc = Minecraft.getInstance();
+//            Matrix4fStack pStack = RenderSystem.getModelViewStack();
+//            GuiGraphics guiGraphics = new GuiGraphics(mc, mc.renderBuffers().bufferSource());
+//
+//            if (target == null || target.width < resolution || target.height < resolution) {
+//                if (target == null) {
+//                    target = new RenderTarget(true) { };
+//                }
+//                target.resize(resolution, resolution, Minecraft.ON_OSX);
+//            }
+//
+//            Matrix4f ortho = new Matrix4f().setOrtho(0, resolution * 16F / resolution, resolution * 16F / resolution, 0, -3000, 3000);
+//            RenderSystem.setProjectionMatrix(ortho, VertexSorting.ORTHOGRAPHIC_Z);
+//
+//            pStack.pushMatrix();
+//            pStack.identity();
+//            RenderSystem.applyModelViewMatrix();
+//            target.bindWrite(true);
+//
+//            GL11.glClearColor(0, 0, 0, 0);
+//            GL11.glClearDepth(1.0);
+//            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+//
+//            Lighting.setupFor3DItems();
+//            RenderSystem.enableCull();
+//            long preRender = System.nanoTime();
+//            if (DEBUG) LOGGER.info("Setup: {}ns", preRender - start);
+//
+//            guiGraphics.renderItem(stack, 0, 0);
+//
+//            long postRender = System.nanoTime();
+//            if (DEBUG) LOGGER.info("Render: {}ns", postRender - preRender);
+//
+//            NativeImage image = new NativeImage(resolution, resolution, false);
+//            target.bindRead();
+//            image.downloadTexture(0, false);
+//            image.flipY();
+//            if (DEBUG) LOGGER.info("Screenshot: {}ns", System.nanoTime() - postRender);
+//
+//            pStack.popMatrix();
+//            RenderSystem.applyModelViewMatrix();
+//
+//            target.unbindWrite();
+//            return image;
+            return null;
         }
     }
 
@@ -239,7 +240,7 @@ public class ItemFileRenderer {
                     LOGGER.info("Encoding Frame {} / {}", i + 1, frames.size());
                     NativeImage frame = frames.get(i);
                     try (frame) {
-                        encoder.addFrame(ImageIO.read(new ByteArrayInputStream(frame.asByteArray())));
+//                        encoder.addFrame(ImageIO.read(new ByteArrayInputStream(frame.asByteArray())));
                     }
                 }
                 encoder.finish();

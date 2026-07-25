@@ -1,6 +1,6 @@
 package codechicken.lib.gui.modular.lib;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.Function;
 
@@ -13,15 +13,15 @@ public interface DynamicTextures {
 
     void makeTextures(Function<DynamicTexture, String> textures);
 
-    default String dynamicTexture(Function<DynamicTexture, String> textures, ResourceLocation dynamicInput, ResourceLocation outputLocation, int width, int height, int border) {
+    default String dynamicTexture(Function<DynamicTexture, String> textures, Identifier dynamicInput, Identifier outputLocation, int width, int height, int border) {
         return textures.apply(new DynamicTexture(dynamicInput, outputLocation, width, height, border, border, border, border));
     }
 
-    default String dynamicTexture(Function<DynamicTexture, String> textures, ResourceLocation dynamicInput, ResourceLocation outputLocation, int width, int height, int topBorder, int leftBorder, int bottomBorder, int rightBorder) {
+    default String dynamicTexture(Function<DynamicTexture, String> textures, Identifier dynamicInput, Identifier outputLocation, int width, int height, int topBorder, int leftBorder, int bottomBorder, int rightBorder) {
         return textures.apply(new DynamicTexture(dynamicInput, outputLocation, width, height, topBorder, leftBorder, bottomBorder, rightBorder));
     }
 
-    record DynamicTexture(ResourceLocation dynamicInput, ResourceLocation outputLocation, int width, int height, int topBorder, int leftBorder, int bottomBorder, int rightBorder) {
+    record DynamicTexture(Identifier dynamicInput, Identifier outputLocation, int width, int height, int topBorder, int leftBorder, int bottomBorder, int rightBorder) {
         public String guiTexturePath() {
             return outputLocation.getPath().replace("textures/gui/", "").replace(".gui", "");
         }

@@ -1,7 +1,7 @@
 package codechicken.lib.test;
 
 import codechicken.lib.render.model.OBJParserTests;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
 
@@ -21,7 +21,7 @@ public class TestResourceProvider implements ResourceProvider {
     }
 
     @Override
-    public Optional<Resource> getResource(ResourceLocation resource) {
+    public Optional<Resource> getResource(Identifier resource) {
         return Optional.of(new Resource(null, () -> Objects.requireNonNull(OBJParserTests.class.getResourceAsStream("/" + resource.getPath()), "Resource " + resource + " doesnt exist.")));
     }
 }

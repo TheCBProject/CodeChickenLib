@@ -9,10 +9,8 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 import java.nio.file.Path;
 import java.util.LinkedList;
@@ -33,26 +31,24 @@ public abstract class LanguageProvider implements DataProvider {
     private final PackOutput output;
     private final String modid;
     private final String locale;
-    private final Side distFilter;
 
-    protected LanguageProvider(PackOutput output, String modid, String locale, Side distFilter) {
+    protected LanguageProvider(PackOutput output, String modid, String locale) {
         this.output = output;
         this.modid = modid;
         this.locale = locale;
-        this.distFilter = distFilter;
     }
 
     protected abstract void addTranslations();
 
     @Override
-    public CompletableFuture<?> run(CachedOutput p_200398_1_) {
+    public CompletableFuture<?> run(CachedOutput output) {
         addTranslations();
         List<CompletableFuture<?>> futures = new LinkedList<>();
-        if (distFilter.includeClient() && !client.isEmpty()) {
-            futures.add(DataProvider.saveStable(p_200398_1_, GSON.toJsonTree(client), output.getOutputFolder(PackOutput.Target.RESOURCE_PACK).resolve(modid + "/lang/" + locale + ".json")));
+        if (!client.isEmpty()) {
+            futures.add(DataProvider.saveStable(output, GSON.toJsonTree(client), this.output.getOutputFolder(PackOutput.Target.RESOURCE_PACK).resolve(modid + "/lang/" + locale + ".json")));
         }
-        if (distFilter.includeServer() && !server.isEmpty()) {
-            futures.add(DataProvider.saveStable(p_200398_1_, GSON.toJsonTree(server), output.getOutputFolder(PackOutput.Target.DATA_PACK).resolve(modid + "/lang/" + locale + ".json")));
+        if (!server.isEmpty()) {
+            futures.add(DataProvider.saveStable(output, GSON.toJsonTree(server), this.output.getOutputFolder(PackOutput.Target.DATA_PACK).resolve(modid + "/lang/" + locale + ".json")));
         }
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
@@ -74,12 +70,12 @@ public abstract class LanguageProvider implements DataProvider {
     public void add(Block key, String name) { add(key.getDescriptionId(), name); }
     public void add(Item key, String name) { add(key.getDescriptionId(), name); }
     public void add(Supplier<? extends ItemLike> key, String name) { add(key.get().asItem(), name); }
-    public void add(ItemStack key, String name) { add(key.getDescriptionId(), name); }
+    public void add(ItemStack key, String name) { add(key.getItem(), name); }
     public void add(MobEffect key, String name) { add(key.getDescriptionId(), name); }
     public void add(EntityType<?> key, String name) { add(key.getDescriptionId(), name); }
     public void addBlock(Supplier<? extends Block> key, String name) { add(key.get().getDescriptionId(), name); }
     public void addItem(Supplier<? extends Item> key, String name) { add(key.get().getDescriptionId(), name); }
-    public void addItemStack(Supplier<ItemStack> key, String name) { add(key.get().getDescriptionId(), name); }
+    public void addItemStack(Supplier<ItemStack> key, String name) { add(key.get(), name); }
     public void addEffect(Supplier<MobEffect> key, String name) { add(key.get().getDescriptionId(), name); }
     public void addEntityType(Supplier<EntityType<?>> key, String name) { add(key.get().getDescriptionId(), name); }
     //@formatter:on
@@ -94,28 +90,6 @@ public abstract class LanguageProvider implements DataProvider {
         add(key, name);
         if (server.put(key, name) != null) {
             throw new IllegalArgumentException("Duplicate translation key :" + key);
-        }
-    }
-
-    public static Side getDist(GatherDataEvent event) {
-        if (event.includeServer() && event.includeClient()) return Side.BOTH;
-        if (event.includeServer()) return Side.SERVER;
-        if (event.includeClient()) return Side.CLIENT;
-        return Side.NONE;
-    }
-
-    public enum Side {
-        CLIENT,
-        SERVER,
-        BOTH,
-        NONE;
-
-        public boolean includeClient() {
-            return this == CLIENT || this == BOTH;
-        }
-
-        public boolean includeServer() {
-            return this == SERVER || this == BOTH;
         }
     }
 }

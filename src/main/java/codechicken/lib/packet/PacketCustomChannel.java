@@ -10,10 +10,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.HandlerThread;
@@ -27,11 +28,12 @@ import java.util.function.Supplier;
 /**
  * Created by covers1624 on 3/7/24.
  */
+@Deprecated (forRemoval = true)
 public class PacketCustomChannel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PacketCustomChannel.class);
 
-    public final ResourceLocation channel;
+    public final Identifier channel;
 
     private @Nullable String version;
     private boolean optional;
@@ -41,7 +43,7 @@ public class PacketCustomChannel {
     private @Nullable IClientPacketHandler client;
     private @Nullable IServerPacketHandler server;
 
-    public PacketCustomChannel(ResourceLocation channel) {
+    public PacketCustomChannel(Identifier channel) {
         this.channel = channel;
     }
 
@@ -56,7 +58,7 @@ public class PacketCustomChannel {
     }
 
     public PacketCustomChannel clientConfiguration(Supplier<Supplier<IClientConfigurationPacketHandler>> supplier) {
-        if (FMLEnvironment.dist.isClient()) {
+        if (FMLEnvironment.getDist().isClient()) {
             clientConfiguration = supplier.get().get();
         }
         return this;
@@ -69,7 +71,7 @@ public class PacketCustomChannel {
 //    }
 
     public PacketCustomChannel client(Supplier<Supplier<IClientPacketHandler>> supplier) {
-        if (FMLEnvironment.dist.isClient()) {
+        if (FMLEnvironment.getDist().isClient()) {
             client = supplier.get().get();
         }
         return this;
@@ -82,6 +84,9 @@ public class PacketCustomChannel {
 
     public void init(IEventBus modBus) {
         modBus.addListener(this::onRegisterPayloadHandlerEvent);
+        if (FMLEnvironment.getDist().isClient()) {
+            modBus.addListener(this::onRegisterClientPayloads);
+        }
     }
 
     private void onRegisterPayloadHandlerEvent(RegisterPayloadHandlersEvent event) {
@@ -103,32 +108,34 @@ public class PacketCustomChannel {
                 type,
                 codec,
                 (payload, context) -> {
-                    switch (context.flow()) {
-                        case CLIENTBOUND -> {
-                            if (client != null) {
-                                enqueue(context, payload, () -> {
-                                    client.handlePacket(new PacketCustom(payload), Minecraft.getInstance());
-                                });
-                            }
-                        }
-                        case SERVERBOUND -> {
-                            if (server != null) {
-                                enqueue(context, payload, () -> {
-                                    server.handlePacket(new PacketCustom(payload), (ServerPlayer) context.player());
-                                });
-                            }
-                        }
+                    if (server != null) {
+                        enqueue(context, payload, () -> {
+                            server.handlePacket(new PacketCustom(payload), (ServerPlayer) context.player());
+                        });
                     }
-
                 }
         );
         registrar.configurationToClient(
-                type,
+                new CustomPacketPayload.Type<>(channel.withPrefix("configuration/")),
                 codec,
                 (payload, context) -> {
                     if (clientConfiguration != null) {
                         enqueue(context, payload, () -> {
                             clientConfiguration.handlePacket(new PacketCustom(payload), Minecraft.getInstance());
+                        });
+                    }
+                }
+        );
+    }
+
+    private void onRegisterClientPayloads(RegisterClientPayloadHandlersEvent event) {
+        event.register(
+                new CustomPacketPayload.Type<PacketCustom.Pkt>(channel),
+                HandlerThread.NETWORK,
+                (payload, context) -> {
+                    if (client != null) {
+                        enqueue(context, payload, () -> {
+                            client.handlePacket(new PacketCustom(payload), Minecraft.getInstance());
                         });
                     }
                 }

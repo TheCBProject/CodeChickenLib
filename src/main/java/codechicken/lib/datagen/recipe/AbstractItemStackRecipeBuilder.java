@@ -1,6 +1,8 @@
 package codechicken.lib.datagen.recipe;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 
@@ -9,8 +11,8 @@ import net.minecraft.world.item.crafting.Recipe;
  */
 public abstract class AbstractItemStackRecipeBuilder<T extends AbstractRecipeBuilder<ItemStack, T>> extends AbstractRecipeBuilder<ItemStack, T> {
 
-    protected AbstractItemStackRecipeBuilder(ResourceLocation id, ItemStack result) {
-        super(id, result);
+    protected AbstractItemStackRecipeBuilder(Identifier id, HolderGetter<Item> items, ItemStack result) {
+        super(id, items, result);
     }
 
     @Override

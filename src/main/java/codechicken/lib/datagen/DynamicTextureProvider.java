@@ -3,15 +3,14 @@ package codechicken.lib.datagen;
 import codechicken.lib.gui.modular.lib.DynamicTextures;
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashingOutputStream;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraft.server.packs.resources.ResourceManager;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -32,13 +31,13 @@ import java.util.concurrent.CompletableFuture;
 public class DynamicTextureProvider implements DataProvider {
 
     private final DataGenerator gen;
-    private final ExistingFileHelper fileHelper;
+    private final ResourceManager resourceManager;
     private final String modid;
     private final List<GeneratorResult> results = new ArrayList<>();
 
-    public DynamicTextureProvider(DataGenerator gen, ExistingFileHelper fileHelper, String modid) {
+    public DynamicTextureProvider(DataGenerator gen, ResourceManager resourceManager, String modid) {
         this.gen = gen;
-        this.fileHelper = fileHelper;
+        this.resourceManager = resourceManager;
         this.modid = modid;
     }
 
@@ -60,23 +59,25 @@ public class DynamicTextureProvider implements DataProvider {
     }
 
     public void addDynamicTexture(String dynamicInput, String outputTexture, int width, int height, int topBorder, int leftBorder, int bottomBorder, int rightBorder) {
-        addDynamicTexture(ResourceLocation.fromNamespaceAndPath(modid, dynamicInput), ResourceLocation.fromNamespaceAndPath(modid, outputTexture), width, height, topBorder, leftBorder, bottomBorder, rightBorder);
+        addDynamicTexture(Identifier.fromNamespaceAndPath(modid, dynamicInput), Identifier.fromNamespaceAndPath(modid, outputTexture), width, height, topBorder, leftBorder, bottomBorder, rightBorder);
     }
 
-    public void addDynamicTexture(ResourceLocation dynamicInput, ResourceLocation outputTexture, int width, int height, int border) {
+    public void addDynamicTexture(Identifier dynamicInput, Identifier outputTexture, int width, int height, int border) {
         addDynamicTexture(dynamicInput, outputTexture, width, height, border, border, border, border);
     }
 
-    public void addDynamicTexture(ResourceLocation dynamicInput, ResourceLocation outputTexture, int width, int height, int topBorder, int leftBorder, int bottomBorder, int rightBorder) {
+    public void addDynamicTexture(Identifier dynamicInput, Identifier outputTexture, int width, int height, int topBorder, int leftBorder, int bottomBorder, int rightBorder) {
         try {
             if (!dynamicInput.getPath().endsWith(".png")) {
-                dynamicInput = ResourceLocation.fromNamespaceAndPath(dynamicInput.getNamespace(), dynamicInput.getPath() + ".png");
+                dynamicInput = Identifier.fromNamespaceAndPath(dynamicInput.getNamespace(), dynamicInput.getPath() + ".png");
             }
             if (!outputTexture.getPath().endsWith(".png")) {
-                outputTexture = ResourceLocation.fromNamespaceAndPath(outputTexture.getNamespace(), outputTexture.getPath() + ".png");
+                outputTexture = Identifier.fromNamespaceAndPath(outputTexture.getNamespace(), outputTexture.getPath() + ".png");
             }
 
-            Resource inputResource = fileHelper.getResource(dynamicInput, PackType.CLIENT_RESOURCES);
+            Resource inputResource = resourceManager.getResource(dynamicInput).orElse(null);
+            if (inputResource == null) throw new RuntimeException("Dynamic input " + dynamicInput + " does not exist.");
+
             PackOutput packOutput = gen.getPackOutput("assets/" + outputTexture.getNamespace());
             Path outputFile = packOutput.getOutputFolder().resolve(outputTexture.getPath());
 

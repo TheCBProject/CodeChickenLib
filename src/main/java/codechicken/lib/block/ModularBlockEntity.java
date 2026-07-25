@@ -1,15 +1,22 @@
 package codechicken.lib.block;
 
 import codechicken.lib.block.ModularTileBlock.TileComponent;
+import codechicken.lib.internal.CCLNetwork;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
 
@@ -18,6 +25,8 @@ import static net.covers1624.quack.util.SneakyUtils.unsafeCast;
  */
 @ApiStatus.Experimental
 public abstract class ModularBlockEntity extends BlockEntity {
+
+    private static final byte COMPONENT_MESSAGE = 1;
 
     private final ModularTileBlock<?> block;
     private final DataComponent[] components;
@@ -44,25 +53,52 @@ public abstract class ModularBlockEntity extends BlockEntity {
 
     @Override
     @MustBeInvokedByOverriders
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
 
         for (DataComponent component : components) {
-            CompoundTag componentTag = new CompoundTag();
-            component.save(componentTag, registries);
-            tag.put(component.tileComponent.name, componentTag);
+            component.save(output.child(component.tileComponent.name));
         }
     }
 
     @Override
     @MustBeInvokedByOverriders
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
 
         for (DataComponent component : components) {
-            if (tag.contains(component.tileComponent.name)) {
-                component.load(tag.getCompound(component.tileComponent.name), registries);
-            }
+            var childIn = input.child(component.tileComponent.name);
+            childIn.ifPresent(component::load);
+        }
+    }
+
+    private void sendServerPacket(Consumer<RegistryFriendlyByteBuf> cons) {
+        var packet = CCLNetwork.TILE_MESSAGE.toServer();
+        packet.writeBlockPos(getBlockPos());
+        cons.accept(packet);
+        packet.sendToServer();
+    }
+
+    public final void onInternalServerPacket(RegistryFriendlyByteBuf packet, IPayloadContext ctx) {
+        switch (packet.readUnsignedByte()) {
+            case COMPONENT_MESSAGE -> components[packet.readVarInt()].onServerPacket(packet, ctx);
+        }
+    }
+
+    private void sendClientPacket(@Nullable ServerPlayer to, Consumer<RegistryFriendlyByteBuf> cons) {
+        var packet = CCLNetwork.TILE_MESSAGE.toClient(this);
+        packet.writeBlockPos(getBlockPos());
+        cons.accept(packet);
+        if (to == null) {
+            packet.sendToChunk(this);
+        } else {
+            packet.sendToPlayer(to);
+        }
+    }
+
+    public final void onInternalClientPacket(RegistryFriendlyByteBuf packet, IPayloadContext ctx) {
+        switch (packet.readUnsignedByte()) {
+            case COMPONENT_MESSAGE -> components[packet.readVarInt()].onClientPacket(packet, ctx);
         }
     }
 
@@ -76,10 +112,32 @@ public abstract class ModularBlockEntity extends BlockEntity {
             this.tileComponent = tileComponent;
         }
 
-        protected void save(CompoundTag tag, HolderLookup.Provider registries) {
+        protected final void sendToServer(Consumer<RegistryFriendlyByteBuf> cons) {
+            tile.sendServerPacket(p -> {
+                p.writeByte(COMPONENT_MESSAGE);
+                p.writeVarInt(tileComponent.id);
+                cons.accept(p);
+            });
         }
 
-        protected void load(CompoundTag tag, HolderLookup.Provider registries) {
+        protected void onServerPacket(RegistryFriendlyByteBuf buf, IPayloadContext ctx) {
+        }
+
+        protected final void sendToClient(@Nullable ServerPlayer to, Consumer<RegistryFriendlyByteBuf> cons) {
+            tile.sendClientPacket(to, p -> {
+                p.writeByte(COMPONENT_MESSAGE);
+                p.writeVarInt(tileComponent.id);
+                cons.accept(p);
+            });
+        }
+
+        protected void onClientPacket(RegistryFriendlyByteBuf buf, IPayloadContext ctx) {
+        }
+
+        protected void save(ValueOutput output) {
+        }
+
+        protected void load(ValueInput input) {
         }
     }
 }

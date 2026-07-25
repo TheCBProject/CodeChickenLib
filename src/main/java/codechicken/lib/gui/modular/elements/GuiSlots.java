@@ -1,26 +1,29 @@
 package codechicken.lib.gui.modular.elements;
 
 import codechicken.lib.gui.modular.lib.BackgroundRender;
-import codechicken.lib.gui.modular.lib.GuiRender;
 import codechicken.lib.gui.modular.lib.container.ContainerScreenAccess;
 import codechicken.lib.gui.modular.lib.container.SlotGroup;
 import codechicken.lib.gui.modular.lib.geometry.Constraint;
 import codechicken.lib.gui.modular.lib.geometry.GeoParam;
 import codechicken.lib.gui.modular.lib.geometry.GuiParent;
 import codechicken.lib.gui.modular.lib.geometry.Position;
-import codechicken.lib.gui.modular.sprite.GuiTextures;
-import codechicken.lib.gui.modular.sprite.Material;
+import codechicken.lib.gui.modular.SpriteSupplier;
+import codechicken.lib.math.MathHelper;
 import net.covers1624.quack.collection.FastStream;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.data.AtlasIds;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
 import org.apache.logging.log4j.util.TriConsumer;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
+import static codechicken.lib.CodeChickenLib.MOD_ID;
 import static codechicken.lib.gui.modular.lib.geometry.Constraint.match;
 import static codechicken.lib.gui.modular.lib.geometry.Constraint.relative;
 import static codechicken.lib.gui.modular.lib.geometry.GeoParam.*;
-import static net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS;
 
 /**
  * This element is used to manage and render a grid of inventory slots in a GUI.
@@ -32,8 +35,14 @@ import static net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS;
  * Created by brandon3055 on 08/09/2023
  */
 public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
-    public static final Material[] ARMOR_SLOTS = new Material[]{Material.fromAtlas(BLOCK_ATLAS, "item/empty_armor_slot_helmet"), Material.fromAtlas(BLOCK_ATLAS, "item/empty_armor_slot_chestplate"), Material.fromAtlas(BLOCK_ATLAS, "item/empty_armor_slot_leggings"), Material.fromAtlas(BLOCK_ATLAS, "item/empty_armor_slot_boots")};
-    public static final Material OFF_HAND_SLOT = Material.fromAtlas(BLOCK_ATLAS, "item/empty_armor_slot_shield");
+
+    public static final SpriteSupplier[] ARMOR_SLOTS = new SpriteSupplier[] {
+            SpriteSupplier.of(AtlasIds.ITEMS, Identifier.withDefaultNamespace("item/empty_armor_slot_helmet")),
+            SpriteSupplier.of(AtlasIds.ITEMS, Identifier.withDefaultNamespace("item/empty_armor_slot_chestplate")),
+            SpriteSupplier.of(AtlasIds.ITEMS, Identifier.withDefaultNamespace("item/empty_armor_slot_leggings")),
+            SpriteSupplier.of(AtlasIds.ITEMS, Identifier.withDefaultNamespace("item/empty_armor_slot_boots"))
+    };
+    public static final SpriteSupplier OFF_HAND_SLOT = SpriteSupplier.of(AtlasIds.ITEMS, Identifier.withDefaultNamespace("item/empty_armor_slot_shield"));
 
     private final int firstSlot;
     private final int slotCount;
@@ -41,10 +50,10 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
     private final SlotGroup slots;
     private final ContainerScreenAccess<?> screenAccess;
 
-    private Function<Slot, Material> slotTexture = slot -> GuiTextures.CCL.getUncached("widgets/slot");
-    private Function<Slot, Material> slotIcons = slot -> null;
+    private Function<Slot, SpriteSupplier> slotTexture = slot -> SpriteSupplier.gui(Identifier.fromNamespaceAndPath(MOD_ID, "widgets/slot"));
+    private Function<Slot, SpriteSupplier> slotIcons = slot -> SpriteSupplier.EMPTY;
     private Function<Slot, Integer> highlightColour = slot -> 0x80ffffff;
-    private TriConsumer<Slot, Position, GuiRender> slotOverlay = null;
+    private @Nullable TriConsumer<Slot, Position, GuiGraphics> slotOverlay = null;
     private int xSlotSpacing = 0;
     private int ySlotSpacing = 0;
 
@@ -52,7 +61,7 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
      * @param slots       The slot group containing the slots that this element will manage.
      * @param gridColumns The width of the inventory grid (Typically 9 for standard player or chest inventories)
      */
-    public GuiSlots(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup slots, int gridColumns) {
+    public GuiSlots(GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup slots, int gridColumns) {
         this(parent, screenAccess, slots, 0, slots.size(), gridColumns);
     }
 
@@ -62,7 +71,7 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
      * @param slotCount   The number of slots that this element will manage.
      * @param gridColumns The width of the inventory grid (Typically 9 for standard player or chest inventories)
      */
-    public GuiSlots(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup slots, int firstSlot, int slotCount, int gridColumns) {
+    public GuiSlots(GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup slots, int firstSlot, int slotCount, int gridColumns) {
         super(parent);
         this.screenAccess = screenAccess;
         this.slots = slots;
@@ -82,28 +91,26 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
         }
 
         updateSlots(parent.getModularGui().getRoot());
-        setZStacking(false);
     }
 
     //=== Construction Helpers ===//
 
-    public static GuiSlots singleSlot(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup slots) {
+    public static GuiSlots singleSlot(GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup slots) {
         return singleSlot(parent, screenAccess, slots, 0);
     }
 
-    public static GuiSlots singleSlot(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup slots, int index) {
+    public static GuiSlots singleSlot(GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup slots, int index) {
         return new GuiSlots(parent, screenAccess, slots, index, 1, 1);
     }
 
-    public static Player player(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots) {
+    public static Player player(GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots) {
         return player(parent, screenAccess, mainSlots, hotBarSlots, 3);
     }
 
-    public static Player player(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, int hotBarSpacing) {
+    public static Player player(GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, int hotBarSpacing) {
         int width = 18 * 9;
         int height = 18 * 4 + hotBarSpacing;
         GuiElement<?> container = new GuiElement<>(parent)
-                .setZStacking(false)
                 .constrain(WIDTH, Constraint.literal(width))
                 .constrain(HEIGHT, Constraint.literal(height));
 
@@ -117,15 +124,14 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
         return new Player(container, main, bar);
     }
 
-    public static PlayerWithArmor playerWithArmor(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots) {
+    public static PlayerWithArmor playerWithArmor(GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots) {
         return playerWithArmor(parent, screenAccess, mainSlots, hotBarSlots, armorSlots, 3, true);
     }
 
-    public static PlayerWithArmor playerWithArmor(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots, int groupSpacing, boolean slotIcons) {
+    public static PlayerWithArmor playerWithArmor(GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots, int groupSpacing, boolean slotIcons) {
         int width = 18 * 10 + groupSpacing;
         int height = 18 * 4 + groupSpacing;
         GuiElement<?> container = new GuiElement<>(parent)
-                .setZStacking(false)
                 .constrain(WIDTH, Constraint.literal(width))
                 .constrain(HEIGHT, Constraint.literal(height));
 
@@ -146,15 +152,14 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
         return new PlayerWithArmor(container, main, bar, armor);
     }
 
-    public static PlayerAll playerAllSlots(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots, SlotGroup offhandSlots) {
+    public static PlayerAll playerAllSlots(GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots, SlotGroup offhandSlots) {
         return playerAllSlots(parent, screenAccess, mainSlots, hotBarSlots, armorSlots, offhandSlots, 3, true);
     }
 
-    public static PlayerAll playerAllSlots(@NotNull GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots, SlotGroup offhandSlots, int groupSpacing, boolean slotIcons) {
+    public static PlayerAll playerAllSlots(GuiParent<?> parent, ContainerScreenAccess<?> screenAccess, SlotGroup mainSlots, SlotGroup hotBarSlots, SlotGroup armorSlots, SlotGroup offhandSlots, int groupSpacing, boolean slotIcons) {
         int width = 18 * 11 + groupSpacing * 2;
         int height = 18 * 4 + groupSpacing;
         GuiElement<?> container = new GuiElement<>(parent)
-                .setZStacking(false)
                 .constrain(WIDTH, Constraint.literal(width))
                 .constrain(HEIGHT, Constraint.literal(height));
 
@@ -185,7 +190,7 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
     /**
      * Allows you to use a custom slot texture, The default is the standard vanilla slot.
      */
-    public GuiSlots setSlotTexture(Material slotTexture) {
+    public GuiSlots setSlotTexture(SpriteSupplier slotTexture) {
         this.slotTexture = e -> slotTexture;
         return this;
     }
@@ -193,7 +198,7 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
     /**
      * Allows you to use a custom per-slot slot textures, The default is the standard vanilla texture for all slots.
      */
-    public GuiSlots setSlotTexture(Function<Slot, Material> slotTexture) {
+    public GuiSlots setSlotTexture(Function<Slot, SpriteSupplier> slotTexture) {
         this.slotTexture = slotTexture;
         return this;
     }
@@ -203,7 +208,7 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
      * <p>
      * Similar to {@link #setSlotTexture(Function)} except you are given the index of the slot within the {@link GuiSlots} element.
      */
-    public GuiSlots setSlotTextureI(Function<Integer, Material> slotTexture) {
+    public GuiSlots setSlotTextureI(Function<Integer, SpriteSupplier> slotTexture) {
         this.slotTexture = slot -> slotTexture.apply(slots.indexOf(slot) - firstSlot);
         return this;
     }
@@ -239,7 +244,7 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
      * Applies a single empty slot icon to all slots.
      * Recommended texture size is 16x16
      */
-    public GuiSlots setEmptyIcon(Material texture) {
+    public GuiSlots setEmptyIcon(SpriteSupplier texture) {
         return setEmptyIcon(index -> texture);
     }
 
@@ -249,7 +254,7 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
      *
      * @param slotIcons A function that is given the slot index within the {@link SlotGroup}, and should return a material or null.
      */
-    public GuiSlots setEmptyIcon(Function<Slot, Material> slotIcons) {
+    public GuiSlots setEmptyIcon(Function<Slot, SpriteSupplier> slotIcons) {
         this.slotIcons = slotIcons;
         return this;
     }
@@ -262,7 +267,7 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
      *
      * @param slotIcons A function that is given the slot index within the {@link SlotGroup}, and should return a material or null.
      */
-    public GuiSlots setEmptyIconI(Function<Integer, Material> slotIcons) {
+    public GuiSlots setEmptyIconI(Function<Integer, SpriteSupplier> slotIcons) {
         this.slotIcons = slot -> slotIcons.apply(slots.indexOf(slot) - firstSlot);
         return this;
     }
@@ -273,7 +278,7 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
      *
      * @param slotOverlay Render callback providing the slot, screen position of the slot (top-left corner) and the active GuiRender.
      */
-    public GuiSlots setSlotOverlay(TriConsumer<Slot, Position, GuiRender> slotOverlay) {
+    public GuiSlots setSlotOverlay(TriConsumer<Slot, Position, GuiGraphics> slotOverlay) {
         this.slotOverlay = slotOverlay;
         return this;
     }
@@ -286,7 +291,7 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
      *
      * @param slotOverlay Render callback providing the slot, screen position of the slot (top-left corner) and the active GuiRender.
      */
-    public GuiSlots setSlotOverlayI(TriConsumer<Integer, Position, GuiRender> slotOverlay) {
+    public GuiSlots setSlotOverlayI(TriConsumer<Integer, Position, GuiGraphics> slotOverlay) {
         this.slotOverlay = (slot, position, render) -> slotOverlay.accept(slots.indexOf(slot) - firstSlot, position, render);
         return this;
     }
@@ -308,11 +313,6 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
     }
 
     //=== Internal Methods ===//
-
-    @Override
-    public double getBackgroundDepth() {
-        return 33;
-    }
 
     private void updateSlots(GuiElement<?> root) {
         int columns = Math.min(this.columns, slotCount);
@@ -337,40 +337,33 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
     }
 
     @Override
-    public void renderBackground(GuiRender render, double mouseX, double mouseY, float partialTicks) {
+    public void renderBehind(GuiGraphics render, double mouseX, double mouseY, float partialTicks) {
         GuiElement<?> root = getModularGui().getRoot();
         updateSlots(root);
 
         Slot highlightSlot = null;
-        render.pose().pushPose();
 
         for (int index = 0; index < slotCount; index++) {
             Slot slot = slots.getSlot(index + firstSlot);
-            Material tex = slotTexture.apply(slot);
-            if (tex != null) {
-                render.texRect(tex, slot.x + root.xMin() - 1, slot.y + root.yMin() - 1, 18, 18);
-            }
+            slotTexture.apply(slot).ifPresent(icon -> {
+                render.cc$blitSprite(RenderPipelines.GUI_TEXTURED, icon, slot.x + root.xMin() - 1, slot.y + root.yMin() - 1, 18, 18);
+            });
         }
-
-        render.pose().translate(0, 0, 0.4);
 
         for (int index = 0; index < slotCount; index++) {
             Slot slot = slots.getSlot(index + firstSlot);
             if (!slot.isActive()) continue;
             if (!slot.hasItem()) {
-                Material icon = slotIcons.apply(slot);
-                if (icon != null) {
-                    render.texRect(icon, slot.x + root.xMin(), slot.y + root.yMin(), 16, 16);
-                }
+                slotIcons.apply(slot).ifPresent(icon -> {
+                    render.cc$blitSprite(RenderPipelines.GUI_TEXTURED, icon, slot.x + root.xMin(), slot.y + root.yMin(), 16, 16);
+                });
             }
 
-            screenAccess.renderSlot(render, slot);
-            if (GuiRender.isInRect(slot.x + root.xMin(), slot.y + root.yMin(), 16, 16, mouseX, mouseY) && !blockMouseOver(this, mouseX, mouseY) && isMouseOver()) {
+            screenAccess.doRenderSlot(render, slot);
+            if (MathHelper.isInRect(slot.x + root.xMin(), slot.y + root.yMin(), 16, 16, mouseX, mouseY) && !blockMouseOver(this, mouseX, mouseY) && isMouseOver()) {
                 highlightSlot = slot;
             }
         }
-
-        render.pose().translate(0, 0, getBackgroundDepth() - 0.8);
 
         if (slotOverlay != null) {
             for (int index = 0; index < slotCount; index++) {
@@ -381,25 +374,26 @@ public class GuiSlots extends GuiElement<GuiSlots> implements BackgroundRender {
         }
 
         if (highlightSlot != null) {
-            render.rect(highlightSlot.x + root.xMin(), highlightSlot.y + root.yMin(), 16, 16, highlightColour.apply(highlightSlot));
+            render.cc$fill(highlightSlot.x + root.xMin(), highlightSlot.y + root.yMin(), 16, 16, highlightColour.apply(highlightSlot));
         }
-
-        render.pose().popPose();
     }
 
     public record Player(GuiElement<?> container, GuiSlots main, GuiSlots hotBar) {
+
         public FastStream<GuiSlots> stream() {
             return FastStream.of(main, hotBar);
         }
     }
 
     public record PlayerWithArmor(GuiElement<?> container, GuiSlots main, GuiSlots hotBar, GuiSlots armor) {
+
         public FastStream<GuiSlots> stream() {
             return FastStream.of(main, hotBar, armor);
         }
     }
 
     public record PlayerAll(GuiElement<?> container, GuiSlots main, GuiSlots hotBar, GuiSlots armor, GuiSlots offHand) {
+
         public FastStream<GuiSlots> stream() {
             return FastStream.of(main, hotBar, armor, offHand);
         }

@@ -1,6 +1,7 @@
 package codechicken.lib.inventory;
 
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -97,13 +98,18 @@ public class MappedInventoryAccess implements Container {
     }
 
     @Override
-    public void startOpen(Player player) {
-        inv.startOpen(player);
+    public void startOpen(ContainerUser user) {
+        inv.startOpen(user);
     }
 
     @Override
-    public void stopOpen(Player player) {
-        inv.stopOpen(player);
+    public void stopOpen(ContainerUser user) {
+        inv.stopOpen(user);
+    }
+
+    @Override
+    public List<ContainerUser> getEntitiesWithContainerOpen() {
+        return inv.getEntitiesWithContainerOpen();
     }
 
     @Override

@@ -1,16 +1,11 @@
 package codechicken.lib.inventory;
 
 import codechicken.lib.util.ItemUtils;
-import com.google.common.base.Objects;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NumericTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.items.IItemHandler;
 
 public class InventoryUtils {
@@ -78,41 +73,36 @@ public class InventoryUtils {
     /**
      * NBT item saving function
      */
-    public static ListTag writeItemStacksToTag(HolderLookup.Provider registries, ItemStack[] items) {
-        return writeItemStacksToTag(registries, items, 64);
+    public static void writeItemStacksToOutput(ValueOutput output, ItemStack[] items) {
+        writeItemStacksToOutput(output, items, 64);
     }
 
     /**
      * NBT item saving function with support for stack sizes > 32K
      */
-    public static ListTag writeItemStacksToTag(HolderLookup.Provider registries, ItemStack[] items, int maxQuantity) {
-        ListTag tagList = new ListTag();
+    public static void writeItemStacksToOutput(ValueOutput output, ItemStack[] items, int maxQuantity) {
+        var children = output.childrenList("Items");
         for (int i = 0; i < items.length; i++) {
-            CompoundTag tag = new CompoundTag();
-            tag.putShort("Slot", (short) i);
-            tag.put("Item", items[i].saveOptional(registries));
-            if (maxQuantity > Short.MAX_VALUE) {
-                tag.putInt("Quantity", items[i].getCount());
-            } else if (maxQuantity > Byte.MAX_VALUE) {
-                tag.putShort("Quantity", (short) items[i].getCount());
-            }
+            var stack = items[i];
+            if (stack.isEmpty()) continue;
 
-            tagList.add(tag);
+            var child = children.addChild();
+            child.putInt("Slot", i);
+            child.store("Item", ItemStack.SINGLE_ITEM_CODEC, stack);
+            child.putInt("Quantity", Math.min(stack.getCount(), maxQuantity));
         }
-        return tagList;
     }
 
     /**
      * NBT item loading function with support for stack sizes > 32K
      */
-    public static void readItemStacksFromTag(HolderLookup.Provider registries, ItemStack[] items, ListTag tagList) {
-        for (int i = 0; i < tagList.size(); i++) {
-            CompoundTag tag = tagList.getCompound(i);
-            int b = tag.getShort("Slot");
-            items[b] = ItemStack.parseOptional(registries, tag.getCompound("Item"));
-            Tag quantTag = tag.get("Quantity");
-            if (quantTag instanceof NumericTag quant) {
-                items[b].setCount(quant.getAsInt());
+    public static void readItemStacksFromInput(ValueInput input, ItemStack[] items) {
+        var children = input.childrenListOrEmpty("Items");
+        for (ValueInput child : children) {
+            var slot = child.getInt("Slot").orElseThrow();
+            items[slot] = child.read("Item", ItemStack.SINGLE_ITEM_CODEC).orElse(ItemStack.EMPTY);
+            if (!items[slot].isEmpty()) {
+                items[slot].setCount(child.getInt("Quantity").orElseThrow());
             }
         }
     }
@@ -222,10 +212,9 @@ public class InventoryUtils {
      */
     public static void consumeItem(Container inv, int slot) {
         ItemStack stack = inv.getItem(slot);
-        Item item = stack.getItem();
-        if (item.hasCraftingRemainingItem(stack)) {
-            ItemStack container = item.getCraftingRemainingItem(stack);
-            inv.setItem(slot, container);
+        ItemStack remaining = stack.getCraftingRemainder();
+        if (!remaining.isEmpty()) {
+            inv.setItem(slot, remaining);
         } else {
             inv.removeItem(slot, 1);
         }
