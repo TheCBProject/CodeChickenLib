@@ -4,12 +4,17 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.Utf8String;
 import net.minecraft.network.VarInt;
 import net.minecraft.network.VarLong;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Created by covers1624 on 10/31/25.
  */
 public final class CCStreamCodecs {
+
+    public static final StreamCodec<ByteBuf, BlockState> BLOCK_STATE = ByteBufCodecs.idMapper(Block.BLOCK_STATE_REGISTRY);
 
     public static final StreamCodec<ByteBuf, byte[]> BYTE_ARRAY = StreamCodec.of(
             (buf, arr) -> {
