@@ -13,9 +13,6 @@ public class CCRenderPipeline {
 
     private final CCRenderState renderState;
 
-    @Deprecated//Hack removed.
-    public boolean forceFormatAttributes = true;
-
     private final List<VertexAttribute<?>> attribs = new ArrayList<>();
     private final List<IVertexOperation> ops = new ArrayList<>();
     private final List<PipelineNode> nodes = new ArrayList<>();
@@ -57,7 +54,7 @@ public class CCRenderPipeline {
         if (renderState.fmt.contains(VertexFormatElement.COLOR)) {
             addAttribute(renderState.colourAttrib);
         }
-        if (renderState.computeLighting && !renderState.hackyReallyDontComputeLighting) {
+        if (renderState.computeLighting) {
             addAttribute(renderState.lightingAttrib);
         }
 
