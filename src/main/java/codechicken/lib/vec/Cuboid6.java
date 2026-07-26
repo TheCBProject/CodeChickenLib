@@ -13,6 +13,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Vector3fc;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -215,6 +216,10 @@ public class Cuboid6 implements Copyable<Cuboid6> {
 
     public Cuboid6 enclose(Vector3 vec) {
         return enclose(vec.x, vec.y, vec.z, vec.x, vec.y, vec.z);
+    }
+
+    public Cuboid6 enclose(Vector3fc vec) {
+        return enclose(vec.x(), vec.y(), vec.z(), vec.x(), vec.y(), vec.z());
     }
 
     public Cuboid6 enclose(Cuboid6 c) {
