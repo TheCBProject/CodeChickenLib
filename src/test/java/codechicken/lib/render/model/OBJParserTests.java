@@ -7,7 +7,6 @@ import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -46,8 +45,7 @@ public class OBJParserTests {
 
     @Test
     public void testMultiObject() {
-        Map<String, CCModel> modelMap = new OBJParser(Identifier.parse("test:model/test_multi_object.obj"))
-                .provider(TestResourceProvider.INSTANCE)
+        Map<String, CCModel> modelMap = new OBJParser(TestResourceProvider.INSTANCE, Identifier.parse("test:model/test_multi_object.obj"))
                 .ignoreMtl()
                 .quads()
                 .parse();

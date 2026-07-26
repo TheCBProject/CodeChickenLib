@@ -60,7 +60,7 @@ public class ResourceUtils {
                 return reader.lines().toList();
             }
         } catch (IOException ex) {
-            throw new RuntimeException("Failed to load MTL file: " + loc, ex);
+            throw new RuntimeException("Failed to load resource: " + loc, ex);
         }
     }
 }

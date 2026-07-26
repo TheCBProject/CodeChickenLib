@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.QuadCollection;
+import net.minecraft.core.Direction;
 import net.minecraft.util.ARGB;
 
 import java.util.ArrayList;
@@ -109,9 +111,36 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
         }
     }
 
-    public List<BakedQuad> bake() {
+    private List<BakedQuad> finish() {
         endPrevVertex();
         vertex = -1;
-        return new ArrayList<>(quadList);
+        return quadList;
+    }
+
+    public List<BakedQuad> getQuads() {
+        return new ArrayList<>(finish());
+    }
+
+    /**
+     * Add all quads as culled on the specified face.
+     */
+    public void getAsCulled(QuadCollection.Builder builder, Direction face) {
+        finish().forEach(e -> builder.addCulledFace(face, e));
+    }
+
+    /**
+     * Add all quads as culled, based on the orientation of the quad.
+     * <p>
+     * Does not check if the quad lies on its face.
+     */
+    public void getAsCulled(QuadCollection.Builder builder) {
+        finish().forEach(e -> builder.addCulledFace(e.direction(), e));
+    }
+
+    /**
+     * Add all the quads to the builder as unculled.
+     */
+    public void getAsUnculled(QuadCollection.Builder builder) {
+        finish().forEach(builder::addUnculledFace);
     }
 }

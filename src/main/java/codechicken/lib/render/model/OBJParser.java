@@ -19,31 +19,27 @@ import java.util.*;
 public class OBJParser {
 
     private final Identifier location;
-    @Nullable
-    private ResourceProvider provider;
+    private final ResourceProvider provider;
     private VertexFormat.Mode vertexMode = VertexFormat.Mode.TRIANGLES;
     @Nullable
     private Transformation coordSystem;
     private boolean ignoreMtl;
 
     /**
-     * Create a new instance of an OBJParser for a nice builder-like structure.
-     *
      * @param location The {@link Identifier} of the OBJ.
      */
+    // TODO should we deprecate this and stop promoting blindly reading obj models statically?
     public OBJParser(Identifier location) {
-        this.location = location;
+        this(Minecraft.getInstance().getResourceManager(), location);
     }
 
     /**
-     * Set the {@link ResourceProvider} used to locate assets.
-     *
-     * @param provider The {@link ResourceProvider}.
-     * @return The same parser.
+     * @param provider The {@link ResourceProvider} to load from.
+     * @param location The {@link Identifier} of the OBJ.
      */
-    public OBJParser provider(ResourceProvider provider) {
+    public OBJParser(ResourceProvider provider, Identifier location) {
+        this.location = location;
         this.provider = provider;
-        return this;
     }
 
     /**
@@ -106,9 +102,6 @@ public class OBJParser {
      * @return The parsed models.
      */
     public Map<String, CCModel> parse() {
-        if (provider == null) {
-            provider = Minecraft.getInstance().getResourceManager();
-        }
         return parse(provider, location, vertexMode, coordSystem, ignoreMtl);
     }
 
