@@ -1,0 +1,11 @@
+{
+  "ccl.commands.count.fail": "엔티티를 찾을 수 없습니다.",
+  "ccl.commands.count.total": "%s 엔티티를 찾았습니다.",
+  "ccl.commands.gc.after": "후:",
+  "ccl.commands.gc.before": "전:",
+  "ccl.commands.gc.performing": "GC를 수행하고 있습니다.",
+  "ccl.commands.killall.fail": "엔티티를 찾을 수 없습니다.",
+  "ccl.commands.killall.fail.player": "이 명령으로 플레이어를 죽일 수 없습니다.",
+  "ccl.commands.killall.success": "%s 엔티티를 죽였습니다.",
+  "ccl.commands.killall.success.line": "%s을(를) 죽임"
+}
