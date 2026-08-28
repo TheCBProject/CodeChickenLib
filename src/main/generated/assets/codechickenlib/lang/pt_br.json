@@ -1,0 +1,11 @@
+{
+  "ccl.commands.count.fail": "Nenhuma entidade encontrada.",
+  "ccl.commands.count.total": "%s Entidades encontradas.",
+  "ccl.commands.gc.after": "Depois:",
+  "ccl.commands.gc.before": "Antes:",
+  "ccl.commands.gc.performing": "Realizando GC..",
+  "ccl.commands.killall.fail": "Nenhuma entidade encontrada.",
+  "ccl.commands.killall.fail.player": "Você não pode matar jogadores com esse comando.",
+  "ccl.commands.killall.success": "%s Entidades mortas.",
+  "ccl.commands.killall.success.line": "%s Morreu"
+}
