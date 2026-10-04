@@ -61,7 +61,7 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
 
     @Override
     public VertexConsumer setColor(int red, int green, int blue, int alpha) {
-        setColor(ARGB.color(red, green, blue, alpha));
+        setColor(ARGB.color(alpha, red, green, blue));
         return this;
     }
 
