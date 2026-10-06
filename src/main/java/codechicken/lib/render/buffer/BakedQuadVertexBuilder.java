@@ -22,6 +22,9 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
     private final List<BakedQuad> quadList = new ArrayList<>();
     private final VertexFormat.Mode mode;
 
+    private boolean shade = false;
+    private boolean ambientOcclusion = true;
+
     private final Quad current = new Quad();
     private int vertex = -1;
 
@@ -38,7 +41,13 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
 
     public void reset() {
         quadList.clear();
+        shade = false;
+        ambientOcclusion = true;
         vertex = -1;
+    }
+
+    public void setShade(boolean shade) {
+        this.shade = shade;
     }
 
     @Override
@@ -106,6 +115,8 @@ public class BakedQuadVertexBuilder implements VertexConsumer, ISpriteAwareVerte
                 throw new IllegalStateException("Sprite not set.");
             }
             current.calculateOrientation(false);
+            current.shade = shade;
+            current.ambientOcclusion = ambientOcclusion;
             quadList.add(current.bake());
             vertex = 0;
         }
